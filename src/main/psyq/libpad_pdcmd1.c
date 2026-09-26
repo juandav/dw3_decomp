@@ -1,5 +1,10 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdcmd1", PadSetAct);
+void PadSetAct(int port, u_char *table, int len) {
+    PadPort *p = D_8005552C(port);
+
+    p->actTable = table;
+    p->actLen = len;
+}
 
 OBJECT_END();

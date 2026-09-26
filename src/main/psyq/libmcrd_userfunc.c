@@ -1,6 +1,8 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_userfunc", UserFuncInit);
+void UserFuncInit(void) {
+    D_8005C2E8 = -1;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_userfunc", UserFuncOpen);
 

@@ -8,7 +8,16 @@ void *startIntrVSync(void) {
     return func_8002EE7C;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr_vb", func_8002EE10);
+void func_8002EE10(void) {
+    int i;
+
+    D_8005B7C0++;
+    for (i = 0; i < 8; i++) {
+        if (D_8005B7A0[i] != NULL) {
+            D_8005B7A0[i]();
+        }
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr_vb", func_8002EE7C);
 

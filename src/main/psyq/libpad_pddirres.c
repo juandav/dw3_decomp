@@ -17,7 +17,14 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_800214F4);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_800215B0);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_8002182C);
+PadPort *func_8002182C(int port) {
+    PadPort *p = D_8007E4D0;
+
+    if (port & 0xF0) {
+        p = &D_8007E4D0[1];
+    }
+    return p;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_8002184C);
 

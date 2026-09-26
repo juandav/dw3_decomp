@@ -1,5 +1,7 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_func_80034be8", func_80034BE8);
+void func_80034BE8(void) {
+    D_80081D98 = 0;
+}
 
 OBJECT_END();

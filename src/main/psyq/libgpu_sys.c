@@ -25,7 +25,10 @@ int DrawSync(int mode) {
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800254DC);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", ClearImage);
+int ClearImage(RECT *rect, u_char r, u_char g, u_char b) {
+    func_800254DC("ClearImage", rect);
+    return D_80055698->addque(D_80055698->unkC, rect, 8, (b << 16) | (g << 8) | r);
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", ClearImage2);
 
@@ -122,7 +125,17 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800270F8);
 void func_8002710C(void) {
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80027114);
+int func_80027114(u_long *p, int n) {
+    int i = n - 1;
+
+    *D_800557A8 = 0x04000000;
+    if (n != 0) {
+        do {
+            *D_800557A4 = *p++;
+        } while (i-- != 0);
+    }
+    return 0;
+}
 
 void func_80027154(u_long addr) {
     *D_800557A8 = 0x04000002;

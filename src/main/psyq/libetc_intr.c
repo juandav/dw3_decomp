@@ -53,7 +53,15 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002EBAC);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002EC4C);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002ECC4);
+void func_8002ECC4(long *p, int n) {
+    int i = n - 1;
+
+    if (n != 0) {
+        do {
+            *p++ = 0;
+        } while (i-- != 0);
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002ECE8);
 

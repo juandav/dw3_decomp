@@ -1,5 +1,10 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdmain2", PadChkVsync);
+int PadChkVsync(void) {
+    int ret = D_80055588;
+
+    D_80055588 = 0;
+    return ret;
+}
 
 OBJECT_END();

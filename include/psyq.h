@@ -30,11 +30,17 @@ typedef struct GpuDriver {
 
 /* libpad per-port command state */
 typedef struct PadPort {
-    /* 0x00 */ u8 unk0[0x24];
+    /* 0x00 */ u8 unk0[0x14];
+    /* 0x14 */ void (*unk14)();
+    /* 0x18 */ void (*unk18)();
+    /* 0x1C */ u8 unk1C[8];
     /* 0x24 */ u_char param;
-    /* 0x25 */ u8 unk25[7];
+    /* 0x25 */ u8 unk25[3];
+    /* 0x28 */ u_char *actTable;
     /* 0x2C */ u_char *data;
-    /* 0x30 */ u8 unk30[6];
+    /* 0x30 */ u8 unk30[4];
+    /* 0x34 */ u_char actLen;
+    /* 0x35 */ u8 unk35;
     /* 0x36 */ u_char len;
     /* 0x37 */ u_char cmd;
     /* 0x38 */ u_char prevCmd;
@@ -42,6 +48,7 @@ typedef struct PadPort {
     /* 0x46 */ u_char unk46;
     /* 0x47 */ u8 unk47[0xC];
     /* 0x53 */ u_char unk53;
+    /* 0x54 */ u8 unk54[0x9C];
 } PadPort;
 
 /* libetc interrupt handlers, reached through D_8005B780 */
@@ -151,7 +158,7 @@ extern volatile u_char *D_8005A598;
 extern volatile u_char *D_8005A59C;
 extern u_long *D_8005B7C4;
 extern long D_8005B7C0;
-extern u_char D_8005B7A0[];
+extern void (*D_8005B7A0[8])();
 extern u_long *D_8005B7D0;
 extern u_char D_8005B7D4[];
 extern u_long *D_8005BA3C;
@@ -201,5 +208,14 @@ extern long D_80082158;
 extern long D_8008215C;
 extern long D_80082160;
 extern long D_80082164;
+
+extern PadPort *(*D_8005552C)(int port);
+extern long D_80055588;
+extern long D_8005A2C8;
+extern long D_8005A2CC;
+extern long D_8005A2D0;
+extern long D_8005A570;
+extern PadPort D_8007E4D0[2];
+extern short D_80081D98;
 
 #endif /* PSYQ_H */

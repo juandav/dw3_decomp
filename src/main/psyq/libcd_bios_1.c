@@ -33,7 +33,9 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_init);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_datasync);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_set_test_parmnum);
+void CD_set_test_parmnum(int num) {
+    D_8005A570 = num;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", func_8002DBDC);
 

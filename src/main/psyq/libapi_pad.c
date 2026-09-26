@@ -1,6 +1,8 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libapi_pad", SetInitPadFlag);
+void SetInitPadFlag(long flag) {
+    D_8005C2B8 = flag;
+}
 
 long ReadInitPadFlag(void) {
     return D_8005C2B8;

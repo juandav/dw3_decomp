@@ -17,6 +17,7 @@ BRANCHES = re.compile(
     r"bltzal|bgezal|beql|bnel|blezl|bgtzl|bltzl|bgezl)$"
 )
 LOADS = re.compile(r"(lw|lh|lhu|lb|lbu|lwl|lwr)$")
+STORES = re.compile(r"(sw|sh|sb|swl|swr)$")
 # Instructions the assembler expands into several machine instructions
 MACROS = re.compile(r"(la|li|div|divu|rem|remu|mul|ulw|usw|ulh|ulhu)$")
 
@@ -57,8 +58,15 @@ def main():
                 while m >= 0 and not out[m].split("#", 1)[0].strip():
                     m -= 1
                 prev2 = split(out[m]) if m >= 0 else None
+            sym_store = (
+                prev is not None
+                and STORES.match(prev[0]) is not None
+                and len(prev[1]) == 2
+                and not re.search(r"\(\$\w+\)$", prev[1][1])
+            )
             movable = (
                 prev is not None
+                and not sym_store
                 and not BRANCHES.match(prev[0])
                 and not MACROS.match(prev[0])
                 and prev[0] != "nop"
@@ -70,6 +78,14 @@ def main():
                 moved = out.pop(k)
                 out.append(line)
                 out.append(moved)
+                i += 2
+                continue
+            if sym_store:
+                # a store to a symbol: the lui of $at stays, the store moves
+                reg, sym = prev[1]
+                out[k] = f".set\tnoat\nlui\t$at,%hi({sym})"
+                out.append(line)
+                out.append(f"{prev[0]}\t{reg},%lo({sym})($at)\n.set\tat")
                 i += 2
                 continue
             if prev is not None and prev[0] == "la" and prev[1][0] != "$31":

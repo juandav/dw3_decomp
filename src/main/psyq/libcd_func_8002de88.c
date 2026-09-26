@@ -1,5 +1,10 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_func_8002de88", func_8002DE88);
+long func_8002DE88(long value) {
+    long old = D_8005A2CC;
+
+    D_8005A2CC = value;
+    return old;
+}
 
 OBJECT_END();
