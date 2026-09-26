@@ -34,8 +34,8 @@ for l in dis.splitlines():
 for i,(off,name) in enumerate(syms):
     if want and name not in want: continue
     m=re.match(r'func_([0-9A-F]{8})',name)
-    asm=f'{D}/asm/main/nonmatchings/game/{name}.s'
-    if not os.path.exists(asm): print(name,'?'); continue
+    asm=next((a for a in (f'{D}/asm/main/nonmatchings/{u}/{name}.s' for u in ('game','psyq')) if os.path.exists(a)),None)
+    if asm is None: print(name,'?'); continue
     t=open(asm).read()
     size=int(re.search(r'nonmatching \w+, 0x([0-9A-F]+)',t).group(1),16)
     addr=int(re.search(r'glabel '+name+r'\n\s+/\* [0-9A-F]+ ([0-9A-F]{8}) ',t).group(1),16)
