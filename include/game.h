@@ -264,6 +264,13 @@ typedef struct Unk80019DFC {
     /* 0xE4 */ s32 unkE4;
 } Unk80019DFC;
 
+typedef struct Unk80041444 {
+    /* 0x0 */ u8 unk0[8];
+    /* 0x8 */ u8 unk8;
+    /* 0x9 */ u8 unk9;
+    /* 0xA */ u8 unkA[2];
+} Unk80041444;
+
 typedef struct Unk8003EB68 {
     /* 0x00 */ u8 unk0[8];
     /* 0x08 */ u8 unk8;
@@ -396,11 +403,11 @@ typedef struct Unk800484E8 {
     /* 0x0010 */ u8 unk10[0x20];
     /* 0x0030 */ s32 unk30;
     /* 0x0034 */ u8 unk34[0x14];
-    /* 0x0048 */ s32 unk48;
-    /* 0x004C */ s16 unk4C;
-    /* 0x004E */ s16 unk4E;
-    /* 0x0050 */ s16 unk50;
-    /* 0x0052 */ s16 unk52;
+    /* 0x0048 */ s32 playFrames;
+    /* 0x004C */ s16 playHours;
+    /* 0x004E */ s16 playMinutes;
+    /* 0x0050 */ s16 playSeconds;
+    /* 0x0052 */ s16 playTimeMaxed;
     /* 0x0054 */ u8 unk54[0x2F];
     /* 0x0083 */ s8 unk83;
     /* 0x0084 */ u8 unk84[0x51];
@@ -433,7 +440,7 @@ s32 VSyncCallback(void (*func)(void));
 void *func_800144DC(void (*update)(void *), s32 size, s32 arg2);
 void *func_800143B4(void (*update)(void *), s32 size, s32 arg2, s32 arg3);
 s32 func_80013484(void);
-Unk8003EB68 *func_80013534(s32);
+Unk80041444 *func_80013534(s32 id);
 void func_80019360(s32, void *, s32, s32);
 void *CdIntToPos(s32 i, void *p);
 short SsUtKeyOn(short vabId, short prog, short tone, short note, short fine, short voll, short volr);
@@ -442,12 +449,14 @@ void func_80011DF0(Task80011FBC *task, s32 fadeOut, s32 duration);
 void func_80011FBC(void *task);
 void func_800126FC(void *task);
 s32 func_80013A44(s32);
-Slot *func_800139D4(void);
+Slot *func_800139D4(s32 file);
 Slot *func_80013A0C(void);
 Slot *func_80013AB4(void);
 void func_80013C08(s32);
 void func_80013CB4(void);
 void func_80016860(void);
+void func_80016260(u16, u16);
+s32 func_80017DDC(s32);
 void func_80017CE8(void);
 void func_8001816C(void);
 void func_8001D070(void);
@@ -510,7 +519,10 @@ extern Funcs8004D708 D_8004D708;
 extern SoundFuncs D_800553DC;
 extern Funcs800554D8 D_800554D8;
 extern Unk80042728 D_80042728;
+extern Unk80041444 D_80041444[];
+extern u8 D_800427B4[];
 extern s32 D_80044710;
+extern Slot D_80044748[64];
 extern s32 D_80044744;
 extern s32 D_80044B78[];
 extern u16 D_80046DD4[];
