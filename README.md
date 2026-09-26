@@ -121,6 +121,17 @@ the defaults.
   long as the variable is defined in the same C file. The rest of the game
   needs `-G0`.
 
+- `src/main/psyq.c` includes the PsyQ 4.7 headers from
+  [psyq_headers](https://github.com/jype0/psyq_headers). `libgte.h` names some
+  parameters `$2`, hence `-fdollars-in-identifiers`.
+- ASPSX pads the `.text` of every PsyQ object to a multiple of 16 bytes with
+  `nop`s. splat puts that padding at the end of the object's last function, so
+  such a function cannot move to C until `psyq.c` is split into one file per
+  library object.
+- With GCC 2.8 a store to a struct field and a store through a plain pointer
+  are scheduled differently around a following load of a global function
+  pointer, so the choice between them can matter for matching.
+
 ### Where to start
 
 - `src/main/game.c` is a single file for now. splat reports likely file

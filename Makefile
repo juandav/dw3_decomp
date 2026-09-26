@@ -27,13 +27,13 @@ CC1 ?= bin/gcc-$(GCC_VERSION)-psx/cc1
 MASPSX := $(PYTHON) external/maspsx/maspsx.py
 OBJDIFF ?= bin/objdiff-cli-linux-x86_64
 
-INC := -Iinclude
+INC := -Iinclude -Iexternal/psyq_headers/psyq_lib47/include
 
 CPPFLAGS := $(INC) -undef -nostdinc \
 	    -D__GNUC__=2 -D__GNUC_MINOR__=8 -Dmips -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx \
 	    -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C
 CC1FLAGS := -quiet -O2 -G0 -mips1 -mcpu=3000 -mgas -msoft-float \
-	    -fgnu-linker -Wall -Wno-unused
+	    -fgnu-linker -fdollars-in-identifiers -Wall -Wno-unused
 MASPSXFLAGS := --aspsx-version=2.86
 ASFLAGS := -EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 $(INC)
 LDFLAGS := -nostdlib --no-check-sections -Map $(MAP) \

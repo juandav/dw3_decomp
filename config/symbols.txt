@@ -157,6 +157,7 @@ CdControlF = 0x8002DFE4; // type:func
 CdControlB = 0x8002E118; // type:func
 CD_getsector = 0x8002E288; // type:func
 VSync = 0x8002E408; // type:func
+ChangeClearPAD = 0x8002E618; // type:func
 ResetCallback = 0x8002E628; // type:func
 InterruptCallback = 0x8002E658; // type:func
 DMACallback = 0x8002E688; // type:func
