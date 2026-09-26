@@ -143,6 +143,12 @@ the defaults.
 - `src/main/game.c` still holds most of the game. splat reports likely file
   boundaries from the jump tables in `.rodata` (at `0x884`, `0x9A0`, `0x9BC`,
   `0xA90` and `0xAEC`), which are a good first hint to split it further.
+- PsyQ 4.7 mixes compilers from one library object to the next: some
+  objects match GCC 2.8.x `-O2`, others GCC 2.7.2 `-O2` (it restores `$sp`
+  before `jr $ra`, leaves the delay slot empty and stores to globals through
+  `$at`). m2c output for 64 of the remaining PsyQ functions matches as is
+  with 2.7.2. Using them needs `psyq.c` split into one file per library
+  object, each with its own compiler.
 - The PsyQ functions were named from the
   [PsyQ 4.7 signatures](https://github.com/lab313ru/psx_psyq_signatures).
   They can be split into one file per library object in the same way.
