@@ -5,6 +5,16 @@ __SN_ENTRY_POINT = 0x80010EC4; // type:func
 // Game
 main = 0x800144FC; // type:func
 
+// Function tables in .data (calls through them are scheduled like struct accesses)
+D_80047F04 = 0x80047F04; // size:0x10
+D_8004ABD8 = 0x8004ABD8; // size:0x60
+D_8004AD90 = 0x8004AD90; // size:0x28
+D_8004AF58 = 0x8004AF58; // size:0x20
+D_8004D3B0 = 0x8004D3B0; // size:0x8
+D_8004D708 = 0x8004D708; // size:0x40
+D_800553DC = 0x800553DC; // size:0x1C
+D_800554D8 = 0x800554D8; // size:0x8
+
 // PsyQ 4.7, from https://github.com/lab313ru/psx_psyq_signatures
 PadSetAct = 0x80020998; // type:func
 PadSetActAlign = 0x800209D8; // type:func

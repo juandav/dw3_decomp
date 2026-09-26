@@ -128,9 +128,11 @@ the defaults.
   `nop`s. splat puts that padding at the end of the object's last function, so
   such a function cannot move to C until `psyq.c` is split into one file per
   library object.
-- With GCC 2.8 a store to a struct field and a store through a plain pointer
-  are scheduled differently around a following load of a global function
-  pointer, so the choice between them can matter for matching.
+- Most global function pointers live in tables (`D_8004AD90` holds `free`,
+  `malloc` and `bzero`, for example) and must be called through a struct.
+  GCC 2.8 assumes a struct field and a scalar global never alias, so with a
+  scalar `extern` it moves stores to struct fields past the load of the
+  function pointer.
 
 ### Where to start
 

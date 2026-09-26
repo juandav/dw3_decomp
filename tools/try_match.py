@@ -14,7 +14,7 @@ exe=open(f'{D}/disks/us/SLUS_014.36','rb').read()[0x800:]
 src=sys.argv[1]; want=set(sys.argv[2:])
 w=os.path.join(tempfile.mkdtemp(prefix='try_match_'),'draft')
 cc1=os.environ.get('CC1',f'{D}/bin/gcc-2.8.1-psx/cc1')
-cflags=os.environ.get('CFLAGS','-O2 -G0 -fdollars-in-identifiers')
+cflags=os.environ.get('CFLAGS','-O2 -G0 -fno-builtin -fdollars-in-identifiers')
 mflags=os.environ.get('MASPSXFLAGS','--aspsx-version=2.86')
 cmd=f"mipsel-linux-gnu-cpp -P -undef -I{D}/include -I{D}/external/psyq_headers/psyq_lib47/include -DSKIP_ASM {src} > {w}.i && {cc1} -quiet {cflags} -mips1 -mcpu=3000 -mgas -msoft-float -fgnu-linker -Wall -Wno-unused -o {w}.s {w}.i && python3 {D}/external/maspsx/maspsx.py {mflags} < {w}.s > {w}.ms.s && mipsel-linux-gnu-as -EL -march=r3000 -no-pad-sections -O1 -G0 -o {w}.o {w}.ms.s"
 r=subprocess.run(cmd,shell=True,capture_output=True,text=True)
