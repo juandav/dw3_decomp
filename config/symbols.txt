@@ -5,6 +5,19 @@ __SN_ENTRY_POINT = 0x80010EC4; // type:func
 // Game
 main = 0x800144FC; // type:func
 
+// Function tables in .data (calls through them are scheduled like struct accesses)
+D_80047F04 = 0x80047F04; // size:0x10
+D_8004ABD8 = 0x8004ABD8; // size:0x60
+D_8004AD90 = 0x8004AD90; // size:0x28
+D_8004AF58 = 0x8004AF58; // size:0x20
+D_8004D3B0 = 0x8004D3B0; // size:0x8
+D_8004D708 = 0x8004D708; // size:0x40
+
+// Graphics state (D_8004D5EC is the current buffer, D_8004D5F0 the two DISPENVs)
+D_8004D5B8 = 0x8004D5B8; // size:0x60
+D_800553DC = 0x800553DC; // size:0x1C
+D_800554D8 = 0x800554D8; // size:0x8
+
 // PsyQ 4.7, from https://github.com/lab313ru/psx_psyq_signatures
 PadSetAct = 0x80020998; // type:func
 PadSetActAlign = 0x800209D8; // type:func
@@ -157,6 +170,7 @@ CdControlF = 0x8002DFE4; // type:func
 CdControlB = 0x8002E118; // type:func
 CD_getsector = 0x8002E288; // type:func
 VSync = 0x8002E408; // type:func
+ChangeClearPAD = 0x8002E618; // type:func
 ResetCallback = 0x8002E628; // type:func
 InterruptCallback = 0x8002E658; // type:func
 DMACallback = 0x8002E688; // type:func
