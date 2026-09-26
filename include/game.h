@@ -95,6 +95,8 @@ typedef struct GfxState {
     /* 0x30 */ s32 unk30;
     /* 0x34 */ s32 buffer;
     /* 0x38 */ DISPENV disp[2];
+    /* 0x60 */ Resource *resources[30];
+    /* 0xD8 */ s32 resourceIds[30];
 } GfxState;
 
 typedef struct Fade {
@@ -293,6 +295,9 @@ typedef struct DrawContext {
     /* 0x00 */ u8 unk0[0x5C];
     /* 0x5C */ u_long *ot[2];
     /* 0x64 */ s32 otLen;
+    /* 0x68 */ s32 otShift;
+    /* 0x6C */ u8 unk6C[0x64];
+    /* 0xD0 */ MATRIX matrices[2];
 } DrawContext;
 
 typedef struct SoundEntry {
@@ -307,7 +312,7 @@ typedef struct Unk80051194 {
 } Unk80051194;
 
 typedef struct Obj8001E7DC {
-    /* 0x00 */ u8 unk0[4];
+    /* 0x00 */ u8 *unk0;
     /* 0x04 */ s32 unk4;
     /* 0x08 */ s32 unk8;
     /* 0x0C */ s32 unkC;
@@ -332,17 +337,18 @@ typedef struct Obj8001F22C {
     /* 0x1C */ s32 unk1C;
     /* 0x20 */ s32 unk20;
     /* 0x24 */ s32 unk24;
-    /* 0x28 */ u8 r;
-    /* 0x29 */ u8 g;
-    /* 0x2A */ u8 b;
-    /* 0x2B */ u8 unk2B;
+    /* 0x28 */ CVECTOR color;
     /* 0x2C */ s32 scaleDirty;
     /* 0x30 */ s32 unk30;
     /* 0x34 */ s32 unk34;
     /* 0x38 */ s32 scaleX;
     /* 0x3C */ s32 scaleY;
     /* 0x40 */ s32 scaleZ;
-    /* 0x44 */ u8 unk44[0x2C];
+    /* 0x44 */ u8 unk44[4];
+    /* 0x48 */ s16 unk48;
+    /* 0x4A */ s16 unk4A;
+    /* 0x4C */ s16 unk4C;
+    /* 0x4E */ u8 unk4E[0x22];
     /* 0x70 */ void (*methods[12])();
 } Obj8001F22C;
 
@@ -502,7 +508,7 @@ void func_8001E598();
 void func_8001E5AC();
 void func_8001E5B8();
 void func_8001E5C4();
-void func_8001E7B0();
+s32 func_8001E7B0(void);
 void func_8001E894(Obj8001F22C *obj);
 void func_8001E8A0();
 void func_8001E8BC();
@@ -510,12 +516,12 @@ void func_8001E8D0();
 void func_8001E8DC(Resource *res, s32 arg1);
 void func_8001E950();
 void func_8001F1B4();
-void func_8001F1D0();
+void func_8001F1D0(s16 x, s16 y, s16 z);
 void func_8001F1EC();
 void func_8001F200();
-void func_8001F20C();
+void func_8001F20C(CVECTOR *color);
 void func_8001F31C(Obj8001F8F8 *obj);
-void func_8001F328();
+s32 func_8001F328(s32 *table, s32 index);
 void func_8001F354();
 void func_8001F658();
 void func_8001F954(Obj8001FBE0 *obj);
@@ -574,5 +580,7 @@ extern s32 D_8004D3AC;
 extern u8 *D_8004D5A8;
 extern GfxState D_8004D5B8;
 extern Unk80051194 D_80051194;
+extern s32 D_8004D774[];
+extern MATRIX D_80080A90;
 
 #endif /* GAME_H */

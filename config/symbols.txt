@@ -22,7 +22,7 @@ D_8004D3B0 = 0x8004D3B0; // size:0x8
 D_8004D708 = 0x8004D708; // size:0x40
 
 // Graphics state (D_8004D5EC is the current buffer, D_8004D5F0 the two DISPENVs)
-D_8004D5B8 = 0x8004D5B8; // size:0x60
+D_8004D5B8 = 0x8004D5B8; // size:0x150
 D_800553DC = 0x800553DC; // size:0x1C
 D_800554D8 = 0x800554D8; // size:0x8
 
