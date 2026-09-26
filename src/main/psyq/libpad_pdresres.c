@@ -14,7 +14,10 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padSioRW2);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padClrIntSio0);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padWaitRXready);
+void _padWaitRXready(void) {
+    while (!(D_80055590->stat & 2)) {
+    }
+}
 
 void _padSetCmd(PadPort *port, u_char cmd, u_char *data, u_char len) {
     port->cmd = cmd;
@@ -22,7 +25,19 @@ void _padSetCmd(PadPort *port, u_char cmd, u_char *data, u_char len) {
     port->len = len;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padSendAtLoadInfo);
+void _padSendAtLoadInfo(PadPort *port) {
+    switch (port->unk46) {
+    case 2:
+        func_8002425C(port);
+        return;
+    case 3:
+        func_80024270(port, port->unkE4);
+        return;
+    case 4:
+        func_800242B0(port, port->unk47[0]);
+        return;
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padRecvAtLoadInfo);
 

@@ -48,8 +48,22 @@ typedef struct PadPort {
     /* 0x46 */ u_char unk46;
     /* 0x47 */ u8 unk47[0xC];
     /* 0x53 */ u_char unk53;
-    /* 0x54 */ u8 unk54[0x9C];
+    /* 0x54 */ u8 unk54[0x90];
+    /* 0xE4 */ u_char unkE4;
+    /* 0xE5 */ u8 unkE5[0xB];
 } PadPort;
+
+/* libmcrd global state, returned by McrdGetGlobalStructure */
+typedef struct McrdGlobal {
+    /* 0x00 */ u8 unk0[0x44];
+    /* 0x44 */ MemCB callback;
+} McrdGlobal;
+
+/* serial port registers */
+typedef struct SioRegs {
+    /* 0x0 */ u_long data;
+    /* 0x4 */ u_short stat;
+} SioRegs;
 
 /* libetc interrupt handlers, reached through D_8005B780 */
 typedef struct IntrFuncs {
@@ -141,7 +155,7 @@ extern volatile u_short *D_8005BA28;
 extern long D_8005BA5C;
 extern long D_8005C2B8;
 extern long D_8005C2E8;
-extern u8 D_80082068[];
+extern McrdGlobal D_80082068;
 
 void *DMACallback(int dma, void (*func)());
 void *InterruptCallback(int irq, void (*func)());
@@ -264,5 +278,30 @@ void func_800242D0(PadPort *port);
 
 extern DRAWENV D_800556B0;
 extern DISPENV D_8005570C;
+
+void _spu_Fw(u_char *addr, u_long size);
+void func_8002E388(void (*func)());
+void func_8002E3D8(void (*func)());
+long func_8002DE88(long value);
+long func_8002E3B8(long value);
+
+extern volatile SioRegs *D_80055590;
+extern volatile u_char *D_8005A200;
+extern volatile u_char *D_8005A20C;
+extern long D_8005A2E8;
+extern u_long *D_8005B868;
+extern u_long D_8005B870[];
+extern long D_8005BA50;
+extern long D_8005BA60;
+extern long D_80080BE8;
+extern long D_80080BF0;
+extern long D_80080BF4;
+extern long D_80080BF8;
+extern long D_80080C10;
+extern long D_80080C14;
+extern long D_80080C18;
+extern void (*D_80080C38)();
+extern void (*D_80080C3C)();
+extern long D_80080C8C[];
 
 #endif /* PSYQ_H */

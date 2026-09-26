@@ -126,7 +126,9 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026C3C);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026E78);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800270F8);
+void func_800270F8(u_long value) {
+    *D_800557A8 = value;
+}
 
 void func_8002710C(void) {
 }

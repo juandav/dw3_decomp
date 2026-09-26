@@ -9,7 +9,7 @@ void PullCallbackFunc(void) {
 }
 
 void *McrdGetGlobalStructure(void) {
-    return D_80082068;
+    return &D_80082068;
 }
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardStart);
@@ -48,7 +48,12 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003CAE8);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardGetDirentry);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardCallback);
+MemCB MemCardCallback(MemCB func) {
+    MemCB old = D_80082068.callback;
+
+    D_80082068.callback = func;
+    return old;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardSync);
 

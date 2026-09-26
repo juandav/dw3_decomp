@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Reproduce two habits of the ASPSX that assembled the GCC 2.7.2 PsyQ objects.
+"""Reproduce some habits of the ASPSX that assembled the GCC 2.7.2 PsyQ objects.
 
 A load from `symbol($reg)` needs a temporary for the upper half of the
 address: maspsx uses $at, ASPSX used the destination register (unless that
 is the index register).
 
-GCC 2.7.2 leaves the function return (`j $31`) in reorder mode and maspsx
-follows it with a nop. The ASPSX used for those objects moved the previous
-instruction into the delay slot instead, unless that would put a load of
+GCC 2.7.2 leaves the function return (`j $31`) and some calls in reorder mode
+and maspsx follows them with a nop. The ASPSX used for those objects moved
+the previous instruction into the delay slot instead, unless that would put a load of
 $31 right before the jump.
+
+A load delay nop that maspsx emits after a label belongs before it.
 
 usage: aspsx_reorder.py < maspsx_output.s > output.s
 """
@@ -56,8 +58,42 @@ def loads_without_at(lines):
     return out
 
 
+def delay_slot_hazards(lines):
+    """lw $x,symbol / jump / access through $x  ->  a nop after the load."""
+    code = [i for i, x in enumerate(lines) if split(x)]
+    insert = []
+    for a, b, c in zip(code, code[1:], code[2:]):
+        la, lb, lc = split(lines[a]), split(lines[b]), split(lines[c])
+        if not LOADS.match(la[0]) or not BRANCHES.match(lb[0]) or len(la[1]) != 2:
+            continue
+        if re.search(r"\(\$\w+\)$", la[1][1]):
+            continue
+        reg = la[1][0]
+        # only when the slot uses it as the base of a memory access
+        if (LOADS.match(lc[0]) or STORES.match(lc[0])) and lc[1][-1].endswith(
+            f"({reg})"
+        ):
+            insert.append(a)
+    for a in reversed(insert):
+        lines.insert(a + 1, "nop  # load delay before the delay slot")
+    return lines
+
+
+def nops_before_labels(lines):
+    """maspsx puts a load delay nop after a label; ASPSX kept it before."""
+    out = list(lines)
+    for i in range(1, len(out)):
+        if out[i].startswith("nop") and "DEBUG: Reuse of" in out[i]:
+            j = i - 1
+            if out[j].rstrip().endswith(":") and not out[j].startswith("."):
+                out[i], out[j] = out[j], out[i]
+    return out
+
+
 def main():
-    lines = loads_without_at(sys.stdin.read().split("\n"))
+    lines = delay_slot_hazards(
+        loads_without_at(nops_before_labels(sys.stdin.read().split("\n")))
+    )
     out = []
     i = 0
     while i < len(lines):
@@ -66,8 +102,7 @@ def main():
         nxt = lines[i + 1] if i + 1 < len(lines) else ""
         if (
             ins
-            and ins[0] == "j"
-            and ins[1] == ["$31"]
+            and (ins[0] == "j" and ins[1] == ["$31"] or ins[0] == "jal")
             and nxt.strip().startswith("nop")
             and "branch/jump" in nxt
         ):
@@ -97,6 +132,7 @@ def main():
                 and not (prev[1] and prev[1][0] == "$31")
                 and not LOADS.match(prev[0])
                 and not (prev2 and LOADS.match(prev2[0]) and prev2[1][:1] == ["$31"])
+                and not (prev2 and BRANCHES.match(prev2[0]))
             )
             if movable:
                 moved = out.pop(k)
@@ -104,7 +140,7 @@ def main():
                 out.append(moved)
                 i += 2
                 continue
-            if sym_store:
+            if sym_store and not (prev2 and BRANCHES.match(prev2[0])):
                 # a store to a symbol: the lui of $at stays, the store moves
                 reg, sym = prev[1]
                 out[k] = f".set\tnoat\nlui\t$at,%hi({sym})"
@@ -112,7 +148,12 @@ def main():
                 out.append(f"{prev[0]}\t{reg},%lo({sym})($at)\n.set\tat")
                 i += 2
                 continue
-            if prev is not None and prev[0] == "la" and prev[1][0] != "$31":
+            if (
+                prev is not None
+                and prev[0] == "la"
+                and prev[1][0] != "$31"
+                and not (prev2 and BRANCHES.match(prev2[0]))
+            ):
                 # ASPSX expands la and moves its second half into the slot
                 reg, sym = prev[1]
                 out[k] = f"lui\t{reg},%hi({sym})"
