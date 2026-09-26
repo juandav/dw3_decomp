@@ -14,7 +14,16 @@
 
 /* libgpu driver entry points */
 typedef struct GpuDriver {
-    /* 0x00 */ u8 unk0[0x38];
+    /* 0x00 */ void *unk0;
+    /* 0x04 */ void *unk4;
+    /* 0x08 */ int (*addque)(void *func, void *param, int size, long arg);
+    /* 0x0C */ void *unkC;
+    /* 0x10 */ void *unk10;
+    /* 0x14 */ int (*unk14)(u_long *p, int len);
+    /* 0x18 */ void *unk18;
+    /* 0x1C */ void *unk1C;
+    /* 0x20 */ void *unk20;
+    /* 0x24 */ u8 unk24[0x14];
     /* 0x38 */ u_long (*status)(void);
     /* 0x3C */ int (*sync)(int mode);
 } GpuDriver;
@@ -166,5 +175,31 @@ extern long D_80082178;
 extern long D_8008217C;
 extern long D_80082180;
 extern long D_80082184;
+
+int func_800254DC(char *name, RECT *rect);
+void func_8003DE78(long event);
+void func_8003B444(void);
+void func_8003B568(char *bufA, long lenA, char *bufB, long lenB);
+void func_8003B588(char *bufA, long lenA, char *bufB, long lenB);
+void func_8003B6B8(void);
+void func_80028E6C(u_short, u_short, u_short, u_short, u_short);
+void func_80028FF0(u_short, u_short);
+void gte_init(void);
+void GsSetDrawBuffClip(void);
+void GsSetDrawBuffOffset(void);
+void _remove_ChgclrPAD(void);
+void _patch_pad(void);
+
+extern char D_80010444[];
+extern char D_8001048C[];
+extern short D_80080A74;
+extern long D_80082148;
+extern long D_8008214C;
+extern long D_80082150;
+extern long D_80082154;
+extern long D_80082158;
+extern long D_8008215C;
+extern long D_80082160;
+extern long D_80082164;
 
 #endif /* PSYQ_H */

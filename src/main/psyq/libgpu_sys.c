@@ -29,9 +29,15 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", ClearImage);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", ClearImage2);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", LoadImage);
+int LoadImage(RECT *rect, u_long *p) {
+    func_800254DC("LoadImage", rect);
+    return D_80055698->addque(D_80055698->unk20, rect, 8, (long)p);
+}
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", StoreImage);
+int StoreImage(RECT *rect, u_long *p) {
+    func_800254DC(D_80010444, rect);
+    return D_80055698->addque(D_80055698->unk1C, rect, 8, (long)p);
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", MoveImage);
 
@@ -43,9 +49,19 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", ClearOTag);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", ClearOTagR);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", DrawPrim);
+void DrawPrim(void *p) {
+    int len = getlen(p);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", DrawOTag);
+    D_80055698->sync(0);
+    D_80055698->unk14((u_long *)p + 1, len);
+}
+
+void DrawOTag(u_long *p) {
+    if (D_800556A2 >= 2) {
+        D_8005569C(D_8001048C, p);
+    }
+    D_80055698->addque(D_80055698->unk18, p, 0, 0);
+}
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_8001048C);
 

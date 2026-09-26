@@ -8,7 +8,9 @@ void PullCallbackFunc(void) {
     MemCardCallback(D_800820C0);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", McrdGetGlobalStructure);
+void *McrdGetGlobalStructure(void) {
+    return D_80082068;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardStart);
 

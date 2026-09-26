@@ -1,5 +1,7 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_vs_vtc", SsVabTransCompleted);
+short SsVabTransCompleted(short flag) {
+    return SpuIsTransferCompleted(flag);
+}
 
 OBJECT_END();

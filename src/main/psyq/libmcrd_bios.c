@@ -52,7 +52,21 @@ void _card_close(void) {
     StopCARD();
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_bios", _card_stop);
+void _card_stop(void) {
+    int ret = func_80024C98();
+
+    func_8003DE78(D_80082148);
+    func_8003DE78(D_8008214C);
+    func_8003DE78(D_80082150);
+    func_8003DE78(D_80082154);
+    func_8003DE78(D_80082158);
+    func_8003DE78(D_8008215C);
+    func_8003DE78(D_80082160);
+    func_8003DE78(D_80082164);
+    if (ret == 1) {
+        func_80024CA8();
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_bios", _clr_card_event);
 
