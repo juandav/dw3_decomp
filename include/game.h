@@ -271,7 +271,8 @@ typedef struct Unk80041444 {
 } Unk80041444;
 
 typedef struct Unk8003EB68 {
-    /* 0x00 */ u8 unk0[8];
+    /* 0x00 */ u16 id;
+    /* 0x02 */ u8 unk2[6];
     /* 0x08 */ u8 unk8;
     /* 0x09 */ u8 unk9[0x4F];
 } Unk8003EB68;
@@ -404,7 +405,8 @@ typedef struct PadInfo {
     /* 0x04A */ u16 unk4A;
     /* 0x04C */ u8 unk4C[2];
     /* 0x04E */ u16 unk4E;
-    /* 0x050 */ u8 unk50[0x170];
+    /* 0x050 */ u8 unk50[0x54];
+    /* 0x0A4 */ u8 unkA4[0x11C];
 } PadInfo;
 
 typedef struct PadState {
@@ -428,7 +430,9 @@ typedef struct Unk800484E8 {
     /* 0x004E */ s16 playMinutes;
     /* 0x0050 */ s16 playSeconds;
     /* 0x0052 */ s16 playTimeMaxed;
-    /* 0x0054 */ u8 unk54[0x2F];
+    /* 0x0054 */ u8 unk54[0x1C];
+    /* 0x0070 */ s32 unk70[3];
+    /* 0x007C */ u8 unk7C[7];
     /* 0x0083 */ s8 unk83;
     /* 0x0084 */ u8 unk84[0x51];
     /* 0x00D5 */ s8 unkD5;
@@ -461,7 +465,7 @@ s32 VSyncCallback(void (*func)(void));
 
 void *func_800144DC(void (*update)(void *), s32 size, s32 arg2);
 void *func_800143B4(void (*update)(void *), s32 size, s32 arg2, s32 arg3);
-s32 func_80013484(void);
+s32 func_80013484(s32 id);
 Unk80041444 *func_80013534(s32 id);
 void func_80019360(s32, void *, s32, s32);
 void *CdIntToPos(s32 i, void *p);
@@ -477,6 +481,7 @@ Slot *func_80013AB4(void);
 void func_80013C08(s32);
 void func_80013CB4(void);
 void func_80016860(void);
+s32 *func_80013E34(u32 id);
 void func_80013758();
 void func_8002DE68(void (*func)());
 int CdControlF(u_char com, u_char *param);
@@ -549,6 +554,8 @@ extern Unk80042728 D_80042728;
 extern Unk80041444 D_80041444[];
 extern u8 D_800427B4[];
 extern CdReader D_80044710;
+extern u8 D_80048468[][2];
+extern s32 D_8004AB24;
 extern Slot D_80044748[64];
 extern s32 D_80044744;
 extern s32 D_80044B78[];

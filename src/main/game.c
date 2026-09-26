@@ -84,10 +84,20 @@ void func_80013434(s32 arg0, s32 arg1) {
     task->unk58 = arg1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80013484);
+s32 func_80013484(s32 id) {
+    Unk8003EB68 *entry;
+    s32 i;
 
-Unk8003EB68 *func_800134C0(void) {
-    s32 index = func_80013484();
+    for (i = 0, entry = D_8003EB68; i < 52; i++, entry++) {
+        if (entry->id == id) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+Unk8003EB68 *func_800134C0(s32 id) {
+    s32 index = func_80013484(id);
 
     if (index >= 0) {
         return &D_8003EB68[index];
@@ -213,9 +223,16 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_80013F38);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80013FCC);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800140B0);
+s32 func_800140B0(u32 id) {
+    s32 index = id & 0xFFFF;
+    s32 *table = func_80013E34(id >> 16);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800140E8);
+    return table[index] + (s32)table;
+}
+
+s32 func_800140E8(u32 index, s32 *table) {
+    return table[index & 0xFFFF] + (s32)table;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80014100);
 
@@ -469,7 +486,12 @@ s32 func_80016850(void) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80016860);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80016A30);
+s32 func_80016A30(u32 index) {
+    if (index >= 3) {
+        return -1;
+    }
+    return D_800484E8.unk70[index];
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80016A5C);
 
@@ -732,7 +754,9 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_8001855C);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_800185C4);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001861C);
+u8 func_8001861C(s32 pad, s32 index) {
+    return D_8004AF78.pads[pad].unkA4[index];
+}
 
 s32 func_80018644(void) {
     return 0;
