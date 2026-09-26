@@ -1,0 +1,25 @@
+#include "psyq.h"
+
+INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", _padInitMtapPort);
+
+INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021DF0);
+
+INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021E64);
+
+INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021F7C);
+
+INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021FC0);
+
+INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_800220D0);
+
+INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_8002234C);
+
+INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_800223BC);
+
+INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_8002262C);
+
+INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", _mtapFailAuto);
+
+INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80022D60);
+
+OBJECT_END();
