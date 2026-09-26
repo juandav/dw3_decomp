@@ -14,7 +14,7 @@ game to build it.
 | Version | USA (`SLUS-01436`) |
 | Disc image | `Digimon World 3 (USA).bin`, SHA-1 `f0b022f9be53cbce14640abd8f01beaadcb35208` |
 | Main executable | `SLUS_014.36`, SHA-1 `444653259f78ddb483fd22af72cce9276f42f214` |
-| Compiler | GCC 2.8.1 (`-O2 -G0`) + ASPSX 2.86, emulated with [maspsx](https://github.com/mkst/maspsx) |
+| Compiler | Game: GCC 2.8.1 (`-O2 -G0`); PsyQ: GCC 2.7.2 (`-O2`); ASPSX emulated with [maspsx](https://github.com/mkst/maspsx) |
 | SDK | PsyQ 4.7 |
 
 ## Dependencies
@@ -31,7 +31,7 @@ python3 -m venv .venv
 pip3 install -r requirements.txt
 ```
 
-Download tools (GCC 2.8.1 for PSX, objdiff-cli and mkpsxiso):
+Download tools (GCC 2.8.1 and 2.7.2 for PSX, objdiff-cli and mkpsxiso):
 ```
 tools/dl_deps.sh
 ```
@@ -75,7 +75,8 @@ decompiled once the whole executable still matches.
 | `src/main/gfx.c` | graphics and object code, `0x8001D070`-`0x8001FC68` (built with `-G8`) |
 | `src/main/sound.c` | sound code, `0x8001FC68`-`0x80020998` |
 | `include/game.h` | types and declarations shared by the game files |
-| `src/main/psyq.c` | PsyQ libraries, `0x80020998`-`0x8003E9D8` |
+| `src/main/psyq/` | PsyQ libraries, one file per library object, `0x80020998`-`0x8003E9D8` |
+| `include/psyq.h` | declarations shared by the PsyQ files |
 | `asm/main/crt0.s` | PsyQ startup (`2MBYTE.OBJ`), `0x80010EBC`-`0x80010F80` |
 | `include/` | headers and assembler macros |
 | `tools/` | build helpers |
@@ -124,14 +125,19 @@ the defaults.
   resolve to the definitions in the data asm. The rest of the game uses
   `-G0`. `main` and `func_80013758` also use `$gp` and will need the same
   treatment once their files are split out.
-- `src/main/psyq.c` includes the PsyQ 4.7 headers from
-  [psyq_headers](https://github.com/jype0/psyq_headers). `libgte.h` names some
-  parameters `$2`, hence `-fdollars-in-identifiers`.
-- ASPSX pads the `.text` of every PsyQ object to a multiple of 16 bytes with
-  `nop`s, and splat puts that padding at the end of the object's last
-  function. When that function is written in C, follow it with
-  `OBJECT_END();` (from `include_asm.h`), which aligns to 16 bytes again.
-  This works because every PsyQ object is a multiple of 16 bytes long.
+- The PsyQ libraries were built with GCC 2.7.2, whose ASPSX moved the
+  instruction before each `j $31` into its delay slot unless it was a load or
+  that would leave a load of `$31` right before the jump. maspsx does not do
+  this, so `tools/aspsx_reorder.py` post-processes the PsyQ files.
+- `src/main/psyq/` is cut at the object boundaries found from the signatures
+  and from the padding between objects: ASPSX pads the `.text` of every
+  object to a multiple of 16 bytes with `nop`s. Every file ends with
+  `OBJECT_END()` (from `include_asm.h`), which reproduces that padding when
+  the last function is in C.
+- The PsyQ files include the PsyQ 4.7 headers from
+  [psyq_headers](https://github.com/jype0/psyq_headers). `libgte.h` names
+  some parameters `$2`, hence `-fdollars-in-identifiers`. Both code bases use
+  signed `char` (`-fsigned-char`).
 - Most global function pointers live in tables (`D_8004AD90` holds `free`,
   `malloc` and `bzero`, for example) and must be called through a struct.
   GCC 2.8 assumes a struct field and a scalar global never alias, so with a
@@ -143,15 +149,8 @@ the defaults.
 - `src/main/game.c` still holds most of the game. splat reports likely file
   boundaries from the jump tables in `.rodata` (at `0x884`, `0x9A0`, `0x9BC`,
   `0xA90` and `0xAEC`), which are a good first hint to split it further.
-- PsyQ 4.7 mixes compilers from one library object to the next: some
-  objects match GCC 2.8.x `-O2`, others GCC 2.7.2 `-O2` (it restores `$sp`
-  before `jr $ra`, leaves the delay slot empty and stores to globals through
-  `$at`). m2c output for 64 of the remaining PsyQ functions matches as is
-  with 2.7.2. Using them needs `psyq.c` split into one file per library
-  object, each with its own compiler.
 - The PsyQ functions were named from the
   [PsyQ 4.7 signatures](https://github.com/lab313ru/psx_psyq_signatures).
-  They can be split into one file per library object in the same way.
 - Most of the game lives outside the main executable. The disc's `AAA/DAT`,
   `AAA/PRO` and `AAA/STR` directories are empty in the ISO 9660 listing, so
   the game must find its files by sector. The overlays are not part of the
