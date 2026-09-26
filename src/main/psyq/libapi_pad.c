@@ -10,9 +10,9 @@ long ReadInitPadFlag(void) {
 
 void PAD_init(char *bufA, long lenA, char *bufB, long lenB) {
     _remove_ChgclrPAD();
-    func_80024C98();
+    EnterCriticalSection();
     _patch_pad();
-    func_80024CA8();
+    ExitCriticalSection();
     ChangeClearPAD(0);
     func_8003B444();
     func_8003B588(bufA, lenA, bufB, lenB);
@@ -21,9 +21,9 @@ void PAD_init(char *bufA, long lenA, char *bufB, long lenB) {
 
 long InitPAD(char *bufA, long lenA, char *bufB, long lenB) {
     _remove_ChgclrPAD();
-    func_80024C98();
+    EnterCriticalSection();
     _patch_pad();
-    func_80024CA8();
+    ExitCriticalSection();
     ChangeClearPAD(0);
     func_8003B444();
     func_8003B568(bufA, lenA, bufB, lenB);

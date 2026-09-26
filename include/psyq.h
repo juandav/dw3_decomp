@@ -127,8 +127,6 @@ int CD_getsector(void *madr, int size);
 u_long func_80026748(short x, short y);
 u_long func_800267E0(short x, short y);
 u_long func_80026878(short x, short y);
-int func_80024C98(void);
-void func_80024CA8(void);
 void func_8003B578(void);
 void func_8003B6A8(long val);
 void func_8003B6C8(void);
@@ -170,9 +168,8 @@ void _SsVmKeyOff(int, short, short, int);
 void Snd_SetPlayMode(short, short, char, short);
 void _SpuInit(int);
 u_long _SpuGetAnyVoice(int, int);
-int func_80024CD8(int fd, char *buf, int n);
-void func_80024D08(int, u_char *);
-void func_80024D18(int, int);
+void SysDeqIntRP(int, u_char *);
+void ChangeClearRCnt(int, int);
 void func_8002B018(void);
 void func_8002B6D8(u_long, int);
 void func_8002EE10();
@@ -226,7 +223,6 @@ extern long D_80082180;
 extern long D_80082184;
 
 int func_800254DC(char *name, RECT *rect);
-void func_8003DE78(long event);
 void func_8003B444(void);
 void func_8003B568(char *bufA, long lenA, char *bufB, long lenB);
 void func_8003B588(char *bufA, long lenA, char *bufB, long lenB);
@@ -303,5 +299,24 @@ extern long D_80080C18;
 extern void (*D_80080C38)();
 extern void (*D_80080C3C)();
 extern long D_80080C8C[];
+
+void _clr_card_event(void);
+void _SpuDataCallback(void (*func)());
+long funcEvSpIOE(void);
+long funcEvSpError(void);
+long funcEvSpTimeout(void);
+long funcEvSpNewcard(void);
+long funcEvSpIOEx(void);
+long funcEvSpErrorx(void);
+long funcEvSpTimeoutx(void);
+long funcEvSpNewcardx(void);
+void func_8002DBDC();
+void _spu_FiDMA();
+
+extern long D_8005A2D4;
+extern long D_8005A2D8;
+extern long D_8005B9B0;
+extern long D_8005BA18;
+extern long D_80080C20;
 
 #endif /* PSYQ_H */

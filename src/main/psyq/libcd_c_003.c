@@ -1,7 +1,7 @@
 #include "psyq.h"
 
 void StUnSetRing(void) {
-    func_80024C98();
+    EnterCriticalSection();
     if (D_8005A2E8 == 1) {
         func_8002E3D8(NULL);
         func_8002E3B8(0);
@@ -11,7 +11,7 @@ void StUnSetRing(void) {
     }
     *D_8005A200 = 0;
     *D_8005A20C = 0;
-    func_80024CA8();
+    ExitCriticalSection();
 }
 
 OBJECT_END();

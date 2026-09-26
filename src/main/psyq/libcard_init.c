@@ -5,7 +5,7 @@ void InitCARD(long val) {
 
     ChangeClearPAD(0);
     VSync(0);
-    ret = func_80024C98();
+    ret = EnterCriticalSection();
     if (ReadInitPadFlag() == 0) {
         val = 0;
     }
@@ -15,17 +15,17 @@ void InitCARD(long val) {
     _patch_card2();
     _patch_card_info();
     if (ret == 1) {
-        func_80024CA8();
+        ExitCriticalSection();
     }
 }
 
 long StartCARD(void) {
-    int ret = func_80024C98();
+    int ret = EnterCriticalSection();
 
     func_8003B6B8();
     ChangeClearPAD(0);
     if (ret == 1) {
-        func_80024CA8();
+        ExitCriticalSection();
     }
     return 0;
 }

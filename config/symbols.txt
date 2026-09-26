@@ -6,6 +6,14 @@ __SN_ENTRY_POINT = 0x80010EC4; // type:func
 main = 0x800144FC; // type:func
 
 // Function tables in .data (calls through them are scheduled like struct accesses)
+EnterCriticalSection = 0x80024C98; // type:func
+ExitCriticalSection = 0x80024CA8; // type:func
+write = 0x80024CD8; // type:func
+SysDeqIntRP = 0x80024D08; // type:func
+ChangeClearRCnt = 0x80024D18; // type:func
+OpenEvent = 0x80038158; // type:func
+EnableEvent = 0x80038168; // type:func
+CloseEvent = 0x8003DE78; // type:func
 D_80047F04 = 0x80047F04; // size:0x10
 D_8004ABD8 = 0x8004ABD8; // size:0x60
 D_8004AD90 = 0x8004AD90; // size:0x28

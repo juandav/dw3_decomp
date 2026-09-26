@@ -4,7 +4,7 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libc2_putchar", _putchar);
 
 void _putchar_flash(void) {
     if (D_800557F4 > 0) {
-        func_80024CD8(1, D_80080998, D_800557F4);
+        write(1, D_80080998, D_800557F4);
         D_800557F4 = 0;
     }
 }

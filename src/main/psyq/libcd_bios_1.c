@@ -27,7 +27,14 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_flush);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_initvol);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_initintr);
+void CD_initintr(void) {
+    D_8005A2CC = 0;
+    D_8005A2C8 = 0;
+    D_8005A2D8 = 0;
+    D_8005A2D4 = 0;
+    ResetCallback();
+    InterruptCallback(2, func_8002DBDC);
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_init);
 
