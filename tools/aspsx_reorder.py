@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Fill `j $31` delay slots the way ASPSX did for the GCC 2.7.2 PsyQ objects.
+"""Reproduce two habits of the ASPSX that assembled the GCC 2.7.2 PsyQ objects.
+
+A load from `symbol($reg)` needs a temporary for the upper half of the
+address: maspsx uses $at, ASPSX used the destination register (unless that
+is the index register).
 
 GCC 2.7.2 leaves the function return (`j $31`) in reorder mode and maspsx
 follows it with a nop. The ASPSX used for those objects moved the previous
@@ -32,8 +36,28 @@ def split(line):
     return parts[0], ops
 
 
+def loads_without_at(lines):
+    """lui $at / addu $at,$at,$r / lw $d,%lo(x)($at)  ->  use $d instead."""
+    out = list(lines)
+    for i in range(len(out) - 2):
+        a, b, c = (split(x) for x in out[i : i + 3])
+        if not (a and b and c) or a[0] != "lui" or a[1][:1] != ["$at"]:
+            continue
+        if b[0] != "addu" or b[1][:2] != ["$at", "$at"]:
+            continue
+        if not LOADS.match(c[0]) or not c[1][1].endswith("($at)"):
+            continue
+        dest, index = c[1][0], b[1][2]
+        if dest in ("$at", index):
+            continue
+        out[i] = out[i].replace("$at", dest)
+        out[i + 1] = out[i + 1].replace("$at", dest)
+        out[i + 2] = out[i + 2].replace("($at)", f"({dest})")
+    return out
+
+
 def main():
-    lines = sys.stdin.read().split("\n")
+    lines = loads_without_at(sys.stdin.read().split("\n"))
     out = []
     i = 0
     while i < len(lines):

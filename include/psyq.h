@@ -68,6 +68,34 @@ typedef struct SpuReverbRegs {
     /* 0x04 */ u_short param[32];
 } SpuReverbRegs;
 
+/* libsnd per-sequence state, D_80080D38[seq][sep] */
+typedef struct SeqStruct {
+    /* 0x00 */ long unk0;
+    /* 0x04 */ long unk4;
+    /* 0x08 */ u8 unk8[0xC];
+    /* 0x14 */ char unk14;
+    /* 0x15 */ u8 unk15[2];
+    /* 0x17 */ u_char channel;
+    /* 0x18 */ u_char rpn1;
+    /* 0x19 */ u_char rpn2;
+    /* 0x1A */ u8 unk1A[4];
+    /* 0x1E */ u_char unk1E;
+    /* 0x1F */ u8 unk1F;
+    /* 0x20 */ char unk20;
+    /* 0x21 */ char unk21;
+    /* 0x22 */ u8 unk22[4];
+    /* 0x26 */ char vabId;
+    /* 0x27 */ u_char panpot[16];
+    /* 0x37 */ u_char programs[16];
+    /* 0x47 */ u8 unk47[0x19];
+    /* 0x60 */ u_short vol[16];
+    /* 0x80 */ u8 unk80[0x10];
+    /* 0x90 */ long delta;
+    /* 0x94 */ u8 unk94[4];
+    /* 0x98 */ long flags;
+    /* 0x9C */ u8 unk9C[0x14];
+} SeqStruct;
+
 /* libsnd decoded ADSR */
 typedef struct SsADSR {
     /* 0x00 */ short ar;
@@ -135,10 +163,10 @@ void func_8002B018(void);
 void func_8002B6D8(u_long, int);
 void func_8002EE10();
 void func_8002EE7C();
-void func_8002EEA8(void *, int);
+void func_8002EEA8(long *p, int n);
 void func_8002EF24();
 void func_8002F0A4();
-void func_8002F150(void *, int);
+void func_8002F150(long *p, int n);
 void func_8002FFF8(short);
 void func_80032B98(int);
 void func_80037FD8(void);
@@ -217,5 +245,24 @@ extern long D_8005A2D0;
 extern long D_8005A570;
 extern PadPort D_8007E4D0[2];
 extern short D_80081D98;
+
+long _SsReadDeltaValue(short seq, short sep);
+void _SsVmSetProgVol(char vab, u_char prog, u_char vol);
+void _SsVmSetVol(short seq_sep, char vab, u_char prog, u_short vol, u_char pan);
+void _SsSndSetVolData();
+u_long _SpuSetAnyVoice(long on_off, u_long bits, int addr1, int addr2);
+int func_800271F0(int, int, int, int);
+
+extern SeqStruct *D_80080D38[];
+
+void *memcpy(u_char *dst, u_char *src, int n);
+void func_8002425C(PadPort *port);
+void func_80024270(PadPort *port, u_char param);
+void func_80024290(PadPort *port, u_char param);
+void func_800242B0(PadPort *port, u_char param);
+void func_800242D0(PadPort *port);
+
+extern DRAWENV D_800556B0;
+extern DISPENV D_8005570C;
 
 #endif /* PSYQ_H */

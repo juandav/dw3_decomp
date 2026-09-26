@@ -1,5 +1,10 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_cc_91", _SsContExternal);
+void _SsContExternal(short seq, short sep, u_char depth) {
+    SeqStruct *score = &D_80080D38[seq][sep];
+
+    SsUtSetReverbDepth(depth, depth);
+    score->delta = _SsReadDeltaValue(seq, sep);
+}
 
 OBJECT_END();

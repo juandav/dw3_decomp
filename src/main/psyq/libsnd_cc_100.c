@@ -1,5 +1,11 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_cc_100", _SsContRpn1);
+void _SsContRpn1(short seq, short sep, u_char value) {
+    SeqStruct *score = &D_80080D38[seq][sep];
+
+    score->rpn1 = value;
+    score->unk1E++;
+    score->delta = _SsReadDeltaValue(seq, sep);
+}
 
 OBJECT_END();

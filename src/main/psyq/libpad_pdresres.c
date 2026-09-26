@@ -30,7 +30,23 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padGetActSize);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padLoadActInfo);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", func_80023D9C);
+void func_80023D9C(PadPort *port) {
+    switch (port->unk46) {
+    case 2:
+        func_80024270(port, port->unk47[0]);
+        return;
+    case 3:
+        func_80024290(port, port->unk47[0]);
+        return;
+    case 4:
+        if (port->unk47[1] == 0) {
+            func_800242B0(port, port->unk47[0]);
+            return;
+        }
+        func_800242D0(port);
+        return;
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", func_80023E44);
 

@@ -72,11 +72,17 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", PutDrawEnv);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", DrawOTagEnv);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", GetDrawEnv);
+DRAWENV *GetDrawEnv(DRAWENV *env) {
+    memcpy((u_char *)env, (u_char *)&D_800556B0, sizeof(DRAWENV));
+    return env;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", PutDispEnv);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", GetDispEnv);
+DISPENV *GetDispEnv(DISPENV *env) {
+    memcpy((u_char *)env, (u_char *)&D_8005570C, sizeof(DISPENV));
+    return env;
+}
 
 int GetODE(void) {
     return D_80055698->status() >> 31;
@@ -149,7 +155,9 @@ u_long func_8002719C(u_long cmd) {
     return *D_800557A4 & 0xFFFFFF;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800271CC);
+int func_800271CC(int arg0, int arg1, int arg2) {
+    return func_800271F0(arg0, arg1, 0, arg2);
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800271F0);
 
