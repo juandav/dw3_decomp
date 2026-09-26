@@ -47,6 +47,8 @@ void func_80024CA8(void);
 void func_8003B578(void);
 void func_8003B6A8(long val);
 void func_8003B6C8(void);
+long func_8003D698(long chan, long block, u_char *buf);
+void func_8003D6A8(void);
 long ReadInitPadFlag(void);
 void _ExitCard(void);
 void _copy_memcard_patch(void);
@@ -63,8 +65,11 @@ extern u_long *D_800557B0;
 extern u_long *D_800557B4;
 extern u_short D_8005A6FA;
 extern volatile u_short *D_8005B788;
+extern long D_8005B800;
+extern volatile u_short *D_8005BA28;
 extern long D_8005BA5C;
 extern long D_8005C2B8;
+extern long D_8005C2E8;
 extern u8 D_80082068[];
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", PadSetAct);
@@ -256,7 +261,22 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq", func_80024D18);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", bzero);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq", memcpy);
+void *memcpy(u_char *dst, u_char *src, int n) {
+    u_char *ret = NULL;
+    u_char *d;
+
+    if (dst != NULL) {
+        d = dst;
+        while (n > 0) {
+            *dst++ = *src++;
+            n--;
+        }
+        ret = d;
+    }
+    return ret;
+}
+
+OBJECT_END();
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", strcpy);
 
@@ -415,7 +435,13 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq", DrawOTag2);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", _GPU_ResetCallback);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq", func_80027FD0);
+void func_80027FD0(u_char *dst, u_char value, int n) {
+    while (n--) {
+        *dst++ = value;
+    }
+}
+
+OBJECT_END();
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", func_80027FF8);
 
@@ -441,13 +467,36 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq", SetDefDrawEnv);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", SetDefDispEnv);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq", GetTPage);
+u_short GetTPage(int tp, int abr, int x, int y) {
+    return ((tp & 3) << 7) | ((abr & 3) << 5) | ((y & 0x100) >> 4) | ((x & 0x3FF) >> 6) | ((y & 0x200) << 2);
+}
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq", GetClut);
+OBJECT_END();
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq", SetSemiTrans);
+u_short GetClut(int x, int y) {
+    return (y << 6) | ((x >> 4) & 0x3F);
+}
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq", SetSprt);
+OBJECT_END();
+
+void SetSemiTrans(void *p, int abe) {
+    u_char code;
+
+    if (abe) {
+        code = ((P_TAG *)p)->code | 2;
+    } else {
+        code = ((P_TAG *)p)->code & ~2;
+    }
+    ((P_TAG *)p)->code = code;
+}
+
+OBJECT_END();
+
+void SetSprt(SPRT *p) {
+    setSprt(p);
+}
+
+OBJECT_END();
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", SetDrawTPage);
 
@@ -727,7 +776,11 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq", func_8002F150);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", SetVideoMode);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq", GetVideoMode);
+long GetVideoMode(void) {
+    return D_8005B800;
+}
+
+OBJECT_END();
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", SsSeqCalledTbyT);
 
@@ -1097,7 +1150,11 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq", _spu_note2pitch);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", _spu_pitch2note);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq", SpuGetVoiceEnvelope);
+void SpuGetVoiceEnvelope(int vNum, short *envx) {
+    *envx = D_8005BA28[vNum * 8 + 6];
+}
+
+OBJECT_END();
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", SpuSetCommonAttr);
 
@@ -1279,7 +1336,12 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq", func_8003D638);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", func_8003D648);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq", _card_clear);
+long _card_clear(long chan) {
+    func_8003D6A8();
+    return func_8003D698(chan, 0x3F, NULL);
+}
+
+OBJECT_END();
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", func_8003D698);
 
@@ -1291,7 +1353,11 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq", UserFuncOpen);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", UserFuncExecute);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq", UserFuncComplete);
+long UserFuncComplete(void) {
+    return (u_long)D_8005C2E8 >> 31;
+}
+
+OBJECT_END();
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq", funcEvSpIOE);
 

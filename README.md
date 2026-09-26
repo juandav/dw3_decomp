@@ -128,9 +128,10 @@ the defaults.
   [psyq_headers](https://github.com/jype0/psyq_headers). `libgte.h` names some
   parameters `$2`, hence `-fdollars-in-identifiers`.
 - ASPSX pads the `.text` of every PsyQ object to a multiple of 16 bytes with
-  `nop`s. splat puts that padding at the end of the object's last function, so
-  such a function cannot move to C until `psyq.c` is split into one file per
-  library object.
+  `nop`s, and splat puts that padding at the end of the object's last
+  function. When that function is written in C, follow it with
+  `OBJECT_END();` (from `include_asm.h`), which aligns to 16 bytes again.
+  This works because every PsyQ object is a multiple of 16 bytes long.
 - Most global function pointers live in tables (`D_8004AD90` holds `free`,
   `malloc` and `bzero`, for example) and must be called through a struct.
   GCC 2.8 assumes a struct field and a scalar global never alias, so with a
