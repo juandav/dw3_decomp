@@ -71,7 +71,10 @@ decompiled once the whole executable still matches.
 |---|---|
 | `config/main.yaml` | splat config for `SLUS_014.36` |
 | `config/symbols.txt` | known symbols |
-| `src/main/game.c` | game code, `0x80010F80`-`0x80020998` |
+| `src/main/game.c` | game code, `0x80010F80`-`0x8001D070` |
+| `src/main/gfx.c` | graphics and object code, `0x8001D070`-`0x8001FC68` (built with `-G8`) |
+| `src/main/sound.c` | sound code, `0x8001FC68`-`0x80020998` |
+| `include/game.h` | types and declarations shared by the game files |
 | `src/main/psyq.c` | PsyQ libraries, `0x80020998`-`0x8003E9D8` |
 | `asm/main/crt0.s` | PsyQ startup (`2MBYTE.OBJ`), `0x80010EBC`-`0x80010F80` |
 | `include/` | headers and assembler macros |
@@ -115,12 +118,12 @@ the defaults.
   and 2.8.1 give the same results, and so do ASPSX 2.56 to 2.86.
 - Divisions carry no divide-by-zero check, so maspsx runs without
   `--expand-div`.
-- The code between `0x8001D070` and `0x8001FBD4` (plus `main` and
-  `func_80013758`) reads a few variables through `$gp` (`.sdata`/`.sbss` at
-  `0x8005C458`-`0x8005C4C0`). They match with `-G8` in both GCC and maspsx, as
-  long as the variable is defined in the same C file. The rest of the game
-  needs `-G0`.
-
+- `gfx.c` reads its small variables through `$gp`, so it is built with `-G8`
+  in both GCC and maspsx (see `SDATA_LIMIT` in the Makefile). Those variables
+  are declared `static` in `gfx.c`; maspsx emits them as common symbols that
+  resolve to the definitions in the data asm. The rest of the game uses
+  `-G0`. `main` and `func_80013758` also use `$gp` and will need the same
+  treatment once their files are split out.
 - `src/main/psyq.c` includes the PsyQ 4.7 headers from
   [psyq_headers](https://github.com/jype0/psyq_headers). `libgte.h` names some
   parameters `$2`, hence `-fdollars-in-identifiers`.
@@ -136,10 +139,9 @@ the defaults.
 
 ### Where to start
 
-- `src/main/game.c` is a single file for now. splat reports likely file
+- `src/main/game.c` still holds most of the game. splat reports likely file
   boundaries from the jump tables in `.rodata` (at `0x884`, `0x9A0`, `0x9BC`,
-  `0xA90` and `0xAEC`), which are a good first hint to split it into the
-  original source files.
+  `0xA90` and `0xAEC`), which are a good first hint to split it further.
 - The PsyQ functions were named from the
   [PsyQ 4.7 signatures](https://github.com/lab313ru/psx_psyq_signatures).
   They can be split into one file per library object in the same way.

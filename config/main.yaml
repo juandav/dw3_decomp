@@ -54,9 +54,14 @@ segments:
     subsegments:
       # psylink places .rdata ahead of .text
       - [0x800, .rodata, game]
+      - [0xABC, .rodata, gfx]
+      - [0xAEC, .rodata, sound]
       - [0xB0C, .rodata, psyq]
       - [0x16BC, asm, crt0]
       - [0x1780, c, game]
+      # Compiled with -G8: its small variables are addressed through $gp
+      - [0xD870, c, gfx]
+      - [0x10468, c, sound]
       - [0x11198, c, psyq]
       - [0x2F1D8, data, game]
       # libgte sine/cosine tables, referenced by rsin/rcos
