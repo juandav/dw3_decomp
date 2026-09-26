@@ -234,8 +234,7 @@ typedef struct Unk80019DFC {
     /* 0x50 */ u8 *unk50;
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
-    /* 0x5C */ TextBuffer text;
-    /* 0x68 */ u8 unk68[0x3C];
+    /* 0x5C */ TextBuffer text[6];
     /* 0xA4 */ u16 unkA4;
     /* 0xA6 */ s16 unkA6;
     /* 0xA8 */ s16 unkA8;
@@ -277,8 +276,15 @@ typedef struct Unk8003EB68 {
     /* 0x09 */ u8 unk9[0x4F];
 } Unk8003EB68;
 
+typedef struct Unk80048C50Entry {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ u8 unk2[0x12];
+} Unk80048C50Entry;
+
 typedef struct Unk80048C50 {
-    /* 0x000 */ u8 unk0[0x3DC];
+    /* 0x000 */ u8 unk0[0x50];
+    /* 0x050 */ Unk80048C50Entry unk50[44];
+    /* 0x3C0 */ u8 unk3C0[0x1C];
 } Unk80048C50;
 
 /* Double-buffered ordering tables */
@@ -366,6 +372,20 @@ typedef struct Unk80042728 {
     /* 0x58 */ s16 unk58[8];
 } Unk80042728;
 
+/* CD read state */
+typedef struct CdReader {
+    /* 0x00 */ s32 state;
+    /* 0x04 */ u8 unk4[8];
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ u8 unk14[4];
+    /* 0x18 */ u8 loc[4];
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ s32 unk20;
+    /* 0x24 */ s32 unk24;
+    /* 0x28 */ s32 unk28;
+} CdReader;
+
 typedef struct MemBlock {
     /* 0x0 */ struct MemBlock *prev;
     /* 0x4 */ struct MemBlock *next;
@@ -422,7 +442,9 @@ typedef struct Unk800484E8 {
     /* 0x02B6 */ s8 unk2B6;
     /* 0x02B7 */ u8 unk2B7[0xEB];
     /* 0x03A2 */ s8 itemCounts[0x13D];
-    /* 0x04DF */ s8 itemFlags[0x21DD];
+    /* 0x04DF */ s8 itemFlags[0x289];
+    /* 0x0768 */ Unk80048C50 unk768[8];
+    /* 0x2648 */ u8 unk2648[0x74];
     /* 0x26BC */ s32 unk26BC;
     /* 0x26C0 */ s32 unk26C0;
     /* 0x26C4 */ s32 unk26C4;
@@ -455,6 +477,10 @@ Slot *func_80013AB4(void);
 void func_80013C08(s32);
 void func_80013CB4(void);
 void func_80016860(void);
+void func_80013758();
+void func_8002DE68(void (*func)());
+int CdControlF(u_char com, u_char *param);
+void func_80019140(Unk80019DFC *obj, char *text);
 void func_80016260(u16, u16);
 s32 func_80017DDC(s32);
 void func_80017CE8(void);
@@ -510,6 +536,7 @@ void func_8008AEB4(s32, s32, s32, s32, s32);
 
 extern Unk8003EB68 D_8003EB68[];
 extern char D_800101D8[];
+extern char D_80010230[];
 extern Funcs80047F04 D_80047F04;
 extern Funcs8004ABD8 D_8004ABD8;
 extern MemFuncs D_8004AD90;
@@ -521,7 +548,7 @@ extern Funcs800554D8 D_800554D8;
 extern Unk80042728 D_80042728;
 extern Unk80041444 D_80041444[];
 extern u8 D_800427B4[];
-extern s32 D_80044710;
+extern CdReader D_80044710;
 extern Slot D_80044748[64];
 extern s32 D_80044744;
 extern s32 D_80044B78[];
