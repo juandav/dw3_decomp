@@ -219,6 +219,14 @@ typedef struct Rect16 {
     u16 h;
 } Rect16;
 
+typedef struct TextBuffer {
+    /* 0x0 */ char *data;
+    /* 0x4 */ s16 cap;
+    /* 0x6 */ s16 len;
+    /* 0x8 */ s16 pos;
+    /* 0xA */ s16 dirty;
+} TextBuffer;
+
 typedef struct Unk80019DFC {
     /* 0x00 */ u8 unk0[0x10];
     /* 0x10 */ s32 unk10;
@@ -226,9 +234,11 @@ typedef struct Unk80019DFC {
     /* 0x50 */ u8 *unk50;
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
-    /* 0x5C */ u8 unk5C[6];
-    /* 0x62 */ s16 unk62;
-    /* 0x64 */ u8 unk64[0x46];
+    /* 0x5C */ TextBuffer text;
+    /* 0x68 */ u8 unk68[0x3C];
+    /* 0xA4 */ u16 unkA4;
+    /* 0xA6 */ s16 unkA6;
+    /* 0xA8 */ s16 unkA8;
     /* 0xAA */ s16 unkAA;
     /* 0xAC */ u8 unkAC[4];
     /* 0xB0 */ s16 unkB0;
@@ -281,14 +291,6 @@ typedef struct Unk80051194 {
     /* 0x0000 */ u8 unk0[0x4200];
     /* 0x4200 */ SoundEntry sounds[1];
 } Unk80051194;
-
-typedef struct TextBuffer {
-    /* 0x0 */ char *data;
-    /* 0x4 */ s16 cap;
-    /* 0x6 */ s16 len;
-    /* 0x8 */ s16 pos;
-    /* 0xA */ s16 dirty;
-} TextBuffer;
 
 typedef struct Obj8001E7DC {
     /* 0x00 */ u8 unk0[4];
@@ -344,6 +346,19 @@ typedef struct Obj8001FBE0 {
     /* 0x1C */ void (*methods[6])();
 } Obj8001FBE0;
 
+typedef struct Unk8004ADB8 {
+    /* 0x000 */ s32 list[100];
+    /* 0x190 */ s32 unk190;
+    /* 0x194 */ s32 unk194;
+    /* 0x198 */ s32 unk198;
+    /* 0x19C */ s32 unk19C;
+} Unk8004ADB8;
+
+typedef struct Unk80042728 {
+    /* 0x00 */ u8 unk0[0x58];
+    /* 0x58 */ s16 unk58[8];
+} Unk80042728;
+
 typedef struct MemBlock {
     /* 0x0 */ struct MemBlock *prev;
     /* 0x4 */ struct MemBlock *next;
@@ -380,7 +395,13 @@ typedef struct Unk800484E8 {
     /* 0x000C */ s32 unkC;
     /* 0x0010 */ u8 unk10[0x20];
     /* 0x0030 */ s32 unk30;
-    /* 0x0034 */ u8 unk34[0x4F];
+    /* 0x0034 */ u8 unk34[0x14];
+    /* 0x0048 */ s32 unk48;
+    /* 0x004C */ s16 unk4C;
+    /* 0x004E */ s16 unk4E;
+    /* 0x0050 */ s16 unk50;
+    /* 0x0052 */ s16 unk52;
+    /* 0x0054 */ u8 unk54[0x2F];
     /* 0x0083 */ s8 unk83;
     /* 0x0084 */ u8 unk84[0x51];
     /* 0x00D5 */ s8 unkD5;
@@ -427,6 +448,7 @@ Slot *func_80013AB4(void);
 void func_80013C08(s32);
 void func_80013CB4(void);
 void func_80016860(void);
+void func_80017CE8(void);
 void func_8001816C(void);
 void func_8001D070(void);
 void func_80019E34(Unk80019DFC *, s32);
@@ -487,6 +509,7 @@ extern RandFuncs D_8004D3B0;
 extern Funcs8004D708 D_8004D708;
 extern SoundFuncs D_800553DC;
 extern Funcs800554D8 D_800554D8;
+extern Unk80042728 D_80042728;
 extern s32 D_80044710;
 extern s32 D_80044744;
 extern s32 D_80044B78[];
@@ -498,7 +521,7 @@ extern s32 D_8004ABA4;
 extern s32 D_8004ABA8;
 extern s32 D_8004ABAC;
 extern s32 D_8004ABB0;
-extern s32 D_8004ADB8[100];
+extern Unk8004ADB8 D_8004ADB8;
 extern PadState D_8004AF78;
 extern u16 D_8004B3AC[0x1000];
 extern s32 D_8004D3AC;
