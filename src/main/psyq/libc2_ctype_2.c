@@ -1,5 +1,10 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libc2_ctype_2", tolower);
+char tolower(char c) {
+    if (D_800555C1[(u_char)c] & 1) {
+        c += 0x20;
+    }
+    return c;
+}
 
 OBJECT_END();

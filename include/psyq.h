@@ -30,7 +30,10 @@ typedef struct GpuDriver {
 
 /* libpad per-port command state */
 typedef struct PadPort {
-    /* 0x00 */ u8 unk0[0x14];
+    /* 0x00 */ long unk0;
+    /* 0x04 */ long unk4;
+    /* 0x08 */ long unk8;
+    /* 0x0C */ u8 unkC[8];
     /* 0x14 */ void (*unk14)();
     /* 0x18 */ void (*unk18)();
     /* 0x1C */ u8 unk1C[8];
@@ -44,13 +47,24 @@ typedef struct PadPort {
     /* 0x36 */ u_char len;
     /* 0x37 */ u_char cmd;
     /* 0x38 */ u_char prevCmd;
-    /* 0x39 */ u8 unk39[0xD];
+    /* 0x39 */ u_char unk39;
+    /* 0x3A */ u8 unk3A[0xC];
     /* 0x46 */ u_char unk46;
-    /* 0x47 */ u8 unk47[0xC];
+    /* 0x47 */ u_char unk47[2];
+    /* 0x49 */ u_char unk49;
+    /* 0x4A */ u8 unk4A[9];
     /* 0x53 */ u_char unk53;
-    /* 0x54 */ u8 unk54[0x90];
+    /* 0x54 */ u8 unk54[9];
+    /* 0x5D */ u_char unk5D[6];
+    /* 0x63 */ u8 unk63[0x80];
+    /* 0xE3 */ u_char unkE3;
     /* 0xE4 */ u_char unkE4;
-    /* 0xE5 */ u8 unkE5[0xB];
+    /* 0xE5 */ u8 unkE5;
+    /* 0xE6 */ short unkE6;
+    /* 0xE8 */ u8 unkE8;
+    /* 0xE9 */ u_char unkE9;
+    /* 0xEA */ u_char unkEA;
+    /* 0xEB */ u8 unkEB[5];
 } PadPort;
 
 /* libmcrd global state, returned by McrdGetGlobalStructure */
@@ -318,5 +332,9 @@ extern long D_8005A2D8;
 extern long D_8005B9B0;
 extern long D_8005BA18;
 extern long D_80080C20;
+
+void func_80034598(void);
+void func_80034BE8(void);
+extern u_char D_800555C1[];
 
 #endif /* PSYQ_H */
