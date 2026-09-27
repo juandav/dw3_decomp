@@ -98,7 +98,22 @@ int DrawSync(int mode) {
     return D_80055698->sync(mode);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800254DC);
+void func_800254DC(char *name, RECT *rect) {
+    switch (D_800556A0.level) {
+    case 1:
+        if (rect->w > D_800556A0.w || rect->w + rect->x > D_800556A0.w ||
+            rect->y > D_800556A0.h || rect->y + rect->h > D_800556A0.h ||
+            rect->w <= 0 || rect->x < 0 || rect->y < 0 || rect->h <= 0) {
+            D_8005569C("%s:bad RECT", name);
+            D_8005569C("(%d,%d)-(%d,%d)\n", rect->x, rect->y, rect->w, rect->h);
+        }
+        break;
+    case 2:
+        D_8005569C("%s:", name);
+        D_8005569C("(%d,%d)-(%d,%d)\n", rect->x, rect->y, rect->w, rect->h);
+        break;
+    }
+}
 
 int ClearImage(RECT *rect, u_char r, u_char g, u_char b) {
     func_800254DC("ClearImage", rect);
