@@ -284,7 +284,15 @@ ScreenTask *func_80085B20(void) {
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80085B60);
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80085C08);
+s32 func_80085C08(void) {
+    if (FILE_CACHE.isLoading(0x762)) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(0x41)) {
+        return 1;
+    }
+    return FILE_CACHE.isLoading(0x87) != 0;
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80085C78);
 
