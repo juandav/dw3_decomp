@@ -55,7 +55,7 @@ segments:
       # psylink places .rdata ahead of .text
       - [0x800, .rodata, game]
       - [0xABC, .rodata, gfx]
-      - [0xAEC, .rodata, sound]
+      - [0xAEC, .rodata, psyq/libpad_pdent4]
       # PsyQ, one file per library object
       - [0xB0C, .rodata, psyq/libgpu_sys]
       - [0xD2C, .rodata, psyq/libc2_prnt]

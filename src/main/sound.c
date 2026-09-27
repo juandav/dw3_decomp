@@ -296,4 +296,3 @@ void func_8002091C(s32 id) {
     }
 }
 
-INCLUDE_RODATA("asm/main/nonmatchings/sound", jtbl_800102EC);
