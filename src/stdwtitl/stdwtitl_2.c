@@ -1,6 +1,11 @@
 #include "stdwtitl.h"
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_getEdgeFadeLevel);
+s32 STDWTITL_getEdgeFadeLevel(s32 time) {
+    if (time >= 30) {
+        return 255;
+    }
+    return rsin(time * 1024 / 30) * 30 / 4096 * 255 / 30;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_drawEdgeFade);
 
