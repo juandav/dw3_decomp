@@ -5,8 +5,8 @@ usage: tools/permuter_import.py draft.c func_name
 
 draft.c must compile on its own (the unit's header plus the draft of the
 function). The unit is taken from where the function's asm lives, which
-picks the toolchain: GCC 2.7.2 + aspsx_reorder.py for PsyQ, GCC 2.8.1 for
-the game (-G8 for gfx). The result goes to permuter/<func_name>/; run it with
+picks the toolchain: GCC 2.7.2 + aspsx_reorder.py for PsyQ (PSYQ28=1 for
+the objects built with GCC 2.8), GCC 2.8.1 for the game (-G8 for gfx). The result goes to permuter/<func_name>/; run it with
 
     python3 external/decomp-permuter/permuter.py permuter/<func_name> -j8
 """
@@ -32,7 +32,12 @@ def main():
     asm = asm[0]
     unit = os.path.relpath(asm, f"{ROOT}/asm/main/nonmatchings").split("/")[0]
 
-    if unit == "psyq":
+    extra, pre = "", ""
+    if unit == "psyq" and os.environ.get("PSYQ28"):
+        # the PsyQ objects built with GCC 2.8 (PSYQ_GCC28 in the Makefile)
+        cc1, g, post = "gcc-2.8.1-psx", 0, f"| python3 {ROOT}/tools/aspsx_reorder.py"
+        extra, pre = " -mno-split-addresses", f"| python3 {ROOT}/tools/unfill_epilogue.py"
+    elif unit == "psyq":
         cc1, g, post = "gcc-2.7.2-psx", 0, f"| python3 {ROOT}/tools/aspsx_reorder.py"
     else:
         cc1, g, post = "gcc-2.8.1-psx", 8 if unit == "gfx" else 0, ""
@@ -62,9 +67,9 @@ def main():
 set -e
 IN="$1"; OUT="$3"; T="$OUT.tmp"
 {ROOT}/bin/{cc1}/cc1 -quiet -O2 -G{g} -mips1 -mcpu=3000 -mgas -msoft-float \\
-    -fsigned-char -fno-builtin -fdollars-in-identifiers -w -o "$T.s" "$IN"
-python3 {ROOT}/external/maspsx/maspsx.py --aspsx-version=2.86 -G{g} \\
-    --use-comm-section --use-comm-for-lcomm < "$T.s" {post} > "$T.ms.s"
+    -fsigned-char -fno-builtin -fdollars-in-identifiers -w{extra} -o "$T.s" "$IN"
+cat "$T.s" {pre} | python3 {ROOT}/external/maspsx/maspsx.py --aspsx-version=2.86 -G{g} \\
+    --use-comm-section --use-comm-for-lcomm {post} > "$T.ms.s"
 mipsel-linux-gnu-as -EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 \\
     -I{ROOT}/include -o "$OUT" "$T.ms.s"
 rm -f "$T.s" "$T.ms.s"
