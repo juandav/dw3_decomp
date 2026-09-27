@@ -8,10 +8,17 @@ typedef struct CardName {
 extern char D_80010C9C[];
 /* "Access Denied. : system busy\n" */
 extern char D_80010E40[];
+extern char D_80010D98[];
+extern char D_80010DE4[];
+extern char D_80010E10[];
 
 long func_8003BAEC(UserFuncArg *arg);
 long func_8003BE70(UserFuncArg *arg);
 long func_8003D0EC(long event);
+long func_8003C8C8(UserFuncArg *arg);
+long func_8003CAE8(UserFuncArg *arg);
+void func_8003D1EC(long chan, char *name);
+char *strcat(char *dst, char *src);
 void func_8003D140(void);
 void UserFuncInit(void);
 void _card_start(void);
@@ -108,7 +115,37 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardReadFile);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003C8C8);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardWriteFile);
+long MemCardWriteFile(long chan, char *file, u_long *adrs, long ofs, long bytes) {
+    volatile long *busy = &D_80082068.unk0;
+
+    if (*busy > 0) {
+        printf(D_80010E40);
+        return 0;
+    }
+    if (D_80082068.fd >= 0) {
+        printf(D_80010D98);
+        return 0;
+    }
+    if (bytes & 0x7F) {
+        printf(D_80010DE4);
+        return 0;
+    }
+    if (ofs & 0x7F) {
+        printf(D_80010E10);
+        return 0;
+    }
+    func_8003D1EC(chan, (char *)D_80082068.unk24);
+    strcat((char *)D_80082068.unk24, file);
+    *busy = 4;
+    D_80082068.unk4 = 0;
+    D_80082068.unk8 = 0;
+    D_80082068.unk18 = ofs;
+    D_80082068.unk20 = (long)adrs;
+    D_80082068.unk1C = bytes;
+    D_80082068.unk10 = chan;
+    UserFuncOpen(func_8003CAE8);
+    return 1;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003CAE8);
 
