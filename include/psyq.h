@@ -505,7 +505,7 @@ extern long D_80080BF0;
 extern long D_80080BF4;
 extern long D_80080BF8;
 extern long D_80080C10;
-extern long D_80080C14;
+extern u_long D_80080C14;
 extern long D_80080C18;
 extern void (*D_80080C38)();
 extern void (*D_80080C3C)();
