@@ -4,6 +4,7 @@ __SN_ENTRY_POINT = 0x80010EC4; // type:func
 
 // Game
 main = 0x800144FC; // type:func
+func_80014818 = 0x80014818; // type:func
 
 // Function tables in .data (calls through them are scheduled like struct accesses)
 EnterCriticalSection = 0x80024C98; // type:func
