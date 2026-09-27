@@ -2815,7 +2815,29 @@ void func_8001B434(void) {
     task->unk78 = func_8001B368;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001B490);
+void func_8001B490(Task8001B6A8 *task) {
+    Obj8001F22C obj;
+    s32 i;
+    s32 x;
+    Unk80044744 *g;
+
+    i = 0;
+    g = &D_80044744;
+    x = 0;
+    for (; i < 2; i++) {
+        func_8001F22C(&obj);
+        obj.methods[3](task->unk50, 0);
+        obj.methods[1](0x140, 0);
+        if (task->unk10 == 0) {
+            obj.methods[7](task->unk68, 0x1000, 0x1000);
+            obj.methods[9](0x140 - x, 0xC4);
+        } else if (task->unk10 == 2) {
+            obj.methods[6](task->unk58);
+        }
+        obj.methods[5](g->unk424(0x02770000), i + 8, 0, 0xA6);
+        x += 0x140;
+    }
+}
 
 void func_8001B5AC(Task8001B6A8 *task) {
     Obj8001F22C obj;
