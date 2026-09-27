@@ -1,5 +1,15 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libc2_strcpy", strcpy);
+char *strcpy(char *dst, char *src) {
+    char *r;
+
+    if (dst == NULL || src == NULL) {
+        return NULL;
+    }
+    r = dst;
+    while ((*dst++ = *src++) != 0) {
+    }
+    return r;
+}
 
 OBJECT_END();
