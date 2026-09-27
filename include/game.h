@@ -999,7 +999,7 @@ void func_8001B1D0(Task8001B3A0 *task);
 void func_80019C2C(Unk80019DFC *obj);
 int func_8002E268(void *buf, int size);
 void func_8002DE88(s32 arg0);
-s32 func_800151F0(s32 port, u32 op);
+s32 func_800151F0(s32 port, s32 op);
 s32 func_80014AAC(s32 port);
 s32 func_80014B8C(s32 port);
 s32 func_8001366C(void);
