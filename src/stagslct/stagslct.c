@@ -97,7 +97,9 @@ void func_800847C8(StageSelect *sel, StageSelectWindows *win) {
 
 INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_800848D0);
 
-INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_80085974);
+Task *func_80085974(void) {
+    return createTask(func_800848D0, 0, 0);
+}
 
 INCLUDE_RODATA("asm/stagslct/nonmatchings/stagslct", D_80082448);
 
