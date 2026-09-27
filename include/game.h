@@ -65,7 +65,11 @@ typedef struct Funcs8004D708 {
     /* 0x00 */ void (*unk0[2])();
     /* 0x08 */ void *(*allocPrim)(void);
     /* 0x0C */ void (*setPrimEnd)(void *end);
-    /* 0x10 */ void (*unk10[7])();
+    /* 0x10 */ void (*unk10[3])();
+    /* 0x1C */ Resource *(*unk1C)(RECT *rect, s32 depth, s32 id);
+    /* 0x20 */ void (*unk20)(s32 id);
+    /* 0x24 */ void (*unk24)(s32 w, s32 h, s32 hires, s32 interlace);
+    /* 0x28 */ void (*unk28)();
     /* 0x2C */ Resource *(*unk2C)(s32);
     /* 0x30 */ void (*unk30)();
     /* 0x34 */ void (*unk34)();
@@ -631,8 +635,12 @@ typedef struct Unk80051194 {
     /* 0x424C */ s32 unk424C;
     /* 0x4250 */ SoundBank bank;
     /* 0x4258 */ u8 unk4258[4];
-    /* 0x425C */ void (*unk425C)(s32 packed);
-    /* 0x4260 */ u8 unk4260[0x1C];
+    /* 0x425C */ s32 (*unk425C)(s32 packed);
+    /* 0x4260 */ u8 unk4260[8];
+    /* 0x4268 */ void (*unk4268)(s32 id);
+    /* 0x426C */ u8 unk426C[8];
+    /* 0x4274 */ s32 (*unk4274)(void);
+    /* 0x4278 */ u8 unk4278[4];
     /* 0x427C */ void (*unk427C)(s32 packed);
 } Unk80051194;
 
@@ -975,7 +983,7 @@ s32 func_80018774(u32 port);
 void PadStopCom(void);
 s32 VSyncCallback(void (*func)(void));
 
-void *func_800144DC(void (*update)(void *), s32 size, s32 arg2);
+void *func_800144DC(void (*update)(), s32 size, s32 arg2);
 void *func_800143B4(void (*update)(void *), s32 size, s32 arg2, s32 arg3);
 s32 func_80013484(s32 id);
 Unk80041444 *func_80013534(s32 id);

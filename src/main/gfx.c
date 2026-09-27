@@ -91,7 +91,7 @@ void func_8001D31C(void) {
     if (D_8005C47C != 0) {
         for (i = 0; i < 30; i++) {
             if (D_8004D5B8.resources[i] != NULL) {
-                D_8004D5B8.funcs.unk10[4](D_8004D5B8.resourceIds[i]);
+                D_8004D5B8.funcs.unk20(D_8004D5B8.resourceIds[i]);
                 i--;
             }
         }

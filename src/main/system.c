@@ -973,7 +973,7 @@ int main(void) {
     GsInit3D();
     SsInit();
     InitGeom();
-    D_8004D5B8.funcs.unk10[5](320, 640, 1, 0);
+    D_8004D5B8.funcs.unk24(320, 640, 1, 0);
     PutDispEnv(&D_8004D5B8.disp[0]);
     VSync(0);
     GsGetTimInfo((u_long *)D_800100C8 + 1, &tim);
