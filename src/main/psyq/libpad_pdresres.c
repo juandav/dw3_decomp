@@ -145,7 +145,21 @@ void _padSetRC2wait(int wait) {
     D_8007F134 = *(volatile u_short *)0x1F801120;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padChkRC2wait);
+int _padChkRC2wait(void) {
+    int now = *(volatile u_short *)0x1F801120;
+
+    if (now < D_8007F134) {
+        if (*(volatile u_short *)0x1F801128 != 0) {
+            now += *(volatile u_short *)0x1F801128;
+        } else {
+            now += 0x10000;
+        }
+    }
+    if (*(volatile u_short *)0x1F801124 & 0x200) {
+        return (now - D_8007F134) >= D_8007F138;
+    }
+    return ((now - D_8007F134) >> 3) >= D_8007F138;
+}
 
 void func_800243A4(PadPort *p) {
     D_80055598 = D_80055530(p);
