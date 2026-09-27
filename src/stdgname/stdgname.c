@@ -30,7 +30,18 @@ Task *func_8008281C(void) {
     return createTask(func_80082724, sizeof(Task), sizeof(void *));
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80082848);
+void func_80082848(FadeTask *task, s32 fadeIn, s32 duration) {
+    task->setState(task, TASK_RUN);
+    task->substate = 1;
+    task->fadeIn = fadeIn;
+    if (fadeIn == 0) {
+        task->level = 0;
+        task->delta = 0xFF00 / duration;
+    } else {
+        task->level = 0xFF00;
+        task->delta = -(0xFF00 / duration);
+    }
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800828D0);
 
