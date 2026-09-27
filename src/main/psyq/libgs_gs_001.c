@@ -43,6 +43,19 @@ void GsInitGraph2(u_short x, u_short y, u_short intmode, u_short dith, u_short v
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgs_gs_001", func_80028FF0);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgs_gs_001", GsSortClear);
+void GsSortClear(u_char r, u_char g, u_char b, GsOT *otp) {
+    D_800809B8[D_80080A74].r0 = r;
+    D_800809B8[D_80080A74].g0 = g;
+    D_800809B8[D_80080A74].b0 = b;
+    D_800809B8[D_80080A74].x0 = D_800809D8[D_80080A74];
+    D_800809B8[D_80080A74].y0 = D_800809DC[D_80080A74];
+    D_800809B8[D_80080A74].h = *(u_short *)&D_80080A7C;
+    if (D_80080A50.isrgb24) {
+        D_800809B8[D_80080A74].w = D_80080A78 * 3 / 2;
+    } else {
+        D_800809B8[D_80080A74].w = *(u_short *)&D_80080A78;
+    }
+    AddPrim(otp->tag, &D_800809B8[D_80080A74]);
+}
 
 OBJECT_END();
