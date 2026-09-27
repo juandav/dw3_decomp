@@ -1,7 +1,9 @@
 /* _spu_tsa is read as a plain variable in this object */
 #define D_8005BA40 D_8005BA40_volatile
+#define _spu_t _spu_t_sdk
 #include "psyq.h"
 #undef D_8005BA40
+#undef _spu_t
 extern u_short D_8005BA40;
 
 extern u_long *D_8005BA38;
@@ -176,7 +178,84 @@ void _spu_Fr_(u_char *addr, u_short tsa, u_long size) {
     *D_8005BA34 = 0x1000200;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_t);
+/* PsyQ's stdarg.h */
+typedef char *va_list;
+#define __va_rounded_size(TYPE) (((sizeof(TYPE) + sizeof(int) - 1) / sizeof(int)) * sizeof(int))
+#define va_start(AP, LASTARG) (AP = ((char *)&(LASTARG) + __va_rounded_size(LASTARG)))
+#define va_arg(AP, TYPE) (AP += __va_rounded_size(TYPE), *((TYPE *)(AP - __va_rounded_size(TYPE))))
+
+extern long D_8005BA7C;
+extern long D_8005BA80;
+void func_80038C00(void);
+
+long _spu_t(long mode, ...) {
+    va_list args;
+    u_int i;
+    u_short ck;
+    u_long count;
+    u_long dma;
+
+    va_start(args, mode);
+    switch (mode) {
+    case 2:
+        count = va_arg(args, u_long);
+        D_8005BA40 = count >> D_8005BA50;
+        D_8005BA28[0xD3] = D_8005BA40;
+        break;
+    case 1:
+        D_8005BA78 = 0;
+        i = 0;
+        while (D_8005BA28[0xD3] != D_8005BA40) {
+            if (++i > 0xF00) {
+                return -2;
+            }
+        }
+        D_8005BA28[0xD5] = (D_8005BA28[0xD5] & ~0x30) | 0x20;
+        break;
+    case 0:
+        D_8005BA78 = 1;
+        i = 0;
+        while (D_8005BA28[0xD3] != D_8005BA40) {
+            if (++i > 0xF00) {
+                return -2;
+            }
+        }
+        D_8005BA28[0xD5] = (D_8005BA28[0xD5] & ~0x30) | 0x30;
+        break;
+    case 3:
+        if (D_8005BA78 == 1) {
+            ck = 0x30;
+        } else {
+            ck = 0x20;
+        }
+        i = 0;
+        while ((D_8005BA28[0xD5] & 0x30) != ck) {
+            if (++i > 0xF00) {
+                return -2;
+            }
+        }
+        if (D_8005BA78 == 1) {
+            func_80038C28();
+        } else {
+            func_80038C00();
+        }
+        count = va_arg(args, u_long);
+        D_8005BA7C = count;
+        count = va_arg(args, u_long);
+        D_8005BA80 = count / 64;
+        D_8005BA80 += (count % 64) ? 1 : 0;
+        *D_8005BA2C = D_8005BA7C;
+        *D_8005BA30 = (D_8005BA80 << 16) | 0x10;
+        if (D_8005BA78 == 1) {
+            dma = 0x1000200;
+        } else {
+            dma = 0x1000201;
+        }
+        *D_8005BA34 = dma;
+        break;
+    }
+    return 0;
+}
 
 u_long _spu_Fw(u_char *addr, u_long size) {
     if (D_8005BA44 == 0) {
