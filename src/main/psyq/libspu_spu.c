@@ -42,7 +42,14 @@ u_long _spu_FgetRXXa(int reg, int mode) {
     return v << D_8005BA50;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_FsetPCR);
+void _spu_FsetPCR(int flag) {
+    *D_8005BA38 &= 0xFFF8FFFF;
+    if (flag) {
+        *D_8005BA38 |= 0x30000;
+    } else {
+        *D_8005BA38 |= 0x50000;
+    }
+}
 
 void func_80038C00(void) {
     *D_8005BA3C = (*D_8005BA3C & 0xF0FFFFFF) | 0x20000000;
