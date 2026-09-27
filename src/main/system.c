@@ -970,3 +970,5 @@ void func_80014818(void) {
 }
 
 INCLUDE_RODATA("asm/main/nonmatchings/system", D_800100C4);
+
+INCLUDE_RODATA("asm/main/nonmatchings/system", D_800100C8);
