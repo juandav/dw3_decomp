@@ -945,7 +945,7 @@ void func_8002DE68(void (*func)());
 int CdControlF(u_char com, u_char *param);
 void func_80019140(Unk80019DFC *obj, char *text);
 void func_80019184(u8 *buf, s32 value);
-void func_80016260(u16, u16);
+void func_80016260(s32 code, s32 value);
 struct Unk80017ECC *func_80017DDC(struct Unk80017ECC *task);
 void *func_80017CE8(void);
 void func_8001816C(void);
