@@ -765,7 +765,15 @@ SlideTask *STDWTITL_startTitle1Task(s32 skip) {
     return task;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawTitle0Alt);
+void STDWTITL_drawTitle0Alt(SlideTask *task) {
+    SpriteDrawer sprite;
+
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(task->layerId, 0);
+    sprite.setAltClut(0, 0x1F0);
+    sprite.setTexture(0x280, 0);
+    sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 0, task->x, task->y);
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickTitle0Alt);
 
