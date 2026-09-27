@@ -1834,7 +1834,120 @@ void func_80016D64(s32 slot, u32 stat, s32 delta) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80016E10);
+typedef struct StatBlock {
+    s16 v[22];
+} StatBlock;
+
+typedef union ItemData {
+    struct {
+        /* 0x0 */ s16 unk0;
+        /* 0x2 */ s16 unk2[2];
+        /* 0x6 */ u16 amounts[2];
+        /* 0xA */ s16 atk;
+        /* 0xC */ u8 stats[2];
+    } weapon;
+    struct {
+        /* 0x0 */ s16 unk0;
+        /* 0x2 */ s16 unk2[2];
+        /* 0x6 */ u16 amounts[2];
+        /* 0xA */ u8 stats[2];
+        /* 0xC */ s16 def;
+    } armor;
+    struct {
+        /* 0x0 */ s16 unk0;
+        /* 0x2 */ s16 unk2[2];
+        /* 0x6 */ u16 amount;
+        /* 0x8 */ u8 stat;
+    } acc;
+} ItemData;
+
+typedef struct Equip4 {
+    s16 v[4];
+} Equip4;
+extern Equip4 D_8004ACE4[];
+extern s16 D_8004AD24[][6];
+
+void func_80017214(s16 *p, s32 stat, s32 delta);
+
+void func_80016E10(s32 slot, s16 *out) {
+    s16 *equip;
+    s32 i;
+    s32 j;
+    ItemInfo *info;
+    ItemData *data;
+    u8 type;
+    u8 stat;
+    s32 amount;
+
+    Unk800484E8 *save = &D_800484E8;
+    Unk80048C50 *d;
+
+    *(StatBlock *)out = *(StatBlock *)&save->records[slot].unk28;
+    d = &D_80048C50[slot];
+    equip = d->equip;
+    for (i = 0; i < 6; i++) {
+        if (equip[i] > 0) {
+            info = D_800427A4(equip[i]);
+            type = info->type;
+            data = (ItemData *)info->data;
+            if ((u8)(type - 2) < 13) {
+                out[6] += data->weapon.atk;
+                if (out[6] >= 1000) {
+                    out[6] = 999;
+                }
+                for (j = 0; j < 2; j++) {
+                    stat = *(j + data->weapon.stats);
+                    amount = data->weapon.amounts[j];
+                    if (stat != 0) {
+                        func_80017214(out, stat, (s16)amount);
+                    }
+                }
+            } else if ((u8)(type - 15) < 6) {
+                out[7] += data->armor.def;
+                if (out[7] >= 1000) {
+                    out[7] = 999;
+                }
+                for (j = 0; j < 2; j++) {
+                    stat = *(j + data->armor.stats);
+                    amount = data->armor.amounts[j];
+                    if (stat != 0) {
+                        func_80017214(out, stat, (s16)amount);
+                    }
+                }
+            } else if ((u8)(type - 21) < 4) {
+                stat = data->acc.stat;
+                amount = data->acc.amount;
+                if (stat != 0) {
+                    func_80017214(out, stat, (s16)amount);
+                }
+            } else {
+                continue;
+            }
+            out[11] += data->weapon.unk0;
+            if (out[11] >= 1000) {
+                out[11] = 999;
+            }
+        }
+    }
+    out[6] -= out[19];
+    if (out[6] < 0) {
+        out[6] = 0;
+    }
+    out[7] -= out[20];
+    if (out[7] < 0) {
+        out[7] = 0;
+    }
+    out[10] -= out[21];
+    if (out[10] < 0) {
+        out[10] = 0;
+    }
+    if (equip[0] == D_8004ACE4[slot].v[0] && equip[1] == D_8004ACE4[slot].v[1] &&
+        equip[2] == D_8004ACE4[slot].v[2] && equip[3] == D_8004ACE4[slot].v[3]) {
+        for (i = 0; i < 6; i++) {
+            out[i + 6] += D_8004AD24[slot][i];
+        }
+    }
+}
 
 void func_80017214(s16 *p, s32 stat, s32 delta) {
     s32 i;
