@@ -1869,7 +1869,20 @@ s32 func_80018CA8(s32 port, s32 on) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80018DC4);
+void func_80018DC4(u16 port) {
+    u32 id = (u8)port;
+    s32 count = PadInfoAct(id, -1, 0);
+    s32 i;
+    s32 act;
+
+    for (i = 0; i < count; i++) {
+        act = PadInfoAct(id, i, 2);
+        if (act != 0) {
+            D_8004AF78.act[id >> 4][i] = act & 1;
+        }
+    }
+    PadSetActAlign(port & 0xFF, D_8004AF78.act[(port & 0xFF) >> 4]);
+}
 
 void func_80018EA0(u16 port) {
     u8 id = port;
