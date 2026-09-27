@@ -50,5 +50,5 @@ segments:
     subsegments:
       - [0x0, .rodata, stgmcard]
       - [0x20, c, stgmcard]
-      - [0x5274, data, stgmcard]
+      - [0x5274, .data, stgmcard]
   - [0x5B3C]
