@@ -18,23 +18,20 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Units whose name starts with one of these prefixes go to that category;
-# everything else is game code.
-CATEGORY_PREFIXES = {
-    "main/psyq": "sdk",
-}
-
+# The executable's game code, the PsyQ SDK linked into it, and one category
+# per overlay (src/<overlay>/, see OVERLAYS in the Makefile).
 CATEGORIES = [
-    {"id": "game", "name": "Game"},
+    {"id": "game", "name": "Game (executable)"},
     {"id": "sdk", "name": "PsyQ SDK"},
 ]
 
 
 def category_for(name: str) -> str:
-    for prefix, category in CATEGORY_PREFIXES.items():
-        if name == prefix or name.startswith(prefix + "/"):
-            return category
-    return "game"
+    if name == "main/psyq" or name.startswith("main/psyq/"):
+        return "sdk"
+    if name.startswith("main/"):
+        return "game"
+    return name.split("/")[0]
 
 
 def link(out: str, parts: list) -> None:
@@ -68,6 +65,10 @@ def main() -> None:
             }
         )
 
+    categories = list(CATEGORIES)
+    for overlay in sorted({category_for(u["name"]) for u in units} - {"game", "sdk"}):
+        categories.append({"id": overlay, "name": f"{overlay.upper()} overlay"})
+
     config = {
         "$schema": "https://raw.githubusercontent.com/encounter/objdiff/main/config.schema.json",
         "custom_make": "make",
@@ -75,7 +76,7 @@ def main() -> None:
         "build_base": True,
         "watch_patterns": ["*.c", "*.h", "*.s", "*.inc"],
         "units": units,
-        "progress_categories": CATEGORIES,
+        "progress_categories": categories,
     }
 
     with open(ROOT / "objdiff.json", "w") as f:

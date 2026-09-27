@@ -84,12 +84,13 @@ LDFLAGS := -nostdlib --no-check-sections -Map $(MAP) \
 	   -T $(GENDIR)/undefined_syms_auto_main.txt \
 	   -T $(GENDIR)/undefined_funcs_auto_main.txt
 
-C_SRC := $(shell find src -name '*.c' 2> /dev/null)
+ALL_C_SRC := $(shell find src -name '*.c' 2> /dev/null)
+C_SRC := $(filter src/main/%,$(ALL_C_SRC))
 
 # Target objects for objdiff: splat's full disassembly of every C unit
-TARGET_ASM := $(C_SRC:src/%.c=$(ASM_DIR)/%.s)
+TARGET_ASM := $(ALL_C_SRC:src/%.c=$(ASM_DIR)/%.s)
 
-ASM_SRC := $(filter-out $(TARGET_ASM),$(shell find $(ASM_DIR) -name '*.s' \
+ASM_SRC := $(filter-out $(TARGET_ASM),$(shell find $(ASM_DIR)/main -name '*.s' \
 	   -not -path '*/nonmatchings/*' -not -path '*/matchings/*' 2> /dev/null))
 
 C_OBJ := $(C_SRC:%.c=$(BUILDDIR)/%.c.o)
@@ -98,20 +99,51 @@ TARGET_OBJ := $(TARGET_ASM:%.s=$(BUILDDIR)/%.s.o)
 BIN_OBJ := $(BUILDDIR)/assets/tail.bin.o
 OBJ := $(C_OBJ) $(ASM_OBJ) $(BIN_OBJ)
 
-all: $(EXE)
+# Overlays: the game's AAA/PRO/*.PRO files, loaded at 0x80082448 after the
+# executable's .bss. Each one has its own splat config (config/<name>.yaml),
+# sources (src/<name>, asm/<name>) and output (build/AAA/PRO/<FILE>.PRO), and
+# is linked against the executable's symbols.
+OVERLAYS := cnty_sel
+OVL_FILE_cnty_sel := CNTY_SEL.PRO
+
+define OVERLAY_template
+$(1)_C_SRC := $$(filter src/$(1)/%,$$(ALL_C_SRC))
+$(1)_ASM_SRC := $$(filter-out $$(TARGET_ASM),$$(shell find $$(ASM_DIR)/$(1) -name '*.s' \
+	-not -path '*/nonmatchings/*' -not -path '*/matchings/*' 2> /dev/null))
+$(1)_OBJ := $$($(1)_C_SRC:%.c=$$(BUILDDIR)/%.c.o) $$($(1)_ASM_SRC:%.s=$$(BUILDDIR)/%.s.o)
+C_OVL_OBJ += $$(filter %.c.o,$$($(1)_OBJ))
+
+$$(GENDIR)/$(1).ld: .EXTRA_PREREQS :=
+$$(GENDIR)/$(1).ld: config/$(1).yaml config/symbols.txt config/symbols_$(1).txt
+	$$(SPLAT) $$< --disassemble-all --make-full-disasm-for-code
+
+$$(BUILDDIR)/$(1).elf: $$($(1)_OBJ) $$(GENDIR)/$(1).ld $$(ELF)
+	$$(LD) -nostdlib --no-check-sections -Map $$(BUILDDIR)/$(1).map \
+		-T $$(GENDIR)/$(1).ld --just-symbols=$$(ELF) \
+		-T $$(GENDIR)/undefined_syms_auto_$(1).txt \
+		-T $$(GENDIR)/undefined_funcs_auto_$(1).txt -o $$@
+
+$$(BUILDDIR)/AAA/PRO/$$(OVL_FILE_$(1)): $$(BUILDDIR)/$(1).elf
+	@mkdir -p $$(dir $$@)
+	$$(OBJCOPY) -O binary $$< $$@
+endef
+$(foreach o,$(OVERLAYS),$(eval $(call OVERLAY_template,$(o))))
+OVL_BIN := $(foreach o,$(OVERLAYS),$(BUILDDIR)/AAA/PRO/$(OVL_FILE_$(o)))
+
+all: $(EXE) $(OVL_BIN)
 
 # Only rerun splat when its own inputs change, never for Makefile edits
 $(GENDIR)/main.ld: .EXTRA_PREREQS :=
 $(GENDIR)/main.ld: config/main.yaml config/symbols.txt
 	$(SPLAT) $< --disassemble-all --make-full-disasm-for-code
 
-generate: $(GENDIR)/main.ld
+generate: $(GENDIR)/main.ld $(OVERLAYS:%=$(GENDIR)/%.ld)
 
 regenerate: reset
 	$(MAKE) generate
 
-compare: $(EXE)
-	@sha1sum -c config/SLUS_014.36.sha1
+compare: $(EXE) $(OVL_BIN)
+	@sha1sum -c config/SLUS_014.36.sha1 config/overlays.sha1
 
 $(EXE): $(ELF)
 	$(OBJCOPY) -O binary $< $@
@@ -150,7 +182,7 @@ $(BUILDDIR)/assets/%.bin.o: assets/%.bin
 	@mkdir -p $(dir $@)
 	$(LD) -r -b binary -o $@ $<
 
-expected: $(TARGET_OBJ) $(C_OBJ)
+expected: $(TARGET_OBJ) $(C_OBJ) $(C_OVL_OBJ)
 	rm -rf $(EXPECTEDDIR)
 	@mkdir -p $(EXPECTEDDIR)
 	cp -r $(BUILDDIR)/$(ASM_DIR) $(EXPECTEDDIR)/$(ASM_DIR)
@@ -167,6 +199,6 @@ clean:
 reset: clean
 	rm -rf $(ASM_DIR) $(EXPECTEDDIR) assets
 
--include $(C_OBJ:.o=.d)
+-include $(C_OBJ:.o=.d) $(C_OVL_OBJ:.o=.d)
 
 .PHONY: all generate regenerate compare expected objdiff report clean reset

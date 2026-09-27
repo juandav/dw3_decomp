@@ -1,0 +1,54 @@
+name: cnty_sel
+sha1: 0e8d6f9dc110daaeacadb2d478d84e3d1a511028
+options:
+  basename: cnty_sel
+  target_path: disks/us/AAA/PRO/CNTY_SEL.PRO
+  base_path: ..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/cnty_sel
+  src_path: src/cnty_sel
+  build_path: build
+
+  ld_script_path: build/generated/cnty_sel.ld
+
+  global_vram_start: 0x80000000
+  global_vram_end: 0x80200000
+
+  find_file_boundaries: True
+  gp_value: 0x8005C2F8
+
+  generate_asm_macros_files: False
+
+  section_order: [".rodata", ".text", ".data", ".bss"]
+
+  symbol_addrs_path:
+    - config/symbols.txt
+    - config/symbols_cnty_sel.txt
+
+  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_cnty_sel.txt
+  undefined_syms_auto_path: build/generated/undefined_syms_auto_cnty_sel.txt
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  ld_bss_is_noload: False
+
+  migrate_rodata_to_functions: True
+  create_data_pads: False
+
+segments:
+  - name: cnty_sel
+    type: code
+    start: 0x0
+    vram: 0x80082448
+    align: 4
+    subalign: 4
+    subsegments:
+      - [0x0, .rodata, cnty_sel]
+      - [0x38, c, cnty_sel]
+      - [0x16E4, data, cnty_sel]
+  - [0x1744]
