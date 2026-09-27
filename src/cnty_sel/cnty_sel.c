@@ -60,7 +60,30 @@ s32 CNTY_SEL_getFadeLevel(s32 time) {
     return time * 255 / 30;
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_drawFade);
+void CNTY_SEL_drawFade(s32 level) {
+    Resource *layer = D_8004D5B8.funcs.unk2C(CNTY_SEL_LAYER);
+    u_long *ot = (u_long *)layer->unk138(layer, 0);
+    POLY_F4 *poly = D_8004D5B8.funcs.allocPrim();
+    DR_TPAGE *mode;
+
+    setlen(poly, 5);
+    poly->r0 = poly->g0 = poly->b0 = level;
+    setcode(poly, 0x2A); /* semi-transparent POLY_F4 */
+    poly->x0 = CNTY_SEL_fadeRect.x;
+    poly->x1 = CNTY_SEL_fadeRect.x + CNTY_SEL_fadeRect.w;
+    poly->x2 = CNTY_SEL_fadeRect.x;
+    poly->x3 = CNTY_SEL_fadeRect.x + CNTY_SEL_fadeRect.w;
+    poly->y0 = CNTY_SEL_fadeRect.y;
+    poly->y1 = CNTY_SEL_fadeRect.y;
+    poly->y2 = CNTY_SEL_fadeRect.y + CNTY_SEL_fadeRect.h;
+    poly->y3 = CNTY_SEL_fadeRect.y + CNTY_SEL_fadeRect.h;
+    mode = (DR_TPAGE *)(poly + 1);
+    addPrim(ot, poly);
+    /* Blending mode 2: subtract the polygon's color from the screen */
+    setDrawTPage(mode, 0, 1, getTPage(0, 2, 320, 0));
+    addPrim(ot, mode);
+    D_8004D5B8.funcs.setPrimEnd(mode + 1);
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_tickBackground);
 
