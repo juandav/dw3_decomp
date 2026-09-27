@@ -25,7 +25,17 @@ s32 func_80020064(void) {
 
 INCLUDE_ASM("asm/main/nonmatchings/sound", func_80020074);
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_8002019C);
+void func_8002019C(s32 id) {
+    if (D_80051194.sounds[1].unk0 != id && D_80051194.sounds[2].unk0 != id) {
+        if (D_80051194.unk424C == 1) {
+            func_80020074(2, id);
+            D_80051194.unk424C = 2;
+        } else {
+            func_80020074(1, id);
+            D_80051194.unk424C = 1;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/sound", func_80020218);
 

@@ -312,7 +312,18 @@ void func_80014100(void) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80014148);
+void func_80014148(void) {
+    Slot *slot = D_80044748;
+    s32 now = D_8004D708.unk38();
+    s32 i;
+
+    for (i = 0; i < 64; i++, slot++) {
+        if (slot->unk4 != 0 && slot->unk2 != 0) {
+            slot->unk8 = now;
+            slot->unk2 = 0;
+        }
+    }
+}
 
 s32 func_800141BC(s32 file) {
     return D_80044B78[file] != 0;
@@ -765,7 +776,15 @@ void func_8001780C(void *ptr) {
 void func_80017878(void) {
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80017880);
+void func_80017880(s32 tag) {
+    MemBlock *block;
+
+    for (block = D_8004AD84.first; block->flags != 1; block = block->next) {
+        if (block->flags == tag) {
+            func_8001780C(block + 1);
+        }
+    }
+}
 
 void func_800178F8(void) {
     MemBlock *start;
@@ -1231,7 +1250,17 @@ s32 func_8001A684(void) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001A68C);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001A7AC);
+s32 func_8001A7AC(Unk80019DFC *obj, TextBuffer *buf) {
+    if (buf->data[buf->pos + 2] < 0xFF) {
+        obj->unkC = 2;
+        obj->unk10 = 0;
+        obj->unk14 = buf->data[buf->pos + 2];
+        buf->data[buf->pos + 2] = 0xFF;
+        obj->unkA8 = 0;
+        return 0x8000;
+    }
+    return 0x8003;
+}
 
 s32 func_8001A820(s32 arg0, TextBuffer *buf) {
     if ((u8)buf->data[buf->pos + 2] < 6) {

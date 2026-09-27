@@ -222,7 +222,7 @@ typedef struct Rect16 {
 } Rect16;
 
 typedef struct TextBuffer {
-    /* 0x0 */ char *data;
+    /* 0x0 */ u8 *data;
     /* 0x4 */ s16 cap;
     /* 0x6 */ s16 len;
     /* 0x8 */ s16 pos;
@@ -230,9 +230,11 @@ typedef struct TextBuffer {
 } TextBuffer;
 
 typedef struct Unk80019DFC {
-    /* 0x00 */ u8 unk0[0x10];
+    /* 0x00 */ u8 unk0[0xC];
+    /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
-    /* 0x14 */ u8 unk14[0x3C];
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ u8 unk18[0x38];
     /* 0x50 */ u8 *unk50;
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
@@ -305,7 +307,11 @@ typedef struct DrawContext {
     /* 0x5C */ u_long *ot[2];
     /* 0x64 */ s32 otLen;
     /* 0x68 */ s32 otShift;
-    /* 0x6C */ u8 unk6C[0x64];
+    /* 0x6C */ u8 unk6C[0x18];
+    /* 0x84 */ s32 unk84;
+    /* 0x88 */ s32 unk88;
+    /* 0x8C */ MATRIX unk8C[2];
+    /* 0xCC */ s32 unkCC;
     /* 0xD0 */ MATRIX matrices[2];
 } DrawContext;
 
@@ -317,7 +323,9 @@ typedef struct SoundEntry {
 
 typedef struct Unk80051194 {
     /* 0x0000 */ u8 unk0[0x4200];
-    /* 0x4200 */ SoundEntry sounds[1];
+    /* 0x4200 */ SoundEntry sounds[3];
+    /* 0x4248 */ s32 unk4248;
+    /* 0x424C */ s32 unk424C;
 } Unk80051194;
 
 typedef struct Obj8001E7DC {
@@ -510,6 +518,7 @@ Slot *func_80013AB4(void);
 void func_80013C08(s32);
 void func_80013CB4(void);
 void func_80016860(void);
+void func_80020074(s32, s32);
 void func_8001BB68(Task *task);
 void func_8001BCCC(Task *task);
 s32 *func_80013E34(u32 id);
@@ -620,5 +629,6 @@ extern Heap D_8004AD84;
 extern MemBlock *D_8005C2F8;
 extern s32 D_8004D774[];
 extern MATRIX D_80080A90;
+extern MATRIX D_80080AF0;
 
 #endif /* GAME_H */

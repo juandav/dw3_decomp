@@ -216,11 +216,22 @@ void func_8001DF70(Sprite *sprite) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001DFE8);
+void func_8001DFE8(DrawContext *ctx, s32 enable, s32 arg2) {
+    ctx->unk84 = enable;
+    if (enable) {
+        ctx->unk88 = arg2;
+        ctx->unk8C[D_8004D5B8.buffer] = D_80080AF0;
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E054);
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E0D8);
+void func_8001E0D8(DrawContext *ctx, s32 enable) {
+    ctx->unkCC = enable;
+    if (enable) {
+        ctx->matrices[D_8004D5B8.buffer] = D_80080A90;
+    }
+}
 
 void func_8001E140(DrawContext *ctx) {
     D_80080A90 = ctx->matrices[D_8004D5B8.buffer];
