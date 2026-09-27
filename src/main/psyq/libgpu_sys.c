@@ -368,7 +368,21 @@ int MoveImage2(RECT *rect, int x, int y) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", DrawOTag2);
+int DrawOTag2(u_long *p) {
+    if (D_800556A0.level >= 2) {
+        D_8005569C(D_8001048C, p);
+    }
+    func_80027978();
+    while ((*(volatile u_long *)D_800557B4 & 0x01000000) ||
+           !(*(volatile u_long *)D_800557A8 & 0x04000000)) {
+        if (func_800279AC() != 0) {
+            return -1;
+        }
+    }
+    DMACallback(2, _GPU_ResetCallback);
+    D_80055698->exeque(p);
+    return 0;
+}
 
 void _GPU_ResetCallback(void) {
     DMACallback(2, func_800274A0);
