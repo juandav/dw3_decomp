@@ -32,7 +32,19 @@ Task *func_80083BA8(void) {
     return createTask(func_80083B08, sizeof(Task), 4);
 }
 
-INCLUDE_ASM("asm/soundtst/nonmatchings/soundtst", func_80083BD4);
+void func_80083BD4(SoundTest *task, s32 delta, s32 *cursor, s32 *top, s32 count) {
+    s32 pos = *cursor + delta;
+
+    if (pos >= 0 && pos < count) {
+        *cursor = pos;
+        if (pos >= *top + 8) {
+            *top = pos - 7;
+        }
+        if (*top > *cursor) {
+            *top = *cursor;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/soundtst/nonmatchings/soundtst", func_80083C40);
 
