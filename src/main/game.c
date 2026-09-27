@@ -424,9 +424,9 @@ void func_8001553C(u8 *bits, s32 index, s32 set) {
 s32 func_80015584(void) {
     s32 ret = 0;
 
-    if ((D_800484E8.unk83 != 0 || D_800484E8.unk216 != 0) &&
-        (D_800484E8.unkD5 != 0 || D_800484E8.unk268 != 0) &&
-        (D_800484E8.unk123 != 0 || D_800484E8.unk2B6 != 0)) {
+    if ((D_800484E8.unk7C[7] != 0 || D_800484E8.unk20F[7] != 0) &&
+        (D_800484E8.unk7C[0x59] != 0 || D_800484E8.unk20F[0x59] != 0) &&
+        (D_800484E8.unk7C[0xA7] != 0 || D_800484E8.unk20F[0xA7] != 0)) {
         ret = 1;
     }
     return ret;
@@ -472,7 +472,18 @@ s32 func_80015BB0(s32 value, s32 mode) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80015BEC);
+s32 func_80015BEC(s32 index, s32 mode) {
+    if (mode != 0) {
+        if (D_800484E8.unk7C[index] != 0 || D_800484E8.unk20F[index] != 0) {
+            return 1;
+        }
+    } else {
+        if (D_800484E8.unk7C[index] == 0 && D_800484E8.unk20F[index] == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 s32 func_80015C58(s32 item, s32 have) {
     if (have != 0) {
@@ -604,7 +615,17 @@ s32 func_80016A30(u32 index) {
     return D_800484E8.unk70[index];
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80016A5C);
+void func_80016A5C(s32 set) {
+    s32 i;
+    u8 slot;
+
+    for (i = 0; i < 3; i++) {
+        slot = D_8004AC38[set][i];
+        D_800484E8.unk70[i] = slot;
+        D_800484E8.records[slot].unk4 = slot + 3;
+    }
+    D_8004AB28 = set;
+}
 
 void func_80016AC8(s32 item, s32 count) {
     D_800484E8.itemFlags[item] = 1;
@@ -642,7 +663,12 @@ void func_80016BC8(void) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80016C74);
+s32 func_80016C74(u32 index) {
+    if (index >= 3) {
+        return -1;
+    }
+    return D_800484E8.records[D_800484E8.unk70[index]].unk4 - 3;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80016CC4);
 
@@ -656,10 +682,10 @@ s32 func_800172E8(s32 slot, s32 id) {
     s32 i;
 
     for (i = 0; i < 44; i++) {
-        if (D_800484E8.unk768[slot].unk50[i].unk0 < 3) {
+        if (D_800484E8.records[slot].entries[i].unk0 < 3) {
             continue;
         }
-        if (D_800484E8.unk768[slot].unk50[i].unk0 == id) {
+        if (D_800484E8.records[slot].entries[i].unk0 == id) {
             return i;
         }
     }

@@ -285,6 +285,14 @@ typedef struct Unk80048C50Entry {
     /* 0x02 */ u8 unk2[0x12];
 } Unk80048C50Entry;
 
+typedef struct Unk8004883C {
+    /* 0x000 */ u8 unk0[4];
+    /* 0x004 */ s32 unk4;
+    /* 0x008 */ u8 unk8[0x54];
+    /* 0x05C */ Unk80048C50Entry entries[44];
+    /* 0x3CC */ u8 unk3CC[0x10];
+} Unk8004883C;
+
 typedef struct Unk80048C50 {
     /* 0x000 */ u8 unk0[0x50];
     /* 0x050 */ Unk80048C50Entry unk50[44];
@@ -402,6 +410,12 @@ typedef struct Unk80044744 {
     /* 0x408 */ void (*outOfMemory)(void);
 } Unk80044744;
 
+typedef struct Unk80017ECC {
+    /* 0x00 */ u8 unk0[0x20];
+    /* 0x20 */ s32 count;
+    /* 0x24 */ s32 *items;
+} Unk80017ECC;
+
 typedef struct MemBlock {
     /* 0x0 */ struct MemBlock *prev;
     /* 0x4 */ struct MemBlock *next;
@@ -456,23 +470,12 @@ typedef struct Unk800484E8 {
     /* 0x0052 */ s16 playTimeMaxed;
     /* 0x0054 */ u8 unk54[0x1C];
     /* 0x0070 */ s32 unk70[3];
-    /* 0x007C */ u8 unk7C[7];
-    /* 0x0083 */ s8 unk83;
-    /* 0x0084 */ u8 unk84[0x51];
-    /* 0x00D5 */ s8 unkD5;
-    /* 0x00D6 */ u8 unkD6[0x4D];
-    /* 0x0123 */ s8 unk123;
-    /* 0x0124 */ u8 unk124[0xF2];
-    /* 0x0216 */ s8 unk216;
-    /* 0x0217 */ u8 unk217[0x51];
-    /* 0x0268 */ s8 unk268;
-    /* 0x0269 */ u8 unk269[0x4D];
-    /* 0x02B6 */ s8 unk2B6;
-    /* 0x02B7 */ u8 unk2B7[0xEB];
+    /* 0x007C */ s8 unk7C[0x193];
+    /* 0x020F */ s8 unk20F[0x193];
     /* 0x03A2 */ s8 itemCounts[0x13D];
-    /* 0x04DF */ s8 itemFlags[0x289];
-    /* 0x0768 */ Unk80048C50 unk768[8];
-    /* 0x2648 */ u8 unk2648[0x74];
+    /* 0x04DF */ s8 itemFlags[0x27D];
+    /* 0x075C */ Unk8004883C records[8];
+    /* 0x263C */ u8 unk263C[0x80];
     /* 0x26BC */ s32 unk26BC;
     /* 0x26C0 */ s32 unk26C0;
     /* 0x26C4 */ s32 unk26C4;
@@ -507,6 +510,8 @@ Slot *func_80013AB4(void);
 void func_80013C08(s32);
 void func_80013CB4(void);
 void func_80016860(void);
+void func_8001BB68(Task *task);
+void func_8001BCCC(Task *task);
 s32 *func_80013E34(u32 id);
 void func_80013758();
 void func_8002DE68(void (*func)());
@@ -569,7 +574,7 @@ void func_8001B314(Task8001B3A0 *task, s32 *data, s32 arg2);
 void *func_8001B368(Task8001B3A0 *task);
 void func_8001B3A0(void *task);
 void func_8001B6A8(void *task);
-void func_8001C0C4(void *task);
+void func_8001C0C4(Task *task);
 void func_80020764(void *task);
 void func_8008AEB4(s32, s32, s32, s32, s32);
 
@@ -588,6 +593,8 @@ extern Unk80042728 D_80042728;
 extern Unk80041444 D_80041444[];
 extern u8 D_800427B4[];
 extern CdReader D_80044710;
+extern u8 D_8004AC38[][3];
+extern s32 D_8004AB28;
 extern u8 D_8005C4C0[];
 extern u8 D_80048468[][2];
 extern s32 D_8004AB24;
