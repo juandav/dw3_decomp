@@ -321,7 +321,183 @@ void func_80084314(CardAlbum *album) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80084384);
+void func_80084384(CardAlbum *album, CardAlbumWindows *win) {
+    s32 prev;
+    s32 slot;
+    s32 i;
+
+    switch (album->substate) {
+    case 0:
+    default:
+        D_80085180.startFade(&album->fade, 1);
+        func_80084314(album);
+        win->grid = func_80083210(album);
+        album->substate++;
+        break;
+    case 1:
+        if (D_80085180.updateFade(&album->fade) != 0) {
+            func_800835AC(album, win, 1);
+            if (album->pageHasCards != 0) {
+                D_80085180.startFade(&album->infoFade, 1);
+            }
+            album->substate = 11;
+        }
+        break;
+    case 3:
+        album->active = 1;
+        album->substate++;
+        break;
+    case 4:
+        prev = album->page;
+        if ((!((PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_R1)) & 1) &&
+             ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_L1)) & 1)) ||
+            (!((PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_R1)) & 1) &&
+             ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_L1)) & 1))) {
+            if (--album->page < 0) {
+                album->page = 0;
+            }
+        } else if ((!((PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_L1)) & 1) &&
+                    ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_R1)) & 1)) ||
+                   (!((PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_L1)) & 1) &&
+                    ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_R1)) & 1))) {
+            if (++album->page > album->pageCount - 1) {
+                album->page = album->pageCount - 1;
+            }
+        }
+        if (prev != album->page) {
+            SOUND_STATE.playSound(0x4001B);
+            album->active = 0;
+            album->slot = 0;
+            func_80084314(album);
+            func_800835AC(album, win, 1);
+            if (album->infoFade.level == 0) {
+                if (album->pageHasCards != 0) {
+                    album->substate = 10;
+                    album->step = 1;
+                    win->grid->setPage(win->grid, album->page * ALBUM_PAGE_CARDS | 1);
+                } else {
+                    album->substate = 15;
+                }
+            } else {
+                win->grid->setPage(win->grid, album->page * ALBUM_PAGE_CARDS | 1);
+                if (album->pageHasCards == 0) {
+                    album->substate = 10;
+                    album->step = 0;
+                } else {
+                    album->substate = 15;
+                }
+            }
+        } else {
+            slot = album->slot;
+            if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_UP)) & 1) {
+                if (album->slot >= 6) {
+                    album->slot -= 6;
+                }
+            } else if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_DOWN)) & 1) {
+                if (album->slot < 6) {
+                    album->slot += 6;
+                }
+            }
+            if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_LEFT)) & 1) ||
+                ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_LEFT)) & 1)) {
+                if (--album->slot < 0) {
+                    album->slot = 0;
+                }
+            } else if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_RIGHT)) & 1) ||
+                       ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_RIGHT)) & 1)) {
+                if (++album->slot >= ALBUM_PAGE_CARDS) {
+                    album->slot = ALBUM_PAGE_CARDS - 1;
+                }
+            }
+            if (album->page * ALBUM_PAGE_CARDS + album->slot >= CARD_COUNT - 1) {
+                album->slot = CARD_COUNT - 2 - album->page * ALBUM_PAGE_CARDS;
+            }
+            if (slot != album->slot) {
+                i = album->slot;
+                album->slot = -1;
+                if (i < slot) {
+                    for (; i >= 0; i--) {
+                        if (album->slotHasCard[i] != 0) {
+                            album->slot = i;
+                            break;
+                        }
+                    }
+                } else if (slot < i) {
+                    for (; i < ALBUM_PAGE_CARDS; i++) {
+                        if (album->slotHasCard[i] != 0) {
+                            album->slot = i;
+                            break;
+                        }
+                    }
+                }
+                if (album->slot == -1) {
+                    album->slot = slot;
+                } else {
+                    func_80083820(album, win, 1);
+                    SOUND_STATE.playSound(0x4001B);
+                }
+            }
+        }
+        if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_TRIANGLE)) & 1) {
+            SOUND_STATE.playSound(0x800450BD);
+            album->active = 0;
+            album->substate = 50;
+            win->fader = func_800827A0();
+            win->fader->start(win->fader, 0, 10);
+        }
+        break;
+    case 10:
+        if (album->step == 0) {
+            func_80083820(album, win, 0);
+        }
+        D_80085180.startFade(&album->infoFade, album->step);
+        album->nextSubstate(album);
+        break;
+    case 11:
+        if (D_80085180.updateFade(&album->infoFade) != 0) {
+            album->substate = 15;
+        }
+        break;
+    case 15:
+        if (win->grid->state == 1) {
+            album->active = win->grid->state;
+            func_800835AC(album, win, 1);
+            if (album->infoFade.level != 0) {
+                while (1) {
+                    if (album->slotHasCard[album->slot] != 0) {
+                        break;
+                    }
+                    album->slot++;
+                }
+                func_80083820(album, win, 1);
+            }
+            album->substate = 3;
+        }
+        break;
+    case 50:
+        if (win->fader->state == 2) {
+            album->state = 3;
+        }
+        break;
+    case 51:
+        if (D_80085180.updateFade(&album->infoFade) != 0) {
+            func_800835AC(album, win, 0);
+            D_80085180.startFade(&album->fade, 0);
+            album->substate++;
+        }
+        break;
+    case 52:
+        if (D_80085180.updateFade(&album->fade) != 0) {
+            album->substate++;
+        }
+        break;
+    case 53:
+        if (win->grid == NULL) {
+            album->setState(album, 3);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80084C8C);
 
