@@ -195,7 +195,13 @@ void STDWTITL_readStream(CdlLOC *loc) {
     } while (CdRead2(CdlModeStream | CdlModeSpeed | CdlModeRT | CdlModeSize1) == 0);
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_initStream);
+void STDWTITL_initStream(CdlLOC *loc, void (*callback)()) {
+    DecDCTReset(0);
+    DecDCToutCallback(callback);
+    StSetRing(STDWTITL_ringBuffer, 32);
+    StSetStream(1, 1, -1, 0, 0);
+    STDWTITL_readStream(loc);
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_getNextFrame);
 
