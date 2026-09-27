@@ -1,9 +1,14 @@
+/* libgpu was built against a SetIntrMask(long) prototype */
+#define SetIntrMask SetIntrMask_libetc
 #include "psyq.h"
+#undef SetIntrMask
+long SetIntrMask(long mask);
 
 void func_80027FD0(u_char *dst, int value, int n);
 void func_800264B8(DR_ENV *p, DRAWENV *env);
 void func_80027978(void);
 int func_800279AC(void);
+int func_80027AF0(int mode);
 void _GPU_ResetCallback(void);
 u_long func_8002719C(u_long cmd);
 void func_80027154(u_long addr);
@@ -14,6 +19,8 @@ extern u_long *D_800557C0;
 extern u_long *D_800557C4;
 extern volatile long D_800557C8; /* command queue write index */
 extern volatile long D_800557CC; /* command queue read index */
+extern long D_800557D8; /* interrupt mask saved by the reset */
+extern u_char D_8007F198[];
 extern u_long D_8005574C[];
 extern u_long D_80055760; /* terminator primitive of the ordering tables */
 extern u_long D_80055740[]; /* words 2..4 of the 5-word MoveImage packet at D_80055740 - 8 */
@@ -328,7 +335,31 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800271F0);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800274A0);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80027700);
+int func_80027700(int mode) {
+    D_800557D8 = SetIntrMask(0);
+    D_800557C8 = D_800557CC = 0;
+    switch (mode & 7) {
+    case 0:
+    case 5:
+        *D_800557B4 = 0x401;
+        *D_800557C4 |= 0x800;
+        *D_800557A8 = 0;
+        func_80027FD0(D_8007F198, 0, 0x1800);
+        break;
+    case 1:
+    case 3:
+        *D_800557B4 = 0x401;
+        *D_800557C4 |= 0x800;
+        *D_800557A8 = 0x02000000;
+        *D_800557A8 = 0x01000000;
+        break;
+    }
+    SetIntrMask(D_800557D8);
+    if (mode & 7) {
+        return 0;
+    }
+    return func_80027AF0(mode);
+}
 
 int func_8002783C(int mode) {
     int n;
