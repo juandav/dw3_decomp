@@ -628,7 +628,18 @@ INCLUDE_RODATA("asm/main/nonmatchings/game", D_800100C4);
 
 INCLUDE_RODATA("asm/main/nonmatchings/game", D_800100C8);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80014884);
+const char D_800100E4[6][24] = {
+    "BASLUS-01436DMW3-USA",
+    "BESLPS-99999DMW3-ENG",
+    "BESLPS-99999DMW3-FRA",
+    "BESLPS-99999DMW3-ITA",
+    "BESLPS-99999DMW3-GER",
+    "BESLPS-99999DMW3-SPN",
+};
+
+void func_80014884(void) {
+    D_80047F14.fileName = (char *)D_800100E4[0];
+}
 
 void func_80014898(char *title, CardClut *clut, s32 count, s32 *icons) {
     s32 i;
