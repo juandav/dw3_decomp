@@ -441,7 +441,7 @@ int func_800271F0(int (*func)(), u_long *param, int size, u_long value) {
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800274A0);
 
-int func_80027700(int mode) {
+inline int func_80027700(int mode) {
     D_800557D8 = SetIntrMask(0);
     D_800557C8 = D_800557CC = 0;
     switch (mode & 7) {
@@ -502,7 +502,17 @@ inline void func_80027978(void) {
     D_800557E0 = 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800279AC);
+int func_800279AC(void) {
+    if (D_800557DC < VSync(-1) || D_800557E0++ > 0xF0000) {
+        *(volatile u_long *)D_800557A8;
+        printf("GPU timeout:que=%d,stat=%08x,chcr=%08x,madr=%08x\n",
+               (D_800557C8 - D_800557CC) & 0x3F, *(volatile u_long *)D_800557A8,
+               *(volatile u_long *)D_800557B4, *(volatile u_long *)D_800557AC);
+        func_80027700(1);
+        return -1;
+    }
+    return 0;
+}
 
 int func_80027AF0(int mode) {
     *D_800557A8 = 0x10000007;
