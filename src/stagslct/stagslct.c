@@ -1,21 +1,21 @@
 #include "stagslct.h"
 
-extern char D_800844D8[]; /* "ステージセレクト" */
-extern char D_800844FC[]; /* "＞" */
-extern char *D_800859A4[6]; /* "ＵＳＡ", "ＥＮＧ", "ＦＲＡ", "ＩＴＡ", "ＧＥＲ", "ＳＰＮ" */
-extern StageSelectEntry D_800859BC[];
-extern RECT D_80086F1C;
-extern u16 D_80086F24[10];
-extern u16 D_80086F38;
+extern char STAGSLCT_STR_STAGE_SELECT[]; /* "ステージセレクト" */
+extern char STAGSLCT_STR_CURSOR[]; /* "＞" */
+extern char *STAGSLCT_regionNames[6]; /* "ＵＳＡ", "ＥＮＧ", "ＦＲＡ", "ＩＴＡ", "ＧＥＲ", "ＳＰＮ" */
+extern StageSelectEntry STAGSLCT_entries[];
+extern RECT STAGSLCT_screenRect;
+extern u16 STAGSLCT_biosVersion[10];
+extern u16 STAGSLCT_biosVersionEnd;
 
-Task *func_80085974(void);
-void func_800848D0(Task *task, StageSelectWindows *win);
+Task *STAGSLCT_createStageSelect(void);
+void STAGSLCT_updateStageSelect(Task *task, StageSelectWindows *win);
 
-void func_80084500(Task *task, Task **items) {
+void STAGSLCT_updateScene(Task *task, Task **items) {
     switch (task->state) {
     case 0:
     default:
-        items[0] = func_80085974();
+        items[0] = STAGSLCT_createStageSelect();
         task->nextState(task);
         break;
     case 1:
@@ -25,11 +25,11 @@ void func_80084500(Task *task, Task **items) {
     }
 }
 
-Task *func_80084564(void) {
-    return createTask(func_80084500, sizeof(Task), 4);
+Task *STAGSLCT_start(void) {
+    return createTask(STAGSLCT_updateScene, sizeof(Task), 4);
 }
 
-void func_80084590(StageSelect *sel, s32 delta) {
+void STAGSLCT_moveCursor(StageSelect *sel, s32 delta) {
     s32 end = 0;
     s32 top = sel->top;
     s32 cursor = sel->cursor;
@@ -50,7 +50,7 @@ void func_80084590(StageSelect *sel, s32 delta) {
                 end = 1;
             }
         }
-        if (D_800859BC[sel->top + sel->cursor].scene != 0) {
+        if (STAGSLCT_entries[sel->top + sel->cursor].scene != 0) {
             return;
         }
     } while (end == 0);
@@ -58,7 +58,7 @@ void func_80084590(StageSelect *sel, s32 delta) {
     sel->cursor = cursor;
 }
 
-void func_80084660(StageSelect *sel, s32 delta) {
+void STAGSLCT_scrollPage(StageSelect *sel, s32 delta) {
     sel->top += delta;
     if (sel->top < 0) {
         sel->top = 0;
@@ -69,9 +69,9 @@ void func_80084660(StageSelect *sel, s32 delta) {
     }
 }
 
-INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_800846A4);
+INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", STAGSLCT_showBiosVersion);
 
-void func_800847C8(StageSelect *sel, StageSelectWindows *win) {
+void STAGSLCT_zoomTitle(StageSelect *sel, StageSelectWindows *win) {
     if (sel->fading != 0) {
         sel->fade += sel->fadeStep;
         if (sel->fadeStep > 0) {
@@ -95,14 +95,14 @@ void func_800847C8(StageSelect *sel, StageSelectWindows *win) {
     }
 }
 
-INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_800848D0);
+INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", STAGSLCT_updateStageSelect);
 
-Task *func_80085974(void) {
-    return createTask(func_800848D0, 0, 0);
+Task *STAGSLCT_createStageSelect(void) {
+    return createTask(STAGSLCT_updateStageSelect, 0, 0);
 }
 
-INCLUDE_RODATA("asm/stagslct/nonmatchings/stagslct", D_80082448);
+INCLUDE_RODATA("asm/stagslct/nonmatchings/stagslct", STAGSLCT_entryNames);
 
-INCLUDE_RODATA("asm/stagslct/nonmatchings/stagslct", D_800844D8);
+INCLUDE_RODATA("asm/stagslct/nonmatchings/stagslct", STAGSLCT_STR_STAGE_SELECT);
 
-INCLUDE_RODATA("asm/stagslct/nonmatchings/stagslct", D_800844FC);
+INCLUDE_RODATA("asm/stagslct/nonmatchings/stagslct", STAGSLCT_STR_CURSOR);
