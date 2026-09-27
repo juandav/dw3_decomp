@@ -368,7 +368,98 @@ void func_8002262C(PadPort *p) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", _mtapFailAuto);
+void _mtapFailAuto(PadPort *port, int code) {
+    PadPort *p = port;
+    PadPort *q;
+    int i;
+    int id;
+    u_char cmd;
+
+    id = *p->unk3C >> 4;
+    if (p->unkE8 != 8 && id == 8 && p == p->unk10) {
+        p->unkE8 = id;
+        p->unk30[0] = 0xFF;
+        p->unk30[1] = 0x80;
+        p->unk35 = 2;
+    }
+    if (p->unkE8 == 8) {
+        q = p->unkC;
+        if (q != NULL) {
+            for (i = 0; i < 4; i++) {
+                _mtapFailAuto(q++, -1);
+            }
+        }
+    }
+    q = p->unk10->unkC;
+    if (p->unkC != NULL && p->cmd == 0) {
+        if (q++->prevCmd || q++->prevCmd || q++->prevCmd || q++->prevCmd) {
+            if (p->unk4A == 0) {
+                p->unk4A = 1;
+            }
+            return;
+        }
+    }
+    q = p->unk10->unkC;
+    if (p->unkC == NULL && p->prevCmd == 0) {
+        if (p->unk10->cmd || q++->prevCmd || q++->prevCmd || q++->prevCmd || q++->prevCmd) {
+            if (p->unk4A == 0) {
+                p->unk4A = 1;
+            }
+            return;
+        }
+    }
+    cmd = p->cmd;
+    p->cmd = 0;
+    p->unk4C++;
+    p->unk39 = p->prevCmd;
+    p->prevCmd = cmd;
+    if (p->unk46 != 0) {
+        if (p->unk46 == 1) {
+            if (p->unk4A < 11 && p->unkE8 != 8) {
+                p->unk4A++;
+                return;
+            }
+            if (p->unkE6 != 0) {
+                if (p->unk4A < 21) {
+                    p->unk4A++;
+                    return;
+                }
+                D_8005551C(p);
+            }
+            p->unk49 = 2;
+            if (p->unkE8 != 8) {
+                if (p->unkC != NULL) {
+                    p->prevCmd = 0;
+                    p->cmd = 0;
+                }
+                p->unk46 = 0xFF;
+            } else {
+                p->unk46 = 0xFE;
+            }
+            return;
+        }
+        if (p->unk4A < 11) {
+            p->unk4A++;
+            return;
+        }
+    }
+    if (p->unk49 != 0) {
+        p->unk30[0] = 0xFF;
+        p->unk30[1] = 0;
+        p->unkE8 = 0;
+        p->unk35 = 0;
+        D_8005551C(p);
+    }
+    if (id != 8) {
+        if (p->unkE8 == 8) {
+            p->unkE8 = 0;
+            p->unk30[1] = 0;
+        }
+    } else if (p->unkC != NULL) {
+        p->unkE8 = id;
+        p->unk30[1] = 0x80;
+    }
+}
 
 int func_80022D60(PadPort *p) {
     int i;
