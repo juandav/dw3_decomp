@@ -302,7 +302,16 @@ void func_800892E8(s32 arg0) {
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80089320);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80089668);
+Unk80089320 *func_80089668(Actor *actor) {
+    Unk80089320 *task;
+
+    if (GAME_FUNCS.getMode() < 0x2D7) {
+        task = createTaskWithId(func_80089320, sizeof(Unk80089320), 0, 0x16);
+        task->actor = actor;
+        return task;
+    }
+    return NULL;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800896C0);
 
