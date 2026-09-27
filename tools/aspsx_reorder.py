@@ -125,6 +125,11 @@ def main():
                 # a branch target stays where it is (only its second half
                 # can move)
                 labelled = m >= 0 and out[m].split("#", 1)[0].strip().endswith(":")
+                # ...but the stack adjustment before `j $31` does move into
+                # its slot, unless the label follows a branch's delay slot
+                if labelled and ins[1] == ["$31"]:
+                    code = [x for x in out[:m] if split(x)]
+                    labelled = len(code) < 2 or BRANCHES.match(split(code[-2])[0])
             sym_store = (
                 prev is not None
                 and STORES.match(prev[0]) is not None
