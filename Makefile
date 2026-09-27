@@ -36,7 +36,7 @@ $(BUILDDIR)/src/main/psyq/%.c.o: GCC_VERSION := 2.7.2
 $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_POST := | $(PYTHON) tools/aspsx_reorder.py
 $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_DIV := --expand-div
 $(BUILDDIR)/src/main/psyq/%.c.o: PSYQ_CSE := -fno-rerun-cse-after-loop
-PSYQ_RERUN_CSE := libc2_puts libgpu_break libcd_bios_2 libcd_c_007
+PSYQ_RERUN_CSE := libc2_puts libgpu_break libcd_bios_2 libcd_c_007 libsnd_midiread
 $(PSYQ_RERUN_CSE:%=$(BUILDDIR)/src/main/psyq/%.c.o): PSYQ_CSE :=
 # Our GCC 2.7.2 binary-patched into the libraries' cc1 (see tools/patch_cc1.py)
 PSYQ_CC1 := $(BUILDDIR)/tools/gcc-2.7.2-psx/cc1
