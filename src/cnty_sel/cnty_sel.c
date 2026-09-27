@@ -195,7 +195,16 @@ CursorTask *CNTY_SEL_startCursorTask(void) {
     return task;
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_getTopPanelScale);
+s32 CNTY_SEL_getTopPanelScale(PanelTask *task, s32 phase) {
+    s32 time = task->time;
+    s32 duration = CNTY_SEL_topPanelTweens[phase].duration;
+
+    if (time >= duration) {
+        return CNTY_SEL_topPanelTweens[phase].to;
+    }
+    return CNTY_SEL_topPanelTweens[phase].from +
+           (CNTY_SEL_topPanelTweens[phase].to - CNTY_SEL_topPanelTweens[phase].from) * time / duration;
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_drawTopPanel);
 
