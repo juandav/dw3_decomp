@@ -454,7 +454,12 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80090154);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800901D4);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80090254);
+void func_80090254(Actor *actor, Point *out) {
+    Point *delta = &D_80097000[actor->dir];
+
+    out->x = actor->tile.x + delta->x;
+    out->y = actor->tile.y + delta->y;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80090294);
 
