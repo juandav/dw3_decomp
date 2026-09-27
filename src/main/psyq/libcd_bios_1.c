@@ -149,11 +149,90 @@ static inline int get_alarm(void) {
     return 0;
 }
 
+/* the interrupt callback, inlined into CD_sync/CD_ready/CD_cw; its out-of-line
+   copy is func_8002DBDC (GCC 2.8 would move an inline function itself to the
+   end of the object, after OBJECT_END's padding) */
+static inline void callback(void) {
+    u_char mask;
+    int intr;
+
+    mask = *D_8005A58C & 3;
+
+    while ((intr = func_8002C738()) != 0) {
+        if ((intr & 4) && D_8005A2CC != 0) {
+            ((void (*)(u_char, u_char *))D_8005A2CC)(D_8005A5A4[0].ready, D_80080C58);
+        }
+        if ((intr & 2) && D_8005A2C8 != 0) {
+            ((void (*)(u_char, u_char *))D_8005A2C8)(D_8005A5A4[0].sync, D_80080C50);
+        }
+    }
+    *D_8005A58C = mask;
+}
+
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_sync);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_ready);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_cw);
+extern int D_8005A40C[];
+extern int D_8005A50C[];
+extern u_char D_8005A2E0[];
+int CD_sync(int mode, u_char *result);
+
+int CD_cw(u_char com, u_char *param, u_char *result, int async) {
+    int i;
+    u_char *p;
+
+    if (D_8005A2D0 > 1) {
+        printf("%s...\n", D_8005A2EC[com]);
+    }
+    if (D_8005A50C[com] != 0 && param == NULL) {
+        if (D_8005A2D0 > 0) {
+            printf("%s: no param\n", D_8005A2EC[com]);
+        }
+        return -2;
+    }
+    p = param;
+    CD_sync(0, NULL);
+    if (com == CdlSetloc) {
+        for (i = 0; i < 4; i++) {
+            D_8005A2E0[i] = p[i];
+        }
+    }
+    if (com == CdlSetmode) {
+        D_8005A2E4 = *p;
+    }
+    D_8005A5A4->sync = CdlNoIntr;
+    if (*(D_8005A40C + com)) {
+        D_8005A5A4->ready = CdlNoIntr;
+    }
+    *D_8005A58C = 0;
+    for (i = 0; i < *(D_8005A40C + com + 0x40); i++) {
+        *D_8005A59C = p[i];
+    }
+    D_8005A2E5 = com;
+    *D_8005A598 = com;
+    if (async != 0) {
+        return 0;
+    }
+    set_alarm("CD_cw");
+    while (D_8005A5A4->sync == CdlNoIntr) {
+        if (get_alarm()) {
+            return -1;
+        }
+        if (CheckCallback()) {
+            callback();
+        }
+    }
+    _memcpy(result, D_80080C50, 8);
+    return -(D_8005A5A4->sync == CdlDiskError);
+}
+
+/* the rcsid of the CD_init_struct (D_8005A5A8, still in the data asm) */
+__asm__(".section .rodata\n"
+        "\t.align 2\n"
+        "\t.asciz \"$Id: bios.c,v 1.86 1997/03/28 07:42:42 makoto Exp yos $\"\n"
+        "\t.align 2\n"
+        "\t.section .text\n");
 
 int CD_vol(CdlATV *vol) {
     *D_8005A58C = 2;
@@ -287,22 +366,8 @@ void CD_set_test_parmnum(int num) {
     D_8005A570 = num;
 }
 
-
 void func_8002DBDC(void) {
-    u_char mask;
-    int intr;
-
-    mask = *D_8005A58C & 3;
-
-    while ((intr = func_8002C738()) != 0) {
-        if ((intr & 4) && D_8005A2CC != 0) {
-            ((void (*)(u_char, u_char *))D_8005A2CC)(D_8005A5A4[0].ready, D_80080C58);
-        }
-        if ((intr & 2) && D_8005A2C8 != 0) {
-            ((void (*)(u_char, u_char *))D_8005A2C8)(D_8005A5A4[0].sync, D_80080C50);
-        }
-    }
-    *D_8005A58C = mask;
+    callback();
 }
 
 __asm__(".section .rodata\n\t.align 4\n");
