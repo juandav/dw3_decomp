@@ -521,7 +521,11 @@ void func_80091B78(s32 index, s32 value) {
     D_8009A70C[index] = value;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091B90);
+void func_80091B90(s32 arg0) {
+    if (GAME.clearTempFlags != 0) {
+        GAME.unk26D8 = arg0;
+    }
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091BB4);
 
