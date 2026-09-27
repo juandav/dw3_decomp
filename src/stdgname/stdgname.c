@@ -193,7 +193,10 @@ void func_80084640(NameTask *task, NameWindows *windows) {
     }
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80084744);
+void func_80084744(NameTask *task, s32 x, s32 y) {
+    task->vramX = x;
+    task->vramY = y;
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80084750);
 
