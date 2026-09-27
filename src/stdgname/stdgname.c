@@ -244,7 +244,30 @@ NameTask *func_800848F0(char *name, s32 partner) {
     return task;
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80084998);
+void func_80084998(MenuTask *task, TextWindow **window, s32 index, s32 show) {
+    s32 layer = 0;
+    char *name;
+
+    if (index < 5) {
+        layer = task->layer;
+    }
+    if (show) {
+        if (*window == NULL) {
+            *window = createTextWindow(layer, 1, D_800872E0[index].x, D_800872E0[index].y);
+            (*window)->setDepth(*window, 1);
+        }
+        if (index >= 2 && index <= 4) {
+            name = GAME.funcs.getPartnerStats(GAME.funcs.getPartyMember(index - 2))->name;
+            (*window)->style = (u8 *)D_80087480.style;
+            (*window)->setString(*window, name, -1);
+        } else {
+            (*window)->setString(*window, FILE_CACHE_LOAD[0](0x41), D_800872E0[index].text);
+        }
+        (*window)->setPalette(*window, 0);
+    } else if (*window != NULL) {
+        (*window)->setVisible(*window, 0);
+    }
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80084B0C);
 
