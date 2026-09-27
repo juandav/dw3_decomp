@@ -14,7 +14,7 @@ int PadSetActAlign(int port, u_char *data) {
     p->unk46 = 1;
     p->unk14 = func_80020A54;
     p->unk20 = data;
-    p->unk18 = (void (*)())func_80020A7C;
+    p->unk18 = func_80020A7C;
     return 1;
 }
 

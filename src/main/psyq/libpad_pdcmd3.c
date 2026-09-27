@@ -15,7 +15,7 @@ int PadSetMainMode(int port, int offs, int lock) {
     p->unk51[1] = lock;
     p->unk46 = 1;
     p->unk14 = func_80020BE4;
-    p->unk18 = (void (*)())func_80020C3C;
+    p->unk18 = func_80020C3C;
     p->unk53 = offs == p->unkE4;
     return 1;
 }
