@@ -123,9 +123,16 @@ def main():
                 and len(prev[1]) == 2
                 and not re.search(r"\(\$\w+\)$", prev[1][1])
             )
+            idx_store = (
+                prev is not None
+                and STORES.match(prev[0]) is not None
+                and len(prev[1]) == 2
+                and re.match(r"^[A-Za-z_][\w.]*([+-]\d+)?\((\$\w+)\)$", prev[1][1])
+            )
             movable = (
                 prev is not None
                 and not sym_store
+                and not idx_store
                 and not BRANCHES.match(prev[0])
                 and not MACROS.match(prev[0])
                 and prev[0] != "nop"
@@ -138,6 +145,15 @@ def main():
                 moved = out.pop(k)
                 out.append(line)
                 out.append(moved)
+                i += 2
+                continue
+            if idx_store and not (prev2 and BRANCHES.match(prev2[0])):
+                # a store to symbol($r): the address half stays, the store moves
+                reg, addr = prev[1]
+                sym, base = re.match(r"^(.*)\((\$\w+)\)$", addr).groups()
+                out[k] = f".set\tnoat\nlui\t$at,%hi({sym})\naddu\t$at,$at,{base}"
+                out.append(line)
+                out.append(f"{prev[0]}\t{reg},%lo({sym})($at)\n.set\tat")
                 i += 2
                 continue
             if sym_store and not (prev2 and BRANCHES.match(prev2[0])):

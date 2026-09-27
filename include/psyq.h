@@ -28,6 +28,17 @@ typedef struct GpuDriver {
     /* 0x3C */ int (*sync)(int mode);
 } GpuDriver;
 
+/* libsnd voice state (_svm_voice), 0x38 bytes per voice */
+typedef struct VmVoice {
+    /* 0x00 */ short unk0;
+    /* 0x02 */ short unk2;
+    /* 0x04 */ short unk4;
+    /* 0x06 */ u8 unk6[0x17];
+    /* 0x1D */ u8 unk1D;
+    /* 0x1E */ u8 unk1E[0x1A];
+} VmVoice;
+extern VmVoice D_800815D0[];
+
 /* libpad per-port command state */
 typedef struct PadPort {
     /* 0x00 */ long unk0;
