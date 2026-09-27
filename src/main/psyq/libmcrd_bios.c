@@ -119,7 +119,18 @@ void _card_stop(void) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_bios", _clr_card_event);
+void _clr_card_event(void) {
+    func_8003A588(D_80082148);
+    func_8003A588(D_8008214C);
+    func_8003A588(D_80082150);
+    func_8003A588(D_80082154);
+    func_8003A588(D_80082158);
+    func_8003A588(D_8008215C);
+    func_8003A588(D_80082160);
+    func_8003A588(D_80082164);
+    D_80082168 = D_8008216C = D_80082170 = D_80082174 = 0;
+    D_80082178 = D_8008217C = D_80082180 = D_80082184 = 0;
+}
 
 long _get_card_event(void) {
     long ev;
