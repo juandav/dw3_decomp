@@ -673,7 +673,8 @@ typedef struct Obj8001F22C {
     /* 0x48 */ s16 unk48;
     /* 0x4A */ s16 unk4A;
     /* 0x4C */ s16 unk4C;
-    /* 0x4E */ u8 unk4E[0x22];
+    /* 0x4E */ u8 unk4E[2];
+    /* 0x50 */ MATRIX matrix;
     /* 0x70 */ void (*methods[12])();
 } Obj8001F22C;
 
