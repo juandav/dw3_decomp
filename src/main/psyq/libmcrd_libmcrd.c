@@ -50,7 +50,18 @@ INCLUDE_RODATA("asm/main/nonmatchings/psyq/libmcrd_libmcrd", D_80010C9C);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003BAEC);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardAccept);
+long MemCardAccept(long chan) {
+    if (D_80082068.unk0 > 0) {
+        printf(D_80010C9C);
+        return 0;
+    }
+    D_80082068.unk0 = 2;
+    D_80082068.unk4 = 0;
+    D_80082068.unk8 = 0;
+    D_80082068.unk10 = chan;
+    UserFuncOpen(func_8003BE70);
+    return 1;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003BE70);
 
