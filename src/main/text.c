@@ -753,7 +753,50 @@ void func_8001A890(Unk80019DFC *obj) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/text", func_8001AAB4);
+Unk80019DFC *func_8001AAB4(s16 arg0, s16 style, s16 x, s16 y) {
+    Unk80019DFC *ret;
+    Unk80019DFC *obj = func_800144DC(func_8001A890, 0x174, 0);
+
+    obj->m110 = func_80019140;
+    obj->m114 = func_80019164;
+    obj->m118 = func_8001922C;
+    obj->m11C = func_80019308;
+    obj->m120 = func_80019360;
+    obj->m124 = func_80019420;
+    obj->m128 = func_80019C2C;
+    obj->m12C = func_80019DFC;
+    obj->m130 = func_80019E34;
+    obj->setPos = func_80019E64;
+    obj->m138 = func_80019E70;
+    obj->m13C = func_80019E78;
+    obj->m140 = func_80019E80;
+    obj->m144 = func_80019EB8;
+    obj->m148 = func_80019ED8;
+    obj->m14C = func_80019F28;
+    obj->m150 = func_8001A094;
+    obj->m154 = func_8001A09C;
+    obj->m158 = func_8001A0B8;
+    obj->m15C = func_8001A0C4;
+    obj->m160 = func_8001A0CC;
+    obj->m164 = func_8001A0D4;
+    obj->m168 = func_8001A0DC;
+    obj->m16C = func_8001A0E8;
+    obj->m170 = func_8001A0F4;
+    if (style < 1 || style > 3) {
+        style = 1;
+    }
+    obj->unk54 = arg0;
+    ret = obj;
+    ret->unk50 = style * 0x18 + D_8004D5A8.styles;
+    ret->unkB0 = x;
+    ret->unkAC = 0x140;
+    ret->unkB2 = y;
+    ret->unkAE = 0;
+    ret->unkBF = 1;
+    ret->unkBE = ret->unk50[0];
+    ret->unkD0 = ret->unkD4 = ret->unkD8 = 0x1000;
+    return ret;
+}
 
 void func_8001ACC8(Task8001ACC8 *task, s32 arg1) {
     task->unk64 = arg1;
