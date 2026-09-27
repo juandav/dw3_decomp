@@ -326,7 +326,19 @@ Slot *func_80013A0C(void) {
     return NULL;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80013A44);
+s32 func_80013A44(s32 file) {
+    Slot *slot = func_800139D4(file);
+
+    if (slot != NULL) {
+        slot->unk8 = D_8004D5B8.funcs.unk38();
+        if (slot->unk0 == 3) {
+            return 0;
+        }
+    } else {
+        func_80013C08(file);
+    }
+    return 1;
+}
 
 Slot *func_80013AB4(void) {
     Slot *best = NULL;
