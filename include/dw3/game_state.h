@@ -110,7 +110,10 @@ typedef struct Unk80042728 {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
     /* 0x08 */ s32 unk8;
-    /* 0x0C */ u8 unkC[0x4C];
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ u8 unk18[0x40];
     /* 0x58 */ s16 unk58[8];
 } Unk80042728;
 
@@ -183,7 +186,11 @@ typedef struct GameState {
     /* 0x26D0 */ s32 clearTempFlags;
     /* 0x26D4 */ s32 unk26D4;
     /* 0x26D8 */ s32 unk26D8;
-    /* 0x26DC */ u8 unk26DC[0x14];
+    /* 0x26DC */ s32 unk26DC;
+    /* 0x26E0 */ s32 unk26E0;
+    /* 0x26E4 */ s32 unk26E4;
+    /* 0x26E8 */ s32 unk26E8;
+    /* 0x26EC */ s32 unk26EC;
     /* 0x26F0 */ GameFuncs funcs; /* GAME_FUNCS */
 } GameState;
 

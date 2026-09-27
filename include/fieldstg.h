@@ -123,6 +123,69 @@ typedef struct FieldState {
     /* 0x7C */ void *(*unk7C)(u8 *list, s32 id);
 } FieldState;
 
+/* The field's main task (func_8008A154, id 7); its children follow */
+typedef struct FieldTask {
+    TASK_HEADER(FieldTask);
+    /* 0x50 */ u8 unk50[0x20];
+    /* 0x70 */ s32 unk70;
+    /* 0x74 */ Point unk74;
+    /* 0x7C */ s32 unk7C;
+} FieldTask;
+
+/* An entry of the script command table D_8009A448 (ids from 0x320) */
+typedef struct ScriptCommand {
+    /* 0x0 */ s32 id;
+    /* 0x4 */ s32 (*create)(s32 arg);
+    /* 0x8 */ void (*handle)(s32 arg0, s32 arg1, s32 arg2);
+} ScriptCommand;
+
+/* A linear 0-0x1000 tween (func_80091298, func_8009132C) */
+typedef struct Tween {
+    /* 0x0 */ s32 duration;
+    /* 0x4 */ s32 step;
+    /* 0x8 */ s32 value;
+    /* 0xC */ s32 active;
+} Tween;
+
+/* A wait timer for the scripts (func_80091520) */
+typedef struct ScriptTimer {
+    /* 0x0 */ s32 time;
+    /* 0x4 */ s32 active;
+    /* 0x8 */ void (*reset)(void);
+    /* 0xC */ Actor *(*findActor)(s32 id);
+} ScriptTimer;
+
+/* A battle that can start on the field (see func_8008AEDC) */
+typedef struct Battle {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ s32 unk4;
+    /* 0x8 */ s32 unk8;
+} Battle;
+
+typedef struct BattleList {
+    /* 0x0 */ s32 count;
+    /* 0x4 */ Battle *battles[1];
+} BattleList;
+
+typedef struct Unk800990D4 {
+    /* 0x00 */ u8 unk0[0xC];
+    /* 0x0C */ BattleList *battles[4];
+} Unk800990D4;
+
+/* The task of func_80084654 (func_80084B80) */
+typedef struct Unk80084654 {
+    TASK_HEADER(Unk80084654);
+    /* 0x050 */ s32 unk50;
+    /* 0x054 */ s32 unk54;
+    /* 0x058 */ s32 unk58;
+    /* 0x05C */ s32 unk5C;
+    /* 0x060 */ u8 unk60[4];
+    /* 0x064 */ struct {
+        s32 id;
+        s32 value;
+    } entries[30];
+} Unk80084654;
+
 /* The task of func_80086144 (id 4, see func_80086418) */
 typedef struct Unk80086144 {
     TASK_HEADER(Unk80086144);
@@ -257,6 +320,13 @@ void func_8008E768(Actor *actor, s32 arg1);
 void func_8008DD9C(Actor *);
 void *func_80088C2C(void);
 void func_8008AEDC(s32);
+Unk80084654 *func_80084B80(s16);
+void func_8008DFE0(Actor *);
+s32 func_80088E4C(Task *);
+s32 func_8008B930(Actor *, s32);
+void func_8008B398(s32 arg0, Point *pos, s32 arg2);
+ScriptCommand *func_800916E8(s32 id);
+Task *createInn(s32);
 Point *func_800863F4(Unk80086144 *);
 void func_80084D0C();
 void func_80087FDC();
@@ -279,11 +349,16 @@ extern s32 D_8009A944;
 extern Point D_80097000[]; /* tile offset of each direction */
 extern Point D_8009A76C[];
 extern FieldState D_800990B4;
+extern ScriptCommand D_8009A448[];
+extern s16 D_80096C38[];
+extern s32 D_80096FE8[];
+extern s32 D_80096FF4[];
+extern s32 (*D_8009A750)(s32, Point *);
 extern void (*D_80098B6C[])(void);
 
 extern u8 D_80099758[];
 extern s32 D_8009A70C[];
 extern s32 D_80099134[];
-extern u8 D_8009A424[];
+extern ScriptTimer D_8009A424;
 
 #endif /* FIELDSTG_H */

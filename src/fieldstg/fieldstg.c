@@ -142,7 +142,21 @@ Unk800842C8 *func_800844B8(s32 arg0) {
     return task;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80084514);
+s32 func_80084514(Unk80084654 *arg0, s32 id) {
+    s32 i;
+
+    if (id < 0x320) {
+        for (i = 0; i < 30; i++) {
+            if (arg0->entries[i].id == 0) {
+                break;
+            }
+            if (arg0->entries[i].id == id) {
+                return arg0->entries[i].value;
+            }
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80084558);
 
@@ -770,7 +784,7 @@ void *func_80091490(u8 *list, s32 id) {
 }
 
 void func_800914C0(void) {
-    HEAP.zero(D_8009A424, 8);
+    HEAP.zero(&D_8009A424, 8);
 }
 
 Actor *func_800914F0(s32 arg0) {
