@@ -384,10 +384,12 @@ typedef struct Unk80019DFC {
 } Unk80019DFC;
 
 typedef struct Unk8004D49C {
-    /* 0x00 */ u8 unk0[8];
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ DVECTOR unk4;
     /* 0x08 */ u16 unk8;
     /* 0x0A */ u16 unkA;
-    /* 0x0C */ u8 unkC[8];
+    /* 0x0C */ DVECTOR unkC;
+    /* 0x10 */ DVECTOR unk10;
     /* 0x14 */ s16 unk14;
     /* 0x16 */ s16 unk16;
     /* 0x18 */ s16 unk18;
@@ -960,7 +962,7 @@ void func_80029598(s32);
 void func_8001FBE0(Obj8001FBE0 *obj);
 void func_80020074(s32 index, s32 id);
 void func_8001BB68(struct Task8001BB68 *task);
-void func_8001BCCC(Task *task);
+void func_8001BCCC(struct Task8001BB68 *task);
 s32 *func_80013E34(u32 id);
 void func_80013758();
 void func_8002DE68(void (*func)());
