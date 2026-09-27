@@ -1236,7 +1236,18 @@ s32 func_8001A0F4(Unk80019DFC *arg0) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001A108);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001A364);
+s32 func_8001A364(Unk80019DFC *obj, TextBuffer *buf) {
+    switch (buf->data[buf->pos + 1]) {
+    case 0:
+    default:
+        func_80019C2C(obj);
+        break;
+    case 7:
+        obj->unkA6 = buf->pos + 2;
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001A3B8);
 
