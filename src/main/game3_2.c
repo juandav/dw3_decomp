@@ -66,7 +66,29 @@ s32 func_80017534(s32 slot, u16 *out) {
     return count;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game3_2", func_800175C0);
+extern void (*D_8005C448)(s32 id);
+
+s32 func_800175C0(s32 slot, s32 id) {
+    s32 i;
+    s32 index;
+
+    if (func_800172E8(slot, id) != -1) {
+        return 0;
+    }
+    for (i = 0, index = -1; i < 44; i++) {
+        if (D_800484E8.records[slot].entries[i].unk0 == 0) {
+            index = i;
+            break;
+        }
+    }
+    if (index == -1) {
+        return 0;
+    }
+    D_8005C448(id);
+    D_800484E8.records[slot].entries[index].unk0 = id;
+    D_800484E8.records[slot].entries[index].unk2 = 1;
+    return 1;
+}
 
 s32 func_800176B8(s32 slot, s32 id, Unk80048C50Entry *out) {
     s32 i = func_800172E8(slot, id);
