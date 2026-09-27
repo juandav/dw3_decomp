@@ -64,7 +64,34 @@ void func_800828D0(FadeTask *task) {
     GFX.funcs.setPrim(mode + 1);
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80082A14);
+void func_80082A14(FadeTask *task) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+        if (task->substate != 0) {
+            task->level += task->delta;
+            if (task->fadeIn == 0) {
+                if (task->level > 0xFF00) {
+                    task->level = 0xFF00;
+                    task->state = TASK_DONE;
+                }
+            } else if (task->level < 0) {
+                task->level = 0;
+                task->state = TASK_DONE;
+            }
+            func_800828D0(task);
+        }
+        break;
+    case TASK_DONE:
+        func_800828D0(task);
+        break;
+    case TASK_KILL:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80082AC8);
 
