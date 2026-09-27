@@ -135,7 +135,29 @@ s32 func_80082BA4(Tween *tween) {
 }
 #include "stdgname.h"
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80082C10);
+void func_80082C10(NameTask *task, NameWindows *windows) {
+    s32 i;
+
+    windows->title = createTextWindow(task->layer, 1, 0x20, 0x1A);
+    windows->title->setPalette(windows->title, 4);
+    windows->name = createTextWindow(task->layer, 1, 0x4B, 0x40);
+    windows->name->setSpacing(windows->name, 0x13, 0);
+    windows->name->style = (u8 *)&D_80086FC0;
+    for (i = 0; i < 3; i++) {
+        windows->tabs[i] = createTextWindow(task->layer, 1, 0x2F + i * 0x4E, 0x5B);
+        windows->tabs[i]->setDepth(windows->tabs[i], task->depth - 1);
+        windows->tabs[i]->setLines(windows->tabs[i], 7);
+        windows->tabs[i]->setSpacing(windows->tabs[i], 0xE, 0x12);
+        windows->tabs[i]->style = (u8 *)&D_80086FC0;
+    }
+    windows->unk20 = createTextWindow(task->layer, 1, 0xCE, 0xC6);
+    windows->unk24 = createTextWindow(task->layer, 1, 0xE1, 0xC6);
+    windows->unk28 = createTextWindow(task->layer, 1, 0x13, 0x62);
+    windows->unk28->setDepth(windows->unk28, task->depth - 1);
+    windows->unk2C = createTextWindow(task->layer, 1, 0x123, 0x62);
+    windows->unk2C->setDepth(windows->unk2C, task->depth - 1);
+    windows->unk30 = createTextWindow(task->layer, 1, 0x3E, 0x72);
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80082E00);
 
