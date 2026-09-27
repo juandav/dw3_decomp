@@ -363,7 +363,20 @@ void func_8008363C(ShockTest *task, ShockTestWindows *win) {
     }
 }
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80083A78);
+void func_80083A78(ShockTest *task, ShockFile *file) {
+    s32 i;
+    u8 *times = (u8 *)file + file->timesOffset;
+    u8 *powers = (u8 *)file + file->powersOffset;
+
+    for (i = 0; i < task->count; i++) {
+        task->steps[0][i].time = times[0];
+        task->steps[1][i].time = times[1];
+        times += 2;
+        task->steps[0][i].power = powers[0];
+        task->steps[1][i].power = powers[1];
+        powers += 2;
+    }
+}
 
 INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80083B04);
 
