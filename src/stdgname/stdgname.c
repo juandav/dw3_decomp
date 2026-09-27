@@ -93,7 +93,14 @@ void func_80082A14(FadeTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80082AC8);
+FadeTask *func_80082AC8(void) {
+    FadeTask *task = createTask(func_80082A14, sizeof(FadeTask), 0);
+
+    task->start = func_80082848;
+    task->layer = 0x1000;
+    task->depth = 6;
+    return task;
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80082B10);
 
