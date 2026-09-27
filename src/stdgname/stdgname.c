@@ -279,7 +279,38 @@ void func_800858D8(ScreenTask *task) {
     sprite.draw(FILE_CACHE_GET_ENTRY[0](0x02790000), 0x24, task->scroll, task->scroll);
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800859CC);
+void func_800859CC(ScreenTask *task, ScreenChildren *children) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        switch (task->substate) {
+        case 0:
+        default:
+            D_80087480.loadFiles();
+            task->substate++;
+            break;
+        case 1:
+            if (D_80087480.isLoading() == 0) {
+                task->nextState(task);
+            }
+            break;
+        }
+        break;
+    case TASK_RUN:
+        func_800856F4(task, children);
+        func_800858D8(task);
+        break;
+    case TASK_DONE:
+        if (children->unkC == NULL) {
+            task->setState(task, TASK_RUN);
+        }
+        func_800858D8(task);
+        break;
+    case TASK_KILL:
+        GAME.funcs.requestMode(GAME.fieldMode, 0);
+        break;
+    }
+}
 
 void func_80085ADC(ScreenTask *task) {
     ScreenChildren *children = task->children;
