@@ -1,6 +1,24 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdcmd3", PadSetMainMode);
+extern int (*D_80055534)(PadPort *p);
+
+void func_80020BE4(PadPort *p);
+int func_80020C3C(PadPort *port);
+
+int PadSetMainMode(int port, int offs, int lock) {
+    PadPort *p = D_8005552C(port);
+
+    if (D_80055534(p) != 0) {
+        return 0;
+    }
+    p->unk51[0] = offs;
+    p->unk51[1] = lock;
+    p->unk46 = 1;
+    p->unk14 = func_80020BE4;
+    p->unk18 = (void (*)())func_80020C3C;
+    p->unk53 = offs == p->unkE4;
+    return 1;
+}
 
 void func_80020BE4(PadPort *p) {
     switch (p->unk46) {
