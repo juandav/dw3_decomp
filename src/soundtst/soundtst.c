@@ -1,19 +1,19 @@
 #include "soundtst.h"
 
-extern char D_80083AC4[]; /* "－てんそうするＶＡＢをせんたくしてください－" */
-extern char D_80083AF4[]; /* "サウンドテスト" */
-extern char D_80083B04[]; /* "＞" */
-extern SoundTestEntry *D_80084E7C[];
-extern SoundTestEntry D_80084F98[];
-extern RECT D_800851D8;
+extern char SOUNDTST_STR_SELECT_VAB[]; /* "－てんそうするＶＡＢをせんたくしてください－" */
+extern char SOUNDTST_STR_SOUND_TEST[]; /* "サウンドテスト" */
+extern char SOUNDTST_STR_CURSOR[]; /* "＞" */
+extern SoundTestEntry *SOUNDTST_soundLists[];
+extern SoundTestEntry SOUNDTST_banks[];
+extern RECT SOUNDTST_screenRect;
 
-Task *func_800844E0(void);
+Task *SOUNDTST_createSoundTest(void);
 
-void func_80083B08(Task *task, Task **items) {
+void SOUNDTST_updateScene(Task *task, Task **items) {
     switch (task->state) {
     case 0:
     default:
-        items[0] = func_800844E0();
+        items[0] = SOUNDTST_createSoundTest();
         task->nextState(task);
         break;
     case 1:
@@ -28,11 +28,11 @@ void func_80083B08(Task *task, Task **items) {
     }
 }
 
-Task *func_80083BA8(void) {
-    return createTask(func_80083B08, sizeof(Task), 4);
+Task *SOUNDTST_start(void) {
+    return createTask(SOUNDTST_updateScene, sizeof(Task), 4);
 }
 
-void func_80083BD4(SoundTest *task, s32 delta, s32 *cursor, s32 *top, s32 count) {
+void SOUNDTST_moveCursor(SoundTest *task, s32 delta, s32 *cursor, s32 *top, s32 count) {
     s32 pos = *cursor + delta;
 
     if (pos >= 0 && pos < count) {
@@ -46,8 +46,8 @@ void func_80083BD4(SoundTest *task, s32 delta, s32 *cursor, s32 *top, s32 count)
     }
 }
 
-void func_80083C40(SoundTest *task, SoundTestWindows *win) {
-    SoundTestEntry *list = D_80084E7C[task->bankCursor];
+void SOUNDTST_playSounds(SoundTest *task, SoundTestWindows *win) {
+    SoundTestEntry *list = SOUNDTST_soundLists[task->bankCursor];
     s32 i;
     s32 j;
 
@@ -60,16 +60,16 @@ void func_80083C40(SoundTest *task, SoundTestWindows *win) {
         while (list[task->soundCount].id != 0) {
             task->soundCount++;
         }
-        win->header->setText(win->header, D_80084F98[task->bankCursor].name);
+        win->header->setText(win->header, SOUNDTST_banks[task->bankCursor].name);
         task->playing = 0;
         task->nextStep(task);
     case 1:
         break;
     }
     if ((PAD.getPressed(0) | PAD.getRepeated(0)) & 0x40) {
-        func_80083BD4(task, 1, &task->soundCursor, &task->soundTop, task->soundCount);
+        SOUNDTST_moveCursor(task, 1, &task->soundCursor, &task->soundTop, task->soundCount);
     } else if ((PAD.getPressed(0) | PAD.getRepeated(0)) & 0x10) {
-        func_80083BD4(task, -1, &task->soundCursor, &task->soundTop, task->soundCount);
+        SOUNDTST_moveCursor(task, -1, &task->soundCursor, &task->soundTop, task->soundCount);
     } else if (PAD.getPressed(0) & 0x8000) {
         SOUND_STATE.stopAll();
     } else if (PAD.getPressed(0) & 0x4000) {
@@ -91,7 +91,7 @@ void func_80083C40(SoundTest *task, SoundTestWindows *win) {
     win->cursor->setPos(win->cursor, 0x20, (task->soundCursor - task->soundTop) * 16 + 0x46);
 }
 
-void func_80083FA0(SoundTest *task, SoundTestWindows *win) {
+void SOUNDTST_loadBank(SoundTest *task, SoundTestWindows *win) {
     switch (task->step) {
     case 0:
     default:
@@ -109,7 +109,7 @@ void func_80083FA0(SoundTest *task, SoundTestWindows *win) {
     }
 }
 
-void func_80084054(SoundTest *task, SoundTestWindows *win) {
+void SOUNDTST_selectBank(SoundTest *task, SoundTestWindows *win) {
     s32 i;
     s32 j;
 
@@ -117,24 +117,24 @@ void func_80084054(SoundTest *task, SoundTestWindows *win) {
     case 0:
     default:
         task->bankCount = 0;
-        while (D_80084F98[task->bankCount].id != 0) {
+        while (SOUNDTST_banks[task->bankCount].id != 0) {
             task->bankCount++;
         }
-        win->header->setText(win->header, D_80083AC4);
+        win->header->setText(win->header, SOUNDTST_STR_SELECT_VAB);
         task->nextStep(task);
     case 1:
         break;
     }
     if ((PAD.getPressed(0) | PAD.getRepeated(0)) & 0x40) {
-        func_80083BD4(task, 1, &task->bankCursor, &task->bankTop, task->bankCount);
+        SOUNDTST_moveCursor(task, 1, &task->bankCursor, &task->bankTop, task->bankCount);
     } else if ((PAD.getPressed(0) | PAD.getRepeated(0)) & 0x10) {
-        func_80083BD4(task, -1, &task->bankCursor, &task->bankTop, task->bankCount);
+        SOUNDTST_moveCursor(task, -1, &task->bankCursor, &task->bankTop, task->bankCount);
     } else if (PAD.getPressed(0) & 0x2000) {
-        task->bank = D_80084F98[task->bankCursor].id;
+        task->bank = SOUNDTST_banks[task->bankCursor].id;
         task->nextSubstate(task);
     }
-    for (i = 0, j = task->bankTop; i < 8 && D_80084F98[j].id != 0; i++, j++) {
-        win->lines[i]->setText(win->lines[i], D_80084F98[j].name);
+    for (i = 0, j = task->bankTop; i < 8 && SOUNDTST_banks[j].id != 0; i++, j++) {
+        win->lines[i]->setText(win->lines[i], SOUNDTST_banks[j].name);
         win->lines[i]->setVisible(win->lines[i], 1);
     }
     for (; i < 8; i++) {
@@ -143,7 +143,7 @@ void func_80084054(SoundTest *task, SoundTestWindows *win) {
     win->cursor->setPos(win->cursor, 0x20, (task->bankCursor - task->bankTop) * 16 + 0x46);
 }
 
-void func_800842C4(SoundTest *task, SoundTestWindows *win) {
+void SOUNDTST_updateSoundTest(SoundTest *task, SoundTestWindows *win) {
     Layer *res;
     s32 i;
 
@@ -153,29 +153,29 @@ void func_800842C4(SoundTest *task, SoundTestWindows *win) {
         GFX.funcs.reset();
         GFX.funcs.allocPrimBuffers(0x5000);
         GFX.funcs.setDisplayMode(0x140, 0xF0, 0, 0);
-        res = GFX.funcs.createLayer(&D_800851D8, 1, 0x1000);
+        res = GFX.funcs.createLayer(&SOUNDTST_screenRect, 1, 0x1000);
         res->setBgColor(res, 0x1F, 0x1F, 0x1F);
         win->title = createTextWindow(0x1000, 1, 0x10, 0x1E);
-        win->title->setText(win->title, D_80083AF4);
+        win->title->setText(win->title, SOUNDTST_STR_SOUND_TEST);
         win->header = createTextWindow(0x1000, 1, 0x20, 0x32);
         for (i = 0; i < 8; i++) {
             win->lines[i] = createTextWindow(0x1000, 1, 0x30, i * 16 + 0x46);
         }
         win->cursor = createTextWindow(0x1000, 1, 0x20, 0x46);
-        win->cursor->setText(win->cursor, D_80083B04);
+        win->cursor->setText(win->cursor, SOUNDTST_STR_CURSOR);
         task->nextState(task);
         break;
     case 1:
         switch (task->substate) {
         case 0:
         default:
-            func_80084054(task, win);
+            SOUNDTST_selectBank(task, win);
             break;
         case 1:
-            func_80083FA0(task, win);
+            SOUNDTST_loadBank(task, win);
             break;
         case 2:
-            func_80083C40(task, win);
+            SOUNDTST_playSounds(task, win);
             break;
         }
         break;
@@ -187,14 +187,14 @@ void func_800842C4(SoundTest *task, SoundTestWindows *win) {
     }
 }
 
-Task *func_800844E0(void) {
-    return createTask(func_800842C4, sizeof(SoundTest), sizeof(SoundTestWindows));
+Task *SOUNDTST_createSoundTest(void) {
+    return createTask(SOUNDTST_updateSoundTest, sizeof(SoundTest), sizeof(SoundTestWindows));
 }
 
-INCLUDE_RODATA("asm/soundtst/nonmatchings/soundtst", D_80082448);
+INCLUDE_RODATA("asm/soundtst/nonmatchings/soundtst", SOUNDTST_entryNames);
 
-INCLUDE_RODATA("asm/soundtst/nonmatchings/soundtst", D_80083AC4);
+INCLUDE_RODATA("asm/soundtst/nonmatchings/soundtst", SOUNDTST_STR_SELECT_VAB);
 
-INCLUDE_RODATA("asm/soundtst/nonmatchings/soundtst", D_80083AF4);
+INCLUDE_RODATA("asm/soundtst/nonmatchings/soundtst", SOUNDTST_STR_SOUND_TEST);
 
-INCLUDE_RODATA("asm/soundtst/nonmatchings/soundtst", D_80083B04);
+INCLUDE_RODATA("asm/soundtst/nonmatchings/soundtst", SOUNDTST_STR_CURSOR);
