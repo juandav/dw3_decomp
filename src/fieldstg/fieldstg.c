@@ -487,7 +487,9 @@ void func_800914C0(void) {
     HEAP.zero(D_8009A424, 8);
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800914F0);
+void *func_800914F0(s32 arg0) {
+    return TASK_FUNCS.find(5, arg0, -1);
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091520);
 
