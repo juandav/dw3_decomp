@@ -183,7 +183,17 @@ void STDWTITL_initDecEnv(DecEnv *dec, s16 x0, s16 y0, s16 x1, s16 y1) {
     dec->isdone = 0;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_readStream);
+void STDWTITL_readStream(CdlLOC *loc) {
+    u_char param;
+
+    param = CdlModeSpeed;
+    do {
+        while (CdControl(CdlSetloc, (u_char *)loc, 0) == 0) {
+        }
+        while (CdControl(CdlSetmode, &param, 0) == 0) {
+        }
+    } while (CdRead2(CdlModeStream | CdlModeSpeed | CdlModeRT | CdlModeSize1) == 0);
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_initStream);
 
