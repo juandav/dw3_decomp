@@ -130,7 +130,9 @@ void func_80086A3C(StreamTask *task) {
     task->unk70 = -1;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086A48);
+s32 func_80086A48(StreamTask *task) {
+    return task->unk70;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086A54);
 
