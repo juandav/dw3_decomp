@@ -2044,7 +2044,32 @@ void func_80019164(Unk80019DFC *obj, char *text, s32 id) {
     func_80019360(obj, text, id, 0);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80019184);
+void func_80019184(u8 *buf, s32 value) {
+    s32 saved;
+    s32 len;
+    s32 div;
+    s32 d;
+
+    saved = value;
+    if (value <= 0) {
+        *buf = '0';
+        return;
+    }
+    len = 0;
+    div = 10;
+    do {
+        value -= value % div;
+        len++;
+        div *= 10;
+    } while (value != 0);
+    value = saved;
+    while (value != 0) {
+        d = value % 10;
+        value -= d;
+        value /= 10;
+        buf[--len] = d + '0';
+    }
+}
 
 void func_8001922C(Unk80019DFC *obj, u32 index, s32 value) {
     u8 buf[16];
