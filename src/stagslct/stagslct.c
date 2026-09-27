@@ -57,7 +57,16 @@ void func_80084590(StageSelect *sel, s32 delta) {
     sel->cursor = cursor;
 }
 
-INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_80084660);
+void func_80084660(StageSelect *sel, s32 delta) {
+    sel->top += delta;
+    if (sel->top < 0) {
+        sel->top = 0;
+        return;
+    }
+    if (sel->top > sel->count - sel->lines) {
+        sel->top = sel->count - sel->lines;
+    }
+}
 
 INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_800846A4);
 
