@@ -1417,7 +1417,7 @@ s32 func_80015D90(s32 id, s32 arg1) {
 
 s32 func_80015DD8(s32 slot, s32 item) {
     Unk80048C50 *d = &D_80048C50[slot];
-    u8 *info = *D_800427A4(item);
+    u8 *info = D_800427A4(item)->data;
     s16 *equip = d->equip;
     s32 i;
 

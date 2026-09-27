@@ -494,6 +494,12 @@ typedef struct Unk8003EB68 {
     /* 0x56 */ u8 unk56[2];
 } Unk8003EB68;
 
+typedef struct ItemInfo {
+    /* 0x0 */ u8 *data;
+    /* 0x4 */ u8 unk4[5];
+    /* 0x9 */ u8 type;
+} ItemInfo;
+
 typedef struct Unk80048C50Entry {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 unk2;
@@ -1094,7 +1100,7 @@ extern s32 D_8005117C[];
 extern s32 (*D_80055418[])(void);
 extern Unk80042728 D_80042728;
 extern Unk80041444 D_80041444[];
-extern u8 **(*D_800427A4)(s32 item);
+extern struct ItemInfo *(*D_800427A4)(s32 item);
 extern u8 D_800427B4[];
 extern s32 D_800483F8[];
 extern u8 D_8004AB5F[];
