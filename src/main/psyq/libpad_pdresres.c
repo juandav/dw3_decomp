@@ -26,8 +26,8 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padSioRW2);
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padClrIntSio0);
 
 void _padWaitRXready(void) {
-    while (!(D_80055590->stat & 2)) {
-    }
+    do {
+    } while (!(D_80055590->stat & 2));
 }
 
 void _padSetCmd(PadPort *port, u_char cmd, u_char *data, u_char len) {
