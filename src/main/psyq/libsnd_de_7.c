@@ -1,5 +1,16 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_de_7", _SsSetNrpnVabAttr7);
+void _SsUtResolveADSR(u_short adsr1, u_short adsr2, SsADSR *adsr);
+void _SsUtBuildADSR(SsADSR *adsr, u_short *adsr1, u_short *adsr2);
+
+void _SsSetNrpnVabAttr7(short vabId, short prog, short vag, VagAtr vagatr, short fn, u_char data) {
+    SsADSR adsr;
+
+    SsUtGetVagAtr(vabId, prog, vag, &vagatr);
+    _SsUtResolveADSR(vagatr.adsr1, vagatr.adsr2, &adsr);
+    adsr.sl = data;
+    _SsUtBuildADSR(&adsr, &vagatr.adsr1, &vagatr.adsr2);
+    SsUtSetVagAtr(vabId, prog, vag, &vagatr);
+}
 
 OBJECT_END();
