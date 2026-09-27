@@ -48,7 +48,9 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5094);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5458);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A54C8);
+void *func_800A54C8(s32 arg) {
+    return createTaskWithId(func_800A5094, 0x84, 0, arg);
+}
 
 void *func_800A54F8(void) {
     return createTask(func_800A5094, 0x84, 0);
@@ -86,7 +88,9 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5644);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5A08);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5A78);
+void *func_800A5A78(s32 arg) {
+    return createTaskWithId(func_800A5644, 0x84, 0, arg);
+}
 
 void *func_800A5AA8(void) {
     return createTask(func_800A5644, 0x84, 0);

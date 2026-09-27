@@ -1,5 +1,6 @@
 #include "common.h"
 #include "stage.h"
+void func_800A4DC4();
 extern void (*D_800A5B48[])(void);
 void func_800A5040();
 
@@ -33,7 +34,9 @@ s32 func_800A4CA4(Anim8 *obj, AnimFrame *frames, s32 once, s32 depth) {
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag625", func_800A4DC4);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag625", func_800A5010);
+void *func_800A5010(s32 arg) {
+    return createTaskWithId(func_800A4DC4, 0x80, 0, arg);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag625", func_800A5040);
 

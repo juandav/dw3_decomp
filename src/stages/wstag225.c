@@ -12,7 +12,9 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag225", func_800A4DB4);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag225", func_800A5038);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag225", func_800A50A4);
+void *func_800A50A4(s32 arg) {
+    return createTaskWithId(func_800A4DB4, 0x70, 0, arg);
+}
 
 void *func_800A50D4(void) {
     return createTask(func_800A4DB4, 0x70, 0);

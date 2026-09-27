@@ -1,5 +1,6 @@
 #include "common.h"
 #include "stage.h"
+void func_800A4DC4();
 extern void (*D_800A61E4[])(void);
 void func_800A543C();
 
@@ -9,7 +10,9 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag795", func_800A4DC4);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag795", func_800A5044);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag795", func_800A5094);
+void *func_800A5094(s32 arg) {
+    return createTaskWithId(func_800A4DC4, 0x68, 0, arg);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag795", func_800A50C4);
 

@@ -1,5 +1,6 @@
 #include "common.h"
 #include "stage.h"
+void func_800A5AF0();
 void func_800A5368();
 void func_800A4FDC();
 extern void (*D_800A6594[])(void);
@@ -43,7 +44,9 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A4FDC);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A51D0);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A51EC);
+void *func_800A51EC(s32 arg) {
+    return createTaskWithId(func_800A4FDC, 0x5C, 0, arg);
+}
 
 void *func_800A521C(void) {
     return createTask(func_800A4FDC, 0x5C, 0);
@@ -81,7 +84,9 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A5368);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A5630);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A564C);
+void *func_800A564C(s32 arg) {
+    return createTaskWithId(func_800A5368, 0x64, 0, arg);
+}
 
 void *func_800A567C(void) {
     return createTask(func_800A5368, 0x64, 0);
@@ -125,7 +130,9 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A5AF0);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A5DCC);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A5DE8);
+void *func_800A5DE8(s32 arg) {
+    return createTaskWithId(func_800A5AF0, 0x80, 0, arg);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A5E18);
 
