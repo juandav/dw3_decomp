@@ -194,18 +194,22 @@ typedef struct Task8001B6A8 {
 typedef struct Unk8001C5C4 {
     /* 0x00 */ struct Task8001C454 *items[3];
     /* 0x0C */ struct Unk80019DFC *windows[2];
+    /* 0x14 */ struct Task *unk14;
 } Unk8001C5C4;
 
 typedef struct Unk8001BB68 {
     /* 0x00 */ u8 unk0[0x24];
     /* 0x24 */ Unk8001C5C4 *children;
-    /* 0x28 */ u8 unk28[0x2C];
+    /* 0x28 */ u8 unk28[0x28];
+    /* 0x50 */ s32 file;
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 type;
     /* 0x5C */ u8 unk5C[4];
     /* 0x60 */ s16 x;
     /* 0x62 */ s16 y;
     /* 0x64 */ s16 w;
+    /* 0x66 */ s16 h;
+    /* 0x68 */ void (*setPos)(struct Unk8001BB68 *task, s32 x, s32 y);
 } Unk8001BB68;
 
 typedef struct Task8001BB68 {
@@ -612,7 +616,7 @@ typedef struct Obj8001F22C {
 
 typedef struct Obj8001F8F8 {
     /* 0x0 */ char *(*unk0)();
-    /* 0x4 */ s16 (*unk4)();
+    /* 0x4 */ s32 (*unk4)();
     /* 0x8 */ void (*unk8)();
 } Obj8001F8F8;
 
@@ -983,7 +987,7 @@ void func_8001F200();
 void func_8001F20C(CVECTOR *color);
 void func_8001F31C(Obj8001F8F8 *obj);
 s32 func_8001F328(s32 *table, s32 index);
-s16 func_8001F354();
+s32 func_8001F354();
 void func_8001F8F8(Obj8001F8F8 *obj);
 void func_8001F658();
 void func_8001F954(Obj8001FBE0 *obj);
