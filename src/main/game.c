@@ -51,9 +51,93 @@ void func_80011080(void) {
     }
 }
 
+typedef struct Shop {
+    /* 0x0 */ s32 id;
+    /* 0x4 */ s16 unk4;
+    /* 0x6 */ s16 price;
+} Shop;
+extern Shop D_8003E9D8[];
+
+void func_80011114(Task800119AC *task, Data800119AC *data);
+Task8001ACC8 *func_8001AFE0(s16 arg0, s32 arg1, s16 arg2, s16 arg3);
+
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80011114);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800119AC);
+void func_800119AC(Task800119AC *task, Data800119AC *data) {
+    Obj8001F22C obj;
+    s32 i;
+    s32 n;
+    s32 id;
+
+    switch (task->state) {
+    case 0:
+    default:
+        task->unk38(task);
+        id = D_8004ABD8.unk8();
+        for (n = 0; D_8003E9D8[n].id != 0; n++) {
+            if (id == D_8003E9D8[n].id) {
+                break;
+            }
+        }
+        task->shop = n;
+        for (i = 0; i < 3; i++) {
+            if (D_800484E8.unk270C(i) >= 0) {
+                task->count++;
+            }
+        }
+        data->windows[0] = func_8001AAB4(task->unk50, 1, 0x1D, 0x14);
+        data->windows[1] = func_8001AAB4(task->unk50, 3, 0x117, 0x17);
+        data->windows[2] = func_8001AAB4(task->unk50, 3, 0x11A, 0x17);
+        data->windows[3] = func_8001AAB4(task->unk50, 1, 0x79, 0x34);
+        data->windows[4] = func_8001AAB4(task->unk50, 1, 0xC5, 0x5F);
+        data->windows[5] = func_8001AAB4(task->unk50, 1, 0xC5, 0x6F);
+        data->unk1C = func_8001AFE0(task->unk50, 0, 0xB8, 0x5F);
+        data->unk1C->methods[0](data->unk1C, 0);
+        task->fades[0].duration = 10;
+        task->fades[1].duration = 10;
+        task->fades[2].duration = 10;
+        break;
+    case 1:
+        func_80011114(task, data);
+        func_8001F22C(&obj);
+        obj.methods[1](0x140, 0);
+        obj.methods[3](task->unk50, task->unk54);
+        obj.methods[10](0);
+        if (task->fades[0].level != 0) {
+            if (task->fades[0].level != 0x1000) {
+                obj.methods[7](task->fades[0].level, 0x1000, 0x1000);
+                obj.methods[9](0x57, 0x19);
+            }
+            obj.methods[5](D_80044744.unk424(0x02770000), 0x41, 0x16, 0x12);
+            if (task->fades[0].level != 0x1000) {
+                obj.methods[9](0x140, 0x18);
+            }
+            obj.methods[5](D_80044744.unk424(0x02770000), 0x42, 0xD6, 0xF);
+        }
+        if (task->fades[1].level != 0) {
+            if (task->fades[1].level != 0x1000) {
+                obj.methods[7](task->fades[1].level, 0x1000, 0x1000);
+                obj.methods[9](0x140, 0x41);
+            }
+            obj.methods[5](D_80044744.unk424(0x02770000), 0x43, 0x4C, 0x2E);
+            if (task->fades[1].level != 0x1000) {
+                obj.methods[9](0x140, 0x6D);
+            }
+            obj.methods[5](D_80044744.unk424(0x02770000), 0x44, 0xAF, 0x59);
+        }
+        if (task->fades[2].level != 0) {
+            if (task->fades[2].level != 0x1000) {
+                obj.methods[7](task->fades[2].level, 0x1000, 0x1000);
+                obj.methods[9](0x140, 0x41);
+            }
+            obj.methods[5](D_80044744.unk424(0x02770000), 0x43, 0x4C, 0x2E);
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 void func_80011DB0(s32 arg0) {
     Task *task = func_800144DC(func_800119AC, 0xA0, 0x20);
