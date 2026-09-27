@@ -276,10 +276,10 @@ typedef struct GpuDebug {
     /* 0x6C */ DISPENV disp; /* also reached as D_8005570C */
 } GpuDebug;
 extern GpuDebug D_800556A0;
-extern u_long *D_800557A8;
-extern u_long *D_800557AC;
-extern u_long *D_800557B0;
-extern u_long *D_800557B4;
+extern volatile u_long *D_800557A8;
+extern volatile u_long *D_800557AC;
+extern volatile u_long *D_800557B0;
+extern volatile u_long *D_800557B4;
 extern u_short D_8005A6FA;
 extern volatile u_short *D_8005B788;
 extern long D_8005B800;
@@ -344,7 +344,7 @@ void func_800274A0();
 extern IntrFuncs *D_8005B780;
 extern void (*D_8005551C)(PadPort *p);
 extern u_char D_80055578[];
-extern u_long *D_800557A4;
+extern volatile u_long *D_800557A4;
 extern long D_800557DC;
 extern long D_800557E0;
 extern long D_800557F4;

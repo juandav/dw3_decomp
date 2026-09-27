@@ -20,7 +20,7 @@ void func_80027154(u_long addr);
 extern u_long *D_800557B8;
 extern u_long *D_800557BC;
 extern u_long *D_800557C0;
-extern u_long *D_800557C4;
+extern volatile u_long *D_800557C4;
 extern volatile long D_800557C8; /* command queue write index */
 extern volatile long D_800557CC; /* command queue read index */
 extern long D_800557D8; /* interrupt mask saved by the reset */
