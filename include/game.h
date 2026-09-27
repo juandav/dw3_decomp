@@ -408,6 +408,29 @@ typedef struct Unk8001BA7C {
     /* 0x4 */ struct Task8001B6A8 *unk4;
 } Unk8001BA7C;
 
+typedef struct MenuPage {
+    /* 0x00 */ Unk80019DFC *head;
+    /* 0x04 */ Unk80019DFC *left[5];
+    /* 0x18 */ Unk80019DFC *right[5];
+} MenuPage;
+
+typedef struct MenuWindows {
+    /* 0x00 */ Unk80019DFC *title;
+    /* 0x04 */ Unk80019DFC *unk4;
+    /* 0x08 */ Unk80019DFC *unk8;
+    /* 0x0C */ Unk80019DFC *items[6];
+    /* 0x24 */ struct Task8001ACC8 *cursor;
+    /* 0x28 */ MenuPage pages[3];
+} MenuWindows;
+
+typedef struct WindowPos {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ s16 x;
+    /* 0x6 */ s16 unk6;
+    /* 0x8 */ s16 y;
+    /* 0xA */ s16 unkA;
+} WindowPos;
+
 typedef struct Unk80041444 {
     /* 0x0 */ u8 unk0[8];
     /* 0x8 */ u8 unk8;
