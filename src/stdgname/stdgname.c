@@ -301,7 +301,86 @@ s32 func_800850E0(MenuTask *task, TextWindow **windows) {
     return 0;
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80085354);
+void func_80085354(MenuTask *task, TextWindow **windows) {
+    s32 i;
+    s32 j;
+    s32 done;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->nextState(task);
+        for (i = 5; i >= 0; i--) {
+            task->tweens[i].duration = 10;
+        }
+        for (i = 0; i < 3; i++) {
+            if (GAME.funcs.getPartyPartner(i) >= 0) {
+                task->partyCount++;
+            }
+        }
+        break;
+    case TASK_RUN:
+        done = 0;
+        switch (task->substate) {
+        case 0:
+        default:
+            D_80087480.startTween(&task->tweens[0], 1);
+            D_80087480.startTween(&task->tweens[1], 1);
+            task->substate++;
+            break;
+        case 1:
+            done += D_80087480.tickTween(&task->tweens[0]);
+            done += D_80087480.tickTween(&task->tweens[1]);
+            if (done == 2) {
+                func_80084998(task, &windows[0], 0, 1);
+                func_80084998(task, &windows[1], 1, 1);
+                D_80087480.startTween(&task->tweens[3], 1);
+                task->nextSubstate(task);
+            }
+            break;
+        case 2:
+            if (D_80087480.tickTween(&task->tweens[task->step + 3])) {
+                func_80084998(task, &windows[task->step + 2], task->step + 2, 1);
+                if (task->step < task->partyCount - 1) {
+                    task->step++;
+                    D_80087480.startTween(&task->tweens[task->step + 3], 1);
+                } else {
+                    D_80087480.startTween(&task->tweens[2], 1);
+                    task->nextSubstate(task);
+                }
+            }
+            break;
+        case 4:
+            if (func_800850E0(task, windows)) {
+                task->substate++;
+                for (i = 0; i < 6; i++) {
+                    D_80087480.startTween(&task->tweens[i], 0);
+                    func_80084998(task, &windows[i], i, 0);
+                }
+            }
+            break;
+        case 3:
+        case 5:
+            if (D_80087480.tickTween(&task->tweens[2])) {
+                task->substate++;
+            }
+            break;
+        case 6:
+            for (j = 0; j < 6; j++) {
+                done += D_80087480.tickTween(&task->tweens[j]);
+            }
+            if (done == 6) {
+                task->setState(task, TASK_KILL);
+            }
+            break;
+        }
+        func_80084B0C(task, windows);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 MenuTask *func_800856B4(ScreenTask *screen) {
     MenuTask *task = createTask(func_80085354, sizeof(MenuTask), 10 * sizeof(TextWindow *));
