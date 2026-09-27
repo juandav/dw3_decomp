@@ -205,7 +205,11 @@ void STDWTITL_tickBackground(BackgroundTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_animateBackground);
+void STDWTITL_animateBackground(BackgroundTask *task) {
+    if (task->state == TASK_RUN) {
+        task->setState(task, TASK_DONE);
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_startBackgroundTask);
 
