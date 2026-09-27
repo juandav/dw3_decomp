@@ -348,7 +348,44 @@ void CNTY_SEL_drawLeftPanel(PanelTask *task) {
     sprite.methods[5](D_80044B68[0](CNTY_SEL_SPRITES), SPRITE_LEFT_PANEL, 0, 158);
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_tickLeftPanel);
+void CNTY_SEL_tickLeftPanel(PanelTask *task) {
+    s16 phase;
+
+    switch (task->task.state) {
+    case TASK_INIT:
+    default:
+        task->task.nextState(task);
+        task->scaleY = 0x1000;
+        task->scaleX = 0;
+        task->phase = 0;
+        break;
+    case TASK_RUN:
+        switch (task->task.substate) {
+        case 0:
+            break;
+        case 1:
+            phase = task->phase;
+            if (CNTY_SEL_leftPanelTweens[phase].duration < task->time++) {
+                task->phase ^= 1;
+                task->task.setSubstate(task, 0);
+                task->scaleX = CNTY_SEL_leftPanelTweens[phase].to;
+            } else {
+                task->scaleX = CNTY_SEL_getLeftPanelScale(task, phase);
+            }
+            break;
+        }
+        CNTY_SEL_drawLeftPanel(task);
+        break;
+    case TASK_TRIGGER:
+        task->time = 0;
+        task->task.setState(task, TASK_RUN);
+        task->task.setSubstate(task, 1);
+        CNTY_SEL_drawLeftPanel(task);
+        break;
+    case TASK_END:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_startLeftPanelTask);
 
