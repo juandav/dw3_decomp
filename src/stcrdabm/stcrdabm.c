@@ -1,4 +1,14 @@
-#include "common.h"
+#include "stcrdabm.h"
+
+extern s32 D_80085168[6];
+extern CardAlbumFuncs D_80085180;
+
+void initCardDrawer(CardDrawer *obj);
+void func_800825A8(CardAlbumFader *fader);
+void func_8008290C(CardAlbumGrid *grid, s32 previous);
+s32 func_80082ECC(CardAlbumGrid *grid);
+void func_80083820(CardAlbum *album, CardAlbumWindows *win, s32 show);
+void func_80083C4C(CardAlbum *album);
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80082520);
 
@@ -25,6 +35,8 @@ INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80082F18);
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80082FE0);
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80083210);
+
+Task *func_80084DB8(void);
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80083270);
 
