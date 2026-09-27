@@ -135,7 +135,14 @@ void func_80082A0C(ShockTest *task, ShockTestWindows *win, s32 pattern) {
     }
 }
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80082AC4);
+void func_80082AC4(ShockTest *task, ShockTestWindows *win, s32 pattern) {
+    s32 i;
+
+    for (i = 0; i < 2; i++) {
+        win->powers[i]->setNumber(win->powers[i], 1, task->steps[i][pattern].power);
+        win->times[i]->setNumber(win->times[i], 1, task->timers[i]);
+    }
+}
 
 INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80082B58);
 
