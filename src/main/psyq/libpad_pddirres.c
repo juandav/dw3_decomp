@@ -10,6 +10,11 @@ extern int (*D_80055534)(PadPort *p);
 extern void (*D_80055538)();
 extern void (*D_8005553C)(PadPort *p);
 extern PadPort *D_8005554C;
+extern long D_80055558;
+extern long D_8005555C;
+extern long D_8005556C;
+extern long D_80055570[];
+extern volatile SioRegs *D_800554F0;
 
 void func_800213F0();
 void func_80021388(PadPort *p);
@@ -23,6 +28,8 @@ int func_80021CA8(PadPort *p);
 void *bzero(u_char *p, int n);
 void _padSendAtLoadInfo(PadPort *port);
 void _padCmdParaMode(PadPort *port, u_char param);
+void _dirFailAuto(PadPort *p, int status);
+int _padInitSioMode(PadPort *p);
 
 void _padInitDirPort(void) {
     bzero((u_char *)D_8007E4D0, sizeof(D_8007E4D0));
@@ -67,7 +74,32 @@ void func_80021388(PadPort *p) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_800213F0);
+void func_800213F0(int status) {
+    PadPort *p;
+    int done;
+
+    do {
+        p = &D_8007E4D0[D_80055558];
+        if (status != -9) {
+            if (status == 0) {
+                D_80055570[D_80055558] = 0;
+            } else {
+                _dirFailAuto(p, status);
+                func_800214E4(p);
+            }
+        }
+        D_8005555C = 0;
+        D_800554F0->ctrl = 0;
+        D_80055558++;
+        if (D_80055558 <= D_8005556C) {
+            done = _padInitSioMode(&D_8007E4D0[D_80055558]);
+            status = 0xFFFF;
+        } else {
+            done = 1;
+            status = 0xFFFF;
+        }
+    } while (!done);
+}
 
 void func_800214E4(PadPort *port) {
     u_char cmd = port->cmd;
@@ -126,7 +158,7 @@ int func_8002184C(PadPort *p) {
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_8002195C);
 
-void _dirFailAuto(PadPort *p) {
+void _dirFailAuto(PadPort *p, int status) {
     p->unk4C++;
     if (p->unk46 != 0) {
         if (p->unk46 == 1) {
