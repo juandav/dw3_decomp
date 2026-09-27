@@ -37,6 +37,10 @@ and raw (`lh` + `lhu` of the same field in the ROM), and a bogus
    mode (4 bytes for SImode) instead of BIGGEST_ALIGNMENT (8), like GCC 2.8's
    `inherent_size == total_size ? 0 : -1`. Two spilled pseudos then sit at
    0x5C/0x60 instead of 0x60/0x68 (libmcrd MemCardGetDirentry's frame).
+7. try_combine: a three-insn combination whose I1 is a still-needed
+   `sra 16` (sign extension) is refused instead of keeping I1 alongside:
+   `(s & 0xFF00) >> 8` stays `andi; sra 8` like the ROM (and GCC 2.8), not
+   `srl 24` plus a dead pseudo with a stack slot (libsnd vm functions).
 
 The whole build matches with the patched cc1 (none of the functions that
 already matched changes).
@@ -214,6 +218,28 @@ def patch(src, dst):
     # 6. alter_reg+348: `assign_stack_local (mode, total_size, -1)` for a
     #    pseudo with no slot to reuse -> align 0 (the mode's alignment).
     put(0x08161CD9, b"\x6a\xff", b"\x6a\x00")
+
+    # 7. try_combine+5233 (`if (added_sets_1 || added_sets_2)`): when I1's
+    #    result is still needed after I3 and I1 is an `sra` (ASHIFTRT), give up
+    #    (undo_all; return 0) instead of keeping I1 in a PARALLEL. Like GCC
+    #    2.8, the PsyQ cc1 never folds a still-live sign extension into a later
+    #    shift: `(s & 0xFF00) >> 8` of a short also used elsewhere stays
+    #    `andi 0xFF00; sra 8` (ours made it `srl 24` of the `sll 16` and left a
+    #    dead pseudo, i.e. a bogus stack frame) (libsnd _SsVmKeyOnNow...).
+    #    Only for an I1 that is an arithmetic right shift (the second half
+    #    of a sign extension): failing for every kept I1 breaks a dozen
+    #    matched functions (kept constants, loads).
+    def keep_live_i1(code, jump):
+        code += b"\x83\xbd\xd4\xfe\xff\xff\x00"   # cmpl $0,added_sets_1
+        jump(b"\x0f\x84", 0x08127F37)             # je -> test added_sets_2
+        code += b"\x8b\x85\xb4\xfe\xff\xff"       # mov i1src,%eax
+        code += b"\x66\x83\x38\x4f"                # cmpw $ASHIFTRT,(%eax)
+        jump(b"\x0f\x84", 0x08127F1F)             # je -> undo_all; return 0
+        jump(b"\xe9", 0x08127F44)                  # jmp -> build the PARALLEL
+
+    cave = append(keep_live_i1)
+    put(0x08127F2E, bytes.fromhex("83bdd4feffff00750d"),
+        b"\xe9" + (cave - (0x08127F2E + 5)).to_bytes(4, "little", signed=True) + b"\x90" * 4)
 
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     tmp = dst + ".tmp"
