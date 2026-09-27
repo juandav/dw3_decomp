@@ -13,7 +13,24 @@ void func_80010F80(Fade *fade, s32 fadeIn) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80011014);
+s32 func_80011014(Fade *fade) {
+    if (!fade->active) {
+        return 1;
+    }
+    fade->level += fade->step;
+    if (fade->step > 0) {
+        if (fade->level > 0x1000) {
+            fade->level = 0x1000;
+            fade->active = 0;
+            return 1;
+        }
+    } else if (fade->level < 0) {
+        fade->level = 0;
+        fade->active = 0;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80011080);
 
@@ -66,7 +83,24 @@ void func_800120B8(Fade *fade, s32 fadeIn) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001214C);
+s32 func_8001214C(Fade *fade) {
+    if (!fade->active) {
+        return 1;
+    }
+    fade->level += fade->step;
+    if (fade->step > 0) {
+        if (fade->level > 0x1000) {
+            fade->level = 0x1000;
+            fade->active = 0;
+            return 1;
+        }
+    } else if (fade->level < 0) {
+        fade->level = 0;
+        fade->active = 0;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_800121B8);
 
