@@ -3100,4 +3100,65 @@ void func_8001CE60(void) {
     D_80044744.unk40C(0x277);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001CEE0);
+typedef struct GlyphMap {
+    /* 0x0 */ u16 code;
+    /* 0x2 */ u8 index;
+    /* 0x3 */ u8 pad;
+} GlyphMap;
+
+typedef struct FontInfo {
+    /* 0x00 */ u8 unk0[0xC];
+    /* 0x0C */ GlyphMap *unkC;
+    /* 0x10 */ GlyphMap *unk10;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+} FontInfo;
+
+s16 func_8001CEE0(u8 *s, u8 mode, FontInfo *font) {
+    u16 code;
+    GlyphMap *map;
+    s32 i;
+
+    if (s[0] == 0) {
+        return 0x400;
+    }
+    if (mode != 0) {
+        if (s[0] < 4) {
+            return (s[0] << 8) | s[1];
+        }
+        if (s[0] == 0xA) {
+            return 0x201;
+        }
+        code = s[0] << 8;
+        code |= s[1];
+        if ((u16)(code - 0x824F) < 0x146) {
+            map = font->unkC;
+            for (i = 4; map[i].code != 0xFFFF; i++) {
+                if (code == map[i].code) {
+                    return map[i].index;
+                }
+            }
+        } else {
+            map = font->unk10;
+            for (i = 0; map[i].code != 0xFFFF; i++) {
+                if (code == map[i].code) {
+                    return map[i].index | 0x100;
+                }
+            }
+        }
+    } else {
+        if (s[0] == 1) {
+            if (s[1] > font->unk16) {
+                return (((u16)font->unk16 + 1) & 0xFF) | 0x100;
+            }
+            return (s[0] << 8) | s[1];
+        }
+        if (s[0] < 4) {
+            return (s[0] << 8) | s[1];
+        }
+        if (s[0] < font->unk14) {
+            return s[0];
+        }
+    }
+    return 0x300;
+}
