@@ -1,5 +1,7 @@
 #include "common.h"
 #include "stage.h"
+extern void (*D_800A80B4[])(void);
+void func_800A6390();
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag780", func_800A4CA4);
 
@@ -51,7 +53,13 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag780", func_800A6360);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag780", func_800A6390);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag780", func_800A6474);
+StageTask *func_800A6474(void *owner) {
+    StageTask *task = createTask(func_800A6390, sizeof(StageTask), 0xC);
+
+    task->owner = owner;
+    D_800A80B4[0]();
+    return task;
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag780", func_800A64D0);
 

@@ -1,5 +1,7 @@
 #include "common.h"
 #include "stage.h"
+extern void (*D_800A6DF4[])(void);
+void func_800A508C();
 
 s32 func_800A4CA4(Anim8 *obj, AnimFrame *frames, s32 once, s32 depth) {
     AnimFrame *frame = &frames[obj->anim.index];
@@ -35,7 +37,13 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag620", func_800A505C);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag620", func_800A508C);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag620", func_800A51D8);
+StageTask *func_800A51D8(void *owner) {
+    StageTask *task = createTask(func_800A508C, sizeof(StageTask), 0x8);
+
+    task->owner = owner;
+    D_800A6DF4[0]();
+    return task;
+}
 
 void func_800A5234(void) {
     FLAGS_00.applyAction(0x403B, 1);
