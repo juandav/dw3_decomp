@@ -87,7 +87,26 @@ EdgeFadeTask *STDWTITL_startEdgeFadeTask(void) {
     return task;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_stepLoopingAnimation);
+s32 STDWTITL_stepLoopingAnimation(AnimState *anim, AnimFrame *frames, s32 depth) {
+    AnimFrame *frame = &frames[anim->index];
+
+    if (depth == 0) {
+        anim->timer--;
+    }
+    if (anim->timer <= 0) {
+        frame++;
+        anim->index++;
+        anim->timer += frame->duration;
+        if (frame->frame == 0xFF) {
+            /* Back to the first frame */
+            frame = frames;
+            anim->index = 0;
+            anim->timer += frame->duration;
+        }
+        STDWTITL_stepLoopingAnimation(anim, frames, depth + 1);
+    }
+    return frame->frame;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_drawBackground);
 
