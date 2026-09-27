@@ -2,7 +2,13 @@
 
 void func_80027FD0(u_char *dst, int value, int n);
 void func_800264B8(DR_ENV *p, DRAWENV *env);
+void func_80027978(void);
+int func_800279AC(void);
 
+extern u_long *D_800557B8;
+extern u_long *D_800557BC;
+extern u_long *D_800557C0;
+extern u_long *D_800557C4;
 extern u_long D_8005574C[];
 extern u_long D_80055760; /* terminator primitive of the ordering tables */
 extern u_long D_80055740[]; /* words 2..4 of the 5-word MoveImage packet at D_80055740 - 8 */
@@ -228,7 +234,20 @@ u_long func_80026914(void) {
     return *D_800557A8;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_8002692C);
+int func_8002692C(u_long *p, int n) {
+    *D_800557C4 |= 0x08000000;
+    *D_800557C0 = 0;
+    *D_800557B8 = (u_long)&p[n - 1];
+    *D_800557BC = n;
+    *D_800557C0 = 0x11000002;
+    func_80027978();
+    while (*D_800557C0 & 0x01000000) {
+        if (func_800279AC() != 0) {
+            return -1;
+        }
+    }
+    return n;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026A0C);
 
