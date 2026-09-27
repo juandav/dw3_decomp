@@ -468,7 +468,47 @@ void STDWTITL_drawGlint(GlintTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickGlint);
+void STDWTITL_tickGlint(GlintTask *task) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        if (task->skip == 0) {
+            task->lit = 0;
+            task->nextState(task);
+        } else {
+            task->setState(task, TASK_DONE);
+        }
+        break;
+    case TASK_RUN:
+        switch (task->substate) {
+        case 0:
+            break;
+        case 1:
+            task->index = 0;
+            task->frame = 0;
+            task->nextSubstate(task);
+        case 2:
+            task->frame = STDWTITL_glintFrames[task->index];
+            if (task->frame == -1) {
+                task->setState(task, TASK_DONE);
+            }
+            STDWTITL_drawGlint(task);
+            task->index++;
+            break;
+        }
+        break;
+    case TASK_DONE:
+        if (task->substate == 0) {
+            task->frame = -1;
+            task->lit = 1;
+            task->nextSubstate(task);
+        }
+        STDWTITL_drawGlint(task);
+        break;
+    case TASK_KILL:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startGlintTask);
 
