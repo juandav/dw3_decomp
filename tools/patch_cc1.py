@@ -4,10 +4,11 @@
 usage: tools/patch_cc1.py [in out]   (default: bin/gcc-2.7.2-psx/cc1 ->
                                        build/tools/gcc-2.7.2-psx/cc1)
 
-Two differences between our GCC 2.7.2 build and the compiler of the PsyQ 4.7
-libraries show up as the same symptom: a short loaded once and used both
-sign-extended and raw (`lh` + `lhu` of the same field in the ROM), and a bogus
-`addiu $sp,-8/-16` frame (`.frame ... vars=8/16`) with no stack accesses.
+Differences between our GCC 2.7.2 build and the compiler of the PsyQ 4.7
+libraries. The first two show up together: a short loaded once and used
+both sign-extended and raw (`lh` + `lhu` of the same field in the ROM), and a
+bogus `addiu $sp,-8/-16` frame (`.frame ... vars=8/16`) with no stack
+accesses.
 
 1. try_combine: when three insns (load HI, sll 16, sra 16) combine into a
    sign-extending load while the HImode load is still needed, ours rewrites the
@@ -19,9 +20,13 @@ sign-extended and raw (`lh` + `lhu` of the same field in the ROM), and a bogus
    condition codes, no SImode), so global.c couldn't place them and reload
    gave them stack slots. The best-class search now starts below ST_REGS,
    which the soft-float PsyQ code never uses.
+3. scan_loop: invariants of loops that contain calls were judged with half
+   the threshold (`(loop_has_call ? 1 : 2) * (1 + n_non_fixed_regs)`), so
+   constants like the `1` of `1 << voice` stayed in the loop; the ROM hoists
+   them into saved registers (_SsVmKeyOff). The factor is 2 for every loop.
 
-The whole build matches with the patched cc1 (it only changes functions that
-had one of the two symptoms).
+The whole build matches with the patched cc1 (none of the functions that
+already matched changes).
 """
 import os
 import struct
@@ -62,6 +67,8 @@ def patch(src, dst):
         b"\xe9" + (rel + 1).to_bytes(4, "little", signed=True) + b"\x90")
     # 2. regclass+2986: `for (class = ALL_REGS - 1; ...)` -> start at MD_REGS (6)
     put(0x0814313C, b"\xbe\x07\x00\x00\x00", b"\xbe\x06\x00\x00\x00")
+    # 3. scan_loop+596: `mov $1,%edx` (loop_has_call factor) -> `mov $2,%edx`
+    put(0x0810EC65, b"\xba\x01\x00\x00\x00", b"\xba\x02\x00\x00\x00")
 
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     tmp = dst + ".tmp"
