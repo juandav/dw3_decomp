@@ -242,7 +242,8 @@ typedef struct Unk80019DFC {
     /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ s32 unk14;
-    /* 0x18 */ u8 unk18[0x38];
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ u8 unk1C[0x34];
     /* 0x50 */ u8 *unk50;
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
@@ -422,6 +423,7 @@ typedef struct CdReader {
     /* 0x20 */ s32 unk20;
     /* 0x24 */ s32 unk24;
     /* 0x28 */ s32 unk28;
+    /* 0x2C */ s32 (*unk2C)(void);
 } CdReader;
 
 typedef struct Unk80044744 {
@@ -475,6 +477,16 @@ typedef struct Unk2744 {
     /* 0x28 */ u8 unk28[0x1A];
     /* 0x42 */ s16 unk42[3];
 } Unk2744;
+
+/* Memory card state */
+typedef struct Unk80047F14 {
+    /* 0x00 */ u8 unk0[0x90];
+    /* 0x90 */ s32 cmd;
+    /* 0x94 */ u32 result;
+    /* 0x98 */ s32 retries;
+    /* 0x9C */ s32 maxRetries;
+    /* 0xA0 */ s32 unkA0;
+} Unk80047F14;
 
 typedef struct MemBlock {
     /* 0x0 */ struct MemBlock *prev;
@@ -568,6 +580,8 @@ Slot *func_80013AB4(void);
 void func_80013C08(s32);
 void func_80013CB4(void);
 void func_80016860(void);
+long MemCardSync(long mode, long *cmds, u_long *result);
+Resource *func_8001E1A0(DRAWENV *env, s32 arg1);
 s32 func_8001D6B4(s32 id);
 s32 func_800172E8(s32 slot, s32 id);
 void func_8001D718(s32 index);
@@ -657,6 +671,7 @@ extern Unk80042728 D_80042728;
 extern Unk80041444 D_80041444[];
 extern u8 D_800427B4[];
 extern CdReader D_80044710;
+extern Unk80047F14 D_80047F14;
 extern void *(*D_80044B58)(void);
 extern void *D_800100C8;
 extern Unk800554D0 D_800554D0;

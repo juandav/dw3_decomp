@@ -286,7 +286,18 @@ void func_80013DF8(s32 arg0) {
     } while (func_80013A44(arg0) != 0);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80013E34);
+s32 *func_80013E34(u32 file) {
+    Slot *slot = func_800139D4(file);
+
+    if (slot != NULL && slot->unk0 == 3) {
+        slot->unk8 = D_8004D708.unk38();
+        return slot->unkC;
+    }
+    while (D_80044710.unk2C() != 0) {
+    }
+    func_80013DF8(file);
+    return func_800139D4(file)->unkC;
+}
 
 void func_80013ED4(s32 file) {
     Slot *slot = func_800139D4(file);
@@ -434,7 +445,27 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_80014884);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80014898);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80014A10);
+s32 func_80014A10(void) {
+    long cmds;
+    u_long result;
+    s32 ret = MemCardSync(1, &cmds, &result);
+
+    if (ret == 1) {
+        D_80047F14.cmd = cmds;
+        D_80047F14.result = result;
+        if (result < 2 || result == 3) {
+            D_80047F14.retries = 0;
+        } else {
+            if (++D_80047F14.retries < D_80047F14.maxRetries) {
+                D_80047F14.unkA0 = ret;
+                return 0;
+            }
+            D_80047F14.retries = 0;
+            D_80047F14.unkA0 = 0;
+        }
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80014AAC);
 
@@ -785,7 +816,14 @@ s32 func_800176B8(s32 slot, s32 id, Unk80048C50Entry *out) {
     return i;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80017750);
+s32 func_80017750(s32 slot, s32 id, Unk80048C50Entry *in) {
+    s32 i = func_800172E8(slot, id);
+
+    if (i != -1) {
+        D_800484E8.records[slot].entries[i] = *in;
+    }
+    return i;
+}
 
 Unk80048C50 *func_800177E8(s32 index) {
     return &D_80048C50[index];
@@ -1289,7 +1327,20 @@ s32 func_8001A364(Unk80019DFC *obj, TextBuffer *buf) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001A3B8);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001A4A8);
+s32 func_8001A4A8(Unk80019DFC *obj, TextBuffer *buf) {
+    if (buf->data[buf->pos + 2] < 5) {
+        obj->unkC = 2;
+        obj->unk10 = 1;
+        if (buf->data[buf->pos + 2] < 1 || buf->data[buf->pos + 2] > 4) {
+            obj->unk14 = 0;
+        } else {
+            obj->unk14 = buf->data[buf->pos + 2];
+        }
+        obj->unk18 = buf->pos + 2;
+        return 0;
+    }
+    return 0x8003;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001A530);
 

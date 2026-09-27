@@ -94,7 +94,17 @@ void func_8001D768(s32 index, Resource *res, s32 id) {
     D_8004D5B8.resourceIds[index] = id;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D7C4);
+Resource *func_8001D7C4(RECT *rect, s32 arg1, s32 id) {
+    DRAWENV env;
+    s32 index = func_8001D6B4(0);
+
+    if (index != -1) {
+        SetDefDrawEnv(&env, rect->x, rect->y, rect->w, rect->h);
+        D_8004D5B8.resourceIds[index] = id;
+        return D_8004D5B8.resources[index] = func_8001E1A0(&env, arg1);
+    }
+    return NULL;
+}
 
 s32 func_8001D860(s32 id) {
     s32 index = func_8001D6B4(id);
@@ -110,7 +120,24 @@ s32 func_8001D860(s32 id) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D8E8);
+void func_8001D8E8(s32 idA, s32 idB, s32 delta) {
+    s32 from = func_8001D6B4(idA);
+    s32 to = func_8001D6B4(idB);
+    s32 pos;
+    Resource *res;
+    s32 id;
+
+    if (from != -1 && to != -1) {
+        pos = to + delta;
+        res = D_8004D5B8.resources[from];
+        id = D_8004D5B8.resourceIds[from];
+        if (pos <= 0) {
+            pos = 0;
+        }
+        func_8001D718(from);
+        func_8001D768(pos, res, id);
+    }
+}
 
 void func_8001D984(DrawContext *ctx) {
     ClearOTagR(ctx->ot[D_8004D5B8.buffer], ctx->otLen);
