@@ -4,13 +4,14 @@ extern int (*D_80055530)(PadPort *p);
 extern int D_80055598;
 extern int D_80055594;
 extern int D_80055564;
-void _padSioRW(PadPort *p, int arg);
+int _padSioRW(PadPort *p, int data);
 int _padChkRC2wait(void);
 int _padSioRW2(PadPort *p, int arg);
 extern long D_80055568;
 extern long D_8005556C;
 extern long D_80055550;
 extern long D_8007F140[2];
+extern int D_8007F13C;
 extern void (*D_80055518)(int status);
 extern long D_80055560;
 extern long D_8005555C;
@@ -63,7 +64,59 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padInitSioMode);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", func_80023344);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padSioRW);
+int _padSioRW(PadPort *p, int data) {
+    volatile SioRegs *sio;
+    int rx;
+    int baud;
+    int id;
+
+    if (data < 0) {
+        rx = D_80055590->data;
+        p->unk44 = 0xFF;
+        p->unk45 = 1;
+        *p->unk40 = ~data;
+        sio = D_80055590;
+        while (!(sio->stat & 1)) {
+        }
+        while (_padChkRC2wait() == 0) {
+        }
+        D_80055590->data = ~data;
+    } else {
+        baud = 0x88;
+        id = *p->unk3C;
+        if ((id >> 4) == 8 && p->unk44 >= 9) {
+            baud = 0x22;
+        }
+        D_8007F138 = 0x1AE;
+        D_8007F134 = *(volatile u_short *)0x1F801120;
+        D_8007F13C = *(volatile u_short *)0x1F801124;
+        if (!(D_80055590->stat & 2)) {
+            volatile SioRegs *rxsio = D_80055590;
+
+            while (!(rxsio->stat & 2)) {
+            }
+        }
+        rx = D_80055590->data;
+        D_80055590->baud = baud;
+        while (!(*D_8005558C & 0x80)) {
+            if (_padChkRC2wait() != 0) {
+                return -20;
+            }
+        }
+        D_80055590->data = data;
+        if (baud == 0x22) {
+            volatile u_long *irq = D_8005558C;
+            volatile SioRegs *ctl = D_80055590;
+
+            *irq = ~0x80;
+            ctl->ctrl |= 0x10;
+        }
+        p->unk45++;
+        p->unk3C[p->unk44] = rx;
+        p->unk44++;
+    }
+    return rx;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padSioRW2);
 
