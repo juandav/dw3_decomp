@@ -9,7 +9,7 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", SetGraphDebug);
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", SetGraphQueue);
 
 int GetGraphDebug(void) {
-    return D_800556A2;
+    return D_800556A0.level;
 }
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", DrawSyncCallback);
@@ -17,7 +17,7 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", DrawSyncCallback);
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", SetDispMask);
 
 int DrawSync(int mode) {
-    if (D_800556A2 >= 2) {
+    if (D_800556A0.level >= 2) {
         D_8005569C("DrawSync(%d)...\n", mode);
     }
     return D_80055698->sync(mode);
@@ -60,7 +60,7 @@ void DrawPrim(void *p) {
 }
 
 void DrawOTag(u_long *p) {
-    if (D_800556A2 >= 2) {
+    if (D_800556A0.level >= 2) {
         D_8005569C(D_8001048C, p);
     }
     D_80055698->addque(D_80055698->unk18, p, 0, 0);

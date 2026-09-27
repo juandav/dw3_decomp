@@ -87,7 +87,10 @@ typedef struct PadPort {
 /* libmcrd global state, returned by McrdGetGlobalStructure */
 typedef struct McrdGlobal {
     /* 0x00 */ long unk0;
-    /* 0x04 */ u8 unk4[0x10];
+    /* 0x04 */ long unk4;
+    /* 0x08 */ long unk8;
+    /* 0x0C */ long unkC;
+    /* 0x10 */ long unk10;
     /* 0x14 */ long fd;
     /* 0x18 */ u8 unk18[0x2C];
     /* 0x44 */ MemCB callback;
@@ -135,7 +138,10 @@ typedef struct SeqStruct {
     /* 0x26 */ char vabId;
     /* 0x27 */ u_char panpot[16];
     /* 0x37 */ u_char programs[16];
-    /* 0x47 */ u8 unk47[0x19];
+    /* 0x47 */ u8 unk47[0x11];
+    /* 0x58 */ u_short voll;
+    /* 0x5A */ u_short volr;
+    /* 0x5C */ u8 unk5C[4];
     /* 0x60 */ u_short vol[16];
     /* 0x80 */ u8 unk80[0x10];
     /* 0x90 */ long delta;
@@ -175,7 +181,13 @@ void _patch_card_info(void);
 
 extern GpuDriver *D_80055698;
 extern int (*D_8005569C)(char *fmt, ...);
-extern u_char D_800556A2;
+typedef struct GpuDebug {
+    /* 0x0 */ u_char type;
+    /* 0x1 */ u_char unk1;
+    /* 0x2 */ u_char level;
+    /* 0x3 */ u_char reverse;
+} GpuDebug;
+extern GpuDebug D_800556A0;
 extern u_long *D_800557A8;
 extern u_long *D_800557AC;
 extern u_long *D_800557B0;
