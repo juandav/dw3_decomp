@@ -1,5 +1,8 @@
 #include "psyq.h"
 
+extern PadPort D_8007E740[2];
+extern long D_80055564;
+
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", _padInitMtapPort);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021DF0);
