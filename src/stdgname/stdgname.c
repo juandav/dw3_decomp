@@ -262,7 +262,22 @@ MenuTask *func_800856B4(ScreenTask *screen) {
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800856F4);
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800858D8);
+void func_800858D8(ScreenTask *task) {
+    SpriteDrawer sprite;
+
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(task->layer, 7);
+    sprite.setTexture(0x280, 0);
+    sprite.draw(FILE_CACHE_GET_ENTRY[0](0x02790000), 0x31, 0, 0);
+    /* Scroll one pixel every other frame, wrapping at 96 */
+    if (task->tick) {
+        task->scroll = task->scroll++ < 95 ? task->scroll : 0;
+        task->tick = 0;
+    } else {
+        task->tick = 1;
+    }
+    sprite.draw(FILE_CACHE_GET_ENTRY[0](0x02790000), 0x24, task->scroll, task->scroll);
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800859CC);
 
