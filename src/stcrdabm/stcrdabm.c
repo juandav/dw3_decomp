@@ -140,7 +140,64 @@ void func_80082F18(CardAlbumGrid *grid) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80082FE0);
+void func_80082FE0(CardAlbumGrid *grid) {
+    switch (grid->state) {
+    case 0:
+    default:
+        grid->nextState(grid);
+        grid->first = 1;
+        func_800828AC(grid, 1);
+        break;
+    case 1:
+        func_80082F18(grid);
+        func_8008290C(grid, 0);
+        break;
+    case 2:
+        switch (grid->substate) {
+        case 0:
+        default:
+            if (++grid->turned < ALBUM_PAGE_CARDS) {
+                grid->nextSubstate(grid);
+                grid->counter = GFX_FUNCS.getTime();
+            } else {
+                grid->turned = ALBUM_PAGE_CARDS;
+                grid->substate = 2;
+            }
+            break;
+        case 1:
+            if (GFX_FUNCS.getTime() - grid->counter >= 2) {
+                grid->substate = grid->step;
+            }
+            break;
+        case 2:
+            func_800827E4(grid);
+            grid->shown = ALBUM_PAGE_CARDS;
+            grid->time = GFX_FUNCS.getTime();
+            grid->nextSubstate(grid);
+            if (func_80082ECC(grid) != 0) {
+                SOUND_STATE.playSound(0x4001C);
+            }
+            break;
+        case 3:
+            if (GFX.funcs.getTime() - grid->time >= 2) {
+                grid->time = GFX.funcs.getTime();
+                if (++grid->frame >= 11) {
+                    grid->state = 1;
+                }
+            }
+            break;
+        }
+        func_80082D54(grid);
+        if (grid->substate < 3) {
+            func_8008290C(grid, 1);
+        } else {
+            func_8008290C(grid, 0);
+        }
+        break;
+    case 3:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80083210);
 
