@@ -67,6 +67,15 @@ typedef struct VmVoice {
 } VmVoice;
 extern VmVoice D_800815D0[];
 
+/* actuator info table entry (PadPort.unk4 points to an array of them) */
+typedef struct PadActInfo {
+    /* 0x0 */ u_char unk0;
+    /* 0x1 */ u_char unk1;
+    /* 0x2 */ u_char unk2;
+    /* 0x3 */ u_char power;
+    /* 0x4 */ u_char unk4;
+} PadActInfo;
+
 /* libpad per-port command state */
 typedef struct PadPort {
     /* 0x00 */ long unk0;

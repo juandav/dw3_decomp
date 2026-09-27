@@ -1,14 +1,5 @@
 #include "psyq.h"
 
-/* actuator info table entry (PadPort.unk4 points to an array of them) */
-typedef struct PadActInfo {
-    /* 0x0 */ u_char unk0;
-    /* 0x1 */ u_char unk1;
-    /* 0x2 */ u_char unk2;
-    /* 0x3 */ u_char power;
-    /* 0x4 */ u_char unk4;
-} PadActInfo;
-
 extern u_char D_8007E6B0[2][0x23];
 extern u_char D_8007E6F8[2][0x23];
 extern void (*D_80055518)();
