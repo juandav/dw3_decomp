@@ -3234,7 +3234,63 @@ void func_8001C130(s32 arg0) {
     task->unk50 = arg0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001C168);
+typedef struct Order4 {
+    s32 next[4];
+} Order4;
+
+extern Order4 D_800102BC;
+
+void func_8001C168(Task8001C454 *task) {
+    Resource *res = D_8004D708.unk2C(task->unk64);
+    u_long *ot = (u_long *)res->unk138(res, 0);
+    SVECTOR out[4];
+    SVECTOR in[4];
+    LINE_F2 *line;
+    Order4 order;
+    s32 i;
+
+    if (task->unkB8 == 0) {
+        task->unk60 += task->unk5C;
+        if (task->unk60 > 0x1000) {
+            task->unk60 = 0x1000;
+            task->unkBC = 1;
+            task->unk28(task, 3);
+        }
+    } else {
+        task->unk60 -= task->unk5C;
+        if (task->unk60 < 0) {
+            task->unk60 = 0;
+            task->unk28(task, 3);
+        }
+    }
+    task->scale.vz = 0;
+    task->scale.vx = task->scale.vy = task->unk60;
+    RotMatrixYXZ_gte(&task->rot, &task->matrix);
+    ScaleMatrix(&task->matrix, &task->scale);
+    in[0].vx = in[2].vx = task->unk50 - task->unk54;
+    in[1].vx = in[3].vx = in[0].vx + task->unk58;
+    in[0].vy = in[1].vy = task->unk52 - task->unk56;
+    in[2].vy = in[3].vy = in[0].vy + task->unk5A;
+    in[0].vz = in[1].vz = in[2].vz = in[3].vz = 0;
+    for (i = 0; i < 4; i++) {
+        ApplyMatrixSV(&task->matrix, &in[i], &out[i]);
+        out[i].vx += task->unk54;
+        out[i].vy += task->unk56;
+    }
+    line = D_8004D708.allocPrim();
+    for (i = 0; i < 4; i++) {
+        order = D_800102BC;
+        setLineF2(line);
+        setRGB0(line, 0, 0, 0xFF);
+        line->x0 = out[i].vx;
+        line->y0 = out[i].vy;
+        line->x1 = out[order.next[i]].vx;
+        line->y1 = out[order.next[i]].vy;
+        addPrim(ot, line);
+        line++;
+    }
+    D_8004D708.setPrimEnd(line);
+}
 
 void func_8001C454(Task8001C454 *task) {
     switch (task->state) {
