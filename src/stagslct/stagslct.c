@@ -24,7 +24,9 @@ void func_80084500(Task *task, Task **items) {
     }
 }
 
-INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_80084564);
+Task *func_80084564(void) {
+    return createTask(func_80084500, sizeof(Task), 4);
+}
 
 INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_80084590);
 
