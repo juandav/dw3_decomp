@@ -211,7 +211,15 @@ void STDWTITL_animateBackground(BackgroundTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_startBackgroundTask);
+BackgroundTask *STDWTITL_startBackgroundTask(s32 skip) {
+    BackgroundTask *task = createTask(STDWTITL_tickBackground, sizeof(BackgroundTask), 0);
+
+    task->animate = STDWTITL_animateBackground;
+    task->layerId = STDWTITL_TITLE_LAYER;
+    task->depth = 2;
+    task->skip = skip;
+    return task;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_leaveTitle);
 
