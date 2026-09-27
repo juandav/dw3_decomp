@@ -64,7 +64,9 @@ typedef struct PadPort {
     /* 0xE8 */ u8 unkE8;
     /* 0xE9 */ u_char unkE9;
     /* 0xEA */ u_char unkEA;
-    /* 0xEB */ u8 unkEB[5];
+    /* 0xEB */ u8 unkEB;
+    /* 0xEC */ u_short unkEC;
+    /* 0xEE */ u8 unkEE[2];
 } PadPort;
 
 /* libmcrd global state, returned by McrdGetGlobalStructure */
@@ -164,6 +166,9 @@ extern u_short D_8005A6FA;
 extern u_short *D_8005B788;
 extern long D_8005B800;
 extern volatile u_short *D_8005BA28;
+extern long D_8005B9B8;
+extern long D_8005BA44;
+extern volatile u_short *D_8005B86C;
 extern long D_8005BA5C;
 extern long D_8005C2B8;
 extern long D_8005C2E8;
