@@ -75,6 +75,26 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_8002262C);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", _mtapFailAuto);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80022D60);
+int func_80022D60(PadPort *p) {
+    int i;
+    PadPort *q;
+
+    if (p->unkE6 == 0) {
+        return 1;
+    }
+    if (p->unkC != NULL) {
+        if (p->unk46 != 0xFF) {
+            return 1;
+        }
+        q = p->unk10->unkC;
+        for (i = 0; i < 4; i++, q++) {
+            if (q->unk46 != 0xFF && q->unk46 != 0) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+    return p->unk10->unk46 != 0xFF || p->unk46 != 0xFF;
+}
 
 OBJECT_END();
