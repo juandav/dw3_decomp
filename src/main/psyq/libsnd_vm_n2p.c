@@ -18,7 +18,11 @@ extern VagAtr *D_80081DF0;
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_vm_n2p", note2pitch);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_vm_n2p", note2pitch2);
+u_short note2pitch2(short note, short fine) {
+    short i = D_80081E00.prog * 16 + D_80081E00.tone;
+
+    return SsPitchFromNote(note, fine, D_80081DF0[i].center, D_80081DF0[i].shift);
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_vm_n2p", SsPitchFromNote);
 
