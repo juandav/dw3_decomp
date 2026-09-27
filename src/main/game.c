@@ -1419,7 +1419,21 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_8001BB68);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001BCCC);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001C0C4);
+void func_8001C0C4(Task *task) {
+    switch (task->state) {
+    case 0:
+    default:
+        task->unk28(task, 2);
+        break;
+    case 1:
+        func_8001BB68(task);
+        func_8001BCCC(task);
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 void func_8001C130(s32 arg0) {
     Task *task = func_800144DC(func_8001C0C4, 0x60, 0);
