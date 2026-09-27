@@ -402,11 +402,17 @@ typedef struct Unk80041444 {
     /* 0xA */ u8 unkA[2];
 } Unk80041444;
 
+/* Digimon definition */
 typedef struct Unk8003EB68 {
     /* 0x00 */ u16 id;
-    /* 0x02 */ u8 unk2[6];
-    /* 0x08 */ u8 unk8;
-    /* 0x09 */ u8 unk9[0x4F];
+    /* 0x02 */ u16 unk2[6];
+    /* 0x0E */ u16 unkE[7];
+    /* 0x1C */ u8 unk1C[0x23];
+    /* 0x3F */ u8 unk3F;
+    /* 0x40 */ u8 unk40;
+    /* 0x41 */ u8 unk41[0x14];
+    /* 0x55 */ u8 nameId;
+    /* 0x56 */ u8 unk56[2];
 } Unk8003EB68;
 
 typedef struct Unk80048C50Entry {
@@ -417,14 +423,24 @@ typedef struct Unk80048C50Entry {
 } Unk80048C50Entry;
 
 typedef struct Unk628 {
-    /* 0x00 */ u8 unk0[0x16];
+    /* 0x00 */ char name[0x16];
     /* 0x16 */ u16 items[40];
 } Unk628;
 
 typedef struct Unk8004883C {
     /* 0x000 */ u8 unk0[4];
     /* 0x004 */ s32 unk4;
-    /* 0x008 */ u8 unk8[0x4C];
+    /* 0x008 */ u8 unk8[4];
+    /* 0x00C */ char name[0x1C];
+    /* 0x028 */ s16 unk28;
+    /* 0x02A */ s16 unk2A;
+    /* 0x02C */ s16 unk2C;
+    /* 0x02E */ s16 unk2E;
+    /* 0x030 */ s16 unk30;
+    /* 0x032 */ s16 unk32;
+    /* 0x034 */ u16 unk34[6];
+    /* 0x040 */ u16 unk40[7];
+    /* 0x04E */ u8 unk4E[6];
     /* 0x054 */ s16 unk54[4];
     /* 0x05C */ Unk80048C50Entry entries[44];
     /* 0x3CC */ u8 unk3CC[0x10];
@@ -599,7 +615,7 @@ typedef struct Unk80044744 {
     /* 0x408 */ void (*outOfMemory)(void);
     /* 0x40C */ void (*unk40C)(s32);
     /* 0x410 */ void (*unk410)(void);
-    /* 0x414 */ u8 unk414[4];
+    /* 0x414 */ char *(*getText)(s32 table);
     /* 0x418 */ void (*unk418)(s32);
     /* 0x41C */ u8 unk41C[8];
     /* 0x424 */ s32 (*unk424)(s32);
@@ -741,7 +757,7 @@ typedef struct Unk800484E8 {
     /* 0x004E */ s16 playMinutes;
     /* 0x0050 */ s16 playSeconds;
     /* 0x0052 */ s16 playTimeMaxed;
-    /* 0x0054 */ u8 unk54[0x18];
+    /* 0x0054 */ char name[0x18];
     /* 0x006C */ s32 money;
     /* 0x0070 */ s32 unk70[3];
     /* 0x007C */ s8 unk7C[0x193];
@@ -764,7 +780,9 @@ typedef struct Unk800484E8 {
     /* 0x26F8 */ s32 (*unk26F8)(void);
     /* 0x26FC */ u8 unk26FC[0x10];
     /* 0x270C */ s32 (*unk270C)(s32);
-    /* 0x2710 */ u8 unk2710[0x18];
+    /* 0x2710 */ u8 unk2710[8];
+    /* 0x2718 */ void (*unk2718)(void);
+    /* 0x271C */ u8 unk271C[0xC];
     /* 0x2728 */ void (*unk2728)(s32, struct Unk2728 *);
     /* 0x272C */ u8 unk272C[0x18];
     /* 0x2744 */ struct Unk2744 *(*unk2744)(s32);
