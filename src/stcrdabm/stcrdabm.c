@@ -80,7 +80,13 @@ void func_800827E4(CardAlbumGrid *grid) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800828AC);
+void func_800828AC(CardAlbumGrid *grid, s32 first) {
+    grid->prevFirst = grid->first;
+    grid->first = first;
+    grid->turned = 0;
+    grid->frame = 0;
+    grid->setState(grid, 2);
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800828E4);
 
