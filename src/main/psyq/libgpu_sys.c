@@ -395,7 +395,44 @@ int func_80026A0C(RECT *rect, u_long color) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026C3C);
+#define LIMIT(x, lo, hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
+
+int func_80026C3C(RECT *rect, u_long *p) {
+    int size;
+    int blocks;
+    int n;
+    int stp = 0;
+
+    func_80027978();
+    rect->w = LIMIT(rect->w, 0, D_800556A0.w);
+    rect->h = LIMIT(rect->h, 0, D_800556A0.h);
+    size = (rect->w * rect->h + 1) / 2;
+    if (size <= 0) {
+        return -1;
+    }
+    n = size % 16;
+    blocks = size / 16;
+    while (!(*D_800557A8 & 0x4000000)) {
+        if (func_800279AC()) {
+            return -1;
+        }
+    }
+    *D_800557A8 = 0x4000000;
+    *D_800557A4 = 0x1000000;
+    *D_800557A4 = stp ? 0xB0000000 : 0xA0000000;
+    *D_800557A4 = *(u_long *)&rect->x;
+    *D_800557A4 = *(u_long *)&rect->w;
+    while (n--) {
+        *D_800557A4 = *p++;
+    }
+    if (blocks) {
+        *D_800557A8 = 0x4000002;
+        *D_800557AC = (u_long)p;
+        *D_800557B0 = (blocks << 16) | 0x10;
+        *D_800557B4 = 0x1000201;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026E78);
 
