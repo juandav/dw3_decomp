@@ -5,7 +5,7 @@ A load from `symbol($reg)` needs a temporary for the upper half of the
 address: maspsx uses $at, ASPSX used the destination register (unless that
 is the index register).
 
-GCC 2.7.2 leaves the function return (`j $31`) and some calls in reorder mode
+GCC 2.7.2 leaves jumps (`j $31`, `j label`) and some calls in reorder mode
 and maspsx follows them with a nop. The ASPSX used for those objects moved
 the previous instruction into the delay slot instead, unless that would put a load of
 $31 right before the jump.
@@ -102,7 +102,7 @@ def main():
         nxt = lines[i + 1] if i + 1 < len(lines) else ""
         if (
             ins
-            and (ins[0] == "j" and ins[1] == ["$31"] or ins[0] == "jal")
+            and (ins[0] == "j" or ins[0] == "jal")
             and nxt.strip().startswith("nop")
             and "branch/jump" in nxt
         ):
