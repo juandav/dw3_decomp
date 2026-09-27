@@ -1,8 +1,6 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag895", func_800A4CA8);
-
-INCLUDE_ASM("asm/stages/nonmatchings/wstag895", func_800A4CAC);
+INCLUDE_ASM("asm/stages/nonmatchings/wstag895", func_800A4CA4);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag895", func_800A4DA4);
 
