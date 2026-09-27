@@ -12,8 +12,28 @@ int _padClrIntSio0(void);
 extern int D_8007F13C;
 extern void (*D_80055518)(int status);
 extern long D_8005555C;
+extern int (*D_800555A0[])(PadPort *p);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres_2", func_80023344);
+void func_80023344(PadPort *p) {
+    int ret;
+
+    ret = D_800555A0[D_8005555C++](p);
+    if (ret >= 0) {
+        if (D_8005555C != 0) {
+            if (D_8005555C != 3 || p->unk3C[0] != 0x80) {
+                _padSetRC2wait(0x3C);
+                if (_padClrIntSio0() == 0) {
+                    D_80055518(-3);
+                }
+            }
+        }
+        if (D_8005555C > 4) {
+            D_8005555C--;
+        }
+    } else {
+        D_80055518(ret);
+    }
+}
 
 int _padSioRW(PadPort *p, int data) {
     volatile SioRegs *sio;
