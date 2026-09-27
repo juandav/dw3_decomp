@@ -26,7 +26,9 @@ void func_80082724(Task *task, void **children) {
     }
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_8008281C);
+Task *func_8008281C(void) {
+    return createTask(func_80082724, sizeof(Task), sizeof(void *));
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80082848);
 
