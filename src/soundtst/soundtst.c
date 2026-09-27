@@ -91,7 +91,23 @@ void func_80083C40(SoundTest *task, SoundTestWindows *win) {
     win->cursor->setPos(win->cursor, 0x20, (task->soundCursor - task->soundTop) * 16 + 0x46);
 }
 
-INCLUDE_ASM("asm/soundtst/nonmatchings/soundtst", func_80083FA0);
+void func_80083FA0(SoundTest *task, SoundTestWindows *win) {
+    switch (task->step) {
+    case 0:
+    default:
+        if (task->bank == 1) {
+            SOUND_STATE.loadBankInto(0, 1);
+        } else {
+            SOUND_STATE.loadBank(task->bank);
+        }
+        task->step++;
+    case 1:
+        break;
+    }
+    if (SOUND_STATE.isLoading() == 0) {
+        task->nextSubstate(task);
+    }
+}
 
 INCLUDE_ASM("asm/soundtst/nonmatchings/soundtst", func_80084054);
 
