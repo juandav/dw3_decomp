@@ -196,6 +196,8 @@ typedef struct GpuDebug {
     /* 0x1 */ u_char unk1;
     /* 0x2 */ u_char level;
     /* 0x3 */ u_char reverse;
+    /* 0x4 */ u8 unk4[8];
+    /* 0xC */ void (*drawSyncCallback)();
 } GpuDebug;
 extern GpuDebug D_800556A0;
 extern u_long *D_800557A8;
