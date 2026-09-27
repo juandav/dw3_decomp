@@ -29,36 +29,68 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A53C8);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A5414);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A5460);
+void func_800A5460(void) {
+    FLAGS_00.applyAction(0x40AA, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A548C);
+void func_800A548C(void) {
+    FLAGS_00.applyAction(0x40AB, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A54B8);
+void func_800A54B8(void) {
+    FLAGS_00.applyAction(0x40AC, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A54E4);
+void func_800A54E4(void) {
+    FLAGS_00.applyAction(0x40AD, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A5510);
+void func_800A5510(void) {
+    FLAGS_00.applyAction(0x40AE, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A553C);
+void func_800A553C(void) {
+    FLAGS_00.applyAction(0x40AF, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A5568);
+void func_800A5568(void) {
+    FLAGS_00.applyAction(0x40B0, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A5594);
+void func_800A5594(void) {
+    FLAGS_00.applyAction(0x40B1, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A55C0);
+void func_800A55C0(void) {
+    FLAGS_00.applyAction(0x40B2, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A55EC);
+void func_800A55EC(void) {
+    FLAGS_00.applyAction(0x40B3, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A5618);
+void func_800A5618(void) {
+    FLAGS_00.applyAction(0x40B4, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A5644);
+void func_800A5644(void) {
+    FLAGS_00.applyAction(0x40B5, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A5670);
+void func_800A5670(void) {
+    FLAGS_00.applyAction(0x40B6, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A569C);
+void func_800A569C(void) {
+    FLAGS_00.applyAction(0x40B7, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A56C8);
+void func_800A56C8(void) {
+    FLAGS_00.applyAction(0x40B8, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A56F4);
+void func_800A56F4(void) {
+    FLAGS_00.applyAction(0x40B9, 1);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A5720);

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "stage.h"
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag780", func_800A4CA4);
 
@@ -54,6 +55,8 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag780", func_800A6474);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag780", func_800A64D0);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag780", func_800A64DC);
+void func_800A64DC(void) {
+    FLAGS_00.applyAction(0x4066, 1);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag780", func_800A6508);

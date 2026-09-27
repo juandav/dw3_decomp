@@ -127,11 +127,17 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A6324);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A6384);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A63D0);
+void func_800A63D0(void) {
+    FLAGS_00.applyAction(0x405F, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A63FC);
+void func_800A63FC(void) {
+    FLAGS_00.applyAction(0x4060, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A6428);
+void func_800A6428(void) {
+    FLAGS_00.applyAction(0x406C, 1);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A6454);
 

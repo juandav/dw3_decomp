@@ -13,6 +13,8 @@ StageTask *func_800A4D4C(void *owner) {
     return task;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag585", func_800A4DA8);
+void func_800A4DA8(void) {
+    FLAGS_00.applyAction(0x4033, 1);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag585", func_800A4DD4);

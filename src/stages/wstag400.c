@@ -13,13 +13,21 @@ StageTask *func_800A4D50(void *owner) {
     return task;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag400", func_800A4DAC);
+void func_800A4DAC(void) {
+    FLAGS_00.applyAction(0x1C4B, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag400", func_800A4DD8);
+void func_800A4DD8(void) {
+    FLAGS_00.applyAction(0x1C4C, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag400", func_800A4E04);
+void func_800A4E04(void) {
+    FLAGS_00.applyAction(0x1C4D, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag400", func_800A4E30);
+void func_800A4E30(void) {
+    FLAGS_00.applyAction(0x1C4E, 1);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag400", func_800A4E5C);
 
