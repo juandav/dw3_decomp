@@ -87,6 +87,21 @@ def delay_slot_hazards(lines):
     return lines
 
 
+def no_nop_after_div(lines):
+    """maspsx follows an expanded div with a nop when the next instruction reads
+    its result; this ASPSX did not (mflo has no load delay)."""
+    out = []
+    for line in lines:
+        if line.startswith("nop # DEBUG: Reuse of"):
+            k = len(out) - 1
+            while k >= 0 and not out[k].strip():
+                k -= 1
+            if k >= 0 and out[k].strip() == "# EXPAND_DIV END":
+                continue
+        out.append(line)
+    return out
+
+
 def nops_before_labels(lines):
     """maspsx puts a load delay nop after a label; ASPSX kept it before."""
     out = list(lines)
@@ -100,7 +115,7 @@ def nops_before_labels(lines):
 
 def main():
     lines = delay_slot_hazards(
-        loads_without_at(nops_before_labels(sys.stdin.read().split("\n")))
+        loads_without_at(nops_before_labels(no_nop_after_div(sys.stdin.read().split("\n"))))
     )
     out = []
     i = 0
