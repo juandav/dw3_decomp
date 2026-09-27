@@ -251,7 +251,102 @@ DRAWENV *GetDrawEnv(DRAWENV *env) {
     return env;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", PutDispEnv);
+typedef struct HRange {
+    u_short start;
+    u_short end;
+} HRange;
+
+extern u_char D_8005579C[5];      /* horizontal clock ticks per pixel, per mode */
+extern HRange D_80055774[2][5];   /* horizontal display range [pal][mode] */
+
+#define LIMIT(x, lo, hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
+
+DISPENV *PutDispEnv(DISPENV *env) {
+    long mode;
+    long hs, he, vs, ve;
+    int idx;
+    long d;
+
+    mode = 0x08000000;
+    if (D_800556A0.level >= 2) {
+        D_8005569C("PutDispEnv(%08x)...\n", env);
+    }
+    D_80055698->ctrl(0x05000000 | ((env->disp.y & 0x3FF) << 10) | (env->disp.x & 0x3FF));
+    if (*(long *)&D_800556A0.disp.isinter != *(long *)&env->isinter ||
+        ((volatile RECT *)&D_800556A0.disp.disp)->x != env->disp.x || ((volatile RECT *)&D_800556A0.disp.disp)->y != env->disp.y ||
+        ((volatile RECT *)&D_800556A0.disp.disp)->w != env->disp.w || ((volatile RECT *)&D_800556A0.disp.disp)->h != env->disp.h) {
+        env->pad0 = GetVideoMode();
+        if (env->pad0 == 1) {
+            mode |= 0x08;
+        }
+        if (env->isrgb24) {
+            mode |= 0x10;
+        }
+        if (env->isinter) {
+            mode |= 0x20;
+        }
+        if (D_800556A0.reverse) {
+            mode |= 0x80;
+        }
+        if (env->disp.w > 280) {
+            if (env->disp.w <= 352) {
+                mode |= 1;
+            } else if (env->disp.w <= 400) {
+                mode |= 0x40;
+            } else if (env->disp.w <= 560) {
+                mode |= 2;
+            } else {
+                mode |= 3;
+            }
+        }
+        {
+            int h = env->disp.h;
+            int fit = env->pad0 ? h < 289 : h < 257;
+
+            if (!fit) {
+                mode |= 0x24;
+            }
+        }
+        D_80055698->ctrl(mode);
+        env->pad0 = 8;
+    }
+    if (((volatile RECT *)&D_800556A0.disp.screen)->x != env->screen.x || ((volatile RECT *)&D_800556A0.disp.screen)->y != env->screen.y ||
+        ((volatile RECT *)&D_800556A0.disp.screen)->w != env->screen.w || ((volatile RECT *)&D_800556A0.disp.screen)->h != env->screen.h ||
+        env->pad0 == 8) {
+        env->pad0 = GetVideoMode();
+        vs = env->screen.y + (env->pad0 ? 0x13 : 0x10);
+        ve = vs + (env->screen.h ? env->screen.h : 240);
+        if (env->disp.w <= 280) {
+            idx = 0;
+        } else if (env->disp.w <= 352) {
+            idx = 1;
+        } else if (env->disp.w <= 400) {
+            idx = 2;
+        } else if (env->disp.w <= 560) {
+            idx = 3;
+        } else {
+            idx = 4;
+        }
+        hs = D_80055774[env->pad0][idx].start + env->screen.x * D_8005579C[idx];
+        d = D_80055774[env->pad0][idx].end - D_80055774[env->pad0][idx].start;
+        he = hs + (env->screen.w ? d * env->screen.w >> 8 : d);
+        if (env->pad0) {
+            hs = LIMIT(hs, 0x21C, 0xC94);
+            he = LIMIT(he, hs + D_8005579C[idx] * 4, 0xCBC);
+            vs = LIMIT(vs, 0x13, 0x12F);
+            ve = LIMIT(ve, vs + 2, 0x131);
+        } else {
+            hs = LIMIT(hs, 0x1F4, 0xCB2);
+            he = LIMIT(he, hs + D_8005579C[idx] * 4, 0xCDA);
+            vs = LIMIT(vs, 0x10, 0x101);
+            ve = LIMIT(ve, vs + 2, 0x102);
+        }
+        D_80055698->ctrl(0x06000000 | ((he & 0xFFF) << 12) | (hs & 0xFFF));
+        D_80055698->ctrl(0x07000000 | ((ve & 0x3FF) << 10) | (vs & 0x3FF));
+    }
+    memcpy((u_char *)&D_800556A0.disp, (u_char *)env, sizeof(DISPENV));
+    return env;
+}
 
 DISPENV *GetDispEnv(DISPENV *env) {
     memcpy((u_char *)env, (u_char *)&D_8005570C, sizeof(DISPENV));
