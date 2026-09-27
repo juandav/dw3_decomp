@@ -2,8 +2,11 @@
 
 extern int (*D_80055530)(PadPort *p);
 extern int D_80055598;
+extern int D_80055594;
+extern int D_80055564;
 void _padSioRW(PadPort *p, int arg);
 int _padChkRC2wait(void);
+int _padSioRW2(PadPort *p, int arg);
 
 int _padIsVsync(void) {
     if (!(D_8005558C[1] & 1)) {
@@ -169,7 +172,23 @@ void func_800243A4(PadPort *p) {
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", func_800243EC);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", func_800244C4);
+int func_800244C4(PadPort *p) {
+    int ret;
+
+    if (D_80055598 != 0) {
+        D_80055530(&p->unkC[2]);
+        D_80055530(&p->unkC[3]);
+    }
+    ret = _padSioRW2(p, p->cmd == 0 ? D_80055564 : 0);
+    if (ret >= 0) {
+        D_80055594 = (ret & 0xF) * 2;
+        if (D_80055594 == 0) {
+            D_80055594 = 0x20;
+        }
+        ret = 0;
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", func_80024570);
 
