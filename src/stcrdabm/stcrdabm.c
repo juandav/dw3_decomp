@@ -557,7 +557,30 @@ void func_80084DF4(void) {
     FILE_CACHE.request(0x25);
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80084ED4);
+s32 func_80084ED4(void) {
+    if (FILE_CACHE.isLoading(0x7E7) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(0x7E8) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(0x7E9) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(0x7EA) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(0x7EB) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(0x17) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(0x1E) != 0) {
+        return 1;
+    }
+    return FILE_CACHE.isLoading(0x25) != 0;
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80084FBC);
 
