@@ -15,7 +15,19 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021FC0);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_800220D0);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_8002234C);
+PadPort *func_8002234C(int port) {
+    PadPort *p = &D_8007E740[0];
+
+    if (port & 0xF0) {
+        p = &D_8007E740[1];
+    }
+    if (D_80055564 != 0) {
+        if ((p->unkE8 == 8 && !(port & 0xF)) || (port & 3)) {
+            p = &p->unkC[port & 3];
+        }
+    }
+    return p;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_800223BC);
 
