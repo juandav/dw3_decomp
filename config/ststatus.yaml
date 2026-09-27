@@ -50,5 +50,5 @@ segments:
     subsegments:
       - [0x0, .rodata, ststatus]
       - [0x8A8, c, ststatus]
-      - [0x17650, data, ststatus]
+      - [0x17650, .data, ststatus]
   - [0x185C4]
