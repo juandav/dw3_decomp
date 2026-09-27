@@ -433,7 +433,11 @@ void STDWTITL_tickGlintAlt(GlintTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_showGlint);
+void STDWTITL_showGlint(GlintTask *task) {
+    if (task->state == TASK_RUN) {
+        task->setSubstate(task, 1);
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startGlintAltTask);
 
