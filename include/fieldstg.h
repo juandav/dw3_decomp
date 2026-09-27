@@ -15,6 +15,11 @@ typedef struct Point {
     s32 y;
 } Point;
 
+/*
+ * A character on the field (func_80090450): the player (kind 0) and the
+ * other characters. Registered with id 5, key1 = character, key2 = kind.
+ * x and y are in 1/256 tile units.
+ */
 typedef struct Actor {
     TASK_HEADER(Actor);
     /* 0x050 */ s32 x;
@@ -44,6 +49,26 @@ typedef struct Actor {
     /* 0x0F8 */ s32 unkF8;
     /* 0x0FC */ s32 unkFC[3];
     /* 0x108 */ void (*unk108)(struct Actor *);
+    /* 0x10C */ s32 unk10C;
+    /* 0x110 */ void (*unk110)(struct Actor *, s32 dir);
+    /* 0x114 */ void (*unk114)();
+    /* 0x118 */ void (*unk118)();
+    /* 0x11C */ void (*unk11C)();
+    /* 0x120 */ void (*unk120)();
+    /* 0x124 */ void (*unk124)();
+    /* 0x128 */ void (*unk128)();
+    /* 0x12C */ void (*unk12C)(struct Actor *);
+    /* 0x130 */ void (*unk130)(struct Actor *);
+    /* 0x134 */ void (*setDir)(struct Actor *, s32 dir);
+    /* 0x138 */ s32 (*unk138)(struct Actor *);
+    /* 0x13C */ void (*unk13C)(struct Actor *, s32, s32, s32);
+    /* 0x140 */ s32 (*unk140)(struct Actor *);
+    /* 0x144 */ void (*unk144)(struct Actor *, s32);
+    /* 0x148 */ void (*unk148)(struct Actor *, s32, s32 dir);
+    /* 0x14C */ void (*getFacingTile)(struct Actor *, Point *out);
+    /* 0x150 */ void (*unk150)(struct Actor *, s32 dir);
+    /* 0x154 */ void (*unk154)(struct Actor *);
+    /* 0x158 */ void (*unk158)();
 } Actor;
 
 typedef struct StreamTask {
@@ -58,6 +83,17 @@ typedef struct StreamTask {
     /* 0x06C */ s32 loaded;
     /* 0x070 */ s32 unk70;
 } StreamTask;
+
+/* The task of func_80086144 (id 4, see func_80086418) */
+typedef struct Unk80086144 {
+    TASK_HEADER(Unk80086144);
+    /* 0x050 */ u8 unk50[0x14];
+    /* 0x064 */ s32 unk64;
+    /* 0x068 */ s32 unk68;
+    /* 0x06C */ s32 unk6C;
+    /* 0x070 */ u8 unk70[0xC0];
+    /* 0x130 */ Point *(*unk130)(struct Unk80086144 *);
+} Unk80086144;
 
 typedef struct ChoiceTask {
     TASK_HEADER(ChoiceTask);
@@ -94,6 +130,18 @@ void func_8008DB60(Actor *);
 void func_8008E1A4(Actor *);
 void func_800878A4(s32 arg0, s32 arg1, s32 arg2);
 void func_80090154(void);
+Actor *func_800914F0(s32 id);
+void func_8008E768(Actor *actor, s32 arg1);
+void func_8008DD9C(Actor *);
+void *func_80088C2C(void);
+void func_8008AEDC(s32);
+
+extern Point D_8009A938;
+extern s32 D_800990C4;
+extern u8 *D_8009A940;
+extern s32 D_8009A944;
+extern Point D_80097000[]; /* tile offset of each direction */
+extern Point D_8009A76C[];
 
 extern u8 D_80099758[];
 extern s32 D_8009A70C[];

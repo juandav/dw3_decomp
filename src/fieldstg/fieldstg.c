@@ -146,7 +146,11 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80085EEC);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086144);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800863F4);
+Point *func_800863F4(Unk80086144 *arg0) {
+    D_8009A938.x = arg0->unk68 << 7;
+    D_8009A938.y = arg0->unk6C << 7;
+    return &D_8009A938;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086418);
 
@@ -625,7 +629,7 @@ void func_800914C0(void) {
     HEAP.zero(D_8009A424, 8);
 }
 
-void *func_800914F0(s32 arg0) {
+Actor *func_800914F0(s32 arg0) {
     return TASK_FUNCS.find(5, arg0, -1);
 }
 
