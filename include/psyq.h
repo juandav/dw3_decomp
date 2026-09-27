@@ -226,6 +226,7 @@ long _spu_FsetRXXa(long reg, u_long addr);
 void _putchar(char c);
 void _putchar_flash(void);
 int printf(char *fmt, ...);
+char tolower(char c);
 void _SsInit(void);
 void _SsSeqPlay(short, short);
 void _SsSndStop(short, short);
