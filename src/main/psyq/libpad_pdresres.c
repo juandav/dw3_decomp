@@ -1,5 +1,9 @@
 #include "psyq.h"
 
+extern int (*D_80055530)(PadPort *p);
+extern int D_80055598;
+void _padSioRW(PadPort *p, int arg);
+
 int _padIsVsync(void) {
     if (!(D_8005558C[1] & 1)) {
         return 0;
