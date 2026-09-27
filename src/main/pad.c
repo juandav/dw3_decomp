@@ -393,12 +393,12 @@ void updateVibration(u16 port) {
 }
 
 void seedRandom(s32 arg0) {
-    RANDOM_INDEX = arg0 & 0xFFF;
+    RANDOM.index = arg0 & 0xFFF;
 }
 
 u16 random(void) {
-    s32 index = (RANDOM_INDEX + 1) & 0xFFF;
+    s32 index = (RANDOM.index + 1) & 0xFFF;
 
-    RANDOM_INDEX = index;
+    RANDOM.index = index;
     return RANDOM_TABLE[index];
 }
