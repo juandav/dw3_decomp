@@ -1,6 +1,20 @@
 #include "fieldstg.h"
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80082F1C);
+void func_80082F1C(Task *task) {
+    switch (task->state) {
+    case 0:
+    case 1:
+    default:
+        if (task->substate == 1) {
+            func_80090154();
+            task->setSubstate(task, 0);
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80082F84);
 
