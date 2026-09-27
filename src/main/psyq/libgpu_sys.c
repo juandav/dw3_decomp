@@ -41,7 +41,34 @@ extern u_long D_8007F170[]; /* drawing-area restore packet */
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_8001030C);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", ResetGraph);
+extern u_long D_80055658[];
+extern short D_80055720[3][2];
+extern short D_8005572C[3][2];
+void func_80027FF8(u_long);
+int func_80027700(int mode);
+
+int ResetGraph(int mode) {
+    switch (mode & 7) {
+    case 0:
+    case 3:
+        printf("ResetGraph:jtb=%08x,env=%08x\n", D_80055658, &D_800556A0);
+    case 5:
+        func_80027FD0((u_char *)&D_800556A0, 0, sizeof(GpuDebug));
+        ResetCallback();
+        func_80027FF8((u_long)D_80055698 & 0xFFFFFF);
+        D_800556A0.type = func_80027700(mode);
+        D_800556A0.unk1 = 1;
+        D_800556A0.w = D_80055720[D_800556A0.type][0];
+        D_800556A0.h = D_8005572C[D_800556A0.type][0];
+        func_80027FD0((u_char *)&D_800556A0.draw, -1, sizeof(DRAWENV));
+        func_80027FD0((u_char *)&D_800556A0.disp, -1, sizeof(DISPENV));
+        return D_800556A0.type;
+    }
+    if (D_800556A0.level >= 2) {
+        D_8005569C("ResetGraph(%d)...\n", mode);
+    }
+    return D_80055698->unk34(1);
+}
 
 int SetGraphDebug(int level) {
     int old = D_800556A0.level;
