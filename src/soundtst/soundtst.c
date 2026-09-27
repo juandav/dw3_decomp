@@ -17,7 +17,7 @@ void SOUNDTST_updateScene(Task *task, Task **items) {
         task->nextState(task);
         break;
     case 1:
-        if (PAD.getPressed(0) & 8) {
+        if (PAD.getPressed(0) & (1 << PAD_START)) {
             GAME_FUNCS.requestMode(0x1500, 0);
             task->nextState(task);
         }
@@ -66,18 +66,18 @@ void SOUNDTST_playSounds(SoundTest *task, SoundTestWindows *win) {
     case 1:
         break;
     }
-    if ((PAD.getPressed(0) | PAD.getRepeated(0)) & 0x40) {
+    if ((PAD.getPressed(0) | PAD.getRepeated(0)) & (1 << PAD_DOWN)) {
         SOUNDTST_moveCursor(task, 1, &task->soundCursor, &task->soundTop, task->soundCount);
-    } else if ((PAD.getPressed(0) | PAD.getRepeated(0)) & 0x10) {
+    } else if ((PAD.getPressed(0) | PAD.getRepeated(0)) & (1 << PAD_UP)) {
         SOUNDTST_moveCursor(task, -1, &task->soundCursor, &task->soundTop, task->soundCount);
-    } else if (PAD.getPressed(0) & 0x8000) {
+    } else if (PAD.getPressed(0) & (1 << PAD_SQUARE)) {
         SOUND_STATE.stopAll();
-    } else if (PAD.getPressed(0) & 0x4000) {
+    } else if (PAD.getPressed(0) & (1 << PAD_TRIANGLE)) {
         task->setSubstate(task, 0);
-    } else if (PAD.getPressed(0) & 0x2000) {
+    } else if (PAD.getPressed(0) & (1 << PAD_CROSS)) {
         task->voice = SOUND_STATE.playSound(list[task->soundCursor].id);
         task->playing = 1;
-    } else if (task->playing != 0 && !(PAD.getHeld(0) & 0x2000)) {
+    } else if (task->playing != 0 && !(PAD.getHeld(0) & (1 << PAD_CROSS))) {
         task->playing = 0;
         SOUND_STATE.keyOff(list[task->soundCursor].id, task->voice);
     }
@@ -125,11 +125,11 @@ void SOUNDTST_selectBank(SoundTest *task, SoundTestWindows *win) {
     case 1:
         break;
     }
-    if ((PAD.getPressed(0) | PAD.getRepeated(0)) & 0x40) {
+    if ((PAD.getPressed(0) | PAD.getRepeated(0)) & (1 << PAD_DOWN)) {
         SOUNDTST_moveCursor(task, 1, &task->bankCursor, &task->bankTop, task->bankCount);
-    } else if ((PAD.getPressed(0) | PAD.getRepeated(0)) & 0x10) {
+    } else if ((PAD.getPressed(0) | PAD.getRepeated(0)) & (1 << PAD_UP)) {
         SOUNDTST_moveCursor(task, -1, &task->bankCursor, &task->bankTop, task->bankCount);
-    } else if (PAD.getPressed(0) & 0x2000) {
+    } else if (PAD.getPressed(0) & (1 << PAD_CROSS)) {
         task->bank = SOUNDTST_banks[task->bankCursor].id;
         task->nextSubstate(task);
     }
