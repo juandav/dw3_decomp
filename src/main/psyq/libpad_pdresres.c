@@ -127,7 +127,11 @@ void _padSetRC2wait(int wait) {
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padChkRC2wait);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", func_800243A4);
+void func_800243A4(PadPort *p) {
+    D_80055598 = D_80055530(p);
+    *p->unk3C = 0;
+    _padSioRW(p, -2);
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", func_800243EC);
 
