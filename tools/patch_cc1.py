@@ -89,6 +89,13 @@ Patches 7-12 come from dcb_decomp, which links the same PsyQ 4.7 libraries
     (GCC 2.8), so `x < 0 ? 0 : x` clamps stay branches instead of
     `nor/sra/and` (dcb's SpuSetCommonAttr; dcb_decomp 0c42307).
 
+17. expand_return computes the returned value into a new pseudo of the
+    result's mode and copies that to $v0, as GCC 2.8 does (this cc1 already
+    has 2.8's `cleanups = 1` but still let expand_expr choose the target, so
+    `return x;` of a variable or MEM was one `v0 = x` insn). No object
+    changes by itself (BreakDraw needs it once jump_optimize hoists
+    `x = a` before a goto like GCC 2.8).
+
 The whole build matches with the patched cc1 (none of the functions that
 already matched changes).
 """
@@ -722,6 +729,35 @@ def patch(src, dst):
                           (0x080F3CE2, bytes.fromhex("3985d8feffff7526"), entry[1])):
         put(site, old, b"\xe9" + (start + at - (site + 5)).to_bytes(4, "little", signed=True)
             + b"\x90" * (len(old) - 5))
+
+    # 17. expand_return+2352: like GCC 2.8, compute a returned value into a
+    #    new pseudo of the result's mode and then copy it to the return
+    #    register, instead of letting expand_expr pick its target (which for
+    #    a variable or a MEM is the value itself, so `return x;` became one
+    #    `v0 = x` insn):
+    #      val = gen_reg_rtx (DECL_MODE (DECL_RESULT (current_function_decl)));
+    #      val = expand_expr (retval_rhs, val, GET_MODE (val), 0);
+    #      val = force_not_mem (val);
+    #    (this cc1 already has 2.8's `cleanups = 1`, so every return with a
+    #    value takes this path). Locals: retval_rhs -0x64, val %esi.
+    def return_into_pseudo(code, jump):
+        code += b"\xa1" + (0x082CA378).to_bytes(4, "little")  # mov current_function_decl,%eax
+        code += b"\x8b\x40\x2c\x0f\xb6\x40\x1c"    # DECL_MODE (DECL_RESULT (...))
+        code += b"\x83\xec\x0c\x50"                # sub $12,%esp; push mode
+        jump(b"\xe8", 0x080D986E)                  # call gen_reg_rtx
+        code += b"\x83\xc4\x10"
+        code += b"\x6a\x00\x0f\xb6\x50\x02\x52\x50"  # push 0; push GET_MODE (val); push val
+        code += b"\xff\x75\x9c"                    # push retval_rhs
+        jump(b"\xe8", 0x080A5329)                  # call expand_expr
+        code += b"\x83\xc4\x10"
+        code += b"\x83\xec\x0c\x50"                # sub $12,%esp; push val
+        jump(b"\xe8", 0x080C285E)                  # call force_not_mem
+        code += b"\x83\xc4\x10\x89\xc6"            # add $16,%esp; mov %eax,%esi
+        jump(b"\xe9", 0x08098FB2)                  # back to emit_queue ()
+
+    cave = in_bc(return_into_pseudo)
+    put(0x08098F9F, bytes.fromhex("6a006a006a00ff759c"),
+        b"\xe9" + (cave - (0x08098F9F + 5)).to_bytes(4, "little", signed=True) + b"\x90" * 4)
 
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     tmp = dst + ".tmp"
