@@ -37,7 +37,7 @@ rel={}
 rs=e.get_section_by_name('.rel.text')
 if rs: rel={x['r_offset']:x for x in rs.iter_relocations()}
 syms=sorted([(s['st_value'],s.name) for s in e.get_section_by_name('.symtab').iter_symbols() if s['st_info']['type']=='STT_FUNC'])
-dis=subprocess.run(['mipsel-linux-gnu-objdump','-d','--no-show-raw-insn',w+'.o'],capture_output=True,text=True).stdout
+dis=subprocess.run(['mipsel-linux-gnu-objdump','-d','-z','--no-show-raw-insn',w+'.o'],capture_output=True,text=True).stdout
 mine={}
 for l in dis.splitlines():
     m=re.match(r'\s+([0-9a-f]+):\s+(.*)',l)
