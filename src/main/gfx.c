@@ -312,7 +312,14 @@ void func_8001E3C4(Obj8001E7DC *obj) {
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E3D0);
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E474);
+void func_8001E474(void) {
+    Obj8001FBE0 obj;
+
+    func_8001FBE0(&obj);
+    obj.methods[2](D_8005C4A0->unk4 + D_8005C4A0->unk14 * 16, D_8005C4A0->unk8 + (D_8005C4A0->unk18 << 5));
+    obj.methods[3](D_8005C4A0->unkC, D_8005C4A0->unk10 + D_8005C4A0->unk14 * D_8005C4A0->unk1C + D_8005C4A0->unk18);
+    obj.methods[1](D_8005C4A0->unk0 + 0xC);
+}
 
 void func_8001E51C(s32 id, s32 arg1) {
     Resource *res = D_8004D708.unk2C(id);

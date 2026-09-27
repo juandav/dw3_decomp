@@ -338,7 +338,8 @@ typedef struct DrawContext {
 typedef struct SoundEntry {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s16 vabId;
-    /* 0x06 */ u8 unk6[0x12];
+    /* 0x06 */ u8 unk6[2];
+    /* 0x08 */ s16 seqs[8];
 } SoundEntry;
 
 typedef struct Unk80051194 {
@@ -589,6 +590,7 @@ Slot *func_80013AB4(void);
 void func_80013C08(s32);
 void func_80013CB4(void);
 void func_80016860(void);
+void SsSepStop(short seq, short sep);
 void SsSeqCalledTbyT(void);
 short SsUtKeyOff(short voice, short vabId, short prog, short tone, short note);
 s32 func_8001FC68(s32 id);
@@ -652,8 +654,8 @@ int strlen(char *);
 void *memcpy(void *, void *, int);
 void func_8001794C(void *dst, s32 size);
 void *func_80017B20();
-void *func_800179C8(s32, s32);
-s32 func_80017A78(s32, s32);
+void *func_800179C8(u32 size, s32 tag);
+void *func_80017A78(u32 size, s32 tag);
 s32 func_80016064(u16, u16);
 void func_80017FAC(s32, s32);
 void func_8001837C(s32, s32, s32, s32);

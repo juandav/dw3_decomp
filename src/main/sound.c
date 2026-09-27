@@ -15,7 +15,20 @@ INCLUDE_ASM("asm/main/nonmatchings/sound", func_8001FCA4);
 
 INCLUDE_ASM("asm/main/nonmatchings/sound", func_8001FE3C);
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_8001FF0C);
+void func_8001FF0C(s32 packed) {
+    s32 id = (packed >> 18) & 0x7F;
+    u32 stopped = (u32)packed >> 31;
+    s32 seq = (packed >> 8) & 0xFF;
+    s32 sep = packed & 0xFF;
+    s32 index = func_8001FC68(id);
+
+    if (index != -1 && !stopped) {
+        SsSepStop(D_80051194.sounds[index].seqs[seq], sep);
+        if (D_80051194.unk4248 == packed) {
+            D_80051194.unk4248 = 0;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/sound", func_8001FFB4);
 
