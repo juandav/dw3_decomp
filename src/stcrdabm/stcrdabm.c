@@ -582,7 +582,18 @@ s32 func_80084ED4(void) {
     return FILE_CACHE.isLoading(0x25) != 0;
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80084FBC);
+void func_80084FBC(PanelAnim *fade, s32 fadeIn) {
+    fade->active = 1;
+    if (fadeIn != 0) {
+        SOUND_STATE.playSound(0x40019);
+        fade->level = 0;
+        fade->step = 0x1000 / fade->duration;
+    } else {
+        SOUND_STATE.playSound(0x4001A);
+        fade->level = 0x1000;
+        fade->step = -((0x1000 / fade->duration) * 2);
+    }
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80085050);
 
