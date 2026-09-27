@@ -73,10 +73,60 @@ typedef struct NameTask {
     /* 0xF4 */ void (*unkF4)(struct NameTask *task);
 } NameTask;
 
+/* Where a window of the partner menu goes, and its text */
+typedef struct MenuWindow {
+    /* 0x0 */ s32 text;
+    /* 0x4 */ s32 x;
+    /* 0x8 */ s32 y;
+} MenuWindow;
+
+struct ScreenTask;
+
+/* The partner menu */
+typedef struct MenuTask {
+    TASK_HEADER(MenuTask);
+    /* 0x50 */ struct ScreenTask *screen;
+    /* 0x54 */ s32 layer;
+    /* 0x58 */ u8 unk58[0x20];
+    /* 0x78 */ s32 partyCount;
+    /* 0x7C */ s32 unk7C;
+    /* 0x80 */ Tween tweens[6];
+} MenuTask;
+
+typedef struct ScreenChildren {
+    /* 0x0 */ MenuTask *menu;
+    /* 0x4 */ NameTask *name;
+    /* 0x8 */ FadeTask *fade;
+    /* 0xC */ Task *unkC;
+} ScreenChildren;
+
+/* The screen's controller */
+typedef struct ScreenTask {
+    TASK_HEADER(ScreenTask);
+    /* 0x50 */ s32 layer;
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s32 scroll;
+    /* 0x5C */ s32 tick;
+    /* 0x60 */ s32 choice;
+    /* 0x64 */ s32 unk64;
+    /* 0x68 */ void (*fadeOut)(struct ScreenTask *task);
+} ScreenTask;
+
+typedef struct ScreenFuncs {
+    /* 0x00 */ TextStyle *style;
+    /* 0x04 */ s32 partner;
+    /* 0x08 */ void (*loadFiles)(void);
+    /* 0x0C */ s32 (*isLoading)(void);
+    /* 0x10 */ void (*startTween)(Tween *tween, s32 open);
+    /* 0x14 */ s32 (*tickTween)(Tween *tween);
+} ScreenFuncs;
+
 extern Keyboard D_8008837C;
 extern TextStyle D_80086FC0;
 extern s32 D_80086EE0[];
 extern s8 D_80086EEC[][7][15][2];
+extern MenuWindow D_800872E0[];
+extern ScreenFuncs D_80087480;
 
 void func_80082724(Task *task, void **children);
 Task *func_8008281C(void);
@@ -96,6 +146,19 @@ void func_80084750(NameTask *task, char *name);
 void func_800847E4(NameTask *task, char *out);
 void func_800848E4(NameTask *task);
 NameTask *func_800848F0(char *name, s32 partner);
-void *func_80085B20(void);
+void func_80084998(MenuTask *task, TextWindow **window, s32 index, s32 show);
+void func_80084B0C(MenuTask *task, TextWindow **windows);
+s32 func_800850E0(MenuTask *task, TextWindow **windows);
+void func_80085354(MenuTask *task, TextWindow **windows);
+MenuTask *func_800856B4(ScreenTask *screen);
+void func_800856F4(ScreenTask *task, ScreenChildren *children);
+void func_800858D8(ScreenTask *task);
+void func_800859CC(ScreenTask *task, ScreenChildren *children);
+void func_80085ADC(ScreenTask *task);
+ScreenTask *func_80085B20(void);
+void func_80085B60(void);
+s32 func_80085C08(void);
+void func_80085C78(Tween *tween, s32 open);
+s32 func_80085D0C(Tween *tween);
 
 #endif /* STDGNAME_H */

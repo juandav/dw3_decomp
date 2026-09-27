@@ -252,7 +252,13 @@ INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800850E0);
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80085354);
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800856B4);
+MenuTask *func_800856B4(ScreenTask *screen) {
+    MenuTask *task = createTask(func_80085354, sizeof(MenuTask), 10 * sizeof(TextWindow *));
+
+    task->screen = screen;
+    task->layer = 0x1000;
+    return task;
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800856F4);
 
