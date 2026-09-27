@@ -225,7 +225,9 @@ void func_800847E4(NameTask *task, char *out) {
     conv.convert(out, &task->name[i], 1);
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800848E4);
+void func_800848E4(NameTask *task) {
+    task->substate = 10;
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800848F0);
 
