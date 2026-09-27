@@ -70,7 +70,29 @@ void func_80084660(StageSelect *sel, s32 delta) {
 
 INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_800846A4);
 
-INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_800847C8);
+void func_800847C8(StageSelect *sel, StageSelectWindows *win) {
+    if (sel->fading != 0) {
+        sel->fade += sel->fadeStep;
+        if (sel->fadeStep > 0) {
+            if (sel->fade > 0x1000) {
+                sel->fade = 0x1000;
+                sel->fading = 0;
+            }
+        } else if (sel->fade < 0) {
+            sel->fade = 0;
+            sel->fading = 0;
+        }
+        win->title->setScale(win->title, sel->fade, sel->fade);
+    } else if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_SELECT)) & 1) {
+        sel->fading = 1;
+        if (sel->fade <= 0) {
+            sel->fadeStep = 0x111;
+        } else {
+            sel->fadeStep = -0x111;
+        }
+        win->title->setPivot(win->title, 0x37, 0x28);
+    }
+}
 
 INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_800848D0);
 
