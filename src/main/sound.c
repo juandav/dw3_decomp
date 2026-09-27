@@ -1,4 +1,5 @@
 #include "game.h"
+#include "libsnd.h"
 
 s32 func_8001FC68(s32 id) {
     s32 i;
@@ -49,7 +50,28 @@ s32 func_80020064(void) {
     return D_800553DC.unkC != 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_80020074);
+void func_80020074(s32 index, s32 id) {
+    SoundEntry *e = &D_80051194.sounds[index];
+    SoundBank *bank = &D_80051194.bank;
+    s32 i;
+    s32 j;
+
+    e->unk0 = id;
+    if (e->vabId != -1) {
+        for (i = 0; i < e->numSeqs; i++) {
+            for (j = 0; j < 16; j++) {
+                SsSepStop(e->seqs[i], j);
+            }
+            func_80030198(e->seqs[i]);
+        }
+        SsVabClose(e->vabId);
+        e->vabId = -1;
+    }
+    bank->loading = 1;
+    bank->data = D_8005105C[id];
+    bank->index = index;
+    D_80044B50(bank->data[1]);
+}
 
 void func_8002019C(s32 id) {
     if (D_80051194.sounds[1].unk0 != id && D_80051194.sounds[2].unk0 != id) {
@@ -81,7 +103,33 @@ void func_80020594(s32 packed, s16 voice) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_80020638);
+void func_80020638(void) {
+    s32 i;
+
+    SsSetTableSize(D_80051194.unk0, 6, 16);
+    SsSetTickMode(0x1000);
+    SsStart2();
+    SsSetMVol(0x7F, 0x7F);
+    SsSetSerialAttr(0, 0, 1);
+    SsSetSerialVol(0, 0x7F, 0x7F);
+    SsUtSetReverbType(3);
+    SsUtSetReverbDepth(0, 0);
+    func_800345B8();
+    for (i = 0; i < 3; i++) {
+        D_80051194.sounds[i].vabId = -1;
+        D_80051194.sounds[i].numSeqs = 0;
+        D_80051194.sounds[i].unk10 = D_8005117C[i];
+        D_80051194.sounds[i].unk14 = D_80051188[i];
+    }
+    D_80051194.bank.index = 0;
+    D_80051194.bank.loading = 0;
+    D_80051194.bank.data = NULL;
+    func_80020074(0, 1);
+    while (func_80020064() != 0) {
+        D_80044744.unk410();
+        func_80020218();
+    }
+}
 
 void func_80020764(Task80011FBC *task, s32 *out) {
     switch (task->state) {

@@ -42,9 +42,9 @@ typedef struct MemManager {
     /* 0x14 */ void (*unk14)();
     /* 0x18 */ void *(*malloc)(s32 size, s32 tag);
     /* 0x1C */ void *(*unk1C)(s32 size, s32 tag);
-    /* 0x20 */ void (*unk20)();
+    /* 0x20 */ void *(*unk20)(s32 size, s32 tag);
     /* 0x24 */ void (*bzero)(void *ptr, s32 size);
-    /* 0x28 */ void (*unk28)();
+    /* 0x28 */ void (*memset)(void *ptr, s32 value, s32 size);
     /* 0x2C */ void (*unk2C)();
     /* 0x30 */ void (*unk30)();
 } MemManager;
@@ -66,7 +66,10 @@ typedef struct RandFuncs {
 } RandFuncs;
 
 typedef struct Funcs8004D708 {
-    /* 0x00 */ void (*unk0[11])();
+    /* 0x00 */ void (*unk0[2])();
+    /* 0x08 */ void *(*allocPrim)(void);
+    /* 0x0C */ void (*setPrimEnd)(void *end);
+    /* 0x10 */ void (*unk10[7])();
     /* 0x2C */ Resource *(*unk2C)(s32);
     /* 0x30 */ void (*unk30)();
     /* 0x34 */ void (*unk34)();
@@ -123,7 +126,8 @@ typedef struct Task {
     /* 0x10 */ s32 substate;
     /* 0x14 */ s32 step;
     /* 0x18 */ s32 counter;
-    /* 0x1C */ u8 unk1C[0xC];
+    /* 0x1C */ u8 unk1C[8];
+    /* 0x24 */ void *unk24;
     /* 0x28 */ void (*unk28)(struct Task *, s32);
     /* 0x2C */ void (*unk2C)(struct Task *, s32);
     /* 0x30 */ u8 unk30[0x20];
@@ -167,6 +171,51 @@ typedef struct Task8001ACC8 {
     /* 0x7C */ s32 unk7C;
     /* 0x80 */ void (*methods[6])();
 } Task8001ACC8;
+
+typedef struct Task8001B6A8 {
+    /* 0x00 */ u8 unk0[0xC];
+    /* 0x0C */ s32 state;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ u8 unk14[0x14];
+    /* 0x28 */ void (*unk28)(struct Task8001B6A8 *, s32);
+    /* 0x2C */ u8 unk2C[0xC];
+    /* 0x38 */ void (*unk38)(struct Task8001B6A8 *);
+    /* 0x3C */ void (*unk3C)(struct Task8001B6A8 *);
+    /* 0x40 */ u8 unk40[0x10];
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s32 unk58;
+    /* 0x5C */ s32 unk5C;
+    /* 0x60 */ s32 unk60;
+    /* 0x64 */ s32 unk64;
+    /* 0x68 */ s16 unk68;
+    /* 0x6A */ s16 unk6A;
+} Task8001B6A8;
+
+typedef struct Unk8001C5C4 {
+    /* 0x00 */ struct Task8001C454 *items[3];
+    /* 0x0C */ struct Unk80019DFC *windows[2];
+} Unk8001C5C4;
+
+typedef struct Unk8001BB68 {
+    /* 0x00 */ u8 unk0[0x24];
+    /* 0x24 */ Unk8001C5C4 *children;
+    /* 0x28 */ u8 unk28[0x2C];
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s32 type;
+    /* 0x5C */ u8 unk5C[4];
+    /* 0x60 */ s16 x;
+    /* 0x62 */ s16 y;
+    /* 0x64 */ s16 w;
+} Unk8001BB68;
+
+typedef struct Task8001BB68 {
+    /* 0x00 */ u8 unk0[0x50];
+    /* 0x50 */ Unk8001BB68 *parent;
+    /* 0x54 */ s32 frame;
+    /* 0x58 */ s32 time;
+    /* 0x5C */ u8 visible;
+} Task8001BB68;
 
 typedef struct Task8001B3A0 {
     /* 0x00 */ u8 unk0[0xC];
@@ -264,18 +313,20 @@ typedef struct Unk80019DFC {
     /* 0xA6 */ s16 unkA6;
     /* 0xA8 */ s16 unkA8;
     /* 0xAA */ s16 unkAA;
-    /* 0xAC */ u8 unkAC[4];
+    /* 0xAC */ s16 unkAC;
+    /* 0xAE */ s16 unkAE;
     /* 0xB0 */ s16 unkB0;
     /* 0xB2 */ s16 unkB2;
     /* 0xB4 */ s16 unkB4;
     /* 0xB6 */ s16 unkB6;
-    /* 0xB8 */ u8 unkB8[4];
+    /* 0xB8 */ s16 unkB8;
+    /* 0xBA */ u16 unkBA;
     /* 0xBC */ s16 unkBC;
     /* 0xBE */ u8 unkBE;
     /* 0xBF */ u8 unkBF;
     /* 0xC0 */ u8 unkC0;
     /* 0xC1 */ u8 unkC1;
-    /* 0xC2 */ s8 unkC2;
+    /* 0xC2 */ u8 unkC2;
     /* 0xC3 */ u8 unkC3;
     /* 0xC4 */ u8 unkC4;
     /* 0xC5 */ u8 unkC5[3];
@@ -287,7 +338,66 @@ typedef struct Unk80019DFC {
     /* 0xDC */ s32 unkDC;
     /* 0xE0 */ s32 unkE0;
     /* 0xE4 */ s32 unkE4;
+    /* 0xE8 */ u8 unkE8[0x28];
+    /* 0x110 */ void (*m110)();
+    /* 0x114 */ void (*m114)();
+    /* 0x118 */ void (*m118)();
+    /* 0x11C */ void (*m11C)();
+    /* 0x120 */ void (*m120)();
+    /* 0x124 */ void (*m124)();
+    /* 0x128 */ void (*m128)();
+    /* 0x12C */ void (*m12C)();
+    /* 0x130 */ void (*m130)();
+    /* 0x134 */ void (*setPos)(struct Unk80019DFC *obj, s16 x, s16 y);
+    /* 0x138 */ void (*m138)();
+    /* 0x13C */ void (*m13C)();
+    /* 0x140 */ void (*m140)();
+    /* 0x144 */ void (*m144)();
+    /* 0x148 */ void (*m148)();
+    /* 0x14C */ void (*m14C)();
+    /* 0x150 */ void (*m150)();
+    /* 0x154 */ void (*m154)();
+    /* 0x158 */ void (*m158)();
+    /* 0x15C */ void (*m15C)();
+    /* 0x160 */ void (*m160)();
+    /* 0x164 */ void (*m164)();
+    /* 0x168 */ void (*m168)();
+    /* 0x16C */ void (*m16C)();
+    /* 0x170 */ void (*m170)();
 } Unk80019DFC;
+
+typedef struct Unk8004D49C {
+    /* 0x00 */ u8 unk0[8];
+    /* 0x08 */ u16 unk8;
+    /* 0x0A */ u16 unkA;
+    /* 0x0C */ u8 unkC[8];
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ s16 unk18;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+} Unk8004D49C;
+
+typedef struct TextFont {
+    /* 0x0 */ u8 *styles;
+    /* 0x4 */ s32 *codeLengths;
+    /* 0x8 */ s32 unk8;
+    /* 0xC */ s16 (*decode)();
+} TextFont;
+
+typedef struct TextWait {
+    /* 0x00 */ u8 unk0[0x10];
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ s16 unk18;
+} TextWait;
+
+typedef struct Unk8001BA7C {
+    /* 0x0 */ Unk80019DFC *window;
+    /* 0x4 */ struct Task *unk4;
+} Unk8001BA7C;
 
 typedef struct Unk80041444 {
     /* 0x0 */ u8 unk0[8];
@@ -305,7 +415,8 @@ typedef struct Unk8003EB68 {
 
 typedef struct Unk80048C50Entry {
     /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
+    /* 0x02 */ u8 unk2;
+    /* 0x03 */ u8 unk3;
     /* 0x04 */ s32 unk4[4];
 } Unk80048C50Entry;
 
@@ -342,11 +453,13 @@ typedef struct DrawEntry {
 
 /* Double-buffered ordering tables */
 typedef struct DrawContext {
-    /* 0x00 */ u8 unk0[0x5C];
+    /* 0x00 */ DRAWENV env;
     /* 0x5C */ u_long *ot[2];
     /* 0x64 */ s32 otLen;
     /* 0x68 */ s32 otShift;
-    /* 0x6C */ u8 unk6C[0xC];
+    /* 0x6C */ s16 unk6C;
+    /* 0x6E */ s16 unk6E;
+    /* 0x70 */ u8 unk70[8];
     /* 0x78 */ s32 unk78;
     /* 0x7C */ s32 unk7C;
     /* 0x80 */ struct DrawEntry *unk80;
@@ -361,14 +474,25 @@ typedef struct SoundEntry {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s16 vabId;
     /* 0x06 */ s16 numSeqs;
-    /* 0x08 */ s16 seqs[8];
+    /* 0x08 */ s16 seqs[4];
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
 } SoundEntry;
+
+typedef struct SoundBank {
+    /* 0x0 */ s32 *data;
+    /* 0x4 */ s16 loading;
+    /* 0x6 */ s16 index;
+} SoundBank;
 
 typedef struct Unk80051194 {
     /* 0x0000 */ u8 unk0[0x4200];
     /* 0x4200 */ SoundEntry sounds[3];
     /* 0x4248 */ s32 unk4248;
     /* 0x424C */ s32 unk424C;
+    /* 0x4250 */ SoundBank bank;
+    /* 0x4258 */ u8 unk4258[0x24];
+    /* 0x427C */ void (*unk427C)(s32 packed);
 } Unk80051194;
 
 typedef struct Obj8001E7DC {
@@ -419,7 +543,9 @@ typedef struct Obj8001F8F8 {
 } Obj8001F8F8;
 
 typedef struct Obj8001FBE0 {
-    /* 0x00 */ u8 unk0[8];
+    /* 0x00 */ u16 w;
+    /* 0x02 */ u16 h;
+    /* 0x04 */ u8 unk4[4];
     /* 0x08 */ s32 unk8;
     /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
@@ -456,23 +582,31 @@ typedef struct CdReader {
     /* 0x24 */ s32 unk24;
     /* 0x28 */ s32 unk28;
     /* 0x2C */ s32 (*unk2C)(void);
+    /* 0x30 */ void (*read)(s32 file, s32 offset, s32 size, void *buf, s32 *done);
 } CdReader;
 
 typedef struct Unk80044744 {
     /* 0x000 */ s32 unk0;
-    /* 0x004 */ u8 unk4[0x404];
+    /* 0x004 */ Slot slots[64];
+    /* 0x404 */ u8 unk404[4];
     /* 0x408 */ void (*outOfMemory)(void);
     /* 0x40C */ void (*unk40C)(s32);
-    /* 0x410 */ u8 unk410[8];
+    /* 0x410 */ void (*unk410)(void);
+    /* 0x414 */ u8 unk414[4];
     /* 0x418 */ void (*unk418)(s32);
     /* 0x41C */ u8 unk41C[8];
     /* 0x424 */ s32 (*unk424)(s32);
+    /* 0x428 */ u8 *(*unk428)(s32 index, s32 arg);
 } Unk80044744;
 
 typedef struct Unk80017ECC {
-    /* 0x00 */ u8 unk0[0x20];
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ u8 unk4[0x1C];
     /* 0x20 */ s32 count;
     /* 0x24 */ s32 *items;
+    /* 0x28 */ void (*methods[8])();
+    /* 0x48 */ void (*update)();
+    /* 0x4C */ void (*destroy)(struct Unk80017ECC *);
 } Unk80017ECC;
 
 typedef struct Task8001C454 {
@@ -480,14 +614,20 @@ typedef struct Task8001C454 {
     /* 0x0C */ s32 state;
     /* 0x10 */ u8 unk10[0x28];
     /* 0x38 */ void (*unk38)(struct Task8001C454 *);
-    /* 0x3C */ u8 unk3C[0x18];
+    /* 0x3C */ u8 unk3C[0x14];
+    /* 0x50 */ s16 unk50;
+    /* 0x52 */ s16 unk52;
     /* 0x54 */ s16 unk54;
     /* 0x56 */ s16 unk56;
-    /* 0x58 */ u8 unk58[8];
+    /* 0x58 */ s16 unk58;
+    /* 0x5A */ s16 unk5A;
+    /* 0x5C */ u8 unk5C[4];
     /* 0x60 */ s32 unk60;
-    /* 0x64 */ u8 unk64[4];
+    /* 0x64 */ s32 unk64;
     /* 0x68 */ s32 unk68;
-    /* 0x6C */ u8 unk6C[0x1C];
+    /* 0x6C */ u16 unk6C;
+    /* 0x6E */ u16 unk6E;
+    /* 0x70 */ u8 unk70[0x18];
     /* 0x88 */ s32 unk88;
     /* 0x8C */ s32 unk8C;
     /* 0x90 */ s32 unk90;
@@ -499,6 +639,12 @@ typedef struct Unk800554D0 {
     /* 0x0 */ s32 unk0;
     /* 0x4 */ s32 current;
 } Unk800554D0;
+
+typedef struct Unk2728 {
+    /* 0x00 */ u8 unk0[0x16];
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ u8 unk18[0x18];
+} Unk2728;
 
 typedef struct Unk2744 {
     /* 0x00 */ u8 unk0[0x20];
@@ -532,22 +678,23 @@ typedef struct Vec2 {
     s32 y;
 } Vec2;
 
-typedef struct PadInfo {
-    /* 0x000 */ s32 flags;
-    /* 0x004 */ u8 unk4[0x44];
-    /* 0x048 */ u16 unk48;
-    /* 0x04A */ u16 unk4A;
-    /* 0x04C */ u8 unk4C[2];
-    /* 0x04E */ u16 unk4E;
-    /* 0x050 */ u8 unk50[0x54];
-    /* 0x0A4 */ u8 unkA4[0x11C];
-} PadInfo;
+/* One controller: a port, or one of the four multitap slots behind it */
+typedef struct PadSlot {
+    /* 0x00 */ u16 unk0;
+    /* 0x02 */ u16 unk2;
+    /* 0x04 */ u8 unk4[2];
+    /* 0x06 */ u16 unk6;
+    /* 0x08 */ u8 unk8[0x54];
+    /* 0x5C */ u8 unk5C[0x10];
+    /* 0x6C */ s16 actTimers[2];
+} PadSlot;
 
 typedef struct PadState {
-    /* 0x000 */ PadInfo pads[2];
-    /* 0x380 */ u8 unk380[0x48];
+    /* 0x000 */ s32 flags;
+    /* 0x004 */ u8 buf[2][0x22];
+    /* 0x048 */ PadSlot slots[2][4];
     /* 0x3C8 */ u8 act[2][6];
-    /* 0x3D4 */ u8 unk3D4[2];
+    /* 0x3D4 */ s16 unk3D4;
     /* 0x3D6 */ s16 unk3D6;
     /* 0x3D8 */ s32 unk3D8;
     /* 0x3DC */ s16 unk3DC;
@@ -569,7 +716,8 @@ typedef struct Unk800484E8 {
     /* 0x004E */ s16 playMinutes;
     /* 0x0050 */ s16 playSeconds;
     /* 0x0052 */ s16 playTimeMaxed;
-    /* 0x0054 */ u8 unk54[0x1C];
+    /* 0x0054 */ u8 unk54[0x18];
+    /* 0x006C */ s32 money;
     /* 0x0070 */ s32 unk70[3];
     /* 0x007C */ s8 unk7C[0x193];
     /* 0x020F */ s8 unk20F[0x193];
@@ -591,11 +739,28 @@ typedef struct Unk800484E8 {
     /* 0x26F8 */ s32 (*unk26F8)(void);
     /* 0x26FC */ u8 unk26FC[0x10];
     /* 0x270C */ s32 (*unk270C)(s32);
-    /* 0x2710 */ u8 unk2710[0x34];
+    /* 0x2710 */ u8 unk2710[0x18];
+    /* 0x2728 */ void (*unk2728)(s32, struct Unk2728 *);
+    /* 0x272C */ u8 unk272C[0x18];
     /* 0x2744 */ struct Unk2744 *(*unk2744)(s32);
 } Unk800484E8;
 
 void PadStartCom(void);
+void func_8001B490(struct Task8001B6A8 *task);
+void func_8001B5AC(struct Task8001B6A8 *task);
+void func_8001D9C0(struct DrawContext *ctx);
+s32 func_80015DD8(s32 slot, s32 item);
+s32 func_800155F8(s32 op, s32 arg);
+void func_80020218(void);
+s32 func_80020064(void);
+void func_800345B8(void);
+void func_8001855C(s32 port);
+void func_800180FC(void);
+void SsVabClose(short vabId);
+void func_80030198(short seq);
+int PadInfoMode(int port, int term, int offs);
+int PadSetMainMode(int port, int offs, int lock);
+s32 func_80018774(u32 port);
 void PadStopCom(void);
 s32 VSyncCallback(void (*func)(void));
 
@@ -635,8 +800,8 @@ void func_8001D718(s32 index);
 void func_8001C168(Task8001C454 *task);
 void func_80029598(s32);
 void func_8001FBE0(Obj8001FBE0 *obj);
-void func_80020074(s32, s32);
-void func_8001BB68(Task *task);
+void func_80020074(s32 index, s32 id);
+void func_8001BB68(struct Task8001BB68 *task);
 void func_8001BCCC(Task *task);
 s32 *func_80013E34(u32 id);
 void func_80013758();
@@ -691,7 +856,7 @@ void *func_800179C8(u32 size, s32 tag);
 void *func_80017A78(u32 size, s32 tag);
 s32 func_80016064(u16, u16);
 void func_80017FAC(s32, s32);
-void func_8001837C(s32, s32, s32, s32);
+s32 func_8001837C(s32 port, s32 motor, s16 time, u8 value);
 void *func_8001B2B8(Task8001B3A0 *task, s32 *data);
 void func_8001B1D0(Task8001B3A0 *task);
 void func_80019C2C(Unk80019DFC *obj);
@@ -701,11 +866,17 @@ s32 func_800151F0(s32 arg0, s32 arg1);
 s32 func_8001366C(void);
 s32 func_80013880(void);
 void func_80013890(void);
+void func_8001B864();
+s32 func_8001A108(Unk80019DFC *obj, TextBuffer *text, TextWait *wait, s16 *pos);
+void func_8001F22C(struct Obj8001F22C *obj);
+s32 func_800154F8(u8 *bits, s32 index, s32 set);
+void func_8001C454(struct Task8001C454 *task);
+Unk80019DFC *func_8001AAB4(s16 id, s16 type, s16 x, s16 y);
 int CdPosToInt(void *pos);
 void func_8001B314(Task8001B3A0 *task, s32 *data, s32 arg2);
 void *func_8001B368(Task8001B3A0 *task);
 void func_8001B3A0(Task8001B3A0 *task);
-void func_8001B6A8(void *task);
+void func_8001B6A8(struct Task8001B6A8 *task);
 void func_8001C0C4(Task *task);
 void func_80020764(struct Task80011FBC *task, s32 *out);
 s32 func_80014A10(void);
@@ -715,6 +886,8 @@ extern Unk8003EB68 D_8003EB68[];
 extern char D_800101D8[];
 extern char D_800101FC[];
 extern char D_80010230[];
+extern char D_80010268[];
+extern s16 (*D_8004D5B4)(u8 *text, s32 arg1, u8 *arg2, s32 pos);
 extern Funcs80047F04 D_80047F04;
 extern Funcs8004ABD8 D_8004ABD8;
 extern TaskFuncs D_8004AF58;
@@ -722,11 +895,20 @@ extern RandFuncs D_8004D3B0;
 extern Funcs8004D708 D_8004D708;
 extern SoundFuncs D_800553DC;
 extern Funcs800554D8 D_800554D8;
+extern void (*D_80044B50)(s32 file);
+extern s32 *D_8005105C[];
+extern s32 D_80051188[];
+extern s32 D_8005117C[];
 extern s32 (*D_80055418[])(void);
 extern Unk80042728 D_80042728;
 extern Unk80041444 D_80041444[];
 extern u8 **(*D_800427A4)(s32 item);
 extern u8 D_800427B4[];
+extern s32 D_800483F8[];
+extern u8 D_8004AB5F[];
+extern u8 D_8004829C[];
+extern s32 D_80048420[];
+extern s32 D_80048440[];
 extern u8 D_80048280[];
 extern s32 D_80048284;
 extern s32 D_8004ABB8;
@@ -757,7 +939,9 @@ extern Unk8004ADB8 D_8004ADB8;
 extern PadState D_8004AF78;
 extern u16 D_8004B3AC[0x1000];
 extern s32 D_8004D3AC;
-extern u8 *D_8004D5A8;
+extern TextFont D_8004D5A8;
+extern s32 (*D_80044B68)(s32 id);
+extern Unk8004D49C D_8004D49C[];
 extern GfxState D_8004D5B8;
 extern Unk80051194 D_80051194;
 extern MemManager D_8004AD84;

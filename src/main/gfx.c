@@ -47,7 +47,7 @@ void func_8001D31C(void) {
     if (D_8005C47C != 0) {
         for (i = 0; i < 30; i++) {
             if (D_8004D5B8.resources[i] != NULL) {
-                D_8004D5B8.funcs.unk0[8](D_8004D5B8.resourceIds[i]);
+                D_8004D5B8.funcs.unk10[4](D_8004D5B8.resourceIds[i]);
                 i--;
             }
         }
@@ -85,7 +85,26 @@ void func_8001D468(void) {
     D_8004D5B8.bufs[1] = NULL;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D4D4);
+void func_8001D4D4(s32 w, s32 h, s32 hires, s32 interlace) {
+    if (hires != 0) {
+        if (interlace != 0) {
+            SetDefDispEnv(&D_8004D5B8.disp[0], 0, 0, 320, 480);
+            D_8004D5B8.disp[0].isinter = 1;
+            D_8004D5B8.disp[0].isrgb24 = 1;
+            SetDefDispEnv(&D_8004D5B8.disp[1], 480, 0, 320, 480);
+            D_8004D5B8.disp[1].isinter = 1;
+            D_8004D5B8.disp[1].isrgb24 = 1;
+        } else {
+            SetDefDispEnv(&D_8004D5B8.disp[0], 0, 0, w, h);
+            SetDefDispEnv(&D_8004D5B8.disp[1], w, 0, w, h);
+        }
+    } else {
+        SetDefDispEnv(&D_8004D5B8.disp[0], 0, 0, w, h);
+        SetDefDispEnv(&D_8004D5B8.disp[1], 0, 256, w, h);
+    }
+    GsInit3D();
+    SetGeomOffset(0, 0);
+}
 
 void func_8001D5E4(s32 x, s32 y, s32 w, s32 h) {
     SetDefDispEnv(&D_8004D5B8.disp[0], x, y, w, h);
@@ -187,7 +206,28 @@ void func_8001D984(DrawContext *ctx) {
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D9C0);
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001DA4C);
+void func_8001DA4C(DrawContext *ctx) {
+    DRAWENV env = ctx->env;
+    DR_ENV *dr;
+    u_long *ot;
+    u_long *tag;
+
+    env.ofs[0] = ctx->unk6C;
+    env.ofs[1] = ctx->unk6E;
+    func_8001D9C0(ctx);
+    dr = (DR_ENV *)D_8004D5B8.unk20;
+    ot = ctx->ot[D_8004D5B8.buffer] + ctx->otLen;
+    tag = ot - 1;
+    if (D_8004D5B8.buffer != 0) {
+        env.clip.y += 256;
+        env.ofs[1] += 256;
+    }
+    SetDrawEnv(dr, &env);
+    addPrim(ot - 1, dr);
+    dr++;
+    D_8004D5B8.unk20 = (s32)dr;
+    DrawOTag(tag);
+}
 
 u_long *func_8001DB8C(DrawContext *ctx, s32 depth) {
     return ctx->ot[D_8004D5B8.buffer] + depth;
@@ -275,7 +315,47 @@ void func_8001DDCC(Sprite *sprite, s32 count) {
     func_8001DD80(sprite);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001DE24);
+void func_8001DE24(DrawContext *ctx, s32 arg1, s32 arg2, s32 key, s32 arg4) {
+    DrawEntry *cur;
+    DrawEntry *prev;
+    DrawEntry *e;
+    s32 i;
+    s32 cap;
+
+    if (ctx->unk7C < ctx->unk78) {
+        cur = ctx->unk80;
+        e = &cur[ctx->unk7C];
+        e->unk8 = arg1;
+        e->unkC = arg2;
+        e->key = key;
+        e->unk4 = arg4;
+        prev = NULL;
+        if (ctx->unk7C != 0) {
+            cap = ctx->unk78;
+            for (i = 0; i < cap; i++) {
+                if (cur->key < key) {
+                    cur = prev;
+                    break;
+                }
+                prev = cur;
+                if (cur->next == NULL) {
+                    break;
+                }
+                cur = cur->next;
+            }
+            if (cur->next == NULL) {
+                cur->next = e;
+                e->next = NULL;
+            } else {
+                e->next = cur->next;
+                cur->next = e;
+            }
+        } else {
+            e->next = NULL;
+        }
+        ctx->unk7C++;
+    }
+}
 
 void func_8001DF08(Sprite *sprite, void (*func)(s32, void *, s32), s32 arg2) {
     Callback *cb;
@@ -527,7 +607,39 @@ void func_8001F974(s32 arg0, s32 arg1) {
     D_8005C4B8->unk14 = arg1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F988);
+void func_8001F988(u_long *tim) {
+    RECT clut;
+    RECT image;
+    u_long *p = tim;
+    s32 flag;
+    s32 mode;
+    s32 hasClut;
+
+    p++;
+    flag = *p++;
+    hasClut = flag & 8;
+    mode = flag & 7;
+    if (hasClut) {
+        switch (mode) {
+        case 0:
+        case 1:
+            clut.x = D_8005C4B8->unk10;
+            clut.y = D_8005C4B8->unk14;
+            clut.w = ((u16 *)p)[4];
+            clut.h = ((u16 *)p)[5];
+            LoadImage(&clut, p + 3);
+            break;
+        }
+        p = (u_long *)((u8 *)p + *p);
+    }
+    image.x = D_8005C4B8->unk8;
+    image.y = D_8005C4B8->unkC;
+    image.w = ((u16 *)p)[4];
+    image.h = ((u16 *)p)[5];
+    LoadImage(&image, p + 3);
+    D_8005C4B8->w = image.w;
+    D_8005C4B8->h = image.h;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001FA70);
 
