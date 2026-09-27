@@ -234,7 +234,9 @@ void func_8008ADE8(void) {
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008AE18);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008AEB4);
+void func_8008AEB4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    func_8008AE18(arg0, arg1, arg2, arg3, arg4, 0);
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008AEDC);
 
