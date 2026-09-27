@@ -9,7 +9,24 @@ extern RECT D_800851D8;
 
 Task *func_800844E0(void);
 
-INCLUDE_ASM("asm/soundtst/nonmatchings/soundtst", func_80083B08);
+void func_80083B08(Task *task, Task **items) {
+    switch (task->state) {
+    case 0:
+    default:
+        items[0] = func_800844E0();
+        task->nextState(task);
+        break;
+    case 1:
+        if (PAD.getPressed(0) & 8) {
+            GAME_FUNCS.requestMode(0x1500, 0);
+            task->nextState(task);
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/soundtst/nonmatchings/soundtst", func_80083BA8);
 
