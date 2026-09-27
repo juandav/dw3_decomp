@@ -8,11 +8,10 @@ and ends:
     WSTAG200 0x4 0x2B8
 
 A stage loads at 0x800A4CA4, after the largest main overlay (CARDGAME), on top
-of FIELDSTG, whose functions it calls. Its first word is a color (0x808080,
-0x966754...) that no function of the stage reads, so it stays in asm (and with
-no other .rodata there is nothing to migrate to functions); the code starts
-right after it (a few stages have no color and start with code) and the rest
-of the file, from the end of the code, is data.
+of FIELDSTG, whose functions it calls. Most stages start right with code; the
+others with a word no function of the stage reads (a color such as 0x808080,
+or a pointer), which stays in asm, so there is no other .rodata to migrate to
+functions. From the end of the code on, the file is data.
 
 usage: stage_yaml.py wstag200 build/generated/stages/wstag200.yaml
 """
