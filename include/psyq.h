@@ -210,6 +210,8 @@ void *VSyncCallbacks(int ch, void (*func)());
 u_short SetIntrMask(u_short mask);
 int CD_ready();
 void init_ring_status(int start, u_int count);
+long sin_1(long a);
+void _card_stop(void);
 void _SsInit(void);
 void _SsSeqPlay(short, short);
 void _SsSndStop(short, short);
