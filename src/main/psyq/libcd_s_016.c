@@ -36,6 +36,11 @@ int CdControlF(u_char com, u_char *param) {
     return cd_control(com, param, 0, 1) == 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_s_016", CdControlB);
+int CdControlB(u_char com, u_char *param, u_char *result) {
+    if (cd_control(com, param, result, 0) != 0) {
+        return 0;
+    }
+    return CD_sync(0, result) == CdlComplete;
+}
 
 OBJECT_END();
