@@ -595,7 +595,24 @@ void func_80084FBC(PanelAnim *fade, s32 fadeIn) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80085050);
+s32 func_80085050(PanelAnim *fade) {
+    if (fade->active == 0) {
+        return 1;
+    }
+    fade->level += fade->step;
+    if (fade->step > 0) {
+        if (fade->level > 0x1000) {
+            fade->level = 0x1000;
+            fade->active = 0;
+            return 1;
+        }
+    } else if (fade->level < 0) {
+        fade->level = 0;
+        fade->active = 0;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800850BC);
 
