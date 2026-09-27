@@ -242,7 +242,31 @@ Task *func_80083368(void) {
     return createTask(func_80083270, sizeof(Task), 4);
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80083394);
+void func_80083394(CardAlbum *album, CardAlbumWindows *win) {
+    TextWindow **items;
+    s32 i;
+
+    win->title = createTextWindow(album->layer, 1, 0x10, 0x19);
+    win->help = createTextWindow(album->layer, 1, 0xD0, 0x19);
+    win->page = createTextWindow(album->layer, 1, 0x34, 0x9E);
+    win->pageSlash = createTextWindow(album->layer, 1, 0x35, 0x9E);
+    win->pageCount = createTextWindow(album->layer, 1, 0x4A, 0x9E);
+    win->prev = createTextWindow(album->layer, 1, 0x12, 0x6C);
+    win->next = createTextWindow(album->layer, 1, 0x121, 0x6C);
+    win->name = createTextWindow(album->layer, 1, 0x88, 0xA1);
+    win->levelLabel = createTextWindow(album->layer, 1, 0x115, 0xA1);
+    win->level = createTextWindow(album->layer, 1, 0x126, 0xA1);
+    win->countLabel = createTextWindow(album->layer, 1, 0x115, 0xC7);
+    win->count = createTextWindow(album->layer, 1, 0x12C, 0xC7);
+    win->text = createTextWindow(album->layer, 1, 0x50, 0xB8);
+    win->stat1Label = createTextWindow(album->layer, 1, 0xCE, 0xB8);
+    win->stat1 = createTextWindow(album->layer, 1, 0xF0, 0xB8);
+    win->stat2Label = createTextWindow(album->layer, 1, 0xCE, 0xC5);
+    win->stat2 = createTextWindow(album->layer, 1, 0xF0, 0xC5);
+    for (i = 0, items = album->children; i < album->childCount - 2; i++, items++) {
+        (*items)->setDepth(*items, album->depth - 3);
+    }
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800835AC);
 
