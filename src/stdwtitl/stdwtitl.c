@@ -165,7 +165,23 @@ void STDWTITL_clearVram(void) {
     DrawSync(0);
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_initDecEnv);
+void STDWTITL_initDecEnv(DecEnv *dec, s16 x0, s16 y0, s16 x1, s16 y1) {
+    dec->vlcbuf[0] = STDWTITL_vlcBuffer0;
+    dec->vlcbuf[1] = STDWTITL_vlcBuffer1;
+    dec->vlcid = GFX.buffer ^ 1;
+    dec->imgbuf[0] = STDWTITL_imageBuffer0;
+    dec->imgbuf[1] = STDWTITL_imageBuffer1;
+    dec->imgid = GFX.buffer ^ 1;
+    dec->rect[0].x = x0;
+    dec->rect[0].y = y0;
+    dec->rect[1].x = x1;
+    dec->rect[1].y = y1;
+    dec->rectid = GFX.buffer ^ 1;
+    dec->slice.x = x0;
+    dec->slice.y = y0;
+    dec->slice.w = 24;
+    dec->isdone = 0;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_readStream);
 
