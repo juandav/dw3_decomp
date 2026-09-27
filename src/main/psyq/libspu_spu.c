@@ -1,12 +1,58 @@
+/* _spu_tsa is read as a plain variable in this object */
+#define D_8005BA40 D_8005BA40_volatile
 #include "psyq.h"
+#undef D_8005BA40
+extern u_short D_8005BA40;
 
 extern u_long *D_8005BA38;
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libspu_spu", D_80010BCC);
 
+extern char D_80010BCC[];
+void _spu_Fw1ts(void);
+
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_init);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", func_800383F8);
+void func_800383F8(u_char *addr, u_long size) {
+    u_short stat;
+    u_short cnt;
+    long n;
+    long i;
+    u_long t;
+    u_short *p = (u_short *)addr;
+
+    stat = D_8005BA28[0xD7] & 0x7FF;
+    D_8005BA28[0xD3] = D_8005BA40;
+    _spu_Fw1ts();
+    while (size != 0) {
+        n = size > 64 ? 64 : size;
+        for (i = 0; i < n; i += 2) {
+            D_8005BA28[0xD4] = *p++;
+        }
+        cnt = D_8005BA28[0xD5];
+        D_8005BA28[0xD5] = (cnt & ~0x30) | 0x10;
+        _spu_Fw1ts();
+        t = 0;
+        while (D_8005BA28[0xD7] & 0x400) {
+            if (++t > 0xF00) {
+                printf(D_80010BCC, "wait (wrdy H -> L)");
+                break;
+            }
+        }
+        _spu_Fw1ts();
+        _spu_Fw1ts();
+        size -= n;
+    }
+    cnt = D_8005BA28[0xD5];
+    D_8005BA28[0xD5] = cnt & ~0x30;
+    t = 0;
+    while ((D_8005BA28[0xD7] & 0x7FF) != stat) {
+        if (++t > 0xF00) {
+            printf(D_80010BCC, "wait (dmaf clear/W)");
+            break;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_FiDMA);
 
@@ -15,7 +61,6 @@ extern volatile u_long *D_8005BA30;
 extern volatile u_long *D_8005BA34;
 extern long D_8005BA78;
 void func_80038C28(void);
-void _spu_Fw1ts(void);
 
 void _spu_Fr_(u_char *addr, u_short tsa, u_long size) {
     D_8005BA28[0xD3] = tsa;
@@ -96,4 +141,5 @@ void _spu_Fw1ts(void) {
     }
 }
 
+__asm__(".section .rodata\n\t.align 4\n");
 OBJECT_END();
