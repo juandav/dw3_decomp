@@ -138,8 +138,8 @@ typedef struct SpuReverbRegs {
 
 /* libsnd per-sequence state, D_80080D38[seq][sep] */
 typedef struct SeqStruct {
-    /* 0x00 */ long unk0;
-    /* 0x04 */ long unk4;
+    /* 0x00 */ u_char *readPos;
+    /* 0x04 */ u_char *startPos;
     /* 0x08 */ u8 unk8[0xC];
     /* 0x14 */ char unk14;
     /* 0x15 */ u8 unk15[2];
