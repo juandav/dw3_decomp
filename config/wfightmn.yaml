@@ -50,5 +50,5 @@ segments:
     subsegments:
       - [0x0, .rodata, wfightmn]
       - [0xEC, c, wfightmn]
-      - [0x4EB4, data, wfightmn]
+      - [0x4EB4, .data, wfightmn]
   - [0x5078]
