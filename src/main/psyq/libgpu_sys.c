@@ -112,7 +112,9 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026748);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800267E0);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026878);
+u_long func_80026878(short x, short y) {
+    return 0xE5000000 | ((y & 0x7FF) << 11) | (x & 0x7FF);
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026894);
 
