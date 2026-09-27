@@ -396,6 +396,12 @@ typedef struct CdReader {
     /* 0x28 */ s32 unk28;
 } CdReader;
 
+typedef struct Unk80044744 {
+    /* 0x000 */ s32 unk0;
+    /* 0x004 */ u8 unk4[0x404];
+    /* 0x408 */ void (*outOfMemory)(void);
+} Unk80044744;
+
 typedef struct MemBlock {
     /* 0x0 */ struct MemBlock *prev;
     /* 0x4 */ struct MemBlock *next;
@@ -548,7 +554,10 @@ void func_8001FBD4();
 int strlen(char *);
 void *memcpy(void *, void *, int);
 void func_8001794C(void *dst, s32 size);
-void *func_80017B20(void);
+void *func_80017B20();
+void *func_800179C8(s32, s32);
+s32 func_80017A78(s32, s32);
+s32 func_80016064(u16, u16);
 void func_80017FAC(s32, s32);
 void func_8001837C(s32, s32, s32, s32);
 void *func_8001B2B8(Task8001B3A0 *task, s32 *data);
@@ -583,7 +592,7 @@ extern u8 D_8005C4C0[];
 extern u8 D_80048468[][2];
 extern s32 D_8004AB24;
 extern Slot D_80044748[64];
-extern s32 D_80044744;
+extern Unk80044744 D_80044744;
 extern s32 D_80044B78[];
 extern u16 D_80046DD4[];
 extern Unk80048C50 D_80048C50[];

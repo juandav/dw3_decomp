@@ -223,7 +223,7 @@ void func_80013C08(s32 file) {
     slot->unk0 = 1;
     slot->unk8 = 0;
     slot->unk2 = 0;
-    D_80044744 = 1;
+    D_80044744.unk0 = 1;
 }
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80013CB4);
@@ -525,7 +525,17 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_80016064);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80016260);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800165D8);
+s32 func_800165D8(u16 *list) {
+    u16 a;
+
+    for (a = *list; a != 0xFFFF; a = *list) {
+        list++;
+        if (!func_80016064(a, *list++)) {
+            return 0;
+        }
+    }
+    return 1;
+}
 
 void func_8001663C(u16 *list) {
     u16 a;
@@ -745,12 +755,23 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_800179C8);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80017A78);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80017B20);
+void *func_80017B20(s32 size, s32 tag) {
+    void *ptr;
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80017B88);
+    while ((ptr = func_800179C8(size, tag)) == NULL) {
+        D_80044744.outOfMemory();
+    }
+    return ptr;
+}
 
-void *func_80017BF0(s32 size) {
-    void *ret = func_80017B20();
+void func_80017B88(s32 arg0, s32 arg1) {
+    while (func_80017A78(arg0, arg1) == 0) {
+        D_80044744.outOfMemory();
+    }
+}
+
+void *func_80017BF0(s32 size, s32 tag) {
+    void *ret = func_80017B20(size, tag);
 
     func_8001794C(ret, size);
     return ret;
