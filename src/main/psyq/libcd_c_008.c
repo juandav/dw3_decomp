@@ -1,5 +1,16 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_c_008", init_ring_status);
+void init_ring_status(int start, u_int count) {
+    u_int i;
+    long *p;
+
+    i = 0;
+    if (count != 0) {
+        do {
+            p = (long *)(D_80080C20 + ((i++ + start) << 5));
+            *p = 0;
+        } while (i < count);
+    }
+}
 
 OBJECT_END();
