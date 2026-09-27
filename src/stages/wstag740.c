@@ -10,7 +10,21 @@ void *func_800A4F30(void) {
     return createTask(func_800A4CA8, 0x54, 0xC);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag740", func_800A4F5C);
+void func_800A4F5C(StageTask *task, void **children) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->nextState(task);
+        if (FLAGS_00.checkCondition(0x403F, 1) && FLAGS_00.checkCondition(0x4040, 0)) {
+            children[0] = func_80084B80(0x321);
+        }
+        break;
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 StageTask *func_800A4FFC(void *owner) {
     StageTask *task = createTask(func_800A4F5C, sizeof(StageTask), 4);

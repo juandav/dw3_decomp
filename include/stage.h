@@ -39,4 +39,7 @@ typedef struct Anim8 {
     /* 0x8 */ Anim anim;
 } Anim8;
 
+/* FIELDSTG functions the stages call */
+void *func_80084B80(s32 id); /* creates the task of an event object */
+
 #endif /* STAGE_H */

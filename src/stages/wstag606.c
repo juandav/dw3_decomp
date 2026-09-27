@@ -3,7 +3,21 @@
 extern void (*D_800A56D8[])(void);
 void func_800A4CA4();
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag606", func_800A4CA4);
+void func_800A4CA4(StageTask *task, void **children) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->nextState(task);
+        if (FLAGS_00.checkCondition(0x407E, 1) && FLAGS_00.checkCondition(0x407F, 0)) {
+            children[0] = func_80084B80(0x50A);
+        }
+        break;
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 StageTask *func_800A4D44(void *owner) {
     StageTask *task = createTask(func_800A4CA4, sizeof(StageTask), 4);
