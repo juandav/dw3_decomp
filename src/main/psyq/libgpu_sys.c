@@ -8,7 +8,19 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", ResetGraph);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", SetGraphDebug);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", SetGraphQueue);
+int SetGraphQueue(int mode) {
+    u_char old = D_800556A0.unk1;
+
+    if (D_800556A0.level >= 2) {
+        D_8005569C("SetGrapQue(%d)...\n", mode);
+    }
+    if (mode != D_800556A0.unk1) {
+        D_80055698->unk34(1);
+        D_800556A0.unk1 = mode;
+        DMACallback(2, NULL);
+    }
+    return old;
+}
 
 int GetGraphDebug(void) {
     return D_800556A0.level;
