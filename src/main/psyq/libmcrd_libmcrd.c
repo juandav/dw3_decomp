@@ -4,6 +4,9 @@ typedef struct CardName {
     char s[6];
 } CardName;
 
+/* "Access Denied. : event multiple open\n" */
+extern char D_80010C9C[];
+
 long func_8003BAEC(UserFuncArg *arg);
 long func_8003BE70(UserFuncArg *arg);
 
@@ -30,7 +33,18 @@ void MemCardStop(void) {
     _card_stop();
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardExist);
+long MemCardExist(long chan) {
+    if (D_80082068.unk0 > 0) {
+        printf(D_80010C9C);
+        return 0;
+    }
+    D_80082068.unk0 = 1;
+    D_80082068.unk4 = 0;
+    D_80082068.unk8 = 0;
+    D_80082068.unk10 = chan;
+    UserFuncOpen(func_8003BAEC);
+    return 1;
+}
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libmcrd_libmcrd", D_80010C9C);
 
