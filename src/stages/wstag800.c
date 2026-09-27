@@ -1,5 +1,11 @@
 #include "common.h"
 #include "stage.h"
+extern u8 D_800A6D48[];
+extern u8 D_800A686C[];
+extern u8 D_800A6AD0[];
+extern u8 D_800A6888[];
+extern u8 D_800A6C6C[];
+extern u8 D_800A6AF0[];
 void func_800A554C();
 void func_800A5208();
 void func_800A4DC4();
@@ -95,4 +101,25 @@ void func_800A5F3C(void) {
     FLAGS_00.applyAction(0x84CB, 1);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5F88);
+void func_800A5F88(void) {
+    D_800990B4.unk44 = 0xFE;
+    D_800990B4.unk8 = 0x715;
+    D_800990B4.unkC = 0x6EE0000;
+    D_800990B4.unk10 = D_800A6AF0;
+    D_800990B4.unk14 = D_800A6C6C;
+    D_800990B4.unk1C = 0x6EA;
+    DEBUG_LOG();
+    D_800990B4.unk2C = 0x1E500;
+    D_800990B4.unk30 = 0x38700;
+    D_800990B4.unk28 = D_800A6888;
+    D_800990B4.unk3C = 0xD;
+    D_800990B4.unk40 = 0x60340000;
+    D_800990B4.unk4C = D_800A6AD0;
+    D_800990B4.unk20 = D_800A686C;
+    D_800990B4.unk34 = 0;
+    D_800990B4.events = D_800A6D48;
+    D_8009A70C.unk40(0, 0x6EE0001);
+    D_8009A70C.unk40(7, 0x6EE0002);
+    D_8009A70C.unk40(4, 0x6EE0003);
+    D_8009A70C.unk50(0);
+}

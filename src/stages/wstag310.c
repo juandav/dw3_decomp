@@ -1,5 +1,11 @@
 #include "common.h"
 #include "stage.h"
+extern u8 D_800A76C8[];
+extern u8 D_800A7BA4[];
+extern u8 D_800A7954[];
+extern u8 D_800A76E4[];
+extern u8 D_800A7B70[];
+extern u8 D_800A7988[];
 void func_800A561C();
 void func_800A5094();
 void func_800A4DF8();
@@ -211,4 +217,24 @@ void func_800A6888(void) {
     GAME_PROGRESS = 39;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A6898);
+void func_800A6898(void) {
+    D_800990B4.unk44 = 0xF0;
+    D_800990B4.unk8 = 0x333;
+    D_800990B4.unkC = 0x3340000;
+    D_800990B4.unk10 = D_800A7988;
+    D_800990B4.unk14 = D_800A7B70;
+    D_800990B4.unk1C = 0x332;
+    DEBUG_LOG();
+    D_800990B4.unk2C = 0x13E00;
+    D_800990B4.unk30 = 0x19800;
+    D_800990B4.unk28 = D_800A76E4;
+    D_800990B4.unk3C = 0x2A;
+    D_800990B4.unk40 = 0x60A80000;
+    D_800990B4.unk4C = D_800A7954;
+    D_800990B4.events = D_800A7BA4;
+    D_800990B4.unk34 = 0;
+    D_800990B4.unk20 = D_800A76C8;
+    D_8009A70C.unk40(0, 0x3340001);
+    D_8009A70C.unk40(7, 0x3340002);
+    D_8009A70C.unk50(0);
+}

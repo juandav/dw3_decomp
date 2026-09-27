@@ -1,5 +1,11 @@
 #include "common.h"
 #include "stage.h"
+extern u8 D_800A6E54[];
+extern u8 D_800A6984[];
+extern u8 D_800A6B44[];
+extern u8 D_800A69A0[];
+extern u8 D_800A6D60[];
+extern u8 D_800A6B54[];
 void func_800A5E78();
 void func_800A5800();
 void func_800A53C0();
@@ -189,4 +195,25 @@ StageTask *func_800A6324(void *owner) {
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A6380);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A63B8);
+void func_800A63B8(void) {
+    D_800990B4.unk44 = 0xFE;
+    D_800990B4.unk8 = 0x6A7;
+    D_800990B4.unkC = 0x6A80000;
+    D_800990B4.unk10 = D_800A6B54;
+    D_800990B4.unk14 = D_800A6D60;
+    D_800990B4.unk1C = 0x6A6;
+    DEBUG_LOG();
+    D_800990B4.unk2C = 0x13D00;
+    D_800990B4.unk30 = 0x38500;
+    D_800990B4.unk28 = D_800A69A0;
+    D_800990B4.unk3C = 0x37;
+    D_800990B4.unk40 = 0x60DC0000;
+    D_800990B4.unk4C = D_800A6B44;
+    D_800990B4.unk20 = D_800A6984;
+    D_800990B4.unk34 = 0;
+    D_800990B4.events = D_800A6E54;
+    D_8009A70C.unk40(0, 0x6A80001);
+    D_8009A70C.unk40(7, 0x6A80002);
+    D_8009A70C.unk40(4, 0x6A80003);
+    D_8009A70C.unk50(0);
+}

@@ -55,7 +55,7 @@ typedef struct StageInfo {
     /* 0x2C */ s32 unk2C;
     /* 0x30 */ s32 unk30;
     /* 0x34 */ s32 unk34;
-    /* 0x38 */ s32 unk38;
+    /* 0x38 */ CVECTOR unk38; /* copied from the word at the start of the stage */
     /* 0x3C */ s32 unk3C;
     /* 0x40 */ s32 unk40;
     /* 0x44 */ s32 unk44;
