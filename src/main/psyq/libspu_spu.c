@@ -14,7 +14,18 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_Fr_);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_t);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_Fw);
+void func_800383F8(u_char *addr, u_long size);
+
+u_long _spu_Fw(u_char *addr, u_long size) {
+    if (D_8005BA44 == 0) {
+        _spu_t(2, D_8005BA40 << D_8005BA50);
+        _spu_t(1);
+        _spu_t(3, addr, size);
+    } else {
+        func_800383F8(addr, size);
+    }
+    return size;
+}
 
 u_long _spu_Fr(char *addr, u_long size) {
     _spu_t(2, D_8005BA40 << D_8005BA50);
