@@ -95,6 +95,89 @@ typedef struct Unk80086144 {
     /* 0x130 */ Point *(*unk130)(struct Unk80086144 *);
 } Unk80086144;
 
+/* The task of func_80084D0C (func_80085240) */
+typedef struct Unk80084D0C {
+    TASK_HEADER(Unk80084D0C);
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ u8 unk54[0x18];
+} Unk80084D0C;
+
+/* The task of func_80085350 (func_80085588) */
+typedef struct Unk80085350 {
+    TASK_HEADER(Unk80085350);
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s16 unk58;
+    /* 0x5A */ u8 unk5A[0x22];
+} Unk80085350;
+
+/* The task of func_80087FDC (func_800881A0) */
+typedef struct Unk80087FDC {
+    TASK_HEADER(Unk80087FDC);
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ u8 unk54[0x14];
+} Unk80087FDC;
+
+/* The task of func_8008878C (func_80088BE4) */
+typedef struct Unk8008878C {
+    TASK_HEADER(Unk8008878C);
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s32 unk54;
+} Unk8008878C;
+
+/* The task of func_80089320 (func_80089668) */
+typedef struct Unk80089320 {
+    TASK_HEADER(Unk80089320);
+    /* 0x50 */ Actor *actor;
+    /* 0x54 */ u8 unk54[0x10];
+} Unk80089320;
+
+/* The task of func_8008B9D8 (func_8008BBD4) */
+typedef struct Unk8008B9D8 {
+    TASK_HEADER(Unk8008B9D8);
+    /* 0x50 */ u8 unk50[0xC];
+    /* 0x5C */ Point from;
+    /* 0x64 */ Point to;
+} Unk8008B9D8;
+
+/* The task of func_8008C59C (func_8008C9F8) */
+typedef struct Unk8008C59C {
+    TASK_HEADER(Unk8008C59C);
+    /* 0x50 */ Point pos;
+    /* 0x58 */ u8 unk58[0x10];
+} Unk8008C59C;
+
+/* The task of func_8008CC4C (id 0x10, func_8008CF0C) */
+typedef struct Unk8008CC4C {
+    TASK_HEADER(Unk8008CC4C);
+    /* 0x50 */ u8 unk50[0xC];
+    /* 0x5C */ s32 unk5C;
+    /* 0x60 */ u8 unk60[4];
+    /* 0x64 */ s16 unk64;
+    /* 0x66 */ u8 unk66[0x2A];
+} Unk8008CC4C;
+
+/* The task of func_800834A0 (func_80083930) */
+typedef struct Unk800834A0 {
+    TASK_HEADER(Unk800834A0);
+    /* 0x50 */ u8 unk50[8];
+    /* 0x58 */ s16 unk58;
+    /* 0x5A */ u8 unk5A[0x12];
+} Unk800834A0;
+
+/* The task of func_800842C8 (func_800844B8) */
+typedef struct Unk800842C8 {
+    TASK_HEADER(Unk800842C8);
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s32 unk54;
+} Unk800842C8;
+
+/* The task of func_800870D4 (id 9, func_800874C8) */
+typedef struct Unk800870D4 {
+    TASK_HEADER(Unk800870D4);
+    /* 0x050 */ u8 unk50[0x170];
+} Unk800870D4;
+
 typedef struct ChoiceTask {
     TASK_HEADER(ChoiceTask);
     /* 0x50 */ s32 type;
@@ -135,6 +218,21 @@ void func_8008E768(Actor *actor, s32 arg1);
 void func_8008DD9C(Actor *);
 void *func_80088C2C(void);
 void func_8008AEDC(s32);
+Point *func_800863F4(Unk80086144 *);
+void func_80084D0C();
+void func_80087FDC();
+void func_8008926C();
+void func_8008C388();
+void func_8008CC4C();
+void func_8008C59C();
+void func_80086144();
+void func_800870D4();
+void func_8008878C();
+void func_80085350();
+void func_80089320();
+void func_800842C8();
+void func_8008B9D8();
+void func_800834A0();
 
 extern Point D_8009A938;
 extern s32 D_800990C4;
@@ -142,6 +240,8 @@ extern u8 *D_8009A940;
 extern s32 D_8009A944;
 extern Point D_80097000[]; /* tile offset of each direction */
 extern Point D_8009A76C[];
+extern s32 D_80099108;
+extern void (*D_80098B6C[])(void);
 
 extern u8 D_80099758[];
 extern s32 D_8009A70C[];
