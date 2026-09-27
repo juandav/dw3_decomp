@@ -483,7 +483,9 @@ void *func_80091490(u8 *list, s32 id) {
     return NULL;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800914C0);
+void func_800914C0(void) {
+    HEAP.zero(D_8009A424, 8);
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800914F0);
 
