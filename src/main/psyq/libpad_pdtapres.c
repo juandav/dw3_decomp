@@ -32,6 +32,8 @@ void func_8002262C();
 void *bzero(u_char *p, int n);
 void _mtapFailAuto(PadPort *p);
 int _padInitSioMode(PadPort *p);
+void _padCmdParaMode(PadPort *port, u_char param);
+void _padSendAtLoadInfo(PadPort *port);
 
 void _padInitMtapPort(void) {
     bzero((u_char *)D_8007E740, sizeof(D_8007E740));
@@ -195,7 +197,71 @@ PadPort *func_8002234C(int port) {
     return p;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_800223BC);
+int func_800223BC(PadPort *p) {
+    int i;
+    PadPort *s;
+    u_char cmd;
+
+    if (p->unkC == NULL) {
+        cmd = p->prevCmd;
+        if (cmd != 0) {
+            if (D_80055500[D_80055558] != 0 && cmd != 0x43) {
+                p->cmd = cmd;
+                p->prevCmd = 0;
+            }
+            return 0;
+        }
+        s = p->unk10->unkC;
+        for (i = 0; i < 4; i++, s++) {
+            if ((s->cmd == 0x43 || s->prevCmd == 0x43) && *s->data == 1) {
+                return 0;
+            }
+        }
+    }
+    if (*p->unk3C == 0xF3) {
+        if (p->unkE8 == 0 || (p->unk46 == 0xFF && p->unk49 != 2)) {
+            _padCmdParaMode(p, 0);
+            return 0;
+        }
+        if (*p->unk3C == 0xF3 && p->unk49 == 2 && p->unkE8 != 8) {
+            D_8005551C(p);
+            return 0;
+        }
+    }
+    switch (p->unk46) {
+    case 0:
+        break;
+    case 1:
+        _padCmdParaMode(p, 1);
+        break;
+    case 0xFF:
+        if (p->unkE8 == 8 && (s = p->unkC) != NULL) {
+            for (i = 0; i < 4; i++, s++) {
+                if (s->unk46 == 1) {
+                    func_800223BC(s);
+                    return 0;
+                }
+            }
+            return 1;
+        }
+        break;
+    case 0xFE:
+        if (p->unk49 != 2) {
+            _padCmdParaMode(p, 0);
+            break;
+        }
+        p->cmd = 0;
+        break;
+    default:
+        if (p->unk14 != NULL) {
+            p->unk14(p);
+        } else {
+            _padSendAtLoadInfo(p);
+        }
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_8002262C);
 
