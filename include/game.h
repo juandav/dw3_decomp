@@ -52,7 +52,7 @@ typedef struct TaskFuncs {
     /* 0x0C */ void *(*unkC)(s32, s32, s32);
     /* 0x10 */ void (*unk10)();
     /* 0x14 */ void (*unk14)();
-    /* 0x18 */ void (*unk18)(void *task);
+    /* 0x18 */ void *(*unk18)(void *task);
     /* 0x1C */ void (*unk1C)(s32);
 } TaskFuncs;
 
@@ -833,6 +833,7 @@ typedef struct Unk80047F14 {
     /* 0x310 */ s32 unk310;
     /* 0x314 */ s32 iconCount;
     /* 0x318 */ s32 icons[3];
+    /* 0x324 */ s32 unk324;
 } Unk80047F14;
 
 typedef struct MemBlock {

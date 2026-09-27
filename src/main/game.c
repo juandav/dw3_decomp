@@ -1,7 +1,29 @@
 #include "game.h"
+#include <libgs.h>
 
 /* -G8 unit: small variables defined here are reached through $gp */
 static u_char D_8005C490[8];
+static RECT D_8005C450;
+static void *D_8005C458;
+
+extern void (*D_8004823C[])();
+extern void (*D_8004B358[])();
+extern void (*D_8004B360[])();
+extern void (*D_8004D5B0[])();
+extern void (*D_80044B54[])();
+extern void (*D_80055404[])();
+void *func_80020844();
+void func_8002DE28(s32);
+void func_80014884(void);
+int CdInit(void);
+int SetVideoMode(long mode);
+int ResetCallback(void);
+int VSync(int mode);
+void SsInit(void);
+void MemCardInit(long val);
+void MemCardStart(void);
+int CdControl(u_char com, u_char *param, u_char *result);
+int CdControlB(u_char com, u_char *param, u_char *result);
 
 void func_80010F80(Fade *fade, s32 fadeIn) {
     fade->active = 1;
@@ -948,6 +970,79 @@ void *func_800144DC(void (*update)(void *), s32 size, s32 arg2) {
     return func_800143B4(update, size, arg2, 0);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", main);
+int main(void) {
+    RECT rect;
+    GsIMAGE tim;
+    u_char param[8];
+
+    SetVideoMode(0);
+    ResetCallback();
+    VSync(0);
+    SetDispMask(0);
+    ResetGraph(0);
+    D_8004D5B8.funcs.unk0[0]();
+    D_8004D5B8.funcs.unk10[1]();
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = 0x280;
+    rect.h = 0x1FF;
+    ClearImage(&rect, 0, 0, 0);
+    DrawSync(0);
+    GsInitGraph(320, 240, 1, 1, 0);
+    GsInit3D();
+    SsInit();
+    InitGeom();
+    D_8004D5B8.funcs.unk10[5](320, 640, 1, 0);
+    PutDispEnv(&D_8004D5B8.disp[0]);
+    VSync(0);
+    GsGetTimInfo((u_long *)D_800100C8 + 1, &tim);
+    VSync(0);
+    LoadImage(&D_8005C450, tim.pixel);
+    DrawSync(0);
+    VSync(0);
+    SetDispMask(1);
+    CdInit();
+    func_8002DE28(0);
+    SetGraphDebug(0);
+    param[0] = 0x80;
+    while (CdControl(0xE, param, 0) == 0) {
+    }
+    VSync(3);
+    CdControlB(9, 0, 0);
+    D_8004AD84.unkC();
+    D_800553DC.unk10();
+    D_8004D3B0.srand(0);
+    D_8004823C[0]();
+    D_8004B358[0](0, 0x12);
+    D_8004ABD8.unk0[0]();
+    D_8004D5B0[0]();
+    for (;;) {
+        if (D_8005C458 == NULL) {
+            D_8004D5B8.funcs.unk10[0]();
+            D_8004D5B8.funcs.unk0[0]();
+            D_8004ADB8.funcs.unk0();
+            D_8004AD84.unk14(2);
+            D_8004ABD8.unk0[1]();
+            D_8005C458 = func_80020844();
+        }
+        D_8005C458 = D_8004ADB8.funcs.unk18(D_8005C458);
+        D_8004D5B8.funcs.unk10[2](D_8005C458);
+        D_8004B360[0]();
+        D_8004D3B0.rand();
+        D_80044B54[0]();
+        D_80055404[0]();
+    }
+}
+
+void func_80014818(void) {
+    MemCardInit(0);
+    MemCardStart();
+    D_8004AD84.bzero(&D_80047F14, sizeof(Unk80047F14));
+    D_80047F14.maxRetries = 3;
+    D_80047F14.iconCount = -1;
+    func_80014884();
+    D_80047F14.unk310 = 0x100;
+    D_80047F14.unk30C = 0x2700;
+}
 
 INCLUDE_RODATA("asm/main/nonmatchings/game", D_800100C4);
