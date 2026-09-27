@@ -461,12 +461,13 @@ def main():
                 continue
             if (
                 prev is not None
-                and not cond
                 and prev[0] == "la"
                 and prev[1][0] != "$31"
+                and not (cond and prev[1][0] in ins[1])
                 and not (prev2 and BRANCHES.match(prev2[0]))
             ):
                 # ASPSX expands la and moves its second half into the slot
+                # (of a conditional branch too, when it doesn't test that reg)
                 reg, sym = prev[1]
                 out[k] = f"lui\t{reg},%hi({sym})"
                 out.append(line)
