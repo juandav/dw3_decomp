@@ -505,7 +505,67 @@ s32 func_8001A0F4(Unk80019DFC *arg0) {
     return arg0->unk10 == 1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/text", func_8001A108);
+extern s32 (*D_8004D448[])(Unk80019DFC *obj, TextBuffer *text, TextWait *wait);
+
+s32 func_8001A108(Unk80019DFC *obj, TextBuffer *text, TextWait *wait, s16 *pos) {
+    TextStyle *style;
+    s32 c;
+    s32 ret;
+    s32 n;
+
+    switch (wait->unk16) {
+    case 2:
+        if (text->dirty != 0) {
+            if ((u8)wait->unk14 == 1) {
+                ret = D_8004D448[1](obj, text, wait);
+                *pos += 1;
+            } else {
+                return D_8004D448[0](obj, text, wait);
+            }
+        } else {
+            c = text->data[*pos + 1];
+            if (D_8004D448[c] == NULL) {
+                return D_8004D448[0](obj, text, wait);
+            }
+            ret = D_8004D448[c](obj, text, wait);
+            if (ret & 0x8000) {
+                *pos += D_8004D5A8.codeLengths[c];
+            }
+        }
+        return ret & ~0x8000;
+    case 0:
+        wait->glyph = &((Glyph *)((TextStyle *)obj->unk50)->unk4)[wait->unk14 - 4];
+        if (text->dirty != 0) {
+            *pos += 2;
+        } else {
+            *pos += 1;
+        }
+        break;
+    case 1:
+        style = (TextStyle *)obj->unk50;
+        n = (u8)wait->unk14;
+        if (n <= style->unk16 && n > 0) {
+            wait->glyph = &((Glyph *)style->unk8)[n - 1];
+        } else {
+            wait->glyph = (Glyph *)((TextStyle *)obj->unk50)->unk4;
+        }
+        *pos += 2;
+        break;
+    case 4:
+        obj->unkC3 = 1;
+        *pos += 1;
+        return 3;
+    default:
+        wait->glyph = (Glyph *)((TextStyle *)obj->unk50)->unk4;
+        if (text->dirty != 0) {
+            *pos += 2;
+        } else {
+            *pos += 1;
+        }
+        break;
+    }
+    return 1;
+}
 
 s32 func_8001A364(Unk80019DFC *obj, TextBuffer *buf) {
     switch (buf->data[buf->pos + 1]) {
