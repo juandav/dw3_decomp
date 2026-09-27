@@ -268,7 +268,37 @@ void func_80083394(CardAlbum *album, CardAlbumWindows *win) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800835AC);
+void func_800835AC(CardAlbum *album, CardAlbumWindows *win, s32 show) {
+    if (show != 0) {
+        win->title->setString(win->title, FILE_CACHE.load(0x25), 1);
+        win->help->setString(win->help, FILE_CACHE.load(0x25), 2);
+        win->page->setNumber(win->page, 0, album->page + 1);
+        win->page->setRightAlign(win->page, 1);
+        win->pageSlash->setString(win->pageSlash, FILE_CACHE.load(0x25), 5);
+        win->pageCount->setNumber(win->pageCount, 0, album->pageCount);
+        win->pageCount->setRightAlign(win->pageCount, 1);
+        if (album->active != 0) {
+            if (album->page > 0) {
+                win->prev->setString(win->prev, FILE_CACHE.load(0x25), 3);
+            } else {
+                win->prev->setVisible(win->prev, 0);
+            }
+            if (album->page < album->pageCount - 1) {
+                win->next->setString(win->next, FILE_CACHE_LOAD[0](0x25), 4);
+            } else {
+                win->next->setVisible(win->next, 0);
+            }
+        }
+    } else {
+        win->title->setVisible(win->title, 0);
+        win->help->setVisible(win->help, 0);
+        win->page->setVisible(win->page, 0);
+        win->pageSlash->setVisible(win->pageSlash, 0);
+        win->pageCount->setVisible(win->pageCount, 0);
+        win->prev->setVisible(win->prev, 0);
+        win->next->setVisible(win->next, 0);
+    }
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80083820);
 
