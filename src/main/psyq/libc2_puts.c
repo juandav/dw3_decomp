@@ -1,7 +1,18 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libc2_puts", puts);
+void puts(char *s) {
+    char c;
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libc2_puts", D_80010A9C);
+    if (s == NULL) {
+        s = "<NULL>";
+    }
+    while ((c = *s++) != 0) {
+        _putchar(c);
+    }
+    _putchar_flash();
+}
+
+/* ASPSX padded the string table as well */
+__asm__(".section .rodata\n\t.align 4\n");
 
 OBJECT_END();

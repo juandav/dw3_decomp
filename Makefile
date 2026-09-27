@@ -96,7 +96,7 @@ $(BUILDDIR)/%.c.o: %.c
 	$(CC1) $(CC1FLAGS) -o $(@:.o=.cc1.s) $(@:.o=.i)
 	$(MASPSX) $(MASPSXFLAGS) < $(@:.o=.cc1.s) $(MASPSX_POST) > $(@:.o=.s)
 	$(AS) $(ASFLAGS) -o $@ $(@:.o=.s)
-	@$(OBJCOPY) --set-section-alignment .text=4 $@
+	@$(OBJCOPY) --set-section-alignment .text=4 --set-section-alignment .rodata=4 $@
 
 # gas aligns these sections to 16 bytes, psylink packed them to 4
 $(BUILDDIR)/%.s.o: %.s
