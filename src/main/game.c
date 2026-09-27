@@ -3287,7 +3287,74 @@ Task *func_8001BA7C(s32 id, s32 arg1, s32 arg2) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001BB68);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001BCCC);
+void func_8001BCCC(Task8001BB68 *task) {
+    Obj8001F22C obj;
+    SVECTOR v[4];
+    Unk8001BB68 *parent = task->parent;
+    u32 type = parent->type;
+    s32 pad;
+    s32 i;
+    s32 x;
+    Unk80044744 *g;
+    u_long *ot;
+    Resource *res;
+    POLY_FT4 *p;
+    DVECTOR *pos;
+
+    pad = 0;
+    if (type < 2) {
+        pad = parent->w;
+    }
+    pos = &D_8004D49C[type].unk4;
+    func_8001F22C(&obj);
+    obj.methods[3](task->parent->unk54, 0);
+    obj.methods[1](0x140, 0);
+    g = &D_80044744;
+    for (i = 0; i < 4; pos++, i++) {
+        switch (i) {
+        case 0:
+            obj.methods[5](g->unk424(0x02770000), D_8004D49C[type].unk0, task->parent->x + pos->vx,
+                           task->parent->y + pos->vy);
+            break;
+        case 1:
+            obj.methods[5](g->unk424(0x02770000), 0, task->parent->x + pos->vx - pad, task->parent->y + pos->vy);
+            break;
+        case 3:
+            if (type < 2) {
+                obj.methods[5](g->unk424(0x02770000), 2, task->parent->x + pos->vx, task->parent->y + pos->vy);
+            } else {
+                x = task->parent->w - 14;
+                obj.methods[5](g->unk424(0x02770000), 2, task->parent->x + x, task->parent->y + pos->vy);
+            }
+            break;
+        }
+    }
+    res = D_8004D5B8.funcs.unk2C(task->parent->unk54);
+    ot = (u_long *)res->unk138(res, 0);
+    pos = &D_8004D49C[type].unkC;
+    v[0].vx = v[2].vx = task->parent->x + pos->vx - pad;
+    v[1].vx = v[3].vx = v[0].vx + task->parent->w;
+    v[0].vy = v[1].vy = task->parent->y + pos->vy;
+    v[2].vy = v[3].vy = v[0].vy + task->parent->h;
+    v[0].vz = v[1].vz = v[2].vz = v[3].vz = 0;
+    p = D_8004D5B8.funcs.allocPrim();
+    setPolyFT4(p);
+    setRGB0(p, 0x80, 0x80, 0x80);
+    p->tpage = 0x45;
+    p->clut = 0x2E57;
+    setSemiTrans(p, 1);
+    p->x0 = v[0].vx;
+    p->y0 = v[0].vy;
+    p->x1 = v[1].vx;
+    p->y1 = v[1].vy;
+    p->x2 = v[2].vx;
+    p->y2 = v[2].vy;
+    p->x3 = v[3].vx;
+    p->y3 = v[3].vy;
+    setUV4(p, 0xBC, 0, 0xC7, 0, 0xBC, 0x3E, 0xC7, 0x3E);
+    addPrim(ot, p);
+    D_8004D5B8.funcs.setPrimEnd(p + 1);
+}
 
 void func_8001C0C4(Task *task) {
     switch (task->state) {
@@ -3297,7 +3364,7 @@ void func_8001C0C4(Task *task) {
         break;
     case 1:
         func_8001BB68(task);
-        func_8001BCCC(task);
+        func_8001BCCC((Task8001BB68 *)task);
         break;
     case 2:
     case 3:
