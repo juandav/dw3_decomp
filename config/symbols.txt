@@ -6,15 +6,23 @@ __SN_ENTRY_POINT = 0x80010EC4; // type:func
 main = 0x800144FC; // type:func
 
 // Function tables in .data (calls through them are scheduled like struct accesses)
+EnterCriticalSection = 0x80024C98; // type:func
+ExitCriticalSection = 0x80024CA8; // type:func
+write = 0x80024CD8; // type:func
+SysDeqIntRP = 0x80024D08; // type:func
+ChangeClearRCnt = 0x80024D18; // type:func
+OpenEvent = 0x80038158; // type:func
+EnableEvent = 0x80038168; // type:func
+CloseEvent = 0x8003DE78; // type:func
 D_80047F04 = 0x80047F04; // size:0x10
 D_8004ABD8 = 0x8004ABD8; // size:0x60
-D_8004AD90 = 0x8004AD90; // size:0x28
+D_8004AD84 = 0x8004AD84; // size:0x34
 D_8004AF58 = 0x8004AF58; // size:0x20
 D_8004D3B0 = 0x8004D3B0; // size:0x8
 D_8004D708 = 0x8004D708; // size:0x40
 
 // Graphics state (D_8004D5EC is the current buffer, D_8004D5F0 the two DISPENVs)
-D_8004D5B8 = 0x8004D5B8; // size:0x60
+D_8004D5B8 = 0x8004D5B8; // size:0x150
 D_800553DC = 0x800553DC; // size:0x1C
 D_800554D8 = 0x800554D8; // size:0x8
 

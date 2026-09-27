@@ -8,7 +8,20 @@ static Obj8001F22C *D_8005C4A8;
 static Obj8001F8F8 *D_8005C4B0;
 static Obj8001FBE0 *D_8005C4B8;
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D070);
+void func_8001D070(void) {
+    D_8004D5B8.unk14 += 0x100;
+    D_8004D5B8.unk1C += 0x100;
+    D_800484E8.playFrames += 0x100;
+    if (D_8004D5B8.vsyncFunc != NULL) {
+        D_8004D5B8.vsyncFunc(D_8004D5B8.unk4);
+    }
+    if (D_8005C498 != 0) {
+        D_8004D5B8.unk30 = !D_8004D5B8.unk30;
+        PutDispEnv(&D_8004D5B8.disp[D_8004D5B8.unk30]);
+    }
+    SsSeqCalledTbyT();
+    D_8005C498 = 0;
+}
 
 void func_8001D114(void) {
     VSyncCallback(func_8001D070);
@@ -28,9 +41,30 @@ s32 func_8001D30C(void) {
     return D_8004D5B8.unk18;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D31C);
+void func_8001D31C(void) {
+    s32 i;
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D3CC);
+    if (D_8005C47C != 0) {
+        for (i = 0; i < 30; i++) {
+            if (D_8004D5B8.resources[i] != NULL) {
+                D_8004D5B8.funcs.unk0[8](D_8004D5B8.resourceIds[i]);
+                i--;
+            }
+        }
+        D_8004AD84.bzero(&D_8004D5B8.unk20, 0x18);
+    } else {
+        D_8004D5B8.buffer = 1;
+        D_8004D5B8.unk30 = 0;
+        D_8005C47C = 1;
+    }
+}
+
+void func_8001D3CC(s32 size) {
+    D_8004D5B8.unk2C = size;
+    D_8004D5B8.bufs[0] = D_8004AD84.unk1C(size, 2);
+    D_8004D5B8.bufs[1] = D_8004AD84.unk1C(size, 2);
+    D_8004D5B8.unk20 = (s32)D_8004D5B8.bufs[D_8004D5B8.buffer];
+}
 
 s32 func_8001D44C(void) {
     return D_8004D5B8.unk20;
@@ -41,14 +75,14 @@ void func_8001D45C(s32 arg0) {
 }
 
 void func_8001D468(void) {
-    if (D_8004D5B8.unk24 != NULL) {
-        D_8004AD90.free(D_8004D5B8.unk24);
+    if (D_8004D5B8.bufs[0] != NULL) {
+        D_8004AD84.free(D_8004D5B8.bufs[0]);
     }
-    if (D_8004D5B8.unk28 != NULL) {
-        D_8004AD90.free(D_8004D5B8.unk28);
+    if (D_8004D5B8.bufs[1] != NULL) {
+        D_8004AD84.free(D_8004D5B8.bufs[1]);
     }
-    D_8004D5B8.unk24 = NULL;
-    D_8004D5B8.unk28 = NULL;
+    D_8004D5B8.bufs[0] = NULL;
+    D_8004D5B8.bufs[1] = NULL;
 }
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D4D4);
@@ -58,19 +92,94 @@ void func_8001D5E4(s32 x, s32 y, s32 w, s32 h) {
     SetDefDispEnv(&D_8004D5B8.disp[1], x, y, w, h);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D668);
+Resource *func_8001D668(s32 id) {
+    s32 i;
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D6B4);
+    for (i = 0; i < 30; i++) {
+        if (D_8004D5B8.resources[i] != NULL && D_8004D5B8.resourceIds[i] == id) {
+            return D_8004D5B8.resources[i];
+        }
+    }
+    return NULL;
+}
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D718);
+s32 func_8001D6B4(s32 id) {
+    s32 i;
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D768);
+    for (i = 0; i < 30; i++) {
+        if (id != 0) {
+            if (D_8004D5B8.resources[i] != NULL && D_8004D5B8.resourceIds[i] == id) {
+                return i;
+            }
+        } else if (D_8004D5B8.resources[i] == NULL) {
+            return i;
+        }
+    }
+    return -1;
+}
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D7C4);
+void func_8001D718(s32 index) {
+    for (; index < 29; index++) {
+        D_8004D5B8.resources[index] = D_8004D5B8.resources[index + 1];
+        D_8004D5B8.resourceIds[index] = D_8004D5B8.resourceIds[index + 1];
+    }
+}
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D860);
+void func_8001D768(s32 index, Resource *res, s32 id) {
+    s32 i;
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D8E8);
+    for (i = 29; i != index; i--) {
+        D_8004D5B8.resources[i] = D_8004D5B8.resources[i - 1];
+        D_8004D5B8.resourceIds[i] = D_8004D5B8.resourceIds[i - 1];
+    }
+    D_8004D5B8.resources[index] = res;
+    D_8004D5B8.resourceIds[index] = id;
+}
+
+Resource *func_8001D7C4(RECT *rect, s32 arg1, s32 id) {
+    DRAWENV env;
+    s32 index = func_8001D6B4(0);
+
+    if (index != -1) {
+        SetDefDrawEnv(&env, rect->x, rect->y, rect->w, rect->h);
+        D_8004D5B8.resourceIds[index] = id;
+        return D_8004D5B8.resources[index] = func_8001E1A0(&env, arg1);
+    }
+    return NULL;
+}
+
+s32 func_8001D860(s32 id) {
+    s32 index = func_8001D6B4(id);
+    Resource *res;
+
+    if (index != -1) {
+        res = D_8004D5B8.resources[index];
+        res->unk168(res);
+        D_8004AD84.free(D_8004D5B8.resources[index]);
+        func_8001D718(index);
+        return 1;
+    }
+    return 0;
+}
+
+void func_8001D8E8(s32 idA, s32 idB, s32 delta) {
+    s32 from = func_8001D6B4(idA);
+    s32 to = func_8001D6B4(idB);
+    s32 pos;
+    Resource *res;
+    s32 id;
+
+    if (from != -1 && to != -1) {
+        pos = to + delta;
+        res = D_8004D5B8.resources[from];
+        id = D_8004D5B8.resourceIds[from];
+        if (pos <= 0) {
+            pos = 0;
+        }
+        func_8001D718(from);
+        func_8001D768(pos, res, id);
+    }
+}
 
 void func_8001D984(DrawContext *ctx) {
     ClearOTagR(ctx->ot[D_8004D5B8.buffer], ctx->otLen);
@@ -142,7 +251,14 @@ void func_8001DCAC(Sprite *sprite, Rect16 *rect) {
     rect->h = sprite->h;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001DCFC);
+void func_8001DCFC(DrawContext *ctx) {
+    DrawSync(0);
+    D_8004AD84.free(ctx->ot[0]);
+    D_8004AD84.free(ctx->ot[1]);
+    if (ctx->unk78 != 0) {
+        D_8004AD84.free(ctx->unk80);
+    }
+}
 
 void func_8001DD80(Sprite *sprite) {
     sprite->callbacks->unk0 = 0x7FFFFFFF;
@@ -154,7 +270,7 @@ void func_8001DD80(Sprite *sprite) {
 }
 
 void func_8001DDCC(Sprite *sprite, s32 count) {
-    sprite->callbacks = D_8004AD90.malloc(count * sizeof(Callback), 2);
+    sprite->callbacks = D_8004AD84.malloc(count * sizeof(Callback), 2);
     sprite->callbackCap = count;
     func_8001DD80(sprite);
 }
@@ -193,13 +309,29 @@ void func_8001DF70(Sprite *sprite) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001DFE8);
+void func_8001DFE8(DrawContext *ctx, s32 enable, s32 arg2) {
+    ctx->unk84 = enable;
+    if (enable) {
+        ctx->unk88 = arg2;
+        ctx->unk8C[D_8004D5B8.buffer] = D_80080AF0;
+    }
+}
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E054);
+void func_8001E054(DrawContext *ctx) {
+    func_80029598(ctx->unk88);
+    D_80080AF0 = ctx->unk8C[D_8004D5B8.buffer];
+}
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E0D8);
+void func_8001E0D8(DrawContext *ctx, s32 enable) {
+    ctx->unkCC = enable;
+    if (enable) {
+        ctx->matrices[D_8004D5B8.buffer] = D_80080A90;
+    }
+}
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E140);
+void func_8001E140(DrawContext *ctx) {
+    D_80080A90 = ctx->matrices[D_8004D5B8.buffer];
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E1A0);
 
@@ -209,7 +341,14 @@ void func_8001E3C4(Obj8001E7DC *obj) {
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E3D0);
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E474);
+void func_8001E474(void) {
+    Obj8001FBE0 obj;
+
+    func_8001FBE0(&obj);
+    obj.methods[2](D_8005C4A0->unk4 + D_8005C4A0->unk14 * 16, D_8005C4A0->unk8 + (D_8005C4A0->unk18 << 5));
+    obj.methods[3](D_8005C4A0->unkC, D_8005C4A0->unk10 + D_8005C4A0->unk14 * D_8005C4A0->unk1C + D_8005C4A0->unk18);
+    obj.methods[1](D_8005C4A0->unk0 + 0xC);
+}
 
 void func_8001E51C(s32 id, s32 arg1) {
     Resource *res = D_8004D708.unk2C(id);
@@ -243,10 +382,12 @@ void func_8001E5B8(s32 arg0) {
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E5C4);
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E7B0);
+s32 func_8001E7B0(void) {
+    return D_8004D774[D_8005C4A0->unk0[3]];
+}
 
 void func_8001E7DC(Obj8001E7DC *obj) {
-    D_8004AD90.bzero(obj, sizeof(Obj8001E7DC));
+    D_8004AD84.bzero(obj, sizeof(Obj8001E7DC));
     obj->methods[0] = func_8001E3D0;
     obj->methods[1] = func_8001E474;
     obj->methods[3] = func_8001E51C;
@@ -299,7 +440,12 @@ void func_8001F1B4(s32 x, s32 y, s32 z) {
     D_8005C4A8->scaleDirty = 1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F1D0);
+void func_8001F1D0(s16 x, s16 y, s16 z) {
+    D_8005C4A8->unk48 = x;
+    D_8005C4A8->unk4A = y;
+    D_8005C4A8->unk4C = z;
+    D_8005C4A8->scaleDirty = 1;
+}
 
 void func_8001F1EC(s32 arg0, s32 arg1) {
     D_8005C4A8->unk30 = arg0;
@@ -310,17 +456,19 @@ void func_8001F200(s32 arg0) {
     D_8005C4A8->unk24 = arg0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F20C);
+void func_8001F20C(CVECTOR *color) {
+    D_8005C4A8->color = *color;
+}
 
 void func_8001F22C(Obj8001F22C *obj) {
-    D_8004AD90.bzero(obj, sizeof(Obj8001F22C));
+    D_8004AD84.bzero(obj, sizeof(Obj8001F22C));
     obj->scaleX = 0x1000;
     obj->scaleY = 0x1000;
     obj->scaleZ = 0x1000;
     obj->unk24 = 1;
-    obj->b = 0x80;
-    obj->g = 0x80;
-    obj->r = 0x80;
+    obj->color.b = 0x80;
+    obj->color.g = 0x80;
+    obj->color.r = 0x80;
     obj->methods[1] = func_8001E8A0;
     obj->methods[5] = func_8001E950;
     obj->methods[2] = func_8001E8BC;
@@ -340,7 +488,14 @@ void func_8001F31C(Obj8001F8F8 *obj) {
     D_8005C4B0 = obj;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F328);
+s32 func_8001F328(s32 *table, s32 index) {
+    s32 count = table[0];
+
+    if (index < 0 || count < index) {
+        return 0;
+    }
+    return (s32)table + table[index + 1];
+}
 
 INCLUDE_RODATA("asm/main/nonmatchings/gfx", D_800102BC);
 
@@ -351,10 +506,10 @@ INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F354);
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F658);
 
 void func_8001F8F8(Obj8001F8F8 *obj) {
-    D_8004AD90.bzero(obj, sizeof(Obj8001F8F8));
-    obj->methods[0] = func_8001F328;
-    obj->methods[1] = func_8001F354;
-    obj->methods[2] = func_8001F658;
+    D_8004AD84.bzero(obj, sizeof(Obj8001F8F8));
+    obj->unk0 = func_8001F328;
+    obj->unk4 = func_8001F354;
+    obj->unk8 = func_8001F658;
     func_8001F31C(obj);
 }
 
@@ -381,7 +536,7 @@ void func_8001FBD4(s32 arg0) {
 }
 
 void func_8001FBE0(Obj8001FBE0 *obj) {
-    D_8004AD90.bzero(obj, sizeof(Obj8001FBE0));
+    D_8004AD84.bzero(obj, sizeof(Obj8001FBE0));
     obj->methods[1] = func_8001F988;
     obj->methods[3] = func_8001F974;
     obj->methods[2] = func_8001F960;

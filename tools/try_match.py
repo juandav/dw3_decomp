@@ -14,9 +14,10 @@ exe=open(f'{D}/disks/us/SLUS_014.36','rb').read()[0x800:]
 src=sys.argv[1]; want=set(sys.argv[2:])
 w=os.path.join(tempfile.mkdtemp(prefix='try_match_'),'draft')
 cc1=os.environ.get('CC1',f'{D}/bin/gcc-2.8.1-psx/cc1')
-cflags=os.environ.get('CFLAGS','-O2 -G0 -fno-builtin -fdollars-in-identifiers')
+cflags=os.environ.get('CFLAGS','-O2 -G0 -fsigned-char -fno-builtin -fdollars-in-identifiers')
 mflags=os.environ.get('MASPSXFLAGS','--aspsx-version=2.86')
-cmd=f"mipsel-linux-gnu-cpp -P -undef -I{D}/include -I{D}/external/psyq_headers/psyq_lib47/include -DSKIP_ASM {src} > {w}.i && {cc1} -quiet {cflags} -mips1 -mcpu=3000 -mgas -msoft-float -fgnu-linker -Wall -Wno-unused -o {w}.s {w}.i && python3 {D}/external/maspsx/maspsx.py {mflags} < {w}.s > {w}.ms.s && mipsel-linux-gnu-as -EL -march=r3000 -no-pad-sections -O1 -G0 -o {w}.o {w}.ms.s"
+post=f'| python3 {D}/tools/aspsx_reorder.py' if '2.7.2' in cc1 else ''
+cmd=f"mipsel-linux-gnu-cpp -P -undef -D__GNUC__=2 -Dmips -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C -I{D}/include -I{D}/external/psyq_headers/psyq_lib47/include -DSKIP_ASM {src} > {w}.i && {cc1} -quiet {cflags} -mips1 -mcpu=3000 -mgas -msoft-float -fgnu-linker -Wall -Wno-unused -o {w}.s {w}.i && python3 {D}/external/maspsx/maspsx.py {mflags} < {w}.s {post} > {w}.ms.s && mipsel-linux-gnu-as -EL -march=r3000 -no-pad-sections -O1 -G0 -o {w}.o {w}.ms.s"
 r=subprocess.run(cmd,shell=True,capture_output=True,text=True)
 if r.returncode: print(r.stderr); sys.exit(1)
 if r.stderr.strip(): print(r.stderr.strip())
@@ -34,9 +35,21 @@ for l in dis.splitlines():
 for i,(off,name) in enumerate(syms):
     if want and name not in want: continue
     m=re.match(r'func_([0-9A-F]{8})',name)
-    asm=next((a for a in (f'{D}/asm/main/nonmatchings/{u}/{name}.s' for u in ('game','gfx','sound','psyq')) if os.path.exists(a)),None)
-    if asm is None: print(name,'?'); continue
-    t=open(asm).read()
+    import glob
+    asm=next(iter(glob.glob(f'{D}/asm/main/nonmatchings/**/{name}.s',recursive=True)),None)
+    if asm is not None:
+        t=open(asm).read()
+    else:
+        # already in C: take it from splat's full disassembly
+        t=None
+        for full in glob.glob(f'{D}/asm/main/**/*.s',recursive=True):
+            if '/nonmatchings/' in full: continue
+            ft=open(full).read()
+            k=ft.find(f'nonmatching {name}, ')
+            if k>=0:
+                e=ft.find(f'endlabel {name}',k)
+                t=ft[k:e]; break
+        if t is None: print(name,'?'); continue
     size=int(re.search(r'nonmatching \w+, 0x([0-9A-F]+)',t).group(1),16)
     addr=int(re.search(r'glabel '+name+r'\n\s+/\* [0-9A-F]+ ([0-9A-F]{8}) ',t).group(1),16)
     end=syms[i+1][0] if i+1<len(syms) else len(text)

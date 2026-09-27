@@ -24,16 +24,22 @@ SPLAT := $(PYTHON) -m splat split
 
 GCC_VERSION ?= 2.8.1
 CC1 ?= bin/gcc-$(GCC_VERSION)-psx/cc1
+
+# The PsyQ libraries were built with GCC 2.7.2, and their ASPSX moved the
+# instruction before `j $31` into its delay slot (tools/aspsx_reorder.py)
+MASPSX_POST :=
+$(BUILDDIR)/src/main/psyq/%.c.o: GCC_VERSION := 2.7.2
+$(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_POST := | $(PYTHON) tools/aspsx_reorder.py
 MASPSX := $(PYTHON) external/maspsx/maspsx.py
 OBJDIFF ?= bin/objdiff-cli-linux-x86_64
 
 INC := -Iinclude -Iexternal/psyq_headers/psyq_lib47/include
 
-CPPFLAGS := $(INC) -undef -nostdinc \
-	    -D__GNUC__=2 -D__GNUC_MINOR__=8 -Dmips -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx \
+CPPFLAGS = $(INC) -undef -nostdinc \
+	    -D__GNUC__=2 -D__GNUC_MINOR__=$(word 2,$(subst ., ,$(GCC_VERSION))) -Dmips -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx \
 	    -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C
 CC1FLAGS = -quiet -O2 -G$(SDATA_LIMIT) -mips1 -mcpu=3000 -mgas -msoft-float \
-	    -fgnu-linker -fno-builtin -fdollars-in-identifiers -Wall -Wno-unused
+	    -fgnu-linker -fsigned-char -fno-builtin -fdollars-in-identifiers -Wall -Wno-unused
 MASPSXFLAGS = --aspsx-version=2.86 -G$(SDATA_LIMIT) --use-comm-section --use-comm-for-lcomm
 
 # Most of the game is built with -G0; gfx.c reads its own small variables
@@ -49,13 +55,12 @@ LDFLAGS := -nostdlib --no-check-sections -Map $(MAP) \
 	   -T $(GENDIR)/undefined_funcs_auto_main.txt
 
 C_SRC := $(shell find src -name '*.c' 2> /dev/null)
-ASM_SRC := $(shell find $(ASM_DIR) -name '*.s' \
-	   -not -path '*/nonmatchings/*' -not -path '*/matchings/*' \
-	   -not -path '$(ASM_DIR)/main/game.s' \
-	   -not -path '$(ASM_DIR)/main/psyq.s' 2> /dev/null)
 
 # Target objects for objdiff: splat's full disassembly of every C unit
 TARGET_ASM := $(C_SRC:src/%.c=$(ASM_DIR)/%.s)
+
+ASM_SRC := $(filter-out $(TARGET_ASM),$(shell find $(ASM_DIR) -name '*.s' \
+	   -not -path '*/nonmatchings/*' -not -path '*/matchings/*' 2> /dev/null))
 
 C_OBJ := $(C_SRC:%.c=$(BUILDDIR)/%.c.o)
 ASM_OBJ := $(ASM_SRC:%.s=$(BUILDDIR)/%.s.o)
@@ -89,7 +94,7 @@ $(BUILDDIR)/%.c.o: %.c
 	@mkdir -p $(dir $@)
 	$(CPP) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(@:.o=.d) $< -o $(@:.o=.i)
 	$(CC1) $(CC1FLAGS) -o $(@:.o=.cc1.s) $(@:.o=.i)
-	$(MASPSX) $(MASPSXFLAGS) < $(@:.o=.cc1.s) > $(@:.o=.s)
+	$(MASPSX) $(MASPSXFLAGS) < $(@:.o=.cc1.s) $(MASPSX_POST) > $(@:.o=.s)
 	$(AS) $(ASFLAGS) -o $@ $(@:.o=.s)
 	@$(OBJCOPY) --set-section-alignment .text=4 $@
 
