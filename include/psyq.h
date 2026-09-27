@@ -168,7 +168,7 @@ extern long D_8005B800;
 extern volatile u_short *D_8005BA28;
 extern long D_8005B9B8;
 extern long D_8005BA44;
-extern volatile u_short *D_8005B86C;
+extern u_short *D_8005B86C;
 extern long D_8005BA5C;
 extern long D_8005C2B8;
 extern long D_8005C2E8;
