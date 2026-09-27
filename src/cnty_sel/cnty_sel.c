@@ -113,7 +113,9 @@ void CNTY_SEL_tickBackground(BackgroundTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_startBackgroundTask);
+BackgroundTask *CNTY_SEL_startBackgroundTask(void) {
+    return func_800144DC(CNTY_SEL_tickBackground, sizeof(BackgroundTask), 0);
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_stepAnimation);
 
