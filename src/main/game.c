@@ -470,7 +470,22 @@ void func_800142CC(Task *task) {
     task->counter++;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800142E0);
+void func_800142E0(Unk80017ECC *obj) {
+    s32 i;
+    s32 *items;
+
+    if (obj->count != 0) {
+        items = obj->items;
+        for (i = 0; i < obj->count; i++) {
+            if (items[i] != 0) {
+                D_8004ADB8.funcs.unk1C(items[i]);
+            }
+        }
+        D_8004AD84.free(obj->items);
+    }
+    D_8004AF58.unk8(obj);
+    D_8004AD84.free(obj);
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_800143B4);
 
@@ -943,7 +958,32 @@ void func_80016D64(s32 slot, u32 stat, s32 delta) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80016E10);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80017214);
+void func_80017214(s16 *p, s32 stat, s32 delta) {
+    s32 i;
+    s16 value;
+
+    if (stat == 7) {
+        for (i = 0; i < 6; i++) {
+            value = p[i + 6] + delta;
+            p[i + 6] = value;
+            if (value >= 1000) {
+                p[i + 6] = 999;
+            }
+        }
+    } else if (stat - 1 < 6U) {
+        value = p[stat + 5] + delta;
+        p[stat + 5] = value;
+        if (value >= 1000) {
+            p[stat + 5] = 999;
+        }
+    } else if (stat - 8 < 7U) {
+        value = p[stat + 4] + delta;
+        p[stat + 4] = value;
+        if (value >= 1000) {
+            p[stat + 4] = 999;
+        }
+    }
+}
 
 s32 func_800172E8(s32 slot, s32 id) {
     s32 i;
@@ -1362,7 +1402,25 @@ void func_80019164(Unk80019DFC *obj, char *text, s32 id) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80019184);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001922C);
+void func_8001922C(Unk80019DFC *obj, u32 index, s32 value) {
+    u8 buf[16];
+    u8 *p;
+    s32 i;
+
+    if (index >= 6) {
+        func_80019140(obj, D_800101FC);
+        return;
+    }
+    for (i = 15, p = &buf[i]; i >= 0; i--) {
+        *p-- = 0;
+    }
+    func_80019184(buf, value);
+    for (i = 0; buf[i] != 0; i++) {
+        buf[i] -= 0x2C;
+    }
+    func_80018FEC(obj, &obj->text[index], buf);
+    obj->text[index].dirty = 0;
+}
 
 void func_80019308(Unk80019DFC *obj, char *text, s32 index) {
     if (index < 1 || index > 5) {

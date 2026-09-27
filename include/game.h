@@ -56,7 +56,7 @@ typedef struct TaskFuncs {
     /* 0x10 */ void (*unk10)();
     /* 0x14 */ void (*unk14)();
     /* 0x18 */ void (*unk18)(void *task);
-    /* 0x1C */ void (*unk1C)();
+    /* 0x1C */ void (*unk1C)(s32);
 } TaskFuncs;
 
 typedef struct RandFuncs {
@@ -422,6 +422,7 @@ typedef struct Unk8004ADB8 {
     /* 0x194 */ s32 unk194;
     /* 0x198 */ s32 unk198;
     /* 0x19C */ s32 unk19C;
+    /* 0x1A0 */ TaskFuncs funcs; /* D_8004AF58 */
 } Unk8004ADB8;
 
 typedef struct Unk80042728 {
@@ -530,7 +531,9 @@ typedef struct PadInfo {
 
 typedef struct PadState {
     /* 0x000 */ PadInfo pads[2];
-    /* 0x380 */ u8 unk380[0x56];
+    /* 0x380 */ u8 unk380[0x48];
+    /* 0x3C8 */ u8 act[2][6];
+    /* 0x3D4 */ u8 unk3D4[2];
     /* 0x3D6 */ s16 unk3D6;
     /* 0x3D8 */ s32 unk3D8;
     /* 0x3DC */ s16 unk3DC;
@@ -624,6 +627,7 @@ void func_80013758();
 void func_8002DE68(void (*func)());
 int CdControlF(u_char com, u_char *param);
 void func_80019140(Unk80019DFC *obj, char *text);
+void func_80019184(u8 *buf, s32 value);
 void func_80016260(u16, u16);
 s32 func_80017DDC(s32);
 void *func_80017CE8(void);
@@ -690,6 +694,7 @@ void func_8008AEB4(s32, s32, s32, s32, s32);
 
 extern Unk8003EB68 D_8003EB68[];
 extern char D_800101D8[];
+extern char D_800101FC[];
 extern char D_80010230[];
 extern Funcs80047F04 D_80047F04;
 extern Funcs8004ABD8 D_8004ABD8;
