@@ -32,7 +32,14 @@ void CNTY_SEL_tickScreen(TaskHeader *task, MenuTask **menu) {
     }
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_start);
+TaskHeader *CNTY_SEL_start(void) {
+    TaskHeader *task;
+
+    ClearImage2(&CNTY_SEL_vramRect, 0, 0, 0);
+    task = func_800144DC(CNTY_SEL_tickScreen, sizeof(TaskHeader), sizeof(MenuTask *));
+    D_80051194.unk4268(CNTY_SEL_SOUND_BANK);
+    return task;
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_drawBackground);
 
