@@ -210,6 +210,16 @@ void func_80020870(void) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_8002091C);
+void func_8002091C(s32 id) {
+    u8 *src;
+    void *dst;
+
+    if (D_800554D0.current != id) {
+        D_800554D0.current = id;
+        src = D_80044B58(id);
+        dst = FIXED_PTR(0x800100C8);
+        memcpy(dst, src, D_80047F04.getFileSectors(id) << 11);
+    }
+}
 
 INCLUDE_RODATA("asm/main/nonmatchings/sound", jtbl_800102EC);
