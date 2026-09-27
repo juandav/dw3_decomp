@@ -632,7 +632,14 @@ void STDWTITL_tickTitleLoader(TitleLoaderTask *task, struct TitleTask **title) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startTitleLoaderTask);
+TitleLoaderTask *STDWTITL_startTitleLoaderTask(void) {
+    TitleLoaderTask *task = createTask(STDWTITL_tickTitleLoader, sizeof(TitleLoaderTask), sizeof(Task *));
+
+    task->layerId = STDWTITL_TITLE_LAYER;
+    task->depth = 2;
+    SOUND_STATE.loadBank(STDWTITL_TITLE_SOUND_BANK);
+    return task;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawTitle1Alt);
 
