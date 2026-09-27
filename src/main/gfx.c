@@ -567,7 +567,39 @@ void func_8001F974(s32 arg0, s32 arg1) {
     D_8005C4B8->unk14 = arg1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F988);
+void func_8001F988(u_long *tim) {
+    RECT clut;
+    RECT image;
+    u_long *p = tim;
+    s32 flag;
+    s32 mode;
+    s32 hasClut;
+
+    p++;
+    flag = *p++;
+    hasClut = flag & 8;
+    mode = flag & 7;
+    if (hasClut) {
+        switch (mode) {
+        case 0:
+        case 1:
+            clut.x = D_8005C4B8->unk10;
+            clut.y = D_8005C4B8->unk14;
+            clut.w = ((u16 *)p)[4];
+            clut.h = ((u16 *)p)[5];
+            LoadImage(&clut, p + 3);
+            break;
+        }
+        p = (u_long *)((u8 *)p + *p);
+    }
+    image.x = D_8005C4B8->unk8;
+    image.y = D_8005C4B8->unkC;
+    image.w = ((u16 *)p)[4];
+    image.h = ((u16 *)p)[5];
+    LoadImage(&image, p + 3);
+    D_8005C4B8->w = image.w;
+    D_8005C4B8->h = image.h;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001FA70);
 

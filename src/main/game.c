@@ -1990,7 +1990,24 @@ void func_8001C454(Task8001C454 *task) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001C4D8);
+Task8001C454 *func_8001C4D8(s32 arg0, s16 x, s16 y, s32 w, s32 h, s32 type) {
+    s16 pad = w;
+    Task8001C454 *task = func_800144DC(func_8001C454, 0xC0, 0);
+
+    task->unk64 = arg0;
+    task->unk54 = x;
+    task->unk56 = y;
+    task->unk58 = w + 0x20;
+    task->unk5A = h;
+    if (type == 2 || type == 3) {
+        pad = 0;
+    }
+    task->unk6C = D_8004D49C[type].unk8 - pad;
+    task->unk6E = D_8004D49C[type].unkA;
+    task->unk50 = x + task->unk6C;
+    task->unk52 = y + task->unk6E;
+    return task;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001C5C4);
 

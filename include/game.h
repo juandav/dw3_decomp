@@ -293,6 +293,13 @@ typedef struct Unk80019DFC {
     /* 0x110 */ void (*methods[25])();
 } Unk80019DFC;
 
+typedef struct Unk8004D49C {
+    /* 0x00 */ u8 unk0[8];
+    /* 0x08 */ u16 unk8;
+    /* 0x0A */ u16 unkA;
+    /* 0x0C */ u8 unkC[0x14];
+} Unk8004D49C;
+
 typedef struct Unk8001BA7C {
     /* 0x0 */ Unk80019DFC *window;
     /* 0x4 */ struct Task *unk4;
@@ -728,6 +735,7 @@ s32 func_8001366C(void);
 s32 func_80013880(void);
 void func_80013890(void);
 void func_8001B864();
+void func_8001C454(struct Task8001C454 *task);
 Unk80019DFC *func_8001AAB4(s16 id, s16 type, s16 x, s16 y);
 int CdPosToInt(void *pos);
 void func_8001B314(Task8001B3A0 *task, s32 *data, s32 arg2);
@@ -789,6 +797,7 @@ extern PadState D_8004AF78;
 extern u16 D_8004B3AC[0x1000];
 extern s32 D_8004D3AC;
 extern u8 *D_8004D5A8;
+extern Unk8004D49C D_8004D49C[];
 extern GfxState D_8004D5B8;
 extern Unk80051194 D_80051194;
 extern MemManager D_8004AD84;
