@@ -711,10 +711,6 @@ s32 func_8001F328(s32 *table, s32 index) {
     return (s32)table + table[index + 1];
 }
 
-INCLUDE_RODATA("asm/main/nonmatchings/gfx", D_800102BC);
-
-INCLUDE_RODATA("asm/main/nonmatchings/gfx", D_800102CC);
-
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F354);
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F658);

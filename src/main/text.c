@@ -1572,3 +1572,7 @@ s16 func_8001CEE0(u8 *s, u8 mode, FontInfo *font) {
     }
     return 0x300;
 }
+
+INCLUDE_RODATA("asm/main/nonmatchings/text", D_800102BC);
+
+INCLUDE_RODATA("asm/main/nonmatchings/text", D_800102CC);

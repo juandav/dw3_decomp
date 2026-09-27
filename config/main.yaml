@@ -59,7 +59,7 @@ segments:
       - [0x9A0, .rodata, game3]
       - [0x9BC, .rodata, pad]
       - [0x9D8, .rodata, text]
-      - [0xABC, .rodata, gfx]
+      - [0xAD8, .rodata, gfx]
       - [0xAEC, .rodata, psyq/libpad_pdent4]
       # PsyQ, one file per library object
       - [0xB0C, .rodata, psyq/libgpu_sys]
