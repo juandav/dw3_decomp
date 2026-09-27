@@ -355,7 +355,11 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008CA3C);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008CC4C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008CF0C);
+void func_8008CF0C(void) {
+    Unk8008CC4C *task = createTaskWithId(func_8008CC4C, sizeof(Unk8008CC4C), 0, 0x10);
+
+    task->unk64 = -1;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008CF44);
 
