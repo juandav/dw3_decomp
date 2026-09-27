@@ -103,8 +103,11 @@ OBJ := $(C_OBJ) $(ASM_OBJ) $(BIN_OBJ)
 # executable's .bss. Each one has its own splat config (config/<name>.yaml),
 # sources (src/<name>, asm/<name>) and output (build/AAA/PRO/<FILE>.PRO), and
 # is linked against the executable's symbols.
-OVERLAYS := cnty_sel
+OVERLAYS := cnty_sel stcrdabm stfgtrep stgmcard
 OVL_FILE_cnty_sel := CNTY_SEL.PRO
+OVL_FILE_stcrdabm := STCRDABM.PRO
+OVL_FILE_stfgtrep := STFGTREP.PRO
+OVL_FILE_stgmcard := STGMCARD.PRO
 
 define OVERLAY_template
 $(1)_C_SRC := $$(filter src/$(1)/%,$$(ALL_C_SRC))
