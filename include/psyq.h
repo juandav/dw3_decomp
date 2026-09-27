@@ -164,7 +164,10 @@ typedef struct SeqStruct {
     /* 0x17 */ u_char channel;
     /* 0x18 */ u_char rpn1;
     /* 0x19 */ u_char rpn2;
-    /* 0x1A */ u8 unk1A[4];
+    /* 0x1A */ u_char nrpn1;
+    /* 0x1B */ u_char nrpn2;
+    /* 0x1C */ u_char unk1C;
+    /* 0x1D */ u_char unk1D;
     /* 0x1E */ u_char unk1E;
     /* 0x1F */ u8 unk1F;
     /* 0x20 */ char unk20;
