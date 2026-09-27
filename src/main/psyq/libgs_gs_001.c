@@ -10,6 +10,7 @@ typedef struct GsA04 {
 
 extern GsA04 D_80080A04;
 extern DISPENV D_80080A50;
+extern DRAWENV D_800809F0;
 extern TILE D_800809B8[2];
 extern short D_800809D8[2];
 extern short D_800809DC[2];
@@ -35,7 +36,28 @@ void GsInitGraph(u_short x, u_short y, u_short intmode, u_short dith, u_short vr
     GsSetDrawBuffOffset();
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgs_gs_001", func_80028E6C);
+void func_80028E6C(u_short x, u_short y, u_short intmode, u_short dith, u_short vrammode) {
+    int mode;
+
+    ResetGraph(((intmode >> 4) & 3) == 3 ? 3 : 0);
+    D_800809F0.ofs[0] = D_800809F0.ofs[1] = 0;
+    D_800809F0.tw.x = D_800809F0.tw.y = D_800809F0.tw.w = D_800809F0.tw.h = 0;
+    D_800809F0.tpage = 0;
+    D_800809F0.dtd = dith;
+    D_800809F0.dfe = 0;
+    D_800809F0.isbg = 0;
+    PutDrawEnv(&D_800809F0);
+    setRECT(&D_80080A50.disp, 0, 0, x, y);
+    setRECT(&D_80080A50.screen, 0, 0, 0, 0);
+    if ((mode = GetVideoMode()) == 1) {
+        D_80080A50.screen.y = 24;
+        D_80080A50.pad0 = mode;
+    }
+    D_80080A50.isinter = intmode & 1;
+    D_80080A76 = intmode & 4;
+    D_80080A50.isrgb24 = vrammode;
+    PutDispEnv(&D_80080A50);
+}
 
 void GsInitGraph2(u_short x, u_short y, u_short intmode, u_short dith, u_short vrammode) {
     D_80080A04.unk0 = 0;
