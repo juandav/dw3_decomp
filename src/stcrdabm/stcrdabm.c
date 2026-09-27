@@ -94,7 +94,28 @@ void func_800828E4(CardAlbumGrid *grid) {
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_8008290C);
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80082D54);
+void func_80082D54(CardAlbumGrid *grid) {
+    SpriteDrawer sprite;
+    s32 i;
+    s32 card;
+    s32 col;
+    s32 row;
+
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(grid->layer, grid->depth - 1);
+    sprite.setTexture(0x280, 0);
+    for (i = 0; i < grid->turned; i++) {
+        card = grid->first + i;
+        col = i % 6;
+        row = i / 6;
+        if (GAME.cardsSeen[card] != 0 || card >= CARD_COUNT) {
+            sprite.setClutRow(grid->frame);
+        } else {
+            sprite.setClutRow(0);
+        }
+        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 6, col * 42 + 0x23, row * 54 + 0x32);
+    }
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80082ECC);
 
