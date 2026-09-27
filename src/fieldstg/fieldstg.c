@@ -274,7 +274,12 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800896C0);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80089D28);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008A0F4);
+s32 func_8008A0F4(void) {
+    if (GAME.funcs.getMode() == 0x22D) {
+        return 1;
+    }
+    return GAME.funcs.getMode() == 0x2DE;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008A154);
 
