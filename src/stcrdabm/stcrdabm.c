@@ -1,16 +1,16 @@
 #include "stcrdabm.h"
 
-extern s32 D_80085168[6];
-extern CardAlbumFuncs D_80085180;
+extern s32 STCRDABM_cursorBlink[6];
+extern CardAlbumFuncs STCRDABM_funcs;
 
 void initCardDrawer(CardDrawer *obj);
-void func_800825A8(CardAlbumFader *fader);
-void func_8008290C(CardAlbumGrid *grid, s32 previous);
-s32 func_80082ECC(CardAlbumGrid *grid);
-void func_80083820(CardAlbum *album, CardAlbumWindows *win, s32 show);
-void func_80083C4C(CardAlbum *album);
+void STCRDABM_drawFader(CardAlbumFader *fader);
+void STCRDABM_drawCards(CardAlbumGrid *grid, s32 previous);
+s32 STCRDABM_pageHasCards(CardAlbumGrid *grid);
+void STCRDABM_showCardInfo(CardAlbum *album, CardAlbumWindows *win, s32 show);
+void STCRDABM_drawAlbum(CardAlbum *album);
 
-void func_80082520(CardAlbumFader *fader, s32 fadeIn, s32 frames) {
+void STCRDABM_startFader(CardAlbumFader *fader, s32 fadeIn, s32 frames) {
     fader->setState(fader, 1);
     fader->substate = 1;
     fader->fadeIn = fadeIn;
@@ -23,9 +23,9 @@ void func_80082520(CardAlbumFader *fader, s32 fadeIn, s32 frames) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800825A8);
+INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", STCRDABM_drawFader);
 
-void func_800826EC(CardAlbumFader *fader) {
+void STCRDABM_updateFader(CardAlbumFader *fader) {
     switch (fader->state) {
     case 0:
     default:
@@ -46,22 +46,22 @@ void func_800826EC(CardAlbumFader *fader) {
             fader->state = 2;
         }
     case 2:
-        func_800825A8(fader);
+        STCRDABM_drawFader(fader);
     case 3:
         break;
     }
 }
 
-CardAlbumFader *func_800827A0(void) {
-    CardAlbumFader *fader = createTask(func_800826EC, sizeof(CardAlbumFader), 0);
+CardAlbumFader *STCRDABM_createFader(void) {
+    CardAlbumFader *fader = createTask(STCRDABM_updateFader, sizeof(CardAlbumFader), 0);
 
-    fader->start = func_80082520;
+    fader->start = STCRDABM_startFader;
     fader->layer = 0x1000;
     fader->depth = 0;
     return fader;
 }
 
-void func_800827E4(CardAlbumGrid *grid) {
+void STCRDABM_loadIcons(CardAlbumGrid *grid) {
     CardDrawer icon;
     s32 card;
     s32 col;
@@ -80,7 +80,7 @@ void func_800827E4(CardAlbumGrid *grid) {
     }
 }
 
-void func_800828AC(CardAlbumGrid *grid, s32 first) {
+void STCRDABM_setPage(CardAlbumGrid *grid, s32 first) {
     grid->prevFirst = grid->first;
     grid->first = first;
     grid->turned = 0;
@@ -88,13 +88,13 @@ void func_800828AC(CardAlbumGrid *grid, s32 first) {
     grid->setState(grid, 2);
 }
 
-void func_800828E4(CardAlbumGrid *grid) {
+void STCRDABM_hideCards(CardAlbumGrid *grid) {
     grid->setSubstate(grid, 1);
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_8008290C);
+INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", STCRDABM_drawCards);
 
-void func_80082D54(CardAlbumGrid *grid) {
+void STCRDABM_drawTurningSlots(CardAlbumGrid *grid) {
     SpriteDrawer sprite;
     s32 i;
     s32 card;
@@ -117,9 +117,9 @@ void func_80082D54(CardAlbumGrid *grid) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80082ECC);
+INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", STCRDABM_pageHasCards);
 
-void func_80082F18(CardAlbumGrid *grid) {
+void STCRDABM_updateHiding(CardAlbumGrid *grid) {
     switch (grid->substate) {
     case 0:
         break;
@@ -140,17 +140,17 @@ void func_80082F18(CardAlbumGrid *grid) {
     }
 }
 
-void func_80082FE0(CardAlbumGrid *grid) {
+void STCRDABM_updateGrid(CardAlbumGrid *grid) {
     switch (grid->state) {
     case 0:
     default:
         grid->nextState(grid);
         grid->first = 1;
-        func_800828AC(grid, 1);
+        STCRDABM_setPage(grid, 1);
         break;
     case 1:
-        func_80082F18(grid);
-        func_8008290C(grid, 0);
+        STCRDABM_updateHiding(grid);
+        STCRDABM_drawCards(grid, 0);
         break;
     case 2:
         switch (grid->substate) {
@@ -170,11 +170,11 @@ void func_80082FE0(CardAlbumGrid *grid) {
             }
             break;
         case 2:
-            func_800827E4(grid);
+            STCRDABM_loadIcons(grid);
             grid->shown = ALBUM_PAGE_CARDS;
             grid->time = GFX_FUNCS.getTime();
             grid->nextSubstate(grid);
-            if (func_80082ECC(grid) != 0) {
+            if (STCRDABM_pageHasCards(grid) != 0) {
                 SOUND_STATE.playSound(0x4001C);
             }
             break;
@@ -187,11 +187,11 @@ void func_80082FE0(CardAlbumGrid *grid) {
             }
             break;
         }
-        func_80082D54(grid);
+        STCRDABM_drawTurningSlots(grid);
         if (grid->substate < 3) {
-            func_8008290C(grid, 1);
+            STCRDABM_drawCards(grid, 1);
         } else {
-            func_8008290C(grid, 0);
+            STCRDABM_drawCards(grid, 0);
         }
         break;
     case 3:
@@ -199,20 +199,20 @@ void func_80082FE0(CardAlbumGrid *grid) {
     }
 }
 
-CardAlbumGrid *func_80083210(CardAlbum *album) {
-    CardAlbumGrid *grid = createTask(func_80082FE0, sizeof(CardAlbumGrid), 0);
+CardAlbumGrid *STCRDABM_createGrid(CardAlbum *album) {
+    CardAlbumGrid *grid = createTask(STCRDABM_updateGrid, sizeof(CardAlbumGrid), 0);
 
-    grid->setPage = func_800828AC;
-    grid->hide = func_800828E4;
+    grid->setPage = STCRDABM_setPage;
+    grid->hide = STCRDABM_hideCards;
     grid->layer = 0x1000;
     grid->depth = 6;
     grid->album = album;
     return grid;
 }
 
-Task *func_80084DB8(void);
+Task *STCRDABM_createAlbum(void);
 
-void func_80083270(Task *task, Task **items) {
+void STCRDABM_updateScene(Task *task, Task **items) {
     RECT rect;
     Layer *res;
 
@@ -228,7 +228,7 @@ void func_80083270(Task *task, Task **items) {
         rect.h = 0xF0;
         res = GFX.funcs.createLayer(&rect, 3, 0x1000);
         res->setBgColor(res, 0, 0, 0);
-        items[0] = func_80084DB8();
+        items[0] = STCRDABM_createAlbum();
         task->nextState(task);
         break;
     case 1:
@@ -238,11 +238,11 @@ void func_80083270(Task *task, Task **items) {
     }
 }
 
-Task *func_80083368(void) {
-    return createTask(func_80083270, sizeof(Task), 4);
+Task *STCRDABM_start(void) {
+    return createTask(STCRDABM_updateScene, sizeof(Task), 4);
 }
 
-void func_80083394(CardAlbum *album, CardAlbumWindows *win) {
+void STCRDABM_createWindows(CardAlbum *album, CardAlbumWindows *win) {
     TextWindow **items;
     s32 i;
 
@@ -268,7 +268,7 @@ void func_80083394(CardAlbum *album, CardAlbumWindows *win) {
     }
 }
 
-void func_800835AC(CardAlbum *album, CardAlbumWindows *win, s32 show) {
+void STCRDABM_showPageInfo(CardAlbum *album, CardAlbumWindows *win, s32 show) {
     if (show != 0) {
         win->title->setString(win->title, FILE_CACHE.load(0x25), 1);
         win->help->setString(win->help, FILE_CACHE.load(0x25), 2);
@@ -300,11 +300,11 @@ void func_800835AC(CardAlbum *album, CardAlbumWindows *win, s32 show) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80083820);
+INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", STCRDABM_showCardInfo);
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80083C4C);
+INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", STCRDABM_drawAlbum);
 
-void func_80084314(CardAlbum *album) {
+void STCRDABM_findPageCards(CardAlbum *album) {
     s32 i;
     s32 card;
 
@@ -321,7 +321,7 @@ void func_80084314(CardAlbum *album) {
     }
 }
 
-void func_80084384(CardAlbum *album, CardAlbumWindows *win) {
+void STCRDABM_runAlbum(CardAlbum *album, CardAlbumWindows *win) {
     s32 prev;
     s32 slot;
     s32 i;
@@ -329,16 +329,16 @@ void func_80084384(CardAlbum *album, CardAlbumWindows *win) {
     switch (album->substate) {
     case 0:
     default:
-        D_80085180.startFade(&album->fade, 1);
-        func_80084314(album);
-        win->grid = func_80083210(album);
+        STCRDABM_funcs.startFade(&album->fade, 1);
+        STCRDABM_findPageCards(album);
+        win->grid = STCRDABM_createGrid(album);
         album->substate++;
         break;
     case 1:
-        if (D_80085180.updateFade(&album->fade) != 0) {
-            func_800835AC(album, win, 1);
+        if (STCRDABM_funcs.updateFade(&album->fade) != 0) {
+            STCRDABM_showPageInfo(album, win, 1);
             if (album->pageHasCards != 0) {
-                D_80085180.startFade(&album->infoFade, 1);
+                STCRDABM_funcs.startFade(&album->infoFade, 1);
             }
             album->substate = 11;
         }
@@ -368,8 +368,8 @@ void func_80084384(CardAlbum *album, CardAlbumWindows *win) {
             SOUND_STATE.playSound(0x4001B);
             album->active = 0;
             album->slot = 0;
-            func_80084314(album);
-            func_800835AC(album, win, 1);
+            STCRDABM_findPageCards(album);
+            STCRDABM_showPageInfo(album, win, 1);
             if (album->infoFade.level == 0) {
                 if (album->pageHasCards != 0) {
                     album->substate = 10;
@@ -433,7 +433,7 @@ void func_80084384(CardAlbum *album, CardAlbumWindows *win) {
                 if (album->slot == -1) {
                     album->slot = slot;
                 } else {
-                    func_80083820(album, win, 1);
+                    STCRDABM_showCardInfo(album, win, 1);
                     SOUND_STATE.playSound(0x4001B);
                 }
             }
@@ -442,26 +442,26 @@ void func_80084384(CardAlbum *album, CardAlbumWindows *win) {
             SOUND_STATE.playSound(0x800450BD);
             album->active = 0;
             album->substate = 50;
-            win->fader = func_800827A0();
+            win->fader = STCRDABM_createFader();
             win->fader->start(win->fader, 0, 10);
         }
         break;
     case 10:
         if (album->step == 0) {
-            func_80083820(album, win, 0);
+            STCRDABM_showCardInfo(album, win, 0);
         }
-        D_80085180.startFade(&album->infoFade, album->step);
+        STCRDABM_funcs.startFade(&album->infoFade, album->step);
         album->nextSubstate(album);
         break;
     case 11:
-        if (D_80085180.updateFade(&album->infoFade) != 0) {
+        if (STCRDABM_funcs.updateFade(&album->infoFade) != 0) {
             album->substate = 15;
         }
         break;
     case 15:
         if (win->grid->state == 1) {
             album->active = win->grid->state;
-            func_800835AC(album, win, 1);
+            STCRDABM_showPageInfo(album, win, 1);
             if (album->infoFade.level != 0) {
                 while (1) {
                     if (album->slotHasCard[album->slot] != 0) {
@@ -469,7 +469,7 @@ void func_80084384(CardAlbum *album, CardAlbumWindows *win) {
                     }
                     album->slot++;
                 }
-                func_80083820(album, win, 1);
+                STCRDABM_showCardInfo(album, win, 1);
             }
             album->substate = 3;
         }
@@ -480,14 +480,14 @@ void func_80084384(CardAlbum *album, CardAlbumWindows *win) {
         }
         break;
     case 51:
-        if (D_80085180.updateFade(&album->infoFade) != 0) {
-            func_800835AC(album, win, 0);
-            D_80085180.startFade(&album->fade, 0);
+        if (STCRDABM_funcs.updateFade(&album->infoFade) != 0) {
+            STCRDABM_showPageInfo(album, win, 0);
+            STCRDABM_funcs.startFade(&album->fade, 0);
             album->substate++;
         }
         break;
     case 52:
-        if (D_80085180.updateFade(&album->fade) != 0) {
+        if (STCRDABM_funcs.updateFade(&album->fade) != 0) {
             album->substate++;
         }
         break;
@@ -499,19 +499,19 @@ void func_80084384(CardAlbum *album, CardAlbumWindows *win) {
     }
 }
 
-void func_80084C8C(CardAlbum *album, CardAlbumWindows *win) {
+void STCRDABM_updateAlbum(CardAlbum *album, CardAlbumWindows *win) {
     switch (album->state) {
     case 0:
     default:
         switch (album->substate) {
         case 0:
         default:
-            D_80085180.loadFiles();
+            STCRDABM_funcs.loadFiles();
             album->substate++;
             break;
         case 1:
-            if (D_80085180.filesLoading() == 0) {
-                func_80083394(album, win);
+            if (STCRDABM_funcs.filesLoading() == 0) {
+                STCRDABM_createWindows(album, win);
                 album->fade.duration = 8;
                 album->infoFade.duration = 8;
                 album->pageCount = 27;
@@ -522,8 +522,8 @@ void func_80084C8C(CardAlbum *album, CardAlbumWindows *win) {
         }
         break;
     case 1:
-        func_80084384(album, win);
-        func_80083C4C(album);
+        STCRDABM_runAlbum(album, win);
+        STCRDABM_drawAlbum(album);
         break;
     case 2:
         break;
@@ -533,15 +533,15 @@ void func_80084C8C(CardAlbum *album, CardAlbumWindows *win) {
     }
 }
 
-Task *func_80084DB8(void) {
-    CardAlbum *album = createTask(func_80084C8C, sizeof(CardAlbum), sizeof(CardAlbumWindows));
+Task *STCRDABM_createAlbum(void) {
+    CardAlbum *album = createTask(STCRDABM_updateAlbum, sizeof(CardAlbum), sizeof(CardAlbumWindows));
 
     album->layer = 0x1000;
     album->depth = 7;
     return (Task *)album;
 }
 
-void func_80084DF4(void) {
+void STCRDABM_loadFiles(void) {
     TimLoader loader;
 
     initTimLoader(&loader);
@@ -557,7 +557,7 @@ void func_80084DF4(void) {
     FILE_CACHE.request(0x25);
 }
 
-s32 func_80084ED4(void) {
+s32 STCRDABM_filesLoading(void) {
     if (FILE_CACHE.isLoading(0x7E7) != 0) {
         return 1;
     }
@@ -582,7 +582,7 @@ s32 func_80084ED4(void) {
     return FILE_CACHE.isLoading(0x25) != 0;
 }
 
-void func_80084FBC(PanelAnim *fade, s32 fadeIn) {
+void STCRDABM_startFade(PanelAnim *fade, s32 fadeIn) {
     fade->active = 1;
     if (fadeIn != 0) {
         SOUND_STATE.playSound(0x40019);
@@ -595,7 +595,7 @@ void func_80084FBC(PanelAnim *fade, s32 fadeIn) {
     }
 }
 
-s32 func_80085050(PanelAnim *fade) {
+s32 STCRDABM_updateFade(PanelAnim *fade) {
     if (fade->active == 0) {
         return 1;
     }
@@ -614,7 +614,7 @@ s32 func_80085050(PanelAnim *fade) {
     return 0;
 }
 
-void func_800850BC(CardAlbumLerp *lerp, s32 from, s32 to, s32 frames) {
+void STCRDABM_startLerp(CardAlbumLerp *lerp, s32 from, s32 to, s32 frames) {
     if (from != to) {
         lerp->duration = frames;
         lerp->fixed = from << 8;
@@ -625,4 +625,4 @@ void func_800850BC(CardAlbumLerp *lerp, s32 from, s32 to, s32 frames) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800850FC);
+INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", STCRDABM_updateLerp);
