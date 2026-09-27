@@ -74,6 +74,7 @@ SDATA_LIMIT := 0
 $(BUILDDIR)/src/main/system.c.o: SDATA_LIMIT := 8
 $(BUILDDIR)/src/main/gfx.c.o: SDATA_LIMIT := 8
 $(BUILDDIR)/src/main/sound.c.o: SDATA_LIMIT := 8
+$(BUILDDIR)/src/main/game3_2.c.o: SDATA_LIMIT := 8
 ASFLAGS := -EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 $(INC)
 LDFLAGS := -nostdlib --no-check-sections -Map $(MAP) \
 	   -T $(GENDIR)/main.ld \

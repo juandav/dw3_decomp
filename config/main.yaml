@@ -89,6 +89,7 @@ segments:
       - [0x28B8, c, system]
       - [0x5084, c, game2]
       - [0x5CF8, c, game3]
+      - [0x7AE8, c, game3_2]
       - [0x87AC, c, pad]
       - [0x97EC, c, text]
       # Compiled with -G8: its small variables are addressed through $gp
