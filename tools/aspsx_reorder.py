@@ -22,6 +22,9 @@ BRANCHES = re.compile(
     r"(j|jal|jr|jalr|b|bal|beq|bne|blez|bgtz|bltz|bgez|beqz|bnez|"
     r"bltzal|bgezal|beql|bnel|blezl|bgtzl|bltzl|bgezl)$"
 )
+# conditional branches: ASPSX only moved the second half of a store into
+# their delay slot
+CONDITIONAL = re.compile(r"(beq|bne|blez|bgtz|bltz|bgez|beqz|bnez)$")
 LOADS = re.compile(r"(lw|lh|lhu|lb|lbu|lwl|lwr)$")
 STORES = re.compile(r"(sw|sh|sb|swl|swr)$")
 # Instructions the assembler expands into several machine instructions
@@ -100,9 +103,10 @@ def main():
         line = lines[i]
         ins = split(line)
         nxt = lines[i + 1] if i + 1 < len(lines) else ""
+        cond = ins is not None and CONDITIONAL.match(ins[0]) is not None
         if (
             ins
-            and (ins[0] == "j" or ins[0] == "jal")
+            and (ins[0] == "j" or ins[0] == "jal" or cond)
             and nxt.strip().startswith("nop")
             and "branch/jump" in nxt
         ):
@@ -135,6 +139,7 @@ def main():
             )
             movable = (
                 prev is not None
+                and not cond
                 and not labelled
                 and not sym_store
                 and not idx_store
@@ -171,6 +176,7 @@ def main():
                 continue
             if (
                 prev is not None
+                and not cond
                 and prev[0] == "la"
                 and prev[1][0] != "$31"
                 and not (prev2 and BRANCHES.match(prev2[0]))
