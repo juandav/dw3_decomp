@@ -721,4 +721,7 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091D3C);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091F4C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8009204C);
+void func_8009204C(s32 arg0, s32 scale, s32 index, Point *out) {
+    out->x = D_8009A76C[index].x * scale / 4096;
+    out->y = D_8009A76C[index].y * scale / 4096;
+}
