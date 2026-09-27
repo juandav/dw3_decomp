@@ -131,7 +131,7 @@ $(BUILDDIR)/%.c.o: %.c
 	@mkdir -p $(dir $@)
 	$(CPP) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(@:.o=.d) $< -o $(@:.o=.i)
 	$(CC1) $(CC1FLAGS) -o $(@:.o=.cc1.s) $(@:.o=.i)
-	$(CC1_PRE) < $(@:.o=.cc1.s) | $(MASPSX) $(MASPSXFLAGS) $(MASPSX_POST) > $(@:.o=.s)
+	$(CC1_PRE) < $(@:.o=.cc1.s) | $(MASPSX) $(MASPSXFLAGS) $(MASPSX_POST) | $(PYTHON) tools/data_sizes.py > $(@:.o=.s)
 	$(AS) $(ASFLAGS) -o $@ $(@:.o=.s)
 	@$(OBJCOPY) --set-section-alignment .text=4 --set-section-alignment .rodata=4 $@
 
