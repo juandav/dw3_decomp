@@ -22,7 +22,14 @@ extern u_long *D_800557C4;
 extern volatile long D_800557C8; /* command queue write index */
 extern volatile long D_800557CC; /* command queue read index */
 extern long D_800557D8; /* interrupt mask saved by the reset */
-extern u_char D_8007F198[];
+typedef struct GpuQueue {
+    /* 0x00 */ int (*func)();
+    /* 0x04 */ u_long *param;
+    /* 0x08 */ u_long value;
+    /* 0x0C */ u_long data[21];
+} GpuQueue;
+extern volatile GpuQueue D_8007F198[64];
+extern long D_800557D0; /* interrupt mask saved while queueing */
 extern u_long D_8005574C[];
 extern u_long D_80055760; /* terminator primitive of the ordering tables */
 extern u_long D_80055740[]; /* words 2..4 of the 5-word MoveImage packet at D_80055740 - 8 */
@@ -387,8 +394,8 @@ u_long func_8002719C(u_long cmd) {
     return *D_800557A4 & 0xFFFFFF;
 }
 
-int func_800271CC(int arg0, int arg1, int arg2) {
-    return func_800271F0(arg0, arg1, 0, arg2);
+int func_800271CC(int (*func)(), u_long *param, u_long value) {
+    return func_800271F0(func, param, 0, value);
 }
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800271F0);
@@ -404,7 +411,7 @@ int func_80027700(int mode) {
         *D_800557B4 = 0x401;
         *D_800557C4 |= 0x800;
         *D_800557A8 = 0;
-        func_80027FD0(D_8007F198, 0, 0x1800);
+        func_80027FD0((u_char *)D_8007F198, 0, sizeof(D_8007F198));
         break;
     case 1:
     case 3:

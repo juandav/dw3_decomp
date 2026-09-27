@@ -437,7 +437,7 @@ long _SsVmSetProgVol(short vab, short prog, u_char vol);
 void _SsVmSetVol(short seq_sep, char vab, u_char prog, u_short vol, u_char pan);
 void _SsSndSetVolData(short seq, short sep, int vol, long count);
 u_long _SpuSetAnyVoice(long on_off, u_long bits, int addr1, int addr2);
-int func_800271F0(int, int, int, int);
+int func_800271F0(int (*func)(), u_long *param, int size, u_long value);
 
 extern SeqStruct *D_80080D38[];
 
