@@ -53,7 +53,12 @@ void CNTY_SEL_drawBackground(BackgroundTask *task) {
     sprite.methods[5](D_80044B68[0](CNTY_SEL_SPRITES), SPRITE_BACKGROUND, offset, offset);
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_getFadeLevel);
+s32 CNTY_SEL_getFadeLevel(s32 time) {
+    if (time >= 30) {
+        return 255;
+    }
+    return time * 255 / 30;
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_drawFade);
 
