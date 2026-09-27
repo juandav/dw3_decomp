@@ -284,7 +284,51 @@ void STDWTITL_waitFrameDecoded(DecEnv *dec, s32 mode) {
     dec->isdone = 0;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickMoviePlayer);
+void STDWTITL_tickMoviePlayer(MoviePlayerTask *task) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        STDWTITL_clearVram();
+        STDWTITL_ringBuffer = HEAP.alloc(0x10000, 2);
+        STDWTITL_vlcBuffer0 = HEAP.alloc(0x28000, 2);
+        STDWTITL_vlcBuffer1 = HEAP.alloc(0x28000, 2);
+        STDWTITL_imageBuffer0 = HEAP.alloc(0x4E00, 2);
+        STDWTITL_imageBuffer1 = HEAP.alloc(0x4E00, 2);
+        STDWTITL_vlcTable = HEAP.alloc(0x11000, 2);
+        STDWTITL_initDecEnv(&STDWTITL_decEnv, 0, 0, 0, 416);
+        FILE_TABLE.getPos(STDWTITL_movieFile, 0, (u8 *)&task->loc);
+        STDWTITL_initStream(&task->loc, STDWTITL_onSliceDecoded);
+        DecDCTvlcBuild(STDWTITL_vlcTable);
+        STDWTITL_decodeNextFrame(&STDWTITL_decEnv);
+        STDWTITL_movieEnded = 0;
+        task->nextState(task);
+    case TASK_RUN:
+        DecDCTin(STDWTITL_decEnv.vlcbuf[STDWTITL_decEnv.vlcid], 3);
+        DecDCTout((u_long *)STDWTITL_decEnv.imgbuf[STDWTITL_decEnv.imgid], STDWTITL_decEnv.slice.w * STDWTITL_decEnv.slice.h / 2);
+        STDWTITL_decodeNextFrame(&STDWTITL_decEnv);
+        STDWTITL_waitFrameDecoded(&STDWTITL_decEnv, 0);
+        if (STDWTITL_movieEnded == 1 || (PAD.getPressed(0) & 8)) {
+            task->setState(task, TASK_KILL);
+        }
+        break;
+    case TASK_DONE:
+        break;
+    case TASK_KILL:
+        CdControlB(CdlPause, 0, 0);
+        DecDCToutCallback(NULL);
+        StUnSetRing();
+        HEAP.free(STDWTITL_ringBuffer);
+        HEAP.free(STDWTITL_vlcBuffer0);
+        HEAP.free(STDWTITL_vlcBuffer1);
+        HEAP.free(STDWTITL_imageBuffer0);
+        HEAP.free(STDWTITL_imageBuffer1);
+        HEAP.free(STDWTITL_vlcTable);
+        DrawSync(0);
+        STDWTITL_clearVram();
+        GFX_FUNCS.setDisplayArea(0, 0, 320, 240);
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startMoviePlayerTask);
 
