@@ -572,7 +572,41 @@ s32 func_80016850(void) {
     return D_8004ABA8 != 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game3", func_80016860);
+void func_80016860(void) {
+    Obj8001F8F8 cls;
+    s32 i;
+    s32 j;
+    u16 *dst;
+    u16 *src;
+    Unk8003EB68 *e;
+
+    func_8001F8F8(&cls);
+    strcpy(D_800484E8.name, cls.unk0(D_80044744.getText(0x87), 0xB));
+    D_800484E8.unk70[0] = -1;
+    D_800484E8.unk70[1] = -1;
+    D_800484E8.unk70[2] = -1;
+    for (j = 0; j < 3; j++) {
+        strcpy(D_800484E8.unk628[j].name, cls.unk0(D_80044744.getText(0x33), j + 0x16));
+    }
+    D_800484E8.unk2718();
+    for (i = 0; i < 8; i++) {
+        e = &D_8003EB68[i];
+        strcpy(D_800484E8.records[i].name, cls.unk0(D_80044744.getText(0x4F), e->nameId));
+        D_800484E8.records[i].unk28 = 1;
+        D_800484E8.records[i].unk2C = D_800484E8.records[i].unk2E = e->unk3F;
+        D_800484E8.records[i].unk30 = D_800484E8.records[i].unk32 = e->unk40;
+        /* unk34, reached from the name like the ROM does */
+        dst = (u16 *)(D_800484E8.records[i].name + 0x28);
+        src = e->unk2;
+        for (j = 0; j < 6; j++) {
+            *dst++ = *src++;
+        }
+        src = e->unkE;
+        for (j = 0; j < 7; j++) {
+            *dst++ = *src++;
+        }
+    }
+}
 
 s32 func_80016A30(u32 index) {
     if (index >= 3) {
