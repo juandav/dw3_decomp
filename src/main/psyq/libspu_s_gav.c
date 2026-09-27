@@ -1,5 +1,9 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_s_gav", _SpuGetAnyVoice);
+u_long _SpuGetAnyVoice(int lo, int hi) {
+    u_long h = D_8005BA28[hi] & 0xFF;
+
+    return D_8005BA28[lo] | (h << 16);
+}
 
 OBJECT_END();
