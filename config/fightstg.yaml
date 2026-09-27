@@ -1,0 +1,54 @@
+name: fightstg
+sha1: e0605a184bff15e3b25887033d593f9564aac286
+options:
+  basename: fightstg
+  target_path: disks/us/AAA/PRO/FIGHTSTG.PRO
+  base_path: ..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/fightstg
+  src_path: src/fightstg
+  build_path: build
+
+  ld_script_path: build/generated/fightstg.ld
+
+  global_vram_start: 0x80000000
+  global_vram_end: 0x80200000
+
+  find_file_boundaries: True
+  gp_value: 0x8005C2F8
+
+  generate_asm_macros_files: False
+
+  section_order: [".rodata", ".text", ".data", ".bss"]
+
+  symbol_addrs_path:
+    - config/symbols.txt
+    - config/symbols_fightstg.txt
+
+  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_fightstg.txt
+  undefined_syms_auto_path: build/generated/undefined_syms_auto_fightstg.txt
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  ld_bss_is_noload: False
+
+  migrate_rodata_to_functions: True
+  create_data_pads: False
+
+segments:
+  - name: fightstg
+    type: code
+    start: 0x0
+    vram: 0x80082448
+    align: 4
+    subalign: 4
+    subsegments:
+      - [0x0, .rodata, fightstg]
+      - [0x608, c, fightstg]
+      - [0x1EDF0, data, fightstg]
+  - [0x210B8]

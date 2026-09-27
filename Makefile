@@ -102,12 +102,34 @@ OBJ := $(C_OBJ) $(ASM_OBJ) $(BIN_OBJ)
 # Overlays: the game's AAA/PRO/*.PRO files, loaded at 0x80082448 after the
 # executable's .bss. Each one has its own splat config (config/<name>.yaml),
 # sources (src/<name>, asm/<name>) and output (build/AAA/PRO/<FILE>.PRO), and
-# is linked against the executable's symbols.
-OVERLAYS := cnty_sel stcrdabm stfgtrep stgmcard
+# is linked against the executable's symbols (MAIN_SYMS).
+OVERLAYS := cnty_sel stcrdabm stfgtrep stgmcard cardgame fieldstg fightstg shocktst soundtst stagslct stcrddek stcrdshp stdgname stdwtitl stgdglab stgtrain stitshop stplnmet ststatus
 OVL_FILE_cnty_sel := CNTY_SEL.PRO
+OVL_FILE_ststatus := STSTATUS.PRO
+OVL_FILE_stplnmet := STPLNMET.PRO
+OVL_FILE_stitshop := STITSHOP.PRO
+OVL_FILE_stgtrain := STGTRAIN.PRO
+OVL_FILE_stgdglab := STGDGLAB.PRO
+OVL_FILE_stdwtitl := STDWTITL.PRO
+OVL_FILE_stdgname := STDGNAME.PRO
+OVL_FILE_stcrdshp := STCRDSHP.PRO
+OVL_FILE_stcrddek := STCRDDEK.PRO
+OVL_FILE_stagslct := STAGSLCT.PRO
+OVL_FILE_soundtst := SOUNDTST.PRO
+OVL_FILE_shocktst := SHOCKTST.PRO
+OVL_FILE_fightstg := FIGHTSTG.PRO
+OVL_FILE_fieldstg := FIELDSTG.PRO
+OVL_FILE_cardgame := CARDGAME.PRO
 OVL_FILE_stcrdabm := STCRDABM.PRO
 OVL_FILE_stfgtrep := STFGTREP.PRO
 OVL_FILE_stgmcard := STGMCARD.PRO
+
+# The executable's own symbols for the overlays to link against (not the
+# absolute ones it only references, such as FIELDSTG functions it calls).
+NM := $(TOOLCHAIN)nm
+MAIN_SYMS := $(BUILDDIR)/main_syms.ld
+$(MAIN_SYMS): $(ELF)
+	$(NM) $< | awk '$$2 ~ /^[TDRBSG]$$/ { printf "%s = 0x%s;\n", $$3, $$1 }' > $@
 
 define OVERLAY_template
 $(1)_C_SRC := $$(filter src/$(1)/%,$$(ALL_C_SRC))
@@ -120,9 +142,9 @@ $$(GENDIR)/$(1).ld: .EXTRA_PREREQS :=
 $$(GENDIR)/$(1).ld: config/$(1).yaml config/symbols.txt config/symbols_$(1).txt
 	$$(SPLAT) $$< --disassemble-all --make-full-disasm-for-code
 
-$$(BUILDDIR)/$(1).elf: $$($(1)_OBJ) $$(GENDIR)/$(1).ld $$(ELF)
+$$(BUILDDIR)/$(1).elf: $$($(1)_OBJ) $$(GENDIR)/$(1).ld $$(MAIN_SYMS)
 	$$(LD) -nostdlib --no-check-sections -Map $$(BUILDDIR)/$(1).map \
-		-T $$(GENDIR)/$(1).ld --just-symbols=$$(ELF) \
+		-T $$(GENDIR)/$(1).ld -T $$(MAIN_SYMS) \
 		-T $$(GENDIR)/undefined_syms_auto_$(1).txt \
 		-T $$(GENDIR)/undefined_funcs_auto_$(1).txt -o $$@
 
