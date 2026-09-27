@@ -1638,7 +1638,33 @@ void func_80017F64(Task *task) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80017FAC);
+void func_80017FAC(s32 multitap, s32 arg1) {
+    s32 i;
+    s32 j;
+    s16 count;
+
+    D_8004AD84.bzero(&D_8004AF78, 0x3E0);
+    D_8004AD84.memset(D_8004AF78.act, 0xFF, sizeof(D_8004AF78.act));
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 4; j++) {
+            func_8001855C((i * 16 + j) & 0xFF);
+        }
+    }
+    if (multitap != 0) {
+        PadInitMtap(D_8004AF78.buf[0], D_8004AF78.buf[1]);
+        D_8004AF78.flags |= 0x80000000;
+    } else {
+        PadInitDirect(D_8004AF78.buf[0], D_8004AF78.buf[1]);
+    }
+    arg1 &= 0x7F;
+    D_8004AF78.unk3D4 = (u8)arg1;
+    count = (u8)arg1;
+    D_8004AF78.flags |= 0x40000000;
+    if (count == 0) {
+        D_8004AF78.unk3D4 = 0x10;
+    }
+    func_800180FC();
+}
 
 void func_800180D8(void) {
     func_8001816C();

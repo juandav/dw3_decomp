@@ -864,6 +864,8 @@ typedef struct Unk800484E8 {
 } Unk800484E8;
 
 void PadStartCom(void);
+int PadInitMtap(unsigned char *p1, unsigned char *p2);
+void PadInitDirect(unsigned char *p1, unsigned char *p2);
 void func_80018868(s32 port, u8 *data, u8 *record);
 void func_80018EA0(u16 port);
 void PadSetAct(int port, unsigned char *data, int len);
