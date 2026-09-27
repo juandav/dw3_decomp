@@ -89,23 +89,18 @@ void func_80021E64(int status) {
     do {
         p = &D_8007E740[D_80055558];
         D_80055508->ctrl = 0;
-        D_80055500[D_80055558] = status;
+        *(D_80055500 + D_80055558) = status;
         if (status != -9) {
             if (status == 0) {
-                D_80055570[D_80055558] = ((*p->unk3C >> 4) == 8) * 4;
+                *(D_80055570 + D_80055558) = ((*p->unk3C >> 4) == 8) * 4;
             } else {
                 _mtapFailAuto(p);
             }
         }
         D_8005555C = 0;
         D_80055558++;
-        if (D_80055558 <= D_8005556C) {
-            done = _padInitSioMode(&D_8007E740[D_80055558]);
-            status = 0xFFFF;
-        } else {
-            done = 1;
-            status = 0xFFFF;
-        }
+        done = D_8005556C < D_80055558 ? 1 : _padInitSioMode(&D_8007E740[D_80055558]);
+        status = 0xFFFF;
     } while (!done);
 }
 
