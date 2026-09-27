@@ -362,7 +362,9 @@ s32 func_8008E7D4(Actor *actor) {
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E7E0);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008EC6C);
+void func_8008EC6C(Actor *actor, s32 arg1) {
+    actor->dir = arg1;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008EC74);
 
