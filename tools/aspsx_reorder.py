@@ -112,14 +112,15 @@ def main():
                 k -= 1
             prev = split(out[k]) if k >= 0 else None
             prev2 = None
+            labelled = False
             if prev:
                 m = k - 1
                 while m >= 0 and not out[m].split("#", 1)[0].strip():
                     m -= 1
                 prev2 = split(out[m]) if m >= 0 else None
-                # a branch target stays where it is
-                if m >= 0 and out[m].split("#", 1)[0].strip().endswith(":"):
-                    prev = None
+                # a branch target stays where it is (only its second half
+                # can move)
+                labelled = m >= 0 and out[m].split("#", 1)[0].strip().endswith(":")
             sym_store = (
                 prev is not None
                 and STORES.match(prev[0]) is not None
@@ -134,6 +135,7 @@ def main():
             )
             movable = (
                 prev is not None
+                and not labelled
                 and not sym_store
                 and not idx_store
                 and not BRANCHES.match(prev[0])
