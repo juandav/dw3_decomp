@@ -1,6 +1,36 @@
 #include "cnty_sel.h"
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_tickScreen);
+void CNTY_SEL_tickScreen(TaskHeader *task, MenuTask **menu) {
+    Obj8001FBE0 loader;
+    Resource *layer;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        /* Wait for the sound bank requested by CNTY_SEL_start */
+        if (D_80051194.unk4274() == 0) {
+            D_8004D5B8.funcs.unk0[0]();
+            D_8004D5B8.funcs.unk0[1](0xA000);
+            D_8004D5B8.funcs.unk24(320, 240, 0, 0);
+            func_8001FBE0(&loader);
+            loader.methods[2](0x280, 0);
+            loader.methods[3](0, 0x1F0);
+            loader.methods[4](D_80044B68[0](CNTY_SEL_IMAGES));
+            layer = D_8004D5B8.funcs.unk1C(&CNTY_SEL_screenRect, 3, CNTY_SEL_LAYER);
+            layer->unk12C(layer, 0x1F, 0x1F, 0x1F);
+            *menu = CNTY_SEL_startMenuTask();
+            task->nextState(task);
+            D_80051194.unk425C(CNTY_SEL_MUSIC);
+        }
+        break;
+    case TASK_RUN:
+    case TASK_TRIGGER:
+        break;
+    case TASK_END:
+        D_80051194.unk427C(CNTY_SEL_MUSIC);
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_start);
 
