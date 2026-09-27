@@ -630,7 +630,23 @@ INCLUDE_RODATA("asm/main/nonmatchings/game", D_800100C8);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80014884);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80014898);
+void func_80014898(char *title, CardClut *clut, s32 count, s32 *icons) {
+    s32 i;
+
+    if (count >= 1 && count <= 3 && (u32)strlen(title) <= 64) {
+        D_80047F14.iconCount = count;
+        D_8004AD84.bzero(&D_80047F14.header, sizeof(CardHeader));
+        D_80047F14.header.magic[0] = 'S';
+        D_80047F14.header.magic[1] = 'C';
+        D_80047F14.header.blocks = 4;
+        D_80047F14.header.type = D_80047F14.iconCount | 0x10;
+        strcpy(D_80047F14.header.title, title);
+        D_80047F14.header.clut = *clut;
+        for (i = 0; i < D_80047F14.iconCount; i++) {
+            D_80047F14.icons[i] = icons[i];
+        }
+    }
+}
 
 s32 func_80014A10(void) {
     long cmds;

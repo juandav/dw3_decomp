@@ -657,14 +657,32 @@ typedef struct Unk2744 {
 } Unk2744;
 
 /* Memory card state */
+/* Memory card save header (first 0x80 bytes of a save) */
+typedef struct CardClut {
+    /* 0x00 */ u8 data[0x20];
+} CardClut;
+
+typedef struct CardHeader {
+    /* 0x00 */ char magic[2];
+    /* 0x02 */ u8 type;
+    /* 0x03 */ u8 blocks;
+    /* 0x04 */ char title[64];
+    /* 0x44 */ u8 reserved[28];
+    /* 0x60 */ CardClut clut;
+} CardHeader;
+
 typedef struct Unk80047F14 {
     /* 0x00 */ s32 state;
-    /* 0x04 */ u8 unk4[0x8C];
+    /* 0x04 */ u8 unk4[0xC];
+    /* 0x10 */ CardHeader header;
     /* 0x90 */ s32 cmd;
     /* 0x94 */ u32 result;
     /* 0x98 */ s32 retries;
     /* 0x9C */ s32 maxRetries;
     /* 0xA0 */ s32 unkA0;
+    /* 0xA4 */ u8 unkA4[0x270];
+    /* 0x314 */ s32 iconCount;
+    /* 0x318 */ s32 icons[3];
 } Unk80047F14;
 
 typedef struct MemBlock {
@@ -849,6 +867,7 @@ void func_8001F988();
 void func_8001FA70();
 void func_8001FBD4();
 int strlen(char *);
+char *strcpy(char *dst, char *src);
 void *memcpy(void *, void *, int);
 void func_8001794C(void *dst, s32 size);
 void *func_80017B20();
