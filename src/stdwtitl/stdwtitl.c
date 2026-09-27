@@ -29,7 +29,41 @@ Task *STDWTITL_startSplashLoaderTask(void) {
     return createTask(STDWTITL_tickSplashLoader, sizeof(Task), sizeof(Task *));
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickScreen);
+void STDWTITL_tickScreen(Task *task, ScreenChildren *children) {
+    RECT rect;
+    Layer *layer;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        switch (GAME_FUNCS.getMode() & 0xFF) {
+        case 0:
+            GFX.funcs.reset();
+            GFX.funcs.allocPrimBuffers(0x14000);
+            GFX.funcs.setDisplayMode(320, 240, 0, 0);
+            rect.x = 0;
+            rect.y = 0;
+            rect.w = 320;
+            rect.h = 240;
+            layer = GFX.funcs.createLayer(&rect, 2, STDWTITL_TITLE_LAYER);
+            layer->setBgColor(layer, 0, 0, 0);
+            children->title = STDWTITL_startTitleLoaderTask();
+            break;
+        case 12:
+            children->splash = STDWTITL_startSplashLoaderTask();
+            break;
+        default:
+            children->movie = STDWTITL_startMovieTask((GAME_FUNCS.getMode() & 0xFF) - 1);
+            break;
+        }
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_start);
 
