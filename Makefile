@@ -1,5 +1,7 @@
 .EXTRA_PREREQS := $(abspath $(lastword $(MAKEFILE_LIST)))
 
+.DEFAULT_GOAL := all
+
 -include local.mk
 
 TOOLCHAIN ?= mipsel-linux-gnu-
