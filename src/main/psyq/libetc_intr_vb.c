@@ -19,7 +19,14 @@ void func_8002EE10(void) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr_vb", func_8002EE7C);
+void *func_8002EE7C(int index, void (*func)()) {
+    void (*old)() = D_8005B7A0[index];
+
+    if (func != old) {
+        D_8005B7A0[index] = func;
+    }
+    return old;
+}
 
 void func_8002EEA8(long *p, int n) {
     int i = n - 1;
