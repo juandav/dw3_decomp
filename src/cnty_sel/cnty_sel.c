@@ -188,7 +188,12 @@ void CNTY_SEL_tickCursor(CursorTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_startCursorTask);
+CursorTask *CNTY_SEL_startCursorTask(void) {
+    CursorTask *task = func_800144DC(CNTY_SEL_tickCursor, sizeof(CursorTask), 0);
+
+    task->setSelection = CNTY_SEL_setCursorSelection;
+    return task;
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_getTopPanelScale);
 
