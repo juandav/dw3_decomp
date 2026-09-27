@@ -368,7 +368,10 @@ void func_8008EC6C(Actor *actor, s32 arg1) {
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008EC74);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008F014);
+void func_8008F014(Actor *actor) {
+    actor->unk108 = func_8008DB60;
+    actor->unk90 = 0;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008F028);
 
