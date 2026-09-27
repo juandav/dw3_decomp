@@ -105,7 +105,10 @@ void func_800242D0(PadPort *port) {
     port->len = 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padSetRC2wait);
+void _padSetRC2wait(int wait) {
+    D_8007F138 = wait;
+    D_8007F134 = *(volatile u_short *)0x1F801120;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padChkRC2wait);
 
