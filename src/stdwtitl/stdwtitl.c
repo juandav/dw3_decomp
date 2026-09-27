@@ -889,7 +889,37 @@ SlideTask *STDWTITL_startTitle0Task(s32 skip) {
     return task;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawMenu);
+void STDWTITL_drawMenu(MenuTask *task) {
+    SpriteDrawer sprite;
+
+    if (task->showCursor) {
+        initSpriteDrawer(&sprite);
+        sprite.setLayerId(task->layerId, 0);
+        sprite.setTexture(0x280, 0);
+        sprite.setClutRow(task->blink);
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 7,
+                    STDWTITL_menuCursorPositions[task->selection].x,
+                    STDWTITL_menuCursorPositions[task->selection].y - 1);
+    }
+    if (task->showOptions == 0) {
+        initSpriteDrawer(&sprite);
+        sprite.setLayerId(task->layerId, 0);
+        sprite.setTexture(0x280, 0);
+        sprite.setClutRow(task->selection != 2);
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 8, 79, 166);
+    } else {
+        initSpriteDrawer(&sprite);
+        sprite.setLayerId(task->layerId, 0);
+        sprite.setTexture(0x280, 0);
+        sprite.setClutRow(task->selection != 0);
+        sprite.draw(FILE_CACHE.getEntry(STDWTITL_spriteBank), 9, task->options[0].x, task->options[0].y);
+        initSpriteDrawer(&sprite);
+        sprite.setLayerId(task->layerId, 0);
+        sprite.setTexture(0x280, 0);
+        sprite.setClutRow(task->selection != 1);
+        sprite.draw(FILE_CACHE.getEntry(STDWTITL_spriteBank), 10, task->options[1].x, task->options[1].y);
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickMenu);
 
