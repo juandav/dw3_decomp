@@ -268,7 +268,13 @@ INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800859CC);
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80085ADC);
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80085B20);
+ScreenTask *func_80085B20(void) {
+    ScreenTask *task = createTask(func_800859CC, sizeof(ScreenTask), sizeof(ScreenChildren));
+
+    task->fadeOut = func_80085ADC;
+    task->layer = 0x1000;
+    return task;
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80085B60);
 
