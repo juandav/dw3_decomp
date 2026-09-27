@@ -461,7 +461,9 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091298);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8009132C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091398);
+s32 func_80091398(s32 index) {
+    return D_80099134[index];
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800913B4);
 
