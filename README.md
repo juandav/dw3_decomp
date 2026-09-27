@@ -79,8 +79,10 @@ function only counts as decompiled once all of them still match.
 | `src/main/psyq/` | PsyQ libraries, one file per library object, `0x80020998`-`0x8003E9D8` |
 | `include/psyq.h` | declarations shared by the PsyQ files |
 | `asm/main/crt0.s` | PsyQ startup (`2MBYTE.OBJ`), `0x80010EBC`-`0x80010F80` |
-| `config/<overlay>.yaml`, `src/<overlay>/` | the game's overlays (`AAA/PRO/*.PRO`), loaded at `0x80082448` |
-| `config/overlays.sha1` | checksums of the overlays built so far |
+| `config/<overlay>.yaml`, `src/<overlay>/` | the game's overlays (`AAA/PRO/*.PRO`), loaded at `0x80082448`; `WFIGHTMN` and `WFIGHTTS` load on top of `CARDGAME`, at `0x800A4CA4` |
+| `config/overlays.sha1` | checksums of the overlays |
+| `config/stages.txt`, `src/stages/` | the 238 stage overlays (`AAA/PRO/WSTAG###.PRO`), loaded at `0x800A4CA4` on top of `FIELDSTG`; `tools/stage_yaml.py` makes their splat configs |
+| `config/stages.sha1` | checksums of the stage overlays |
 | `include/` | headers and assembler macros |
 | `tools/` | build helpers |
 
@@ -154,10 +156,11 @@ the defaults.
   `0xA90` and `0xAEC`), which are a good first hint to split it further.
 - The PsyQ functions were named from the
   [PsyQ 4.7 signatures](https://github.com/lab313ru/psx_psyq_signatures).
-- Most of the game lives outside the main executable. The disc's `AAA/DAT`,
-  `AAA/PRO` and `AAA/STR` directories are empty in the ISO 9660 listing, so
-  the game must find its files by sector. The overlays are not part of the
-  build yet.
+- Most of the game lives outside the main executable, in the overlays. The
+  disc's `AAA/DAT`, `AAA/PRO` and `AAA/STR` directories are only reachable
+  through the ISO 9660 path table, which is why `tools/extract_disc.py` is
+  needed. `SMDLDATA`, `SDIGIEDT`, `SFSTDATA` and `WSTAG260` hold no code and
+  aren't built.
 
 ## Links
 

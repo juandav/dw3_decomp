@@ -67,7 +67,8 @@ def main() -> None:
 
     categories = list(CATEGORIES)
     for overlay in sorted({category_for(u["name"]) for u in units} - {"game", "sdk"}):
-        categories.append({"id": overlay, "name": f"{overlay.upper()} overlay"})
+        label = "Stage overlays" if overlay == "stages" else f"{overlay.upper()} overlay"
+        categories.append({"id": overlay, "name": label})
 
     config = {
         "$schema": "https://raw.githubusercontent.com/encounter/objdiff/main/config.schema.json",
