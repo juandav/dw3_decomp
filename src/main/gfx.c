@@ -41,7 +41,23 @@ s32 func_8001D30C(void) {
     return D_8004D5B8.unk18;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D31C);
+void func_8001D31C(void) {
+    s32 i;
+
+    if (D_8005C47C != 0) {
+        for (i = 0; i < 30; i++) {
+            if (D_8004D5B8.resources[i] != NULL) {
+                D_8004D5B8.funcs.unk0[8](D_8004D5B8.resourceIds[i]);
+                i--;
+            }
+        }
+        D_8004AD84.bzero(&D_8004D5B8.unk20, 0x18);
+    } else {
+        D_8004D5B8.buffer = 1;
+        D_8004D5B8.unk30 = 0;
+        D_8005C47C = 1;
+    }
+}
 
 void func_8001D3CC(s32 size) {
     D_8004D5B8.unk2C = size;

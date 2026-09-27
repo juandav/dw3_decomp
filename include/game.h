@@ -22,7 +22,9 @@ typedef struct Funcs80047F04 {
 } Funcs80047F04;
 
 typedef struct Funcs8004ABD8 {
-    /* 0x00 */ void (*unk0[9])();
+    /* 0x00 */ void (*unk0[2])();
+    /* 0x08 */ s32 (*unk8)();
+    /* 0x0C */ void (*unkC[6])();
     /* 0x24 */ void (*unk24)(s32, s32);
     /* 0x28 */ void (*unk28[14])();
 } Funcs8004ABD8;
@@ -102,6 +104,7 @@ typedef struct GfxState {
     /* 0x38 */ DISPENV disp[2];
     /* 0x60 */ Resource *resources[30];
     /* 0xD8 */ s32 resourceIds[30];
+    /* 0x150 */ Funcs8004D708 funcs; /* D_8004D708 */
 } GfxState;
 
 typedef struct Fade {
@@ -591,6 +594,7 @@ void func_80013C08(s32);
 void func_80013CB4(void);
 void func_80016860(void);
 void SsSepStop(short seq, short sep);
+void SsSepSetDecrescendo(short seq, short sep, short vol, long frames);
 void SsSeqCalledTbyT(void);
 short SsUtKeyOff(short voice, short vabId, short prog, short tone, short note);
 s32 func_8001FC68(s32 id);

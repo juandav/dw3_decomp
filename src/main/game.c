@@ -814,7 +814,30 @@ void func_80016CC4(s32 slot, u32 stat, s16 value) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80016D64);
+void func_80016D64(s32 slot, u32 stat, s32 delta) {
+    Unk80048C50 *d = &D_80048C50[slot];
+    s16 *stats = d->stats;
+    s16 value;
+
+    if (stat < 19) {
+        stats += stat;
+        value = *stats + delta;
+        *stats = value;
+        if (value < 0) {
+            *stats = 0;
+        } else if (stat < 2) {
+            if (value >= 100) {
+                *stats = 99;
+            }
+        } else if (stat - 2 < 4) {
+            if (value >= 10000) {
+                *stats = 9999;
+            }
+        } else if (value >= 1000) {
+            *stats = 999;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80016E10);
 

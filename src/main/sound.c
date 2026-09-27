@@ -30,7 +30,20 @@ void func_8001FF0C(s32 packed) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_8001FFB4);
+void func_8001FFB4(s32 packed) {
+    s32 id = (packed >> 18) & 0x7F;
+    u32 stopped = (u32)packed >> 31;
+    s32 seq = (packed >> 8) & 0xFF;
+    s32 sep = packed & 0xFF;
+    s32 index = func_8001FC68(id);
+
+    if (index != -1 && !stopped) {
+        SsSepSetDecrescendo(D_80051194.sounds[index].seqs[seq], sep, 0x80, 0x3C);
+        if (D_80051194.unk4248 == packed) {
+            D_80051194.unk4248 = 0;
+        }
+    }
+}
 
 s32 func_80020064(void) {
     return D_800553DC.unkC != 0;
