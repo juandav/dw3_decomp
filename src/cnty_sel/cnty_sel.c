@@ -271,7 +271,16 @@ s32 CNTY_SEL_getRightPanelScale(PanelTask *task, s32 phase) {
            (CNTY_SEL_rightPanelTweens[phase].to - CNTY_SEL_rightPanelTweens[phase].from) * time / duration;
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_drawRightPanel);
+void CNTY_SEL_drawRightPanel(PanelTask *task) {
+    Obj8001F22C sprite;
+
+    func_8001F22C(&sprite);
+    sprite.methods[3](CNTY_SEL_LAYER, 1);
+    sprite.methods[1](0x280, 0);
+    sprite.methods[9](320, 20);
+    sprite.methods[7](task->scaleX, task->scaleY, 0x1000);
+    sprite.methods[5](D_80044B68[0](CNTY_SEL_SPRITES), SPRITE_RIGHT_PANEL, 320, 20);
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_tickRightPanel);
 
