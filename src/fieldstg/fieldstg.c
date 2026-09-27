@@ -819,7 +819,15 @@ ScriptCommand *func_800916E8(s32 id) {
     return NULL;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091730);
+s32 func_80091730(s32 id) {
+    ScriptCommand *cmd = func_800916E8(id);
+    s32 ret = 0;
+
+    if (cmd != NULL) {
+        ret = cmd->create(id);
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091774);
 
