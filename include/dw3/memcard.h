@@ -60,11 +60,30 @@ typedef struct MemCard {
     /* 0x324 */ s32 unk324;
 } MemCard;
 
+/* The memory card functions (MEMCARD_FUNCS); like MemCard's operations, the
+   card ones return 0 while they run */
+typedef struct MemCardFuncs {
+    /* 0x00 */ void (*init)(void);
+    /* 0x04 */ void (*setFileName)(void);
+    /* 0x08 */ void (*setHeader)(char *title, CardClut *clut, s32 count, s32 *icons);
+    /* 0x0C */ s32 (*check)(s32 port);
+    /* 0x10 */ s32 (*accept)(s32 port);
+    /* 0x14 */ s32 (*read)(s32 port, u8 *buf, s32 size, s32 section);
+    /* 0x18 */ s32 (*write)(s32 port, u8 *buf, s32 size, s32 section);
+    /* 0x1C */ s32 (*list)(s32 port);
+    /* 0x20 */ s32 (*create)(s32 port);
+    /* 0x24 */ s32 (*format)(s32 port);
+    /* 0x28 */ s32 (*unk28)(void);
+    /* 0x2C */ s32 (*verifyChecksum)(u8 *data, s32 size, char expected);
+    /* 0x30 */ u8 (*computeChecksum)(u8 *data, s32 size);
+} MemCardFuncs;
+
 s32 memCardCommand(s32 port, s32 op);
 s32 checkMemCard(s32 port);
 s32 acceptMemCard(s32 port);
 s32 syncMemCard(void);
 
 extern MemCard MEMCARD;
+extern MemCardFuncs MEMCARD_FUNCS;
 
 #endif /* DW3_MEMCARD_H */
