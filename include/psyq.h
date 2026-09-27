@@ -175,14 +175,18 @@ typedef struct SeqStruct {
     /* 0x1F */ u8 unk1F;
     /* 0x20 */ char unk20;
     /* 0x21 */ char unk21;
-    /* 0x22 */ u8 unk22[4];
+    /* 0x22 */ char unk22;
+    /* 0x23 */ char unk23;
+    /* 0x24 */ u8 unk24[2];
     /* 0x26 */ char vabId;
     /* 0x27 */ u_char panpot[16];
     /* 0x37 */ u_char programs[16];
     /* 0x47 */ u8 unk47;
     /* 0x48 */ short unk48;
     /* 0x4A */ short unk4A;
-    /* 0x4C */ u8 unk4C[6];
+    /* 0x4C */ short unk4C;
+    /* 0x4E */ short unk4E;
+    /* 0x50 */ u8 unk50[2];
     /* 0x52 */ short unk52;
     /* 0x54 */ short unk54;
     /* 0x56 */ u8 unk56[2];
@@ -197,7 +201,9 @@ typedef struct SeqStruct {
     /* 0x98 */ long flags;
     /* 0x9C */ long unk9C;
     /* 0xA0 */ long unkA0;
-    /* 0xA4 */ u8 unkA4[0xC];
+    /* 0xA4 */ long unkA4;
+    /* 0xA8 */ long unkA8;
+    /* 0xAC */ long unkAC;
 } SeqStruct;
 
 /* libsnd decoded ADSR */
