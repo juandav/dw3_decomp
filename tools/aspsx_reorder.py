@@ -117,6 +117,9 @@ def main():
                 while m >= 0 and not out[m].split("#", 1)[0].strip():
                     m -= 1
                 prev2 = split(out[m]) if m >= 0 else None
+                # a branch target stays where it is
+                if m >= 0 and out[m].split("#", 1)[0].strip().endswith(":"):
+                    prev = None
             sym_store = (
                 prev is not None
                 and STORES.match(prev[0]) is not None

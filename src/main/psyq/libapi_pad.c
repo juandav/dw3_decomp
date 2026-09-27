@@ -39,7 +39,15 @@ long StartPAD(void) {
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libapi_pad", func_8003B444);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libapi_pad", func_8003B4BC);
+int func_8003B4BC(void) {
+    volatile int i, j, k;
+
+    D_8005C2BC[5] = 0;
+    i = 10;
+    while (--i != -1) {
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libapi_pad", func_8003B524);
 
