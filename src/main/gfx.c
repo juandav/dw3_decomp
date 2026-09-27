@@ -30,7 +30,12 @@ s32 func_8001D30C(void) {
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D31C);
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D3CC);
+void func_8001D3CC(s32 size) {
+    D_8004D5B8.unk2C = size;
+    D_8004D5B8.bufs[0] = D_8004AD84.unk1C(size, 2);
+    D_8004D5B8.bufs[1] = D_8004AD84.unk1C(size, 2);
+    D_8004D5B8.unk20 = (s32)D_8004D5B8.bufs[D_8004D5B8.buffer];
+}
 
 s32 func_8001D44C(void) {
     return D_8004D5B8.unk20;
@@ -41,14 +46,14 @@ void func_8001D45C(s32 arg0) {
 }
 
 void func_8001D468(void) {
-    if (D_8004D5B8.unk24 != NULL) {
-        D_8004AD90.free(D_8004D5B8.unk24);
+    if (D_8004D5B8.bufs[0] != NULL) {
+        D_8004AD84.free(D_8004D5B8.bufs[0]);
     }
-    if (D_8004D5B8.unk28 != NULL) {
-        D_8004AD90.free(D_8004D5B8.unk28);
+    if (D_8004D5B8.bufs[1] != NULL) {
+        D_8004AD84.free(D_8004D5B8.bufs[1]);
     }
-    D_8004D5B8.unk24 = NULL;
-    D_8004D5B8.unk28 = NULL;
+    D_8004D5B8.bufs[0] = NULL;
+    D_8004D5B8.bufs[1] = NULL;
 }
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D4D4);
@@ -165,7 +170,14 @@ void func_8001DCAC(Sprite *sprite, Rect16 *rect) {
     rect->h = sprite->h;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001DCFC);
+void func_8001DCFC(DrawContext *ctx) {
+    DrawSync(0);
+    D_8004AD84.free(ctx->ot[0]);
+    D_8004AD84.free(ctx->ot[1]);
+    if (ctx->unk78 != 0) {
+        D_8004AD84.free(ctx->unk80);
+    }
+}
 
 void func_8001DD80(Sprite *sprite) {
     sprite->callbacks->unk0 = 0x7FFFFFFF;
@@ -177,7 +189,7 @@ void func_8001DD80(Sprite *sprite) {
 }
 
 void func_8001DDCC(Sprite *sprite, s32 count) {
-    sprite->callbacks = D_8004AD90.malloc(count * sizeof(Callback), 2);
+    sprite->callbacks = D_8004AD84.malloc(count * sizeof(Callback), 2);
     sprite->callbackCap = count;
     func_8001DD80(sprite);
 }
@@ -224,7 +236,10 @@ void func_8001DFE8(DrawContext *ctx, s32 enable, s32 arg2) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E054);
+void func_8001E054(DrawContext *ctx) {
+    func_80029598(ctx->unk88);
+    D_80080AF0 = ctx->unk8C[D_8004D5B8.buffer];
+}
 
 void func_8001E0D8(DrawContext *ctx, s32 enable) {
     ctx->unkCC = enable;
@@ -284,7 +299,7 @@ s32 func_8001E7B0(void) {
 }
 
 void func_8001E7DC(Obj8001E7DC *obj) {
-    D_8004AD90.bzero(obj, sizeof(Obj8001E7DC));
+    D_8004AD84.bzero(obj, sizeof(Obj8001E7DC));
     obj->methods[0] = func_8001E3D0;
     obj->methods[1] = func_8001E474;
     obj->methods[3] = func_8001E51C;
@@ -358,7 +373,7 @@ void func_8001F20C(CVECTOR *color) {
 }
 
 void func_8001F22C(Obj8001F22C *obj) {
-    D_8004AD90.bzero(obj, sizeof(Obj8001F22C));
+    D_8004AD84.bzero(obj, sizeof(Obj8001F22C));
     obj->scaleX = 0x1000;
     obj->scaleY = 0x1000;
     obj->scaleZ = 0x1000;
@@ -403,7 +418,7 @@ INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F354);
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F658);
 
 void func_8001F8F8(Obj8001F8F8 *obj) {
-    D_8004AD90.bzero(obj, sizeof(Obj8001F8F8));
+    D_8004AD84.bzero(obj, sizeof(Obj8001F8F8));
     obj->unk0 = func_8001F328;
     obj->unk4 = func_8001F354;
     obj->unk8 = func_8001F658;
@@ -433,7 +448,7 @@ void func_8001FBD4(s32 arg0) {
 }
 
 void func_8001FBE0(Obj8001FBE0 *obj) {
-    D_8004AD90.bzero(obj, sizeof(Obj8001FBE0));
+    D_8004AD84.bzero(obj, sizeof(Obj8001FBE0));
     obj->methods[1] = func_8001F988;
     obj->methods[3] = func_8001F974;
     obj->methods[2] = func_8001F960;

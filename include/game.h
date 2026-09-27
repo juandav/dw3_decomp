@@ -25,18 +25,22 @@ typedef struct Funcs8004ABD8 {
     /* 0x28 */ void (*unk28[14])();
 } Funcs8004ABD8;
 
-typedef struct MemFuncs {
-    /* 0x00 */ void (*unk0)();
-    /* 0x04 */ void (*free)(void *ptr);
-    /* 0x08 */ void (*unk8)();
-    /* 0x0C */ void *(*malloc)(s32 size, s32 tag);
-    /* 0x10 */ void (*unk10)();
+/* Heap state and memory functions */
+typedef struct MemManager {
+    /* 0x00 */ s32 size;
+    /* 0x04 */ struct MemBlock *first;
+    /* 0x08 */ struct MemBlock *end;
+    /* 0x0C */ void (*unkC)();
+    /* 0x10 */ void (*free)(void *ptr);
     /* 0x14 */ void (*unk14)();
-    /* 0x18 */ void (*bzero)(void *ptr, s32 size);
-    /* 0x1C */ void (*unk1C)();
+    /* 0x18 */ void *(*malloc)(s32 size, s32 tag);
+    /* 0x1C */ void *(*unk1C)(s32 size, s32 tag);
     /* 0x20 */ void (*unk20)();
-    /* 0x24 */ void (*unk24)();
-} MemFuncs;
+    /* 0x24 */ void (*bzero)(void *ptr, s32 size);
+    /* 0x28 */ void (*unk28)();
+    /* 0x2C */ void (*unk2C)();
+    /* 0x30 */ void (*unk30)();
+} MemManager;
 
 typedef struct TaskFuncs {
     /* 0x00 */ void (*unk0)();
@@ -89,8 +93,7 @@ typedef struct GfxState {
     /* 0x18 */ s32 unk18;
     /* 0x1C */ s32 unk1C;
     /* 0x20 */ s32 unk20;
-    /* 0x24 */ void *unk24;
-    /* 0x28 */ void *unk28;
+    /* 0x24 */ void *bufs[2];
     /* 0x2C */ s32 unk2C;
     /* 0x30 */ s32 unk30;
     /* 0x34 */ s32 buffer;
@@ -307,7 +310,10 @@ typedef struct DrawContext {
     /* 0x5C */ u_long *ot[2];
     /* 0x64 */ s32 otLen;
     /* 0x68 */ s32 otShift;
-    /* 0x6C */ u8 unk6C[0x18];
+    /* 0x6C */ u8 unk6C[0xC];
+    /* 0x78 */ s32 unk78;
+    /* 0x7C */ u8 unk7C[4];
+    /* 0x80 */ void *unk80;
     /* 0x84 */ s32 unk84;
     /* 0x88 */ s32 unk88;
     /* 0x8C */ MATRIX unk8C[2];
@@ -416,6 +422,11 @@ typedef struct Unk80044744 {
     /* 0x000 */ s32 unk0;
     /* 0x004 */ u8 unk4[0x404];
     /* 0x408 */ void (*outOfMemory)(void);
+    /* 0x40C */ void (*unk40C)(s32);
+    /* 0x410 */ u8 unk410[8];
+    /* 0x418 */ void (*unk418)(s32);
+    /* 0x41C */ u8 unk41C[8];
+    /* 0x424 */ s32 (*unk424)(s32);
 } Unk80044744;
 
 typedef struct Unk80017ECC {
@@ -424,17 +435,36 @@ typedef struct Unk80017ECC {
     /* 0x24 */ s32 *items;
 } Unk80017ECC;
 
+typedef struct Task8001C454 {
+    /* 0x00 */ u8 unk0[0xC];
+    /* 0x0C */ s32 state;
+    /* 0x10 */ u8 unk10[0x28];
+    /* 0x38 */ void (*unk38)(struct Task8001C454 *);
+    /* 0x3C */ u8 unk3C[0x18];
+    /* 0x54 */ s16 unk54;
+    /* 0x56 */ s16 unk56;
+    /* 0x58 */ u8 unk58[8];
+    /* 0x60 */ s32 unk60;
+    /* 0x64 */ u8 unk64[4];
+    /* 0x68 */ s32 unk68;
+    /* 0x6C */ u8 unk6C[0x1C];
+    /* 0x88 */ s32 unk88;
+    /* 0x8C */ s32 unk8C;
+    /* 0x90 */ s32 unk90;
+    /* 0x94 */ u8 unk94[0x24];
+    /* 0xB8 */ s32 unkB8;
+} Task8001C454;
+
+typedef struct Unk800554D0 {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ s32 current;
+} Unk800554D0;
+
 typedef struct MemBlock {
     /* 0x0 */ struct MemBlock *prev;
     /* 0x4 */ struct MemBlock *next;
     /* 0x8 */ s32 flags;
 } MemBlock;
-
-typedef struct Heap {
-    /* 0x0 */ s32 size;
-    /* 0x4 */ MemBlock *first;
-    /* 0x8 */ MemBlock *end;
-} Heap;
 
 typedef struct Vec2 {
     s32 x;
@@ -518,6 +548,9 @@ Slot *func_80013AB4(void);
 void func_80013C08(s32);
 void func_80013CB4(void);
 void func_80016860(void);
+void func_8001C168(Task8001C454 *task);
+void func_80029598(s32);
+void func_8001FBE0(Obj8001FBE0 *obj);
 void func_80020074(s32, s32);
 void func_8001BB68(Task *task);
 void func_8001BCCC(Task *task);
@@ -592,7 +625,6 @@ extern char D_800101D8[];
 extern char D_80010230[];
 extern Funcs80047F04 D_80047F04;
 extern Funcs8004ABD8 D_8004ABD8;
-extern MemFuncs D_8004AD90;
 extern TaskFuncs D_8004AF58;
 extern RandFuncs D_8004D3B0;
 extern Funcs8004D708 D_8004D708;
@@ -602,6 +634,9 @@ extern Unk80042728 D_80042728;
 extern Unk80041444 D_80041444[];
 extern u8 D_800427B4[];
 extern CdReader D_80044710;
+extern void *(*D_80044B58)(void);
+extern void *D_800100C8;
+extern Unk800554D0 D_800554D0;
 extern u8 D_8004AC38[][3];
 extern s32 D_8004AB28;
 extern u8 D_8005C4C0[];
@@ -625,7 +660,7 @@ extern s32 D_8004D3AC;
 extern u8 *D_8004D5A8;
 extern GfxState D_8004D5B8;
 extern Unk80051194 D_80051194;
-extern Heap D_8004AD84;
+extern MemManager D_8004AD84;
 extern MemBlock *D_8005C2F8;
 extern s32 D_8004D774[];
 extern MATRIX D_80080A90;
