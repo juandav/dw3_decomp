@@ -3,6 +3,7 @@
 extern int (*D_80055530)(PadPort *p);
 extern int D_80055598;
 void _padSioRW(PadPort *p, int arg);
+int _padChkRC2wait(void);
 
 int _padIsVsync(void) {
     if (!(D_8005558C[1] & 1)) {
@@ -27,7 +28,21 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padSioRW);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padSioRW2);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padClrIntSio0);
+int _padClrIntSio0(void) {
+    volatile u_long *irq = D_8005558C;
+    volatile SioRegs *sio = D_80055590;
+
+    *irq = ~0x80;
+    if (sio->stat & 0x80) {
+        do {
+            if (_padChkRC2wait() != 0) {
+                return 0;
+            }
+        } while (D_80055590->stat & 0x80);
+    }
+    D_80055590->ctrl |= 0x10;
+    return 1;
+}
 
 void _padWaitRXready(void) {
     do {
