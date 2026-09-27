@@ -143,7 +143,11 @@ void STDWTITL_tickLogo(LogoTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_showLogo);
+void STDWTITL_showLogo(LogoTask *task) {
+    if (task->state == TASK_RUN) {
+        task->setSubstate(task, 1);
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startLogoTask);
 
