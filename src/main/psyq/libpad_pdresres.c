@@ -9,6 +9,13 @@ extern long D_80055560;
 extern long D_8005555C;
 extern long D_80055558;
 extern PadPort *D_8005554C;
+extern long D_80055570[];
+extern void (*D_80055538)(PadPort *p);
+extern void (*D_8005553C)(PadPort *p);
+int _padChkRC2wait(void);
+void _padSetRC2wait(int wait);
+int _padClrIntSio0(void);
+void _padWaitRXready(void);
 int _padInitSioMode(PadPort *p);
 void func_80023344(PadPort *p);
 
@@ -52,4 +59,68 @@ int _padIntPad(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padInitSioMode);
+int _padInitSioMode(PadPort *p) {
+    D_80055590->ctrl = 0x40;
+    D_80055590->ctrl = 0;
+    D_80055590->mode = 0xD;
+    D_80055590->baud = 0x88;
+    _padSetRC2wait(p->unkE8 == 8 ? 0x50 : 0x91);
+    D_80055590->ctrl = D_80055558 ? 0x3003 : 0x1003;
+    if (D_80055570[D_80055558] >= 0) {
+        while (D_80055570[D_80055558] > 0) {
+            D_80055570[D_80055558]--;
+            D_80055538(&p->unkC[D_80055570[D_80055558]]);
+        }
+        if (D_80055570[D_80055558] == 0) {
+            D_80055570[D_80055558] = -1;
+            D_80055538(p);
+            D_8005553C(p);
+        }
+    }
+    if (D_80055590->stat & 0x200) {
+        D_80055590->ctrl |= 0x10;
+        if (D_80055590->stat & 0x200) {
+            while (_padChkRC2wait() == 0) {
+            }
+            D_80055590->data = 1;
+            _padSetRC2wait(2000);
+            if (_padClrIntSio0() == 0) {
+                return 0;
+            }
+            _padWaitRXready();
+            D_80055590->data;
+            _padSetRC2wait(0x1AE);
+            while (!(*D_8005558C & 0x80)) {
+                if (_padChkRC2wait() != 0) {
+                    return 0;
+                }
+            }
+            D_80055590->data = 0x42;
+            _padSetRC2wait(0x3C);
+            if (_padClrIntSio0() == 0) {
+                return 0;
+            }
+            _padWaitRXready();
+            D_80055590->data;
+            _padSetRC2wait(0x1AE);
+            while (!(*D_8005558C & 0x80)) {
+                if (_padChkRC2wait() != 0) {
+                    return 0;
+                }
+            }
+            D_80055590->data = 1;
+            _padSetRC2wait(0x3C);
+            if (_padClrIntSio0() == 0) {
+                return 0;
+            }
+            _padWaitRXready();
+            D_80055590->data;
+            return 0;
+        }
+        *D_8005558C = ~0x80;
+    }
+    if (p->unk50 != 0 && p->cmd != 0) {
+        return 0;
+    }
+    return 1;
+}
