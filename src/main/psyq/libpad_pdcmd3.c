@@ -38,7 +38,7 @@ int func_80020C3C(PadPort *port) {
         }
         port->unk46 = 0xFE;
     } else {
-        D_8005551C();
+        D_8005551C(port);
     }
     return 0;
 }

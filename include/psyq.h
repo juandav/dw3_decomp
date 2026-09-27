@@ -297,7 +297,7 @@ void func_8003B1C8(void);
 void func_800274A0();
 
 extern IntrFuncs *D_8005B780;
-extern void (*D_8005551C)(void);
+extern void (*D_8005551C)(PadPort *p);
 extern u_char D_80055578[];
 extern u_long *D_800557A4;
 extern long D_800557DC;
