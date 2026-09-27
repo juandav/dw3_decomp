@@ -111,7 +111,37 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardWriteData);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003C604);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardReadFile);
+long MemCardReadFile(long chan, char *file, u_long *adrs, long ofs, long bytes) {
+    volatile long *busy = &D_80082068.unk0;
+
+    if (*busy > 0) {
+        printf(D_80010E40);
+        return 0;
+    }
+    if (D_80082068.fd >= 0) {
+        printf(D_80010D98);
+        return 0;
+    }
+    if (bytes & 0x7F) {
+        printf(D_80010DE4);
+        return 0;
+    }
+    if (ofs & 0x7F) {
+        printf(D_80010E10);
+        return 0;
+    }
+    func_8003D1EC(chan, (char *)D_80082068.unk24);
+    strcat((char *)D_80082068.unk24, file);
+    *busy = 3;
+    D_80082068.unk4 = 0;
+    D_80082068.unk8 = 0;
+    D_80082068.unk18 = ofs;
+    D_80082068.unk20 = (long)adrs;
+    D_80082068.unk1C = bytes;
+    D_80082068.unk10 = chan;
+    UserFuncOpen(func_8003C8C8);
+    return 1;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003C8C8);
 
