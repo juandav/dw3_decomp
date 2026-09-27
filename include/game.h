@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <libgte.h>
 #include <libgpu.h>
+#include <libcd.h>
 
 #include "dw3/task.h"
 #include "dw3/heap.h"
@@ -31,7 +32,6 @@ int PadInfoMode(int port, int term, int offs);
 int PadSetMainMode(int port, int offs, int lock);
 void PadStopCom(void);
 s32 VSyncCallback(void (*func)(void));
-void *CdIntToPos(s32 i, void *p);
 short SsUtKeyOn(short vabId, short prog, short tone, short note, short fine, short voll, short volr);
 void SsSepStop(short seq, short sep);
 void SsSepSetDecrescendo(short seq, short sep, short vol, long frames);
@@ -54,7 +54,6 @@ char *strcpy(char *dst, char *src);
 void *memcpy(void *, void *, int);
 int func_8002E268(void *buf, int size);
 void func_8002DE88(s32 arg0);
-int CdPosToInt(void *pos);
 void func_8008AEB4(s32, s32, s32, s32, s32);
 
 #endif /* GAME_H */
