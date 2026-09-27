@@ -917,7 +917,7 @@ void *func_800179C8(u32 size, s32 tag);
 void *func_80017A78(u32 size, s32 tag);
 s32 func_80016064(u16, u16);
 void func_80017FAC(s32, s32);
-s32 func_8001837C(s32 port, s32 motor, s16 time, u8 value);
+s32 func_8001837C(u16 port, s32 motor, s16 time, u8 value);
 void *func_8001B2B8(Task8001B3A0 *task, s32 *data);
 void func_8001B1D0(Task8001B3A0 *task);
 void func_80019C2C(Unk80019DFC *obj);
