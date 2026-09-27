@@ -217,7 +217,44 @@ void CNTY_SEL_drawTopPanel(PanelTask *task) {
     sprite.methods[5](D_80044B68[0](CNTY_SEL_SPRITES), SPRITE_TOP_PANEL, 148, 0);
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_tickTopPanel);
+void CNTY_SEL_tickTopPanel(PanelTask *task) {
+    s16 phase;
+
+    switch (task->task.state) {
+    case TASK_INIT:
+    default:
+        task->task.nextState(task);
+        task->scaleX = 0x1000;
+        task->scaleY = 0;
+        task->phase = 0;
+        break;
+    case TASK_RUN:
+        switch (task->task.substate) {
+        case 0:
+            break;
+        case 1:
+            phase = task->phase;
+            if (CNTY_SEL_topPanelTweens[phase].duration < task->time++) {
+                task->phase ^= 1;
+                task->task.setSubstate(task, 0);
+                task->scaleY = CNTY_SEL_topPanelTweens[phase].to;
+            } else {
+                task->scaleY = CNTY_SEL_getTopPanelScale(task, phase);
+            }
+            break;
+        }
+        CNTY_SEL_drawTopPanel(task);
+        break;
+    case TASK_TRIGGER:
+        task->time = 0;
+        task->task.setState(task, TASK_RUN);
+        task->task.setSubstate(task, 1);
+        CNTY_SEL_drawTopPanel(task);
+        break;
+    case TASK_END:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_startTopPanelTask);
 
