@@ -128,7 +128,8 @@ typedef struct McrdGlobal {
 
 /* serial port registers */
 typedef struct SioRegs {
-    /* 0x0 */ u_long data;
+    /* 0x0 */ u_char data;
+    /* 0x1 */ u8 unk1[3];
     /* 0x4 */ u_short stat;
     /* 0x6 */ u_short unk6;
     /* 0x8 */ u_short mode;
