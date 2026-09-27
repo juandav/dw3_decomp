@@ -52,7 +52,14 @@ void func_800826EC(CardAlbumFader *fader) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800827A0);
+CardAlbumFader *func_800827A0(void) {
+    CardAlbumFader *fader = createTask(func_800826EC, sizeof(CardAlbumFader), 0);
+
+    fader->start = func_80082520;
+    fader->layer = 0x1000;
+    fader->depth = 0;
+    return fader;
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800827E4);
 
