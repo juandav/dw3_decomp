@@ -55,6 +55,11 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_8002195C);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", _dirFailAuto);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_80021CA8);
+int func_80021CA8(PadPort *p) {
+    if (p->unkE6 == 0 || p->unk46 != 0xFF) {
+        return 1;
+    }
+    return 0;
+}
 
 OBJECT_END();
