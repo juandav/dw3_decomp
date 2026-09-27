@@ -77,7 +77,34 @@ void func_80011DF0(Task80011FBC *task, s32 fadeOut, s32 duration) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80011E78);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80011FBC);
+void func_80011FBC(Task80011FBC *task) {
+    switch (task->state) {
+    case 0:
+    default:
+        task->unk38(task);
+        break;
+    case 1:
+        if (task->unk10 == 0) {
+            break;
+        }
+        task->level += task->step;
+        if (task->fadeOut == 0) {
+            if (task->level > 0xFF00) {
+                task->level = 0xFF00;
+                task->state = 2;
+            }
+        } else if (task->level < 0) {
+            task->level = 0;
+            task->state = 2;
+        }
+        /* fallthrough */
+    case 2:
+        func_80011E78(task);
+        break;
+    case 3:
+        break;
+    }
+}
 
 void func_80012070(s32 arg0) {
     Task80011FBC *task = func_800144DC(func_80011FBC, 0x68, 0);
@@ -657,7 +684,25 @@ s32 func_80015D90(s32 id) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80015DD8);
+s32 func_80015DD8(s32 slot, s32 item) {
+    Unk80048C50 *d = &D_80048C50[slot];
+    u8 *info = *D_800427A4(item);
+    s16 *equip = d->equip;
+    s32 i;
+
+    for (i = 0; i < 6; i++) {
+        if (equip[i] == item) {
+            if (info[2] == 7) {
+                d->equip[2] = 0;
+                d->equip[3] = 0;
+            } else {
+                equip[i] = 0;
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80015E8C);
 
@@ -701,7 +746,27 @@ void func_8001663C(u16 *list) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80016694);
+void func_80016694(void) {
+    s32 i;
+    u8 *p;
+
+    if (D_8004ABB8 != 0) {
+        for (i = 2, p = &D_80048280[i]; i >= 0; i--) {
+            *p-- = 0;
+        }
+        func_80016260(0x12, 0);
+    }
+    if (D_8004ABD8.unk18() == 0x700) {
+        func_80016260(0x11, 1);
+        func_80016260(0x12, 1);
+        if (D_80048284 != 0) {
+            func_80016260(0x10, 1);
+        } else {
+            func_80016260(0x10, 0);
+        }
+        D_80048284 = 0;
+    }
+}
 
 void func_80016748(void) {
     D_8004AD84.bzero(&D_800484E8, 0x26BC);

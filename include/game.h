@@ -24,7 +24,9 @@ typedef struct Funcs80047F04 {
 typedef struct Funcs8004ABD8 {
     /* 0x00 */ void (*unk0[2])();
     /* 0x08 */ s32 (*unk8)();
-    /* 0x0C */ void (*unkC[6])();
+    /* 0x0C */ void (*unkC[3])();
+    /* 0x18 */ s32 (*unk18)();
+    /* 0x1C */ void (*unk1C[2])();
     /* 0x24 */ void (*unk24)(s32, s32);
     /* 0x28 */ void (*unk28[14])();
 } Funcs8004ABD8;
@@ -130,11 +132,14 @@ typedef struct Task {
 } Task;
 
 typedef struct Task80011FBC {
-    /* 0x00 */ u8 unk0[0x10];
+    /* 0x00 */ u8 unk0[0xC];
+    /* 0x0C */ s32 state;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ u8 unk14[0x14];
     /* 0x28 */ void (*unk28)(struct Task80011FBC *, s32);
-    /* 0x2C */ u8 unk2C[0x24];
+    /* 0x2C */ u8 unk2C[0xC];
+    /* 0x38 */ void (*unk38)(struct Task80011FBC *);
+    /* 0x3C */ u8 unk3C[0x14];
     /* 0x50 */ s32 unk50;
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 fadeOut;
@@ -318,7 +323,8 @@ typedef struct Unk80048C50 {
     /* 0x01C */ s16 stats[19];
     /* 0x042 */ u8 unk42[0xE];
     /* 0x050 */ Unk80048C50Entry unk50[44];
-    /* 0x3C0 */ u8 unk3C0[0x1C];
+    /* 0x3C0 */ s16 equip[6];
+    /* 0x3CC */ u8 unk3CC[0x10];
 } Unk80048C50;
 
 /* Double-buffered ordering tables */
@@ -584,7 +590,8 @@ void *CdIntToPos(s32 i, void *p);
 short SsUtKeyOn(short vabId, short prog, short tone, short note, short fine, short voll, short volr);
 void func_800119AC(void *task);
 void func_80011DF0(Task80011FBC *task, s32 fadeOut, s32 duration);
-void func_80011FBC(void *task);
+void func_80011E78(struct Task80011FBC *task);
+void func_80011FBC(struct Task80011FBC *task);
 void func_800126FC(void *task);
 s32 func_80013A44(s32);
 Slot *func_800139D4(s32 file);
@@ -691,7 +698,11 @@ extern SoundFuncs D_800553DC;
 extern Funcs800554D8 D_800554D8;
 extern Unk80042728 D_80042728;
 extern Unk80041444 D_80041444[];
+extern u8 **(*D_800427A4)(s32 item);
 extern u8 D_800427B4[];
+extern u8 D_80048280[];
+extern s32 D_80048284;
+extern s32 D_8004ABB8;
 extern CdReader D_80044710;
 extern Unk80047F14 D_80047F14;
 extern u8 *(*D_80044B58)(s32 file);
