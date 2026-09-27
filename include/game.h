@@ -1149,7 +1149,7 @@ extern s32 D_80048284;
 extern s32 D_8004ABB8;
 extern CdReader D_80044710;
 extern Unk80047F14 D_80047F14;
-extern u8 *(*D_80044B58)(s32 file);
+extern u8 *(*D_80044B58[])(s32 file);
 extern s32 D_8004D760[];
 extern s32 D_8004AC44[40];
 extern void *D_800100C8;

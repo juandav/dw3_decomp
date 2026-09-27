@@ -278,7 +278,7 @@ void func_80020870(void) {
     if (D_800554D0.unk0 != id) {
         D_800554D0.unk0 = id;
         D_800554D0.current = -1;
-        src = D_80044B58(D_80055474[id]);
+        src = D_80044B58[0](D_80055474[id]);
         dst = FIXED_PTR(0x800100C4);
         memcpy(dst, src, D_80047F04.getFileSectors(D_80055474[id]) << 11);
     }
@@ -290,7 +290,7 @@ void func_8002091C(s32 id) {
 
     if (D_800554D0.current != id) {
         D_800554D0.current = id;
-        src = D_80044B58(id);
+        src = D_80044B58[0](id);
         dst = FIXED_PTR(0x800100C8);
         memcpy(dst, src, D_80047F04.getFileSectors(id) << 11);
     }

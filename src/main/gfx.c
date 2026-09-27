@@ -517,7 +517,17 @@ void func_8001E3C4(Obj8001E7DC *obj) {
     D_8005C4A0 = obj;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E3D0);
+void func_8001E3D0(s32 id) {
+    s32 n;
+    s32 i;
+    if (id > 0) {
+        n = id - 1;
+        i = n >> 6;
+        D_8005C4A0->unk0 = D_80044B58[0](D_8004D760[i]) + (n & 0x3F) * 0x62C;
+    } else {
+        D_8005C4A0->unk0 = D_80044B58[0](D_8004D760[0]);
+    }
+}
 
 void func_8001E474(void) {
     Obj8001FBE0 obj;

@@ -182,7 +182,7 @@ void func_800126FC(Task800126FC *task, MenuWindows *win) {
         case 0:
             if (func_8001214C(&task->fades[0])) {
                 func_800123E4(task, win, 0, 1);
-                win->title->m114(win->title, D_80044B58(0xB1), 0x13);
+                win->title->m114(win->title, D_80044B58[0](0xB1), 0x13);
                 D_800553DC.playSound(0x40019);
                 task->substate++;
             }
@@ -204,7 +204,7 @@ void func_800126FC(Task800126FC *task, MenuWindows *win) {
         case 2:
             if (func_8001214C(&task->fades[2])) {
                 func_800123E4(task, win, 2, 1);
-                win->unk4->m114(win->unk4, D_80044B58(0xB1), 5);
+                win->unk4->m114(win->unk4, D_80044B58[0](0xB1), 5);
                 win->unk8->m118(win->unk8, 0, D_800484E8.money);
                 win->unk8->m148(win->unk8, 1);
                 win->cursor->methods[0](win->cursor, 1);
