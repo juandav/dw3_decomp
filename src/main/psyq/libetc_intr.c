@@ -65,7 +65,39 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002E7BC);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002E894);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002EA64);
+void *func_8002EA64(int irq, void (*func)()) {
+    void (*old)() = D_8005A6F8.handlers[irq];
+    int mask;
+
+    if (func != old && D_8005A6F8.initialized != 0) {
+        mask = *D_8005B788;
+        *D_8005B788 = 0;
+        if (func != NULL) {
+            D_8005A6F8.handlers[irq] = func;
+            mask |= 1 << irq;
+            D_8005A6F8.enabledMask |= 1 << irq;
+        } else {
+            D_8005A6F8.handlers[irq] = NULL;
+            mask &= ~(1 << irq);
+            D_8005A6F8.enabledMask &= ~(1 << irq);
+        }
+        if (irq == 0) {
+            ChangeClearPAD(func == NULL);
+            ChangeClearRCnt(3, func == NULL);
+        }
+        if (irq == 4) {
+            ChangeClearRCnt(0, func == NULL);
+        }
+        if (irq == 5) {
+            ChangeClearRCnt(1, func == NULL);
+        }
+        if (irq == 6) {
+            ChangeClearRCnt(2, func == NULL);
+        }
+        *D_8005B788 = mask;
+    }
+    return old;
+}
 
 void *func_8002EBAC(void) {
     if (D_8005A6F8.initialized == 0) {
