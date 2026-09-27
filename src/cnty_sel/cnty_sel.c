@@ -117,7 +117,29 @@ BackgroundTask *CNTY_SEL_startBackgroundTask(void) {
     return func_800144DC(CNTY_SEL_tickBackground, sizeof(BackgroundTask), 0);
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_stepAnimation);
+/* Advances anim by the frames elapsed and returns the frame to show (0xFF at the end) */
+s16 CNTY_SEL_stepAnimation(AnimState *anim, AnimFrame *frames, s32 depth) {
+    AnimFrame *frame = &frames[anim->index];
+    s32 elapsed = D_8004D708.unk3C();
+
+    if (elapsed > 4) {
+        elapsed = 4;
+    }
+    if (depth == 0) {
+        anim->timer -= elapsed;
+    }
+    if (anim->timer <= 0) {
+        frame++;
+        anim->index++;
+        anim->timer += frame->duration;
+        if (frame->frame == 0xFF) {
+            return 0xFF;
+        }
+        /* Skip the frames that were shorter than the time elapsed */
+        CNTY_SEL_stepAnimation(anim, frames, depth + 1);
+    }
+    return frame->frame;
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_drawCursor);
 
