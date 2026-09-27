@@ -393,9 +393,9 @@ INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F658);
 
 void func_8001F8F8(Obj8001F8F8 *obj) {
     D_8004AD90.bzero(obj, sizeof(Obj8001F8F8));
-    obj->methods[0] = func_8001F328;
-    obj->methods[1] = func_8001F354;
-    obj->methods[2] = func_8001F658;
+    obj->unk0 = func_8001F328;
+    obj->unk4 = func_8001F354;
+    obj->unk8 = func_8001F658;
     func_8001F31C(obj);
 }
 

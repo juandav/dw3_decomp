@@ -1,6 +1,15 @@
 #include "game.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_8001FC68);
+s32 func_8001FC68(s32 id) {
+    s32 i;
+
+    for (i = 0; i < 3; i++) {
+        if (D_80051194.sounds[i].unk0 == id) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/sound", func_8001FCA4);
 

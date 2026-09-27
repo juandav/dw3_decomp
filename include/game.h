@@ -246,7 +246,8 @@ typedef struct Unk80019DFC {
     /* 0xB2 */ s16 unkB2;
     /* 0xB4 */ s16 unkB4;
     /* 0xB6 */ s16 unkB6;
-    /* 0xB8 */ u8 unkB8[6];
+    /* 0xB8 */ u8 unkB8[4];
+    /* 0xBC */ s16 unkBC;
     /* 0xBE */ u8 unkBE;
     /* 0xBF */ u8 unkBF;
     /* 0xC0 */ u8 unkC0;
@@ -353,7 +354,9 @@ typedef struct Obj8001F22C {
 } Obj8001F22C;
 
 typedef struct Obj8001F8F8 {
-    /* 0x0 */ void (*methods[3])();
+    /* 0x0 */ void (*unk0)();
+    /* 0x4 */ s16 (*unk4)();
+    /* 0x8 */ void (*unk8)();
 } Obj8001F8F8;
 
 typedef struct Obj8001FBE0 {
@@ -399,6 +402,12 @@ typedef struct MemBlock {
     /* 0x8 */ s32 flags;
 } MemBlock;
 
+typedef struct Heap {
+    /* 0x0 */ s32 size;
+    /* 0x4 */ MemBlock *first;
+    /* 0x8 */ MemBlock *end;
+} Heap;
+
 typedef struct Vec2 {
     s32 x;
     s32 y;
@@ -430,7 +439,9 @@ typedef struct Unk800484E8 {
     /* 0x000C */ s32 unkC;
     /* 0x0010 */ u8 unk10[0x20];
     /* 0x0030 */ s32 unk30;
-    /* 0x0034 */ u8 unk34[0x14];
+    /* 0x0034 */ u8 unk34[0x10];
+    /* 0x0044 */ u16 unk44;
+    /* 0x0046 */ u16 unk46;
     /* 0x0048 */ s32 playFrames;
     /* 0x004C */ s16 playHours;
     /* 0x004E */ s16 playMinutes;
@@ -522,7 +533,8 @@ void func_8001F200();
 void func_8001F20C(CVECTOR *color);
 void func_8001F31C(Obj8001F8F8 *obj);
 s32 func_8001F328(s32 *table, s32 index);
-void func_8001F354();
+s16 func_8001F354();
+void func_8001F8F8(Obj8001F8F8 *obj);
 void func_8001F658();
 void func_8001F954(Obj8001FBE0 *obj);
 void func_8001F960();
@@ -580,6 +592,8 @@ extern s32 D_8004D3AC;
 extern u8 *D_8004D5A8;
 extern GfxState D_8004D5B8;
 extern Unk80051194 D_80051194;
+extern Heap D_8004AD84;
+extern MemBlock *D_8005C2F8;
 extern s32 D_8004D774[];
 extern MATRIX D_80080A90;
 
