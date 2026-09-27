@@ -1,5 +1,9 @@
 #include "cnty_sel.h"
 
+/* One bit of pad 1: newly pressed, or auto-repeated while held */
+#define PAD_PRESSED(button) ((D_8004AF78.getButtons(0) >> D_8004AF78.getButtonBit(0, button)) & 1)
+#define PAD_REPEATED(button) ((D_8004AF78.getButtonsNew(0) >> D_8004AF78.getButtonBit(0, button)) & 1)
+
 void CNTY_SEL_tickScreen(TaskHeader *task, MenuTask **menu) {
     Obj8001FBE0 loader;
     Resource *layer;
@@ -391,6 +395,139 @@ PanelTask *CNTY_SEL_startLeftPanelTask(void) {
     return func_800144DC(CNTY_SEL_tickLeftPanel, sizeof(PanelTask), 0);
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_tickMenu);
+void CNTY_SEL_tickMenu(MenuTask *task, MenuChildren *children) {
+    switch (task->task.state) {
+    case TASK_INIT:
+    default:
+        children->background = CNTY_SEL_startBackgroundTask();
+        children->topPanel = CNTY_SEL_startTopPanelTask();
+        children->rightPanel = CNTY_SEL_startRightPanelTask();
+        children->leftPanel = CNTY_SEL_startLeftPanelTask();
+        task->selection = 0;
+        task->timer = 0;
+        task->task.nextState(task);
+        break;
+    case TASK_RUN:
+        switch (task->task.substate) {
+        case MENU_OPEN_RIGHT_PANEL:
+        default:
+            children->rightPanel->task.setState(children->rightPanel, TASK_TRIGGER);
+            task->timer = 0;
+            task->task.nextSubstate(task);
+            break;
+        case MENU_WAIT_RIGHT_PANEL:
+            if (task->timer++ >= 6) {
+                task->task.nextSubstate(task);
+            }
+            break;
+        case MENU_OPEN_LEFT_PANEL:
+            task->timer = 0;
+            children->leftPanel->task.setState(children->leftPanel, TASK_TRIGGER);
+            task->task.nextSubstate(task);
+            break;
+        case MENU_WAIT_LEFT_PANEL:
+            if (task->timer++ >= 11) {
+                task->task.nextSubstate(task);
+            }
+            break;
+        case MENU_OPEN_TOP_PANEL:
+            task->timer = 0;
+            children->topPanel->task.setState(children->topPanel, TASK_TRIGGER);
+            task->task.nextSubstate(task);
+            break;
+        case MENU_WAIT_TOP_PANEL:
+            if (task->timer++ >= 6) {
+                task->task.nextSubstate(task);
+            }
+            break;
+        case MENU_SHOW_CURSOR:
+            children->cursor = CNTY_SEL_startCursorTask();
+            task->task.nextSubstate(task);
+            break;
+        case MENU_SELECT:
+            if (PAD_PRESSED(BUTTON_START)) {
+                D_80051194.unk425C(SE_START);
+                children->cursor->task.setState(children->cursor, TASK_TRIGGER);
+                task->task.nextSubstate(task);
+                task->timer = 0;
+            } else {
+                /* Options 0-4 are a column moved through with Up and Down. Options 5
+                   and 6 are a second one reached with step 1, which nothing sets */
+                switch (task->task.step) {
+                case 0:
+                default:
+                    if (PAD_PRESSED(BUTTON_UP) || PAD_REPEATED(BUTTON_UP)) {
+                        if (task->selection > 0) {
+                            D_80051194.unk425C(SE_CURSOR);
+                            task->selection--;
+                        }
+                    } else if (PAD_PRESSED(BUTTON_DOWN) || PAD_REPEATED(BUTTON_DOWN)) {
+                        if (task->selection < 4) {
+                            D_80051194.unk425C(SE_CURSOR);
+                            task->selection++;
+                        }
+                    } else if (PAD_PRESSED(BUTTON_LEFT)) {
+                        /* Left does nothing in this column */
+                    }
+                    break;
+                case 1:
+                    if (PAD_PRESSED(BUTTON_LEFT) || PAD_REPEATED(BUTTON_LEFT)) {
+                        if (task->selection != 6) {
+                            D_80051194.unk425C(SE_CURSOR);
+                        }
+                        task->selection = 6;
+                    } else if (PAD_PRESSED(BUTTON_RIGHT) || PAD_REPEATED(BUTTON_RIGHT)) {
+                        if (task->selection == 6) {
+                            D_80051194.unk425C(SE_CURSOR);
+                            task->selection = 5;
+                        } else {
+                            task->selection = 1;
+                            D_80051194.unk425C(SE_CURSOR);
+                            task->task.setStep(task, 0);
+                        }
+                    }
+                    break;
+                }
+            }
+            children->cursor->setSelection(children->cursor, task->selection);
+            break;
+        case MENU_WAIT_FLASH:
+            if (++task->timer >= 43) {
+                task->task.nextSubstate(task);
+            }
+            break;
+        case MENU_CLOSE_PANELS:
+            children->rightPanel->task.setState(children->rightPanel, TASK_TRIGGER);
+            children->leftPanel->task.setState(children->leftPanel, TASK_TRIGGER);
+            children->topPanel->task.setState(children->topPanel, TASK_TRIGGER);
+            task->timer = 0;
+            task->task.nextSubstate(task);
+            break;
+        case MENU_WAIT_PANELS:
+            if (++task->timer >= 6) {
+                task->task.nextSubstate(task);
+            }
+            break;
+        case MENU_FADE_OUT:
+            children->background->task.setState(children->background, TASK_TRIGGER);
+            task->task.nextSubstate(task);
+            break;
+        case MENU_WAIT_FADE:
+            if (++task->timer >= 31) {
+                task->task.nextSubstate(task);
+            }
+            break;
+        case MENU_EXIT:
+            /* func_8001683C: switch to game mode 0xE01 */
+            D_8004ABD8.unkC[1](0xE01, 0);
+            task->task.setState(task, TASK_END);
+            break;
+        }
+        break;
+    case TASK_TRIGGER:
+    case TASK_END:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_startMenuTask);
