@@ -3448,7 +3448,80 @@ void func_8001C5C4(Unk8001BB68 *task, s32 x, s32 y) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001C72C);
+typedef struct Delays3 {
+    s32 frames[3];
+} Delays3;
+
+extern Delays3 D_800102CC;
+
+void func_8001C72C(Unk8001BB68 *task, Unk8001C5C4 *children) {
+    Delays3 delays;
+
+    switch (task->state) {
+    case 0:
+    default:
+        task->unk28(task, 2);
+        break;
+    case 1:
+        if (children->windows[1]->m168(children->windows[1]) != 0) {
+            task->unk28(task, 2);
+            task->unk2C(task, 1);
+            children->unk14->unk28(children->unk14, 2);
+            children->windows[0]->m144(children->windows[0], 0);
+            children->windows[1]->m144(children->windows[1], 0);
+        } else if ((D_8004AF78.getButtons(0) >> D_8004AF78.getButtonBit(0, 13)) & 1) {
+            children->windows[1]->m128(children->windows[1]);
+        }
+        if (children->windows[1]->m170(children->windows[1]) != 0) {
+            children->unk14->visible = 1;
+        } else {
+            children->unk14->visible = 0;
+        }
+        break;
+    case 2:
+        delays = D_800102CC;
+        switch (task->step) {
+        case 0:
+        default:
+            if (task->mode == 0) {
+                D_800553DC.playSound(0x40019);
+            } else {
+                D_800553DC.playSound(0x4001A);
+            }
+        case 1:
+        case 2:
+            if (task->counter++ >= delays.frames[task->step]) {
+                children->items[task->step] = func_8001C4D8(task->unk54, task->x, task->y, task->w, task->h, task->type);
+                children->items[task->step]->unkB8 = task->mode;
+                if (task->mode == 0) {
+                    children->items[task->step]->unk5C = 0x199;
+                } else {
+                    children->items[task->step]->unk5C = 0x333;
+                }
+                task->unk40(task);
+                task->counter = 0;
+            }
+            break;
+        case 3:
+            if (task->mode == 0) {
+                if (children->items[2]->unkBC != 0) {
+                    task->unk28(task, 1);
+                    children->unk14->unk28(children->unk14, 1);
+                    children->windows[0]->m144(children->windows[0], 1);
+                    children->windows[1]->m144(children->windows[1], 1);
+                }
+            } else if (task->mode == 1) {
+                if (children->items[2] == NULL) {
+                    task->unk28(task, 3);
+                }
+            }
+            break;
+        }
+        break;
+    case 3:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001CAC0);
 
