@@ -9,9 +9,92 @@ extern u_long *D_8005BA38;
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libspu_spu", D_80010BCC);
 
 extern char D_80010BCC[];
+extern long D_8005BA48;
+extern long D_8005BA4C;
+extern long D_8005BA54;
+extern long D_8005BA58;
+extern volatile long D_8005BA64;
+extern u_char D_8005BA68[];
+extern volatile short D_80081FD0[10];
 void _spu_Fw1ts(void);
+void func_800383F8(u_char *addr, u_long size);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_init);
+long _spu_init(long mode) {
+    int i;
+    u_long t;
+    volatile u_short *v;
+
+    *D_8005BA38 |= 0xB0000;
+    D_8005BA44 = 0;
+    D_8005BA48 = 0;
+    D_8005BA40 = 0;
+    D_8005BA28[0xC0] = 0;
+    D_8005BA28[0xC1] = 0;
+    D_8005BA28[0xD5] = 0;
+    _spu_Fw1ts();
+    D_8005BA28[0xC0] = 0;
+    D_8005BA28[0xC1] = 0;
+    t = 0;
+    while (D_8005BA28[0xD7] & 0x7FF) {
+        if (++t > 0xF00) {
+            printf(D_80010BCC, "wait (reset)");
+            break;
+        }
+    }
+    D_8005BA4C = 2;
+    D_8005BA50 = 3;
+    D_8005BA54 = 8;
+    D_8005BA58 = 7;
+    D_8005BA28[0xD6] = 4;
+    D_8005BA28[0xC2] = 0;
+    D_8005BA28[0xC3] = 0;
+    D_8005BA28[0xC6] = 0xFFFF;
+    D_8005BA28[0xC7] = 0xFFFF;
+    D_8005BA28[0xCC] = 0;
+    D_8005BA28[0xCD] = 0;
+    for (i = 0; i < 10; i++) {
+        D_80081FD0[i] = 0;
+    }
+    if (mode == 0) {
+        D_8005BA40 = 0x200;
+        D_8005BA28[0xC8] = 0;
+        D_8005BA28[0xC9] = 0;
+        D_8005BA28[0xCA] = 0;
+        D_8005BA28[0xCB] = 0;
+        D_8005BA28[0xD8] = 0;
+        D_8005BA28[0xD9] = 0;
+        D_8005BA28[0xDA] = 0;
+        D_8005BA28[0xDB] = 0;
+        func_800383F8(D_8005BA68, 0x10);
+        v = D_8005BA28;
+        for (i = 0; i < 24; i++) {
+            v[0] = 0;
+            v[1] = 0;
+            v[2] = 0x3FFF;
+            v[3] = 0x200;
+            v[4] = 0;
+            v[5] = 0;
+            v += 8;
+        }
+        D_8005BA28[0xC4] = 0xFFFF;
+        D_8005BA28[0xC5] = 0xFF;
+        _spu_Fw1ts();
+        _spu_Fw1ts();
+        _spu_Fw1ts();
+        _spu_Fw1ts();
+        D_8005BA28[0xC6] = 0xFFFF;
+        D_8005BA28[0xC7] = 0xFF;
+        _spu_Fw1ts();
+        _spu_Fw1ts();
+        _spu_Fw1ts();
+        _spu_Fw1ts();
+    }
+    D_8005BA5C = 1;
+    D_8005BA28[0xD5] = 0xC000;
+    D_8005BA60 = 0;
+    D_8005BA64 = 0;
+    return 0;
+}
 
 void func_800383F8(u_char *addr, u_long size) {
     u_short stat;
@@ -75,8 +158,6 @@ void _spu_Fr_(u_char *addr, u_short tsa, u_long size) {
 }
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_t);
-
-void func_800383F8(u_char *addr, u_long size);
 
 u_long _spu_Fw(u_char *addr, u_long size) {
     if (D_8005BA44 == 0) {
