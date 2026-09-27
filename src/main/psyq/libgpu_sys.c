@@ -12,7 +12,16 @@ int GetGraphDebug(void) {
     return D_800556A0.level;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", DrawSyncCallback);
+u_long DrawSyncCallback(void (*func)()) {
+    void (*old)();
+
+    if (D_800556A0.level >= 2) {
+        D_8005569C("DrawSyncCallback(%08x)...\n", func);
+    }
+    old = D_800556A0.drawSyncCallback;
+    D_800556A0.drawSyncCallback = func;
+    return (u_long)old;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", SetDispMask);
 
