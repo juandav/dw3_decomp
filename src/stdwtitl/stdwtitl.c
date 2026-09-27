@@ -65,7 +65,9 @@ void STDWTITL_tickScreen(Task *task, ScreenChildren *children) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_start);
+Task *STDWTITL_start(void) {
+    return createTask(STDWTITL_tickScreen, sizeof(Task), sizeof(ScreenChildren));
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawLogo);
 
