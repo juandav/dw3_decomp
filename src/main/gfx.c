@@ -8,7 +8,20 @@ static Obj8001F22C *D_8005C4A8;
 static Obj8001F8F8 *D_8005C4B0;
 static Obj8001FBE0 *D_8005C4B8;
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D070);
+void func_8001D070(void) {
+    D_8004D5B8.unk14 += 0x100;
+    D_8004D5B8.unk1C += 0x100;
+    D_800484E8.playFrames += 0x100;
+    if (D_8004D5B8.vsyncFunc != NULL) {
+        D_8004D5B8.vsyncFunc(D_8004D5B8.unk4);
+    }
+    if (D_8005C498 != 0) {
+        D_8004D5B8.unk30 = !D_8004D5B8.unk30;
+        PutDispEnv(&D_8004D5B8.disp[D_8004D5B8.unk30]);
+    }
+    SsSeqCalledTbyT();
+    D_8005C498 = 0;
+}
 
 void func_8001D114(void) {
     VSyncCallback(func_8001D070);

@@ -742,7 +742,19 @@ void func_80016AC8(s32 item, s32 count) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80016B08);
+void func_80016B08(void) {
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < 40; i++) {
+        func_80016AC8(D_8004AC44[i], 1);
+    }
+    for (j = 0; j < 3; j++) {
+        for (i = 0; i < 40; i++) {
+            D_800484E8.unk628[j].items[i] = D_8004AC44[i];
+        }
+    }
+}
 
 void func_80016BA8(void) {
     D_800484E8.playTimeMaxed = 0;
@@ -777,7 +789,30 @@ s32 func_80016C74(u32 index) {
     return D_800484E8.records[D_800484E8.unk70[index]].unk4 - 3;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80016CC4);
+void func_80016CC4(s32 slot, u32 stat, s16 value) {
+    Unk80048C50 *d = &D_80048C50[slot];
+    s16 *p = d->stats;
+
+    if (stat < 19) {
+        p += stat;
+        *p = value;
+        if (value < 0) {
+            *p = 0;
+            return;
+        }
+        if (stat < 2) {
+            if (value >= 100) {
+                *p = 99;
+            }
+        } else if (stat - 2 < 4) {
+            if (value >= 10000) {
+                *p = 9999;
+            }
+        } else if (value >= 1000) {
+            *p = 999;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80016D64);
 

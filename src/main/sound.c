@@ -43,7 +43,17 @@ short func_80020534(s32 index, short prog, short note) {
     return SsUtKeyOn(D_80051194.sounds[index].vabId, prog, 0, note, 0, 0x7F, 0x7F);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_80020594);
+void func_80020594(s32 packed, s16 voice) {
+    s32 id = (packed >> 18) & 0x7F;
+    s32 prog = (packed >> 11) & 0x7F;
+    s32 tone = (packed >> 7) & 0xF;
+    s32 note = packed & 0x7F;
+    s32 index = func_8001FC68(id);
+
+    if (voice != -1 && index != -1) {
+        SsUtKeyOff(voice, D_80051194.sounds[index].vabId, prog, tone, note);
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/sound", func_80020638);
 

@@ -86,7 +86,7 @@ typedef struct Funcs800554D8 {
 } Funcs800554D8;
 
 typedef struct GfxState {
-    /* 0x00 */ s32 unk0;
+    /* 0x00 */ void (*vsyncFunc)(s32 arg);
     /* 0x04 */ s32 unk4;
     /* 0x08 */ s32 unk8;
     /* 0x0C */ s32 unkC;
@@ -297,6 +297,11 @@ typedef struct Unk80048C50Entry {
     /* 0x04 */ s32 unk4[4];
 } Unk80048C50Entry;
 
+typedef struct Unk628 {
+    /* 0x00 */ u8 unk0[0x16];
+    /* 0x16 */ u16 items[40];
+} Unk628;
+
 typedef struct Unk8004883C {
     /* 0x000 */ u8 unk0[4];
     /* 0x004 */ s32 unk4;
@@ -306,7 +311,9 @@ typedef struct Unk8004883C {
 } Unk8004883C;
 
 typedef struct Unk80048C50 {
-    /* 0x000 */ u8 unk0[0x50];
+    /* 0x000 */ u8 unk0[0x1C];
+    /* 0x01C */ s16 stats[19];
+    /* 0x042 */ u8 unk42[0xE];
     /* 0x050 */ Unk80048C50Entry unk50[44];
     /* 0x3C0 */ u8 unk3C0[0x1C];
 } Unk80048C50;
@@ -539,7 +546,9 @@ typedef struct Unk800484E8 {
     /* 0x007C */ s8 unk7C[0x193];
     /* 0x020F */ s8 unk20F[0x193];
     /* 0x03A2 */ s8 itemCounts[0x13D];
-    /* 0x04DF */ s8 itemFlags[0x27D];
+    /* 0x04DF */ s8 itemFlags[0x149];
+    /* 0x0628 */ Unk628 unk628[3];
+    /* 0x075A */ u8 unk75A[2];
     /* 0x075C */ Unk8004883C records[8];
     /* 0x263C */ u8 unk263C[0x80];
     /* 0x26BC */ s32 unk26BC;
@@ -580,6 +589,10 @@ Slot *func_80013AB4(void);
 void func_80013C08(s32);
 void func_80013CB4(void);
 void func_80016860(void);
+void SsSeqCalledTbyT(void);
+short SsUtKeyOff(short voice, short vabId, short prog, short tone, short note);
+s32 func_8001FC68(s32 id);
+void func_80016AC8(s32 item, s32 count);
 long MemCardSync(long mode, long *cmds, u_long *result);
 Resource *func_8001E1A0(DRAWENV *env, s32 arg1);
 s32 func_8001D6B4(s32 id);
@@ -672,7 +685,9 @@ extern Unk80041444 D_80041444[];
 extern u8 D_800427B4[];
 extern CdReader D_80044710;
 extern Unk80047F14 D_80047F14;
-extern void *(*D_80044B58)(void);
+extern u8 *(*D_80044B58)(s32 file);
+extern s32 D_8004D760[];
+extern s32 D_8004AC44[40];
 extern void *D_800100C8;
 extern Unk800554D0 D_800554D0;
 extern u8 D_8004AC38[][3];
