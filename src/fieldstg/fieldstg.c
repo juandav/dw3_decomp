@@ -362,7 +362,12 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008B930);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008B9D8);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008BBD4);
+void func_8008BBD4(Point from, Point to) {
+    Unk8008B9D8 *task = createTask(func_8008B9D8, sizeof(Unk8008B9D8), 0);
+
+    task->from = from;
+    task->to = to;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008BC30);
 
