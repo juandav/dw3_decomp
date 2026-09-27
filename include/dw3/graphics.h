@@ -215,6 +215,17 @@ typedef struct SpriteDrawer {
     /* 0x9C */ void (*setColor)(); /* (CVECTOR *) */
 } SpriteDrawer;
 
+/* One frame of a sprite animation; frame 0xFF ends it (or loops it) */
+typedef struct AnimFrame {
+    /* 0x0 */ s16 frame;
+    /* 0x2 */ s16 duration;
+} AnimFrame;
+
+typedef struct AnimState {
+    /* 0x0 */ s16 index;
+    /* 0x2 */ s16 timer;
+} AnimState;
+
 /* Text helpers (initTextTools) */
 typedef struct TextTools {
     /* 0x0 */ char *(*getString)(); /* (table, index) */

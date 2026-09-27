@@ -88,6 +88,10 @@ typedef struct PadState {
     /* 0x420 */ s32 (*isDemoPlaying)();
 } PadState;
 
+/* One button of pad 1: newly pressed, or auto-repeated while held */
+#define PAD_PRESSED(button) ((PAD.getPressed(0) >> PAD.getButtonBit(0, button)) & 1)
+#define PAD_REPEATED(button) ((PAD.getRepeated(0) >> PAD.getButtonBit(0, button)) & 1)
+
 void readPadButtons(s32 port, u8 *data, u8 *record);
 void updateVibration(u16 port);
 void resetButtonMap(u16 port);
