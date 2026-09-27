@@ -203,7 +203,23 @@ s32 func_8001366C(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800136CC);
+void func_800136CC(s32 arg0) {
+    if (arg0 == 1) {
+        if (func_8001366C() != 0) {
+            goto error;
+        }
+        func_8002E268((void *)D_80044710.unk24, 0x200);
+        D_80044710.unk24 += 0x800;
+        if (--D_80044710.unk20 != 0) {
+            return;
+        }
+    } else {
+    error:
+        D_80044710.unk20 = -1;
+    }
+    func_8002DE88(0);
+    CdControlF(9, 0);
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80013758);
 
@@ -477,11 +493,32 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_80014F2C);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_800151F0);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800153E8);
+s32 func_800153E8(s32 arg0) {
+    s32 ret = func_800151F0(arg0, 0);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80015420);
+    if (ret == 1) {
+        return 1;
+    }
+    return ret;
+}
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80015458);
+s32 func_80015420(s32 arg0) {
+    s32 ret = func_800151F0(arg0, 1);
+
+    if (ret == 1) {
+        return 1;
+    }
+    return ret;
+}
+
+s32 func_80015458(s32 arg0) {
+    s32 ret = func_800151F0(arg0, 2);
+
+    if (ret == 1) {
+        return 1;
+    }
+    return ret;
+}
 
 s32 func_80015490(void) {
     return 2;

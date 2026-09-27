@@ -103,7 +103,20 @@ Resource *func_8001D668(s32 id) {
     return NULL;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D6B4);
+s32 func_8001D6B4(s32 id) {
+    s32 i;
+
+    for (i = 0; i < 30; i++) {
+        if (id != 0) {
+            if (D_8004D5B8.resources[i] != NULL && D_8004D5B8.resourceIds[i] == id) {
+                return i;
+            }
+        } else if (D_8004D5B8.resources[i] == NULL) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 void func_8001D718(s32 index) {
     for (; index < 29; index++) {
