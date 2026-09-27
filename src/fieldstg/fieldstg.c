@@ -250,7 +250,11 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80088BE4);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80088C2C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80088C9C);
+void func_80088C9C(s32 arg0) {
+    D_8009A944 = arg0;
+    D_8009A940 = (u8 *)D_800990C4;
+    func_80088C2C();
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80088CD0);
 
