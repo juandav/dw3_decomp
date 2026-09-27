@@ -1925,7 +1925,18 @@ Task *func_8001B804(s32 arg0) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001B864);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001BA7C);
+Task *func_8001BA7C(s32 id, s32 arg1, s32 arg2) {
+    Task *task = func_800144DC(func_8001B864, 0x50, 8);
+    Unk8001BA7C *data = task->unk24;
+
+    data->window = func_8001AAB4(id, 1, 0x12, 0xB0);
+    data->window->methods[20](data->window, 3);
+    data->window->methods[1](data->window, arg1, arg2);
+    data->window->methods[13](data->window, 0);
+    data->window->methods[8](data->window, 6);
+    data->unk4 = func_8001B804(id);
+    return task;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001BB68);
 

@@ -123,7 +123,8 @@ typedef struct Task {
     /* 0x10 */ s32 substate;
     /* 0x14 */ s32 step;
     /* 0x18 */ s32 counter;
-    /* 0x1C */ u8 unk1C[0xC];
+    /* 0x1C */ u8 unk1C[8];
+    /* 0x24 */ void *unk24;
     /* 0x28 */ void (*unk28)(struct Task *, s32);
     /* 0x2C */ void (*unk2C)(struct Task *, s32);
     /* 0x30 */ u8 unk30[0x20];
@@ -264,7 +265,8 @@ typedef struct Unk80019DFC {
     /* 0xA6 */ s16 unkA6;
     /* 0xA8 */ s16 unkA8;
     /* 0xAA */ s16 unkAA;
-    /* 0xAC */ u8 unkAC[4];
+    /* 0xAC */ s16 unkAC;
+    /* 0xAE */ s16 unkAE;
     /* 0xB0 */ s16 unkB0;
     /* 0xB2 */ s16 unkB2;
     /* 0xB4 */ s16 unkB4;
@@ -287,7 +289,14 @@ typedef struct Unk80019DFC {
     /* 0xDC */ s32 unkDC;
     /* 0xE0 */ s32 unkE0;
     /* 0xE4 */ s32 unkE4;
+    /* 0xE8 */ u8 unkE8[0x28];
+    /* 0x110 */ void (*methods[25])();
 } Unk80019DFC;
+
+typedef struct Unk8001BA7C {
+    /* 0x0 */ Unk80019DFC *window;
+    /* 0x4 */ struct Task *unk4;
+} Unk8001BA7C;
 
 typedef struct Unk80041444 {
     /* 0x0 */ u8 unk0[8];
@@ -718,6 +727,8 @@ s32 func_800151F0(s32 arg0, s32 arg1);
 s32 func_8001366C(void);
 s32 func_80013880(void);
 void func_80013890(void);
+void func_8001B864();
+Unk80019DFC *func_8001AAB4(s16 id, s16 type, s16 x, s16 y);
 int CdPosToInt(void *pos);
 void func_8001B314(Task8001B3A0 *task, s32 *data, s32 arg2);
 void *func_8001B368(Task8001B3A0 *task);
