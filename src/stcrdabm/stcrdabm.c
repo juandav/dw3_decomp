@@ -199,7 +199,16 @@ void func_80082FE0(CardAlbumGrid *grid) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80083210);
+CardAlbumGrid *func_80083210(CardAlbum *album) {
+    CardAlbumGrid *grid = createTask(func_80082FE0, sizeof(CardAlbumGrid), 0);
+
+    grid->setPage = func_800828AC;
+    grid->hide = func_800828E4;
+    grid->layer = 0x1000;
+    grid->depth = 6;
+    grid->album = album;
+    return grid;
+}
 
 Task *func_80084DB8(void);
 
