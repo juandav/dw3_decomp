@@ -1,5 +1,8 @@
 #include "common.h"
 #include "stage.h"
+void func_800A5644();
+void func_800A5094();
+void func_800A4DF8();
 extern void (*D_800A79D4[])(void);
 void func_800A5AD4();
 
@@ -9,7 +12,9 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A4D04);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A4DF8);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A4F48);
+void *func_800A4F48(void) {
+    return createTask(func_800A4DF8, 0x60, 0);
+}
 
 s32 func_800A4F74(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
     AnimFrame *frame = &frames[obj->anim.index];
@@ -45,7 +50,9 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5458);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A54C8);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A54F8);
+void *func_800A54F8(void) {
+    return createTask(func_800A5094, 0x84, 0);
+}
 
 s32 func_800A5524(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
     AnimFrame *frame = &frames[obj->anim.index];
@@ -81,7 +88,9 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5A08);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5A78);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5AA8);
+void *func_800A5AA8(void) {
+    return createTask(func_800A5644, 0x84, 0);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5AD4);
 
