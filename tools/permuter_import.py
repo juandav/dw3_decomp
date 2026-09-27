@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Set up a decomp-permuter directory for one function.
 
-usage: tools/permuter_import.py draft.c func_name
+usage: [UNIT=<overlay>] tools/permuter_import.py draft.c func_name
 
 draft.c must compile on its own (the unit's header plus the draft of the
 function). The unit is taken from where the function's asm lives, which
@@ -27,6 +27,9 @@ DEFINES = (
 def main():
     draft, func = sys.argv[1], sys.argv[2]
     asm = glob.glob(f"{ROOT}/asm/*/nonmatchings/**/{func}.s", recursive=True)
+    # UNIT=<overlay> (or any part of the path) picks one when several
+    # overlays have a function at the same address, as in try_match.py
+    asm = [p for p in asm if os.environ.get("UNIT", "") in p.split(os.sep)]
     if not asm:
         sys.exit(f"no asm for {func}")
     asm = asm[0]
