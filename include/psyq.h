@@ -110,7 +110,10 @@ typedef struct McrdGlobal {
     /* 0x0C */ long unkC;
     /* 0x10 */ long unk10;
     /* 0x14 */ long fd;
-    /* 0x18 */ u8 unk18[0x2C];
+    /* 0x18 */ long unk18;
+    /* 0x1C */ long unk1C;
+    /* 0x20 */ long unk20;
+    /* 0x24 */ u8 unk24[0x20];
     /* 0x44 */ MemCB callback;
     /* 0x48 */ long unk48;
     /* 0x4C */ long unk4C;
