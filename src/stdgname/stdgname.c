@@ -266,7 +266,13 @@ INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800858D8);
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800859CC);
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80085ADC);
+void func_80085ADC(ScreenTask *task) {
+    ScreenChildren *children = task->children;
+    FadeTask *fade;
+
+    children->fade = fade = func_80082AC8();
+    fade->start(fade, 0, 30);
+}
 
 ScreenTask *func_80085B20(void) {
     ScreenTask *task = createTask(func_800859CC, sizeof(ScreenTask), sizeof(ScreenChildren));
