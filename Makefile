@@ -38,6 +38,9 @@ $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_DIV := --expand-div
 $(BUILDDIR)/src/main/psyq/%.c.o: PSYQ_CSE := -fno-rerun-cse-after-loop
 PSYQ_RERUN_CSE := libc2_puts libgpu_break libcd_bios_2
 $(PSYQ_RERUN_CSE:%=$(BUILDDIR)/src/main/psyq/%.c.o): PSYQ_CSE :=
+# Our GCC 2.7.2 binary-patched into the libraries' cc1 (see tools/patch_cc1.py)
+PSYQ_CC1 := $(BUILDDIR)/tools/gcc-2.7.2-psx/cc1
+$(BUILDDIR)/src/main/psyq/%.c.o: CC1 := $(PSYQ_CC1)
 MASPSX := $(PYTHON) external/maspsx/maspsx.py
 OBJDIFF ?= bin/objdiff-cli-linux-x86_64
 
@@ -97,6 +100,11 @@ $(EXE): $(ELF)
 
 $(ELF): $(OBJ) $(GENDIR)/main.ld config/undefined_syms.txt
 	$(LD) $(LDFLAGS) -o $@
+
+$(PSYQ_CC1): bin/gcc-2.7.2-psx/cc1 tools/patch_cc1.py
+	$(PYTHON) tools/patch_cc1.py $< $@
+
+$(filter $(BUILDDIR)/src/main/psyq/%,$(C_OBJ)): $(PSYQ_CC1)
 
 $(BUILDDIR)/%.c.o: %.c
 	@mkdir -p $(dir $@)

@@ -35,12 +35,15 @@ def main():
     extra, div = "", ""
     if unit == "psyq":
         div = " --expand-div"
-        cc1, g, post = "gcc-2.7.2-psx", 0, f"| python3 {ROOT}/tools/aspsx_reorder.py"
+        sys.path.insert(0, f"{ROOT}/tools")
+        import patch_cc1
+
+        cc1, g, post = patch_cc1.ensure(), 0, f"| python3 {ROOT}/tools/aspsx_reorder.py"
         # PSYQ_RERUN_CSE in the Makefile
         if not os.environ.get("RERUN"):
             extra = " -fno-rerun-cse-after-loop"
     else:
-        cc1, g, post = "gcc-2.8.1-psx", 8 if unit == "gfx" else 0, ""
+        cc1, g, post = f"{ROOT}/bin/gcc-2.8.1-psx/cc1", 8 if unit == "gfx" else 0, ""
 
     out = f"{ROOT}/permuter/{func}"
     os.makedirs(out, exist_ok=True)
@@ -66,7 +69,7 @@ def main():
 # usage: compile.sh input.c -o output.o
 set -e
 IN="$1"; OUT="$3"; T="$OUT.tmp"
-{ROOT}/bin/{cc1}/cc1 -quiet -O2 -G{g} -mips1 -mcpu=3000 -mgas -msoft-float \\
+{cc1} -quiet -O2 -G{g} -mips1 -mcpu=3000 -mgas -msoft-float \\
     -fsigned-char -fno-builtin -fdollars-in-identifiers -w{extra} -o "$T.s" "$IN"
 python3 {ROOT}/external/maspsx/maspsx.py --aspsx-version=2.86 -G{g} \\
     --use-comm-section --use-comm-for-lcomm{div} < "$T.s" {post} > "$T.ms.s"

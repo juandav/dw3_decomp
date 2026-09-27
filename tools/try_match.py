@@ -5,7 +5,9 @@ byte-wise against SLUS_014.36, with relocated fields masked.
 usage: tools/try_match.py draft.c [func ...]
 
 CC1=bin/gcc-2.7.2-psx/cc1 selects the PsyQ toolchain, which builds without
-the second CSE pass unless RERUN=1 (see PSYQ_RERUN_CSE in the Makefile).
+the second CSE pass unless RERUN=1 (see PSYQ_RERUN_CSE in the Makefile). Like
+the Makefile it then runs the patched cc1 from tools/patch_cc1.py
+(STOCK_CC1=1 keeps the unpatched one).
 
 Functions that differ are printed side by side (ours | original) with the
 differing instructions marked with **.
@@ -19,6 +21,8 @@ w=os.path.join(tempfile.mkdtemp(prefix='try_match_'),'draft')
 cc1=os.environ.get('CC1',f'{D}/bin/gcc-2.8.1-psx/cc1')
 cflags=os.environ.get('CFLAGS','-O2 -G0 -fsigned-char -fno-builtin -fdollars-in-identifiers')
 psyq='2.7.2' in cc1
+if psyq and os.path.realpath(cc1)==os.path.realpath(f'{D}/bin/gcc-2.7.2-psx/cc1') and not os.environ.get('STOCK_CC1'):
+    sys.path.insert(0,f'{D}/tools'); import patch_cc1; cc1=patch_cc1.ensure()  # what the Makefile uses
 if psyq and not os.environ.get('RERUN'): cflags+=' -fno-rerun-cse-after-loop'
 mflags=os.environ.get('MASPSXFLAGS','--aspsx-version=2.86'+(' --expand-div' if psyq else ''))
 post=f'| python3 {D}/tools/aspsx_reorder.py' if (psyq or os.environ.get('REORDER')) else ''
