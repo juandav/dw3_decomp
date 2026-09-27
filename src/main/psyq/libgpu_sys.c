@@ -652,9 +652,9 @@ int func_8002783C(int mode) {
     if (n != 0) {
         func_800274A0();
     }
-    if (((*(volatile u_long *)D_800557B4 & 0x01000000) ||
-         !(*(volatile u_long *)D_800557A8 & 0x04000000)) && n == 0) {
-        return 1;
+    if ((*(volatile u_long *)D_800557B4 & 0x01000000) ||
+        !(*(volatile u_long *)D_800557A8 & 0x04000000)) {
+        return n ? n : 1;
     }
     return n;
 }
