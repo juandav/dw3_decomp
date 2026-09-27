@@ -355,7 +355,8 @@ typedef struct Unk80019DFC {
     /* 0xDC */ s32 unkDC;
     /* 0xE0 */ s32 unkE0;
     /* 0xE4 */ s32 unkE4;
-    /* 0xE8 */ u8 unkE8[0x28];
+    /* 0xE8 */ SVECTOR rot;
+    /* 0xF0 */ MATRIX mat;
     /* 0x110 */ void (*m110)();
     /* 0x114 */ void (*m114)();
     /* 0x118 */ void (*m118)();
@@ -437,9 +438,26 @@ typedef struct TextStyle {
     /* 0x16 */ s16 unk16;
 } TextStyle;
 
+/* One glyph of a font sheet */
+typedef struct Glyph {
+    /* 0x0 */ u8 page; /* 0xFF: missing glyph */
+    /* 0x1 */ u8 u;
+    /* 0x2 */ u8 v;
+    /* 0x3 */ u8 clutX;
+    /* 0x4 */ u8 clutY;
+    /* 0x5 */ u8 w;
+    /* 0x6 */ u8 h;
+    /* 0x7 */ s8 dx;
+    /* 0x8 */ s8 dy;
+    /* 0x9 */ u8 advance;
+} Glyph;
+
+/* Text drawing state shared with the control-code handlers */
 typedef struct TextWait {
-    /* 0x00 */ u8 unk0[0xC];
-    /* 0x0C */ s32 unkC;
+    /* 0x00 */ void *prim;
+    /* 0x04 */ Resource *res;
+    /* 0x08 */ u_long *ot;
+    /* 0x0C */ Glyph *glyph;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ s16 unk14;
     /* 0x16 */ s16 unk16;

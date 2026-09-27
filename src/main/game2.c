@@ -1930,7 +1930,159 @@ INCLUDE_RODATA("asm/main/nonmatchings/game2", D_80010230);
 
 INCLUDE_RODATA("asm/main/nonmatchings/game2", D_80010268);
 
-INCLUDE_ASM("asm/main/nonmatchings/game2", func_80019420);
+void func_80019420(Unk80019DFC *obj) {
+    TextWait wait;
+    SVECTOR out;
+    SVECTOR in[4];
+    TextBuffer *text;
+    u16 clut;
+    u16 prevTpage;
+    s32 rotated;
+    s16 c;
+    s16 x;
+    s16 y;
+    u16 tpage;
+    u8 u;
+    u8 v;
+    s32 i;
+    s32 j;
+
+    prevTpage = 0;
+    tpage = 0;
+    rotated = 0;
+    if (obj->text[0].data == NULL) {
+        obj->unkC1 = 0;
+        return;
+    }
+    for (i = 5; i >= 0; i--) {
+        obj->text[i].pos = 0;
+    }
+    obj->unkC3 = 0;
+    obj->unkB8 = -obj->unkBC;
+    wait.unk18 = 0;
+    text = obj->text;
+    obj->unkBA = 0;
+    if (obj->unkCC != 0) {
+        if (obj->unkD0 == 0 && obj->unkD4 == 0) {
+            return;
+        }
+        if (obj->unkD0 == 0x1000 && obj->unkD4 == obj->unkD0) {
+            obj->unkCC = 0;
+        } else {
+            rotated = 1;
+            RotMatrixYXZ_gte(&obj->rot, &obj->mat);
+            ScaleMatrix(&obj->mat, (VECTOR *)&obj->unkD0);
+        }
+    }
+    i = 0;
+    wait.res = D_8004D5B8.funcs.unk2C(obj->unk54);
+    wait.ot = (u_long *)wait.res->unk138(wait.res, obj->unk58);
+    wait.prim = D_8004D5B8.funcs.allocPrim();
+    text->pos = obj->unkA6;
+    while (i < (s16)obj->unkA4 - obj->unkA6) {
+        if (obj->unkC3 != 0) {
+            break;
+        }
+        c = D_8004D5A8.decode(text->data + text->pos, (u8)text->dirty, obj->unk50);
+        wait.unk14 = c;
+        wait.unk16 = (u32)(c << 16) >> 24;
+        switch (func_8001A108(obj, text, &wait, &text->pos)) {
+        case 1:
+            i++;
+            goto draw;
+        case 4:
+            i++;
+            continue;
+        case 2:
+        draw:
+            if (wait.glyph->page == 0xFF) {
+                wait.glyph = *(Glyph **)(obj->unk50 + 4);
+            }
+            x = obj->unkB8 + (obj->unkB0 + wait.glyph->dx);
+            y = obj->unkBA + (obj->unkB2 + wait.glyph->dy);
+            clut = getClut(obj->unkAC + wait.glyph->clutX, obj->unkC0 + (obj->unkAE + wait.glyph->clutY));
+            u = wait.glyph->u;
+            v = wait.glyph->v;
+            if ((s8)obj->unkBE == -1) {
+                tpage = getTPage(0, 1, obj->unkAC + (wait.glyph->page << 6), obj->unkAE);
+            } else {
+                tpage = getTPage(0, obj->unkBE & 3, obj->unkAC + (wait.glyph->page << 6), obj->unkAE);
+            }
+            if (!rotated) {
+                if (i == 0) {
+                    prevTpage = tpage;
+                }
+                if (tpage != prevTpage) {
+                    SetDrawTPage(wait.prim, 0, 1, prevTpage);
+                    addPrim(wait.ot, wait.prim);
+                    prevTpage = tpage;
+                    wait.prim = (DR_TPAGE *)wait.prim + 1;
+                }
+                setlen((SPRT *)wait.prim, 4);
+                setcode((SPRT *)wait.prim, 0x64);
+                if ((s8)obj->unkBE != -1) {
+                    setSemiTrans((SPRT *)wait.prim, 1);
+                }
+                ((SPRT *)wait.prim)->r0 = ((SPRT *)wait.prim)->g0 = ((SPRT *)wait.prim)->b0 = 0x80;
+                ((SPRT *)wait.prim)->x0 = x;
+                ((SPRT *)wait.prim)->y0 = y;
+                ((SPRT *)wait.prim)->u0 = u;
+                ((SPRT *)wait.prim)->v0 = v;
+                ((SPRT *)wait.prim)->w = wait.glyph->w;
+                ((SPRT *)wait.prim)->h = wait.glyph->h;
+                ((SPRT *)wait.prim)->clut = clut;
+                addPrim(wait.ot, wait.prim);
+                wait.prim = (SPRT *)wait.prim + 1;
+                SetDrawTPage(wait.prim, 0, 1, tpage);
+                addPrim(wait.ot, wait.prim);
+                wait.prim = (DR_TPAGE *)wait.prim + 1;
+            } else {
+                setlen((POLY_FT4 *)wait.prim, 9);
+                setcode((POLY_FT4 *)wait.prim, 0x2C);
+                ((POLY_FT4 *)wait.prim)->r0 = ((POLY_FT4 *)wait.prim)->g0 = ((POLY_FT4 *)wait.prim)->b0 = 0x80;
+                in[0].vx = in[2].vx = x - obj->unkE0;
+                in[1].vx = in[3].vx = in[0].vx + wait.glyph->w;
+                in[0].vy = in[1].vy = y - obj->unkE4;
+                in[2].vy = in[3].vy = in[0].vy + wait.glyph->h;
+                in[0].vz = in[1].vz = in[2].vz = in[3].vz = 0;
+                for (j = 0; j < 4; j++) {
+                    ApplyMatrixSV(&obj->mat, &in[j], &out);
+                    (&((POLY_FT4 *)wait.prim)->x0)[j * 4] = out.vx + obj->unkE0;
+                    (&((POLY_FT4 *)wait.prim)->y0)[j * 4] = out.vy + obj->unkE4;
+                }
+                ((POLY_FT4 *)wait.prim)->u0 = ((POLY_FT4 *)wait.prim)->u2 = u;
+                ((POLY_FT4 *)wait.prim)->u1 = ((POLY_FT4 *)wait.prim)->u3 = ((POLY_FT4 *)wait.prim)->u0 + wait.glyph->w - 1;
+                ((POLY_FT4 *)wait.prim)->v0 = ((POLY_FT4 *)wait.prim)->v1 = v;
+                ((POLY_FT4 *)wait.prim)->v2 = ((POLY_FT4 *)wait.prim)->v3 = ((POLY_FT4 *)wait.prim)->v0 + wait.glyph->h - 1;
+                if ((s8)obj->unkBE != -1) {
+                    setSemiTrans((POLY_FT4 *)wait.prim, 1);
+                }
+                ((POLY_FT4 *)wait.prim)->tpage = tpage;
+                ((POLY_FT4 *)wait.prim)->clut = clut;
+                addPrim(wait.ot, wait.prim);
+                wait.prim = (POLY_FT4 *)wait.prim + 1;
+            }
+            if (obj->unkC2 != 0) {
+                obj->unkB8 += obj->unkB4;
+            } else {
+                obj->unkB8 += wait.glyph->advance + wait.glyph->dx;
+            }
+            break;
+        case 3:
+            break;
+        case 0:
+        default:
+            goto end;
+        }
+    }
+    if (!rotated) {
+        SetDrawTPage(wait.prim, 0, 1, tpage);
+        addPrim(wait.ot, wait.prim);
+        wait.prim = (DR_TPAGE *)wait.prim + 1;
+    }
+end:
+    D_8004D708.setPrimEnd(wait.prim);
+}
 
 void func_80019C2C(Unk80019DFC *obj) {
     s32 extra;
