@@ -662,7 +662,7 @@ typedef struct CdReader {
 typedef struct Unk80044744 {
     /* 0x000 */ s32 unk0;
     /* 0x004 */ Slot slots[64];
-    /* 0x404 */ u8 unk404[4];
+    /* 0x404 */ s32 (*unk404)(s32);
     /* 0x408 */ void (*outOfMemory)(void);
     /* 0x40C */ void (*unk40C)(s32);
     /* 0x410 */ void (*unk410)(void);
