@@ -70,7 +70,7 @@ typedef struct Funcs8004D708 {
     /* 0x30 */ void (*unk30)();
     /* 0x34 */ void (*unk34)();
     /* 0x38 */ s32 (*unk38)(void);
-    /* 0x3C */ void (*unk3C)();
+    /* 0x3C */ s32 (*unk3C)(void);
 } Funcs8004D708;
 
 typedef struct SoundFuncs {
@@ -150,9 +150,12 @@ typedef struct Task80011FBC {
 } Task80011FBC;
 
 typedef struct Task8001ACC8 {
-    /* 0x00 */ u8 unk0[0x10];
+    /* 0x00 */ u8 unk0[0xC];
+    /* 0x0C */ s32 state;
     /* 0x10 */ s32 unk10;
-    /* 0x14 */ u8 unk14[0x3C];
+    /* 0x14 */ u8 unk14[0x24];
+    /* 0x38 */ void (*unk38)(struct Task8001ACC8 *);
+    /* 0x3C */ u8 unk3C[0x14];
     /* 0x50 */ s32 unk50;
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
@@ -349,10 +352,10 @@ typedef struct Unk80019DFC {
     /* 0x12C */ void (*m12C)();
     /* 0x130 */ void (*m130)();
     /* 0x134 */ void (*setPos)(struct Unk80019DFC *obj, s16 x, s16 y);
-    /* 0x138 */ void (*m138)();
+    /* 0x138 */ void (*m138)(struct Unk80019DFC *obj, u8 arg);
     /* 0x13C */ void (*m13C)();
     /* 0x140 */ void (*m140)();
-    /* 0x144 */ void (*m144)();
+    /* 0x144 */ void (*m144)(struct Unk80019DFC *obj, u8 arg);
     /* 0x148 */ void (*m148)();
     /* 0x14C */ void (*m14C)();
     /* 0x150 */ void (*m150)();
@@ -766,7 +769,11 @@ typedef struct Unk80047F14 {
     /* 0xA0 */ s32 unkA0;
     /* 0xA4 */ s32 fileCount;
     /* 0xA8 */ CardDirEntry files[15];
-    /* 0x300 */ u8 unk300[0x14];
+    /* 0x300 */ s32 progress;
+    /* 0x304 */ s32 offset;
+    /* 0x308 */ s32 unk308;
+    /* 0x30C */ s32 unk30C;
+    /* 0x310 */ s32 unk310;
     /* 0x314 */ s32 iconCount;
     /* 0x318 */ s32 icons[3];
 } Unk80047F14;
@@ -857,6 +864,11 @@ typedef struct Unk800484E8 {
 } Unk800484E8;
 
 void PadStartCom(void);
+int PadInitMtap(unsigned char *p1, unsigned char *p2);
+void PadInitDirect(unsigned char *p1, unsigned char *p2);
+void func_80018868(s32 port, u8 *data, u8 *record);
+void func_80018EA0(u16 port);
+void PadSetAct(int port, unsigned char *data, int len);
 void func_8001DBB0();
 void func_8001B490(struct Task8001B6A8 *task);
 void func_8001B5AC(struct Task8001B6A8 *task);
@@ -907,6 +919,8 @@ long MemCardExist(long chan);
 long MemCardAccept(long chan);
 long MemCardCreateFile(long chan, char *file, long blocks);
 long MemCardFormat(long chan);
+long MemCardReadFile(long chan, char *file, void *adrs, long ofs, long bytes);
+long MemCardWriteFile(long chan, char *file, void *adrs, long ofs, long bytes);
 long MemCardUnformat(long chan);
 long MemCardGetDirentry(long chan, char *name, CardDirEntry *dir, long *files, long ofs, long max);
 Resource *func_8001E1A0(DRAWENV *env, s32 depth);
@@ -1027,6 +1041,7 @@ extern u8 D_800427B4[];
 extern s32 D_800483F8[];
 extern u8 D_8004AB5F[];
 extern u8 D_8004829C[];
+extern char *D_8004D488[];
 extern u8 D_8004AB88[];
 extern u8 D_8004AB6A[];
 extern u8 D_8004AB56[];

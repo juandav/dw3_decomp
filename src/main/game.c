@@ -1638,7 +1638,33 @@ void func_80017F64(Task *task) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80017FAC);
+void func_80017FAC(s32 multitap, s32 arg1) {
+    s32 i;
+    s32 j;
+    s16 count;
+
+    D_8004AD84.bzero(&D_8004AF78, 0x3E0);
+    D_8004AD84.memset(D_8004AF78.act, 0xFF, sizeof(D_8004AF78.act));
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 4; j++) {
+            func_8001855C((i * 16 + j) & 0xFF);
+        }
+    }
+    if (multitap != 0) {
+        PadInitMtap(D_8004AF78.buf[0], D_8004AF78.buf[1]);
+        D_8004AF78.flags |= 0x80000000;
+    } else {
+        PadInitDirect(D_8004AF78.buf[0], D_8004AF78.buf[1]);
+    }
+    arg1 &= 0x7F;
+    D_8004AF78.unk3D4 = (u8)arg1;
+    count = (u8)arg1;
+    D_8004AF78.flags |= 0x40000000;
+    if (count == 0) {
+        D_8004AF78.unk3D4 = 0x10;
+    }
+    func_800180FC();
+}
 
 void func_800180D8(void) {
     func_8001816C();
@@ -1664,7 +1690,37 @@ void func_8001816C(void) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_800181B8);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001837C);
+s32 func_8001837C(u16 port, s32 motor, s16 time, u8 value) {
+    u8 id = port;
+    s32 mode;
+    PadSlot *slot;
+    s16 t;
+    s32 pad;
+
+    t = time;
+    if (!(D_8004AF78.flags & 0x08000000)) {
+        return 0;
+    }
+    if (func_80018774(id) == 0) {
+        return 0;
+    }
+    mode = PadInfoMode(id, 2, 0);
+    pad = id >> 4;
+    slot = &D_8004AF78.slots[pad][port & 3];
+    if (mode == 4 || mode == 7) {
+        D_8004AF78.act[pad][motor & 1] = value;
+    } else {
+        D_8004AF78.act[pad][0] = 0x40;
+        D_8004AF78.act[pad][1] = 1;
+    }
+    if (slot->actTimers[motor] <= 0) {
+        slot->actTimers[motor] = t;
+    } else if (t == 0) {
+        slot->actTimers[motor] = 0;
+    }
+    PadSetAct(id, D_8004AF78.act[pad], 2);
+    return 1;
+}
 
 u16 func_800184F0(s32 pad) {
     return D_8004AF78.slots[pad][0].unk0;
@@ -1740,7 +1796,23 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_80018774);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80018868);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80018BC0);
+s32 func_80018BC0(u16 port, u8 *data) {
+    u8 id = port;
+    s32 mode;
+
+    if (*data != 0 || func_80018774(id & 0xFF) == 0) {
+        D_8004AF78.slots[(id >> 4) & 1][port & 3].unk0 = 0;
+        D_8004AF78.slots[(id >> 4) & 1][port & 3].unk2 = 0;
+        D_8004AF78.slots[(id >> 4) & 1][port & 3].unk6 = 0;
+        return 0;
+    }
+    mode = PadInfoMode(id & 0xFF, 2, 0);
+    if (mode == 4 || mode == 7) {
+        func_80018EA0(id & 0xFF);
+    }
+    func_80018868(id & 0xFF, data, 0);
+    return 1;
+}
 
 s32 func_80018CA8(s32 port, s32 on) {
     u32 id = port & 0xFF;
@@ -1767,7 +1839,21 @@ s32 func_80018CA8(s32 port, s32 on) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80018DC4);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80018EA0);
+void func_80018EA0(u16 port) {
+    u8 id = port;
+    s32 i;
+    PadSlot *slot = &D_8004AF78.slots[id >> 4][port & 3];
+
+    for (i = 0; i < 2; i++) {
+        if (slot->actTimers[i] != 0) {
+            if ((slot->actTimers[i] -= D_8004D5B8.funcs.unk3C()) <= 0) {
+                slot->actTimers[i] = 0;
+                D_8004AF78.act[id >> 4][i] = 0;
+            }
+            PadSetAct(port & 0xFF, D_8004AF78.act[id >> 4], 2);
+        }
+    }
+}
 
 void func_80018FA8(s32 arg0) {
     D_8004D3AC = arg0 & 0xFFF;
@@ -2330,7 +2416,54 @@ void func_8001AD18(Task8001ACC8 *task, s32 arg1) {
     task->unk7C = arg1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001AD20);
+void func_8001AD20(Task8001ACC8 *task, Unk80019DFC **win) {
+    switch (task->state) {
+    case 0:
+    default:
+        if (*win == NULL) {
+            *win = func_8001AAB4(task->unk50, 1, task->unk58, task->unk5C);
+        }
+        (*win)->m110(*win, D_8004D488[task->unk6C]);
+        (*win)->m144(*win, task->unk64);
+        (*win)->m15C(*win, task->unk54);
+        task->unk70 = D_8004D708.unk38();
+        task->unk38(task);
+        break;
+    case 1:
+        if (task->dirty != 0) {
+            (*win)->m144(*win, task->unk64);
+            (*win)->setPos(*win, task->unk58, task->unk5C);
+            (*win)->m138(*win, task->unk60);
+            task->dirty = 0;
+        }
+        if (task->unk64 != 0) {
+            if (task->unk7C != 0) {
+                if (task->unk6C != 0) {
+                    task->unk6C = 0;
+                    (*win)->m110(*win, D_8004D488[0]);
+                }
+            } else if (task->unk10 == 0) {
+                if ((D_8004D5B8.funcs.unk38() - task->unk70) / task->unk74 != 0) {
+                    task->unk70 = D_8004D5B8.funcs.unk38();
+                    task->unk6C = 1;
+                    (*win)->m110(*win, D_8004D488[1]);
+                    task->unk10 = 1;
+                }
+            } else if ((D_8004D5B8.funcs.unk38() - task->unk70) / task->unk78 != 0) {
+                task->unk70 = D_8004D5B8.funcs.unk38();
+                if (++task->unk6C >= 5) {
+                    task->unk6C = 0;
+                    task->unk10 = 0;
+                }
+                (*win)->m110(*win, D_8004D488[task->unk6C]);
+            }
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001AFE0);
 
