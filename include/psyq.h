@@ -33,9 +33,16 @@ typedef struct VmVoice {
     /* 0x00 */ short unk0;
     /* 0x02 */ short unk2;
     /* 0x04 */ short unk4;
-    /* 0x06 */ u8 unk6[0x17];
+    /* 0x06 */ short unk6;
+    /* 0x08 */ u8 unk8[8];
+    /* 0x10 */ short unk10;
+    /* 0x12 */ short unk12;
+    /* 0x14 */ short unk14;
+    /* 0x16 */ short unk16;
+    /* 0x18 */ u8 unk18[5];
     /* 0x1D */ u8 unk1D;
-    /* 0x1E */ u8 unk1E[0x1A];
+    /* 0x1E */ u8 unk1E[0x18];
+    /* 0x36 */ short unk36;
 } VmVoice;
 extern VmVoice D_800815D0[];
 
