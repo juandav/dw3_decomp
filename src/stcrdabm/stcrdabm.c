@@ -533,7 +533,13 @@ void func_80084C8C(CardAlbum *album, CardAlbumWindows *win) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80084DB8);
+Task *func_80084DB8(void) {
+    CardAlbum *album = createTask(func_80084C8C, sizeof(CardAlbum), sizeof(CardAlbumWindows));
+
+    album->layer = 0x1000;
+    album->depth = 7;
+    return (Task *)album;
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80084DF4);
 
