@@ -59,6 +59,13 @@ void func_80038C28(void) {
     *D_8005BA3C = (*D_8005BA3C & 0xF0FFFFFF) | 0x22000000;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_Fw1ts);
+void _spu_Fw1ts(void) {
+    volatile int i;
+    volatile int n = 13;
+
+    for (i = 0; i < 60; i += 1) {
+        n *= 13;
+    }
+}
 
 OBJECT_END();
