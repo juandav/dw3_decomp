@@ -289,14 +289,14 @@ int _padLoadActInfo(PadPort *p, int n) {
     }
     len = ((n + 3) >> 2) << 2;
     p->unk49 = 4;
-    p->unk0 = len;
+    p->unk0 = (u_short *)len;
     p->unk46 = 1;
     p->unk14 = func_80023D9C;
     p->unk18 = func_80023E44;
     p->unk47[0] = 0;
     size = len + ((p->unkE3 + 1) >> 1) * 4;
-    p->unk4 = size;
-    p->unk8 = size + ((p->unkE9 * 5 + 3) & 0xFFC);
+    p->unk4 = (PadActInfo *)size;
+    p->unk8 = (PadRecvBlock *)(size + ((p->unkE9 * 5 + 3) & 0xFFC));
     return 1;
 }
 
