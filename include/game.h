@@ -192,6 +192,24 @@ typedef struct Task8001B6A8 {
     /* 0x6A */ s16 unk6A;
 } Task8001B6A8;
 
+typedef struct Unk8001BB68 {
+    /* 0x00 */ u8 unk0[0x54];
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s32 type;
+    /* 0x5C */ u8 unk5C[4];
+    /* 0x60 */ s16 x;
+    /* 0x62 */ s16 y;
+    /* 0x64 */ s16 w;
+} Unk8001BB68;
+
+typedef struct Task8001BB68 {
+    /* 0x00 */ u8 unk0[0x50];
+    /* 0x50 */ Unk8001BB68 *parent;
+    /* 0x54 */ s32 frame;
+    /* 0x58 */ s32 time;
+    /* 0x5C */ u8 visible;
+} Task8001BB68;
+
 typedef struct Task8001B3A0 {
     /* 0x00 */ u8 unk0[0xC];
     /* 0x0C */ s32 state;
@@ -321,7 +339,9 @@ typedef struct Unk8004D49C {
     /* 0x00 */ u8 unk0[8];
     /* 0x08 */ u16 unk8;
     /* 0x0A */ u16 unkA;
-    /* 0x0C */ u8 unkC[0x14];
+    /* 0x0C */ u8 unkC[0x10];
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
 } Unk8004D49C;
 
 typedef struct TextFont {
@@ -539,6 +559,7 @@ typedef struct Unk80044744 {
     /* 0x418 */ void (*unk418)(s32);
     /* 0x41C */ u8 unk41C[8];
     /* 0x424 */ s32 (*unk424)(s32);
+    /* 0x428 */ u8 *(*unk428)(s32 index, s32 arg);
 } Unk80044744;
 
 typedef struct Unk80017ECC {
@@ -742,7 +763,7 @@ void func_8001C168(Task8001C454 *task);
 void func_80029598(s32);
 void func_8001FBE0(Obj8001FBE0 *obj);
 void func_80020074(s32 index, s32 id);
-void func_8001BB68(Task *task);
+void func_8001BB68(struct Task8001BB68 *task);
 void func_8001BCCC(Task *task);
 s32 *func_80013E34(u32 id);
 void func_80013758();

@@ -75,7 +75,26 @@ void func_80011DF0(Task80011FBC *task, s32 fadeOut, s32 duration) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80011E78);
+void func_80011E78(Task80011FBC *task) {
+    Resource *res = D_8004D5B8.funcs.unk2C(task->unk50);
+    u_long *ot = (u_long *)res->unk138(res, task->unk54);
+    POLY_F4 *poly = D_8004D5B8.funcs.allocPrim();
+    DR_TPAGE *mode;
+
+    setlen(poly, 5);
+    poly->code = 0x2A;
+    poly->r0 = poly->g0 = poly->b0 = task->level >> 8;
+    poly->x0 = poly->x2 = 0;
+    poly->x1 = poly->x3 = 320;
+    poly->y0 = poly->y1 = 0;
+    poly->y2 = poly->y3 = 256;
+    addPrim(ot, poly);
+    mode = (DR_TPAGE *)(poly + 1);
+    setlen(mode, 1);
+    mode->code[0] = 0xE1000245;
+    addPrim(ot, mode);
+    D_8004D5B8.funcs.setPrimEnd(mode + 1);
+}
 
 void func_80011FBC(Task80011FBC *task) {
     switch (task->state) {
