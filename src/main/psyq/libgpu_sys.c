@@ -398,7 +398,46 @@ int func_800271CC(int (*func)(), u_long *param, u_long value) {
     return func_800271F0(func, param, 0, value);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800271F0);
+int func_800271F0(int (*func)(), u_long *param, int size, u_long value) {
+    int i;
+    u_long v;
+    GpuDebug *dbg;
+
+    func_80027978();
+    while (((D_800557C8 + 1) & 0x3F) == D_800557CC) {
+        if (func_800279AC() != 0) {
+            return -1;
+        }
+        func_800274A0();
+    }
+    D_800557D0 = SetIntrMask(0);
+    dbg = &D_800556A0;
+    dbg->unk8 = 1;
+    if (dbg->unk1 == 0 || (D_800557C8 == D_800557CC && !(*(volatile u_long *)D_800557B4 & 0x01000000) &&
+                           dbg->drawSyncCallback == NULL)) {
+        do {
+        } while (!(*(volatile u_long *)D_800557A8 & 0x04000000));
+        func(param, value);
+        SetIntrMask(D_800557D0);
+        return 0;
+    }
+    DMACallback(2, func_800274A0);
+    if (size != 0) {
+        for (i = 0; i < size / 4; i++) {
+            v = param[i];
+            D_8007F198[D_800557C8].data[i] = v;
+        }
+        D_8007F198[D_800557C8].param = (u_long *)D_8007F198[D_800557C8].data;
+    } else {
+        D_8007F198[D_800557C8].param = param;
+    }
+    D_8007F198[D_800557C8].value = value;
+    D_8007F198[D_800557C8].func = func;
+    D_800557C8 = (D_800557C8 + 1) & 0x3F;
+    SetIntrMask(D_800557D0);
+    func_800274A0();
+    return (D_800557C8 - D_800557CC) & 0x3F;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800274A0);
 
