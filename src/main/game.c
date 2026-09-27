@@ -815,7 +815,60 @@ s32 func_80015584(s32 op, s32 arg) {
     return ret;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800155F8);
+s32 func_800155F8(u32 op, s32 arg) {
+    s32 result = 0;
+    s32 i;
+    s32 total;
+    s32 id;
+
+    switch (op) {
+    case 0:
+        if (D_8004AB28 == arg) {
+            result = 1;
+        }
+        break;
+    case 1:
+        if (D_800484E8.records[arg].unk4 != 0) {
+            result = 1;
+        }
+        break;
+    case 2:
+        for (i = 0; i < 3; i++) {
+            if (D_800484E8.unk270C(i) == arg) {
+                result = 1;
+                break;
+            }
+        }
+        break;
+    case 3:
+        D_800484E8.records[arg].unk4 = arg + 3;
+        result = 1;
+        break;
+    case 4:
+        if (D_800484E8.records[arg].unk4 != 0 && D_800484E8.records[arg].unk28 >= 0x2D) {
+            result = 1;
+        }
+        break;
+    case 5:
+        total = 0;
+        for (i = 0; i < 3; i++) {
+            id = D_800484E8.unk270C(i);
+            if (id >= 0) {
+                total += D_800484E8.unk2744(id)->unk1C;
+            }
+        }
+        if (total >= arg * 15 + 30) {
+            result = 1;
+        }
+        break;
+    case 6:
+        if (D_800484E8.records[arg].unk4 == 0) {
+            result = 1;
+        }
+        break;
+    }
+    return result;
+}
 
 s32 func_80015814(s32 op, s32 item) {
     s32 ret = 0;

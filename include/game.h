@@ -674,7 +674,9 @@ typedef struct Unk2728 {
 } Unk2728;
 
 typedef struct Unk2744 {
-    /* 0x00 */ u8 unk0[0x20];
+    /* 0x00 */ u8 unk0[0x1C];
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ u8 unk1E[2];
     /* 0x20 */ u16 unk20;
     /* 0x22 */ u16 unk22;
     /* 0x24 */ u16 unk24;
@@ -815,7 +817,7 @@ void func_8001B490(struct Task8001B6A8 *task);
 void func_8001B5AC(struct Task8001B6A8 *task);
 void func_8001D9C0(struct DrawContext *ctx);
 s32 func_80015DD8(s32 slot, s32 item);
-s32 func_800155F8(s32 op, s32 arg);
+s32 func_800155F8(u32 op, s32 arg);
 void func_80020218(void);
 s32 func_80020064(void);
 void func_800345B8(void);
