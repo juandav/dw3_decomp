@@ -16,6 +16,14 @@ long StopRCnt(u_long spec) {
     return 1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libapi_counter", ResetRCnt);
+long ResetRCnt(unsigned long spec) {
+    int c = spec & 0xFFFF;
+
+    if (c >= 3) {
+        return 0;
+    }
+    D_8005B86C[c * 8] = 0;
+    return 1;
+}
 
 OBJECT_END();
