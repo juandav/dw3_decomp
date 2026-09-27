@@ -476,7 +476,51 @@ MemCB MemCardCallback(MemCB func) {
     return old;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardSync);
+extern volatile long D_80082058[2]; /* last command and result, passed to the callback */
+
+long MemCardSync(long mode, long *cmds, long *rslt) {
+    volatile McrdGlobal *g = &D_80082068;
+    long cmd, res;
+    volatile long *done;
+
+    if (g->unk0 == 0 && g->unk8 == 0) {
+        return -1;
+    }
+    cmd = g->unk0;
+    res = g->unk4;
+    if (mode == 0) {
+        if (g->unk8 == 0) {
+            done = &g->unk8;
+            do {
+            } while (*done == 0);
+        }
+        if (rslt != NULL) {
+            *rslt = D_80082058[1];
+        }
+        if (cmds != NULL) {
+            *cmds = D_80082058[0];
+        }
+        ((volatile McrdGlobal *)&D_80082068)->unk8 = 0;
+        return 1;
+    }
+    if (g->unk8 == 0) {
+        if (rslt != NULL) {
+            *rslt = res;
+        }
+        if (cmds != NULL) {
+            *cmds = cmd;
+        }
+        return 0;
+    }
+    if (rslt != NULL) {
+        *rslt = D_80082058[1];
+    }
+    if (cmds != NULL) {
+        *cmds = D_80082058[0];
+    }
+    g->unk8 = 0;
+    return 1;
+}
 
 long _card_create2(long chan, char *file, long blocks);
 
@@ -555,7 +599,6 @@ long func_8003D0EC(long event) {
     return ret;
 }
 
-extern volatile long D_80082058[2]; /* last command and result, passed to the callback */
 void UserFuncExecute(void);
 long UserFuncComplete(void);
 
