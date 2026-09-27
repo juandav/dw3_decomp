@@ -10,7 +10,24 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", func_800383F8);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_FiDMA);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_Fr_);
+extern volatile u_long *D_8005BA2C;
+extern volatile u_long *D_8005BA30;
+extern volatile u_long *D_8005BA34;
+extern long D_8005BA78;
+void func_80038C28(void);
+void _spu_Fw1ts(void);
+
+void _spu_Fr_(u_char *addr, u_short tsa, u_long size) {
+    D_8005BA28[0xD3] = tsa;
+    _spu_Fw1ts();
+    D_8005BA28[0xD5] |= 0x30;
+    _spu_Fw1ts();
+    func_80038C28();
+    *D_8005BA2C = (u_long)addr;
+    *D_8005BA30 = (size << 16) | 0x10;
+    D_8005BA78 = 1;
+    *D_8005BA34 = 0x1000200;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_t);
 
