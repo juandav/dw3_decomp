@@ -614,7 +614,23 @@ void STDWTITL_runTitleLoader(TitleLoaderTask *task, struct TitleTask **title) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickTitleLoader);
+void STDWTITL_tickTitleLoader(TitleLoaderTask *task, struct TitleTask **title) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        if (SOUND_STATE.isLoading() == 0) {
+            task->nextState(task);
+            STDWTITL_titleFuncs.loadImages();
+        }
+        break;
+    case TASK_RUN:
+        STDWTITL_runTitleLoader(task, title);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startTitleLoaderTask);
 
