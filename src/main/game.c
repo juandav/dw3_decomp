@@ -1738,7 +1738,33 @@ void func_80017DA8(s32 arg0, s32 arg1, s32 arg2) {
     func_80017CE8();
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80017DDC);
+/* Runs the task's update with the stack in the scratchpad. */
+#define SetSpadStack(addr) \
+    __asm__ volatile("move $8,%0\n\tsw $29,0($8)\n\taddiu $8,$8,-16\n\tmove $29,$8" : : "r"(addr) : "$8", "memory")
+#define ResetSpadStack() __asm__ volatile("addiu $29,$29,16\n\tlw $29,0($29)" : : : "memory")
+
+Unk80017ECC *func_80017DDC(Unk80017ECC *task) {
+    s32 done = task->state == 3;
+
+    SetSpadStack(0x1F8003FC);
+    if (task->state == 1 && task->wait != 0) {
+        if (task->wait > 0) {
+            task->wait = -1;
+        }
+    } else {
+        task->update(task, task->items);
+    }
+    ResetSpadStack();
+    if (!done) {
+        if (task->state != 1 || task->wait == 0) {
+            D_8004AF58.unk14(task);
+        }
+    } else {
+        task->destroy(task);
+        task = NULL;
+    }
+    return task;
+}
 
 void func_80017ECC(Unk80017ECC *obj) {
     s32 count = obj->count;
