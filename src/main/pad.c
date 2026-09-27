@@ -203,7 +203,37 @@ s32 func_8001873C(s32 arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/pad", func_80018774);
+s32 PadGetState(s32 port);
+s32 func_80018DC4(u16 port);
+
+s32 func_80018774(u32 port) {
+    u32 p = port;
+    u32 mask;
+    s32 state = PadGetState(p & 0xFF);
+
+    switch (state) {
+    case 0:
+    case 1:
+        mask = ~(((p >> 2) & 0x3C) | (p & 3)); D_8004AF78.flags = D_8004AF78.flags & mask & ~0xC000000;
+        return 0;
+    case 6:
+        if (!(D_8004AF78.flags & 0x8000000)) {
+            if (D_8004AF78.flags & 0x4000000) {
+                D_8004AF78.flags |= 0x8000000;
+            } else if (func_80018DC4(p & 0xFF)) {
+                D_8004AF78.flags |= 0x4000000;
+            }
+        }
+        return state;
+    case 2:
+        return state;
+    case 3:
+    case 4:
+    case 5:
+    default:
+        return 0;
+    }
+}
 
 void func_80018868(s32 port, u8 *data, u8 *record) {
     u32 id = port & 0xFF;
@@ -325,7 +355,7 @@ s32 func_80018CA8(s32 port, s32 on) {
     return 0;
 }
 
-void func_80018DC4(u16 port) {
+s32 func_80018DC4(u16 port) {
     u32 id = (u8)port;
     s32 count = PadInfoAct(id, -1, 0);
     s32 i;
@@ -337,7 +367,7 @@ void func_80018DC4(u16 port) {
             D_8004AF78.act[id >> 4][i] = act & 1;
         }
     }
-    PadSetActAlign(port & 0xFF, D_8004AF78.act[(port & 0xFF) >> 4]);
+    return PadSetActAlign(port & 0xFF, D_8004AF78.act[(port & 0xFF) >> 4]);
 }
 
 void func_80018EA0(u16 port) {
