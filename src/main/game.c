@@ -355,7 +355,41 @@ void func_80013C08(s32 file) {
     D_80044744.unk0 = 1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80013CB4);
+void func_80013CB4(void) {
+    Slot *slot;
+    s32 i;
+    s32 busy;
+    s32 reading;
+
+    if (D_80044744.unk0 != 0 && D_80044710.unk2C() != 1) {
+        slot = D_80044744.slots;
+        reading = 0;
+        busy = 0;
+        for (i = 0; i < 64; i++, slot++) {
+            if (slot->unk4 != 0) {
+                switch (slot->unk0) {
+                case 2:
+                    slot->unk0 = 3;
+                    busy = 1;
+                    slot->unk8 = D_8004D5B8.funcs.unk38();
+                    break;
+                case 1:
+                    busy = 1;
+                    if (!reading) {
+                        D_80044710.read(slot->unk4, 0, 0, slot->unkC, NULL);
+                        slot->unk0 = 2;
+                        reading = busy;
+                        slot->unk8 = D_8004D5B8.funcs.unk38();
+                    }
+                    break;
+                }
+            }
+        }
+        if (!busy) {
+            D_80044744.unk0 = 0;
+        }
+    }
+}
 
 void func_80013DF8(s32 arg0) {
     func_80013C08(arg0);

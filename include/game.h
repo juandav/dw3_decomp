@@ -66,7 +66,10 @@ typedef struct RandFuncs {
 } RandFuncs;
 
 typedef struct Funcs8004D708 {
-    /* 0x00 */ void (*unk0[11])();
+    /* 0x00 */ void (*unk0[2])();
+    /* 0x08 */ void *(*allocPrim)(void);
+    /* 0x0C */ void (*setPrimEnd)(void *end);
+    /* 0x10 */ void (*unk10[7])();
     /* 0x2C */ Resource *(*unk2C)(s32);
     /* 0x30 */ void (*unk30)();
     /* 0x34 */ void (*unk34)();
@@ -510,11 +513,13 @@ typedef struct CdReader {
     /* 0x24 */ s32 unk24;
     /* 0x28 */ s32 unk28;
     /* 0x2C */ s32 (*unk2C)(void);
+    /* 0x30 */ void (*read)(s32 file, s32 offset, s32 size, void *buf, s32 *done);
 } CdReader;
 
 typedef struct Unk80044744 {
     /* 0x000 */ s32 unk0;
-    /* 0x004 */ u8 unk4[0x404];
+    /* 0x004 */ Slot slots[64];
+    /* 0x404 */ u8 unk404[4];
     /* 0x408 */ void (*outOfMemory)(void);
     /* 0x40C */ void (*unk40C)(s32);
     /* 0x410 */ void (*unk410)(void);
