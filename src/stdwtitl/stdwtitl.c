@@ -227,7 +227,20 @@ u_long *STDWTITL_getNextFrame(DecEnv *dec) {
     return addr;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_decodeNextFrame);
+s32 STDWTITL_decodeNextFrame(DecEnv *dec) {
+    s32 count = 2000;
+    u_long *next;
+
+    while ((next = STDWTITL_getNextFrame(dec)) == NULL) {
+        if (--count == 0) {
+            return -1;
+        }
+    }
+    dec->vlcid = dec->vlcid == 0;
+    DecDCTvlc2(next, dec->vlcbuf[dec->vlcid], STDWTITL_vlcTable);
+    StFreeRing(next);
+    return 0;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_onSliceDecoded);
 
