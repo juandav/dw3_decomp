@@ -312,7 +312,12 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008DFE0);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E1A4);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E284);
+void func_8008E284(Actor *actor, s32 arg1, s32 arg2, s32 arg3) {
+    actor->unkEC = 1;
+    actor->unkF0 = arg1;
+    actor->unkF4 = arg2;
+    actor->unkF8 = arg3;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E29C);
 
