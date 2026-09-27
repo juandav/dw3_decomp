@@ -51,7 +51,54 @@ Task *func_80082630(void) {
     return createTask(func_80082538, sizeof(Task), 4);
 }
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_8008265C);
+void func_8008265C(ShockTest *task, ShockTestWindows *win, s32 highlight) {
+    s32 i;
+
+    win->pattern->setPalette(win->pattern, 0);
+    for (i = 0; i < 2; i++) {
+        win->times[i]->setPalette(win->times[i], 0);
+        win->powers[i]->setPalette(win->powers[i], 0);
+    }
+    win->play->setPalette(win->play, 0);
+    switch (highlight) {
+    default:
+        win->pattern->setPalette(win->pattern, 3);
+        break;
+    case 2:
+        win->times[0]->setPalette(win->times[0], 3);
+        break;
+    case 3:
+        win->times[1]->setPalette(win->times[1], 3);
+        break;
+    case 4:
+        win->powers[0]->setPalette(win->powers[0], 3);
+        break;
+    case 5:
+        win->powers[1]->setPalette(win->powers[1], 3);
+        break;
+    case 10:
+        win->play->setPalette(win->play, 3);
+        break;
+    case 0:
+        win->pattern->setPalette(win->pattern, 1);
+        break;
+    case 6:
+        win->times[0]->setPalette(win->times[0], 1);
+        break;
+    case 7:
+        win->times[1]->setPalette(win->times[1], 1);
+        break;
+    case 8:
+        win->powers[0]->setPalette(win->powers[0], 1);
+        break;
+    case 9:
+        win->powers[1]->setPalette(win->powers[1], 1);
+        break;
+    case 11:
+        win->play->setPalette(win->play, 1);
+        break;
+    }
+}
 
 void func_80082A0C(ShockTest *task, ShockTestWindows *win, s32 pattern);
 
