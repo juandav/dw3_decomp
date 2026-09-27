@@ -263,7 +263,25 @@ void func_80013890(void) {
     CdControlF(2, D_80044710.loc);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800138EC);
+void func_800138EC(s32 file, s32 offset, s32 size, s32 arg3, s32 *done) {
+    if (func_80013880() == 0) {
+        D_80044710.unk4 = file;
+        D_80044710.unk8 = offset;
+        D_80044710.unk10 = arg3;
+        D_80044710.unk14 = done;
+        if (done != NULL) {
+            *done = 0;
+        }
+        if (size == 0) {
+            D_80044710.unkC = D_80047F04.getFileSectors(file);
+        } else {
+            D_80044710.unkC = size;
+        }
+        D_80047F04.unkC(file, offset, D_80044710.loc);
+        D_80044710.unk1C = D_80047F04.unk8(file) + offset;
+        func_80013890();
+    }
+}
 
 Slot *func_800139D4(s32 file) {
     Slot *slot;

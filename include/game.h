@@ -17,8 +17,8 @@ typedef struct Resource {
 typedef struct Funcs80047F04 {
     /* 0x0 */ void (*unk0)();
     /* 0x4 */ s32 (*getFileSectors)(s32 file);
-    /* 0x8 */ void (*unk8)();
-    /* 0xC */ void (*unkC)();
+    /* 0x8 */ s32 (*unk8)(s32 file);
+    /* 0xC */ void (*unkC)(s32 file, s32 offset, u8 *loc);
 } Funcs80047F04;
 
 typedef struct Funcs8004ABD8 {
@@ -152,7 +152,9 @@ typedef struct Task80011FBC {
 typedef struct Task8001ACC8 {
     /* 0x00 */ u8 unk0[0x10];
     /* 0x10 */ s32 unk10;
-    /* 0x14 */ u8 unk14[0x44];
+    /* 0x14 */ u8 unk14[0x3C];
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
     /* 0x5C */ s32 unk5C;
     /* 0x60 */ s32 unk60;
@@ -163,6 +165,7 @@ typedef struct Task8001ACC8 {
     /* 0x74 */ s32 unk74;
     /* 0x78 */ s32 unk78;
     /* 0x7C */ s32 unk7C;
+    /* 0x80 */ void (*methods[6])();
 } Task8001ACC8;
 
 typedef struct Task8001B3A0 {
@@ -329,6 +332,14 @@ typedef struct Unk80048C50 {
     /* 0x3CC */ u8 unk3CC[0x10];
 } Unk80048C50;
 
+typedef struct DrawEntry {
+    /* 0x00 */ s32 key;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ struct DrawEntry *next;
+} DrawEntry;
+
 /* Double-buffered ordering tables */
 typedef struct DrawContext {
     /* 0x00 */ u8 unk0[0x5C];
@@ -337,8 +348,8 @@ typedef struct DrawContext {
     /* 0x68 */ s32 otShift;
     /* 0x6C */ u8 unk6C[0xC];
     /* 0x78 */ s32 unk78;
-    /* 0x7C */ u8 unk7C[4];
-    /* 0x80 */ void *unk80;
+    /* 0x7C */ s32 unk7C;
+    /* 0x80 */ struct DrawEntry *unk80;
     /* 0x84 */ s32 unk84;
     /* 0x88 */ s32 unk88;
     /* 0x8C */ MATRIX unk8C[2];
@@ -434,10 +445,11 @@ typedef struct Unk80042728 {
 /* CD read state */
 typedef struct CdReader {
     /* 0x00 */ s32 state;
-    /* 0x04 */ u8 unk4[8];
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
     /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
-    /* 0x14 */ u8 unk14[4];
+    /* 0x14 */ s32 *unk14;
     /* 0x18 */ u8 loc[4];
     /* 0x1C */ s32 unk1C;
     /* 0x20 */ s32 unk20;
@@ -687,6 +699,8 @@ int func_8002E268(void *buf, int size);
 void func_8002DE88(s32 arg0);
 s32 func_800151F0(s32 arg0, s32 arg1);
 s32 func_8001366C(void);
+s32 func_80013880(void);
+void func_80013890(void);
 int CdPosToInt(void *pos);
 void func_8001B314(Task8001B3A0 *task, s32 *data, s32 arg2);
 void *func_8001B368(Task8001B3A0 *task);
