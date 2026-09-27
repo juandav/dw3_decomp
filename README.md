@@ -66,6 +66,10 @@ make report
 `make compare` must print OK for `build/SLUS_014.36` and every overlay. A
 function only counts as decompiled once all of them still match.
 
+The progress report counts the game's code: the executable's and the
+overlays'. The PsyQ SDK linked into the executable is Sony's code, so like
+other PSX decomps it is built and compared but not counted.
+
 ## Layout
 
 | Path | Contents |
