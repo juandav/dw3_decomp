@@ -18,13 +18,19 @@ void func_800A4DE8(void) {
     FLAGS_00.applyAction(0x7400, 1);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag490", func_800A4E34);
+void func_800A4E34(void) {
+    FLAGS_00.applyAction(0x4026, 1);
+    FLAGS_00.applyAction(0x8022, 1);
+}
 
 void func_800A4E80(void) {
     FLAGS_00.applyAction(0x402F, 1);
     FLAGS_00.applyAction(0x7401, 1);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag490", func_800A4ECC);
+void func_800A4ECC(void) {
+    FLAGS_00.applyAction(0x4030, 1);
+    FLAGS_00.applyAction(0x818B, 1);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag490", func_800A4F18);

@@ -87,6 +87,9 @@ void func_800A5EF0(void) {
     FLAGS_00.applyAction(0x7400, 1);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5F3C);
+void func_800A5F3C(void) {
+    FLAGS_00.applyAction(0x4045, 1);
+    FLAGS_00.applyAction(0x84CB, 1);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5F88);

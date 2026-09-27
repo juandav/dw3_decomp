@@ -64,6 +64,9 @@ void func_800A5790(void) {
     FLAGS_00.applyAction(0x7400, 1);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag746", func_800A57DC);
+void func_800A57DC(void) {
+    FLAGS_00.applyAction(0x4087, 1);
+    FLAGS_00.applyAction(0x8F41, 1);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag746", func_800A5828);
