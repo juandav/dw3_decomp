@@ -92,7 +92,83 @@ void STCRDABM_hideCards(CardAlbumGrid *grid) {
     grid->setSubstate(grid, 1);
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", STCRDABM_drawCards);
+void STCRDABM_drawCards(CardAlbumGrid *grid, s32 previous) {
+    SpriteDrawer sprite;
+    CardDrawer icon;
+    s32 digits[5];
+    s32 i;
+    s32 j;
+    s32 card;
+    s32 col;
+    s32 row;
+    s32 x;
+    s32 y;
+    s32 value;
+    s32 dx;
+
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(grid->layer, grid->depth);
+    sprite.setTexture(0x280, 0);
+    initCardDrawer(&icon);
+    icon.setImagePos(0x140, 0x100);
+    icon.setClutPos(0x300, 0x100);
+    icon.setLayer(grid->layer, grid->depth);
+    for (i = 0; i < grid->shown; i++) {
+        if (previous != 0) {
+            card = grid->prevFirst + i;
+        } else {
+            card = grid->first + i;
+        }
+        if (card >= CARD_COUNT) {
+            break;
+        }
+        col = i % 6;
+        row = i / 6;
+        x = col * 42;
+        y = row * 54;
+        if (GAME.cardsSeen[card] != 0) {
+            icon.setCard(card);
+            icon.setCell(col, row);
+            icon.draw(x + 0x27, y + 0x34);
+            if (icon.getKind() != 0) {
+                sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0x1D, x + 0x27, y + 0x53);
+            } else {
+                value = icon.card[1];
+                j = value / 10;
+                if (j != 0) {
+                    digits[0] = j + 0x1E;
+                } else {
+                    digits[0] = 0;
+                }
+                j = value % 10;
+                digits[1] = j + 0x1E;
+                digits[2] = 0x1C;
+                for (j = 0, dx = 0x27; j < 3; j++, dx += 7) {
+                    if (digits[j] != 0) {
+                        sprite.draw(FILE_CACHE.getEntry(0x05F50000), digits[j], x + dx, y + 0x53);
+                    }
+                }
+                value = icon.card[2];
+                j = value / 10;
+                if (j != 0) {
+                    digits[0] = j + 0x1E;
+                } else {
+                    digits[0] = 0;
+                }
+                j = value % 10;
+                digits[1] = j + 0x1E;
+                for (j = 0, dx = 0x3A; j < 2; j++, dx += 7) {
+                    if (digits[j] != 0) {
+                        sprite.draw(FILE_CACHE.getEntry(0x05F50000), digits[j], x + dx, y + 0x53);
+                    }
+                }
+            }
+            sprite.draw(FILE_CACHE.getEntry(0x05F50000), icon.card[0] - 1, x + 0x23, y + 0x32);
+        } else {
+            sprite.draw(FILE_CACHE.getEntry(0x05F50000), 6, x + 0x23, y + 0x32);
+        }
+    }
+}
 
 void STCRDABM_drawTurningSlots(CardAlbumGrid *grid) {
     SpriteDrawer sprite;
