@@ -48,7 +48,7 @@ $(BUILDDIR)/src/main/psyq/%.c.o: CC1 := $(PSYQ_CC1)
 # and reaches its fields from there, never used `return` insns (tools/sn_cc1.py)
 # and filled the delay slot of `j $31` itself, which tools/unfill_epilogue.py
 # undoes so that ASPSX's rule applies as for the rest.
-PSYQ_GCC28 := libsnd_miditime libsnd_ssvol
+PSYQ_GCC28 := libsnd_miditime libsnd_ssvol libspu_s_n2p
 SN_CC1 := $(BUILDDIR)/cc1-2.8.1-sn
 CC1_PRE := cat
 $(PSYQ_GCC28:%=$(BUILDDIR)/src/main/psyq/%.c.o): CC1 := $(SN_CC1)
