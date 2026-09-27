@@ -117,7 +117,18 @@ void STCRDABM_drawTurningSlots(CardAlbumGrid *grid) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", STCRDABM_pageHasCards);
+s32 STCRDABM_pageHasCards(CardAlbumGrid *grid) {
+    s32 card;
+    s32 i;
+
+    for (i = 0; i < ALBUM_PAGE_CARDS; i++) {
+        card = grid->first + i;
+        if (GAME.cardsSeen[card] != 0 || card >= CARD_COUNT) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 void STCRDABM_updateHiding(CardAlbumGrid *grid) {
     switch (grid->substate) {
