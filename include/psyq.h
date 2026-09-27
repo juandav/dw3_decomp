@@ -117,6 +117,11 @@ typedef struct McrdGlobal {
 typedef struct SioRegs {
     /* 0x0 */ u_long data;
     /* 0x4 */ u_short stat;
+    /* 0x6 */ u_short unk6;
+    /* 0x8 */ u_short mode;
+    /* 0xA */ u_short ctrl;
+    /* 0xC */ u_short unkC;
+    /* 0xE */ u_short baud;
 } SioRegs;
 
 /* libetc interrupt handlers, reached through D_8005B780 */
