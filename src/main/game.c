@@ -3524,7 +3524,70 @@ void func_8001C72C(Unk8001BB68 *task, Unk8001C5C4 *children) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001CAC0);
+char *strncpy(char *dst, char *src, s32 n);
+
+Unk8001BB68 *func_8001CAC0(s32 id, s16 x, s16 y, s32 file, s32 index, u32 type) {
+    Obj8001F8F8 fn;
+    char name[0x20];
+    Unk8001BB68 *task;
+    Unk8001C5C4 *children;
+    s32 end;
+    u8 *text;
+    s32 w;
+    s32 i;
+
+    task = func_800144DC((void (*)(void *))func_8001C72C, 0x6C, 0x18);
+    task->unk54 = id;
+    task->x = x;
+    task->y = y;
+    children = task->children;
+    task->setPos = func_8001C5C4;
+    task->type = type;
+    func_8001F8F8(&fn);
+    i = 0;
+    children->windows[0] = func_8001AAB4(task->unk54, 2, task->x + D_8004D49C[type].unk14, task->y + D_8004D49C[type].unk16);
+    children->windows[0]->m160(children->windows[0], 3);
+    children->windows[1] = func_8001AAB4(task->unk54, 1, task->x + D_8004D49C[type].unk18, task->y + D_8004D49C[type].unk1A);
+    children->windows[1]->m160(children->windows[1], 3);
+    task->file = file;
+    text = (u8 *)fn.unk0(file, index);
+    if (text[0] == 2 && text[1] == 7) {
+        end = 2;
+        while (text[end] != 2 && text[end + 1] != 7) {
+            end++;
+        }
+        D_8004AD84.bzero(name, sizeof(name));
+        if (text[i + 2] == 2 && text[i + 3] == 9) {
+            strcpy(name, D_8004853C);
+        } else {
+            strncpy(name, &text[i + 2], -2 - i + end);
+        }
+        children->windows[0]->m114(children->windows[0], name, -1);
+        children->windows[1]->m114(children->windows[1], &text[end + 2], -1);
+    } else {
+        children->windows[1]->m114(children->windows[1], text, -1);
+    }
+    children->windows[1]->m130(children->windows[1], 6);
+    children->windows[1]->m14C(children->windows[1]);
+    w = fn.unk4(children->windows[1]->text, children->windows[1]->unk50, 0);
+    if (w < 0x5F) {
+        w = 0x5F;
+    } else if (w >= 0x8C) {
+        w = 0x8B;
+    }
+    task->w = w;
+    task->h = 0x3E;
+    if (type < 2) {
+        children->windows[0]->setPos(children->windows[0], children->windows[0]->unkB0 - task->w, children->windows[0]->unkB2);
+        children->windows[1]->setPos(children->windows[1], children->windows[1]->unkB0 - task->w, children->windows[1]->unkB2);
+    }
+    for (i = 0; i < 2; i++) {
+        children->windows[i]->m138(children->windows[i], 2);
+        children->windows[i]->m144(children->windows[i], 0);
+    }
+    children->unk14 = func_8001C130(task);
+    return task;
+}
 
 void func_8001CE60(void) {
     Obj8001FBE0 obj;
