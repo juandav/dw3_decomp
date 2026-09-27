@@ -103,7 +103,23 @@ void func_800214E4(PadPort *port) {
     port->prevCmd = cmd;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_800214F4);
+int func_800214F4(PadPort *p) {
+    int i = p->unk45 - 3;
+
+    switch (p->cmd) {
+    case 0:
+        if (i < 6 && p->unk57[i] == 0) {
+            return 0;
+        }
+        if (i < p->actLen) {
+            return p->actTable[i];
+        }
+        return 0;
+    case 0x4D:
+        return i < p->len ? p->data[i] : 0xFF;
+    }
+    return i < p->len ? p->data[i] : 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_800215B0);
 
