@@ -481,7 +481,11 @@ void func_80090AF4(void) {
     FLAG_FUNCS.applyAction(0x404, 1);
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80090B20);
+void func_80090B20(void) {
+    FLAG_FUNCS.applyAction(0x7080, 1);
+    FLAG_FUNCS.applyAction(0x8495, 1);
+    FLAG_FUNCS.applyAction(0x405, 1);
+}
 
 void func_80090B80(void) {
     FLAG_FUNCS.applyAction(0x405, 1);
