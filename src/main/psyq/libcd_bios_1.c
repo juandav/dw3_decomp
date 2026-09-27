@@ -12,7 +12,7 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_ready);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_cw);
 
-int CD_vol(CdlATV *vol) {
+inline int CD_vol(CdlATV *vol) {
     *D_8005A58C = 2;
     *D_8005A59C = vol->val0;
     *D_8005A590 = vol->val1;
@@ -25,7 +25,23 @@ int CD_vol(CdlATV *vol) {
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_flush);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_initvol);
+extern volatile u_short *D_8005A5A0;
+
+int CD_initvol(void) {
+    CdlATV vol;
+
+    if (D_8005A5A0[0xDC] == 0 && D_8005A5A0[0xDD] == 0) {
+        D_8005A5A0[0xC0] = 0x3FFF;
+        D_8005A5A0[0xC1] = 0x3FFF;
+    }
+    D_8005A5A0[0xD8] = 0x3FFF;
+    D_8005A5A0[0xD9] = 0x3FFF;
+    D_8005A5A0[0xD5] = 0xC001;
+    vol.val0 = vol.val2 = 0x80;
+    vol.val1 = vol.val3 = 0;
+    CD_vol(&vol);
+    return 0;
+}
 
 void CD_initintr(void) {
     D_8005A2CC = 0;
