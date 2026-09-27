@@ -60,7 +60,10 @@ void func_8008408C(void) {
     task->type = 5;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800840C0);
+void func_800840C0(void) {
+    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
+    task->type = 6;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800840F4);
 
