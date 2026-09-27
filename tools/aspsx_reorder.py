@@ -309,6 +309,10 @@ def fill_from_target(lines, split):
         tm, tops = items[t][2]
         if not ALU.match(tm) or (tm == "li" and not one_word_li(tops)):
             continue
+        # only constants (`li`, `lui`, `addiu/ori $r,$zero,K`); VSync keeps the
+        # nop in front of a `move $v0,$s1` target
+        if not (tm in ("li", "lui") or (tm in ("addiu", "ori") and reg(tops[1]) == "$0")):
+            continue
         ud = uses_defs(items[t][2])
         if ud is None or len(ud[1]) != 1:
             continue
