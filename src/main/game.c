@@ -1842,7 +1842,47 @@ void func_80019ED8(Unk80019DFC *obj, u8 type) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80019F28);
+void func_80019F28(Unk80019DFC *obj) {
+    TextBuffer *text = &obj->text[0];
+    s32 pos;
+    u8 c;
+    u8 index;
+
+    if (obj->text[0].data != NULL) {
+        for (pos = 0; pos < obj->text[0].len;) {
+            switch ((s32)((u32)(D_8004D5A8.decode(text->data + pos, (u8)text->dirty, obj->unk50) << 16) >> 24)) {
+            case 0:
+            case 3:
+            default:
+                if (text->dirty != 0) {
+                    pos += 2;
+                } else {
+                    pos += 1;
+                }
+                break;
+            case 1:
+                pos += 2;
+                break;
+            case 2:
+                c = text->data[pos + 1];
+                if (c == 4) {
+                    break;
+                }
+                if (c == 8) {
+                    index = text->data[pos + 2];
+                    func_80019308(obj, D_8004853C, index);
+                    obj->text[index].dirty = 0;
+                    pos += D_8004D5A8.codeLengths[8];
+                } else {
+                    pos += D_8004D5A8.codeLengths[c];
+                }
+                break;
+            case 4:
+                return;
+            }
+        }
+    }
+}
 
 void func_8001A094(Unk80019DFC *arg0, s32 arg1) {
     arg0->unkC8 = arg1;

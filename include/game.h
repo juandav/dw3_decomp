@@ -491,6 +491,8 @@ typedef struct Unk80051194 {
     /* 0x4248 */ s32 unk4248;
     /* 0x424C */ s32 unk424C;
     /* 0x4250 */ SoundBank bank;
+    /* 0x4258 */ u8 unk4258[0x24];
+    /* 0x427C */ void (*unk427C)(s32 packed);
 } Unk80051194;
 
 typedef struct Obj8001E7DC {
