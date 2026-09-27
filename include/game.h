@@ -668,6 +668,7 @@ typedef struct Unk800484E8 {
 } Unk800484E8;
 
 void PadStartCom(void);
+s32 func_800155F8(s32 op, s32 arg);
 void func_80020218(void);
 s32 func_80020064(void);
 void func_800345B8(void);
@@ -823,6 +824,7 @@ extern u8 **(*D_800427A4)(s32 item);
 extern u8 D_800427B4[];
 extern s32 D_800483F8[];
 extern u8 D_8004AB5F[];
+extern u8 D_8004829C[];
 extern s32 D_80048420[];
 extern s32 D_80048440[];
 extern u8 D_80048280[];

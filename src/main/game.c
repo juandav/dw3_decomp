@@ -735,7 +735,7 @@ void func_8001553C(u8 *bits, s32 index, s32 set) {
     }
 }
 
-s32 func_80015584(void) {
+s32 func_80015584(s32 op, s32 arg) {
     s32 ret = 0;
 
     if ((D_800484E8.unk7C[7] != 0 || D_800484E8.unk20F[7] != 0) &&
@@ -818,14 +818,48 @@ s32 func_80015940(s32 arg0, s32 mode) {
     return ret;
 }
 
-s32 func_80015A34(void) {
+s32 func_80015A34(s32 op, s32 arg) {
     Unk80015A34 *obj = D_8004AF58.unkC(0x16, -1, -1);
 
     obj->unk2C(obj, 3);
     return 1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80015A78);
+s32 func_80015A78(s32 id, s32 expected) {
+    u8 *p;
+    s32 result = 0;
+    s32 op;
+    s32 arg;
+
+    for (p = D_8004829C; *p != 0xFF; p += 3) {
+        if (*p == id) {
+            op = p[1] & 0xF;
+            arg = p[2];
+            switch (p[1] & 0xF0) {
+            case 0x00:
+                result = func_80015584(op, arg);
+                break;
+            case 0x10:
+                result = func_800155F8(op, arg);
+                break;
+            case 0x20:
+                result = func_80015814(op, arg);
+                break;
+            case 0x30:
+                result = func_80015904(op, arg);
+                break;
+            case 0x40:
+                result = func_80015940(op, arg);
+                break;
+            case 0x50:
+                result = func_80015A34(op, arg);
+                break;
+            }
+            break;
+        }
+    }
+    return expected == result;
+}
 
 s32 func_80015BB0(s32 value, s32 mode) {
     if (mode != 0) {
