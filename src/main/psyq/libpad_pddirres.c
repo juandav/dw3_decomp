@@ -2,7 +2,30 @@
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", _padInitDirPort);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_80021388);
+void func_80021388(PadPort *p) {
+    int i;
+    u_char *d;
+
+    if (p->unk49 != 0) {
+        p->unk49 = 0;
+        p->unk46 = 0;
+        p->unkE6 = 0;
+        p->unk14 = NULL;
+        p->unk18 = NULL;
+        p->unkE3 = 0;
+        p->unkE4 = 0;
+        p->unkE6 = 0;
+        p->unkE9 = 0;
+        p->unkEA = 0;
+        p->unk0 = 0;
+        p->unk4 = 0;
+        p->unk8 = 0;
+        d = p->unk5D;
+        for (i = 0; i < 6; i++) {
+            *d++ = 0xFF;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_800213F0);
 
