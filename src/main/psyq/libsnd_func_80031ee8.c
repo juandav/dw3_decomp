@@ -1,5 +1,7 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_func_80031ee8", func_80031EE8);
+void func_80031EE8(short vabId, short prog, short tone, VagAtr vag, short fn, unsigned char data) {
+    SsUtSetReverbDelay(data);
+}
 
 OBJECT_END();
