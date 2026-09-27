@@ -1,6 +1,53 @@
 #include "stdgname.h"
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname_2", func_800856F4);
+void func_800856F4(ScreenTask *task, ScreenChildren *children) {
+    s32 partner;
+
+    switch (task->substate) {
+    case 0:
+    default:
+        if (children->menu == NULL) {
+            children->menu = func_800856B4(task);
+        }
+        task->substate++;
+        break;
+    case 1:
+        if (children->menu == NULL) {
+            if (task->choice == -1) {
+                task->substate = 5;
+                break;
+            }
+            task->substate++;
+        }
+        break;
+    case 2:
+        if (children->name == NULL) {
+            partner = GAME.funcs.getPartyMember(D_80087480.partner);
+            children->name = func_800848F0(GAME.funcs.getPartnerStats(partner)->name, partner);
+        }
+        task->substate++;
+        break;
+    case 3:
+        if (children->name->substate == 100) {
+            children->name->getName(children->name,
+                                    GAME.funcs.getPartnerStats(GAME.funcs.getPartyMember(D_80087480.partner))->name);
+            children->name->unkF4(children->name);
+            task->substate++;
+        }
+        break;
+    case 4:
+        if (children->name->state == TASK_DONE) {
+            children->name->state = TASK_KILL;
+            task->setSubstate(task, 0);
+        }
+        break;
+    case 5:
+        if (children->fade->state == TASK_DONE) {
+            task->setState(task, TASK_KILL);
+        }
+        break;
+    }
+}
 
 void func_800858D8(ScreenTask *task) {
     SpriteDrawer sprite;
