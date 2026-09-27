@@ -30,6 +30,8 @@ StageTask *func_800A5178(void *owner) {
     return task;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag225", func_800A51D4);
+void func_800A51D4(void) {
+    GAME_PROGRESS = 2;
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag225", func_800A51E4);

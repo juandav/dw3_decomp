@@ -34,19 +34,25 @@ void func_800A52F4(void) {
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag305", func_800A5320);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag305", func_800A534C);
+void func_800A534C(void) {
+    GAME_PROGRESS = 23;
+}
 
 void func_800A535C(void) {
     FLAGS_00.applyAction(0x4057, 1);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag305", func_800A5388);
+void func_800A5388(void) {
+    GAME_PROGRESS = 34;
+}
 
 void func_800A5398(void) {
     FLAGS_00.applyAction(0x1C39, 1);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag305", func_800A53C4);
+void func_800A53C4(void) {
+    GAME_PROGRESS = 34;
+}
 
 void func_800A53D4(void) {
     FLAGS_00.applyAction(0x4069, 1);

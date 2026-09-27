@@ -18,6 +18,8 @@ void func_800A4D9C(void) {
     FLAGS_00.applyAction(0x7401, 1);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag200", func_800A4DE8);
+void func_800A4DE8(void) {
+    GAME_PROGRESS = 4;
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag200", func_800A4DF8);

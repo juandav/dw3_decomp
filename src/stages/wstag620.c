@@ -53,13 +53,17 @@ void func_800A5234(void) {
     FLAGS_00.applyAction(0x7400, 1);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag620", func_800A5280);
+void func_800A5280(void) {
+    GAME_PROGRESS = 20;
+}
 
 void func_800A5290(void) {
     FLAGS_00.applyAction(0x1C1C, 1);
     FLAGS_00.applyAction(0x403A, 1);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag620", func_800A52DC);
+void func_800A52DC(void) {
+    GAME_PROGRESS = 21;
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag620", func_800A52EC);
