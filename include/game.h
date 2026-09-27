@@ -864,6 +864,7 @@ typedef struct Unk800484E8 {
 } Unk800484E8;
 
 void PadStartCom(void);
+void PadSetAct(int port, unsigned char *data, int len);
 void func_8001DBB0();
 void func_8001B490(struct Task8001B6A8 *task);
 void func_8001B5AC(struct Task8001B6A8 *task);

@@ -1664,7 +1664,37 @@ void func_8001816C(void) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_800181B8);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001837C);
+s32 func_8001837C(u16 port, s32 motor, s16 time, u8 value) {
+    u8 id = port;
+    s32 mode;
+    PadSlot *slot;
+    s16 t;
+    s32 pad;
+
+    t = time;
+    if (!(D_8004AF78.flags & 0x08000000)) {
+        return 0;
+    }
+    if (func_80018774(id) == 0) {
+        return 0;
+    }
+    mode = PadInfoMode(id, 2, 0);
+    pad = id >> 4;
+    slot = &D_8004AF78.slots[pad][port & 3];
+    if (mode == 4 || mode == 7) {
+        D_8004AF78.act[pad][motor & 1] = value;
+    } else {
+        D_8004AF78.act[pad][0] = 0x40;
+        D_8004AF78.act[pad][1] = 1;
+    }
+    if (slot->actTimers[motor] <= 0) {
+        slot->actTimers[motor] = t;
+    } else if (t == 0) {
+        slot->actTimers[motor] = 0;
+    }
+    PadSetAct(id, D_8004AF78.act[pad], 2);
+    return 1;
+}
 
 u16 func_800184F0(s32 pad) {
     return D_8004AF78.slots[pad][0].unk0;
