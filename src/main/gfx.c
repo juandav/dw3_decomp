@@ -248,7 +248,23 @@ void func_8001D984(DrawContext *ctx) {
     ClearOTagR(ctx->ot[D_8004D5B8.buffer], ctx->otLen);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D9C0);
+void func_8001D9C0(DrawContext *ctx) {
+    u_long mask = 0xFFFFFF;
+    u_long *ot = ctx->ot[D_8004D5B8.buffer];
+    u_long *p = ot + ctx->otLen - 1;
+    u_long *q;
+
+    while (p != ot) {
+        q = p - 1;
+        if ((*p & mask) == ((u_long)q & mask)) {
+            while ((*q & mask) == ((u_long)(q - 1) & mask)) {
+                q--;
+            }
+            *p = (u_long)q & mask;
+        }
+        p = q;
+    }
+}
 
 void func_8001DA4C(DrawContext *ctx) {
     DRAWENV env = ctx->env;
