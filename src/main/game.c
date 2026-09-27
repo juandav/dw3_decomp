@@ -1475,7 +1475,28 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_80018868);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80018BC0);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80018CA8);
+s32 func_80018CA8(s32 port, s32 on) {
+    u32 id = port & 0xFF;
+    s32 mode;
+    s32 bit;
+
+    if (func_80018774(id) != 0) {
+        mode = PadInfoMode(id, 2, 0);
+        if (mode == 4 || mode == 7) {
+            bit = ((id >> 4) << 2) | (port & 3);
+            if (on != 0) {
+                D_8004AF78.pads[0].flags |= 1 << bit;
+                PadSetMainMode(id, PadInfoMode(id, 3, 0), 3);
+            } else {
+                D_8004AF78.pads[0].flags &= ~(1 << bit);
+                PadSetMainMode(id, PadInfoMode(id, 3, 0), 2);
+            }
+            D_8004AF78.pads[0].flags &= 0xF3FFFFFF;
+            return 1;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80018DC4);
 

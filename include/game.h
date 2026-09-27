@@ -653,6 +653,9 @@ typedef struct Unk800484E8 {
 } Unk800484E8;
 
 void PadStartCom(void);
+int PadInfoMode(int port, int term, int offs);
+int PadSetMainMode(int port, int offs, int lock);
+s32 func_80018774(u32 port);
 void PadStopCom(void);
 s32 VSyncCallback(void (*func)(void));
 
