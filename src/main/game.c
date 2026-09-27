@@ -1696,7 +1696,26 @@ s32 func_8001A364(Unk80019DFC *obj, TextBuffer *buf) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001A3B8);
+s32 func_8001A3B8(Unk80019DFC *obj, TextBuffer *buf, TextWait *wait) {
+    if (++wait->unk18 == 1) {
+        wait->unk10 = buf->pos + 2;
+    } else if (wait->unk18 >= obj->unkBF) {
+        obj->unkA6 = wait->unk10;
+        if (obj->unkBF >= 2) {
+            obj->unkBF--;
+            func_80019C2C(obj);
+            obj->unkBF++;
+        }
+        return 0x8000;
+    }
+    obj->unkB8 = 0;
+    if (obj->unkC2 != 0) {
+        obj->unkBA += obj->unkB6;
+    } else {
+        obj->unkBA += (s8)obj->unk50[1];
+    }
+    return 0x8004;
+}
 
 s32 func_8001A4A8(Unk80019DFC *obj, TextBuffer *buf) {
     if (buf->data[buf->pos + 2] < 5) {

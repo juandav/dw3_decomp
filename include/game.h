@@ -271,13 +271,14 @@ typedef struct Unk80019DFC {
     /* 0xB2 */ s16 unkB2;
     /* 0xB4 */ s16 unkB4;
     /* 0xB6 */ s16 unkB6;
-    /* 0xB8 */ u8 unkB8[4];
+    /* 0xB8 */ s16 unkB8;
+    /* 0xBA */ u16 unkBA;
     /* 0xBC */ s16 unkBC;
     /* 0xBE */ u8 unkBE;
     /* 0xBF */ u8 unkBF;
     /* 0xC0 */ u8 unkC0;
     /* 0xC1 */ u8 unkC1;
-    /* 0xC2 */ s8 unkC2;
+    /* 0xC2 */ u8 unkC2;
     /* 0xC3 */ u8 unkC3;
     /* 0xC4 */ u8 unkC4;
     /* 0xC5 */ u8 unkC5[3];
@@ -299,6 +300,13 @@ typedef struct Unk8004D49C {
     /* 0x0A */ u16 unkA;
     /* 0x0C */ u8 unkC[0x14];
 } Unk8004D49C;
+
+typedef struct TextWait {
+    /* 0x00 */ u8 unk0[0x10];
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ u8 unk14[4];
+    /* 0x18 */ s16 unk18;
+} TextWait;
 
 typedef struct Unk8001BA7C {
     /* 0x0 */ Unk80019DFC *window;
