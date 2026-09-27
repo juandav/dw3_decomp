@@ -12,6 +12,9 @@ extern char D_80010E40[];
 long func_8003BAEC(UserFuncArg *arg);
 long func_8003BE70(UserFuncArg *arg);
 long func_8003D0EC(long event);
+void func_8003D140(void);
+void UserFuncInit(void);
+void _card_start(void);
 long _card_format2(long chan);
 
 void PushCallbackFunc(void) {
@@ -26,7 +29,22 @@ void *McrdGetGlobalStructure(void) {
     return &D_80082068;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardStart);
+void MemCardStart(void) {
+    volatile long *busy = &D_80082068.unk0;
+
+    D_80082068.unkC = 0;
+    D_80082068.callback = NULL;
+    UserFuncInit();
+    *busy = 0;
+    *(volatile long *)&D_80082068.unk4 = 0;
+    *(volatile long *)&D_80082068.unk8 = 0;
+    D_80082068.unk50 = *(volatile long *)&D_80082068.unk54 = 0;
+    D_80082068.fd = -1;
+    D_80082068.unk4C = 1;
+    D_80082068.unk48 = 1;
+    _card_start();
+    VSyncCallbacks(7, func_8003D140);
+}
 
 void MemCardStop(void) {
     volatile long *busy = &D_80082068.unk0;
