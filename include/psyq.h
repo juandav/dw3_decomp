@@ -85,7 +85,10 @@ typedef struct PadPort {
     /* 0x46 */ u_char unk46;
     /* 0x47 */ u_char unk47[2];
     /* 0x49 */ u_char unk49;
-    /* 0x4A */ u8 unk4A[7];
+    /* 0x4A */ u_char unk4A; /* retry counter */
+    /* 0x4B */ u8 unk4B;
+    /* 0x4C */ long unk4C; /* failure count */
+    /* 0x50 */ u8 unk50;
     /* 0x51 */ u_char unk51[2];
     /* 0x53 */ u_char unk53;
     /* 0x54 */ u8 unk54[3];
