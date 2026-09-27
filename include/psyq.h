@@ -330,7 +330,7 @@ extern PadPort D_8007E4D0[2];
 extern short D_80081D98;
 
 long _SsReadDeltaValue(short seq, short sep);
-void _SsVmSetProgVol(char vab, u_char prog, u_char vol);
+long _SsVmSetProgVol(short vab, short prog, u_char vol);
 void _SsVmSetVol(short seq_sep, char vab, u_char prog, u_short vol, u_char pan);
 void _SsSndSetVolData(short seq, short sep, short vol, long count);
 u_long _SpuSetAnyVoice(long on_off, u_long bits, int addr1, int addr2);
