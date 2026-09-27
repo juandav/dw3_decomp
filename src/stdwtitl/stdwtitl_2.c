@@ -50,7 +50,34 @@ s32 STDWTITL_isEdgeFadeDone(EdgeFadeTask *task) {
     return task->done;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_tickEdgeFade);
+void STDWTITL_tickEdgeFade(EdgeFadeTask *task) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->nextState(task);
+        task->level = 0;
+        task->time = 0;
+        task->done = 0;
+        break;
+    case TASK_RUN:
+        switch (task->substate) {
+        case 0:
+            break;
+        case 1:
+            task->level = STDWTITL_getEdgeFadeLevel(task->time++);
+            if (task->time >= 30) {
+                task->setSubstate(task, 0);
+                task->done = 1;
+            }
+            break;
+        }
+        STDWTITL_drawEdgeFade(task->level);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_startEdgeFadeTask);
 
