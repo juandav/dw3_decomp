@@ -108,6 +108,7 @@ segments:
       - [0x11A98, c, psyq/libpad_pddirres]
       - [0x124D8, c, psyq/libpad_pdtapres]
       - [0x13618, c, psyq/libpad_pdresres]
+      - [0x13B44, c, psyq/libpad_pdresres_2]
       - [0x15488, c, psyq/libpad_func_80024c88]
       - [0x15498, c, psyq/libpad_func_80024c98]
       - [0x154C8, c, psyq/libpad_func_80024cc8]
