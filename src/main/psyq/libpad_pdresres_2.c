@@ -202,7 +202,29 @@ int _padGetActSize(PadPort *p) {
     return a + b + p->unkEC;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres_2", _padLoadActInfo);
+extern int (*D_80055534)(PadPort *p);
+void func_80023D9C(PadPort *p);
+int func_80023E44(PadPort *p);
+
+int _padLoadActInfo(PadPort *p, int n) {
+    int size;
+    int len;
+
+    if (n == 0 || p->unk4 != 0 || D_80055534(p) != 0) {
+        return 0;
+    }
+    len = ((n + 3) >> 2) << 2;
+    p->unk49 = 4;
+    p->unk0 = len;
+    p->unk46 = 1;
+    p->unk14 = func_80023D9C;
+    p->unk18 = func_80023E44;
+    p->unk47[0] = 0;
+    size = len + ((p->unkE3 + 1) >> 1) * 4;
+    p->unk4 = size;
+    p->unk8 = size + ((p->unkE9 * 5 + 3) & 0xFFC);
+    return 1;
+}
 
 void func_80023D9C(PadPort *port) {
     switch (port->unk46) {
