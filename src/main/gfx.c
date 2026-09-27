@@ -277,7 +277,11 @@ u_long *func_8001DB8C(DrawContext *ctx, s32 depth) {
     return ctx->ot[D_8004D5B8.buffer] + depth;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001DBB0);
+u_long *func_8001DBB0(DrawContext *ctx, s32 z) {
+    s32 i = z >> (16 - ctx->otShift);
+
+    return ctx->ot[D_8004D5B8.buffer] + i;
+}
 
 u_long *func_8001DBE0(DrawContext *ctx) {
     return ctx->ot[D_8004D5B8.buffer];
