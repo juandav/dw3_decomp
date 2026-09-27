@@ -165,9 +165,53 @@ s32 func_8001214C(Fade *fade) {
     return 0;
 }
 
+typedef struct MenuPos {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ s16 x;
+    /* 0x6 */ s16 unk6;
+    /* 0x8 */ s16 y;
+    /* 0xA */ s16 unkA;
+} MenuPos;
+
+extern MenuPos D_8003EA88[];
+extern MenuPos D_8003EA94[5];
+extern MenuPos D_8003EAD0[5];
+extern s32 D_8003EB0C[];
+
 INCLUDE_ASM("asm/main/nonmatchings/game", func_800121B8);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800123E4);
+void func_800123E4(void *arg0, MenuWindows *win, s32 page, s32 show) {
+    Unk2728 stats;
+    Unk2744 *info;
+    s32 id;
+    s32 i;
+
+    if (show) {
+        id = D_800484E8.unk270C(page);
+        if (id >= 0) {
+            info = D_800484E8.unk2744(id);
+            D_800484E8.unk2728(id, &stats);
+            win->pages[page].head->m114(win->pages[page].head, info, -1);
+            for (i = 0; i < 5; i++) {
+                win->pages[page].left[i]->m114(win->pages[page].left[i], D_80044744.getText(0xB1), D_8003EA94[i].unk0);
+                win->pages[page].right[i]->m118(win->pages[page].right[i], 0, ((s16 *)&stats)[D_8003EB0C[i]]);
+                win->pages[page].right[i]->m148(win->pages[page].right[i], 1);
+            }
+        } else {
+            win->pages[page].head->m114(win->pages[page].head, D_80044744.getText(0xB1), 0xC);
+            for (i = 0; i < 5; i++) {
+                win->pages[page].right[i]->m114(win->pages[page].right[i], D_80044744.getText(0xB1), D_8003EA88[6 + i].unk0);
+                win->pages[page].right[i]->m148(win->pages[page].right[i], 1);
+            }
+        }
+    } else {
+        win->pages[page].head->m144(win->pages[page].head, 0);
+        for (i = 0; i < 5; i++) {
+            win->pages[page].left[i]->m144(win->pages[page].left[i], 0);
+            win->pages[page].right[i]->m144(win->pages[page].right[i], 0);
+        }
+    }
+}
 
 s32 func_80012698(void) {
     s32 value = D_800484E8.unk26F8();
