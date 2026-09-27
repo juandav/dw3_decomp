@@ -694,16 +694,29 @@ typedef struct CardHeader {
     /* 0x60 */ CardClut clut;
 } CardHeader;
 
+/* Same layout as the kernel's struct DIRENTRY */
+typedef struct CardDirEntry {
+    /* 0x00 */ char name[20];
+    /* 0x14 */ s32 attr;
+    /* 0x18 */ s32 size;
+    /* 0x1C */ struct CardDirEntry *next;
+    /* 0x20 */ s32 head;
+    /* 0x24 */ char system[4];
+} CardDirEntry;
+
 typedef struct Unk80047F14 {
     /* 0x00 */ s32 state;
-    /* 0x04 */ u8 unk4[0xC];
+    /* 0x04 */ u8 unk4[8];
+    /* 0x0C */ char *fileName;
     /* 0x10 */ CardHeader header;
     /* 0x90 */ s32 cmd;
     /* 0x94 */ u32 result;
     /* 0x98 */ s32 retries;
     /* 0x9C */ s32 maxRetries;
     /* 0xA0 */ s32 unkA0;
-    /* 0xA4 */ u8 unkA4[0x270];
+    /* 0xA4 */ s32 fileCount;
+    /* 0xA8 */ CardDirEntry files[15];
+    /* 0x300 */ u8 unk300[0x14];
     /* 0x314 */ s32 iconCount;
     /* 0x318 */ s32 icons[3];
 } Unk80047F14;
@@ -836,6 +849,10 @@ void func_80016AC8(s32 item, s32 count);
 long MemCardSync(long mode, long *cmds, u_long *result);
 long MemCardExist(long chan);
 long MemCardAccept(long chan);
+long MemCardCreateFile(long chan, char *file, long blocks);
+long MemCardFormat(long chan);
+long MemCardUnformat(long chan);
+long MemCardGetDirentry(long chan, char *name, CardDirEntry *dir, long *files, long ofs, long max);
 Resource *func_8001E1A0(DRAWENV *env, s32 arg1);
 s32 func_8001D6B4(s32 id);
 s32 func_800172E8(s32 slot, s32 id);
@@ -906,7 +923,9 @@ void func_8001B1D0(Task8001B3A0 *task);
 void func_80019C2C(Unk80019DFC *obj);
 int func_8002E268(void *buf, int size);
 void func_8002DE88(s32 arg0);
-s32 func_800151F0(s32 arg0, s32 arg1);
+s32 func_800151F0(s32 port, u32 op);
+s32 func_80014AAC(s32 port);
+s32 func_80014B8C(s32 port);
 s32 func_8001366C(void);
 s32 func_80013880(void);
 void func_80013890(void);
