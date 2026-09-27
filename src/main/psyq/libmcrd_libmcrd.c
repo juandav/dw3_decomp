@@ -9,12 +9,14 @@ extern char D_80010C9C[];
 /* "Access Denied. : system busy\n" */
 extern char D_80010E40[];
 extern char D_80010D98[];
+extern char D_80010DC0[];
 extern char D_80010DE4[];
 extern char D_80010E10[];
 
 long func_8003BAEC(UserFuncArg *arg);
 long func_8003BE70(UserFuncArg *arg);
 long func_8003D0EC(long event);
+long func_8003C604(UserFuncArg *arg);
 long func_8003C8C8(UserFuncArg *arg);
 long func_8003CAE8(UserFuncArg *arg);
 void func_8003D1EC(long chan, char *name);
@@ -107,7 +109,32 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardReadData);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003C39C);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardWriteData);
+long MemCardWriteData(u_long *adrs, long ofs, long bytes) {
+    if (D_80082068.fd < 0) {
+        printf(D_80010DC0);
+        return 0;
+    }
+    if (D_80082068.unk0 > 0) {
+        printf(D_80010C9C);
+        return 0;
+    }
+    if (bytes & 0x7F) {
+        printf(D_80010DE4);
+        return 0;
+    }
+    if (ofs & 0x7F) {
+        printf(D_80010E10);
+        return 0;
+    }
+    D_80082068.unk0 = 6;
+    D_80082068.unk4 = 0;
+    D_80082068.unk8 = 0;
+    D_80082068.unk18 = ofs;
+    D_80082068.unk20 = (long)adrs;
+    D_80082068.unk1C = bytes;
+    UserFuncOpen(func_8003C604);
+    return 1;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003C604);
 
