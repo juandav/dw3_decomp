@@ -1,6 +1,29 @@
 #include "stdwtitl.h"
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickSplashLoader);
+void STDWTITL_tickSplashLoader(Task *task, Task **splash) {
+    TimLoader loader;
+    Layer *layer;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        GFX.funcs.reset();
+        GFX.funcs.allocPrimBuffers(0xA000);
+        GFX.funcs.setDisplayMode(320, 240, 0, 0);
+        initTimLoader(&loader);
+        loader.setImagePos(0x280, 0);
+        loader.loadArchive(FILE_CACHE_GET_ENTRY[0](SPLASH_IMAGES));
+        layer = GFX.funcs.createLayer(&STDWTITL_screenRect, 2, STDWTITL_SPLASH_LAYER);
+        layer->setBgColor(layer, 0x1F, 0x1F, 0x1F);
+        *splash = STDWTITL_startSplashTask();
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startSplashLoaderTask);
 
