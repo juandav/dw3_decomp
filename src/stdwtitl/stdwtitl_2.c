@@ -40,7 +40,11 @@ void STDWTITL_drawEdgeFade(s32 level) {
     GFX.funcs.setPrim(mode + 1);
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_startEdgeFade);
+void STDWTITL_startEdgeFade(EdgeFadeTask *task) {
+    task->done = 0;
+    task->time = 0;
+    task->setSubstate(task, 1);
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_isEdgeFadeDone);
 
