@@ -1,107 +1,107 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_800824E8);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickSplashLoader);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80082614);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startSplashLoaderTask);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80082640);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickScreen);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_800827A0);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_start);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_800827CC);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawLogo);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80082960);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickLogo);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80082B24);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_showLogo);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80082B5C);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startLogoTask);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80082BB0);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_clearVram);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80082BF0);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_initDecEnv);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80082C78);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_readStream);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80082CE0);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_initStream);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80082D4C);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_getNextFrame);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80082E50);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_decodeNextFrame);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80082ED8);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_onSliceDecoded);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80083028);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_waitFrameDecoded);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_800830BC);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickMoviePlayer);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_800833E8);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startMoviePlayerTask);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80083438);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickMovie);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_800835C8);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startMovieTask);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80083600);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawGlintAlt);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80083728);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickGlintAlt);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80083860);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_showGlint);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80083898);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startGlintAltTask);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_800838EC);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawGlint);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80083A24);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickGlint);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80083B68);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startGlintTask);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80083BBC);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawSplash);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80083C50);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickSplash);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80083E64);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startSplashTask);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80083E90);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_runTitleLoader);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80083F14);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickTitleLoader);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80083FA4);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startTitleLoaderTask);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80084000);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawTitle1Alt);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80084098);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickTitle1Alt);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_800841D8);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_showTitle1);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80084210);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startTitle1AltTask);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80084264);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawTitle1);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_800842FC);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickTitle1);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80084418);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startTitle1Task);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_8008446C);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawTitle0Alt);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80084504);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickTitle0Alt);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80084664);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_showTitle0);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_8008469C);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startTitle0AltTask);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_800846F0);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawTitle0);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80084788);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickTitle0);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_800848C4);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startTitle0Task);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80084918);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawMenu);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80084B68);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickMenu);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_800851B8);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_showMenu);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_800851F0);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_resetMenu);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_80085230);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_getMenuChoice);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", func_8008523C);
+INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startMenuTask);
