@@ -41,6 +41,13 @@ anyway into spill registers picked around the ones mark_scratch_live
 reserved: t1..t4 instead of a1 for the lwl/lwr temporary of a 4-byte struct
 copy (StCdInterrupt's `hdr->loc = loc`; found by agent-a).
 
+Its mips.md typed the block-move insns movstrsi_internal and
+movstrsi_internal2 "multi", as GCC 2.7.2 does, not "store" as 2.8.1: they
+use no function unit, so the scheduler doesn't delay a load right before a
+structure copy (StCdInterrupt's `ori a0,0x843` stays after its two pointer
+loads). Their entries in function_units_used's jump table go to its
+no-unit default case.
+
 usage: sn_cc1.py cc1 patched_cc1
 """
 import os, shutil, sys
@@ -112,7 +119,18 @@ with open(src, 'rb') as f:
                              '8b5d94')       # mov -0x6c(%ebp),%ebx  (as the old path left it)
     in_place += b'\x90' * (len(old) - len(in_place))
 
+    # function_units_used's jump table (0x082BD368, entry = insn code + 1):
+    # movstrsi_internal (201) and movstrsi_internal2 (203) -> the default.
+    def file_offset(va):
+        return next(s['p_offset'] + va - s['p_vaddr'] for s in segs
+                    if s['p_vaddr'] <= va < s['p_vaddr'] + s['p_filesz'])
+    movstr = [file_offset(0x082BD368 + 4 * (code + 1)) for code in (201, 203)]
+    for o in movstr:
+        assert raw[o:o + 4] == bytes.fromhex('4d0deeff')
+
     patches = [(offset('mips_can_use_return_insn'), b'\x31\xc0\xc3'),
+               (movstr[0], bytes.fromhex('ee1beeff')),
+               (movstr[1], bytes.fromhex('ee1beeff')),
                (scratch, in_place),
                (fcc + 8, b'\x44'),
                (offset('reload_cse_regs'), b'\xc3'),
