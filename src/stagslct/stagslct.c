@@ -10,7 +10,19 @@ extern u16 D_80086F38;
 
 Task *func_80085974(void);
 
-INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_80084500);
+void func_80084500(Task *task, Task **items) {
+    switch (task->state) {
+    case 0:
+    default:
+        items[0] = func_80085974();
+        task->nextState(task);
+        break;
+    case 1:
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_80084564);
 
