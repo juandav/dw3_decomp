@@ -219,6 +219,10 @@ $(SN_CC1): bin/gcc-2.8.1-psx/cc1 tools/sn_cc1.py
 
 $(filter $(BUILDDIR)/src/main/psyq/%,$(C_OBJ)): $(PSYQ_CC1)
 
+# The executable's .bss in C: maspsx turns its commons into definitions in
+# order in .bss when they aren't kept as .comm
+$(BUILDDIR)/src/main/data/game_bss.c.o: MASPSXFLAGS := $(filter-out --use-comm-section,$(MASPSXFLAGS))
+
 $(BUILDDIR)/%.c.o: %.c
 	@mkdir -p $(dir $@)
 	$(CPP) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(@:.o=.d) $< -o $(@:.o=.i)

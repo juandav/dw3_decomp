@@ -38,7 +38,7 @@ def is_library(name: str) -> bool:
 
 
 # splat's files of the executable's game data (not the SDK's psyq and gte_tables)
-GAME_DATA = ["data/game.data", "data/game_2.data", "data/game_3.data", "game.bss"]
+GAME_DATA = ["data/game.data", "data/game_2.data", "data/game_3.data", "data/game_bss.bss"]
 
 
 def category_for(name: str) -> str:

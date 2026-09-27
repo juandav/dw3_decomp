@@ -378,7 +378,7 @@ segments:
       - [0x45B94, .data, data/game_2]
       - [0x45CE0, data, psyq]
       - [0x4CAF8, .data, data/game_3]
-      - { start: 0x4CC80, type: bss, vram: 0x8005C480, name: game }
+      - { start: 0x4CC80, type: .bss, vram: 0x8005C480, name: data/game_bss }
       - { start: 0x6ECD0, type: bss, vram: 0x8007E4D0, name: psyq }
 
   # psylink stores .bss in the file as zeros because a later section follows
