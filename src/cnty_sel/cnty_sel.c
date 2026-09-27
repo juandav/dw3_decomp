@@ -41,7 +41,17 @@ TaskHeader *CNTY_SEL_start(void) {
     return task;
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_drawBackground);
+void CNTY_SEL_drawBackground(BackgroundTask *task) {
+    Obj8001F22C sprite;
+    s32 offset;
+
+    func_8001F22C(&sprite);
+    sprite.methods[3](CNTY_SEL_LAYER, 1);
+    sprite.methods[1](0x280, 0);
+    /* The background repeats every 96 pixels */
+    offset = (s16)((s16)(task->scroll / 2) % 96);
+    sprite.methods[5](D_80044B68[0](CNTY_SEL_SPRITES), SPRITE_BACKGROUND, offset, offset);
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_getFadeLevel);
 
