@@ -181,7 +181,9 @@ typedef struct GameState {
     /* 0x26CE */ s8 unk26CE;
     /* 0x26CF */ s8 unk26CF;
     /* 0x26D0 */ s32 clearTempFlags;
-    /* 0x26D4 */ u8 unk26D4[0x1C];
+    /* 0x26D4 */ s32 unk26D4;
+    /* 0x26D8 */ s32 unk26D8;
+    /* 0x26DC */ u8 unk26DC[0x14];
     /* 0x26F0 */ GameFuncs funcs; /* GAME_FUNCS */
 } GameState;
 
