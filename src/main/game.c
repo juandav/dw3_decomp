@@ -709,7 +709,30 @@ s32 func_80015584(void) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_800155F8);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80015814);
+s32 func_80015814(s32 op, s32 item) {
+    s32 ret = 0;
+
+    switch (op) {
+    case 0:
+        if (D_800483F8[item] <= D_800484E8.money) {
+            ret = 1;
+        }
+        break;
+    case 1:
+        D_800484E8.money += D_80048420[item];
+        if (D_800484E8.money > 9999999) {
+            D_800484E8.money = 9999999;
+        }
+        break;
+    case 2:
+        D_800484E8.money -= D_80048440[item];
+        if (D_800484E8.money < 0) {
+            D_800484E8.money = 0;
+        }
+        break;
+    }
+    return ret;
+}
 
 s32 func_80015904(s32 arg0, s32 index) {
     s32 value = D_8004AB24;
