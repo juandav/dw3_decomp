@@ -689,7 +689,9 @@ typedef struct Unk80017ECC {
 typedef struct Task8001C454 {
     /* 0x00 */ u8 unk0[0xC];
     /* 0x0C */ s32 state;
-    /* 0x10 */ u8 unk10[0x28];
+    /* 0x10 */ u8 unk10[0x18];
+    /* 0x28 */ void (*unk28)(struct Task8001C454 *, s32);
+    /* 0x2C */ u8 unk2C[0xC];
     /* 0x38 */ void (*unk38)(struct Task8001C454 *);
     /* 0x3C */ u8 unk3C[0x14];
     /* 0x50 */ s16 unk50;
@@ -698,18 +700,22 @@ typedef struct Task8001C454 {
     /* 0x56 */ s16 unk56;
     /* 0x58 */ s16 unk58;
     /* 0x5A */ s16 unk5A;
-    /* 0x5C */ u8 unk5C[4];
+    /* 0x5C */ s16 unk5C;
+    /* 0x5E */ u8 unk5E[2];
     /* 0x60 */ s32 unk60;
     /* 0x64 */ s32 unk64;
     /* 0x68 */ s32 unk68;
     /* 0x6C */ u16 unk6C;
     /* 0x6E */ u16 unk6E;
-    /* 0x70 */ u8 unk70[0x18];
+    /* 0x70 */ VECTOR scale;
+    /* 0x80 */ SVECTOR rot;
     /* 0x88 */ s32 unk88;
     /* 0x8C */ s32 unk8C;
     /* 0x90 */ s32 unk90;
-    /* 0x94 */ u8 unk94[0x24];
+    /* 0x94 */ u8 unk94[4];
+    /* 0x98 */ MATRIX matrix;
     /* 0xB8 */ s32 unkB8;
+    /* 0xBC */ s32 unkBC;
 } Task8001C454;
 
 typedef struct Unk800554D0 {
