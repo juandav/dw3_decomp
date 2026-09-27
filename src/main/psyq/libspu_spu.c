@@ -1,5 +1,7 @@
 #include "psyq.h"
 
+extern u_long *D_8005BA38;
+
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libspu_spu", D_80010BCC);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_init);
