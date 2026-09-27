@@ -1860,7 +1860,45 @@ void func_8001816C(void) {
     D_8004AF78.flags &= ~0x20000000;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800181B8);
+int PadChkVsync(void);
+s32 func_80018BC0(u16 port, u8 *data);
+void func_8001864C(void);
+s32 func_80018654(s32 arg0);
+
+void func_800181B8(void) {
+    u8 *record = (u8 *)D_8004AF78.unk3D8 + D_8004AF78.unk3DC * 34;
+    s32 ret;
+    s32 i;
+    s32 j;
+    u16 port;
+
+    ret = PadChkVsync();
+    if (ret != 1) {
+        return;
+    }
+    if (++D_8004AF78.unk3DC >= 0x707 && func_80018654(D_8004AF78.unk3D6) == ret) {
+        func_8001864C();
+        return;
+    }
+    for (i = 0; i < 2; i++) {
+        port = i * 16;
+        if (D_8004AF78.buf[i][1] == 0x80) {
+            for (j = 0; j < 4; j++) {
+                if (D_8004AF78.flags & 0x400000) {
+                    func_80018868((u8)port, &D_8004AF78.buf[i][2 + j * 8], record + 2 + j * 8);
+                } else {
+                    func_80018BC0((u8)(port + j), &D_8004AF78.buf[i][2 + j * 8]);
+                }
+            }
+        } else {
+            if (D_8004AF78.flags & 0x400000) {
+                func_80018868((u8)port, D_8004AF78.buf[i], record);
+            } else {
+                func_80018BC0((u8)port, D_8004AF78.buf[i]);
+            }
+        }
+    }
+}
 
 s32 func_8001837C(u16 port, s32 motor, s16 time, u8 value) {
     u8 id = port;
