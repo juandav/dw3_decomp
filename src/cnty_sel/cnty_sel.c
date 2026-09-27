@@ -325,7 +325,16 @@ PanelTask *CNTY_SEL_startRightPanelTask(void) {
     return func_800144DC(CNTY_SEL_tickRightPanel, sizeof(PanelTask), 0);
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_getLeftPanelScale);
+s32 CNTY_SEL_getLeftPanelScale(PanelTask *task, s32 phase) {
+    s32 time = task->time;
+    s32 duration = CNTY_SEL_leftPanelTweens[phase].duration;
+
+    if (time >= duration) {
+        return CNTY_SEL_leftPanelTweens[phase].to;
+    }
+    return CNTY_SEL_leftPanelTweens[phase].from +
+           (CNTY_SEL_leftPanelTweens[phase].to - CNTY_SEL_leftPanelTweens[phase].from) * time / duration;
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_drawLeftPanel);
 
