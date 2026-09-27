@@ -614,6 +614,15 @@ s32 func_80085050(PanelAnim *fade) {
     return 0;
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800850BC);
+void func_800850BC(CardAlbumLerp *lerp, s32 from, s32 to, s32 frames) {
+    if (from != to) {
+        lerp->duration = frames;
+        lerp->fixed = from << 8;
+        lerp->value = from;
+        lerp->target = to;
+        lerp->active = 1;
+        lerp->step = ((to - from) << 8) / lerp->duration;
+    }
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800850FC);
