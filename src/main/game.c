@@ -1633,7 +1633,17 @@ void func_80017DA8(s32 arg0, s32 arg1, s32 arg2) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80017DDC);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80017ECC);
+void func_80017ECC(Unk80017ECC *obj) {
+    s32 count = obj->count;
+    s32 *items = obj->items;
+    s32 i;
+
+    for (i = 0; i < count; i++) {
+        if (items[i] != 0) {
+            items[i] = func_80017DDC(items[i]);
+        }
+    }
+}
 
 s32 func_80017F38(s32 arg0) {
     if (arg0 != 0) {
