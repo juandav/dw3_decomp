@@ -60,6 +60,26 @@ void CD_set_test_parmnum(int num) {
     D_8005A570 = num;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", func_8002DBDC);
+extern u_char D_8005A5A4[];
+extern u_char D_80080C50[];
+extern u_char D_80080C58[];
+int func_8002C738(void);
+
+void func_8002DBDC(void) {
+    u_char mask = *D_8005A58C & 3;
+    u_char *status1 = &D_8005A5A4[1];
+    u_char *status = &D_8005A5A4[0];
+    int intr;
+
+    while ((intr = func_8002C738()) != 0) {
+        if ((intr & 4) && D_8005A2CC != 0) {
+            ((void (*)(u_char, u_char *))D_8005A2CC)(*status1, D_80080C58);
+        }
+        if ((intr & 2) && D_8005A2C8 != 0) {
+            ((void (*)(u_char, u_char *))D_8005A2C8)(*status, D_80080C50);
+        }
+    }
+    *D_8005A58C = mask;
+}
 
 OBJECT_END();

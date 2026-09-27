@@ -178,7 +178,8 @@ typedef struct SeqStruct {
     /* 0x5A */ u_short volr;
     /* 0x5C */ u8 unk5C[4];
     /* 0x60 */ u_short vol[16];
-    /* 0x80 */ u8 unk80[0x10];
+    /* 0x80 */ short channelMute;
+    /* 0x82 */ u8 unk82[0xE];
     /* 0x90 */ long delta;
     /* 0x94 */ u8 unk94[4];
     /* 0x98 */ long flags;
