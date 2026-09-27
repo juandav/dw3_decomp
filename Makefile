@@ -38,7 +38,7 @@ $(BUILDDIR)/src/main/psyq/%.c.o: FLOAT_ABI := -mhard-float
 $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_POST := | $(PYTHON) tools/aspsx_reorder.py
 $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_DIV := --expand-div
 $(BUILDDIR)/src/main/psyq/%.c.o: PSYQ_CSE := -fno-rerun-cse-after-loop
-PSYQ_RERUN_CSE := libc2_puts libgpu_break libcd_bios_2 libcd_c_007 libsnd_midiread libspu_s_m_f libapi_first libsnd_ssclose libsnd_vm_pb libspu_spu libsnd_sscall libsnd_sstable libpad_pdresres libspu_s_m_int libc2_strcmp libc2_strcspn libsnd_vm_f libspu_s_sva
+PSYQ_RERUN_CSE := libc2_puts libgpu_break libcd_bios_2 libcd_c_007 libsnd_midiread libspu_s_m_f libapi_first libsnd_ssclose libsnd_vm_pb libsnd_sscall libsnd_sstable libpad_pdresres libspu_s_m_int libc2_strcmp libc2_strcspn libsnd_vm_f libspu_s_sva
 $(PSYQ_RERUN_CSE:%=$(BUILDDIR)/src/main/psyq/%.c.o): PSYQ_CSE :=
 # Our GCC 2.7.2 binary-patched into the libraries' cc1 (see tools/patch_cc1.py)
 PSYQ_CC1 := $(BUILDDIR)/tools/gcc-2.7.2-psx/cc1
@@ -48,7 +48,7 @@ $(BUILDDIR)/src/main/psyq/%.c.o: CC1 := $(PSYQ_CC1)
 # and reaches its fields from there, never used `return` insns (tools/sn_cc1.py)
 # and filled the delay slot of `j $31` itself, which tools/unfill_epilogue.py
 # undoes so that ASPSX's rule applies as for the rest.
-PSYQ_GCC28 := libsnd_miditime libsnd_ssvol libspu_s_n2p
+PSYQ_GCC28 := libsnd_miditime libsnd_ssvol libspu_s_n2p libspu_spu
 SN_CC1 := $(BUILDDIR)/cc1-2.8.1-sn
 CC1_PRE := cat
 $(PSYQ_GCC28:%=$(BUILDDIR)/src/main/psyq/%.c.o): CC1 := $(SN_CC1)

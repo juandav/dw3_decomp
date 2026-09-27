@@ -21,8 +21,8 @@ void func_800383F8(u_char *addr, u_long size);
 
 long _spu_init(long mode) {
     int i;
-    u_long t;
-    volatile u_short *v;
+    u_int t;
+    volatile short *p;
 
     *D_8005BA38 |= 0xB0000;
     D_8005BA44 = 0;
@@ -52,8 +52,8 @@ long _spu_init(long mode) {
     D_8005BA28[0xC7] = 0xFFFF;
     D_8005BA28[0xCC] = 0;
     D_8005BA28[0xCD] = 0;
-    for (i = 0; i < 10; i++) {
-        D_80081FD0[i] = 0;
+    for (i = 0, p = D_80081FD0; i < 10; i++) {
+        *p++ = 0;
     }
     if (mode == 0) {
         D_8005BA40 = 0x200;
@@ -66,15 +66,13 @@ long _spu_init(long mode) {
         D_8005BA28[0xDA] = 0;
         D_8005BA28[0xDB] = 0;
         func_800383F8(D_8005BA68, 0x10);
-        v = D_8005BA28;
         for (i = 0; i < 24; i++) {
-            v[0] = 0;
-            v[1] = 0;
-            v[2] = 0x3FFF;
-            v[3] = 0x200;
-            v[4] = 0;
-            v[5] = 0;
-            v += 8;
+            D_8005BA28[i * 8 + 0] = 0;
+            D_8005BA28[i * 8 + 1] = 0;
+            D_8005BA28[i * 8 + 2] = 0x3FFF;
+            D_8005BA28[i * 8 + 3] = 0x200;
+            D_8005BA28[i * 8 + 4] = 0;
+            D_8005BA28[i * 8 + 5] = 0;
         }
         D_8005BA28[0xC4] = 0xFFFF;
         D_8005BA28[0xC5] = 0xFF;
@@ -137,12 +135,33 @@ void func_800383F8(u_char *addr, u_long size) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_FiDMA);
+extern long D_8005BA78;
+
+void _spu_FiDMA(void) {
+    u_int i;
+    volatile u_short *regs;
+
+    if (D_8005BA78 == 0) {
+        _spu_Fw1ts();
+    }
+    regs = D_8005BA28;
+    regs[0xD5] &= ~0x30;
+    i = 0;
+    while (regs[0xD5] & 0x30) {
+        if (++i > 0xF00) {
+            break;
+        }
+    }
+    if (D_8005BA60 != 0) {
+        ((void (*)(void))D_8005BA60)();
+    } else {
+        func_8002B6D8(0xF0000009, 0x20);
+    }
+}
 
 extern volatile u_long *D_8005BA2C;
 extern volatile u_long *D_8005BA30;
 extern volatile u_long *D_8005BA34;
-extern long D_8005BA78;
 void func_80038C28(void);
 
 void _spu_Fr_(u_char *addr, u_short tsa, u_long size) {
