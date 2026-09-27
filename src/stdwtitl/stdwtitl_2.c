@@ -108,7 +108,19 @@ s32 STDWTITL_stepLoopingAnimation(AnimState *anim, AnimFrame *frames, s32 depth)
     return frame->frame;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_drawBackground);
+void STDWTITL_drawBackground(BackgroundTask *task) {
+    SpriteDrawer sprite;
+
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(task->layerId, 0);
+    sprite.setAltClut(0, 0x1F3);
+    sprite.setTexture(0x300, 0);
+    sprite.draw(FILE_CACHE.getEntry(0x08760000), 0, 0, 0);
+    sprite.setTexture(0x340, 0);
+    sprite.draw(FILE_CACHE.getEntry(0x08760001), 0, 0, 0);
+    sprite.setTexture(0x380, 0);
+    sprite.draw(FILE_CACHE.getEntry(0x08760002), 0, 0, 0);
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_drawBackgroundSprites);
 
