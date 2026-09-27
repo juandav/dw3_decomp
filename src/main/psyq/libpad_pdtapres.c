@@ -5,7 +5,33 @@ extern long D_80055564;
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", _padInitMtapPort);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021DF0);
+void func_80021DF0(PadPort *p) {
+    int i;
+    u_char *d;
+
+    if (p->unk49 != 0) {
+        p->unk49 = 0;
+        p->unk46 = 0;
+        p->unkE6 = 0;
+        p->unk14 = NULL;
+        p->unk18 = NULL;
+        p->unkE3 = 0;
+        p->unkE4 = 0;
+        p->unkE6 = 0;
+        p->unkE9 = 0;
+        p->unkEA = 0;
+        p->unk0 = 0;
+        p->unk4 = 0;
+        p->unk8 = 0;
+        p->cmd = 0;
+        p->prevCmd = 0;
+        p->unk39 = 0;
+        d = p->unk5D;
+        for (i = 0; i < 6; i++) {
+            *d++ = 0xFF;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021E64);
 
