@@ -1,8 +1,11 @@
 #include "psyq.h"
 
 extern volatile u_long *D_80055800;
+extern volatile u_long *D_80055804;
 extern volatile u_long *D_80055808;
 extern volatile u_long *D_80055810;
+
+void _GPU_ResetCallback(void);
 
 u_long *BreakDraw(void) {
     volatile u_long addr;
@@ -33,6 +36,30 @@ int IsIdleGPU(int max_count) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_break", ContinueDraw);
+void ContinueDraw(u_long *insaddr, u_long *contaddr) {
+    u_long *p;
+    u_long *prev;
+
+    _GPU_ResetCallback();
+    if (insaddr != NULL) {
+        if (contaddr != NULL) {
+            p = prev = insaddr;
+            while ((*(u_long *)((*p & 0xFFFFFF) | 0x80000000) & 0xFFFFFF) != 0xFFFFFF) {
+                prev = p;
+                p = (u_long *)((*p & 0xFFFFFF) | 0x80000000);
+            }
+            *prev = (*prev & 0xFF000000) | ((u_long)contaddr & 0xFFFFFF);
+        }
+    } else {
+        if (contaddr == NULL) {
+            return;
+        }
+        insaddr = contaddr;
+    }
+    *D_80055810 = 0x04000002;
+    *D_80055800 = (u_long)insaddr;
+    *D_80055804 = 0;
+    *D_80055808 = 0x01000401;
+}
 
 OBJECT_END();
