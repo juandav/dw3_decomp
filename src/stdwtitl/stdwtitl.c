@@ -242,7 +242,33 @@ s32 STDWTITL_decodeNextFrame(DecEnv *dec) {
     return 0;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_onSliceDecoded);
+void STDWTITL_onSliceDecoded(void) {
+    RECT rect;
+    s32 id;
+
+    if (D_80080BEC) {
+        StCdInterrupt();
+        D_80080BEC = 0;
+    }
+    id = STDWTITL_decEnv.imgid;
+    rect = STDWTITL_decEnv.slice;
+    STDWTITL_decEnv.imgid = STDWTITL_decEnv.imgid == 0;
+    STDWTITL_decEnv.slice.x += STDWTITL_decEnv.slice.w;
+    if (STDWTITL_decEnv.rectid) {
+        rect.x += 480;
+    }
+    rect.y = 36;
+    if (STDWTITL_decEnv.slice.x < STDWTITL_decEnv.rect[STDWTITL_decEnv.rectid].x + STDWTITL_decEnv.rect[STDWTITL_decEnv.rectid].w) {
+        DecDCTout((u_long *)STDWTITL_decEnv.imgbuf[STDWTITL_decEnv.imgid], STDWTITL_decEnv.slice.w * STDWTITL_decEnv.slice.h / 2);
+    } else {
+        STDWTITL_decEnv.isdone = 1;
+        STDWTITL_decEnv.rectid = STDWTITL_decEnv.rectid == 0;
+        STDWTITL_decEnv.slice.x = STDWTITL_decEnv.rect[STDWTITL_decEnv.rectid].x;
+        STDWTITL_decEnv.slice.y = STDWTITL_decEnv.rect[STDWTITL_decEnv.rectid].y;
+    }
+    DrawSync(0);
+    LoadImage(&rect, (u_long *)STDWTITL_decEnv.imgbuf[id]);
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_waitFrameDecoded);
 
