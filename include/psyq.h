@@ -18,7 +18,7 @@ typedef struct GpuDriver {
     /* 0x04 */ void *unk4;
     /* 0x08 */ int (*addque)(void *func, void *param, int size, long arg);
     /* 0x0C */ void *unkC;
-    /* 0x10 */ void (*ctrl)(u_long cmd);
+    /* 0x10 */ int (*ctrl)(u_long cmd);
     /* 0x14 */ int (*unk14)(u_long *p, int len);
     /* 0x18 */ int (*exeque)(u_long *p); /* runs an OT / packet */
     /* 0x1C */ int (*storeImage)(RECT *rect, u_long *p);
