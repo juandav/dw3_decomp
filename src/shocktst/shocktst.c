@@ -179,7 +179,50 @@ s32 func_80082B58(ShockTest *task, ShockTestWindows *win, s32 pattern) {
 
 INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80082D8C);
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80082E58);
+s32 func_80082E58(ShockTest *task, ShockTestWindows *win) {
+    if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_LEFT)) & 1) ||
+        ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_LEFT)) & 1)) {
+        do {
+            if (--task->column < 0) {
+                task->column = 1;
+            }
+        } while (D_80084160[task->row].enabled[task->column] == 0);
+    } else if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_RIGHT)) & 1) ||
+               ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_RIGHT)) & 1)) {
+        do {
+            if (++task->column >= 2) {
+                task->column = 0;
+            }
+        } while (D_80084160[task->row].enabled[task->column] == 0);
+    }
+    if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_UP)) & 1) ||
+        ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_UP)) & 1)) {
+        do {
+            if (--task->row < 0) {
+                task->row = 3;
+            }
+        } while (D_80084160[task->row].enabled[task->column] == 0);
+    } else if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_DOWN)) & 1) ||
+               ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_DOWN)) & 1)) {
+        do {
+            if (++task->row >= 4) {
+                task->row = 0;
+            }
+        } while (D_80084160[task->row].enabled[task->column] == 0);
+    }
+    if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CROSS)) & 1) {
+        func_8008265C(task, win, D_80084160[task->row].highlight[task->column + 2]);
+        if (task->row == 3) {
+            return -1;
+        }
+        return 1;
+    }
+    if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CIRCLE)) & 1) {
+        return 2;
+    }
+    func_8008265C(task, win, D_80084160[task->row].highlight[task->column]);
+    return 0;
+}
 
 INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_800832C4);
 
