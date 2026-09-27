@@ -88,7 +88,10 @@ Patches 7-12 come from dcb_decomp, which links the same PsyQ 4.7 libraries
 16. jump_optimize's store-flag conversion of `x = a; if (...) x = b;` with A
     or B zero needs, with cheap branches, a power of two as the other value
     (GCC 2.8), so `x < 0 ? 0 : x` clamps stay branches instead of
-    `nor/sra/and` (dcb's SpuSetCommonAttr; dcb_decomp 0c42307).
+    `nor/sra/and` (dcb's SpuSetCommonAttr; dcb_decomp 0c42307; here libgs
+    func_80028E6C's `... == 3 ? 3 : 0`). dcb's version jumps over the 2-byte
+    `jne` at +6148 with a 6-byte jmp and crashes (SIGILL) when the second
+    alternative is taken; this one replaces the `cmp`+`jne` pair instead.
 
 17. expand_return computes the returned value into a new pseudo of the
     result's mode and copies that to $v0, as GCC 2.8 does (this cc1 already
