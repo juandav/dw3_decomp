@@ -62,7 +62,9 @@ def loads_without_at(lines):
 
 
 def delay_slot_hazards(lines):
-    """lw $x,symbol / jump / access through $x  ->  a nop after the load."""
+    """lw $x,symbol / jump / access through $x  ->  a nop after the load.
+
+    Only before jumps: ASPSX left `lw $x,symbol / jal / sw ..($x)` alone."""
     code = [i for i, x in enumerate(lines) if split(x)]
     insert = []
     for a, b, c in zip(code, code[1:], code[2:]):
@@ -70,6 +72,9 @@ def delay_slot_hazards(lines):
         if not LOADS.match(la[0]) or not BRANCHES.match(lb[0]) or len(la[1]) != 2:
             continue
         if re.search(r"\(\$\w+\)$", la[1][1]):
+            continue
+        # not for calls: `lw $x,symbol / jal / sw ..($x)` stays as it is
+        if lb[0] in ("jal", "jalr"):
             continue
         reg = la[1][0]
         # only when the slot uses it as the base of a memory access
