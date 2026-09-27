@@ -1,5 +1,7 @@
 #include "psyq.h"
 
+void func_80027FD0(u_char *dst, int value, int n);
+
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_8001030C);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", ResetGraph);
@@ -23,7 +25,15 @@ u_long DrawSyncCallback(void (*func)()) {
     return (u_long)old;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", SetDispMask);
+void SetDispMask(int mask) {
+    if (D_800556A0.level >= 2) {
+        D_8005569C("SetDispMask(%d)...\n", mask);
+    }
+    if (mask == 0) {
+        func_80027FD0((u_char *)&D_800556A0.disp, -1, sizeof(DISPENV));
+    }
+    D_80055698->ctrl(mask ? 0x03000000 : 0x03000001);
+}
 
 int DrawSync(int mode) {
     if (D_800556A0.level >= 2) {
@@ -232,7 +242,7 @@ void _GPU_ResetCallback(void) {
     DMACallback(2, func_800274A0);
 }
 
-void func_80027FD0(u_char *dst, u_char value, int n) {
+void func_80027FD0(u_char *dst, int value, int n) {
     u_char *p = dst;
     int i = n - 1;
 
