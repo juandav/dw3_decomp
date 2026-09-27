@@ -1297,7 +1297,97 @@ s32 func_80016064(u16 code, u16 value) {
     return 1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80016260);
+extern void (*D_8009A6EC)(s32 id);
+void func_8008B2C4(s32 id);
+void func_8008B320(void);
+
+void func_80016260(s32 code, s32 value) {
+    u16 group = (code >> 8) & ~1;
+    s32 id = code & 0x1FF;
+
+    if (group == 0x00) {
+        func_8001553C(D_80048280, id, value);
+    }
+    if (group == 0x02) {
+        func_8001553C(D_8004AB2C, id, value);
+    }
+    if (group == 0x04) {
+        func_8001553C(D_8004AB39, id, value);
+    }
+    if (group == 0x06) {
+        func_8001553C(D_8004AB3B, id, value);
+    }
+    if (group == 0x08) {
+        func_8001553C(D_8004AB3C, id, value);
+    }
+    if (group == 0x0A) {
+        func_8001553C(D_8004AB3D, id, value);
+    }
+    if (group == 0x0C) {
+        func_8001553C(D_8004AB3F, id, value);
+    }
+    if (group == 0x0E) {
+        func_8001553C(D_8004AB47, id, value);
+    }
+    if (group == 0x10) {
+        func_8001553C(D_8004AB53, id, value);
+    }
+    if (group == 0x18) {
+        func_8001553C(D_8004AB55, id, value);
+    }
+    if (group == 0x1A) {
+        func_8001553C(D_8004AB56, id, value);
+    }
+    if (group == 0x1C) {
+        func_8001553C(D_8004AB5F, id, value);
+    }
+    if (group == 0x20) {
+        func_8001553C(D_8004AB6A, id, value);
+    }
+    if (group == 0x40) {
+        func_8001553C(D_8004AB88, id, value);
+    }
+    if (group == 0x70) {
+        func_80015A78(id, 1);
+    }
+    if (group == 0x74) {
+        D_8009A6EC(id);
+    }
+    if (group == 0x76) {
+        func_8001602C(id, 0);
+    }
+    if (group == 0x78) {
+        func_8001602C(id, 1);
+    }
+    if (group >= 0x80 && group < 0x8F) {
+        func_80015E8C(id, value);
+    }
+    if (group == 0x90) {
+        func_8008B2C4(id);
+    }
+    if (group == 0x92) {
+        func_80015FC8(id, value);
+    }
+    if (group == 0x94) {
+        func_8008AEB4(0xA00, id, 0, 0, 0);
+    }
+    if (group == 0x7A) {
+        if ((u16)id < 30) {
+            func_8008AEB4(0xF00, (u16)id, 0, 0, 0);
+        } else if ((u32)(id - 0x31) < 0x13 || (u32)(id - 0x46) < 5) {
+            func_8008AEB4(0x1300, (u16)id, 0, 0, 0);
+        } else {
+            func_8008B320();
+        }
+    }
+    if (group == 0x7C) {
+        if ((u16)id == 0) {
+            func_8008AEB4(0xD00, 0, 0, 0, 0);
+        } else if ((u16)id == 1) {
+            func_8008AEB4(0xB00, 0, 0, 0, 0);
+        }
+    }
+}
 
 s32 func_800165D8(u16 *list) {
     u16 a;
