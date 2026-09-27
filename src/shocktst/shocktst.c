@@ -391,7 +391,58 @@ INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", D_800824BC);
 
 INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80083B88);
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80083EAC);
+void func_80083EAC(ShockLoader *task, ShockLoaderWindows *win) {
+    s32 fd;
+
+    switch (task->state) {
+    case 0:
+    default:
+        task->nextState(task);
+        win->title = createTextWindow(0x1000, 0, 0x14, 0x1E);
+        win->title->setText(win->title, D_80082500);
+        win->help[0] = createTextWindow(0x1000, 1, 0xDC, 0xB4);
+        win->help[0]->setText(win->help[0], D_80082510);
+        win->help[1] = createTextWindow(0x1000, 1, 0xDC, 0xC8);
+        win->help[1]->setText(win->help[1], D_80082524);
+        task->text = HEAP.allocZeroed(0x4000, 2);
+        task->file = HEAP.allocZeroed(0x4000, 2);
+        if (task->text == NULL || task->file == NULL) {
+            task->setState(task, 3);
+            break;
+        }
+        fd = func_80024CB8(D_80084288, 1);
+        if (fd == -1) {
+            task->setState(task, 3);
+            break;
+        }
+        func_80024CC8(fd, task->text, 0x4000);
+        func_80024CE8(fd);
+        func_80083B88(task);
+        if (task->file != NULL) {
+            win->test = func_80083B04(task->file->count);
+            func_80083A78(win->test, task->file);
+        } else {
+            win->test = func_80083B04(10);
+        }
+        break;
+    case 1:
+        if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_START)) & 1) {
+            task->setState(task, 3);
+        }
+        break;
+    case 2:
+        break;
+    case 3:
+        if (task->file != NULL) {
+            HEAP.free(task->file);
+        }
+        if (task->text != NULL) {
+            HEAP.free(task->text);
+        }
+        GAME_FUNCS.requestMode(0x1500, 0);
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80084134);
 
