@@ -26,7 +26,16 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800834A0);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800838BC);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80083930);
+Unk800834A0 *func_80083930(s32 id) {
+    Unk800834A0 *task = createTaskWithId(func_800834A0, sizeof(Unk800834A0), 0, id);
+
+    if (FLAG_FUNCS.checkCondition(0x1C3D, 1)) {
+        task->unk58 = 1;
+    } else {
+        task->unk58 = 0;
+    }
+    return task;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80083998);
 
