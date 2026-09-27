@@ -80,6 +80,10 @@ Patches 7-12 come from dcb_decomp, which links the same PsyQ 4.7 libraries
     the target (prnt: `beqz v0,exit; sll v0,s0,2` where the exit path's
     `bgez` and `j` both reach code that sets v0). It supersedes 3 and 7.
 
+15. global-alloc's prune_preferences checks conflicts in both directions
+    (GCC 2.8), so a pseudo doesn't take a register that a conflicting
+    lower-priority pseudo prefers (dcb's _spu_note2pitch; dcb_decomp 92b3678).
+
 The whole build matches with the patched cc1 (none of the functions that
 already matched changes).
 """
@@ -648,6 +652,31 @@ def patch(src, dst):
         sys.exit("patch_cc1: mark_target_live_regs replacement too big")
     d[o:o + 3] = b"\xeb\x01\x90"  # jmp .+3
     d[o + 3:o + 3 + len(blob)] = blob
+
+    # 15. prune_preferences+695: global.c records a conflict only in the row
+    #    of the allocno that becomes live second, so `CONFLICTP (allocno, j)`
+    #    misses half of them. GCC 2.8 tests both directions when it merges
+    #    the preferences of conflicting lower-priority allocnos into
+    #    regs_someone_prefers; with only one, a higher-priority pseudo takes
+    #    a register a conflicting one prefers (dcb's libspu _spu_note2pitch:
+    #    the n/12 quotient in a1 instead of v1). Locals: allocno -0x2c, j -0x30;
+    #    %ebx is the function's GOT pointer.
+    def conflict_both_ways(code, jump):
+        code += b"\x8b\x83\x4c\xa4\x00\x00"        # mov allocno_order,%eax
+        code += b"\x8b\x55\xd0\x8b\x04\x90"        # allocno_order[j]
+        code += b"\x0f\xaf\x83\x5c\xa4\x00\x00"    # * allocno_row_words
+        code += b"\x8b\x55\xd4\x89\xd1"            # mov allocno,%edx; mov %edx,%ecx
+        code += b"\xc1\xfa\x05\x01\xd0"            # + allocno / INT_BITS
+        code += b"\x8b\x93\x58\xa4\x00\x00"        # mov conflicts,%edx
+        code += b"\x8b\x04\x82"                    # the word
+        code += b"\x83\xe1\x1f\xd3\xe8\xa8\x01"    # >> allocno % INT_BITS; test $1
+        jump(b"\x0f\x85", 0x0814C795)             # jne (merge)
+        jump(b"\xe9", 0x0814C88F)                  # jmp (next j)
+
+    start = in_bc(conflict_both_ways)
+    o = fo(0x0814C78F)
+    put(0x0814C78F, b"\x0f\x84" + d[o + 2:o + 6],
+        b"\x0f\x84" + (start - (0x0814C78F + 6)).to_bytes(4, "little", signed=True))
 
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     tmp = dst + ".tmp"
