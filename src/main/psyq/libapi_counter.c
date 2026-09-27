@@ -2,7 +2,14 @@
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libapi_counter", SetRCnt);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libapi_counter", GetRCnt);
+long GetRCnt(unsigned long spec) {
+    int c = spec & 0xFFFF;
+
+    if (c >= 3) {
+        return 0;
+    }
+    return D_8005B86C[c * 8];
+}
 
 long StartRCnt(u_long spec) {
     int timer = spec & 0xFFFF;
