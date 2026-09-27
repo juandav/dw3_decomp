@@ -10,6 +10,8 @@ void SsSeqSetDecrescendo(short seq, short vol, long count) {
     _SsSndSetDecres(seq, 0, vol, count);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_ssdecres", SsSepSetDecrescendo);
+void SsSepSetDecrescendo(short seq, short sep, short vol, long count) {
+    _SsSndSetDecres(seq, sep, vol, count);
+}
 
 OBJECT_END();
