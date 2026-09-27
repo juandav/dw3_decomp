@@ -457,7 +457,29 @@ s32 func_80013590(s32 arg0, s32 arg1) {
     return func_80013534(arg0)->unk8 == arg1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/system", func_800135C0);
+extern u16 *D_800427D4[];
+
+s32 func_800135C0(s32 type, u16 *out) {
+    s32 index;
+    s32 all;
+    u16 *p;
+    s32 n;
+
+    all = (type >> 31) != 0;
+    index = type & 0x7FFFFFFF;
+
+    if (index >= 5) {
+        return 0;
+    }
+    n = 0;
+    for (p = D_800427D4[index]; *p != 0; p++) {
+        if (D_800484E8.unk7C[*p] != 0 || (all && D_800484E8.unk20F[*p] != 0)) {
+            *out++ = *p;
+            n++;
+        }
+    }
+    return n;
+}
 
 s32 func_8001366C(void) {
     s32 pos;
