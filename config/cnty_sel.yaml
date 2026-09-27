@@ -50,5 +50,5 @@ segments:
     subsegments:
       - [0x0, .rodata, cnty_sel]
       - [0x38, c, cnty_sel]
-      - [0x16E4, data, cnty_sel]
+      - [0x16E0, data, cnty_sel]
   - [0x1744]
