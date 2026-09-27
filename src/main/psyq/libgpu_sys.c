@@ -7,6 +7,8 @@ long SetIntrMask(long mask);
 void func_80027FD0(u_char *dst, int value, int n);
 void func_800264B8(DR_ENV *p, DRAWENV *env);
 u_long func_80026728(int dfe, int dtd, int tpage);
+u_long func_80026748(short x, short y);
+u_long func_800267E0(short x, short y);
 u_long func_80026894(RECT *tw);
 void func_80027978(void);
 int func_800279AC(void);
@@ -311,7 +313,13 @@ u_long func_80026728(int dfe, int dtd, int tpage) {
     return (dtd ? 0xE1000200 : 0xE1000000) | (dfe ? 0x400 : 0) | (tpage & 0x9FF);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026748);
+#define CLAMP(x, lo, hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
+
+u_long func_80026748(short x, short y) {
+    x = CLAMP(x, 0, D_800556A0.w - 1);
+    y = CLAMP(y, 0, D_800556A0.h - 1);
+    return 0xE3000000 | ((y & 0x3FF) << 10) | (x & 0x3FF);
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800267E0);
 
