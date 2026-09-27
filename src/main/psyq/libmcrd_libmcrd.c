@@ -6,9 +6,13 @@ typedef struct CardName {
 
 /* "Access Denied. : event multiple open\n" */
 extern char D_80010C9C[];
+/* "Access Denied. : system busy\n" */
+extern char D_80010E40[];
 
 long func_8003BAEC(UserFuncArg *arg);
 long func_8003BE70(UserFuncArg *arg);
+long func_8003D0EC(long event);
+long _card_format2(long chan);
 
 void PushCallbackFunc(void) {
     D_800820C0 = MemCardCallback(NULL);
@@ -103,7 +107,23 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardSync);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardCreateFile);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardFormat);
+long MemCardFormat(long chan) {
+    volatile long *busy = &D_80082068.unk0;
+    long ret;
+
+    if (*busy != 0) {
+        printf(D_80010E40);
+        return -1;
+    }
+    ret = _card_format2(chan);
+    if (ret != 0) {
+        if (ret == 4) {
+            return 2;
+        }
+        return func_8003D0EC(ret);
+    }
+    return 0;
+}
 
 long func_8003D0EC(long event) {
     long ret = 0;
