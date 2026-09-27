@@ -465,7 +465,9 @@ s32 func_80091398(s32 index) {
     return D_80099134[index];
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800913B4);
+u8 func_800913B4(s32 index) {
+    return D_80099758[index];
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800913CC);
 
