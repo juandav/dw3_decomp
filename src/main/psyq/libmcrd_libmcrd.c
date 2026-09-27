@@ -14,7 +14,12 @@ void *McrdGetGlobalStructure(void) {
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardStart);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardStop);
+void MemCardStop(void) {
+    while (*(volatile long *)&D_80082068.unk0 != 0) {
+    }
+    VSyncCallbacks(7, NULL);
+    _card_stop();
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardExist);
 
