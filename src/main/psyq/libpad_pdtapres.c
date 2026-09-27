@@ -9,7 +9,21 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021DF0);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021E64);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021F7C);
+void func_80021F7C(PadPort *p) {
+    int i;
+    PadPort *s;
+    u_char cmd = p->cmd;
+
+    p->cmd = 0;
+    p->prevCmd = cmd;
+    s = p->unkC;
+    for (i = 0; i < 4; i++) {
+        s->unk39 = s->prevCmd;
+        s->prevCmd = s->cmd;
+        s->cmd = 0;
+        s++;
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021FC0);
 
