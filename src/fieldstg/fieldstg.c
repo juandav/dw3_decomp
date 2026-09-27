@@ -793,7 +793,13 @@ Actor *func_800914F0(s32 arg0) {
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091520);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800915B0);
+void func_800915B0(s32 id, s32 *pc) {
+    Actor *actor = func_800914F0(id);
+
+    if (actor->unk138(actor) != 0) {
+        (*pc)++;
+    }
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800915FC);
 
