@@ -187,6 +187,8 @@ void _SsVmKeyOff(int, short, short, int);
 void Snd_SetPlayMode(short, short, char, short);
 void _SpuInit(int);
 u_long _SpuGetAnyVoice(int, int);
+int func_80037AF0(int arg0, int arg1);
+short _SsVabOpenHeadWithMode(unsigned char *addr, short vabId, int (*func)(int, int), unsigned long sbaddr);
 void SysDeqIntRP(int, u_char *);
 void ChangeClearRCnt(int, int);
 void func_8002B018(void);
