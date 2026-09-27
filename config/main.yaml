@@ -303,6 +303,7 @@ segments:
       - [0x28118, c, psyq/libsnd_vm_vsu]
       - [0x281D8, c, psyq/libsnd_vs_vab]
       - [0x28288, c, psyq/libsnd_vs_vh]
+      - [0x282F8, c, psyq/libsnd_vs_vh_2]
       - [0x286E8, c, psyq/libsnd_vs_vtb]
       - [0x287A8, c, psyq/libsnd_vs_vtc]
       - [0x287D8, c, psyq/libsnd_func_80037fd8]
