@@ -120,6 +120,29 @@ typedef struct Fade {
     s32 active;
 } Fade;
 
+/* Header of every task made by func_800144DC (see func_800143B4) */
+typedef struct TaskHeader {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ u8 unk4[8];
+    /* 0x0C */ s32 state;
+    /* 0x10 */ s32 substate;
+    /* 0x14 */ s32 step;
+    /* 0x18 */ s32 counter;
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ s32 childCount;
+    /* 0x24 */ void **children;
+    /* 0x28 */ void (*setState)(void *task, s32 state);
+    /* 0x2C */ void (*setSubstate)(void *task, s32 substate);
+    /* 0x30 */ void (*setStep)(void *task, s32 step);
+    /* 0x34 */ void (*setCounter)(void *task, s32 counter);
+    /* 0x38 */ void (*nextState)(void *task);
+    /* 0x3C */ void (*nextSubstate)(void *task);
+    /* 0x40 */ void (*nextStep)(void *task);
+    /* 0x44 */ void (*nextCounter)(void *task);
+    /* 0x48 */ void (*update)(void *task, void *children);
+    /* 0x4C */ void (*destroy)(void *task);
+} TaskHeader;
+
 typedef struct Task {
     /* 0x00 */ u8 unk0[0xC];
     /* 0x0C */ s32 state;
