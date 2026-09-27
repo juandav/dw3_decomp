@@ -378,6 +378,11 @@ typedef struct SvmCur {
     /* 0x0D */ u8 unkD[3];
     /* 0x10 */ u_char center;
     /* 0x11 */ u_char shift;
+    /* 0x12 */ char mode;
+    /* 0x13 */ u8 unk13;
+    /* 0x14 */ short seqSep;
+    /* 0x16 */ short vag;
+    /* 0x18 */ short voice;
 } SvmCur;
 
 extern SvmCur D_80081E00;
