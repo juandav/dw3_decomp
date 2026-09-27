@@ -348,7 +348,25 @@ int StoreImage2(RECT *rect, u_long *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", MoveImage2);
+int MoveImage2(RECT *rect, int x, int y) {
+    func_800254DC(D_80010450, rect);
+    func_80027978();
+    while ((*(volatile u_long *)D_800557B4 & 0x01000000) ||
+           !(*(volatile u_long *)D_800557A8 & 0x04000000)) {
+        if (func_800279AC() != 0) {
+            return -1;
+        }
+    }
+    DMACallback(2, _GPU_ResetCallback);
+    if (rect->w == 0 || rect->h == 0) {
+        return -1;
+    }
+    D_80055740[0] = *(u_long *)&rect->x;
+    D_80055740[1] = (y << 16) | (x & 0xFFFF);
+    D_80055740[2] = *(u_long *)&rect->w;
+    D_80055698->exeque(&D_80055740[-2]);
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", DrawOTag2);
 
