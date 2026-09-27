@@ -144,7 +144,38 @@ void func_80082AC4(ShockTest *task, ShockTestWindows *win, s32 pattern) {
     }
 }
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80082B58);
+s32 func_80082B58(ShockTest *task, ShockTestWindows *win, s32 pattern) {
+    s32 i;
+
+    for (i = 0; i < 2; i++) {
+        if (task->motors[i] == 0) {
+            if (task->steps[i][pattern].power != 0 && task->steps[i][pattern].time != 0) {
+                PAD.setVibration(0, i, task->steps[i][pattern].time, task->steps[i][pattern].power);
+                task->timers[i] = task->steps[i][pattern].time;
+                task->motors[i] = 1;
+            } else {
+                task->motors[i] = -1;
+            }
+            win->powers[i]->setNumber(win->powers[i], 1, task->steps[i][pattern].power);
+            win->times[i]->setNumber(win->times[i], 1, task->steps[i][pattern].time);
+        } else if (task->motors[i] == 1) {
+            if (--task->timers[i] < 0) {
+                task->timers[i] = 0;
+                task->motors[i] = -1;
+            }
+        }
+    }
+    if ((task->motors[0] == -1 && task->motors[1] == -1) ||
+        ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_TRIANGLE)) & 1)) {
+        for (i = 0; i < 2; i++) {
+            PAD.setVibration(0, i, 0, 0);
+        }
+        func_80082A0C(task, win, task->pattern);
+        return 1;
+    }
+    func_80082AC4(task, win, task->pattern);
+    return 0;
+}
 
 INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80082D8C);
 
