@@ -25,7 +25,32 @@ void func_80082520(CardAlbumFader *fader, s32 fadeIn, s32 frames) {
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800825A8);
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800826EC);
+void func_800826EC(CardAlbumFader *fader) {
+    switch (fader->state) {
+    case 0:
+    default:
+        fader->nextState(fader);
+        break;
+    case 1:
+        if (fader->substate == 0) {
+            break;
+        }
+        fader->level += fader->levelStep;
+        if (fader->fadeIn == 0) {
+            if (fader->level > 0xFF00) {
+                fader->level = 0xFF00;
+                fader->state = 2;
+            }
+        } else if (fader->level < 0) {
+            fader->level = 0;
+            fader->state = 2;
+        }
+    case 2:
+        func_800825A8(fader);
+    case 3:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800827A0);
 
