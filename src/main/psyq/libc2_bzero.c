@@ -1,5 +1,20 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libc2_bzero", bzero);
+void *bzero(unsigned char *p, int n) {
+    unsigned char *s;
+
+    if (p == NULL) {
+        return NULL;
+    }
+    if (n <= 0) {
+        return NULL;
+    }
+    s = p;
+    while (n > 0) {
+        *p++ = 0;
+        n--;
+    }
+    return s;
+}
 
 OBJECT_END();
