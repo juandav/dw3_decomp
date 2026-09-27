@@ -530,7 +530,70 @@ void STDWTITL_drawSplash(SplashTask *task) {
     sprite.draw(FILE_CACHE_GET_ENTRY[0](SPLASH_SPRITES), 0, 0, 0);
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickSplash);
+void STDWTITL_tickSplash(SplashTask *task) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->nextState(task);
+        task->fade = 15;
+        task->timer = 0;
+        SOUND_STATE.stopAll();
+        break;
+    case TASK_RUN:
+        switch (task->substate) {
+        case 0:
+        default:
+            if (task->timer >= 2) {
+                task->timer -= 2;
+                if (--task->fade <= 0) {
+                    task->setSubstate(task, 1);
+                    task->timer = 0;
+                }
+            }
+            break;
+        case 1:
+            if (task->timer >= 120) {
+                task->nextSubstate(task);
+                task->timer = 0;
+            }
+            break;
+        case 2:
+            if (PAD_PRESSED(PAD_START)) {
+                task->timer = 18000;
+            }
+            if (task->timer >= 18000) {
+                task->nextSubstate(task);
+                task->timer = 0;
+            }
+            break;
+        case 3:
+            if (task->timer >= 2) {
+                task->timer -= 2;
+                if (++task->fade >= 15) {
+                    task->nextSubstate(task);
+                    task->timer = 0;
+                }
+            }
+            break;
+        case 4:
+            if (task->timer >= 60) {
+                task->nextSubstate(task);
+                task->timer = 0;
+            }
+            break;
+        case 5:
+            GAME_FUNCS.requestMode(MODE_OPENING, 0);
+            task->setState(task, TASK_KILL);
+            break;
+        }
+        task->timer += GFX_FUNCS.getFrameTime();
+        STDWTITL_drawSplash(task);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startSplashTask);
 
