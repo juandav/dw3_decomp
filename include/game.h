@@ -319,7 +319,8 @@ typedef struct Unk8004D49C {
 typedef struct TextWait {
     /* 0x00 */ u8 unk0[0x10];
     /* 0x10 */ s32 unk10;
-    /* 0x14 */ u8 unk14[4];
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
     /* 0x18 */ s16 unk18;
 } TextWait;
 
@@ -762,6 +763,7 @@ s32 func_8001366C(void);
 s32 func_80013880(void);
 void func_80013890(void);
 void func_8001B864();
+s32 func_8001A108(Unk80019DFC *obj, TextBuffer *text, TextWait *wait, s16 *pos);
 void func_8001F22C(struct Obj8001F22C *obj);
 s32 func_800154F8(u8 *bits, s32 index, s32 set);
 void func_8001C454(struct Task8001C454 *task);
@@ -780,6 +782,8 @@ extern Unk8003EB68 D_8003EB68[];
 extern char D_800101D8[];
 extern char D_800101FC[];
 extern char D_80010230[];
+extern char D_80010268[];
+extern s16 (*D_8004D5B4)(u8 *text, s32 arg1, u8 *arg2, s32 pos);
 extern Funcs80047F04 D_80047F04;
 extern Funcs8004ABD8 D_8004ABD8;
 extern TaskFuncs D_8004AF58;

@@ -1790,7 +1790,33 @@ s32 func_8001A684(void) {
     return 0x8003;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001A68C);
+s32 func_8001A68C(Unk80019DFC *obj, TextBuffer *buf, TextWait *wait) {
+    u8 index = buf->data[buf->pos + 2];
+    s16 c;
+    s32 ret;
+
+    if (obj->text[index].data == NULL) {
+        func_80019308(obj, D_80010268, index);
+        return 0x8003;
+    }
+    if (obj->text[index].pos >= obj->text[index].len) {
+        return 0x8003;
+    }
+    c = D_8004D5B4(obj->text[index].data + obj->text[index].pos, (u8)obj->text[index].dirty, obj->unk50, obj->text[index].pos);
+    wait->unk14 = c;
+    wait->unk16 = (u32)(c << 16) >> 24;
+    if (wait->unk16 == 2) {
+        return 0x8000;
+    }
+    if (obj->unkAA != 0) {
+        return func_8001A108(obj, &obj->text[index], wait, &obj->text[index].pos);
+    }
+    ret = func_8001A108(obj, &obj->text[index], wait, &obj->text[index].pos);
+    if (ret == 1) {
+        return 2;
+    }
+    return ret;
+}
 
 s32 func_8001A7AC(Unk80019DFC *obj, TextBuffer *buf) {
     if (buf->data[buf->pos + 2] < 0xFF) {
