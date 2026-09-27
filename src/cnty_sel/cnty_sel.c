@@ -321,7 +321,9 @@ void CNTY_SEL_tickRightPanel(PanelTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_startRightPanelTask);
+PanelTask *CNTY_SEL_startRightPanelTask(void) {
+    return func_800144DC(CNTY_SEL_tickRightPanel, sizeof(PanelTask), 0);
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_getLeftPanelScale);
 
