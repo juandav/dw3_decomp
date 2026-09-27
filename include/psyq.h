@@ -20,9 +20,9 @@ typedef struct GpuDriver {
     /* 0x0C */ void *unkC;
     /* 0x10 */ void (*ctrl)(u_long cmd);
     /* 0x14 */ int (*unk14)(u_long *p, int len);
-    /* 0x18 */ void *unk18;
-    /* 0x1C */ void *unk1C;
-    /* 0x20 */ void *unk20;
+    /* 0x18 */ int (*exeque)(u_long *p); /* runs an OT / packet */
+    /* 0x1C */ int (*storeImage)(RECT *rect, u_long *p);
+    /* 0x20 */ int (*loadImage)(RECT *rect, u_long *p);
     /* 0x24 */ void *unk24;
     /* 0x28 */ void *unk28;
     /* 0x2C */ int (*unk2C)(u_long *ot, int n);

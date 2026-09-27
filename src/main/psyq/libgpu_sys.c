@@ -80,12 +80,12 @@ int ClearImage2(RECT *rect, u_char r, u_char g, u_char b) {
 
 int LoadImage(RECT *rect, u_long *p) {
     func_800254DC("LoadImage", rect);
-    return D_80055698->addque(D_80055698->unk20, rect, 8, (long)p);
+    return D_80055698->addque(D_80055698->loadImage, rect, 8, (long)p);
 }
 
 int StoreImage(RECT *rect, u_long *p) {
     func_800254DC(D_80010444, rect);
-    return D_80055698->addque(D_80055698->unk1C, rect, 8, (long)p);
+    return D_80055698->addque(D_80055698->storeImage, rect, 8, (long)p);
 }
 
 int MoveImage(RECT *rect, int x, int y) {
@@ -96,7 +96,7 @@ int MoveImage(RECT *rect, int x, int y) {
     D_80055740[0] = *(u_long *)&rect->x;
     D_80055740[1] = (y << 16) | (x & 0xFFFF);
     D_80055740[2] = *(u_long *)&rect->w;
-    return D_80055698->addque(D_80055698->unk18, &D_80055740[-2], 0x14, 0);
+    return D_80055698->addque(D_80055698->exeque, &D_80055740[-2], 0x14, 0);
 }
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_80010444);
@@ -144,7 +144,7 @@ void DrawOTag(u_long *p) {
     if (D_800556A0.level >= 2) {
         D_8005569C(D_8001048C, p);
     }
-    D_80055698->addque(D_80055698->unk18, p, 0, 0);
+    D_80055698->addque(D_80055698->exeque, p, 0, 0);
 }
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_8001048C);
@@ -155,7 +155,7 @@ DRAWENV *PutDrawEnv(DRAWENV *env) {
     }
     func_800264B8(&env->dr_env, env);
     env->dr_env.tag |= 0xFFFFFF;
-    D_80055698->addque(D_80055698->unk18, &env->dr_env, sizeof(DR_ENV), 0);
+    D_80055698->addque(D_80055698->exeque, &env->dr_env, sizeof(DR_ENV), 0);
     memcpy((u_char *)&D_800556A0.draw, (u_char *)env, sizeof(DRAWENV));
     return env;
 }
@@ -166,7 +166,7 @@ void DrawOTagEnv(u_long *p, DRAWENV *env) {
     }
     func_800264B8(&env->dr_env, env);
     env->dr_env.tag = (env->dr_env.tag & 0xFF000000) | ((u_long)p & 0xFFFFFF);
-    D_80055698->addque(D_80055698->unk18, &env->dr_env, sizeof(DR_ENV), 0);
+    D_80055698->addque(D_80055698->exeque, &env->dr_env, sizeof(DR_ENV), 0);
     memcpy((u_char *)&D_800556A0.draw, (u_char *)env, sizeof(DRAWENV));
 }
 
