@@ -20,7 +20,14 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_FsetRXX);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_FsetRXXa);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_FgetRXXa);
+u_long _spu_FgetRXXa(int reg, int mode) {
+    u_short v = D_8005BA28[reg];
+
+    if (mode == -1) {
+        return v;
+    }
+    return v << D_8005BA50;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_FsetPCR);
 
