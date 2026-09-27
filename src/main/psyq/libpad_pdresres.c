@@ -6,7 +6,8 @@ extern int D_80055594;
 extern int D_80055564;
 int _padSioRW(PadPort *p, int data);
 int _padChkRC2wait(void);
-int _padSioRW2(PadPort *p, int arg);
+int _padSioRW2(PadPort *p, int data);
+void _padSetRC2wait(int wait);
 extern long D_80055568;
 extern long D_8005556C;
 extern long D_80055550;
@@ -118,7 +119,68 @@ int _padSioRW(PadPort *p, int data) {
     return rx;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padSioRW2);
+int _padSioRW2(PadPort *p, int data) {
+    volatile SioRegs *sio;
+    int baud;
+    int id;
+    int rx;
+    int now;
+    int pos;
+
+    baud = 0x88;
+    id = *p->unk3C;
+    if ((id >> 4) == 8 && p->unk44 >= 9) {
+        baud = 0x22;
+    }
+    sio = D_80055590;
+    do {
+    } while (!(sio->stat & 2));
+    _padSetRC2wait(400);
+    rx = D_80055590->data;
+    if (p->unk44 != 0 || (rx >> 4) != 8) {
+        D_80055590->baud = baud;
+    } else {
+        D_80055590->baud = 0x22;
+    }
+    while (!(*D_8005558C & 0x80)) {
+        *(volatile u_short *)0x1F801124;
+        now = *(volatile u_short *)0x1F801120;
+        if (now < D_8007F134) {
+            if (*(volatile u_short *)0x1F801128 != 0) {
+                now += *(volatile u_short *)0x1F801128;
+            } else {
+                now += 0x10000;
+            }
+        }
+        if (*(volatile u_short *)0x1F801124 & 0x200) {
+            if ((now - D_8007F134) >= D_8007F138) {
+                return -2;
+            }
+        } else if (((now - D_8007F134) >> 3) >= D_8007F138) {
+            return -2;
+        }
+    }
+    if (p->unkE8 != 8 && D_8005555C == 2) {
+        _padSetRC2wait(60);
+        while (_padChkRC2wait() == 0) {
+        }
+    }
+    D_80055590->data = data;
+    if (D_8005555C == 3 && rx == 0x80) {
+        volatile u_long *irq = D_8005558C;
+        volatile SioRegs *ctl = D_80055590;
+
+        *irq = ~0x80;
+        ctl->ctrl |= 0x10;
+    }
+    pos = p->unk44;
+    p->unk45++;
+    if (pos != 0xFF) {
+        p->unk3C[p->unk44] = rx;
+    }
+    p->unk44++;
+    return rx;
+}
 
 int _padClrIntSio0(void) {
     volatile u_long *irq = D_8005558C;
