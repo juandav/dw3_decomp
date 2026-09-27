@@ -102,7 +102,18 @@ FadeTask *func_80082AC8(void) {
     return task;
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80082B10);
+void func_80082B10(Tween *tween, s32 open) {
+    tween->active = 1;
+    if (open) {
+        SOUND.playSound(0x40019);
+        tween->step = 0x1000 / tween->duration;
+        tween->value = 0;
+    } else {
+        SOUND.playSound(0x4001A);
+        tween->value = 0x1000;
+        tween->step = -(0x1000 / tween->duration * 2);
+    }
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80082BA4);
 
