@@ -9,6 +9,7 @@ extern u16 D_80086F24[10];
 extern u16 D_80086F38;
 
 Task *func_80085974(void);
+void func_800848D0(Task *task, StageSelectWindows *win);
 
 void func_80084500(Task *task, Task **items) {
     switch (task->state) {
