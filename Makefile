@@ -26,10 +26,23 @@ GCC_VERSION ?= 2.8.1
 CC1 ?= bin/gcc-$(GCC_VERSION)-psx/cc1
 
 # The PsyQ libraries were built with GCC 2.7.2, and their ASPSX moved the
-# instruction before `j $31` into its delay slot (tools/aspsx_reorder.py)
+# instruction before `j $31` into its delay slot (tools/aspsx_reorder.py) and
+# expanded `div` with the divide-by-zero and overflow checks.
+# Most of them without the second CSE pass: it would put back the constant
+# address of a global where the first pass kept it in a register.
 MASPSX_POST :=
+PSYQ_CSE :=
+FLOAT_ABI := -msoft-float
 $(BUILDDIR)/src/main/psyq/%.c.o: GCC_VERSION := 2.7.2
+$(BUILDDIR)/src/main/psyq/%.c.o: FLOAT_ABI := -mhard-float
 $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_POST := | $(PYTHON) tools/aspsx_reorder.py
+$(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_DIV := --expand-div
+$(BUILDDIR)/src/main/psyq/%.c.o: PSYQ_CSE := -fno-rerun-cse-after-loop
+PSYQ_RERUN_CSE := libc2_puts libgpu_break libcd_bios_2 libcd_c_007 libsnd_midiread libspu_s_m_f libapi_first libsnd_ssclose libsnd_vm_pb libspu_spu libsnd_sscall libsnd_sstable libpad_pdresres libspu_s_m_int libc2_strcmp libc2_strcspn libsnd_vm_f libspu_s_sva
+$(PSYQ_RERUN_CSE:%=$(BUILDDIR)/src/main/psyq/%.c.o): PSYQ_CSE :=
+# Our GCC 2.7.2 binary-patched into the libraries' cc1 (see tools/patch_cc1.py)
+PSYQ_CC1 := $(BUILDDIR)/tools/gcc-2.7.2-psx/cc1
+$(BUILDDIR)/src/main/psyq/%.c.o: CC1 := $(PSYQ_CC1)
 MASPSX := $(PYTHON) external/maspsx/maspsx.py
 OBJDIFF ?= bin/objdiff-cli-linux-x86_64
 
@@ -38,15 +51,17 @@ INC := -Iinclude -Iexternal/psyq_headers/psyq_lib47/include
 CPPFLAGS = $(INC) -undef -nostdinc \
 	    -D__GNUC__=2 -D__GNUC_MINOR__=$(word 2,$(subst ., ,$(GCC_VERSION))) -Dmips -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx \
 	    -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C
-CC1FLAGS = -quiet -O2 -G$(SDATA_LIMIT) -mips1 -mcpu=3000 -mgas -msoft-float \
-	    -fgnu-linker -fsigned-char -fno-builtin -fdollars-in-identifiers -Wall -Wno-unused
-MASPSXFLAGS = --aspsx-version=2.86 -G$(SDATA_LIMIT) --use-comm-section --use-comm-for-lcomm
+CC1FLAGS = -quiet -O2 -G$(SDATA_LIMIT) -mips1 -mcpu=3000 -mgas $(FLOAT_ABI) \
+	    -fgnu-linker -fsigned-char -fno-builtin -fdollars-in-identifiers -Wall -Wno-unused $(PSYQ_CSE)
+MASPSXFLAGS = --aspsx-version=2.86 -G$(SDATA_LIMIT) --use-comm-section --use-comm-for-lcomm $(MASPSX_DIV)
 
 # Most of the game is built with -G0; gfx.c reads its own small variables
 # through $gp. Declare those variables static in C: maspsx then emits them
 # as common symbols that resolve to the definitions in the data asm.
 SDATA_LIMIT := 0
+$(BUILDDIR)/src/main/system.c.o: SDATA_LIMIT := 8
 $(BUILDDIR)/src/main/gfx.c.o: SDATA_LIMIT := 8
+$(BUILDDIR)/src/main/sound.c.o: SDATA_LIMIT := 8
 ASFLAGS := -EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 $(INC)
 LDFLAGS := -nostdlib --no-check-sections -Map $(MAP) \
 	   -T $(GENDIR)/main.ld \
@@ -90,13 +105,18 @@ $(EXE): $(ELF)
 $(ELF): $(OBJ) $(GENDIR)/main.ld config/undefined_syms.txt
 	$(LD) $(LDFLAGS) -o $@
 
+$(PSYQ_CC1): bin/gcc-2.7.2-psx/cc1 tools/patch_cc1.py
+	$(PYTHON) tools/patch_cc1.py $< $@
+
+$(filter $(BUILDDIR)/src/main/psyq/%,$(C_OBJ)): $(PSYQ_CC1)
+
 $(BUILDDIR)/%.c.o: %.c
 	@mkdir -p $(dir $@)
 	$(CPP) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(@:.o=.d) $< -o $(@:.o=.i)
 	$(CC1) $(CC1FLAGS) -o $(@:.o=.cc1.s) $(@:.o=.i)
 	$(MASPSX) $(MASPSXFLAGS) < $(@:.o=.cc1.s) $(MASPSX_POST) > $(@:.o=.s)
 	$(AS) $(ASFLAGS) -o $@ $(@:.o=.s)
-	@$(OBJCOPY) --set-section-alignment .text=4 $@
+	@$(OBJCOPY) --set-section-alignment .text=4 --set-section-alignment .rodata=4 $@
 
 # gas aligns these sections to 16 bytes, psylink packed them to 4
 $(BUILDDIR)/%.s.o: %.s

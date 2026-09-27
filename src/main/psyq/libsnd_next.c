@@ -11,7 +11,7 @@ void _SsSndNextSep(short seq, short sep) {
     D_80080D38[seq][sep].flags &= ~4;
     D_80080D38[seq][sep].flags &= ~0x200;
     score->unk14 = 1;
-    score->unk0 = score->unk4;
+    score->readPos = score->startPos;
     D_80080D38[seq][sep].flags |= 1;
 }
 

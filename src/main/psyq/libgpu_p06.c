@@ -1,5 +1,7 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_p06", AddPrim);
+void AddPrim(void *ot, void *p) {
+    addPrim(ot, p);
+}
 
 OBJECT_END();

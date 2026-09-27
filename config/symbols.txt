@@ -4,6 +4,7 @@ __SN_ENTRY_POINT = 0x80010EC4; // type:func
 
 // Game
 main = 0x800144FC; // type:func
+func_80014818 = 0x80014818; // type:func
 
 // Function tables in .data (calls through them are scheduled like struct accesses)
 EnterCriticalSection = 0x80024C98; // type:func
@@ -416,3 +417,6 @@ _chk_card_event_x = 0x8003DE3C; // type:func
 _card_format2 = 0x8003DE88; // type:func
 _card_create2 = 0x8003E258; // type:func
 MemCardUnformat = 0x8003E928; // type:func
+
+// Start of RAM, reached by OR-ing 0x80000000 into physical addresses: a constant, not a symbol
+D_80000000 = 0x80000000; // ignore:true

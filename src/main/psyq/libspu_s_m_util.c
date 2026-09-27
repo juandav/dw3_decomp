@@ -1,7 +1,64 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_s_m_util", _SpuIsInAllocateArea);
+typedef struct SpuMallocBlock {
+    u_long addr;
+    u_long size;
+} SpuMallocBlock;
+extern SpuMallocBlock *D_8005BA90;
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_s_m_util", _SpuIsInAllocateArea_);
+long _SpuIsInAllocateArea(u_long addr) {
+    u_long start;
+    int i;
+    SpuMallocBlock *list;
+
+    list = D_8005BA90;
+    if (list == NULL) {
+        return 0;
+    }
+    for (i = 0;; i++) {
+        if (list[i].addr & 0x80000000) {
+            continue;
+        }
+        if (list[i].addr & 0x40000000) {
+            break;
+        }
+        start = list[i].addr & 0x0FFFFFFF;
+        if (start >= addr) {
+            return 1;
+        }
+        if (addr < start + list[i].size) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+long _SpuIsInAllocateArea_(u_long addr) {
+    u_long start;
+    int i;
+    SpuMallocBlock *list;
+
+    addr <<= D_8005BA50;
+    list = D_8005BA90;
+    if (list == NULL) {
+        return 0;
+    }
+    for (i = 0;; i++) {
+        if (list[i].addr & 0x80000000) {
+            continue;
+        }
+        if (list[i].addr & 0x40000000) {
+            break;
+        }
+        start = list[i].addr & 0x0FFFFFFF;
+        if (start >= addr) {
+            return 1;
+        }
+        if (addr < start + list[i].size) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 OBJECT_END();

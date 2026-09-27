@@ -1,6 +1,9 @@
 #include "game.h"
 #include "libsnd.h"
 
+extern s32 D_80055474[];
+extern void *D_800100C4;
+
 s32 func_8001FC68(s32 id) {
     s32 i;
 
@@ -50,7 +53,25 @@ s32 func_8001FCA4(s32 packed) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_8001FE3C);
+void func_8001FE3C(void) {
+    s32 i;
+    s32 j;
+    s32 k;
+    SoundEntry *e;
+
+    for (i = 0; i < 3; i++) {
+        e = &D_80051194.sounds[i];
+        if (e->vabId != -1) {
+            for (j = 0; j < e->numSeqs; j++) {
+                for (k = 0; k < 16; k++) {
+                    SsSepStop(e->seqs[j], k);
+                }
+            }
+        }
+    }
+    SsUtAllKeyOff(0);
+    D_800553DC.unk0 = 0;
+}
 
 void func_8001FF0C(s32 packed) {
     s32 id = (packed >> 18) & 0x7F;
@@ -121,7 +142,63 @@ void func_8002019C(s32 id) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_80020218);
+/* What SoundBank.data points to: four file ids, then the SEQ files (0-terminated) */
+typedef struct SoundFiles {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 seqs[1];
+} SoundFiles;
+
+void func_80020218(void) {
+    SoundBank *bank = &D_80051194.bank;
+    s32 index = bank->index;
+    SoundEntry *e = &D_80051194.sounds[index];
+    s32 *src;
+    s32 *dst;
+    s32 n;
+    s32 i;
+    s32 j;
+
+    switch (bank->loading) {
+    case 0:
+        break;
+    case 1:
+        if (D_80044744.unk404(((SoundFiles *)bank->data)->unk4) != 0) {
+            return;
+        }
+        src = (s32 *)D_80044744.getText(((SoundFiles *)bank->data)->unk4);
+        dst = (s32 *)e->unk10;
+        n = D_80047F04.getFileSectors(((SoundFiles *)bank->data)->unk4) << 9;
+        for (j = 0; j < n; j++) {
+            *dst++ = *src++;
+        }
+        D_80044744.unk418(((SoundFiles *)bank->data)->unk4);
+        e->vabId = SsVabOpenHeadSticky(D_80044744.unk428(((SoundFiles *)bank->data)->unk8, e->unk10), index, e->unk14);
+        D_80044744.unk40C(((SoundFiles *)bank->data)->unk0);
+        bank->loading++;
+    case 2:
+        if (D_80044744.unk404(((SoundFiles *)bank->data)->unk0) != 0) {
+            return;
+        }
+        D_8004AD84.unk2C(D_80044744.getText(((SoundFiles *)bank->data)->unk0), 1);
+        e->vabId = SsVabTransBody((unsigned char *)D_80044744.unk424(((SoundFiles *)bank->data)->unkC), e->vabId);
+        bank->loading++;
+    case 3:
+        if (SsVabTransCompleted(0) == 0) {
+            return;
+        }
+        i = 0;
+        D_8004AD84.unk2C(D_80044744.getText(((SoundFiles *)bank->data)->unk0), 0);
+        D_80044744.unk418(((SoundFiles *)bank->data)->unk0);
+        for (; ((SoundFiles *)bank->data)->seqs[i] != 0; i++) {
+            e->seqs[i] = SsSepOpen((unsigned long *)D_80044744.unk428(((SoundFiles *)bank->data)->seqs[i], e->unk10), e->vabId, 16);
+        }
+        e->numSeqs = i;
+        bank->loading = 0;
+    }
+}
 
 short func_80020534(s32 index, short prog, short note) {
     return SsUtKeyOn(D_80051194.sounds[index].vabId, prog, 0, note, 0, 0x7F, 0x7F);
@@ -171,7 +248,7 @@ void func_80020764(Task80011FBC *task, s32 *out) {
     switch (task->state) {
     case 0:
     default:
-        D_800554D8.unk0();
+        D_800554D8->unk0();
         *out = D_80055418[D_8004ABD8.unk8() >> 8]();
         task->unk38(task);
         break;
@@ -190,8 +267,29 @@ void func_80020844(void) {
     func_800144DC(func_80020764, 0x50, 4);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_80020870);
+void func_80020870(void) {
+    s32 id = D_8004ABD8.unk8() >> 8;
+    u8 *src;
+    void *dst;
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_8002091C);
+    if (D_800554D0->unk0 != id) {
+        D_800554D0->unk0 = id;
+        D_800554D0->current = -1;
+        src = D_80044B58[0](D_80055474[id]);
+        dst = D_800100C4;
+        memcpy(dst, src, D_80047F04.getFileSectors(D_80055474[id]) << 11);
+    }
+}
 
-INCLUDE_RODATA("asm/main/nonmatchings/sound", jtbl_800102EC);
+void func_8002091C(s32 id) {
+    u8 *src;
+    void *dst;
+
+    if (D_800554D0->current != id) {
+        D_800554D0->current = id;
+        src = D_80044B58[0](id);
+        dst = D_800100C8;
+        memcpy(dst, src, D_80047F04.getFileSectors(id) << 11);
+    }
+}
+

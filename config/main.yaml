@@ -54,8 +54,13 @@ segments:
     subsegments:
       # psylink places .rdata ahead of .text
       - [0x800, .rodata, game]
+      - [0x884, .rodata, system]
+      - [0x8CC, .rodata, game2]
+      - [0x9A0, .rodata, game3]
+      - [0x9BC, .rodata, pad]
+      - [0x9D8, .rodata, text]
       - [0xABC, .rodata, gfx]
-      - [0xAEC, .rodata, sound]
+      - [0xAEC, .rodata, psyq/libpad_pdent4]
       # PsyQ, one file per library object
       - [0xB0C, .rodata, psyq/libgpu_sys]
       - [0xD2C, .rodata, psyq/libc2_prnt]
@@ -80,6 +85,12 @@ segments:
       - [0x169C, .rodata, psyq/libmcrd_unformat]
       - [0x16BC, asm, crt0]
       - [0x1780, c, game]
+      # Compiled with -G8 (main reaches its variables through $gp)
+      - [0x28B8, c, system]
+      - [0x5084, c, game2]
+      - [0x5CF8, c, game3]
+      - [0x87AC, c, pad]
+      - [0x97EC, c, text]
       # Compiled with -G8: its small variables are addressed through $gp
       - [0xD870, c, gfx]
       - [0x10468, c, sound]

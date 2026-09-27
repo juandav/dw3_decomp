@@ -1,5 +1,14 @@
 #include "psyq.h"
 
+extern long *D_8005C2C0;
+extern long D_80081FE8;
+extern int (*D_80081FEC[2])(void);
+extern long D_80081FF4;
+
+void func_80024CF8(int, u_char *);
+int func_8003B4BC(void);
+int func_8003B524(void);
+
 void SetInitPadFlag(long flag) {
     D_8005C2B8 = flag;
 }
@@ -37,10 +46,33 @@ long StartPAD(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libapi_pad", func_8003B444);
+int func_8003B444(void) {
+    EnterCriticalSection();
+    D_80081FEC[0] = func_8003B4BC;
+    D_80081FEC[1] = func_8003B524;
+    D_80081FE8 = 0;
+    D_80081FF4 = 0;
+    SysDeqIntRP(1, (u_char *)&D_80081FEC[-1]);
+    func_80024CF8(1, (u_char *)&D_80081FEC[-1]);
+    ExitCriticalSection();
+    return 1;
+}
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libapi_pad", func_8003B4BC);
+int func_8003B4BC(void) {
+    volatile int i, j, k;
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libapi_pad", func_8003B524);
+    D_8005C2BC[5] = 0;
+    i = 10;
+    while (--i != -1) {
+    }
+    return 0;
+}
+
+int func_8003B524(void) {
+    if ((D_8005C2C0[1] & 1) == 0 || (D_8005C2C0[0] & 1) == 0) {
+        return 0;
+    }
+    return 1;
+}
 
 OBJECT_END();

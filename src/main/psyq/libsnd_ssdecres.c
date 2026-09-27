@@ -1,13 +1,17 @@
 #include "psyq.h"
 
-void _SsSndSetDecres(short seq, short sep, int vol) {
-    _SsSndSetVolData(seq, sep, (short)-vol);
+inline void _SsSndSetDecres(short seq, short sep, short vol, long count) {
+    _SsSndSetVolData(seq, sep, (short)-vol, count);
     D_80080D38[seq][sep].flags |= 0x20;
     D_80080D38[seq][sep].flags &= ~0x10;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_ssdecres", SsSeqSetDecrescendo);
+void SsSeqSetDecrescendo(short seq, short vol, long count) {
+    _SsSndSetDecres(seq, 0, vol, count);
+}
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_ssdecres", SsSepSetDecrescendo);
+void SsSepSetDecrescendo(short seq, short sep, short vol, long count) {
+    _SsSndSetDecres(seq, sep, vol, count);
+}
 
 OBJECT_END();

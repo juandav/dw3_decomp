@@ -1,4 +1,32 @@
+/* the event flags are set from the BIOS event handlers */
+#define D_80082168 D_80082168_plain
+#define D_8008216C D_8008216C_plain
+#define D_80082170 D_80082170_plain
+#define D_80082174 D_80082174_plain
+#define D_80082178 D_80082178_plain
+#define D_8008217C D_8008217C_plain
+#define D_80082180 D_80082180_plain
+#define D_80082184 D_80082184_plain
 #include "psyq.h"
+#undef D_80082168
+#undef D_8008216C
+#undef D_80082170
+#undef D_80082174
+#undef D_80082178
+#undef D_8008217C
+#undef D_80082180
+#undef D_80082184
+
+extern volatile long D_80082168;
+extern volatile long D_8008216C;
+extern volatile long D_80082170;
+extern volatile long D_80082174;
+extern volatile long D_80082178;
+extern volatile long D_8008217C;
+extern volatile long D_80082180;
+extern volatile long D_80082184;
+
+long func_8003A588(long event); /* TestEvent */
 
 long funcEvSpIOE(void) {
     D_80082168 = 1;
@@ -91,11 +119,50 @@ void _card_stop(void) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_bios", _clr_card_event);
+void _clr_card_event(void) {
+    func_8003A588(D_80082148);
+    func_8003A588(D_8008214C);
+    func_8003A588(D_80082150);
+    func_8003A588(D_80082154);
+    func_8003A588(D_80082158);
+    func_8003A588(D_8008215C);
+    func_8003A588(D_80082160);
+    func_8003A588(D_80082164);
+    D_80082168 = D_8008216C = D_80082170 = D_80082174 = 0;
+    D_80082178 = D_8008217C = D_80082180 = D_80082184 = 0;
+}
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_bios", _get_card_event);
+long _get_card_event(void) {
+    long ev;
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_bios", _get_card_event_x);
+retry:
+    ev = D_80082168 + D_8008216C * 2 + D_80082170 * 4 + D_80082174 * 8;
+    if (ev == 0) {
+        goto retry;
+    }
+    func_8003A588(D_80082158);
+    func_8003A588(D_8008215C);
+    func_8003A588(D_80082160);
+    func_8003A588(D_80082164);
+    D_80082168 = D_8008216C = D_80082170 = D_80082174 = 0;
+    return ev >> 1;
+}
+
+long _get_card_event_x(void) {
+    long ev;
+
+retry:
+    ev = D_80082178 + D_8008217C * 2 + D_80082180 * 4 + D_80082184 * 8;
+    if (ev == 0) {
+        goto retry;
+    }
+    func_8003A588(D_80082148);
+    func_8003A588(D_8008214C);
+    func_8003A588(D_80082150);
+    func_8003A588(D_80082154);
+    D_80082178 = D_8008217C = D_80082180 = D_80082184 = 0;
+    return ev >> 1;
+}
 
 long _chk_card_event(void) {
     return D_80082168 + D_8008216C * 2 + D_80082170 * 4 + D_80082174 * 8;
