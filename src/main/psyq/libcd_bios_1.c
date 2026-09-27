@@ -23,7 +23,25 @@ inline int CD_vol(CdlATV *vol) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_flush);
+extern u_char D_8005A5A4[];
+extern volatile u_long *D_8005A594;
+
+inline void CD_flush(void) {
+    volatile u_char *status;
+
+    *D_8005A58C = 1;
+    while (*D_8005A590 & 7) {
+        *D_8005A58C = 1;
+        *D_8005A590 = 7;
+        *D_8005A59C = 7;
+    }
+    status = &D_8005A5A4[0];
+    *(volatile u_char *)&D_8005A5A4[1] = *(volatile u_char *)&D_8005A5A4[2] = 0;
+    *status = 2;
+    *D_8005A58C = 0;
+    *D_8005A590 = 0;
+    *D_8005A594 = 0x1325;
+}
 
 extern volatile u_short *D_8005A5A0;
 
