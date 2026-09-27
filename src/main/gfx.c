@@ -206,7 +206,28 @@ void func_8001D984(DrawContext *ctx) {
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D9C0);
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001DA4C);
+void func_8001DA4C(DrawContext *ctx) {
+    DRAWENV env = ctx->env;
+    DR_ENV *dr;
+    u_long *ot;
+    u_long *tag;
+
+    env.ofs[0] = ctx->unk6C;
+    env.ofs[1] = ctx->unk6E;
+    func_8001D9C0(ctx);
+    dr = (DR_ENV *)D_8004D5B8.unk20;
+    ot = ctx->ot[D_8004D5B8.buffer] + ctx->otLen;
+    tag = ot - 1;
+    if (D_8004D5B8.buffer != 0) {
+        env.clip.y += 256;
+        env.ofs[1] += 256;
+    }
+    SetDrawEnv(dr, &env);
+    addPrim(ot - 1, dr);
+    dr++;
+    D_8004D5B8.unk20 = (s32)dr;
+    DrawOTag(tag);
+}
 
 u_long *func_8001DB8C(DrawContext *ctx, s32 depth) {
     return ctx->ot[D_8004D5B8.buffer] + depth;

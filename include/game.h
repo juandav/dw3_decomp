@@ -383,11 +383,13 @@ typedef struct DrawEntry {
 
 /* Double-buffered ordering tables */
 typedef struct DrawContext {
-    /* 0x00 */ u8 unk0[0x5C];
+    /* 0x00 */ DRAWENV env;
     /* 0x5C */ u_long *ot[2];
     /* 0x64 */ s32 otLen;
     /* 0x68 */ s32 otShift;
-    /* 0x6C */ u8 unk6C[0xC];
+    /* 0x6C */ s16 unk6C;
+    /* 0x6E */ s16 unk6E;
+    /* 0x70 */ u8 unk70[8];
     /* 0x78 */ s32 unk78;
     /* 0x7C */ s32 unk7C;
     /* 0x80 */ struct DrawEntry *unk80;
@@ -668,6 +670,8 @@ typedef struct Unk800484E8 {
 } Unk800484E8;
 
 void PadStartCom(void);
+void func_8001D9C0(struct DrawContext *ctx);
+s32 func_80015DD8(s32 slot, s32 item);
 s32 func_800155F8(s32 op, s32 arg);
 void func_80020218(void);
 s32 func_80020064(void);
