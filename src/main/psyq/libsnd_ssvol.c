@@ -13,7 +13,16 @@ void _SsSndSetVol(short sep, short seq, u_short voll, u_short volr) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_ssvol", SsSeqSetVol);
+void SsSeqSetVol(short sep, short voll, short volr) {
+    SeqStruct *score = *(D_80080D38 + sep);
+
+    if (score->flags != 1) {
+        score->voll = voll;
+        score->volr = volr;
+    } else {
+        _SsVmSetSeqVol(sep, voll, volr, 1);
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_ssvol", SsSepSetVol);
 
