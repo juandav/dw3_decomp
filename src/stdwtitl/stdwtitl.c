@@ -149,7 +149,15 @@ void STDWTITL_showLogo(LogoTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startLogoTask);
+LogoTask *STDWTITL_startLogoTask(s32 skip) {
+    LogoTask *task = createTask(STDWTITL_tickLogo, sizeof(LogoTask), 0);
+
+    task->show = STDWTITL_showLogo;
+    task->layerId = STDWTITL_TITLE_LAYER;
+    task->depth = 2;
+    task->skip = skip;
+    return task;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_clearVram);
 
