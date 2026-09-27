@@ -47,7 +47,9 @@ void func_80082538(Task *task, Task **items) {
     }
 }
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80082630);
+Task *func_80082630(void) {
+    return createTask(func_80082538, sizeof(Task), 4);
+}
 
 INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_8008265C);
 
