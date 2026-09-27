@@ -12,6 +12,10 @@ the Makefile it then runs the patched cc1 from tools/patch_cc1.py
 GCC28=1 builds like the PsyQ objects in PSYQ_GCC28: the GCC 2.8.1 cc1 made by
 tools/sn_cc1.py, -mno-split-addresses, tools/unfill_epilogue.py before maspsx.
 
+The functions are looked up in every unit of asm/; UNIT=wstag201 (or any
+part of the path) picks one when several have the same name, as the stage
+overlays do.
+
 Functions that differ are printed side by side (ours | original) with the
 differing instructions marked with **.
 """
@@ -57,13 +61,14 @@ for i,(off,name) in enumerate(syms):
     if want and name not in want: continue
     m=re.match(r'func_([0-9A-F]{8})',name)
     import glob
-    asm=next(iter(glob.glob(f'{D}/asm/*/nonmatchings/**/{name}.s',recursive=True)),None)
+    unit_filter=lambda paths:[p for p in paths if os.environ.get('UNIT','') in p.split(os.sep)]
+    asm=next(iter(unit_filter(glob.glob(f'{D}/asm/*/nonmatchings/**/{name}.s',recursive=True))),None)
     if asm is not None:
         t=open(asm).read()
     else:
         # already in C: take it from splat's full disassembly
         t=None
-        for full in glob.glob(f'{D}/asm/*/**/*.s',recursive=True):
+        for full in unit_filter(glob.glob(f'{D}/asm/*/**/*.s',recursive=True)):
             if '/nonmatchings/' in full: continue
             ft=open(full).read()
             k=ft.find(f'nonmatching {name}, ')
@@ -72,8 +77,13 @@ for i,(off,name) in enumerate(syms):
                 t=ft[k:e]; asm=full; break
         if t is None: print(name,'?'); continue
     # the unit is asm/<unit>/...: its binary is config/<unit>.yaml's target_path
-    unit=os.path.relpath(asm,f'{D}/asm').split(os.sep)[0]
-    target=re.search(r'target_path:\s*(\S+)',open(f'{D}/config/{unit}.yaml').read()).group(1)
+    parts=os.path.relpath(asm,f'{D}/asm').split(os.sep)
+    unit=parts[0]
+    yaml=f'{D}/config/{unit}.yaml'
+    if unit=='stages':  # configs made by tools/stage_yaml.py
+        stage=parts[2] if parts[1]=='nonmatchings' else os.path.splitext(parts[-1])[0]
+        yaml=f'{D}/build/generated/stages/{stage}.yaml'
+    target=re.search(r'target_path:\s*(\S+)',open(yaml).read()).group(1)
     binary=open(f'{D}/{target}','rb').read()
     size=int(re.search(r'nonmatching \w+, 0x([0-9A-F]+)',t).group(1),16)
     rom=int(re.search(r'glabel '+name+r'\n\s+/\* ([0-9A-F]+) [0-9A-F]{8} ',t).group(1),16)
