@@ -27,11 +27,11 @@ void UserFuncInit(void);
 void _card_start(void);
 long _card_format2(long chan);
 
-void PushCallbackFunc(void) {
+inline void PushCallbackFunc(void) {
     D_800820C0 = MemCardCallback(NULL);
 }
 
-void PullCallbackFunc(void) {
+inline void PullCallbackFunc(void) {
     MemCardCallback(D_800820C0);
 }
 
@@ -82,7 +82,7 @@ INCLUDE_RODATA("asm/main/nonmatchings/psyq/libmcrd_libmcrd", D_80010C9C);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003BAEC);
 
-long MemCardAccept(long chan) {
+inline long MemCardAccept(long chan) {
     if (D_80082068.unk0 > 0) {
         printf(D_80010C9C);
         return 0;
@@ -396,7 +396,78 @@ long func_8003CAE8(UserFuncArg *arg) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardGetDirentry);
+extern long D_80082078;
+struct DIRENTRY *firstfile(char *name, struct DIRENTRY *dir);
+struct DIRENTRY *func_8003D258(struct DIRENTRY *dir); /* nextfile */
+
+long MemCardGetDirentry(long chan, char *name, struct DIRENTRY *dir, long *files, long ofs, long max) {
+    char key[32];
+    struct DIRENTRY d;
+    long ret;
+    long i;
+    long retry;
+    long n;
+    struct DIRENTRY *p;
+    volatile long *busy = &D_80082068.unk0;
+
+    if (*busy != 0) {
+        printf(D_80010E40);
+        return -1;
+    }
+    func_8003D1EC(chan, key);
+    strcat(key, name);
+    retry = 0;
+    i = 0;
+    ret = 0;
+    D_80082068.unkC |= 1 << chan;
+    for (n = 0; i < ofs + max; i++) {
+        if (i == 0) {
+            for (;;) {
+                _clr_card_event();
+                p = firstfile(key, &d);
+                if (p != NULL) {
+                    break;
+                }
+                ret = func_8003D0EC(_get_card_event_x());
+                if (ret == 0) {
+                    break;
+                }
+                if (++retry >= 4) {
+                    PushCallbackFunc();
+                    if (D_80082068.unk0 > 0) {
+                        printf(D_80010C9C);
+                    } else {
+                        D_80082068.unk0 = 2;
+                        D_80082068.unk4 = 0;
+                        D_80082068.unk8 = 0;
+                        D_80082078 = chan;
+                        UserFuncOpen(func_8003BE70);
+                    }
+                    MemCardSync(0, 0, &ret);
+                    PullCallbackFunc();
+                    return ret;
+                }
+            }
+        } else {
+            p = func_8003D258(&d);
+        }
+        if (p == NULL) {
+            break;
+        }
+        if (i >= ofs && dir != NULL) {
+            dir[n] = d;
+            n++;
+        }
+    }
+    if (files != NULL) {
+        *files = n;
+    }
+    return 0;
+}
+/* needs RERUN=1 (libmcrd_libmcrd in PSYQ_RERUN_CSE), extern long D_80082078 (unk10 as a separate
+   symbol inside the inlined MemCardAccept body), patch_cc1 #5 (spill slots). 20 diffs left: our reorg
+   puts `move s7,a2` (prologue param copy) into the first beqz slot; the ROM leaves it and takes
+   `addu a0,s6` from the branch target. */
 
 MemCB MemCardCallback(MemCB func) {
     MemCB old = D_80082068.callback;
