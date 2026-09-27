@@ -371,12 +371,13 @@ segments:
       - [0x2E688, c, psyq/libmcrd_low]
       - [0x2F118, c, psyq/libmcrd_func_8003e918]
       - [0x2F128, c, psyq/libmcrd_unformat]
-      - [0x2F1D8, data, game]
+      # the game's data (src/main/data/)
+      - [0x2F1D8, .data, data/game]
       # libgte sine/cosine tables, referenced by rsin/rcos
       - [0x44830, data, gte_tables]
-      - [0x45B94, data, game_2]
+      - [0x45B94, .data, data/game_2]
       - [0x45CE0, data, psyq]
-      - [0x4CAF8, data, game_3]
+      - [0x4CAF8, .data, data/game_3]
       - { start: 0x4CC80, type: bss, vram: 0x8005C480, name: game }
       - { start: 0x6ECD0, type: bss, vram: 0x8007E4D0, name: psyq }
 

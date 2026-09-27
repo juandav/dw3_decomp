@@ -87,8 +87,10 @@ LDFLAGS := -nostdlib --no-check-sections -Map $(MAP) \
 ALL_C_SRC := $(shell find src -name '*.c' 2> /dev/null)
 C_SRC := $(filter src/main/%,$(ALL_C_SRC))
 
-# Target objects for objdiff: splat's full disassembly of every C unit
-TARGET_ASM := $(ALL_C_SRC:src/%.c=$(ASM_DIR)/%.s)
+# Target objects for objdiff: splat's full disassembly of every C unit (the
+# executable's data files, src/main/data/, have none: objdiff_generate.py
+# compares them with splat's data files)
+TARGET_ASM := $(filter-out $(ASM_DIR)/main/data/%,$(ALL_C_SRC:src/%.c=$(ASM_DIR)/%.s))
 
 ASM_SRC := $(filter-out $(TARGET_ASM),$(shell find $(ASM_DIR)/main -name '*.s' \
 	   -not -path '*/nonmatchings/*' -not -path '*/matchings/*' 2> /dev/null))
