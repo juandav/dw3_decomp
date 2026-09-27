@@ -393,7 +393,7 @@ void func_800242D0(PadPort *port);
 extern DRAWENV D_800556B0;
 extern DISPENV D_8005570C;
 
-void _spu_Fw(u_char *addr, u_long size);
+u_long _spu_Fw(u_char *addr, u_long size);
 void func_8002E388(void (*func)());
 void func_8002E3D8(void (*func)());
 long func_8002DE88(long value);
