@@ -28,7 +28,12 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003BE70);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardOpen);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardClose);
+void MemCardClose(void) {
+    if (D_80082068.fd >= 0) {
+        func_80024CE8(D_80082068.fd);
+        D_80082068.fd = -1;
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardReadData);
 
