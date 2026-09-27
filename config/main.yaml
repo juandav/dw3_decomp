@@ -313,6 +313,7 @@ segments:
       - [0x28958, c, psyq/libspu_func_80038158]
       - [0x28968, c, psyq/libspu_func_80038168]
       - [0x28978, c, psyq/libspu_spu]
+      - [0x292C8, c, psyq/libspu_spu_2]
       - [0x294B8, c, psyq/libspu_s_dcb]
       - [0x294E8, c, psyq/libspu_s_m_init]
       - [0x29548, c, psyq/libspu_s_m_f]
