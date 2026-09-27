@@ -1448,7 +1448,23 @@ void func_8001746C(s32 slot, s16 *ids) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80017534);
+s32 func_80017534(s32 slot, u16 *out) {
+    s32 i;
+    s32 n;
+    s32 count;
+
+    for (n = i = 0; i < 44; i++) {
+        if (D_800484E8.records[slot].entries[i].unk0 >= 3) {
+            out[n] = D_800484E8.records[slot].entries[i].unk0;
+            n++;
+        }
+    }
+    count = n;
+    for (; n < 44; n++) {
+        out[n] = 0;
+    }
+    return count;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_800175C0);
 
