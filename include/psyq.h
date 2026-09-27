@@ -161,6 +161,15 @@ typedef struct IntrFuncs {
     /* 0x18 */ int (*restartCallback)(void);
 } IntrFuncs;
 
+/* libspu current reverb attributes, D_8005B9CC */
+typedef struct {
+    long mode;
+    short depthLeft;
+    short depthRight;
+    long delay;
+    long feedback;
+} SpuRevAttrInternal;
+
 /* libspu reverb register block, as passed to _spu_setReverbAttr */
 typedef struct SpuReverbRegs {
     /* 0x00 */ long mask;

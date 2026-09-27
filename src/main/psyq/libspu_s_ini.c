@@ -1,12 +1,5 @@
 #include "psyq.h"
 
-typedef struct {
-    long mode;
-    short depthLeft;
-    short depthRight;
-    long delay;
-    long feedback;
-} SpuRevAttrInternal;
 
 extern long D_8005B9B4;
 extern long D_8005B9BC;
