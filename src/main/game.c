@@ -1961,7 +1961,7 @@ void func_8001B434(void) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001B490);
 
-void func_8001B5AC(Task8001ACC8 *task) {
+void func_8001B5AC(Task8001B6A8 *task) {
     Obj8001F22C obj;
 
     func_8001F22C(&obj);

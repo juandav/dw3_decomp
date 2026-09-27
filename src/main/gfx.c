@@ -85,7 +85,26 @@ void func_8001D468(void) {
     D_8004D5B8.bufs[1] = NULL;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D4D4);
+void func_8001D4D4(s32 w, s32 h, s32 hires, s32 interlace) {
+    if (hires != 0) {
+        if (interlace != 0) {
+            SetDefDispEnv(&D_8004D5B8.disp[0], 0, 0, 320, 480);
+            D_8004D5B8.disp[0].isinter = 1;
+            D_8004D5B8.disp[0].isrgb24 = 1;
+            SetDefDispEnv(&D_8004D5B8.disp[1], 480, 0, 320, 480);
+            D_8004D5B8.disp[1].isinter = 1;
+            D_8004D5B8.disp[1].isrgb24 = 1;
+        } else {
+            SetDefDispEnv(&D_8004D5B8.disp[0], 0, 0, w, h);
+            SetDefDispEnv(&D_8004D5B8.disp[1], w, 0, w, h);
+        }
+    } else {
+        SetDefDispEnv(&D_8004D5B8.disp[0], 0, 0, w, h);
+        SetDefDispEnv(&D_8004D5B8.disp[1], 0, 256, w, h);
+    }
+    GsInit3D();
+    SetGeomOffset(0, 0);
+}
 
 void func_8001D5E4(s32 x, s32 y, s32 w, s32 h) {
     SetDefDispEnv(&D_8004D5B8.disp[0], x, y, w, h);

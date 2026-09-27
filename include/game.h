@@ -169,6 +169,21 @@ typedef struct Task8001ACC8 {
     /* 0x80 */ void (*methods[6])();
 } Task8001ACC8;
 
+typedef struct Task8001B6A8 {
+    /* 0x00 */ u8 unk0[0xC];
+    /* 0x0C */ s32 state;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ u8 unk14[0x3C];
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s32 unk58;
+    /* 0x5C */ s32 unk5C;
+    /* 0x60 */ s32 unk60;
+    /* 0x64 */ s32 unk64;
+    /* 0x68 */ s16 unk68;
+    /* 0x6A */ u8 unk6A[2];
+} Task8001B6A8;
+
 typedef struct Task8001B3A0 {
     /* 0x00 */ u8 unk0[0xC];
     /* 0x0C */ s32 state;
