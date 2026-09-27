@@ -96,7 +96,7 @@ def no_nop_after_div(lines):
             k = len(out) - 1
             while k >= 0 and not out[k].strip():
                 k -= 1
-            if k >= 0 and out[k].strip() == "# EXPAND_DIV END":
+            if k >= 0 and out[k].strip() in ("# EXPAND_DIV END", "# EXPAND_DIVU END"):
                 continue
         out.append(line)
     return out
