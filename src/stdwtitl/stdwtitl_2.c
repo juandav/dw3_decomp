@@ -46,7 +46,9 @@ void STDWTITL_startEdgeFade(EdgeFadeTask *task) {
     task->setSubstate(task, 1);
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_isEdgeFadeDone);
+s32 STDWTITL_isEdgeFadeDone(EdgeFadeTask *task) {
+    return task->done;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_tickEdgeFade);
 
