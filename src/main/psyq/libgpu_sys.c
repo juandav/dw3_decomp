@@ -334,7 +334,19 @@ int LoadImage2(RECT *rect, u_long *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", StoreImage2);
+int StoreImage2(RECT *rect, u_long *p) {
+    func_800254DC(D_80010444, rect);
+    func_80027978();
+    while ((*(volatile u_long *)D_800557B4 & 0x01000000) ||
+           !(*(volatile u_long *)D_800557A8 & 0x04000000)) {
+        if (func_800279AC() != 0) {
+            return -1;
+        }
+    }
+    DMACallback(2, _GPU_ResetCallback);
+    D_80055698->storeImage(rect, p);
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", MoveImage2);
 
