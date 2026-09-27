@@ -26,6 +26,8 @@ accesses.
    can't take `li v0,K` from its target (libpad func_8002184C). The patched
    scan first records what that jump and its delay slot use and set (they
    run on both paths), then stops. Returns and other jumps are unchanged.
+4. find_best_addr: a `reg + const_int` address (`4(p)` with p holding &sym)
+   stays as it is instead of being folded into the constant `sym+4`.
 
 The libraries were also built without -msoft-float (FLOAT_ABI in the Makefile):
 with the FP registers counted, loop.c hoists more invariants into saved
@@ -108,6 +110,34 @@ def patch(src, dst):
     o = fo(0x0817246F)
     put(0x0817246F, b"\x0f\x85" + d[o + 2:o + 6],
         b"\x0f\x85" + (cave - (0x0817246F + 6)).to_bytes(4, "little", signed=True))
+
+    # 4. find_best_addr: don't fold a `reg + const_int` address (e.g. `4(p)`
+    #    with p a pseudo holding &sym) into a constant `sym+4`. GCC 2.8 only
+    #    keeps a folded address when it is cheaper, and a small reg+offset is
+    #    already the cheapest; the PsyQ cc1 behaved like that (libmcrd/libgs
+    #    `addiu v1,s0,-4; sw v0,4(v1)`). The test `code == REG` before the
+    #    fold jumps to a cave (the body of `trace`, only used by -mdebugb)
+    #    that also skips PLUS with a CONST_INT second operand.
+    cave, back_fold, back_skip = 0x081C96DA, 0x080FD1F3, 0x080FD221
+    code = bytearray(
+        b"\x66\x83\xf8\x34"      # cmp ax, REG
+        b"\x74\x12"                # je skip
+        b"\x66\x83\xf8\x41"      # cmp ax, PLUS
+        b"\x75\x11"                # jne fold
+        b"\x8b\x4d\xac"           # mov ecx, [ebp-0x54]   (addr)
+        b"\x8b\x49\x08"           # mov ecx, [ecx+8]      (XEXP (addr, 1))
+        b"\x66\x83\x39\x2f"      # cmp word [ecx], CONST_INT
+        b"\x75\x05"                # jne fold
+    )
+    code += b"\xe9" + (back_skip - (cave + len(code) + 5)).to_bytes(4, "little", signed=True)
+    code += b"\xe9" + (back_fold - (cave + len(code) + 5)).to_bytes(4, "little", signed=True)
+    o = fo(cave)
+    if d[o:o + 4] != b"\xf3\x0f\x1e\xfb":
+        sys.exit("patch_cc1: unexpected bytes at trace")
+    d[o:o + len(code)] = code
+    site = 0x080FD1ED
+    put(site, b"\x66\x83\xf8\x34\x74\x2e",
+        b"\xe9" + (cave - (site + 5)).to_bytes(4, "little", signed=True) + b"\x90")
 
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     tmp = dst + ".tmp"
