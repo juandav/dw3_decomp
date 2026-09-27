@@ -1,5 +1,8 @@
 #include "game.h"
 
+/* -G8 unit: small variables defined here are reached through $gp */
+static u_char D_8005C490[8];
+
 void func_80010F80(Fade *fade, s32 fadeIn) {
     fade->active = 1;
     if (fadeIn) {
@@ -540,7 +543,45 @@ void func_800136CC(s32 arg0) {
     CdControlF(9, 0);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80013758);
+void func_80013758(s32 status) {
+    switch (status) {
+    case 5:
+        if (D_80044710.state == 4) {
+            CdControlF(9, 0);
+        } else {
+            func_80013890();
+        }
+        break;
+    case 2:
+        switch (D_80044710.state) {
+        case 1:
+            D_8005C490[0] = 0xA0;
+            CdControlF(0xE, D_8005C490);
+            D_80044710.state++;
+            break;
+        case 2:
+            func_8002DE88((s32)func_800136CC);
+            CdControlF(6, 0);
+            D_80044710.state++;
+            break;
+        case 3:
+            D_80044710.state = 4;
+            break;
+        case 4:
+            func_8002DE68(0);
+            if (D_80044710.unk20 == 0) {
+                D_80044710.state = 0;
+                if (D_80044710.unk14 != NULL) {
+                    *D_80044710.unk14 = 1;
+                }
+            } else {
+                func_80013890();
+            }
+            break;
+        }
+        break;
+    }
+}
 
 s32 func_80013880(void) {
     return D_80044710.state != 0;
