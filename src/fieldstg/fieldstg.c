@@ -170,7 +170,9 @@ void func_800878A4(s32 arg0, s32 arg1, s32 arg2) {
     task->key2 = arg1;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800878F0);
+void func_800878F0(s32 arg0) {
+    func_800878A4(0, 0, arg0);
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80087918);
 
