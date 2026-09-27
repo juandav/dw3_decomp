@@ -1,6 +1,7 @@
 #include "psyq.h"
 
 void func_80027FD0(u_char *dst, int value, int n);
+void func_800264B8(DR_ENV *p, DRAWENV *env);
 
 extern u_long D_8005574C[];
 extern u_long D_80055760; /* terminator primitive of the ordering tables */
@@ -142,7 +143,16 @@ void DrawOTag(u_long *p) {
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_8001048C);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", PutDrawEnv);
+DRAWENV *PutDrawEnv(DRAWENV *env) {
+    if (D_800556A0.level >= 2) {
+        D_8005569C("PutDrawEnv(%08x)...\n", env);
+    }
+    func_800264B8(&env->dr_env, env);
+    env->dr_env.tag |= 0xFFFFFF;
+    D_80055698->addque(D_80055698->unk18, &env->dr_env, sizeof(DR_ENV), 0);
+    memcpy((u_char *)&D_800556A0.draw, (u_char *)env, sizeof(DRAWENV));
+    return env;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", DrawOTagEnv);
 
