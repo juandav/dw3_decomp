@@ -1044,7 +1044,11 @@ void STDWTITL_tickMenu(MenuTask *task) {
     STDWTITL_drawMenu(task);
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_showMenu);
+void STDWTITL_showMenu(MenuTask *task) {
+    if (task->state == TASK_RUN) {
+        task->setSubstate(task, 1);
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_resetMenu);
 
