@@ -521,7 +521,36 @@ long func_8003D0EC(long event) {
     return ret;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003D140);
+extern volatile long D_80082058[2]; /* last command and result, passed to the callback */
+void UserFuncExecute(void);
+long UserFuncComplete(void);
+
+void func_8003D140(void) {
+    MemCB cb;
+
+    if (UserFuncComplete() == 0) {
+        UserFuncExecute();
+        if (UserFuncComplete() != 0) {
+            volatile McrdGlobal *g = &D_80082068;
+
+            g->unk8 = 1;
+            D_80082058[0] = g->unk0;
+            D_80082058[1] = g->unk4;
+            cb = D_80082068.callback;
+            g->unk0 = 0;
+            g->unk4 = 0;
+            if (cb != NULL) {
+                cb(D_80082058[0], D_80082058[1]);
+            }
+        }
+    }
+    {
+        volatile McrdGlobal *g = &D_80082068;
+
+        g->unk50 = g->unk50 + 1;
+        g->unk54 = g->unk54 + 1;
+    }
+}
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libmcrd_libmcrd", D_80010D98);
 
