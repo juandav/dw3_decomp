@@ -4,6 +4,8 @@ void func_80027FD0(u_char *dst, int value, int n);
 
 extern u_long D_8005574C[];
 extern u_long D_80055760; /* terminator primitive of the ordering tables */
+extern u_long D_80055740[]; /* words 2..4 of the 5-word MoveImage packet at D_80055740 - 8 */
+extern char D_80010450[]; /* "MoveImage" */
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_8001030C);
 
@@ -79,7 +81,16 @@ int StoreImage(RECT *rect, u_long *p) {
     return D_80055698->addque(D_80055698->unk1C, rect, 8, (long)p);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", MoveImage);
+int MoveImage(RECT *rect, int x, int y) {
+    func_800254DC(D_80010450, rect);
+    if (rect->w == 0 || rect->h == 0) {
+        return -1;
+    }
+    D_80055740[0] = *(u_long *)&rect->x;
+    D_80055740[1] = (y << 16) | (x & 0xFFFF);
+    D_80055740[2] = *(u_long *)&rect->w;
+    return D_80055698->addque(D_80055698->unk18, &D_80055740[-2], 0x14, 0);
+}
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_80010444);
 
