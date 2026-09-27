@@ -2617,7 +2617,24 @@ void func_8001AD20(Task8001ACC8 *task, Unk80019DFC **win) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001AFE0);
+Task8001ACC8 *func_8001AFE0(s16 arg0, s32 arg1, s16 arg2, s16 arg3) {
+    Task8001ACC8 *task = func_800144DC(func_8001AD20, 0x98, 4);
+
+    task->unk50 = arg0;
+    task->unk54 = arg1;
+    task->unk58 = arg2;
+    task->unk5C = arg3;
+    task->unk64 = 1;
+    task->unk74 = 0x20;
+    task->unk78 = 6;
+    task->methods[0] = func_8001ACC8;
+    task->methods[1] = func_8001ACE4;
+    task->methods[3] = func_8001AD08;
+    task->methods[4] = func_8001AD10;
+    task->methods[2] = func_8001ACF8;
+    task->methods[5] = func_8001AD18;
+    return task;
+}
 
 void func_8001B0C0(Task8001B3A0 *task) {
     if (task->unk64 != NULL) {
