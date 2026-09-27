@@ -44,7 +44,7 @@ typedef struct MemManager {
     /* 0x1C */ void *(*unk1C)(s32 size, s32 tag);
     /* 0x20 */ void *(*unk20)(s32 size, s32 tag);
     /* 0x24 */ void (*bzero)(void *ptr, s32 size);
-    /* 0x28 */ void (*unk28)();
+    /* 0x28 */ void (*memset)(void *ptr, s32 value, s32 size);
     /* 0x2C */ void (*unk2C)();
     /* 0x30 */ void (*unk30)();
 } MemManager;
@@ -405,11 +405,18 @@ typedef struct SoundEntry {
     /* 0x08 */ s16 seqs[8];
 } SoundEntry;
 
+typedef struct SoundBank {
+    /* 0x0 */ s32 *data;
+    /* 0x4 */ s16 loading;
+    /* 0x6 */ s16 index;
+} SoundBank;
+
 typedef struct Unk80051194 {
     /* 0x0000 */ u8 unk0[0x4200];
     /* 0x4200 */ SoundEntry sounds[3];
     /* 0x4248 */ s32 unk4248;
     /* 0x424C */ s32 unk424C;
+    /* 0x4250 */ SoundBank bank;
 } Unk80051194;
 
 typedef struct Obj8001E7DC {
@@ -606,7 +613,7 @@ typedef struct PadState {
     /* 0x000 */ PadInfo pads[2];
     /* 0x380 */ u8 unk380[0x48];
     /* 0x3C8 */ u8 act[2][6];
-    /* 0x3D4 */ u8 unk3D4[2];
+    /* 0x3D4 */ s16 unk3D4;
     /* 0x3D6 */ s16 unk3D6;
     /* 0x3D8 */ s32 unk3D8;
     /* 0x3DC */ s16 unk3DC;
@@ -658,6 +665,10 @@ typedef struct Unk800484E8 {
 } Unk800484E8;
 
 void PadStartCom(void);
+void func_8001855C(s32 port);
+void func_800180FC(void);
+void SsVabClose(short vabId);
+void func_80030198(short seq);
 int PadInfoMode(int port, int term, int offs);
 int PadSetMainMode(int port, int offs, int lock);
 s32 func_80018774(u32 port);
@@ -700,7 +711,7 @@ void func_8001D718(s32 index);
 void func_8001C168(Task8001C454 *task);
 void func_80029598(s32);
 void func_8001FBE0(Obj8001FBE0 *obj);
-void func_80020074(s32, s32);
+void func_80020074(s32 index, s32 id);
 void func_8001BB68(Task *task);
 void func_8001BCCC(Task *task);
 s32 *func_80013E34(u32 id);
@@ -795,6 +806,8 @@ extern RandFuncs D_8004D3B0;
 extern Funcs8004D708 D_8004D708;
 extern SoundFuncs D_800553DC;
 extern Funcs800554D8 D_800554D8;
+extern void (*D_80044B50)(s32 file);
+extern s32 *D_8005105C[];
 extern s32 (*D_80055418[])(void);
 extern Unk80042728 D_80042728;
 extern Unk80041444 D_80041444[];

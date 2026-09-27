@@ -309,7 +309,24 @@ Slot *func_80013A0C(void) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80013A44);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80013AB4);
+Slot *func_80013AB4(void) {
+    Slot *best = NULL;
+    s32 bestSize = 0;
+    s32 i = 0;
+    s32 time = D_8004D708.unk38();
+    Slot *slot;
+
+    for (slot = D_80044748; i < 64; i++, slot++) {
+        if (slot->unk4 != 0 && slot->unk0 == 3 && time >= slot->unk8) {
+            if (time != slot->unk8 || D_80047F04.getFileSectors(slot->unk4) >= bestSize) {
+                bestSize = D_80047F04.getFileSectors(slot->unk4);
+                time = slot->unk8;
+                best = slot;
+            }
+        }
+    }
+    return best;
+}
 
 void func_80013BBC(void) {
     Slot *slot = func_80013AB4();

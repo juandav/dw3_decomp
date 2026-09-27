@@ -49,7 +49,28 @@ s32 func_80020064(void) {
     return D_800553DC.unkC != 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_80020074);
+void func_80020074(s32 index, s32 id) {
+    SoundEntry *e = &D_80051194.sounds[index];
+    SoundBank *bank = &D_80051194.bank;
+    s32 i;
+    s32 j;
+
+    e->unk0 = id;
+    if (e->vabId != -1) {
+        for (i = 0; i < e->numSeqs; i++) {
+            for (j = 0; j < 16; j++) {
+                SsSepStop(e->seqs[i], j);
+            }
+            func_80030198(e->seqs[i]);
+        }
+        SsVabClose(e->vabId);
+        e->vabId = -1;
+    }
+    bank->loading = 1;
+    bank->data = D_8005105C[id];
+    bank->index = index;
+    D_80044B50(bank->data[1]);
+}
 
 void func_8002019C(s32 id) {
     if (D_80051194.sounds[1].unk0 != id && D_80051194.sounds[2].unk0 != id) {
