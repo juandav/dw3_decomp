@@ -816,7 +816,11 @@ void STDWTITL_tickTitle0Alt(SlideTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_showTitle0);
+void STDWTITL_showTitle0(SlideTask *task) {
+    if (task->state == TASK_RUN) {
+        task->setSubstate(task, 1);
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startTitle0AltTask);
 
