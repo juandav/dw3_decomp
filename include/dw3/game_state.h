@@ -165,7 +165,7 @@ typedef struct GameState {
     /* 0x007C */ s8 items[0x193]; /* counts, up to 99 */
     /* 0x020F */ s8 equippedItems[0x193];
     /* 0x03A2 */ s8 cards[0x13D]; /* counts, up to 9 */
-    /* 0x04DF */ s8 cardsSeen[0x149];
+    /* 0x04DF */ u8 cardsSeen[0x149];
     /* 0x0628 */ Deck decks[3];
     /* 0x075A */ u8 unk75A[2];
     /* 0x075C */ Partner partners[8];

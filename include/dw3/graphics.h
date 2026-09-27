@@ -168,7 +168,7 @@ typedef struct CardDrawer {
     /* 0x44 */ void (*setCell)(); /* (x, y) */
     /* 0x48 */ void (*setClutStride)(); /* (stride) */
     /* 0x4C */ void (*setSemiTrans)(); /* (on) */
-    /* 0x50 */ void (*getKind)();
+    /* 0x50 */ s32 (*getKind)(void);
 } CardDrawer;
 
 /*
