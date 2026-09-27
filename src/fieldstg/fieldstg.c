@@ -24,7 +24,20 @@ void func_80083470(void) {
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800834A0);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800838BC);
+void func_800838BC(Unk800834A0 *task, s32 arg1) {
+    if (task != NULL) {
+        switch (arg1) {
+        case 0x348:
+            task->setState(task, 2);
+            task->unk58 = 0;
+            break;
+        case 0x349:
+            task->setState(task, 2);
+            task->unk58 = 1;
+            break;
+        }
+    }
+}
 
 Unk800834A0 *func_80083930(s32 id) {
     Unk800834A0 *task = createTaskWithId(func_800834A0, sizeof(Unk800834A0), 0, id);
