@@ -802,9 +802,11 @@ typedef struct Vec2 {
 typedef struct PadSlot {
     /* 0x00 */ u16 unk0;
     /* 0x02 */ u16 unk2;
-    /* 0x04 */ u8 unk4[2];
+    /* 0x04 */ u16 unk4;
     /* 0x06 */ u16 unk6;
-    /* 0x08 */ u8 unk8[0x54];
+    /* 0x08 */ u8 analog[4];
+    /* 0x0C */ s32 repeatTime[16];
+    /* 0x4C */ u8 repeatCount[16];
     /* 0x5C */ u8 unk5C[0x10];
     /* 0x6C */ s16 actTimers[2];
 } PadSlot;
