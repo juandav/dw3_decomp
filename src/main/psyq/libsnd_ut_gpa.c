@@ -1,8 +1,5 @@
 #include "psyq.h"
 
-/* which VABs are open */
-extern u_char D_80081E20[];
-
 short SsUtGetProgAtr(short vabId, short progNum, ProgAtr *p) {
     if (D_80081E20[vabId] == 1) {
         _SsVmVSetUp(vabId, progNum);

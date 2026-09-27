@@ -341,6 +341,22 @@ extern short D_80081D98;
 
 long _SsReadDeltaValue(short seq, short sep);
 long _SsVmVSetUp(short vab, short prog);
+/* libsnd's current voice state */
+typedef struct SvmCur {
+    /* 0x00 */ u8 unk0[2];
+    /* 0x02 */ char note;
+    /* 0x03 */ u8 unk3[4];
+    /* 0x07 */ char prog;
+    /* 0x08 */ u8 unk8[4];
+    /* 0x0C */ char tone;
+    /* 0x0D */ u8 unkD[3];
+    /* 0x10 */ u_char center;
+    /* 0x11 */ u_char shift;
+} SvmCur;
+
+extern SvmCur D_80081E00;
+extern VagAtr *D_80081DF0;
+extern u_char D_80081E20[];
 extern ProgAtr *D_80081DE4;
 long _SsVmSetProgVol(short vab, short prog, u_char vol);
 void _SsVmSetVol(short seq_sep, char vab, u_char prog, u_short vol, u_char pan);
