@@ -193,7 +193,81 @@ void _padSendAtLoadInfo(PadPort *port) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres_2", _padRecvAtLoadInfo);
+int _padGetActSize(PadPort *p);
+int _padLoadActInfo(PadPort *p, int n);
+
+int _padRecvAtLoadInfo(PadPort *p) {
+    u_char *buf;
+    u_char *res;
+    u_short n;
+
+    switch (p->unk46) {
+    case 2:
+        buf = p->unk3C;
+        if (buf[7] != 0) {
+            return 0;
+        }
+        if (p->unkE3 == buf[3] && p->unkE4 == buf[4] && p->unkE9 == buf[5] && p->unkEA == buf[6]) {
+            p->unkEE = 0;
+        } else {
+            p->unkEE = 0xFFFF;
+        }
+        p->unkE3 = p->unk3C[3];
+        p->unkE4 = p->unk3C[4];
+        p->unkE6 = 0;
+        p->unkE9 = p->unk3C[5];
+        p->unkEA = p->unk3C[6];
+        p->unkEC = 0;
+        if (p->unkEE != 0) {
+            return 0;
+        }
+        p->unkEB = 0;
+        break;
+    case 3:
+        res = p->unk3C;
+        if (res[2] != 0 || res[3] != 0) {
+            return 0;
+        }
+        n = (res[4] << 8) + res[5];
+        p->unkE6 = n;
+        if (p->unkEE != n) {
+            p->unkEE = n;
+            return 0;
+        }
+        p->unkEE = 0xFFFF;
+        p->unkEB = 0;
+        p->unk47[0] = 0;
+        break;
+    case 4:
+        res = p->unk3C;
+        if (res[2] != 0 || res[3] != 0) {
+            return 0;
+        }
+        p->unkEC = (u_short)(p->unkEC + 8) + ((res[4] + 3) & ~3);
+        if (++p->unk47[0] < p->unkEA) {
+            return 0;
+        }
+        if (_padGetActSize(p) > 0x80) {
+            D_8005551C(p);
+            p->unk46 = 0xFE;
+            p->unk49 = 2;
+        } else {
+            if (p->unkEE != p->unkEC) {
+                p->unkEE = p->unkEC;
+                p->unk47[0] = 0;
+                p->unkEC = 0;
+                return 0;
+            }
+            p->unkEE = 0;
+            p->unkEB = 0;
+            p->unk46 = 0xFF;
+            _padLoadActInfo(p, (int)p->unk63);
+            p->unk46 = 2;
+        }
+        return 0;
+    }
+    return 1;
+}
 
 int _padGetActSize(PadPort *p) {
     int a = ((p->unkE3 + 1) >> 1) * 4;
