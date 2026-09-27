@@ -283,7 +283,7 @@ char tolower(char c);
 void _SsInit(void);
 void _SsSeqPlay(short, short);
 void _SsSndStop(short, short);
-void _SsVmKeyOff(int, short, short, int);
+int _SsVmKeyOff(short seq_sep, short vab, short prog, u_short note);
 void Snd_SetPlayMode(short, short, char, short);
 void _SpuInit(int);
 u_long _SpuGetAnyVoice(int, int);
