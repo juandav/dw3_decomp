@@ -5,6 +5,8 @@ void func_800264B8(DR_ENV *p, DRAWENV *env);
 void func_80027978(void);
 int func_800279AC(void);
 void _GPU_ResetCallback(void);
+u_long func_8002719C(u_long cmd);
+void func_80027154(u_long addr);
 
 extern u_long *D_800557B8;
 extern u_long *D_800557BC;
@@ -16,6 +18,8 @@ extern u_long D_8005574C[];
 extern u_long D_80055760; /* terminator primitive of the ordering tables */
 extern u_long D_80055740[]; /* words 2..4 of the 5-word MoveImage packet at D_80055740 - 8 */
 extern char D_80010450[]; /* "MoveImage" */
+extern u_long D_8007F148[]; /* clear/fill packet */
+extern u_long D_8007F170[]; /* drawing-area restore packet */
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_8001030C);
 
@@ -252,7 +256,34 @@ int func_8002692C(u_long *p, int n) {
     return n;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026A0C);
+int func_80026A0C(RECT *rect, u_long color) {
+    rect->w = (rect->w < 0) ? 0 : ((rect->w > D_800556A0.w - 1) ? D_800556A0.w - 1 : rect->w);
+    rect->h = (rect->h < 0) ? 0 : ((rect->h > D_800556A0.h - 1) ? D_800556A0.h - 1 : rect->h);
+    if ((rect->x & 0x3F) || (rect->w & 0x3F)) {
+        D_8007F148[0] = ((u_long)D_8007F170 & 0xFFFFFF) | 0x08000000;
+        D_8007F148[1] = 0xE3000000;
+        D_8007F148[2] = 0xE4FFFFFF;
+        D_8007F148[3] = 0xE5000000;
+        D_8007F148[4] = 0xE6000000;
+        D_8007F148[5] = (*D_800557A8 & 0x7FF) | 0xE1000000 | ((color >> 31) << 10);
+        D_8007F148[6] = (color & 0xFFFFFF) | 0x60000000;
+        D_8007F148[7] = *(u_long *)&rect->x;
+        D_8007F148[8] = *(u_long *)&rect->w;
+        D_8007F170[0] = 0x03FFFFFF;
+        D_8007F170[1] = func_8002719C(3) | 0xE3000000;
+        D_8007F170[2] = func_8002719C(4) | 0xE4000000;
+        D_8007F170[3] = func_8002719C(5) | 0xE5000000;
+    } else {
+        D_8007F148[0] = 0x05FFFFFF;
+        D_8007F148[1] = 0xE6000000;
+        D_8007F148[2] = (*D_800557A8 & 0x7FF) | 0xE1000000 | ((color >> 31) << 10);
+        D_8007F148[3] = (color & 0xFFFFFF) | 0x02000000;
+        D_8007F148[4] = *(u_long *)&rect->x;
+        D_8007F148[5] = *(u_long *)&rect->w;
+    }
+    func_80027154((u_long)D_8007F148);
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026C3C);
 
