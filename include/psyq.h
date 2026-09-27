@@ -37,7 +37,7 @@ typedef struct VmVoice {
     /* 0x00 */ short unk0;
     /* 0x02 */ short unk2;
     /* 0x04 */ short unk4;
-    /* 0x06 */ short unk6;
+    /* 0x06 */ u_short unk6;
     /* 0x08 */ u8 unk8[6];
     /* 0x0E */ short note;
     /* 0x10 */ short unk10;
@@ -45,8 +45,9 @@ typedef struct VmVoice {
     /* 0x14 */ short prog;
     /* 0x16 */ short tone;
     /* 0x18 */ short vabId;
-    /* 0x1A */ u8 unk1A[3];
-    /* 0x1D */ u8 unk1D;
+    /* 0x1A */ short priority;
+    /* 0x1C */ u8 unk1C;
+    /* 0x1D */ char unk1D;
     /* 0x1E */ short unk1E;
     /* 0x20 */ u8 unk20[10];
     /* 0x2A */ short unk2A;
@@ -406,7 +407,8 @@ typedef struct SvmCur {
     /* 0x07 */ char prog;
     /* 0x08 */ u8 unk8[4];
     /* 0x0C */ char tone;
-    /* 0x0D */ u8 unkD[3];
+    /* 0x0D */ u8 unkD[2];
+    /* 0x0F */ char priority;
     /* 0x10 */ u_char center;
     /* 0x11 */ u_char shift;
     /* 0x12 */ char mode;
