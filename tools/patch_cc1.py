@@ -84,6 +84,11 @@ Patches 7-12 come from dcb_decomp, which links the same PsyQ 4.7 libraries
     (GCC 2.8), so a pseudo doesn't take a register that a conflicting
     lower-priority pseudo prefers (dcb's _spu_note2pitch; dcb_decomp 92b3678).
 
+16. jump_optimize's store-flag conversion of `x = a; if (...) x = b;` with A
+    or B zero needs, with cheap branches, a power of two as the other value
+    (GCC 2.8), so `x < 0 ? 0 : x` clamps stay branches instead of
+    `nor/sra/and` (dcb's SpuSetCommonAttr; dcb_decomp 0c42307).
+
 The whole build matches with the patched cc1 (none of the functions that
 already matched changes).
 """
@@ -677,6 +682,46 @@ def patch(src, dst):
     o = fo(0x0814C78F)
     put(0x0814C78F, b"\x0f\x84" + d[o + 2:o + 6],
         b"\x0f\x84" + (start - (0x0814C78F + 6)).to_bytes(4, "little", signed=True))
+
+    # 16. jump_optimize's store-flag conversion of `x = a; if (...) x = b;`
+    #    with A or B zero (+6104 and +6134): as in GCC 2.8, when branches are
+    #    cheap (BRANCH_COST < 2, the R3000) it also needs
+    #    exact_log2 (INTVAL (other value)) >= 0 (STORE_FLAG_VALUE is 1). That
+    #    INTVAL is also taken of a REG (its regno), as 2.8 does. So `vol = 0;
+    #    if (v >= 0) vol = v;` stays a branch instead of becoming
+    #    `nor/sra/and` (dcb's SpuSetCommonAttr clamps). Locals: temp2 -0x90,
+    #    temp3 -0x128; mips_cpu R6000/R4000 (2, 3) make BRANCH_COST 2.
+    def store_flag_guard(code, jump):
+        def cheap_or_pow2(yes, no):  # BRANCH_COST >= 2 || exact_log2 (INTVAL (%eax)) >= 0
+            code.extend(b"\x8b\x15" + (0x082D536C).to_bytes(4, "little"))  # mov mips_cpu,%edx
+            code.extend(b"\x83\xfa\x03")
+            jump(b"\x0f\x84", yes)
+            code.extend(b"\x83\xfa\x02")
+            jump(b"\x0f\x84", yes)
+            code.extend(b"\x8b\x40\x04\x85\xc0")        # INTVAL; test
+            jump(b"\x0f\x84", no)
+            code.extend(b"\x89\xc2\xf7\xda\x21\xc2\x39\xc2")  # (x & -x) == x
+            jump(b"\x0f\x84", yes)
+            jump(b"\xe9", no)
+
+        entry.append(len(code))
+        jump(b"\x0f\x85", 0x080F3CDA)               # temp2 != 0 (the replaced je)
+        code.extend(b"\x8b\x85" + (-0x128).to_bytes(4, "little", signed=True))  # temp2 == 0: temp3
+        cheap_or_pow2(0x080F3DC0, 0x080F3CDA)
+        entry.append(len(code))
+        code.extend(b"\x39\x85" + (-0x128).to_bytes(4, "little", signed=True))  # cmp %eax,temp3 (replaced)
+        jump(b"\x0f\x85", 0x080F3D10)               # temp3 != 0 (the replaced jne)
+        code.extend(b"\x8b\x85" + (-0x90).to_bytes(4, "little", signed=True))   # temp3 == 0: temp2
+        cheap_or_pow2(0x080F3CEA, 0x080F3D10)
+
+    entry = []
+    start = in_bc(store_flag_guard)
+    # The first site is a 6-byte `je`; the second one, a 2-byte `jne`, is
+    # replaced together with the `cmp` before it.
+    for site, old, at in ((0x080F3CD4, bytes.fromhex("0f84e6000000"), entry[0]),
+                          (0x080F3CE2, bytes.fromhex("3985d8feffff7526"), entry[1])):
+        put(site, old, b"\xe9" + (start + at - (site + 5)).to_bytes(4, "little", signed=True)
+            + b"\x90" * (len(old) - 5))
 
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     tmp = dst + ".tmp"
