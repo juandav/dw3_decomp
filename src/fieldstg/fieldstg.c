@@ -645,7 +645,14 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800915FC);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091648);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800916B4);
+void func_800916B4(void) {
+    Actor *actor = func_800914F0(1);
+
+    if (actor == NULL) {
+        actor = func_800914F0(2);
+    }
+    actor->unk10C = 0;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800916E8);
 
