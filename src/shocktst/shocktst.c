@@ -102,7 +102,28 @@ void func_8008265C(ShockTest *task, ShockTestWindows *win, s32 highlight) {
 
 void func_80082A0C(ShockTest *task, ShockTestWindows *win, s32 pattern);
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_800827FC);
+s32 func_800827FC(ShockTest *task, ShockTestWindows *win) {
+    if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_UP)) & 1) ||
+        ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_UP)) & 1)) {
+        if (--task->pattern < 0) {
+            task->pattern = 0;
+        }
+    } else if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_DOWN)) & 1) ||
+               ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_DOWN)) & 1)) {
+        if (++task->pattern > task->count - 1) {
+            task->pattern = task->count - 1;
+        }
+    }
+    win->pattern->setNumber(win->pattern, 1, task->pattern);
+    func_80082A0C(task, win, task->pattern);
+    if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CROSS)) & 1) {
+        return 1;
+    }
+    if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_TRIANGLE)) & 1) {
+        return -1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80082A0C);
 
