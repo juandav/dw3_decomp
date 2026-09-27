@@ -4,8 +4,6 @@ void func_800A4E48();
 extern void (*D_800A5E6C[])(void);
 void func_800A5054();
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag481", func_800A4CA8);
-
 INCLUDE_ASM("asm/stages/nonmatchings/wstag481", func_800A4CBC);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag481", func_800A4E48);

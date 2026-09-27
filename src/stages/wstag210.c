@@ -3,7 +3,7 @@
 extern void (*D_800A8EF0[])(void);
 void func_800A6248();
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag210", func_800A4CA8);
+INCLUDE_ASM("asm/stages/nonmatchings/wstag210", func_800A4D38);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag210", func_800A568C);
 
