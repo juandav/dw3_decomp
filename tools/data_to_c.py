@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Turn a splat data file (.word lines) into C definitions.
 
-usage: data_to_c.py [--sizes] asm/<ovl>/data/<ovl>.data.s > data.c
+usage: data_to_c.py [--sizes | --bss] asm/<ovl>/data/<ovl>.data.s > data.c
 
 Each data symbol becomes an s32 (one word) or an s32 array; words that splat
 wrote as a symbol become that symbol's address. Symbols of .short or .byte
@@ -115,6 +115,16 @@ def main():
     symbols = parse(sys.argv[-1])
     if "--sizes" in sys.argv:
         return sizes(symbols)
+    if "--bss" in sys.argv:
+        # uninitialized definitions, in order (build with -fno-common)
+        if bad := misplaced(symbols):
+            sys.exit(f"{symbols[bad[0]][0]} would not land on its address: run with --sizes")
+        for name, _, values in symbols:
+            kinds = {k for k, _ in values}
+            t = TYPES[kinds.pop()] if len(kinds) == 1 and "raw" not in kinds else "u8"
+            n = objsize(values) // (4 if t == "s32" else 2 if t == "u16" else 1)
+            print(f"{t} {name};" if len(values) == 1 and t != "u8" or (t == "u8" and objsize(values) == 1) else f"{t} {name}[{n}];")
+        return
     if bad := misplaced(symbols):
         sys.exit(f"{symbols[bad[0]][0]} would not land on its address: run with --sizes")
     kinds = {}
