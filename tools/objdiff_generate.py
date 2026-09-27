@@ -5,9 +5,15 @@ Target objects are splat's full disassembly of each C segment
 (expected/asm/<segment>/<file>.s.o); base objects are the files built from
 src/, where every function still behind INCLUDE_ASM carries a .NON_MATCHING
 label that objdiff drops from the progress count.
+
+A source file X_2.c is the second half of an original object split in
+config/main.yaml (X.c and X_2.c come from one file before the split). Its
+unit is reported together with X's under X's name, from the two objects
+linked with `ld -r`, so progress keeps being tracked per unit as before.
 """
 
 import json
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -31,16 +37,33 @@ def category_for(name: str) -> str:
     return "game"
 
 
+def link(out: str, parts: list) -> None:
+    """ld -r the objects PARTS into OUT (paths relative to the root)."""
+    (ROOT / out).parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["mipsel-linux-gnu-ld", "-r", "-o", out] + parts, cwd=ROOT, check=True)
+
+
 def main() -> None:
+    names = [src.relative_to(ROOT / "src").with_suffix("").as_posix()
+             for src in sorted((ROOT / "src").rglob("*.c"))]
+    halves = {n[:-2]: n for n in names if n.endswith("_2") and n[:-2] in names}
     units = []
-    for src in sorted((ROOT / "src").rglob("*.c")):
-        rel = src.relative_to(ROOT / "src").with_suffix("")
-        name = rel.as_posix()
+    for name in names:
+        if name in halves.values():
+            continue
+        target = f"expected/asm/{name}.s.o"
+        base = f"build/src/{name}.c.o"
+        if name in halves:
+            second = halves[name]
+            target = f"expected/report/{name}.s.o"
+            base = f"build/report/{name}.c.o"
+            link(target, [f"expected/asm/{name}.s.o", f"expected/asm/{second}.s.o"])
+            link(base, [f"build/src/{name}.c.o", f"build/src/{second}.c.o"])
         units.append(
             {
                 "name": name,
-                "target_path": f"expected/asm/{name}.s.o",
-                "base_path": f"build/src/{name}.c.o",
+                "target_path": target,
+                "base_path": base,
                 "metadata": {"progress_categories": [category_for(name)]},
             }
         )
