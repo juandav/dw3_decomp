@@ -24,7 +24,8 @@ typedef struct Funcs80047F04 {
 typedef struct Funcs8004ABD8 {
     /* 0x00 */ void (*unk0[2])();
     /* 0x08 */ s32 (*unk8)();
-    /* 0x0C */ void (*unkC[3])();
+    /* 0x0C */ void (*unkC[2])();
+    /* 0x14 */ s32 (*unk14)();
     /* 0x18 */ s32 (*unk18)();
     /* 0x1C */ void (*unk1C[2])();
     /* 0x24 */ void (*unk24)(s32, s32);
@@ -499,7 +500,8 @@ typedef struct Unk2744 {
 
 /* Memory card state */
 typedef struct Unk80047F14 {
-    /* 0x00 */ u8 unk0[0x90];
+    /* 0x00 */ s32 state;
+    /* 0x04 */ u8 unk4[0x8C];
     /* 0x90 */ s32 cmd;
     /* 0x94 */ u32 result;
     /* 0x98 */ s32 retries;
@@ -612,6 +614,8 @@ short SsUtKeyOff(short voice, short vabId, short prog, short tone, short note);
 s32 func_8001FC68(s32 id);
 void func_80016AC8(s32 item, s32 count);
 long MemCardSync(long mode, long *cmds, u_long *result);
+long MemCardExist(long chan);
+long MemCardAccept(long chan);
 Resource *func_8001E1A0(DRAWENV *env, s32 arg1);
 s32 func_8001D6B4(s32 id);
 s32 func_800172E8(s32 slot, s32 id);
@@ -689,7 +693,8 @@ void *func_8001B368(Task8001B3A0 *task);
 void func_8001B3A0(Task8001B3A0 *task);
 void func_8001B6A8(void *task);
 void func_8001C0C4(Task *task);
-void func_80020764(void *task);
+void func_80020764(struct Task80011FBC *task, s32 *out);
+s32 func_80014A10(void);
 void func_8008AEB4(s32, s32, s32, s32, s32);
 
 extern Unk8003EB68 D_8003EB68[];
@@ -703,6 +708,7 @@ extern RandFuncs D_8004D3B0;
 extern Funcs8004D708 D_8004D708;
 extern SoundFuncs D_800553DC;
 extern Funcs800554D8 D_800554D8;
+extern s32 (*D_80055418[])(void);
 extern Unk80042728 D_80042728;
 extern Unk80041444 D_80041444[];
 extern u8 **(*D_800427A4)(s32 item);

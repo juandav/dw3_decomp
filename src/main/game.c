@@ -371,7 +371,26 @@ void func_80013F38(void) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80013FCC);
+void func_80013FCC(u32 addr) {
+    Slot *slot = D_80044748;
+    s32 i;
+    u32 end;
+
+    for (i = 0; i < 64; i++, slot++) {
+        if (slot->unk4 != 0) {
+            end = (u32)slot->unkC + 0x20;
+            end += D_80047F04.getFileSectors(slot->unk4) << 11;
+            if (end >= addr) {
+                D_8004AD84.free(slot->unkC);
+                slot->unk4 = 0;
+                slot->unkC = 0;
+                slot->unk8 = 0;
+                slot->unk2 = 0;
+                slot->unk0 = 0;
+            }
+        }
+    }
+}
 
 s32 func_800140B0(u32 id) {
     s32 index = id & 0xFFFF;
@@ -525,9 +544,61 @@ s32 func_80014A10(void) {
     return ret;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80014AAC);
+s32 func_80014AAC(s32 port) {
+    switch (D_80047F14.state) {
+    case 0:
+    default:
+        while (MemCardExist(port << 4) == 0) {
+            func_80014A10();
+        }
+        D_80047F14.state = 1;
+        break;
+    case 1:
+        if (func_80014A10() != 0) {
+            D_80047F14.state = 0;
+            if (D_80047F14.result == 0) {
+                return 1;
+            }
+            return D_80047F14.result + 1;
+        }
+        if (D_80047F14.unkA0 != 0) {
+            D_80047F14.unkA0 = 0;
+            while (MemCardExist(port << 4) == 0) {
+                func_80014A10();
+            }
+        }
+        break;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80014B8C);
+s32 func_80014B8C(s32 port) {
+    switch (D_80047F14.state) {
+    case 0:
+    default:
+        while (MemCardAccept(port << 4) == 0) {
+            func_80014A10();
+        }
+        D_80047F14.state = 2;
+        break;
+    case 2:
+        if (func_80014A10() != 0) {
+            D_80047F14.state = 0;
+            if (D_80047F14.result == 0) {
+                return 1;
+            }
+            return D_80047F14.result + 1;
+        }
+        if (D_80047F14.unkA0 != 0) {
+            D_80047F14.unkA0 = 0;
+            while (MemCardAccept(port << 4) == 0) {
+                func_80014A10();
+            }
+        }
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80014C6C);
 

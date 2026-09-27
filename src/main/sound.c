@@ -83,7 +83,24 @@ void func_80020594(s32 packed, s16 voice) {
 
 INCLUDE_ASM("asm/main/nonmatchings/sound", func_80020638);
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_80020764);
+void func_80020764(Task80011FBC *task, s32 *out) {
+    switch (task->state) {
+    case 0:
+    default:
+        D_800554D8.unk0();
+        *out = D_80055418[D_8004ABD8.unk8() >> 8]();
+        task->unk38(task);
+        break;
+    case 1:
+        if (D_8004ABD8.unk14() != 0) {
+            task->unk28(task, 3);
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 void func_80020844(void) {
     func_800144DC(func_80020764, 0x50, 4);
