@@ -1024,7 +1024,7 @@ s32 func_80015C58(s32 item, s32 have) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80015CA4);
 
-s32 func_80015D90(s32 id) {
+s32 func_80015D90(s32 id, s32 arg1) {
     if (id < 30) {
         if (D_800484E8.unk44 == id + 1) {
             return 1;
@@ -1099,7 +1099,54 @@ void func_8001602C(s32 arg0, s32 arg1) {
     func_8008AEB4(0x700, arg0 * 2 + arg1 + 1, 0, 0, 0);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80016064);
+s32 func_80016064(u16 code, u16 value) {
+    u16 group = (code >> 8) & 0xFE;
+    s32 id = code & 0x1FF;
+    u16 arg = value;
+
+    if (group == 0x00) {
+        return func_800154F8(D_80048280, id, arg);
+    } else if (group == 0x02) {
+        return func_800154F8(D_8004AB2C, id, arg);
+    } else if (group == 0x04) {
+        return func_800154F8(D_8004AB39, id, arg);
+    } else if (group == 0x06) {
+        return func_800154F8(D_8004AB3B, id, arg);
+    } else if (group == 0x08) {
+        return func_800154F8(D_8004AB3C, id, arg);
+    } else if (group == 0x0A) {
+        return func_800154F8(D_8004AB3D, id, arg);
+    } else if (group == 0x0C) {
+        return func_800154F8(D_8004AB3F, id, arg);
+    } else if (group == 0x0E) {
+        return func_800154F8(D_8004AB47, id, arg);
+    } else if (group == 0x10) {
+        return func_800154F8(D_8004AB53, id, arg);
+    } else if (group == 0x18) {
+        return func_800154F8(D_8004AB55, id, arg);
+    } else if (group == 0x1A) {
+        return func_800154F8(D_8004AB56, id, arg);
+    } else if (group == 0x1C) {
+        return func_800154F8(D_8004AB5F, id, arg);
+    } else if (group == 0x20) {
+        return func_800154F8(D_8004AB6A, id, arg);
+    } else if (group == 0x40) {
+        return func_800154F8(D_8004AB88, id, arg);
+    } else if (group == 0x60) {
+        return func_80015BB0(id, arg);
+    } else if (group == 0x70) {
+        return func_80015A78(id, arg);
+    } else if (group == 0x72) {
+        return func_80015CA4(id, arg);
+    } else if (group == 0x7E) {
+        return func_80015D90(id, arg);
+    } else if (group >= 0x80 && group < 0x8F) {
+        return func_80015BEC(id, arg);
+    } else if (group == 0x92) {
+        return func_80015C58(id, arg);
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80016260);
 
