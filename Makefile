@@ -36,7 +36,7 @@ $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_POST := | $(PYTHON) tools/aspsx_reorder.
 # the address of a global in a register and reaches its fields from there).
 # It filled the delay slot of `j $31` itself; tools/unfill_epilogue.py undoes
 # that so ASPSX's rule applies as for the rest.
-PSYQ_GCC28 := libsnd_ssstart libgs_gs_001
+PSYQ_GCC28 := libsnd_ssstart libgs_gs_001 libsnd_vm_n2p
 PSYQ_GCC28_OBJS := $(PSYQ_GCC28:%=$(BUILDDIR)/src/main/psyq/%.c.o)
 $(PSYQ_GCC28_OBJS): GCC_VERSION := 2.8.1
 $(PSYQ_GCC28_OBJS): CC1FLAGS += -mno-split-addresses
