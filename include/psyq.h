@@ -374,9 +374,11 @@ long _SsReadDeltaValue(short seq, short sep);
 long _SsVmVSetUp(short vab, short prog);
 /* libsnd's current voice state */
 typedef struct SvmCur {
-    /* 0x00 */ u8 unk0[2];
+    /* 0x00 */ u8 unk0;
+    /* 0x01 */ char vabId;
     /* 0x02 */ char note;
-    /* 0x03 */ u8 unk3[4];
+    /* 0x03 */ u8 unk3[3];
+    /* 0x06 */ char progNum;
     /* 0x07 */ char prog;
     /* 0x08 */ u8 unk8[4];
     /* 0x0C */ char tone;
