@@ -2607,7 +2607,7 @@ void func_8001B5AC(Task8001B6A8 *task) {
         }
     }
     obj.methods[6](task->unk64);
-    obj.methods[5](D_80044B68(0x02770000), 10, 0x124, 0xCD);
+    obj.methods[5](D_80044B68[0](0x02770000), 10, 0x124, 0xCD);
 }
 
 void func_8001B6A8(Task8001B6A8 *task) {
