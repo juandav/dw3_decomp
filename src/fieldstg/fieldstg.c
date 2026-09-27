@@ -369,7 +369,13 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008CF44);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008CFF4);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008D07C);
+void func_8008D07C(s32 arg0) {
+    Unk8008CC4C *task = TASK_FUNCS.find(0x10, -1, -1);
+
+    if (task != NULL) {
+        task->unk5C = arg0;
+    }
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008D0C0);
 
