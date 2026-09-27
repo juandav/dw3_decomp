@@ -32,8 +32,9 @@ def main():
     asm = asm[0]
     unit = os.path.relpath(asm, f"{ROOT}/asm/main/nonmatchings").split("/")[0]
 
-    extra = ""
+    extra, div = "", ""
     if unit == "psyq":
+        div = " --expand-div"
         cc1, g, post = "gcc-2.7.2-psx", 0, f"| python3 {ROOT}/tools/aspsx_reorder.py"
         # PSYQ_RERUN_CSE in the Makefile
         if not os.environ.get("RERUN"):
@@ -68,7 +69,7 @@ IN="$1"; OUT="$3"; T="$OUT.tmp"
 {ROOT}/bin/{cc1}/cc1 -quiet -O2 -G{g} -mips1 -mcpu=3000 -mgas -msoft-float \\
     -fsigned-char -fno-builtin -fdollars-in-identifiers -w{extra} -o "$T.s" "$IN"
 python3 {ROOT}/external/maspsx/maspsx.py --aspsx-version=2.86 -G{g} \\
-    --use-comm-section --use-comm-for-lcomm < "$T.s" {post} > "$T.ms.s"
+    --use-comm-section --use-comm-for-lcomm{div} < "$T.s" {post} > "$T.ms.s"
 mipsel-linux-gnu-as -EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 \\
     -I{ROOT}/include -o "$OUT" "$T.ms.s"
 rm -f "$T.s" "$T.ms.s"

@@ -20,7 +20,7 @@ cc1=os.environ.get('CC1',f'{D}/bin/gcc-2.8.1-psx/cc1')
 cflags=os.environ.get('CFLAGS','-O2 -G0 -fsigned-char -fno-builtin -fdollars-in-identifiers')
 psyq='2.7.2' in cc1
 if psyq and not os.environ.get('RERUN'): cflags+=' -fno-rerun-cse-after-loop'
-mflags=os.environ.get('MASPSXFLAGS','--aspsx-version=2.86')
+mflags=os.environ.get('MASPSXFLAGS','--aspsx-version=2.86'+(' --expand-div' if psyq else ''))
 post=f'| python3 {D}/tools/aspsx_reorder.py' if (psyq or os.environ.get('REORDER')) else ''
 cmd=f"mipsel-linux-gnu-cpp -P -undef -D__GNUC__=2 -Dmips -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C -I{D}/include -I{D}/external/psyq_headers/psyq_lib47/include -DSKIP_ASM {src} > {w}.i && {cc1} -quiet {cflags} -mips1 -mcpu=3000 -mgas -msoft-float -fgnu-linker -Wall -Wno-unused -o {w}.s {w}.i && python3 {D}/external/maspsx/maspsx.py {mflags} < {w}.s {post} > {w}.ms.s && mipsel-linux-gnu-as -EL -march=r3000 -no-pad-sections -O1 -G0 -o {w}.o {w}.ms.s"
 r=subprocess.run(cmd,shell=True,capture_output=True,text=True)

@@ -26,13 +26,15 @@ GCC_VERSION ?= 2.8.1
 CC1 ?= bin/gcc-$(GCC_VERSION)-psx/cc1
 
 # The PsyQ libraries were built with GCC 2.7.2, and their ASPSX moved the
-# instruction before `j $31` into its delay slot (tools/aspsx_reorder.py).
+# instruction before `j $31` into its delay slot (tools/aspsx_reorder.py) and
+# expanded `div` with the divide-by-zero and overflow checks.
 # Most of them without the second CSE pass: it would put back the constant
 # address of a global where the first pass kept it in a register.
 MASPSX_POST :=
 PSYQ_CSE :=
 $(BUILDDIR)/src/main/psyq/%.c.o: GCC_VERSION := 2.7.2
 $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_POST := | $(PYTHON) tools/aspsx_reorder.py
+$(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_DIV := --expand-div
 $(BUILDDIR)/src/main/psyq/%.c.o: PSYQ_CSE := -fno-rerun-cse-after-loop
 PSYQ_RERUN_CSE := libc2_puts libgpu_break
 $(PSYQ_RERUN_CSE:%=$(BUILDDIR)/src/main/psyq/%.c.o): PSYQ_CSE :=
@@ -46,7 +48,7 @@ CPPFLAGS = $(INC) -undef -nostdinc \
 	    -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C
 CC1FLAGS = -quiet -O2 -G$(SDATA_LIMIT) -mips1 -mcpu=3000 -mgas -msoft-float \
 	    -fgnu-linker -fsigned-char -fno-builtin -fdollars-in-identifiers -Wall -Wno-unused $(PSYQ_CSE)
-MASPSXFLAGS = --aspsx-version=2.86 -G$(SDATA_LIMIT) --use-comm-section --use-comm-for-lcomm
+MASPSXFLAGS = --aspsx-version=2.86 -G$(SDATA_LIMIT) --use-comm-section --use-comm-for-lcomm $(MASPSX_DIV)
 
 # Most of the game is built with -G0; gfx.c reads its own small variables
 # through $gp. Declare those variables static in C: maspsx then emits them
