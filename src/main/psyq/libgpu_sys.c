@@ -10,6 +10,8 @@ extern u_long *D_800557B8;
 extern u_long *D_800557BC;
 extern u_long *D_800557C0;
 extern u_long *D_800557C4;
+extern volatile long D_800557C8; /* command queue write index */
+extern volatile long D_800557CC; /* command queue read index */
 extern u_long D_8005574C[];
 extern u_long D_80055760; /* terminator primitive of the ordering tables */
 extern u_long D_80055740[]; /* words 2..4 of the 5-word MoveImage packet at D_80055740 - 8 */
@@ -297,7 +299,35 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800274A0);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80027700);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_8002783C);
+int func_8002783C(int mode) {
+    int n;
+
+    if (mode == 0) {
+        func_80027978();
+        while (D_800557C8 != D_800557CC) {
+            func_800274A0();
+            if (func_800279AC() != 0) {
+                return -1;
+            }
+        }
+        while ((*(volatile u_long *)D_800557B4 & 0x01000000) ||
+               !(*(volatile u_long *)D_800557A8 & 0x04000000)) {
+            if (func_800279AC() != 0) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+    n = (D_800557C8 - D_800557CC) & 0x3F;
+    if (n != 0) {
+        func_800274A0();
+    }
+    if (((*(volatile u_long *)D_800557B4 & 0x01000000) ||
+         !(*(volatile u_long *)D_800557A8 & 0x04000000)) && n == 0) {
+        return 1;
+    }
+    return n;
+}
 
 inline void func_80027978(void) {
     D_800557DC = VSync(-1) + 240;
