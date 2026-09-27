@@ -28,7 +28,34 @@ Task *func_80084564(void) {
     return createTask(func_80084500, sizeof(Task), 4);
 }
 
-INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_80084590);
+void func_80084590(StageSelect *sel, s32 delta) {
+    s32 end = 0;
+    s32 top = sel->top;
+    s32 cursor = sel->cursor;
+
+    do {
+        sel->cursor += delta;
+        if (sel->cursor < 0) {
+            sel->cursor = 0;
+            if (--sel->top < 0) {
+                sel->top = 0;
+                end = 1;
+            }
+        }
+        if (sel->cursor > sel->lines - 1) {
+            sel->cursor = sel->lines - 1;
+            if (++sel->top > sel->count - sel->lines) {
+                sel->top = sel->count - sel->lines;
+                end = 1;
+            }
+        }
+        if (D_800859BC[sel->top + sel->cursor].scene != 0) {
+            return;
+        }
+    } while (end == 0);
+    sel->top = top;
+    sel->cursor = cursor;
+}
 
 INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_80084660);
 
