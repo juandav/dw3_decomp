@@ -203,7 +203,29 @@ void STDWTITL_initStream(CdlLOC *loc, void (*callback)()) {
     STDWTITL_readStream(loc);
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_getNextFrame);
+u_long *STDWTITL_getNextFrame(DecEnv *dec) {
+    u_long *addr;
+    StHEADER *sector;
+    s32 count = 2000;
+
+    while (StGetNext(&addr, (u_long **)&sector) != 0) {
+        if (--count == 0) {
+            return NULL;
+        }
+    }
+    if (sector->frameCount >= STDWTITL_movieEndFrame) {
+        STDWTITL_movieEnded = 1;
+    }
+    if (STDWTITL_movieWidth != sector->width || STDWTITL_movieHeight != sector->height) {
+        STDWTITL_clearVram();
+        STDWTITL_movieWidth = sector->width;
+        STDWTITL_movieHeight = sector->height;
+    }
+    dec->rect[0].w = dec->rect[1].w = STDWTITL_movieWidth * 3 / 2;
+    dec->rect[0].h = dec->rect[1].h = STDWTITL_movieHeight;
+    dec->slice.h = STDWTITL_movieHeight;
+    return addr;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_decodeNextFrame);
 
