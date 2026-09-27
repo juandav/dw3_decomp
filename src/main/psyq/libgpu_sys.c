@@ -154,7 +154,15 @@ DRAWENV *PutDrawEnv(DRAWENV *env) {
     return env;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", DrawOTagEnv);
+void DrawOTagEnv(u_long *p, DRAWENV *env) {
+    if (D_800556A0.level >= 2) {
+        D_8005569C("DrawOTagEnv(%08x,&08x)...\n", p, env);
+    }
+    func_800264B8(&env->dr_env, env);
+    env->dr_env.tag = (env->dr_env.tag & 0xFF000000) | ((u_long)p & 0xFFFFFF);
+    D_80055698->addque(D_80055698->unk18, &env->dr_env, sizeof(DR_ENV), 0);
+    memcpy((u_char *)&D_800556A0.draw, (u_char *)env, sizeof(DRAWENV));
+}
 
 DRAWENV *GetDrawEnv(DRAWENV *env) {
     memcpy((u_char *)env, (u_char *)&D_800556B0, sizeof(DRAWENV));
