@@ -249,7 +249,33 @@ s32 func_800832C4(ShockTest *task, ShockTestWindows *win, TextWindow **windows, 
     return 0;
 }
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_8008354C);
+s32 func_8008354C(ShockTest *task, ShockTestWindows *win) {
+    switch (task->row) {
+    case 0:
+    default:
+        if (func_800827FC(task, win) != 0) {
+            return 1;
+        }
+        break;
+    case 1:
+        task->step = task->column;
+        if (func_800832C4(task, win, win->times, &task->steps[task->step][task->pattern].time, 0) != 0) {
+            return 1;
+        }
+        break;
+    case 2:
+        task->step = task->column;
+        if (task->step != 0) {
+            if (func_800832C4(task, win, win->times, &task->steps[task->step][task->pattern].power, 0) != 0) {
+                return 1;
+            }
+        } else if (func_800832C4(task, win, win->times, &task->steps[0][task->pattern].power, 1) != 0) {
+            return 1;
+        }
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", D_80082478);
 
