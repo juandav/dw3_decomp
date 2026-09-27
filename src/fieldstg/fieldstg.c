@@ -272,7 +272,11 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80088E4C);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008926C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800892E8);
+void func_800892E8(s32 arg0) {
+    Task *task = createTask(func_8008926C, 0x54, 0);
+
+    task->key2 = arg0;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80089320);
 
