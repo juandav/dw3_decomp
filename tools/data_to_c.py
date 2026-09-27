@@ -6,9 +6,10 @@ usage: data_to_c.py [--sizes] asm/<ovl>/data/<ovl>.data.s > data.c
 Each data symbol becomes an s32 (one word) or an s32 array; words that splat
 wrote as a symbol become that symbol's address. Symbols of .short or .byte
 become u16 or u8 arrays, and symbols that mix sizes u8 arrays of their bytes.
-GCC word-aligns every array, so each object must start and end on a word:
-`data_to_c.py --sizes FILE` prints the symbol sizes (for config/symbols_<ovl>.txt)
-that merge the symbols splat split off at odd offsets into the object before. The declarations those need
+GCC places each object at the next multiple of its alignment (a scalar's size;
+a word for any array, as MIPS word-aligns them), so an object must land on its
+symbol's address: `data_to_c.py --sizes FILE` prints the symbol sizes (for the
+splat symbol file) that merge the pieces that wouldn't into the object before. The declarations those need
 come first. This is only a starting point that reproduces the bytes: give the
 data real types once the code that uses it is understood.
 """
@@ -18,17 +19,43 @@ import sys
 
 VALUE = re.compile(r"^\s+/\* [0-9A-F]+ ([0-9A-F]{8})(?: [0-9A-F]{8})? \*/\s+\.(word|short|byte)\s+(\S+(?: [+-] \S+)?)")
 LABEL = re.compile(r"^dlabel (\w+)")
-OTHER = re.compile(r"^\s+/\* .*\*/\s+\.(half|ascii|asciz|space)\b")
+END = re.compile(r"^enddlabel (\w+)")
+STRING = re.compile(r"^\s+/\* [0-9A-F]+ [0-9A-F]{8} \*/\s+\.(ascii|asciz)\s")
+RAW = re.compile(r"^\s+/\* ([0-9A-F]+) \*/\s*$")  # the bytes of the string above
+OTHER = re.compile(r"^\s+/\* .*\*/\s+\.(half|space)\b")
 TYPES = {"word": "s32", "short": "u16", "byte": "u8"}
 SIZES = {"word": 4, "short": 2, "byte": 1}
+
+
+def size(kind, value):
+    return len(value) // 2 if kind == "raw" else SIZES[kind]
 
 
 def parse(path):
     """[(name, address, [(kind, value)])] of the data file."""
     symbols = []
+    string = False
+    closed = True  # data after an enddlabel belongs to no symbol: name it
     for line in open(path):
         if m := LABEL.match(line):
             symbols.append([m.group(1), None, []])
+            closed = False
+            continue
+        if END.match(line):
+            closed = True
+            continue
+        if closed and (m := VALUE.match(line) or (STRING.match(line) and re.match(r"^\s+/\* [0-9A-F]+ ([0-9A-F]{8})", line))):
+            symbols.append([f"D_{m.group(1)}", None, []])
+            closed = False
+        if STRING.match(line):
+            # splat's string guesser: take the string's bytes (with the
+            # padding up to the next word) from the line after it
+            string = True
+            if symbols[-1][1] is None:
+                symbols[-1][1] = int(line.split()[2], 16)
+        elif string and (m := RAW.match(line)):
+            symbols[-1][2].append(("raw", m.group(1)))
+            string = False
         elif m := VALUE.match(line):
             if symbols[-1][1] is None:
                 symbols[-1][1] = int(m.group(1), 16)
@@ -38,35 +65,64 @@ def parse(path):
     return symbols
 
 
+def objsize(values):
+    return sum(size(k, v) for k, v in values)
+
+
+def align(values):
+    """Alignment GCC gives the C object: a scalar its size, an array (or the
+    byte array of mixed data) a word, since MIPS word-aligns every array."""
+    if len(values) == 1 and values[0][0] != "raw":
+        return SIZES[values[0][0]]
+    return 4
+
+
+def misplaced(symbols):
+    """Indexes of the symbols whose C object would not land on their address
+    after the object before them."""
+    bad, cur = [], None
+    for i, (name, addr, values) in enumerate(symbols):
+        a = align(values)
+        placed = addr if cur is None else (cur + a - 1) // a * a
+        if placed != addr:
+            bad.append(i)
+        cur = addr + objsize(values)
+    return bad
+
+
 def sizes(symbols):
-    """Symbols that must be one object with the ones after them, so that every
-    C object starts and ends on a word: GCC word-aligns every array. Printed as
-    splat symbol_addrs lines; splat then writes BASE+offset for the rest."""
-    i = 0
-    while i < len(symbols):
-        name, addr, values = symbols[i]
-        end = addr + sum(SIZES[k] for k, _ in values)
-        j = i + 1
-        while end % 4 and j < len(symbols):
-            end = symbols[j][1] + sum(SIZES[k] for k, _ in symbols[j][2])
-            j += 1
-        if j > i + 1:
+    """Symbols that must be one object with the ones after them for every C
+    object to land on its address. Printed as splat symbol_addrs lines; splat
+    then writes BASE+offset for the rest."""
+    groups = [[s] for s in symbols]
+    changed = True
+    while changed:
+        changed = False
+        flat = [[g[0][0], g[0][1], [v for s in g for v in s[2]]] for g in groups]
+        for i in misplaced(flat):
+            if i:
+                groups[i - 1] += groups.pop(i)
+                changed = True
+                break
+    for g in groups:
+        if len(g) > 1:
+            name, addr = g[0][0], g[0][1]
+            end = g[-1][1] + objsize(g[-1][2])
             print(f"{name} = 0x{addr:08X}; // size:0x{end - addr:X}")
-        i = j
 
 
 def main():
     symbols = parse(sys.argv[-1])
     if "--sizes" in sys.argv:
         return sizes(symbols)
+    if bad := misplaced(symbols):
+        sys.exit(f"{symbols[bad[0]][0]} would not land on its address: run with --sizes")
     kinds = {}
     for name, addr, values in symbols:
-        if addr % 4:
-            sys.exit(f"{name} is not word-aligned: run with --sizes")
-        if sum(SIZES[k] for k, _ in values) % 4:
-            sys.exit(f"{name} doesn't fill whole words: run with --sizes")
         kinds[name] = values[0][0] if len({k for k, _ in values}) == 1 else "bytes"
-    scalars = {name for name, _, values in symbols if len(values) == 1}
+        if kinds[name] == "raw":
+            kinds[name] = "bytes"
+    scalars = {name for name, _, values in symbols if len(values) == 1 and kinds[name] != "bytes"}
 
     def value(v):
         if re.fullmatch(r"-?(0x[0-9A-Fa-f]+|\d+)", v):
@@ -84,6 +140,9 @@ def main():
             # mixed sizes: its bytes, little-endian (only plain numbers can be split)
             data = b""
             for k, v in values:
+                if k == "raw":
+                    data += bytes.fromhex(v)
+                    continue
                 if not re.fullmatch(r"-?(0x[0-9A-Fa-f]+|\d+)", v):
                     sys.exit(f"{name} mixes sizes and holds {v}: give it a real type by hand")
                 data += (int(v, 0) & ((1 << (8 * SIZES[k])) - 1)).to_bytes(SIZES[k], "little")
@@ -95,8 +154,9 @@ def main():
         for v in vs:
             if not re.fullmatch(r"-?(0x[0-9A-Fa-f]+|\d+)", v):
                 v = v.split(" ")[0]
+                t = TYPES.get(kinds.get(v), "u8") if v in kinds else "s32"
                 d = f"void {v}();" if v.startswith("func_") else (
-                    f"extern s32 {v};" if v in scalars else f"extern s32 {v}[];")
+                    f"extern {t} {v};" if v in scalars else f"extern {t} {v}[];")
                 if d not in decls:
                     decls.append(d)
         t = TYPES[kind]
