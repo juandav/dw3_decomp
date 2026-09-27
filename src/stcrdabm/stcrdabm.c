@@ -302,7 +302,105 @@ void STCRDABM_showPageInfo(CardAlbum *album, CardAlbumWindows *win, s32 show) {
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", STCRDABM_showCardInfo);
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", STCRDABM_drawAlbum);
+void STCRDABM_drawAlbum(CardAlbum *album) {
+    SpriteDrawer sprite;
+    CardDrawer icon;
+    s32 kind;
+    s32 frame;
+
+    initSpriteDrawer(&sprite);
+    sprite.setTexture(0x280, 0);
+    sprite.setLayerId(album->layer, album->depth);
+    if (album->frameToggle != 0) {
+        album->frame = ++album->frame < 0x60 ? album->frame : 0;
+        album->frameToggle = 0;
+    } else {
+        album->frameToggle = 1;
+    }
+    sprite.draw(FILE_CACHE.getEntry(0x05F50000), 8, album->frame, album->frame);
+    sprite.setLayerId(album->layer, album->depth - 2);
+    if (album->fade.level != 0) {
+        if (album->fade.level != 0x1000) {
+            sprite.setScale(album->fade.level, 0x1000, 0x1000);
+            sprite.setPivot(0, 0x20);
+        }
+        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 9, 0, 0x15);
+        if (album->fade.level != 0x1000) {
+            sprite.setPivot(0x140, 0x20);
+        }
+        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0xF, 0xC8, 0x15);
+        if (album->fade.level != 0x1000) {
+            sprite.setScale(album->fade.level, album->fade.level, 0x1000);
+            sprite.setPivot(0x3A, 0xA5);
+        }
+        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0xE, 0x22, 0x9A);
+    }
+    if (album->active != 0) {
+        if (album->pageCount >= 2) {
+            if (GFX.funcs.getTime() - album->blinkTime > 0x10) {
+                album->blinkTime = GFX.funcs.getTime();
+                album->blink = 1 - album->blink;
+            }
+            if (album->blink != 0) {
+                if (album->page > 0) {
+                    sprite.draw(FILE_CACHE_GET_ENTRY[0](0x05F50000), 0x1A, 0xE, 0x5A);
+                }
+                if (album->page < album->pageCount - 1) {
+                    sprite.draw(FILE_CACHE_GET_ENTRY[0](0x05F50000), 0x1B, 0x121, 0x5A);
+                }
+            }
+        }
+        if (album->pageHasCards != 0) {
+            if (GFX.funcs.getTime() - album->cursorTime > 0x10) {
+                album->cursorTime = GFX.funcs.getTime();
+                if (++album->cursorFrame >= 6) {
+                    album->cursorFrame = 0;
+                }
+            }
+            sprite.setClutRow(STCRDABM_cursorBlink[album->cursorFrame]);
+            sprite.draw(FILE_CACHE_GET_ENTRY[0](0x05F50000), 7, album->slot % 6 * 42 + 0x24, album->slot / 6 * 54 + 0x32);
+            sprite.setClutRow(0);
+        }
+    }
+    if (album->infoFade.level != 0) {
+        initCardDrawer(&icon);
+        icon.setCard(album->card);
+        if (album->infoFade.level != 0x1000) {
+            sprite.setScale(album->infoFade.level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0xA8);
+        }
+        kind = icon.getKind();
+        if (kind == 1) {
+            frame = 0x12;
+        } else if (kind == 2) {
+            frame = 0x13;
+        } else {
+            frame = icon.card[0] + 0x13;
+        }
+        sprite.draw(FILE_CACHE.getEntry(0x05F50000), frame, 0x103, 0x9F);
+        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0xD, 0xFC, 0x9D);
+        if (album->infoFade.level != 0x1000) {
+            sprite.setPivot(0x140, 0xA8);
+        }
+        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0xA, 0x82, 0x9D);
+        if (album->infoFade.level != 0x1000) {
+            sprite.setPivot(0x140, 0xD0);
+        }
+        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0x10, 0x103, 0xC5);
+        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0xD, 0xFC, 0xC3);
+        if (album->infoFade.level != 0x1000) {
+            sprite.setPivot(0x140, 0xC6);
+        }
+        if (kind != 0) {
+            sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0xB, 0x4A, 0xB3);
+        } else if (album->card == 0x45 || album->card == 0x70 || album->card == 0x9B || album->card == 0xC6 ||
+                   album->card == 0xF1) {
+            sprite.draw(FILE_CACHE_GET_ENTRY[0](0x05F50000), 0xB, 0x4A, 0xB3);
+        } else {
+            sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0xC, 0xC7, 0xB3);
+        }
+    }
+}
 
 void STCRDABM_findPageCards(CardAlbum *album) {
     s32 i;
