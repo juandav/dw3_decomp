@@ -505,7 +505,9 @@ void func_80090EC8(void) {
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80090EF4);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80090F54);
+void func_80090F54(void) {
+    FLAG_FUNCS.applyAction(0x40C, 1);
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80090F80);
 
