@@ -25,7 +25,9 @@ void STDWTITL_tickSplashLoader(Task *task, Task **splash) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startSplashLoaderTask);
+Task *STDWTITL_startSplashLoaderTask(void) {
+    return createTask(STDWTITL_tickSplashLoader, sizeof(Task), sizeof(Task *));
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickScreen);
 
