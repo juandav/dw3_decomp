@@ -34,6 +34,13 @@ loop.c's hoisting threshold (2 * (1 + non-fixed registers)), so the original
 hoists loop invariants ours keeps in the loop (CD_ready's table addresses).
 The CONDITIONAL_REGISTER_USAGE loop in init_reg_sets_1 now starts at $fcc1.
 
+Its local-alloc turned a SCRATCH operand that got a hard register into that
+REG in place, as GCC 2.7.2 does (PUT_CODE, REGNO, used = 0). 2.8.1 makes a
+new REG for scratch_list and leaves the insn's SCRATCH, so reload reloads it
+anyway into spill registers picked around the ones mark_scratch_live
+reserved: t1..t4 instead of a1 for the lwl/lwr temporary of a 4-byte struct
+copy (StCdInterrupt's `hdr->loc = loc`; found by agent-a).
+
 usage: sn_cc1.py cc1 patched_cc1
 """
 import os, shutil, sys
@@ -93,7 +100,20 @@ with open(src, 'rb') as f:
     fcc = offset('init_reg_sets_1') + 0xab
     assert raw[fcc:fcc + 12] == bytes.fromhex('83fa037f3cc745f043000000')
 
+    # block_alloc+3871: %eax = qty_scratch_rtx[q], %edx = qty_phys_reg[q];
+    # the gen_rtx (REG, ...) for scratch_list becomes an in-place rewrite.
+    scratch = offset('block_alloc') + 3871
+    old = bytes.fromhex('0fb640020fb6c0897d948b8f24a6000089f3c1e3028d3c1983ec0452506a34'
+                        '8b5d94e87480f8ff83c4108907')
+    assert raw[scratch:scratch + len(old)] == old
+    in_place = bytes.fromhex('66c7003400'    # movw $REG,(%eax)      PUT_CODE (x, REG)
+                             '895004'        # mov %edx,4(%eax)      REGNO (x) = reg
+                             '806003df'      # andb $0xdf,3(%eax)    x->used = 0
+                             '8b5d94')       # mov -0x6c(%ebp),%ebx  (as the old path left it)
+    in_place += b'\x90' * (len(old) - len(in_place))
+
     patches = [(offset('mips_can_use_return_insn'), b'\x31\xc0\xc3'),
+               (scratch, in_place),
                (fcc + 8, b'\x44'),
                (offset('reload_cse_regs'), b'\xc3'),
                (offset('mips_expand_epilogue') + 180, blk),
