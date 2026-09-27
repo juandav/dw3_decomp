@@ -450,6 +450,7 @@ typedef struct Glyph {
     /* 0x7 */ s8 dx;
     /* 0x8 */ s8 dy;
     /* 0x9 */ u8 advance;
+    /* 0xA */ u8 unkA;
 } Glyph;
 
 /* Text drawing state shared with the control-code handlers */
