@@ -402,7 +402,9 @@ typedef struct SoundEntry {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s16 vabId;
     /* 0x06 */ s16 numSeqs;
-    /* 0x08 */ s16 seqs[8];
+    /* 0x08 */ s16 seqs[4];
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
 } SoundEntry;
 
 typedef struct SoundBank {
@@ -513,7 +515,8 @@ typedef struct Unk80044744 {
     /* 0x004 */ u8 unk4[0x404];
     /* 0x408 */ void (*outOfMemory)(void);
     /* 0x40C */ void (*unk40C)(s32);
-    /* 0x410 */ u8 unk410[8];
+    /* 0x410 */ void (*unk410)(void);
+    /* 0x414 */ u8 unk414[4];
     /* 0x418 */ void (*unk418)(s32);
     /* 0x41C */ u8 unk41C[8];
     /* 0x424 */ s32 (*unk424)(s32);
@@ -665,6 +668,9 @@ typedef struct Unk800484E8 {
 } Unk800484E8;
 
 void PadStartCom(void);
+void func_80020218(void);
+s32 func_80020064(void);
+void func_800345B8(void);
 void func_8001855C(s32 port);
 void func_800180FC(void);
 void SsVabClose(short vabId);
@@ -808,6 +814,8 @@ extern SoundFuncs D_800553DC;
 extern Funcs800554D8 D_800554D8;
 extern void (*D_80044B50)(s32 file);
 extern s32 *D_8005105C[];
+extern s32 D_80051188[];
+extern s32 D_8005117C[];
 extern s32 (*D_80055418[])(void);
 extern Unk80042728 D_80042728;
 extern Unk80041444 D_80041444[];

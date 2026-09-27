@@ -1,4 +1,5 @@
 #include "game.h"
+#include "libsnd.h"
 
 s32 func_8001FC68(s32 id) {
     s32 i;
@@ -102,7 +103,33 @@ void func_80020594(s32 packed, s16 voice) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_80020638);
+void func_80020638(void) {
+    s32 i;
+
+    SsSetTableSize(D_80051194.unk0, 6, 16);
+    SsSetTickMode(0x1000);
+    SsStart2();
+    SsSetMVol(0x7F, 0x7F);
+    SsSetSerialAttr(0, 0, 1);
+    SsSetSerialVol(0, 0x7F, 0x7F);
+    SsUtSetReverbType(3);
+    SsUtSetReverbDepth(0, 0);
+    func_800345B8();
+    for (i = 0; i < 3; i++) {
+        D_80051194.sounds[i].vabId = -1;
+        D_80051194.sounds[i].numSeqs = 0;
+        D_80051194.sounds[i].unk10 = D_8005117C[i];
+        D_80051194.sounds[i].unk14 = D_80051188[i];
+    }
+    D_80051194.bank.index = 0;
+    D_80051194.bank.loading = 0;
+    D_80051194.bank.data = NULL;
+    func_80020074(0, 1);
+    while (func_80020064() != 0) {
+        D_80044744.unk410();
+        func_80020218();
+    }
+}
 
 void func_80020764(Task80011FBC *task, s32 *out) {
     switch (task->state) {
