@@ -25,11 +25,22 @@ SPLAT := $(PYTHON) -m splat split
 GCC_VERSION ?= 2.8.1
 CC1 ?= bin/gcc-$(GCC_VERSION)-psx/cc1
 
-# The PsyQ libraries were built with GCC 2.7.2, and their ASPSX moved the
+# Most PsyQ libraries were built with GCC 2.7.2, and their ASPSX moved the
 # instruction before `j $31` into its delay slot (tools/aspsx_reorder.py)
 MASPSX_POST :=
+CC1_POST :=
 $(BUILDDIR)/src/main/psyq/%.c.o: GCC_VERSION := 2.7.2
 $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_POST := | $(PYTHON) tools/aspsx_reorder.py
+
+# A few PsyQ objects come from a GCC 2.8 without split addresses (it keeps
+# the address of a global in a register and reaches its fields from there).
+# It filled the delay slot of `j $31` itself; tools/unfill_epilogue.py undoes
+# that so ASPSX's rule applies as for the rest.
+PSYQ_GCC28 := libsnd_ssstart libgs_gs_001
+PSYQ_GCC28_OBJS := $(PSYQ_GCC28:%=$(BUILDDIR)/src/main/psyq/%.c.o)
+$(PSYQ_GCC28_OBJS): GCC_VERSION := 2.8.1
+$(PSYQ_GCC28_OBJS): CC1FLAGS += -mno-split-addresses
+$(PSYQ_GCC28_OBJS): CC1_POST := | $(PYTHON) tools/unfill_epilogue.py
 MASPSX := $(PYTHON) external/maspsx/maspsx.py
 OBJDIFF ?= bin/objdiff-cli-linux-x86_64
 
@@ -94,7 +105,7 @@ $(BUILDDIR)/%.c.o: %.c
 	@mkdir -p $(dir $@)
 	$(CPP) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(@:.o=.d) $< -o $(@:.o=.i)
 	$(CC1) $(CC1FLAGS) -o $(@:.o=.cc1.s) $(@:.o=.i)
-	$(MASPSX) $(MASPSXFLAGS) < $(@:.o=.cc1.s) $(MASPSX_POST) > $(@:.o=.s)
+	cat $(@:.o=.cc1.s) $(CC1_POST) | $(MASPSX) $(MASPSXFLAGS) $(MASPSX_POST) > $(@:.o=.s)
 	$(AS) $(ASFLAGS) -o $@ $(@:.o=.s)
 	@$(OBJCOPY) --set-section-alignment .text=4 --set-section-alignment .rodata=4 $@
 
