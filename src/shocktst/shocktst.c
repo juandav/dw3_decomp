@@ -378,7 +378,14 @@ void func_80083A78(ShockTest *task, ShockFile *file) {
     }
 }
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80083B04);
+ShockTest *func_80083B04(s32 count) {
+    ShockTest *task = createTask(func_8008363C, sizeof(ShockTest), sizeof(ShockTestWindows));
+
+    task->count = count;
+    task->steps[0] = HEAP.allocZeroed(count * sizeof(ShockStep), 2);
+    task->steps[1] = HEAP.allocZeroed(task->count * sizeof(ShockStep), 2);
+    return task;
+}
 
 INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", D_800824BC);
 
