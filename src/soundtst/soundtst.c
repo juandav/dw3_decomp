@@ -187,7 +187,9 @@ void func_800842C4(SoundTest *task, SoundTestWindows *win) {
     }
 }
 
-INCLUDE_ASM("asm/soundtst/nonmatchings/soundtst", func_800844E0);
+Task *func_800844E0(void) {
+    return createTask(func_800842C4, sizeof(SoundTest), sizeof(SoundTestWindows));
+}
 
 INCLUDE_RODATA("asm/soundtst/nonmatchings/soundtst", D_80082448);
 
