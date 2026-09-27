@@ -8,11 +8,117 @@ typedef struct {
 
 extern volatile CD_intr D_8005A5A4[1];
 
+INCLUDE_RODATA("asm/main/nonmatchings/psyq/libcd_bios_1", D_8001083C);
+
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libcd_bios_1", D_80010978);
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libcd_bios_1", D_80010988);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", func_8002C738);
+extern long D_8005A2DC;
+extern u_char D_8005A2E4;
+extern u_char D_8005A2E5;
+extern char *D_8005A2EC[];
+extern int D_8005A38C[];
+extern int D_8005A48C[];
+extern u_char D_80080C50[8];
+extern u_char D_80080C58[8];
+extern u_char D_80080C60[8];
+
+static inline void _memcpy(u_char *dst, u_char *src, int n) {
+    if (dst != NULL) {
+        while (n--) {
+            *dst++ = *src++;
+        }
+    }
+}
+
+int func_8002C738(void) {
+    volatile u_char nReg;
+    volatile u_char buf[8];
+    int i, j;
+    int err;
+
+    *D_8005A58C = 1;
+    nReg = *D_8005A590 & 7;
+    if (nReg == 0) {
+        return 0;
+    }
+    err = 0;
+    while (nReg != (*D_8005A590 & 7)) {
+        nReg = *D_8005A590 & 7;
+    }
+    for (i = 0; i < 8; i++) {
+        if (!(*D_8005A58C & 0x20)) {
+            break;
+        }
+        buf[i] = *D_8005A598;
+    }
+    for (j = i; j < 8; j++) {
+        buf[j] = 0;
+    }
+    *D_8005A58C = 1;
+    *D_8005A590 = 7;
+    *D_8005A59C = 7;
+    if (nReg != 3 || D_8005A48C[D_8005A2E5]) {
+        if (!(D_8005A2D4 & CdlStatShellOpen) && (buf[0] & CdlStatShellOpen)) {
+            D_8005A2DC++;
+        }
+        D_8005A2D4 = buf[0];
+        D_8005A2D8 = buf[1];
+        err = D_8005A2D4 & 0x1D;
+    }
+    if (nReg == 5) {
+        if (D_8005A2D0 > 2) {
+            printf("DiskError: ");
+        }
+        if (D_8005A2D0 > 2) {
+            printf("com=%s,code=(%02x:%02x)\n", D_8005A2EC[D_8005A2E5], D_8005A2D4, D_8005A2D8);
+        }
+    }
+    switch (nReg) {
+    case 3:
+        if (err) {
+            D_8005A5A4->sync = CdlDiskError;
+            _memcpy(D_80080C50, (u_char *)buf, 8);
+            return 2;
+        }
+        if (D_8005A38C[D_8005A2E5]) {
+            D_8005A5A4->sync = CdlAcknowledge;
+            _memcpy(D_80080C50, (u_char *)buf, 8);
+            return 1;
+        }
+        D_8005A5A4->sync = CdlComplete;
+        _memcpy(D_80080C50, (u_char *)buf, 8);
+        return 2;
+    case 2:
+        D_8005A5A4->sync = err ? CdlDiskError : CdlComplete;
+        _memcpy(D_80080C50, (u_char *)buf, 8);
+        return 2;
+    case 1:
+        if (err && i == 1) {
+            err = 0;
+        }
+        D_8005A5A4->ready = err ? CdlDiskError : CdlDataReady;
+        _memcpy(D_80080C58, (u_char *)buf, 8);
+        *D_8005A58C = 0;
+        *D_8005A590 = 0;
+        return 4;
+    case 4:
+        D_8005A5A4->ready = D_8005A5A4->c = CdlDataEnd;
+        _memcpy(D_80080C60, (u_char *)buf, 8);
+        _memcpy(D_80080C58, (u_char *)buf, 8);
+        return 4;
+    case 5:
+        D_8005A5A4->sync = D_8005A5A4->ready = CdlDiskError;
+        _memcpy(D_80080C50, (u_char *)buf, 8);
+        _memcpy(D_80080C58, (u_char *)buf, 8);
+        return 6;
+    default:
+        puts("CDROM: unknown intr");
+        printf("(%d)\n", nReg);
+        return 0;
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_sync);
 
@@ -80,8 +186,6 @@ void CD_initintr(void) {
     InterruptCallback(2, func_8002DBDC);
 }
 
-extern u_char D_8005A2E4;
-extern u_char D_8005A2E5;
 extern char D_8005A5A8[];
 int CD_cw(u_char com, u_char *param, u_char *result, int async);
 int CD_sync(int mode, u_char *result);
@@ -132,9 +236,6 @@ void CD_set_test_parmnum(int num) {
     D_8005A570 = num;
 }
 
-extern u_char D_80080C50[];
-extern u_char D_80080C58[];
-int func_8002C738(void);
 
 void func_8002DBDC(void) {
     u_char mask;

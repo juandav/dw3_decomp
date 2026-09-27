@@ -68,7 +68,7 @@ segments:
       - [0xF6C, .rodata, psyq/libgs_gs_123]
       - [0xFFC, .rodata, psyq/libcd_event]
       - [0x101C, .rodata, psyq/libcd_c_011]
-      - [0x1178, .rodata, psyq/libcd_bios_1]
+      - [0x103C, .rodata, psyq/libcd_bios_1]
       - [0x129C, .rodata, psyq/libc2_puts]
       - [0x12AC, .rodata, psyq/libetc_vsync]
       - [0x12F0, .rodata, psyq/libetc_intr]
