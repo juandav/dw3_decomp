@@ -143,7 +143,49 @@ void func_80084054(SoundTest *task, SoundTestWindows *win) {
     win->cursor->setPos(win->cursor, 0x20, (task->bankCursor - task->bankTop) * 16 + 0x46);
 }
 
-INCLUDE_ASM("asm/soundtst/nonmatchings/soundtst", func_800842C4);
+void func_800842C4(SoundTest *task, SoundTestWindows *win) {
+    Layer *res;
+    s32 i;
+
+    switch (task->state) {
+    case 0:
+    default:
+        GFX.funcs.reset();
+        GFX.funcs.allocPrimBuffers(0x5000);
+        GFX.funcs.setDisplayMode(0x140, 0xF0, 0, 0);
+        res = GFX.funcs.createLayer(&D_800851D8, 1, 0x1000);
+        res->setBgColor(res, 0x1F, 0x1F, 0x1F);
+        win->title = createTextWindow(0x1000, 1, 0x10, 0x1E);
+        win->title->setText(win->title, D_80083AF4);
+        win->header = createTextWindow(0x1000, 1, 0x20, 0x32);
+        for (i = 0; i < 8; i++) {
+            win->lines[i] = createTextWindow(0x1000, 1, 0x30, i * 16 + 0x46);
+        }
+        win->cursor = createTextWindow(0x1000, 1, 0x20, 0x46);
+        win->cursor->setText(win->cursor, D_80083B04);
+        task->nextState(task);
+        break;
+    case 1:
+        switch (task->substate) {
+        case 0:
+        default:
+            func_80084054(task, win);
+            break;
+        case 1:
+            func_80083FA0(task, win);
+            break;
+        case 2:
+            func_80083C40(task, win);
+            break;
+        }
+        break;
+    case 2:
+        break;
+    case 3:
+        GAME_FUNCS.requestMode(0x1500, 0);
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/soundtst/nonmatchings/soundtst", func_800844E0);
 
