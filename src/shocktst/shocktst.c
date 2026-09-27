@@ -281,7 +281,87 @@ INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", D_80082478);
 
 INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", D_80082490);
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_8008363C);
+void func_8008363C(ShockTest *task, ShockTestWindows *win) {
+    s32 i;
+    s32 motor;
+
+    switch (task->state) {
+    case 0:
+    default:
+        task->nextState(task);
+        task->windowId = 0x1000;
+        win->pattern = createTextWindow(task->windowId, 1, 0x28, 0x3C);
+        task->unk50 = FILE_CACHE_LOAD[0](0xC5);
+        win->pattern->setString(win->pattern, D_800841C0[0], -1);
+        win->pattern->setNumber(win->pattern, 1, task->pattern);
+        for (i = 0; i < 2; i++) {
+            win->motors[i] = createTextWindow(task->windowId, 1, i * 100 + 0x3C, 0x50);
+            win->motors[i]->setText(win->motors[i], D_80084280[i]);
+            win->times[i] = createTextWindow(task->windowId, 1, i * 100 + 0x3C, 0x64);
+            win->times[i]->setString(win->times[i], D_800841C0[1], -1);
+            win->times[i]->setNumber(win->times[i], 1, task->steps[i][0].time);
+            win->powers[i] = createTextWindow(task->windowId, 1, i * 100 + 0x3C, 0x78);
+            win->powers[i]->setString(win->powers[i], D_800841C0[2], -1);
+            win->powers[i]->setNumber(win->powers[i], 1, task->steps[i][0].power);
+        }
+        win->play = createTextWindow(task->windowId, 1, 0x28, 0x8C);
+        win->play->setText(win->play, D_80082490);
+        break;
+    case 1:
+        switch (task->substate) {
+        default:
+            task->setSubstate(task, 0);
+        case 0:
+            switch (func_80082E58(task, win)) {
+            case 2:
+                task->setSubstate(task, 4);
+                break;
+            case 1:
+                task->nextSubstate(task);
+                break;
+            case -1:
+                if ((PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_L1)) & 1) {
+                    task->setSubstate(task, 2);
+                } else {
+                    task->setSubstate(task, 3);
+                }
+                task->motors[0] = task->motors[1] = task->timers[0] = task->timers[1] = task->playing = 0;
+                break;
+            }
+            break;
+        case 1:
+            if (func_8008354C(task, win) != 0) {
+                task->setSubstate(task, 0);
+            }
+            break;
+        case 2:
+            if (func_80082D8C(task, win) != 0) {
+                task->setSubstate(task, 0);
+            }
+            break;
+        case 3:
+            if (func_80082B58(task, win, task->pattern) != 0) {
+                task->setSubstate(task, 0);
+            }
+            break;
+        case 4:
+            if (MEMCARD_FUNCS.check(0) != 0) {
+                task->setSubstate(task, 0);
+            }
+            break;
+        }
+        break;
+    case 2:
+        break;
+    case 3:
+        HEAP.free(task->steps[0]);
+        HEAP.free(task->steps[1]);
+        for (motor = 0; motor < 2; motor++) {
+            PAD.setVibration(0, motor, 0, 0);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80083A78);
 
