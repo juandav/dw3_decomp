@@ -711,7 +711,93 @@ s32 func_8001F328(s32 *table, s32 index) {
     return (s32)table + table[index + 1];
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F354);
+s32 func_8001F354(TextBuffer *text, TextStyle *style, s32 spacing) {
+    s32 pos;
+    s32 w;
+    s32 max;
+    s32 c;
+    s32 op;
+    s32 n;
+    Glyph *g;
+    s32 len;
+
+    if (text->data == NULL) {
+        return 0;
+    }
+    pos = 0;
+    w = 0;
+    max = 0;
+    while (pos < text->len) {
+        c = ((s32 (*)())D_8004D5A8.decode)(text->data + pos, (u8)text->dirty, style);
+        switch (((u32)c >> 8) & 0xFF) {
+        case 0:
+            if ((s16)spacing != 0) {
+                w += (s16)spacing;
+            } else {
+                w += ((Glyph *)style->unk4)[(s16)c - 4].advance + ((Glyph *)style->unk4)[(s16)c - 4].dx;
+            }
+            if (text->dirty != 0) {
+                pos += 2;
+            } else {
+                pos += 1;
+            }
+            break;
+        case 1:
+            n = c & 0xFF;
+            if (n <= style->unk16 && n > 0) {
+                if ((s16)spacing != 0) {
+                    w += (s16)spacing;
+                } else {
+                    w += ((Glyph *)style->unk8)[n - 1].advance + ((Glyph *)style->unk8)[n - 1].dx;
+                }
+            }
+            pos += 2;
+            break;
+        case 2:
+            op = text->data[pos + 1];
+            switch (op) {
+            case 1:
+            case 3:
+                if (max < w) {
+                    max = w;
+                }
+                w = 0;
+                break;
+            case 5:
+                w += func_8001F354(&text[text->data[pos + 2]], style, (s16)spacing);
+                break;
+            case 8:
+                for (len = 0; (u8)D_800484E8.name[len] != 0; len++) {
+                }
+                w += len * 11;
+                break;
+            }
+            pos += D_8004D5A8.codeLengths[op];
+            break;
+        case 3:
+            if ((s16)spacing != 0) {
+                w += (s16)spacing;
+            } else {
+                w += ((Glyph *)style->unk4)->advance + ((Glyph *)style->unk4)->dx;
+            }
+            if (text->dirty != 0) {
+                pos += 2;
+            } else {
+                pos += 1;
+            }
+            break;
+        case 4:
+            if (max < w) {
+                return w;
+            }
+            return max;
+        }
+    }
+    if (max < w) {
+        return w;
+    }
+    return max;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F658);
 
