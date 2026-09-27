@@ -541,7 +541,21 @@ Task *func_80084DB8(void) {
     return (Task *)album;
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80084DF4);
+void func_80084DF4(void) {
+    TimLoader loader;
+
+    initTimLoader(&loader);
+    loader.setImagePos(0x280, 0);
+    loader.loadArchive(FILE_CACHE.getEntry(0x05F60000));
+    FILE_CACHE.request(0x7E7);
+    FILE_CACHE.request(0x7E8);
+    FILE_CACHE.request(0x7E9);
+    FILE_CACHE.request(0x7EA);
+    FILE_CACHE.request(0x7EB);
+    FILE_CACHE.request(0x17);
+    FILE_CACHE.request(0x1E);
+    FILE_CACHE.request(0x25);
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80084ED4);
 
