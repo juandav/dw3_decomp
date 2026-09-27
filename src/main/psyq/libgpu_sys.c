@@ -2,6 +2,9 @@
 
 void func_80027FD0(u_char *dst, int value, int n);
 
+extern u_long D_8005574C[];
+extern u_long D_80055760; /* terminator primitive of the ordering tables */
+
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_8001030C);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", ResetGraph);
@@ -84,7 +87,18 @@ INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_80010450);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", ClearOTag);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", ClearOTagR);
+u_long *ClearOTagR(u_long *ot, int n) {
+    u_long *term;
+
+    if (D_800556A0.level >= 2) {
+        D_8005569C("ClearOTagR(%08x,%d)...\n", ot, n);
+    }
+    D_80055698->unk2C(ot, n);
+    term = &D_80055760;
+    *term = ((u_long)D_8005574C & 0xFFFFFF) | 0x04000000;
+    *ot = (u_long)term & 0xFFFFFF;
+    return ot;
+}
 
 void DrawPrim(void *p) {
     int len = getlen(p);
