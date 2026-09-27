@@ -527,7 +527,9 @@ void func_80091B90(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091BB4);
+void func_80091BB4(s32 arg0) {
+    GAME.unk26D8 = arg0;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091BC0);
 
