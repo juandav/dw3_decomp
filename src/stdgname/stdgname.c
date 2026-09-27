@@ -282,7 +282,17 @@ ScreenTask *func_80085B20(void) {
     return task;
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80085B60);
+void func_80085B60(void) {
+    TimLoader loader;
+
+    HEAP.zero(&D_80087480.partner, sizeof(D_80087480.partner));
+    initTimLoader(&loader);
+    loader.setImagePos(0x280, 0);
+    loader.loadArchive(FILE_CACHE.getEntry(0x027A0000));
+    FILE_CACHE.request(0x41);
+    FILE_CACHE.request(0x762);
+    FILE_CACHE.request(0x87);
+}
 
 s32 func_80085C08(void) {
     if (FILE_CACHE.isLoading(0x762)) {
