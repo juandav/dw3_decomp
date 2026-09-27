@@ -402,7 +402,7 @@ typedef struct Task800119AC {
 } Task800119AC;
 
 typedef struct Data800119AC {
-    /* 0x00 */ Task *unk0;
+    /* 0x00 */ struct Task80011FBC *unk0;
     /* 0x04 */ Unk80019DFC *windows[6];
     /* 0x1C */ Task8001ACC8 *unk1C;
 } Data800119AC;
@@ -605,7 +605,9 @@ typedef struct Unk80051194 {
     /* 0x4248 */ s32 unk4248;
     /* 0x424C */ s32 unk424C;
     /* 0x4250 */ SoundBank bank;
-    /* 0x4258 */ u8 unk4258[0x24];
+    /* 0x4258 */ u8 unk4258[4];
+    /* 0x425C */ void (*unk425C)(s32 packed);
+    /* 0x4260 */ u8 unk4260[0x1C];
     /* 0x427C */ void (*unk427C)(s32 packed);
 } Unk80051194;
 
@@ -863,7 +865,9 @@ typedef struct PadState {
     /* 0x3DE */ u8 unk3DE[2];
     /* 0x3E0 */ u8 unk3E0[0x14];
     /* 0x3F4 */ s32 (*getButtons)(s32 port);
-    /* 0x3F8 */ u8 unk3F8[0x10];
+    /* 0x3F8 */ u8 unk3F8[4];
+    /* 0x3FC */ s32 (*getButtonsNew)(s32 port);
+    /* 0x400 */ u8 unk400[8];
     /* 0x408 */ s32 (*getButtonBit)(s32 port, s32 button);
 } PadState;
 
