@@ -375,7 +375,22 @@ MovieTask *STDWTITL_startMovieTask(s32 movie) {
     return task;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawGlintAlt);
+void STDWTITL_drawGlintAlt(GlintTask *task) {
+    SpriteDrawer sprite;
+
+    initSpriteDrawer(&sprite);
+    if (task->lit) {
+        sprite.setLayerId(task->layerId, 0);
+        sprite.setTexture(0x280, 0);
+        sprite.setAltClut(0, 0x1F0);
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 2, 49, 121);
+        initSpriteDrawer(&sprite);
+    }
+    sprite.setLayerId(task->layerId, 0);
+    sprite.setTexture(0x280, 0);
+    sprite.setClutRow(task->frame);
+    sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 4, 37, 114);
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickGlintAlt);
 
