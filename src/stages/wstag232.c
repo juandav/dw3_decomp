@@ -12,7 +12,7 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag232", func_800A4E90);
 INCLUDE_ASM("asm/stages/nonmatchings/wstag232", func_800A4EBC);
 
 StageTask *func_800A4F20(void *owner) {
-    StageTask *task = func_800144DC(func_800A4EBC, sizeof(StageTask), 4);
+    StageTask *task = createTask(func_800A4EBC, sizeof(StageTask), 4);
 
     task->owner = owner;
     D_800A550C[0]();

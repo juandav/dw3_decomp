@@ -1,6 +1,6 @@
 #include "game.h"
 
-s32 func_800154F8(u8 *bits, s32 index, s32 set) {
+s32 testBit(u8 *bits, s32 index, s32 set) {
     s32 byte = index >> 3;
     s32 mask = 1 << (index & 7);
 
@@ -10,7 +10,7 @@ s32 func_800154F8(u8 *bits, s32 index, s32 set) {
     return (bits[byte] & mask) == 0;
 }
 
-void func_8001553C(u8 *bits, s32 index, s32 set) {
+void setBit(u8 *bits, s32 index, s32 set) {
     s32 byte = index >> 3;
     s32 mask = 1 << (index & 7);
 
@@ -24,15 +24,15 @@ void func_8001553C(u8 *bits, s32 index, s32 set) {
 s32 func_80015584(s32 op, s32 arg) {
     s32 ret = 0;
 
-    if ((D_800484E8.unk7C[7] != 0 || D_800484E8.unk20F[7] != 0) &&
-        (D_800484E8.unk7C[0x59] != 0 || D_800484E8.unk20F[0x59] != 0) &&
-        (D_800484E8.unk7C[0xA7] != 0 || D_800484E8.unk20F[0xA7] != 0)) {
+    if ((GAME.items[7] != 0 || GAME.equippedItems[7] != 0) &&
+        (GAME.items[0x59] != 0 || GAME.equippedItems[0x59] != 0) &&
+        (GAME.items[0xA7] != 0 || GAME.equippedItems[0xA7] != 0)) {
         ret = 1;
     }
     return ret;
 }
 
-s32 func_800155F8(u32 op, s32 arg) {
+s32 checkPartner(u32 op, s32 arg) {
     s32 result = 0;
     s32 i;
     s32 total;
@@ -40,38 +40,38 @@ s32 func_800155F8(u32 op, s32 arg) {
 
     switch (op) {
     case 0:
-        if (D_8004AB28 == arg) {
+        if (PARTY_SET == arg) {
             result = 1;
         }
         break;
     case 1:
-        if (D_800484E8.records[arg].unk4 != 0) {
+        if (GAME.partners[arg].unlocked != 0) {
             result = 1;
         }
         break;
     case 2:
         for (i = 0; i < 3; i++) {
-            if (D_800484E8.unk270C(i) == arg) {
+            if (GAME.funcs.getPartyMember(i) == arg) {
                 result = 1;
                 break;
             }
         }
         break;
     case 3:
-        D_800484E8.records[arg].unk4 = arg + 3;
+        GAME.partners[arg].unlocked = arg + 3;
         result = 1;
         break;
     case 4:
-        if (D_800484E8.records[arg].unk4 != 0 && D_800484E8.records[arg].unk28 >= 0x2D) {
+        if (GAME.partners[arg].unlocked != 0 && GAME.partners[arg].level >= 0x2D) {
             result = 1;
         }
         break;
     case 5:
         total = 0;
         for (i = 0; i < 3; i++) {
-            id = D_800484E8.unk270C(i);
+            id = GAME.funcs.getPartyMember(i);
             if (id >= 0) {
-                total += D_800484E8.unk2744(id)->unk1C;
+                total += GAME.funcs.getPartnerStats(id)->level;
             }
         }
         if (total >= arg * 15 + 30) {
@@ -79,7 +79,7 @@ s32 func_800155F8(u32 op, s32 arg) {
         }
         break;
     case 6:
-        if (D_800484E8.records[arg].unk4 == 0) {
+        if (GAME.partners[arg].unlocked == 0) {
             result = 1;
         }
         break;
@@ -87,35 +87,35 @@ s32 func_800155F8(u32 op, s32 arg) {
     return result;
 }
 
-s32 func_80015814(s32 op, s32 item) {
+s32 checkMoney(s32 op, s32 item) {
     s32 ret = 0;
 
     switch (op) {
     case 0:
-        if (D_800483F8[item] <= D_800484E8.money) {
+        if (MONEY_REQUIRED[item] <= GAME.money) {
             ret = 1;
         }
         break;
     case 1:
-        D_800484E8.money += D_80048420[item];
-        if (D_800484E8.money > 9999999) {
-            D_800484E8.money = 9999999;
+        GAME.money += MONEY_GAINS[item];
+        if (GAME.money > 9999999) {
+            GAME.money = 9999999;
         }
         break;
     case 2:
-        D_800484E8.money -= D_80048440[item];
-        if (D_800484E8.money < 0) {
-            D_800484E8.money = 0;
+        GAME.money -= MONEY_LOSSES[item];
+        if (GAME.money < 0) {
+            GAME.money = 0;
         }
         break;
     }
     return ret;
 }
 
-s32 func_80015904(s32 arg0, s32 index) {
-    s32 value = D_8004AB24;
-    s32 min = D_80048468[index][0];
-    s32 max = D_80048468[index][1];
+s32 checkProgressRange(s32 unused, s32 index) {
+    s32 value = GAME_PROGRESS;
+    s32 min = PROGRESS_RANGES[index][0];
+    s32 max = PROGRESS_RANGES[index][1];
     s32 ret = 0;
 
     if (value >= min) {
@@ -124,14 +124,14 @@ s32 func_80015904(s32 arg0, s32 index) {
     return ret;
 }
 
-s32 func_80015940(s32 arg0, s32 mode) {
+s32 checkFlagCount(s32 unused, s32 mode) {
     s32 ret = 0;
     s32 on = 0;
     s32 off = 0;
     s32 i;
 
     for (i = 0x27; i < 0x2E; i++) {
-        if (func_800154F8(D_8004AB5F, i, 1) != 0) {
+        if (testBit(FLAGS_1C, i, 1) != 0) {
             on++;
         } else {
             off++;
@@ -158,19 +158,19 @@ s32 func_80015940(s32 arg0, s32 mode) {
 }
 
 s32 func_80015A34(s32 op, s32 arg) {
-    Unk80015A34 *obj = D_8004AF58.unkC(0x16, -1, -1);
+    Task *obj = TASK_FUNCS.find(0x16, -1, -1);
 
-    obj->unk2C(obj, 3);
+    obj->setSubstate(obj, 3);
     return 1;
 }
 
-s32 func_80015A78(s32 id, s32 expected) {
+s32 checkSpecialCondition(s32 id, s32 expected) {
     u8 *p;
     s32 result = 0;
     s32 op;
     s32 arg;
 
-    for (p = D_8004829C; *p != 0xFF; p += 3) {
+    for (p = SPECIAL_CONDITIONS; *p != 0xFF; p += 3) {
         if (*p == id) {
             op = p[1] & 0xF;
             arg = p[2];
@@ -179,16 +179,16 @@ s32 func_80015A78(s32 id, s32 expected) {
                 result = func_80015584(op, arg);
                 break;
             case 0x10:
-                result = func_800155F8(op, arg);
+                result = checkPartner(op, arg);
                 break;
             case 0x20:
-                result = func_80015814(op, arg);
+                result = checkMoney(op, arg);
                 break;
             case 0x30:
-                result = func_80015904(op, arg);
+                result = checkProgressRange(op, arg);
                 break;
             case 0x40:
-                result = func_80015940(op, arg);
+                result = checkFlagCount(op, arg);
                 break;
             case 0x50:
                 result = func_80015A34(op, arg);
@@ -200,66 +200,66 @@ s32 func_80015A78(s32 id, s32 expected) {
     return expected == result;
 }
 
-s32 func_80015BB0(s32 value, s32 mode) {
+s32 checkProgress(s32 value, s32 mode) {
     if (mode != 0) {
-        if (D_8004AB24 == value) {
+        if (GAME_PROGRESS == value) {
             return 1;
         }
     } else {
-        if (D_8004AB24 != value) {
+        if (GAME_PROGRESS != value) {
             return 1;
         }
     }
     return 0;
 }
 
-s32 func_80015BEC(s32 index, s32 mode) {
+s32 checkItem(s32 index, s32 mode) {
     if (mode != 0) {
-        if (D_800484E8.unk7C[index] != 0 || D_800484E8.unk20F[index] != 0) {
+        if (GAME.items[index] != 0 || GAME.equippedItems[index] != 0) {
             return 1;
         }
     } else {
-        if (D_800484E8.unk7C[index] == 0 && D_800484E8.unk20F[index] == 0) {
+        if (GAME.items[index] == 0 && GAME.equippedItems[index] == 0) {
             return 1;
         }
     }
     return 0;
 }
 
-s32 func_80015C58(s32 item, s32 have) {
+s32 checkCard(s32 item, s32 have) {
     if (have != 0) {
-        if (D_800484E8.itemCounts[item] != 0) {
+        if (GAME.cards[item] != 0) {
             return 1;
         }
     } else {
-        if (D_800484E8.itemCounts[item] == 0) {
+        if (GAME.cards[item] == 0) {
             return 1;
         }
     }
     return 0;
 }
 
-extern s32 D_800484AC[];
+extern s32 PARTY_STAT_THRESHOLDS[];
 
-s32 func_80015CA4(s32 index, s32 mode) {
-    Unk2728 buf;
+s32 checkPartyStat(s32 index, s32 mode) {
+    PartnerTotals buf;
     s32 total = 0;
     s32 i;
     s32 id;
 
     for (i = 0; i < 3; i++) {
-        id = D_800484E8.unk270C(i);
+        id = GAME.funcs.getPartyMember(i);
         if (id >= 0) {
-            D_800484E8.unk2728(id, &buf);
-            total += buf.unk16;
+            GAME.funcs.computeStats(id, &buf);
+            total += buf.stats[11];
         }
     }
     if (mode != 0) {
-        if (total >= D_800484AC[index]) {
+        if (total >= PARTY_STAT_THRESHOLDS[index]) {
             return 1;
         }
     } else {
-        if (total < D_800484AC[index]) {
+        if (total < PARTY_STAT_THRESHOLDS[index]) {
             return 1;
         }
     }
@@ -268,20 +268,20 @@ s32 func_80015CA4(s32 index, s32 mode) {
 
 s32 func_80015D90(s32 id, s32 arg1) {
     if (id < 30) {
-        if (D_800484E8.unk44 == id + 1) {
+        if (GAME.unk44 == id + 1) {
             return 1;
         }
     } else {
-        if (D_800484E8.unk46 == id - 29) {
+        if (GAME.unk46 == id - 29) {
             return 1;
         }
     }
     return 0;
 }
 
-s32 func_80015DD8(s32 slot, s32 item) {
-    Unk80048C50 *d = &D_80048C50[slot];
-    u8 *info = D_800427A4(item)->data;
+s32 unequipItem(s32 partner, s32 item) {
+    PartnerStats *d = &PARTNER_STATS[partner];
+    u8 *info = GET_ITEM(item)->data;
     s16 *equip = d->equip;
     s32 i;
 
@@ -299,41 +299,41 @@ s32 func_80015DD8(s32 slot, s32 item) {
     return 0;
 }
 
-void func_80015E8C(s32 item, s32 add) {
+void changeItem(s32 item, s32 add) {
     s32 i;
 
     if (add != 0) {
-        if (++D_800484E8.unk7C[item] >= 100) {
-            D_800484E8.unk7C[item] = 99;
+        if (++GAME.items[item] >= 100) {
+            GAME.items[item] = 99;
         }
-    } else if (D_800484E8.unk7C[item] != 0) {
-        if (--D_800484E8.unk7C[item] < 0) {
-            D_800484E8.unk7C[item] = 0;
+    } else if (GAME.items[item] != 0) {
+        if (--GAME.items[item] < 0) {
+            GAME.items[item] = 0;
         }
-    } else if (D_800484E8.unk20F[item] != 0) {
+    } else if (GAME.equippedItems[item] != 0) {
         for (i = 0; i < 3; i++) {
-            if (func_80015DD8(D_800484E8.unk270C(i), item) != 0) {
+            if (unequipItem(GAME.funcs.getPartyMember(i), item) != 0) {
                 goto found;
             }
         }
         for (i = 0; i < 8; i++) {
-            if (D_800484E8.records[i].unk4 >= 3 && func_80015DD8(i, item) != 0) {
+            if (GAME.partners[i].unlocked >= 3 && unequipItem(i, item) != 0) {
                 break;
             }
         }
     found:
-        D_800484E8.unk20F[item]--;
+        GAME.equippedItems[item]--;
     }
 }
 
-void func_80015FC8(s32 item, s32 arg1) {
-    if (arg1 != 0) {
-        D_8004ABD8.unk24(item, 1);
+void changeCard(s32 card, s32 add) {
+    if (add != 0) {
+        GAME_FUNCS.addCards(card, 1);
         return;
     }
-    D_800484E8.itemCounts[item]--;
-    if (D_800484E8.itemCounts[item] < 0) {
-        D_800484E8.itemCounts[item] = 0;
+    GAME.cards[card]--;
+    if (GAME.cards[card] < 0) {
+        GAME.cards[card] = 0;
     }
 }
 
@@ -341,51 +341,58 @@ void func_8001602C(s32 arg0, s32 arg1) {
     func_8008AEB4(0x700, arg0 * 2 + arg1 + 1, 0, 0, 0);
 }
 
-s32 func_80016064(u16 code, u16 value) {
+/*
+ * Event scripts test conditions and run actions given as (code, value)
+ * pairs. code >> 9 picks the kind, code & 0x1FF the flag or item:
+ *   groups 0x00-0x40 (code >> 8 & ~1): flag bitsets FLAGS_00..FLAGS_40
+ *   0x60 GAME_PROGRESS, 0x70 SPECIAL_CONDITIONS, 0x72 party stat totals,
+ *   0x80-0x8E items, 0x92 cards. A condition holds when it equals value.
+ */
+s32 checkCondition(u16 code, u16 value) {
     u16 group = (code >> 8) & 0xFE;
     s32 id = code & 0x1FF;
     u16 arg = value;
 
     if (group == 0x00) {
-        return func_800154F8(D_80048280, id, arg);
+        return testBit(FLAGS_00, id, arg);
     } else if (group == 0x02) {
-        return func_800154F8(D_8004AB2C, id, arg);
+        return testBit(FLAGS_02, id, arg);
     } else if (group == 0x04) {
-        return func_800154F8(D_8004AB39, id, arg);
+        return testBit(FLAGS_04, id, arg);
     } else if (group == 0x06) {
-        return func_800154F8(D_8004AB3B, id, arg);
+        return testBit(FLAGS_06, id, arg);
     } else if (group == 0x08) {
-        return func_800154F8(D_8004AB3C, id, arg);
+        return testBit(FLAGS_08, id, arg);
     } else if (group == 0x0A) {
-        return func_800154F8(D_8004AB3D, id, arg);
+        return testBit(FLAGS_0A, id, arg);
     } else if (group == 0x0C) {
-        return func_800154F8(D_8004AB3F, id, arg);
+        return testBit(FLAGS_0C, id, arg);
     } else if (group == 0x0E) {
-        return func_800154F8(D_8004AB47, id, arg);
+        return testBit(FLAGS_0E, id, arg);
     } else if (group == 0x10) {
-        return func_800154F8(D_8004AB53, id, arg);
+        return testBit(FLAGS_10, id, arg);
     } else if (group == 0x18) {
-        return func_800154F8(D_8004AB55, id, arg);
+        return testBit(FLAGS_18, id, arg);
     } else if (group == 0x1A) {
-        return func_800154F8(D_8004AB56, id, arg);
+        return testBit(FLAGS_1A, id, arg);
     } else if (group == 0x1C) {
-        return func_800154F8(D_8004AB5F, id, arg);
+        return testBit(FLAGS_1C, id, arg);
     } else if (group == 0x20) {
-        return func_800154F8(D_8004AB6A, id, arg);
+        return testBit(FLAGS_20, id, arg);
     } else if (group == 0x40) {
-        return func_800154F8(D_8004AB88, id, arg);
+        return testBit(FLAGS_40, id, arg);
     } else if (group == 0x60) {
-        return func_80015BB0(id, arg);
+        return checkProgress(id, arg);
     } else if (group == 0x70) {
-        return func_80015A78(id, arg);
+        return checkSpecialCondition(id, arg);
     } else if (group == 0x72) {
-        return func_80015CA4(id, arg);
+        return checkPartyStat(id, arg);
     } else if (group == 0x7E) {
         return func_80015D90(id, arg);
     } else if (group >= 0x80 && group < 0x8F) {
-        return func_80015BEC(id, arg);
+        return checkItem(id, arg);
     } else if (group == 0x92) {
-        return func_80015C58(id, arg);
+        return checkCard(id, arg);
     }
     return 1;
 }
@@ -394,54 +401,59 @@ extern void (*D_8009A6EC)(s32 id);
 void func_8008B2C4(s32 id);
 void func_8008B320(void);
 
-void func_80016260(s32 code, s32 value) {
+/*
+ * Actions: the same flag groups (set to value), 0x70 special actions, 0x74
+ * an overlay hook, 0x76/0x78, 0x7A, 0x7C, 0x94 mode changes through the
+ * overlay (0x8008AEB4), 0x80-0x8E give/take an item, 0x92 a card.
+ */
+void applyAction(s32 code, s32 value) {
     u16 group = (code >> 8) & ~1;
     s32 id = code & 0x1FF;
 
     if (group == 0x00) {
-        func_8001553C(D_80048280, id, value);
+        setBit(FLAGS_00, id, value);
     }
     if (group == 0x02) {
-        func_8001553C(D_8004AB2C, id, value);
+        setBit(FLAGS_02, id, value);
     }
     if (group == 0x04) {
-        func_8001553C(D_8004AB39, id, value);
+        setBit(FLAGS_04, id, value);
     }
     if (group == 0x06) {
-        func_8001553C(D_8004AB3B, id, value);
+        setBit(FLAGS_06, id, value);
     }
     if (group == 0x08) {
-        func_8001553C(D_8004AB3C, id, value);
+        setBit(FLAGS_08, id, value);
     }
     if (group == 0x0A) {
-        func_8001553C(D_8004AB3D, id, value);
+        setBit(FLAGS_0A, id, value);
     }
     if (group == 0x0C) {
-        func_8001553C(D_8004AB3F, id, value);
+        setBit(FLAGS_0C, id, value);
     }
     if (group == 0x0E) {
-        func_8001553C(D_8004AB47, id, value);
+        setBit(FLAGS_0E, id, value);
     }
     if (group == 0x10) {
-        func_8001553C(D_8004AB53, id, value);
+        setBit(FLAGS_10, id, value);
     }
     if (group == 0x18) {
-        func_8001553C(D_8004AB55, id, value);
+        setBit(FLAGS_18, id, value);
     }
     if (group == 0x1A) {
-        func_8001553C(D_8004AB56, id, value);
+        setBit(FLAGS_1A, id, value);
     }
     if (group == 0x1C) {
-        func_8001553C(D_8004AB5F, id, value);
+        setBit(FLAGS_1C, id, value);
     }
     if (group == 0x20) {
-        func_8001553C(D_8004AB6A, id, value);
+        setBit(FLAGS_20, id, value);
     }
     if (group == 0x40) {
-        func_8001553C(D_8004AB88, id, value);
+        setBit(FLAGS_40, id, value);
     }
     if (group == 0x70) {
-        func_80015A78(id, 1);
+        checkSpecialCondition(id, 1);
     }
     if (group == 0x74) {
         D_8009A6EC(id);
@@ -453,13 +465,13 @@ void func_80016260(s32 code, s32 value) {
         func_8001602C(id, 1);
     }
     if (group >= 0x80 && group < 0x8F) {
-        func_80015E8C(id, value);
+        changeItem(id, value);
     }
     if (group == 0x90) {
         func_8008B2C4(id);
     }
     if (group == 0x92) {
-        func_80015FC8(id, value);
+        changeCard(id, value);
     }
     if (group == 0x94) {
         func_8008AEB4(0xA00, id, 0, 0, 0);
@@ -482,208 +494,211 @@ void func_80016260(s32 code, s32 value) {
     }
 }
 
-s32 func_800165D8(u16 *list) {
+/* All the (code, value) pairs until 0xFFFF must hold */
+s32 checkConditions(u16 *list) {
     u16 a;
 
     for (a = *list; a != 0xFFFF; a = *list) {
         list++;
-        if (!func_80016064(a, *list++)) {
+        if (!checkCondition(a, *list++)) {
             return 0;
         }
     }
     return 1;
 }
 
-void func_8001663C(u16 *list) {
+void applyActions(u16 *list) {
     u16 a;
 
     for (a = *list; a != 0xFFFF; a = *list) {
         list++;
-        func_80016260(a, *list++);
+        applyAction(a, *list++);
     }
 }
 
-void func_80016694(void) {
+void updateModeFlags(void) {
     s32 i;
     u8 *p;
 
-    if (D_8004ABB8 != 0) {
-        for (i = 2, p = &D_80048280[i]; i >= 0; i--) {
+    if (GAME_CLEAR_TEMP_FLAGS != 0) {
+        for (i = 2, p = &FLAGS_00[i]; i >= 0; i--) {
             *p-- = 0;
         }
-        func_80016260(0x12, 0);
+        applyAction(0x12, 0);
     }
-    if (D_8004ABD8.unk18() == 0x700) {
-        func_80016260(0x11, 1);
-        func_80016260(0x12, 1);
-        if (D_80048284 != 0) {
-            func_80016260(0x10, 1);
+    if (GAME_FUNCS.getPrevMode() == 0x700) {
+        applyAction(0x11, 1);
+        applyAction(0x12, 1);
+        if (PENDING_FLAG_10 != 0) {
+            applyAction(0x10, 1);
         } else {
-            func_80016260(0x10, 0);
+            applyAction(0x10, 0);
         }
-        D_80048284 = 0;
+        PENDING_FLAG_10 = 0;
     }
 }
 
-void func_80016748(void) {
-    D_8004AD84.bzero(&D_800484E8, 0x26BC);
-    D_800484E8.unk26BC = 0xE01;
-    D_800484E8.unk26C0 = 0xE01;
-    D_800484E8.unk4 = 1;
-    D_800484E8.unk26CC = 1;
-    D_800484E8.unk26CD = 8;
-    D_800484E8.unk26CF = 60;
-    D_800484E8.unk26C8 = 0;
-    D_800484E8.unk26CE = 0;
-    D_800484E8.unkC = -1;
-    func_80016860();
-    D_800484E8.unk30 = (D_8004D3B0.rand() & 0x1FF) + 0x200;
+/* Clears the save data and sets up a new game */
+void newGame(void) {
+    HEAP.zero(&GAME, 0x26BC);
+    GAME.mode = 0xE01;
+    GAME.nextMode = 0xE01;
+    GAME.unk4 = 1;
+    GAME.unk26CC = 1;
+    GAME.unk26CD = 8;
+    GAME.unk26CF = 60;
+    GAME.modeArg = 0;
+    GAME.unk26CE = 0;
+    GAME.unkC = -1;
+    initNewGameData();
+    GAME.unk30 = (RANDOM.next() & 0x1FF) + 0x200;
 }
 
-void func_800167DC(void) {
+/* Makes the requested mode current (main calls it before recreating the mode task) */
+void commitMode(void) {
     s32 prev;
 
-    if (D_800484E8.unk26C0 != 0) {
-        prev = D_800484E8.unk26BC;
-        D_800484E8.unk26BC = D_800484E8.unk26C0;
-        D_800484E8.unk26C0 = 0;
-        D_800484E8.unk26C4 = prev;
+    if (GAME.nextMode != 0) {
+        prev = GAME.mode;
+        GAME.mode = GAME.nextMode;
+        GAME.nextMode = 0;
+        GAME.prevMode = prev;
     }
 }
 
-s32 func_8001680C(void) {
-    return D_8004ABAC;
+s32 getPrevMode(void) {
+    return GAME_PREV_MODE;
 }
 
-s32 func_8001681C(void) {
-    return D_8004ABA4;
+s32 getMode(void) {
+    return GAME_MODE;
 }
 
-s32 func_8001682C(void) {
-    return D_8004ABB0;
+s32 getModeArg(void) {
+    return GAME_MODE_ARG;
 }
 
-void func_8001683C(s32 arg0, s32 arg1) {
-    D_800484E8.unk26C0 = arg0;
-    D_800484E8.unk26C8 = arg1;
+void requestMode(s32 mode, s32 arg) {
+    GAME.nextMode = mode;
+    GAME.modeArg = arg;
 }
 
-s32 func_80016850(void) {
-    return D_8004ABA8 != 0;
+s32 isModeChangePending(void) {
+    return GAME_NEXT_MODE != 0;
 }
 
-void func_80016860(void) {
-    Obj8001F8F8 cls;
+void initNewGameData(void) {
+    TextTools cls;
     s32 i;
     s32 j;
     u16 *dst;
     u16 *src;
-    Unk8003EB68 *e;
+    DigimonData *e;
 
-    func_8001F8F8(&cls);
-    strcpy(D_800484E8.name, cls.unk0(D_80044744.getText(0x87), 0xB));
-    D_800484E8.unk70[0] = -1;
-    D_800484E8.unk70[1] = -1;
-    D_800484E8.unk70[2] = -1;
+    initTextTools(&cls);
+    strcpy(GAME.name, cls.getString(FILE_CACHE.load(0x87), 0xB));
+    GAME.party[0] = -1;
+    GAME.party[1] = -1;
+    GAME.party[2] = -1;
     for (j = 0; j < 3; j++) {
-        strcpy(D_800484E8.unk628[j].name, cls.unk0(D_80044744.getText(0x33), j + 0x16));
+        strcpy(GAME.decks[j].name, cls.getString(FILE_CACHE.load(0x33), j + 0x16));
     }
-    D_800484E8.unk2718();
+    GAME.funcs.giveStarterDeck();
     for (i = 0; i < 8; i++) {
-        e = &D_8003EB68[i];
-        strcpy(D_800484E8.records[i].name, cls.unk0(D_80044744.getText(0x4F), e->nameId));
-        D_800484E8.records[i].unk28 = 1;
-        D_800484E8.records[i].unk2C = D_800484E8.records[i].unk2E = e->unk3F;
-        D_800484E8.records[i].unk30 = D_800484E8.records[i].unk32 = e->unk40;
-        /* unk34, reached from the name like the ROM does */
-        dst = (u16 *)(D_800484E8.records[i].name + 0x28);
-        src = e->unk2;
+        e = &DIGIMON_DATA[i];
+        strcpy(GAME.partners[i].name, cls.getString(FILE_CACHE.load(0x4F), e->nameId));
+        GAME.partners[i].level = 1;
+        GAME.partners[i].hp = GAME.partners[i].maxHp = e->hp;
+        GAME.partners[i].mp = GAME.partners[i].maxMp = e->mp;
+        /* battleStats, reached from the name like the ROM does */
+        dst = (u16 *)(GAME.partners[i].name + 0x28);
+        src = e->battleStats;
         for (j = 0; j < 6; j++) {
             *dst++ = *src++;
         }
-        src = e->unkE;
+        src = e->resistances;
         for (j = 0; j < 7; j++) {
             *dst++ = *src++;
         }
     }
 }
 
-s32 func_80016A30(u32 index) {
+s32 getPartyMember(u32 index) {
     if (index >= 3) {
         return -1;
     }
-    return D_800484E8.unk70[index];
+    return GAME.party[index];
 }
 
-void func_80016A5C(s32 set) {
+void setParty(s32 set) {
     s32 i;
-    u8 slot;
+    u8 partner;
 
     for (i = 0; i < 3; i++) {
-        slot = D_8004AC38[set][i];
-        D_800484E8.unk70[i] = slot;
-        D_800484E8.records[slot].unk4 = slot + 3;
+        partner = STARTER_PARTIES[set][i];
+        GAME.party[i] = partner;
+        GAME.partners[partner].unlocked = partner + 3;
     }
-    D_8004AB28 = set;
+    PARTY_SET = set;
 }
 
-void func_80016AC8(s32 item, s32 count) {
-    D_800484E8.itemFlags[item] = 1;
-    D_800484E8.itemCounts[item] += count;
-    if (D_800484E8.itemCounts[item] >= 10) {
-        D_800484E8.itemCounts[item] = 9;
+void addCards(s32 item, s32 count) {
+    GAME.cardsSeen[item] = 1;
+    GAME.cards[item] += count;
+    if (GAME.cards[item] >= 10) {
+        GAME.cards[item] = 9;
     }
 }
 
-void func_80016B08(void) {
+void giveStarterDeck(void) {
     s32 i;
     s32 j;
 
     for (i = 0; i < 40; i++) {
-        func_80016AC8(D_8004AC44[i], 1);
+        addCards(STARTER_DECK[i], 1);
     }
     for (j = 0; j < 3; j++) {
         for (i = 0; i < 40; i++) {
-            D_800484E8.unk628[j].items[i] = D_8004AC44[i];
+            GAME.decks[j].cards[i] = STARTER_DECK[i];
         }
     }
 }
 
-void func_80016BA8(void) {
-    D_800484E8.playTimeMaxed = 0;
-    D_800484E8.playSeconds = 0;
-    D_800484E8.playMinutes = 0;
-    D_800484E8.playHours = 0;
-    D_800484E8.playFrames = 0;
+void resetPlayTime(void) {
+    GAME.playTimeMaxed = 0;
+    GAME.playSeconds = 0;
+    GAME.playMinutes = 0;
+    GAME.playHours = 0;
+    GAME.playFrames = 0;
 }
 
-void func_80016BC8(void) {
-    if ((D_800484E8.playFrames >> 8) >= 60) {
-        D_800484E8.playFrames &= 0xFF;
-        if (++D_800484E8.playSeconds >= 60) {
-            D_800484E8.playSeconds = 0;
-            if (++D_800484E8.playMinutes >= 60) {
-                D_800484E8.playMinutes = 0;
-                if (++D_800484E8.playHours >= 1000) {
-                    D_800484E8.playHours = 999;
-                    D_800484E8.playMinutes = 59;
-                    D_800484E8.playSeconds = 59;
-                    D_800484E8.playTimeMaxed = 1;
+void updatePlayTime(void) {
+    if ((GAME.playFrames >> 8) >= 60) {
+        GAME.playFrames &= 0xFF;
+        if (++GAME.playSeconds >= 60) {
+            GAME.playSeconds = 0;
+            if (++GAME.playMinutes >= 60) {
+                GAME.playMinutes = 0;
+                if (++GAME.playHours >= 1000) {
+                    GAME.playHours = 999;
+                    GAME.playMinutes = 59;
+                    GAME.playSeconds = 59;
+                    GAME.playTimeMaxed = 1;
                 }
             }
         }
     }
 }
 
-s32 func_80016C74(u32 index) {
+s32 getPartyPartner(u32 index) {
     if (index >= 3) {
         return -1;
     }
-    return D_800484E8.records[D_800484E8.unk70[index]].unk4 - 3;
+    return GAME.partners[GAME.party[index]].unlocked - 3;
 }
 
-void func_80016CC4(s32 slot, u32 stat, s16 value) {
-    Unk80048C50 *d = &D_80048C50[slot];
+void setStat(s32 partner, u32 stat, s16 value) {
+    PartnerStats *d = &PARTNER_STATS[partner];
     s16 *p = d->stats;
 
     if (stat < 19) {
@@ -707,8 +722,8 @@ void func_80016CC4(s32 slot, u32 stat, s16 value) {
     }
 }
 
-void func_80016D64(s32 slot, u32 stat, s32 delta) {
-    Unk80048C50 *d = &D_80048C50[slot];
+void addStat(s32 partner, u32 stat, s32 delta) {
+    PartnerStats *d = &PARTNER_STATS[partner];
     s16 *stats = d->stats;
     s16 value;
 
@@ -762,12 +777,13 @@ typedef union ItemData {
 typedef struct Equip4 {
     s16 v[4];
 } Equip4;
-extern Equip4 D_8004ACE4[];
-extern s16 D_8004AD24[][6];
+extern Equip4 EQUIP_SETS[];
+extern s16 EQUIP_SET_BONUSES[][6];
 
-void func_80017214(s16 *p, s32 stat, s32 delta);
+void addStatBonus(s16 *p, s32 stat, s32 delta);
 
-void func_80016E10(s32 slot, s16 *out) {
+/* A partner's stats with its equipment (and its equipment set bonus) added */
+void computeStats(s32 partner, s16 *out) {
     s16 *equip;
     s32 i;
     s32 j;
@@ -777,15 +793,15 @@ void func_80016E10(s32 slot, s16 *out) {
     u8 stat;
     s32 amount;
 
-    Unk800484E8 *save = &D_800484E8;
-    Unk80048C50 *d;
+    GameState *save = &GAME;
+    PartnerStats *d;
 
-    *(StatBlock *)out = *(StatBlock *)&save->records[slot].unk28;
-    d = &D_80048C50[slot];
+    *(StatBlock *)out = *(StatBlock *)&save->partners[partner].level;
+    d = &PARTNER_STATS[partner];
     equip = d->equip;
     for (i = 0; i < 6; i++) {
         if (equip[i] > 0) {
-            info = D_800427A4(equip[i]);
+            info = GET_ITEM(equip[i]);
             type = info->type;
             data = (ItemData *)info->data;
             if ((u8)(type - 2) < 13) {
@@ -797,7 +813,7 @@ void func_80016E10(s32 slot, s16 *out) {
                     stat = *(j + data->weapon.stats);
                     amount = data->weapon.amounts[j];
                     if (stat != 0) {
-                        func_80017214(out, stat, (s16)amount);
+                        addStatBonus(out, stat, (s16)amount);
                     }
                 }
             } else if ((u8)(type - 15) < 6) {
@@ -809,14 +825,14 @@ void func_80016E10(s32 slot, s16 *out) {
                     stat = *(j + data->armor.stats);
                     amount = data->armor.amounts[j];
                     if (stat != 0) {
-                        func_80017214(out, stat, (s16)amount);
+                        addStatBonus(out, stat, (s16)amount);
                     }
                 }
             } else if ((u8)(type - 21) < 4) {
                 stat = data->acc.stat;
                 amount = data->acc.amount;
                 if (stat != 0) {
-                    func_80017214(out, stat, (s16)amount);
+                    addStatBonus(out, stat, (s16)amount);
                 }
             } else {
                 continue;
@@ -839,15 +855,15 @@ void func_80016E10(s32 slot, s16 *out) {
     if (out[10] < 0) {
         out[10] = 0;
     }
-    if (equip[0] == D_8004ACE4[slot].v[0] && equip[1] == D_8004ACE4[slot].v[1] &&
-        equip[2] == D_8004ACE4[slot].v[2] && equip[3] == D_8004ACE4[slot].v[3]) {
+    if (equip[0] == EQUIP_SETS[partner].v[0] && equip[1] == EQUIP_SETS[partner].v[1] &&
+        equip[2] == EQUIP_SETS[partner].v[2] && equip[3] == EQUIP_SETS[partner].v[3]) {
         for (i = 0; i < 6; i++) {
-            out[i + 6] += D_8004AD24[slot][i];
+            out[i + 6] += EQUIP_SET_BONUSES[partner][i];
         }
     }
 }
 
-void func_80017214(s16 *p, s32 stat, s32 delta) {
+void addStatBonus(s16 *p, s32 stat, s32 delta) {
     s32 i;
     s16 value;
 

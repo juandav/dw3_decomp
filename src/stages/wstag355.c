@@ -2,14 +2,14 @@
 #include "stage.h"
 
 void func_800A4CA4(StageTask *task) {
-    switch (task->header.state) {
-    case 0:
+    switch (task->state) {
+    case TASK_INIT:
     default:
-        task->header.nextState(task);
+        task->nextState(task);
         break;
-    case 1:
-    case 2:
-    case 3:
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
         break;
     }
 }

@@ -6,7 +6,7 @@ usage: tools/permuter_import.py draft.c func_name
 draft.c must compile on its own (the unit's header plus the draft of the
 function). The unit is taken from where the function's asm lives, which
 picks the toolchain: GCC 2.7.2 + aspsx_reorder.py for PsyQ (RERUN=1 for the
-objects in PSYQ_RERUN_CSE, GCC28=1 for those in PSYQ_GCC28), GCC 2.8.1 for the game (-G8 for gfx and system). The result goes to permuter/<func_name>/; run it with
+objects in PSYQ_RERUN_CSE, GCC28=1 for those in PSYQ_GCC28), GCC 2.8.1 for the game (-G8 for graphics and system). The result goes to permuter/<func_name>/; run it with
 
     python3 external/decomp-permuter/permuter.py permuter/<func_name> -j8
 """
@@ -53,7 +53,7 @@ def main():
         elif not os.environ.get("RERUN"):
             extra = " -fno-rerun-cse-after-loop"
     else:
-        cc1, g, post = f"{ROOT}/bin/gcc-2.8.1-psx/cc1", 8 if unit in ("gfx", "system") else 0, ""
+        cc1, g, post = f"{ROOT}/bin/gcc-2.8.1-psx/cc1", 8 if unit in ("graphics", "system") else 0, ""
 
     out = f"{ROOT}/permuter/{func}"
     os.makedirs(out, exist_ok=True)

@@ -69,12 +69,12 @@ CC1FLAGS = -quiet -O2 -G$(SDATA_LIMIT) -mips1 -mcpu=3000 -mgas $(FLOAT_ABI) \
 	    -fgnu-linker -fsigned-char -fno-builtin -fdollars-in-identifiers -Wall -Wno-unused $(PSYQ_CSE)
 MASPSXFLAGS = --aspsx-version=2.86 -G$(SDATA_LIMIT) --use-comm-section --use-comm-for-lcomm $(MASPSX_DIV)
 
-# Most of the game is built with -G0; gfx.c reads its own small variables
+# Most of the game is built with -G0; graphics.c reads its own small variables
 # through $gp. Declare those variables static in C: maspsx then emits them
 # as common symbols that resolve to the definitions in the data asm.
 SDATA_LIMIT := 0
 $(BUILDDIR)/src/main/system.c.o: SDATA_LIMIT := 8
-$(BUILDDIR)/src/main/gfx.c.o: SDATA_LIMIT := 8
+$(BUILDDIR)/src/main/graphics.c.o: SDATA_LIMIT := 8
 $(BUILDDIR)/src/main/sound.c.o: SDATA_LIMIT := 8
 $(BUILDDIR)/src/main/game3_2.c.o: SDATA_LIMIT := 8
 ASFLAGS := -EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 $(INC)

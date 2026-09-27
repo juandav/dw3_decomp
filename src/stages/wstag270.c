@@ -12,20 +12,20 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag270", func_800A52CC);
 INCLUDE_ASM("asm/stages/nonmatchings/wstag270", func_800A5868);
 
 void func_800A5894(StageTask *task) {
-    switch (task->header.state) {
-    case 0:
+    switch (task->state) {
+    case TASK_INIT:
     default:
-        task->header.nextState(task);
+        task->nextState(task);
         break;
-    case 1:
-    case 2:
-    case 3:
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
         break;
     }
 }
 
 StageTask *func_800A58DC(void *owner) {
-    StageTask *task = func_800144DC(func_800A5894, sizeof(StageTask), 0);
+    StageTask *task = createTask(func_800A5894, sizeof(StageTask), 0);
 
     task->owner = owner;
     D_800A7620[0]();

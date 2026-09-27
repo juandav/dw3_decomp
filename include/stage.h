@@ -11,7 +11,7 @@
 
 /* The task a stage starts (see its start function) */
 typedef struct StageTask {
-    /* 0x00 */ TaskHeader header;
+    TASK_HEADER(StageTask);
     /* 0x50 */ void *owner;
 } StageTask;
 

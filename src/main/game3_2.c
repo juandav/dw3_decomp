@@ -1,29 +1,29 @@
 #include "game.h"
 
-s32 func_800172E8(s32 slot, s32 id) {
+s32 findPartnerEntry(s32 partner, s32 id) {
     s32 i;
 
     for (i = 0; i < 44; i++) {
-        if (D_800484E8.records[slot].entries[i].unk0 < 3) {
+        if (GAME.partners[partner].entries[i].id < 3) {
             continue;
         }
-        if (D_800484E8.records[slot].entries[i].unk0 == id) {
+        if (GAME.partners[partner].entries[i].id == id) {
             return i;
         }
     }
     return -1;
 }
 
-s32 func_80017348(s32 slot, s16 *out) {
+s32 getPartnerSlots(s32 partner, s16 *out) {
     s32 i;
     s32 n;
     s32 index;
 
     for (i = 0, n = 0; i < 3; i++) {
-        if (D_800484E8.records[slot].unk54[i] >= 3) {
-            index = func_800172E8(slot, D_800484E8.records[slot].unk54[i]);
-            if (index >= 0 && D_800484E8.records[slot].entries[index].unk0 >= 3) {
-                out[n] = D_800484E8.records[slot].entries[index].unk0;
+        if (GAME.partners[partner].slots[i] >= 3) {
+            index = findPartnerEntry(partner, GAME.partners[partner].slots[i]);
+            if (index >= 0 && GAME.partners[partner].entries[index].id >= 3) {
+                out[n] = GAME.partners[partner].entries[index].id;
                 n++;
             }
         }
@@ -34,28 +34,28 @@ s32 func_80017348(s32 slot, s16 *out) {
     return n;
 }
 
-void func_8001746C(s32 slot, s16 *ids) {
+void setPartnerSlots(s32 partner, s16 *ids) {
     s32 i;
     s32 index;
 
     for (i = 0; i < 3; i++) {
-        index = func_800172E8(slot, ids[i]);
+        index = findPartnerEntry(partner, ids[i]);
         if (index >= 0) {
-            D_800484E8.records[slot].unk54[i] = D_800484E8.records[slot].entries[index].unk0;
+            GAME.partners[partner].slots[i] = GAME.partners[partner].entries[index].id;
         } else {
-            D_800484E8.records[slot].unk54[i] = -1;
+            GAME.partners[partner].slots[i] = -1;
         }
     }
 }
 
-s32 func_80017534(s32 slot, u16 *out) {
+s32 listPartnerEntries(s32 partner, u16 *out) {
     s32 i;
     s32 n;
     s32 count;
 
     for (n = i = 0; i < 44; i++) {
-        if (D_800484E8.records[slot].entries[i].unk0 >= 3) {
-            out[n] = D_800484E8.records[slot].entries[i].unk0;
+        if (GAME.partners[partner].entries[i].id >= 3) {
+            out[n] = GAME.partners[partner].entries[i].id;
             n++;
         }
     }
@@ -66,17 +66,17 @@ s32 func_80017534(s32 slot, u16 *out) {
     return count;
 }
 
-extern void (*D_8005C448)(s32 id);
+extern void (*ON_PARTNER_ENTRY_ADDED)(s32 id);
 
-s32 func_800175C0(s32 slot, s32 id) {
+s32 addPartnerEntry(s32 partner, s32 id) {
     s32 i;
     s32 index;
 
-    if (func_800172E8(slot, id) != -1) {
+    if (findPartnerEntry(partner, id) != -1) {
         return 0;
     }
     for (i = 0, index = -1; i < 44; i++) {
-        if (D_800484E8.records[slot].entries[i].unk0 == 0) {
+        if (GAME.partners[partner].entries[i].id == 0) {
             index = i;
             break;
         }
@@ -84,35 +84,35 @@ s32 func_800175C0(s32 slot, s32 id) {
     if (index == -1) {
         return 0;
     }
-    D_8005C448(id);
-    D_800484E8.records[slot].entries[index].unk0 = id;
-    D_800484E8.records[slot].entries[index].unk2 = 1;
+    ON_PARTNER_ENTRY_ADDED(id);
+    GAME.partners[partner].entries[index].id = id;
+    GAME.partners[partner].entries[index].isNew = 1;
     return 1;
 }
 
-s32 func_800176B8(s32 slot, s32 id, Unk80048C50Entry *out) {
-    s32 i = func_800172E8(slot, id);
+s32 getPartnerEntry(s32 partner, s32 id, PartnerEntry *out) {
+    s32 i = findPartnerEntry(partner, id);
 
     if (i != -1) {
-        *out = D_800484E8.records[slot].entries[i];
+        *out = GAME.partners[partner].entries[i];
     }
     return i;
 }
 
-s32 func_80017750(s32 slot, s32 id, Unk80048C50Entry *in) {
-    s32 i = func_800172E8(slot, id);
+s32 setPartnerEntry(s32 partner, s32 id, PartnerEntry *in) {
+    s32 i = findPartnerEntry(partner, id);
 
     if (i != -1) {
-        D_800484E8.records[slot].entries[i] = *in;
+        GAME.partners[partner].entries[i] = *in;
     }
     return i;
 }
 
-Unk80048C50 *func_800177E8(s32 index) {
-    return &D_80048C50[index];
+PartnerStats *getPartnerStats(s32 partner) {
+    return &PARTNER_STATS[partner];
 }
 
-void func_8001780C(void *ptr) {
+void freeMem(void *ptr) {
     MemBlock *block = (MemBlock *)ptr - 1;
     MemBlock *prev;
     MemBlock *next;
@@ -120,12 +120,12 @@ void func_8001780C(void *ptr) {
     if (ptr != NULL) {
         prev = block->prev;
         next = block->next;
-        block->flags = 0;
-        if (next->flags == 0) {
+        block->tag = 0;
+        if (next->tag == 0) {
             block->next = next->next;
             next->next->prev = block;
         }
-        if (prev->flags == 0) {
+        if (prev->tag == 0) {
             prev->next = block->next;
             block->next->prev = prev;
         }
@@ -135,34 +135,34 @@ void func_8001780C(void *ptr) {
 void func_80017878(void) {
 }
 
-void func_80017880(s32 tag) {
+void freeMemByTag(s32 tag) {
     MemBlock *block;
 
-    for (block = D_8004AD84.first; block->flags != 1; block = block->next) {
-        if (block->flags == tag) {
-            func_8001780C(block + 1);
+    for (block = HEAP.first; block->tag != 1; block = block->next) {
+        if (block->tag == tag) {
+            freeMem(block + 1);
         }
     }
 }
 
-void func_800178F8(void) {
+void initHeap(void) {
     MemBlock *start;
     MemBlock *last;
 
-    D_8004AD84.end = (MemBlock *)0x801FF000;
+    HEAP.end = (MemBlock *)0x801FF000;
     last = (MemBlock *)0x801FEFF4;
-    start = D_8005C2F8;
-    D_8004AD84.first = start;
-    D_8004AD84.size = (u8 *)0x801FF000 - (u8 *)start;
+    start = HEAP_START;
+    HEAP.first = start;
+    HEAP.size = (u8 *)0x801FF000 - (u8 *)start;
     start->prev = start;
     start->next = last;
-    start->flags = 0;
+    start->tag = 0;
     last->prev = start;
-    last->flags = 1;
-    last->next = D_8004AD84.end;
+    last->tag = 1;
+    last->next = HEAP.end;
 }
 
-void func_8001794C(void *dst, s32 size) {
+void zeroMem(void *dst, s32 size) {
     s32 i;
 
     if (size & 3) {
@@ -181,7 +181,7 @@ void func_8001794C(void *dst, s32 size) {
     }
 }
 
-void func_800179A4(s8 *dst, s8 value, s32 count) {
+void fillMem(s8 *dst, s8 value, s32 count) {
     s32 i;
 
     for (i = 0; i < count; i++) {
@@ -189,7 +189,8 @@ void func_800179A4(s8 *dst, s8 value, s32 count) {
     }
 }
 
-void *func_800179C8(u32 size, s32 tag) {
+/* First fit from the start of the heap */
+void *tryAllocMem(u32 size, s32 tag) {
     MemBlock *b;
     MemBlock *new;
     u32 avail;
@@ -197,19 +198,19 @@ void *func_800179C8(u32 size, s32 tag) {
 
     size = (size + 3) >> 2 << 2;
     splitSize = size + 20;
-    for (b = D_8004AD84.first; b->flags != 1; b = b->next) {
-        if (b->flags == 0) {
+    for (b = HEAP.first; b->tag != 1; b = b->next) {
+        if (b->tag == 0) {
             avail = (u8 *)b->next - (u8 *)b - sizeof(MemBlock);
             if (avail >= size) {
                 if (avail > splitSize) {
                     new = (MemBlock *)((u8 *)b + size + sizeof(MemBlock));
                     new->prev = b;
                     new->next = b->next;
-                    new->flags = 0;
+                    new->tag = 0;
                     b->next->prev = new;
                     b->next = new;
                 }
-                b->flags = tag;
+                b->tag = tag;
                 return b + 1;
             }
         }
@@ -217,27 +218,28 @@ void *func_800179C8(u32 size, s32 tag) {
     return NULL;
 }
 
-void *func_80017A78(u32 size, s32 tag) {
+/* First fit from the end of the heap */
+void *tryAllocMemHigh(u32 size, s32 tag) {
     MemBlock *b;
     MemBlock *prev;
     MemBlock *new;
     u32 avail;
 
     size = ((size + 3) >> 2 << 2) + sizeof(MemBlock);
-    for (b = D_8004AD84.end - 1; D_8004AD84.first != b; b = b->prev) {
+    for (b = HEAP.end - 1; HEAP.first != b; b = b->prev) {
         prev = b->prev;
-        if (prev->flags == 0) {
+        if (prev->tag == 0) {
             avail = (u8 *)b - (u8 *)prev;
             if (size == avail) {
                 new = prev;
-                new->flags = tag;
+                new->tag = tag;
                 return new + 1;
             }
             if (size < avail) {
                 new = (MemBlock *)((u8 *)b - size);
                 new->prev = prev;
                 new->next = b;
-                new->flags = tag;
+                new->tag = tag;
                 b->prev->next = new;
                 b->prev = new;
                 return new + 1;
@@ -247,114 +249,119 @@ void *func_80017A78(u32 size, s32 tag) {
     return NULL;
 }
 
-void *func_80017B20(s32 size, s32 tag) {
+/* Evicts cached files until the allocation fits */
+void *allocMem(s32 size, s32 tag) {
     void *ptr;
 
-    while ((ptr = func_800179C8(size, tag)) == NULL) {
-        D_80044744.outOfMemory();
+    while ((ptr = tryAllocMem(size, tag)) == NULL) {
+        FILE_CACHE.evictOldest();
     }
     return ptr;
 }
 
-void func_80017B88(s32 arg0, s32 arg1) {
-    while (func_80017A78(arg0, arg1) == 0) {
-        D_80044744.outOfMemory();
+/* The block is returned in v0, left there by tryAllocMemHigh */
+void allocMemHigh(s32 size, s32 tag) {
+    while (tryAllocMemHigh(size, tag) == 0) {
+        FILE_CACHE.evictOldest();
     }
 }
 
-void *func_80017BF0(s32 size, s32 tag) {
-    void *ret = func_80017B20(size, tag);
+void *allocMemZeroed(s32 size, s32 tag) {
+    void *ret = allocMem(size, tag);
 
-    func_8001794C(ret, size);
+    zeroMem(ret, size);
     return ret;
 }
 
-void func_80017C30(void *ptr, s32 arg1) {
+/* Keeps a block alive across mode changes (tag 4), or hands it back to tag 2 */
+void lockMem(void *ptr, s32 lock) {
     MemBlock *block = (MemBlock *)ptr - 1;
 
-    if (arg1) {
-        block->flags = 4;
+    if (lock) {
+        block->tag = 4;
     } else {
-        block->flags = 2;
+        block->tag = 2;
     }
 }
 
-void func_80017C50(void) {
+void clearTaskRegistry(void) {
     s32 i;
 
     for (i = 99; i >= 0; i--) {
-        D_8004ADB8.list[i] = 0;
+        TASK_REGISTRY.tasks[i] = 0;
     }
 }
 
-void func_80017C78(s32 arg0) {
+void registerTask(s32 task) {
     s32 i;
     s32 *p;
 
-    for (i = 0, p = D_8004ADB8.list; i < 100; i++, p++) {
+    for (i = 0, p = TASK_REGISTRY.tasks; i < 100; i++, p++) {
         if (*p == 0) {
-            *p = arg0;
+            *p = task;
             return;
         }
     }
 }
 
-void func_80017CB0(s32 arg0) {
+void unregisterTask(s32 task) {
     s32 i;
     s32 *p;
 
-    for (i = 0, p = D_8004ADB8.list; i < 100; i++, p++) {
-        if (*p == arg0) {
+    for (i = 0, p = TASK_REGISTRY.tasks; i < 100; i++, p++) {
+        if (*p == task) {
             *p = 0;
             return;
         }
     }
 }
 
-void *func_80017CE8(void) {
+void *findNextTask(void) {
     s32 i;
     s32 *e;
 
-    for (i = D_8004ADB8.unk19C; i < 100; i++) {
-        e = (s32 *)D_8004ADB8.list[i];
-        if (e != NULL && (D_8004ADB8.unk190 == -1 || e[0] == D_8004ADB8.unk190) &&
-            (D_8004ADB8.unk194 == -1 || e[1] == D_8004ADB8.unk194) &&
-            (D_8004ADB8.unk198 == -1 || e[2] == D_8004ADB8.unk198)) {
-            D_8004ADB8.unk19C = i + 1;
-            return (void *)D_8004ADB8.list[i];
+    for (i = TASK_REGISTRY.findNext; i < 100; i++) {
+        e = (s32 *)TASK_REGISTRY.tasks[i];
+        if (e != NULL && (TASK_REGISTRY.findId == -1 || e[0] == TASK_REGISTRY.findId) &&
+            (TASK_REGISTRY.findKey1 == -1 || e[1] == TASK_REGISTRY.findKey1) &&
+            (TASK_REGISTRY.findKey2 == -1 || e[2] == TASK_REGISTRY.findKey2)) {
+            TASK_REGISTRY.findNext = i + 1;
+            return (void *)TASK_REGISTRY.tasks[i];
         }
     }
     return NULL;
 }
 
-void func_80017DA8(s32 arg0, s32 arg1, s32 arg2) {
-    D_8004ADB8.unk190 = arg0;
-    D_8004ADB8.unk194 = arg1;
-    D_8004ADB8.unk198 = arg2;
-    D_8004ADB8.unk19C = 0;
-    func_80017CE8();
+/* Returns (in v0, through findNextTask) the first registered task that matches */
+void findTask(s32 id, s32 key1, s32 key2) {
+    TASK_REGISTRY.findId = id;
+    TASK_REGISTRY.findKey1 = key1;
+    TASK_REGISTRY.findKey2 = key2;
+    TASK_REGISTRY.findNext = 0;
+    findNextTask();
 }
 
-/* Runs the task's update with the stack in the scratchpad. */
+/* The update runs with its stack in the scratchpad */
 #define SetSpadStack(addr) \
     __asm__ volatile("move $8,%0\n\tsw $29,0($8)\n\taddiu $8,$8,-16\n\tmove $29,$8" : : "r"(addr) : "$8", "memory")
 #define ResetSpadStack() __asm__ volatile("addiu $29,$29,16\n\tlw $29,0($29)" : : : "memory")
 
-Unk80017ECC *func_80017DDC(Unk80017ECC *task) {
-    s32 done = task->state == 3;
+/* One frame of a task and its children; returns NULL once the task is gone */
+Task *executeTask(Task *task) {
+    s32 dying = task->state == TASK_KILL;
 
     SetSpadStack(0x1F8003FC);
-    if (task->state == 1 && task->wait != 0) {
-        if (task->wait > 0) {
-            task->wait = -1;
+    if (task->state == TASK_RUN && task->paused != 0) {
+        if (task->paused > 0) {
+            task->paused = -1;
         }
     } else {
-        task->update(task, task->items);
+        task->update(task, task->children);
     }
     ResetSpadStack();
-    if (!done) {
-        if (task->state != 1 || task->wait == 0) {
-            D_8004AF58.unk14(task);
+    if (!dying) {
+        if (task->state != TASK_RUN || task->paused == 0) {
+            TASK_FUNCS.runChildren(task);
         }
     } else {
         task->destroy(task);
@@ -363,28 +370,28 @@ Unk80017ECC *func_80017DDC(Unk80017ECC *task) {
     return task;
 }
 
-void func_80017ECC(Unk80017ECC *obj) {
-    s32 count = obj->count;
-    s32 *items = obj->items;
+void runChildTasks(Task *task) {
+    s32 count = task->childCount;
+    s32 *children = task->children;
     s32 i;
 
     for (i = 0; i < count; i++) {
-        if (items[i] != 0) {
-            items[i] = (s32)func_80017DDC((Unk80017ECC *)items[i]);
+        if (children[i] != 0) {
+            children[i] = (s32)executeTask((Task *)children[i]);
         }
     }
 }
 
-s32 func_80017F38(s32 arg0) {
-    if (arg0 != 0) {
-        return (s32)func_80017DDC((Unk80017ECC *)arg0);
+s32 runTask(s32 task) {
+    if (task != 0) {
+        return (s32)executeTask((Task *)task);
     }
     return 0;
 }
 
-void func_80017F64(Task *task) {
+void killTask(Task *task) {
     if (task != NULL) {
-        task->unk28(task, 3);
-        D_8004AF58.unk18(task);
+        task->setState(task, TASK_KILL);
+        TASK_FUNCS.run(task);
     }
 }

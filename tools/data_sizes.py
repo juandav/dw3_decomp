@@ -4,7 +4,7 @@
 GCC's MIPS output labels data (`D_800100E4:` followed by `.ascii`/`.word`...)
 without `.size`, so the symbol has size 0 and objdiff stretches it up to the
 next symbol, swallowing anonymous data such as a switch's jump table (`$L65:`,
-`.word $L60`...) that follows it: game2's save file names then compared
+`.word $L60`...) that follows it: memcard.c's save file names then compared
 against the names plus two jump tables. This ends each global data label with
 `.size X, . - X` where its data ends: at the next label, `.align` or section
 change. The bytes of the object don't change, only its symbol table.

@@ -4,20 +4,20 @@ extern void (*D_800A56A8[])(void);
 void func_800A4CA8();
 
 void func_800A4CA8(StageTask *task) {
-    switch (task->header.state) {
-    case 0:
+    switch (task->state) {
+    case TASK_INIT:
     default:
-        task->header.nextState(task);
+        task->nextState(task);
         break;
-    case 1:
-    case 2:
-    case 3:
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
         break;
     }
 }
 
 StageTask *func_800A4CF0(void *owner) {
-    StageTask *task = func_800144DC(func_800A4CA8, sizeof(StageTask), 0);
+    StageTask *task = createTask(func_800A4CA8, sizeof(StageTask), 0);
 
     task->owner = owner;
     D_800A56A8[0]();

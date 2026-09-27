@@ -14,6 +14,10 @@ linked with `ld -r`, so progress keeps being tracked per unit as before.
 The PsyQ SDK (src/main/psyq/) is Sony's code linked into the executable, not
 the game's: like other PSX decomps (jype0/dw_decomp), progress doesn't count
 it, so it gets no unit. It is still built and checked by `make compare`.
+
+The executable's game data that splat still disassembles (GAME_DATA) belongs
+to no C file yet, so it gets a unit of its own, main/game_data, without a base
+object: it counts as unmatched until it moves into the C files.
 """
 
 import json
@@ -31,6 +35,10 @@ CATEGORIES = [
 
 def is_library(name: str) -> bool:
     return name == "main/psyq" or name.startswith("main/psyq/")
+
+
+# the executable's game data still in asm (not the SDK's psyq and gte_tables)
+GAME_DATA = ["game.data", "game_2.data", "game_3.data", "game.bss"]
 
 
 def category_for(name: str) -> str:
@@ -68,6 +76,18 @@ def main() -> None:
                 "target_path": target,
                 "base_path": base,
                 "metadata": {"progress_categories": [category_for(name)]},
+            }
+        )
+
+    data = [f"expected/asm/main/data/{d}.s.o" for d in GAME_DATA
+            if (ROOT / f"asm/main/data/{d}.s").exists()]
+    if data:
+        link("expected/report/main/game_data.s.o", data)
+        units.append(
+            {
+                "name": "main/game_data",
+                "target_path": "expected/report/main/game_data.s.o",
+                "metadata": {"progress_categories": ["game"]},
             }
         )
 
