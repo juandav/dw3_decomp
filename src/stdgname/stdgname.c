@@ -198,7 +198,16 @@ void func_80084744(NameTask *task, s32 x, s32 y) {
     task->vramY = y;
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80084750);
+void func_80084750(NameTask *task, char *name) {
+    TextTools conv;
+    s32 i;
+
+    initTextTools(&conv);
+    conv.convert(task->name, name, 0);
+    for (i = strlen((char *)task->name) >> 1; i < task->maxLength; i++) {
+        task->name[i] = 0x4081;
+    }
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800847E4);
 
