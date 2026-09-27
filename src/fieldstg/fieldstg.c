@@ -1,4 +1,4 @@
-#include "common.h"
+#include "fieldstg.h"
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80082F1C);
 
