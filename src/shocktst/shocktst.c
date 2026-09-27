@@ -444,7 +444,9 @@ void func_80083EAC(ShockLoader *task, ShockLoaderWindows *win) {
     }
 }
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80084134);
+Task *func_80084134(void) {
+    return createTask(func_80083EAC, sizeof(ShockLoader), sizeof(ShockLoaderWindows));
+}
 
 INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", D_80082500);
 
