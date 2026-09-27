@@ -13,6 +13,12 @@ extern int (*D_80055534)(PadPort *p);
 extern void (*D_80055538)();
 extern void (*D_8005553C)(PadPort *p);
 extern PadPort *D_8005554C;
+extern long D_80055558;
+extern long D_8005555C;
+extern long D_8005556C;
+extern long D_80055570[];
+extern long D_80055500[];
+extern volatile SioRegs *D_80055508;
 
 void func_80021DF0(PadPort *p);
 void func_80021E64();
@@ -24,6 +30,8 @@ int func_800223BC(PadPort *p);
 int func_80022D60(PadPort *p);
 void func_8002262C();
 void *bzero(u_char *p, int n);
+void _mtapFailAuto(PadPort *p);
+int _padInitSioMode(PadPort *p);
 
 void _padInitMtapPort(void) {
     bzero((u_char *)D_8007E740, sizeof(D_8007E740));
@@ -74,7 +82,32 @@ void func_80021DF0(PadPort *p) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021E64);
+void func_80021E64(int status) {
+    PadPort *p;
+    int done;
+
+    do {
+        p = &D_8007E740[D_80055558];
+        D_80055508->ctrl = 0;
+        D_80055500[D_80055558] = status;
+        if (status != -9) {
+            if (status == 0) {
+                D_80055570[D_80055558] = ((*p->unk3C >> 4) == 8) * 4;
+            } else {
+                _mtapFailAuto(p);
+            }
+        }
+        D_8005555C = 0;
+        D_80055558++;
+        if (D_80055558 <= D_8005556C) {
+            done = _padInitSioMode(&D_8007E740[D_80055558]);
+            status = 0xFFFF;
+        } else {
+            done = 1;
+            status = 0xFFFF;
+        }
+    } while (!done);
+}
 
 void func_80021F7C(PadPort *p) {
     int i;
