@@ -1745,7 +1745,13 @@ u16 func_80018538(s32 pad) {
     return D_8004AF78.slots[pad][0].unk2;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001855C);
+void func_8001855C(u16 port) {
+    s32 i;
+
+    for (i = 0; i < 16; i++) {
+        D_8004AF78.slots[(u8)port >> 4][port & 3].unk5C[i] = D_8004B39C[i];
+    }
+}
 
 void func_800185C4(u16 port, s32 a, s32 b) {
     u8 tmp = D_8004AF78.slots[(u8)port >> 4][port & 3].unk5C[a];
