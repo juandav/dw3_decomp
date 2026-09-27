@@ -1791,7 +1791,40 @@ void func_8001B148(Task8001B3A0 *task) {
     task->unk6C = task->unk64;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001B1D0);
+void func_8001B1D0(Task8001B3A0 *task) {
+    u8 *src = (u8 *)task->unk68;
+    u8 *dst = task->unk6C;
+    s32 total = 0;
+    s32 done = 0;
+    s32 n;
+    s32 i;
+
+    while (*src != 0) {
+        if (*src & 0x80) {
+            n = *src++ & 0x7F;
+            for (i = 0; i < n; i++) {
+                *dst++ = *src;
+            }
+            src++;
+            total += n;
+        } else {
+            n = *src++;
+            for (i = 0; i < n; i++) {
+                *dst++ = *src++;
+            }
+            total += n;
+        }
+        if (total >= task->unk70) {
+            done = 1;
+            task->unk68 = (s32 *)src;
+            task->unk6C = dst;
+            break;
+        }
+    }
+    if (!done) {
+        task->unk2C(task, 0);
+    }
+}
 
 void *func_8001B2B8(Task8001B3A0 *task, s32 *data) {
     task->unk70 = 0x10000000;

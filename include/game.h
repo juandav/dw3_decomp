@@ -419,7 +419,9 @@ typedef struct Obj8001F8F8 {
 } Obj8001F8F8;
 
 typedef struct Obj8001FBE0 {
-    /* 0x00 */ u8 unk0[8];
+    /* 0x00 */ u16 w;
+    /* 0x02 */ u16 h;
+    /* 0x04 */ u8 unk4[4];
     /* 0x08 */ s32 unk8;
     /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
@@ -499,6 +501,12 @@ typedef struct Unk800554D0 {
     /* 0x0 */ s32 unk0;
     /* 0x4 */ s32 current;
 } Unk800554D0;
+
+typedef struct Unk2728 {
+    /* 0x00 */ u8 unk0[0x16];
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ u8 unk18[0x18];
+} Unk2728;
 
 typedef struct Unk2744 {
     /* 0x00 */ u8 unk0[0x20];
@@ -591,7 +599,9 @@ typedef struct Unk800484E8 {
     /* 0x26F8 */ s32 (*unk26F8)(void);
     /* 0x26FC */ u8 unk26FC[0x10];
     /* 0x270C */ s32 (*unk270C)(s32);
-    /* 0x2710 */ u8 unk2710[0x34];
+    /* 0x2710 */ u8 unk2710[0x18];
+    /* 0x2728 */ void (*unk2728)(s32, struct Unk2728 *);
+    /* 0x272C */ u8 unk272C[0x18];
     /* 0x2744 */ struct Unk2744 *(*unk2744)(s32);
 } Unk800484E8;
 
