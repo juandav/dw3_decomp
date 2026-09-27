@@ -36,6 +36,21 @@ typedef struct GameFuncs {
     /* 0x5C */ void (*updatePlayTime)();
 } GameFuncs;
 
+/*
+ * FLAGS_00, the first flag bitset, followed by the event functions: FIELDSTG
+ * and the stages call them through here (+0xC applies an action, +0x10 checks
+ * a condition).
+ */
+typedef struct GameFlags {
+    /* 0x00 */ u8 bits[4];
+    /* 0x04 */ s32 pendingFlag10; /* PENDING_FLAG_10 */
+    /* 0x08 */ s32 (*checkConditions)(u16 *list);
+    /* 0x0C */ void (*applyAction)(s32 code, s32 value);
+    /* 0x10 */ s32 (*checkCondition)(u16 code, u16 value);
+    /* 0x14 */ void (*applyActions)(u16 *list);
+    /* 0x18 */ void (*updateModeFlags)(void);
+} GameFlags;
+
 /* Digimon definition (DIGIMON_DATA, 52 of them; the first 8 are the partners) */
 typedef struct DigimonData {
     /* 0x00 */ u16 id;
@@ -230,7 +245,7 @@ extern u8 FLAGS_02[];
 #define FLAGS_20 (FLAGS_02 + 0x3E)
 extern s32 MONEY_GAINS[];
 extern s32 MONEY_LOSSES[];
-extern u8 FLAGS_00[];
+extern GameFlags FLAGS_00;
 extern s32 PENDING_FLAG_10;
 extern s32 GAME_CLEAR_TEMP_FLAGS;
 extern s32 STARTER_DECK[40];
