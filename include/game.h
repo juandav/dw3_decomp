@@ -192,8 +192,15 @@ typedef struct Task8001B6A8 {
     /* 0x6A */ s16 unk6A;
 } Task8001B6A8;
 
+typedef struct Unk8001C5C4 {
+    /* 0x00 */ struct Task8001C454 *items[3];
+    /* 0x0C */ struct Unk80019DFC *windows[2];
+} Unk8001C5C4;
+
 typedef struct Unk8001BB68 {
-    /* 0x00 */ u8 unk0[0x54];
+    /* 0x00 */ u8 unk0[0x24];
+    /* 0x24 */ Unk8001C5C4 *children;
+    /* 0x28 */ u8 unk28[0x2C];
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 type;
     /* 0x5C */ u8 unk5C[4];
@@ -332,14 +339,42 @@ typedef struct Unk80019DFC {
     /* 0xE0 */ s32 unkE0;
     /* 0xE4 */ s32 unkE4;
     /* 0xE8 */ u8 unkE8[0x28];
-    /* 0x110 */ void (*methods[25])();
+    /* 0x110 */ void (*m110)();
+    /* 0x114 */ void (*m114)();
+    /* 0x118 */ void (*m118)();
+    /* 0x11C */ void (*m11C)();
+    /* 0x120 */ void (*m120)();
+    /* 0x124 */ void (*m124)();
+    /* 0x128 */ void (*m128)();
+    /* 0x12C */ void (*m12C)();
+    /* 0x130 */ void (*m130)();
+    /* 0x134 */ void (*setPos)(struct Unk80019DFC *obj, s16 x, s16 y);
+    /* 0x138 */ void (*m138)();
+    /* 0x13C */ void (*m13C)();
+    /* 0x140 */ void (*m140)();
+    /* 0x144 */ void (*m144)();
+    /* 0x148 */ void (*m148)();
+    /* 0x14C */ void (*m14C)();
+    /* 0x150 */ void (*m150)();
+    /* 0x154 */ void (*m154)();
+    /* 0x158 */ void (*m158)();
+    /* 0x15C */ void (*m15C)();
+    /* 0x160 */ void (*m160)();
+    /* 0x164 */ void (*m164)();
+    /* 0x168 */ void (*m168)();
+    /* 0x16C */ void (*m16C)();
+    /* 0x170 */ void (*m170)();
 } Unk80019DFC;
 
 typedef struct Unk8004D49C {
     /* 0x00 */ u8 unk0[8];
     /* 0x08 */ u16 unk8;
     /* 0x0A */ u16 unkA;
-    /* 0x0C */ u8 unkC[0x10];
+    /* 0x0C */ u8 unkC[8];
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ s16 unk18;
+    /* 0x1A */ s16 unk1A;
     /* 0x1C */ s16 unk1C;
     /* 0x1E */ s16 unk1E;
 } Unk8004D49C;
@@ -641,20 +676,21 @@ typedef struct Vec2 {
     s32 y;
 } Vec2;
 
-typedef struct PadInfo {
-    /* 0x000 */ s32 flags;
-    /* 0x004 */ u8 unk4[0x44];
-    /* 0x048 */ u16 unk48;
-    /* 0x04A */ u16 unk4A;
-    /* 0x04C */ u8 unk4C[2];
-    /* 0x04E */ u16 unk4E;
-    /* 0x050 */ u8 unk50[0x54];
-    /* 0x0A4 */ u8 unkA4[0x11C];
-} PadInfo;
+/* One controller: a port, or one of the four multitap slots behind it */
+typedef struct PadSlot {
+    /* 0x00 */ u16 unk0;
+    /* 0x02 */ u16 unk2;
+    /* 0x04 */ u8 unk4[2];
+    /* 0x06 */ u16 unk6;
+    /* 0x08 */ u8 unk8[0x54];
+    /* 0x5C */ u8 unk5C[0x10];
+    /* 0x6C */ s16 actTimers[2];
+} PadSlot;
 
 typedef struct PadState {
-    /* 0x000 */ PadInfo pads[2];
-    /* 0x380 */ u8 unk380[0x48];
+    /* 0x000 */ s32 flags;
+    /* 0x004 */ u8 buf[2][0x22];
+    /* 0x048 */ PadSlot slots[2][4];
     /* 0x3C8 */ u8 act[2][6];
     /* 0x3D4 */ s16 unk3D4;
     /* 0x3D6 */ s16 unk3D6;
@@ -818,7 +854,7 @@ void *func_800179C8(u32 size, s32 tag);
 void *func_80017A78(u32 size, s32 tag);
 s32 func_80016064(u16, u16);
 void func_80017FAC(s32, s32);
-void func_8001837C(s32, s32, s32, s32);
+s32 func_8001837C(s32 port, s32 motor, s16 time, u8 value);
 void *func_8001B2B8(Task8001B3A0 *task, s32 *data);
 void func_8001B1D0(Task8001B3A0 *task);
 void func_80019C2C(Unk80019DFC *obj);

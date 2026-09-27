@@ -1526,24 +1526,24 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_80017FAC);
 
 void func_800180D8(void) {
     func_8001816C();
-    D_8004AF78.pads[0].flags = 0;
+    D_8004AF78.flags = 0;
 }
 
 void func_800180FC(void) {
-    if (!(D_8004AF78.pads[0].flags & 0x40000000)) {
+    if (!(D_8004AF78.flags & 0x40000000)) {
         func_80017FAC(0, 0x10);
     }
-    if (!(D_8004AF78.pads[0].flags & 0x20000000)) {
+    if (!(D_8004AF78.flags & 0x20000000)) {
         PadStartCom();
-        D_8004AF78.pads[0].flags |= 0x20000000;
+        D_8004AF78.flags |= 0x20000000;
     }
 }
 
 void func_8001816C(void) {
-    if (D_8004AF78.pads[0].flags & 0x20000000) {
+    if (D_8004AF78.flags & 0x20000000) {
         PadStopCom();
     }
-    D_8004AF78.pads[0].flags &= ~0x20000000;
+    D_8004AF78.flags &= ~0x20000000;
 }
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_800181B8);
@@ -1551,15 +1551,15 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_800181B8);
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001837C);
 
 u16 func_800184F0(s32 pad) {
-    return D_8004AF78.pads[pad].unk48;
+    return D_8004AF78.slots[pad][0].unk0;
 }
 
 u16 func_80018514(s32 pad) {
-    return D_8004AF78.pads[pad].unk4E;
+    return D_8004AF78.slots[pad][0].unk6;
 }
 
 u16 func_80018538(s32 pad) {
-    return D_8004AF78.pads[pad].unk4A;
+    return D_8004AF78.slots[pad][0].unk2;
 }
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001855C);
@@ -1567,7 +1567,7 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_8001855C);
 INCLUDE_ASM("asm/main/nonmatchings/game", func_800185C4);
 
 u8 func_8001861C(s32 pad, s32 index) {
-    return D_8004AF78.pads[pad].unkA4[index];
+    return D_8004AF78.slots[pad][0].unk5C[index];
 }
 
 s32 func_80018644(void) {
@@ -1578,7 +1578,7 @@ void func_8001864C(void) {
 }
 
 s32 func_80018654(s32 arg0) {
-    if (D_8004AF78.pads[0].flags & 0x800000) {
+    if (D_8004AF78.flags & 0x800000) {
         if (D_8004AF78.unk3D6 == arg0) {
             return 1;
         }
@@ -1588,8 +1588,8 @@ s32 func_80018654(s32 arg0) {
 }
 
 s32 func_8001868C(s16 arg0, s32 arg1) {
-    if (!(D_8004AF78.pads[0].flags & 0xC00000)) {
-        D_8004AF78.pads[0].flags |= 0x400000;
+    if (!(D_8004AF78.flags & 0xC00000)) {
+        D_8004AF78.flags |= 0x400000;
         if (D_8004AF78.unk3D8 == 0) {
             D_8004AF78.unk3D6 = arg0;
             D_8004AF78.unk3D8 = arg1;
@@ -1602,8 +1602,8 @@ s32 func_8001868C(s16 arg0, s32 arg1) {
 }
 
 void func_80018700(void) {
-    if (D_8004AF78.pads[0].flags & 0x400000) {
-        D_8004AF78.pads[0].flags &= ~0x400000;
+    if (D_8004AF78.flags & 0x400000) {
+        D_8004AF78.flags &= ~0x400000;
         D_8004AF78.unk3D8 = 0;
         D_8004AF78.unk3D6 = 0;
         D_8004AF78.unk3DC = 0;
@@ -1611,7 +1611,7 @@ void func_80018700(void) {
 }
 
 s32 func_8001873C(s32 arg0) {
-    if (D_8004AF78.pads[0].flags & 0x400000) {
+    if (D_8004AF78.flags & 0x400000) {
         if (D_8004AF78.unk3D6 == arg0) {
             return 1;
         }
@@ -1636,13 +1636,13 @@ s32 func_80018CA8(s32 port, s32 on) {
         if (mode == 4 || mode == 7) {
             bit = ((id >> 4) << 2) | (port & 3);
             if (on != 0) {
-                D_8004AF78.pads[0].flags |= 1 << bit;
+                D_8004AF78.flags |= 1 << bit;
                 PadSetMainMode(id, PadInfoMode(id, 3, 0), 3);
             } else {
-                D_8004AF78.pads[0].flags &= ~(1 << bit);
+                D_8004AF78.flags &= ~(1 << bit);
                 PadSetMainMode(id, PadInfoMode(id, 3, 0), 2);
             }
-            D_8004AF78.pads[0].flags &= 0xF3FFFFFF;
+            D_8004AF78.flags &= 0xF3FFFFFF;
             return 1;
         }
     }
@@ -2261,10 +2261,10 @@ Task *func_8001BA7C(s32 id, s32 arg1, s32 arg2) {
     Unk8001BA7C *data = task->unk24;
 
     data->window = func_8001AAB4(id, 1, 0x12, 0xB0);
-    data->window->methods[20](data->window, 3);
-    data->window->methods[1](data->window, arg1, arg2);
-    data->window->methods[13](data->window, 0);
-    data->window->methods[8](data->window, 6);
+    data->window->m160(data->window, 3);
+    data->window->m114(data->window, arg1, arg2);
+    data->window->m144(data->window, 0);
+    data->window->m130(data->window, 6);
     data->unk4 = func_8001B804(id);
     return task;
 }
@@ -2340,7 +2340,41 @@ Task8001C454 *func_8001C4D8(s32 arg0, s16 x, s16 y, s32 w, s32 h, s32 type) {
     return task;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001C5C4);
+void func_8001C5C4(Unk8001BB68 *task, s32 x, s32 y) {
+    Unk8001C5C4 *children = task->children;
+    s32 i;
+    u32 type;
+    s32 wx;
+    s32 wy;
+    Task8001C454 *item;
+
+    task->x = x;
+    task->y = y;
+    for (i = 0; i < 3; i++) {
+        item = children->items[i];
+        if (item != NULL && item->state == 1) {
+            item->unk50 = item->unk6C + x;
+            item->unk52 = item->unk6E + y;
+        }
+    }
+    type = task->type;
+    if (children->windows[0] != NULL) {
+        wx = task->x + D_8004D49C[type].unk14;
+        wy = task->y + D_8004D49C[type].unk16;
+        if (type < 2) {
+            wx -= task->w;
+        }
+        children->windows[0]->setPos(children->windows[0], wx, wy);
+    }
+    if (children->windows[1] != NULL) {
+        wx = task->x + D_8004D49C[type].unk18;
+        wy = task->y + D_8004D49C[type].unk1A;
+        if (type < 2) {
+            wx -= task->w;
+        }
+        children->windows[1]->setPos(children->windows[1], wx, wy);
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001C72C);
 
