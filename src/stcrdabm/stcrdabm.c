@@ -499,7 +499,39 @@ void func_80084384(CardAlbum *album, CardAlbumWindows *win) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80084C8C);
+void func_80084C8C(CardAlbum *album, CardAlbumWindows *win) {
+    switch (album->state) {
+    case 0:
+    default:
+        switch (album->substate) {
+        case 0:
+        default:
+            D_80085180.loadFiles();
+            album->substate++;
+            break;
+        case 1:
+            if (D_80085180.filesLoading() == 0) {
+                func_80083394(album, win);
+                album->fade.duration = 8;
+                album->infoFade.duration = 8;
+                album->pageCount = 27;
+                album->card = 1;
+                album->nextState(album);
+            }
+            break;
+        }
+        break;
+    case 1:
+        func_80084384(album, win);
+        func_80083C4C(album);
+        break;
+    case 2:
+        break;
+    case 3:
+        GAME.funcs.requestMode(GAME.funcs.getPrevMode(), 0);
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80084DB8);
 
