@@ -330,6 +330,32 @@ int func_800244C4(PadPort *p) {
     return ret;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres_2", func_80024570);
+extern long D_8005559C;
+extern void (*D_80055524)(PadPort *p);
+extern u_char (*D_80055520)(PadPort *p, long flag);
+
+int func_80024570(PadPort *p) {
+    int ret;
+    int type;
+    long flag;
+
+    flag = 0;
+    if (D_80055564 != 0) {
+        type = *p->unk3C;
+        if ((type >> 4) == 8) {
+            flag = p->cmd == 0;
+        }
+    }
+    D_8005559C = flag;
+    if (D_8005559C == 0 && p->cmd == 0 && p->prevCmd == 0 && (p == p->unk10 || p->unk39 == 0) &&
+        *p->unk30 == 0) {
+        D_80055524(p);
+    }
+    ret = _padSioRW2(p, D_80055520(p, D_8005559C));
+    if (ret == 0x5A || ret == 0 || ret < 0) {
+        return ret;
+    }
+    return -4;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres_2", func_8002468C);
