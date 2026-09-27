@@ -1,7 +1,8 @@
 #include "game.h"
 
-const char D_800100CC[7][24] = {
-    "BISLPS-99999DMW3-JPN",
+const char D_800100CC[24] = "BISLPS-99999DMW3-JPN";
+
+const char D_800100E4[6][24] = {
     "BASLUS-01436DMW3-USA",
     "BESLPS-99999DMW3-ENG",
     "BESLPS-99999DMW3-FRA",
@@ -11,7 +12,7 @@ const char D_800100CC[7][24] = {
 };
 
 void func_80014884(void) {
-    D_80047F14.fileName = (char *)D_800100CC[1];
+    D_80047F14.fileName = (char *)D_800100E4[0];
 }
 
 void func_80014898(char *title, CardClut *clut, s32 count, s32 *icons) {
