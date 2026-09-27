@@ -1,4 +1,4 @@
-#include "common.h"
+#include "stdwtitl.h"
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickSplashLoader);
 
