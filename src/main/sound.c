@@ -56,7 +56,25 @@ s32 func_8001FCA4(s32 packed) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_8001FE3C);
+void func_8001FE3C(void) {
+    s32 i;
+    s32 j;
+    s32 k;
+    SoundEntry *e;
+
+    for (i = 0; i < 3; i++) {
+        e = &D_80051194.sounds[i];
+        if (e->vabId != -1) {
+            for (j = 0; j < e->numSeqs; j++) {
+                for (k = 0; k < 16; k++) {
+                    SsSepStop(e->seqs[j], k);
+                }
+            }
+        }
+    }
+    SsUtAllKeyOff(0);
+    D_800553DC.unk0 = 0;
+}
 
 void func_8001FF0C(s32 packed) {
     s32 id = (packed >> 18) & 0x7F;
