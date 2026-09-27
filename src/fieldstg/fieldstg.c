@@ -808,7 +808,16 @@ void func_800916B4(void) {
     actor->unk10C = 0;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800916E8);
+ScriptCommand *func_800916E8(s32 id) {
+    ScriptCommand *cmd;
+
+    for (cmd = D_8009A448; cmd->id != 0; cmd++) {
+        if (cmd->id == id) {
+            return cmd;
+        }
+    }
+    return NULL;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091730);
 
