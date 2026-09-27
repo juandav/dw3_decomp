@@ -329,7 +329,8 @@ typedef struct Unk8003EB68 {
 
 typedef struct Unk80048C50Entry {
     /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
+    /* 0x02 */ u8 unk2;
+    /* 0x03 */ u8 unk3;
     /* 0x04 */ s32 unk4[4];
 } Unk80048C50Entry;
 
@@ -743,6 +744,7 @@ s32 func_8001366C(void);
 s32 func_80013880(void);
 void func_80013890(void);
 void func_8001B864();
+void func_8001F22C(struct Obj8001F22C *obj);
 s32 func_800154F8(u8 *bits, s32 index, s32 set);
 void func_8001C454(struct Task8001C454 *task);
 Unk80019DFC *func_8001AAB4(s16 id, s16 type, s16 x, s16 y);
@@ -807,6 +809,7 @@ extern PadState D_8004AF78;
 extern u16 D_8004B3AC[0x1000];
 extern s32 D_8004D3AC;
 extern u8 *D_8004D5A8;
+extern s32 (*D_80044B68)(s32 id);
 extern Unk8004D49C D_8004D49C[];
 extern GfxState D_8004D5B8;
 extern Unk80051194 D_80051194;

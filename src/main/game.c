@@ -1961,7 +1961,21 @@ void func_8001B434(void) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001B490);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001B5AC);
+void func_8001B5AC(Task8001ACC8 *task) {
+    Obj8001F22C obj;
+
+    func_8001F22C(&obj);
+    obj.methods[3](task->unk50, 0);
+    obj.methods[1](0x140, 0);
+    if (D_8004D5B8.funcs.unk38() - task->unk60 >= 4) {
+        task->unk60 = D_8004D5B8.funcs.unk38();
+        if (++task->unk64 >= 5) {
+            task->unk64 = 0;
+        }
+    }
+    obj.methods[6](task->unk64);
+    obj.methods[5](D_80044B68(0x02770000), 10, 0x124, 0xCD);
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001B6A8);
 
