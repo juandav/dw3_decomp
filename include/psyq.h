@@ -394,7 +394,7 @@ void _spu_t();
 extern void (*D_80055540)(void);
 extern volatile u_long *D_8005558C;
 extern volatile u_short D_8005BA40;
-extern long D_8005BA60;
+extern volatile long D_8005BA60;
 extern long D_80080BE8;
 extern long D_80080BF0;
 extern long D_80080BF4;
