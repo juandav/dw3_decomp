@@ -32,7 +32,24 @@ s32 func_80011014(Fade *fade) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80011080);
+void func_80011080(void) {
+    Unk2744 *p;
+    s32 i;
+    s32 j;
+    s32 index;
+
+    for (i = 0; i < 3; i++) {
+        index = D_800484E8.unk270C(i);
+        if (index >= 0) {
+            p = D_800484E8.unk2744(index);
+            p->unk20 = p->unk22;
+            p->unk24 = p->unk26;
+            for (j = 2; j >= 0; j--) {
+                p->unk42[j] = 0;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80011114);
 
@@ -284,7 +301,21 @@ void func_80013ED4(s32 file) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80013F38);
+void func_80013F38(void) {
+    Slot *slot;
+    s32 i;
+
+    for (slot = D_80044748, i = 0; i < 64; i++, slot++) {
+        if (slot->unk4 != 0) {
+            D_8004AD84.free(slot->unkC);
+            slot->unk4 = 0;
+            slot->unkC = NULL;
+            slot->unk8 = 0;
+            slot->unk2 = 0;
+            slot->unk0 = 0;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80013FCC);
 
@@ -745,7 +776,14 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_80017534);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_800175C0);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800176B8);
+s32 func_800176B8(s32 slot, s32 id, Unk80048C50Entry *out) {
+    s32 i = func_800172E8(slot, id);
+
+    if (i != -1) {
+        *out = D_800484E8.records[slot].entries[i];
+    }
+    return i;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80017750);
 
@@ -1386,7 +1424,26 @@ void *func_8001B368(Task8001B3A0 *task) {
     return task->data;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001B3A0);
+void func_8001B3A0(Task8001B3A0 *task) {
+    switch (task->state) {
+    case 0:
+    default:
+        task->unk38(task);
+        break;
+    case 1:
+        if (task->unk10 != 0 && task->unk10 == task->state) {
+            func_8001B1D0(task);
+        }
+        break;
+    case 2:
+        break;
+    case 3:
+        if (task->unk64 != NULL) {
+            D_8004AD84.free(task->unk64);
+        }
+        break;
+    }
+}
 
 void func_8001B434(void) {
     Task8001B3A0 *task = func_800144DC(func_8001B3A0, 0x84, 0);

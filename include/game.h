@@ -9,6 +9,8 @@
 typedef struct Resource {
     /* 0x000 */ u8 unk0[0x138];
     /* 0x138 */ s32 (*unk138)(struct Resource *, s32);
+    /* 0x13C */ u8 unk13C[0x2C];
+    /* 0x168 */ void (*unk168)(struct Resource *);
 } Resource;
 
 /* Function tables in .data */
@@ -155,11 +157,14 @@ typedef struct Task8001ACC8 {
 } Task8001ACC8;
 
 typedef struct Task8001B3A0 {
-    /* 0x00 */ u8 unk0[0x10];
+    /* 0x00 */ u8 unk0[0xC];
+    /* 0x0C */ s32 state;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ u8 unk14[0x18];
     /* 0x2C */ void (*unk2C)(struct Task8001B3A0 *, s32);
-    /* 0x30 */ u8 unk30[0x20];
+    /* 0x30 */ u8 unk30[8];
+    /* 0x38 */ void (*unk38)(struct Task8001B3A0 *);
+    /* 0x3C */ u8 unk3C[0x14];
     /* 0x50 */ s32 *data;
     /* 0x54 */ s32 *unk54;
     /* 0x58 */ s32 compressed;
@@ -287,7 +292,8 @@ typedef struct Unk8003EB68 {
 
 typedef struct Unk80048C50Entry {
     /* 0x00 */ s16 unk0;
-    /* 0x02 */ u8 unk2[0x12];
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s32 unk4[4];
 } Unk80048C50Entry;
 
 typedef struct Unk8004883C {
@@ -460,6 +466,16 @@ typedef struct Unk800554D0 {
     /* 0x4 */ s32 current;
 } Unk800554D0;
 
+typedef struct Unk2744 {
+    /* 0x00 */ u8 unk0[0x20];
+    /* 0x20 */ u16 unk20;
+    /* 0x22 */ u16 unk22;
+    /* 0x24 */ u16 unk24;
+    /* 0x26 */ u16 unk26;
+    /* 0x28 */ u8 unk28[0x1A];
+    /* 0x42 */ s16 unk42[3];
+} Unk2744;
+
 typedef struct MemBlock {
     /* 0x0 */ struct MemBlock *prev;
     /* 0x4 */ struct MemBlock *next;
@@ -524,6 +540,10 @@ typedef struct Unk800484E8 {
     /* 0x26CF */ s8 unk26CF;
     /* 0x26D0 */ u8 unk26D0[0x28];
     /* 0x26F8 */ s32 (*unk26F8)(void);
+    /* 0x26FC */ u8 unk26FC[0x10];
+    /* 0x270C */ s32 (*unk270C)(s32);
+    /* 0x2710 */ u8 unk2710[0x34];
+    /* 0x2744 */ struct Unk2744 *(*unk2744)(s32);
 } Unk800484E8;
 
 void PadStartCom(void);
@@ -548,6 +568,9 @@ Slot *func_80013AB4(void);
 void func_80013C08(s32);
 void func_80013CB4(void);
 void func_80016860(void);
+s32 func_8001D6B4(s32 id);
+s32 func_800172E8(s32 slot, s32 id);
+void func_8001D718(s32 index);
 void func_8001C168(Task8001C454 *task);
 void func_80029598(s32);
 void func_8001FBE0(Obj8001FBE0 *obj);
@@ -614,7 +637,7 @@ int func_8002E268(void *buf, int size);
 int CdPosToInt(void *pos);
 void func_8001B314(Task8001B3A0 *task, s32 *data, s32 arg2);
 void *func_8001B368(Task8001B3A0 *task);
-void func_8001B3A0(void *task);
+void func_8001B3A0(Task8001B3A0 *task);
 void func_8001B6A8(void *task);
 void func_8001C0C4(Task *task);
 void func_80020764(void *task);

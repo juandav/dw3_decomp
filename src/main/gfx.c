@@ -96,7 +96,19 @@ void func_8001D768(s32 index, Resource *res, s32 id) {
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D7C4);
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D860);
+s32 func_8001D860(s32 id) {
+    s32 index = func_8001D6B4(id);
+    Resource *res;
+
+    if (index != -1) {
+        res = D_8004D5B8.resources[index];
+        res->unk168(res);
+        D_8004AD84.free(D_8004D5B8.resources[index]);
+        func_8001D718(index);
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D8E8);
 
