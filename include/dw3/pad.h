@@ -72,7 +72,7 @@ typedef struct PadState {
     /* 0x3E0 */ void (*init)(); /* PAD_INIT */
     /* 0x3E4 */ void (*shutdown)();
     /* 0x3E8 */ void (*update)(); /* PAD_UPDATE */
-    /* 0x3EC */ s32 (*setVibration)();
+    /* 0x3EC */ s32 (*setVibration)(u16 port, s32 motor, s16 time, u8 value);
     /* 0x3F0 */ s32 (*setAnalogMode)();
     /* 0x3F4 */ s32 (*getPressed)(s32 pad);
     /* 0x3F8 */ s32 (*getHeld)(s32 pad);
