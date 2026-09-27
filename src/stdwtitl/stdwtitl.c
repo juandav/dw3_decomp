@@ -392,7 +392,46 @@ void STDWTITL_drawGlintAlt(GlintTask *task) {
     sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 4, 37, 114);
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickGlintAlt);
+void STDWTITL_tickGlintAlt(GlintTask *task) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        if (task->skip == 0) {
+            task->lit = 0;
+            task->nextState(task);
+        } else {
+            task->setState(task, TASK_DONE);
+        }
+        break;
+    case TASK_RUN:
+        switch (task->substate) {
+        case 0:
+            break;
+        case 1:
+            task->index = 0;
+            task->nextSubstate(task);
+        case 2:
+            task->frame = STDWTITL_glintAltFrames[task->index];
+            task->index++;
+            if (task->index >= 12) {
+                task->setState(task, TASK_DONE);
+            }
+            STDWTITL_drawGlintAlt(task);
+            break;
+        }
+        break;
+    case TASK_DONE:
+        if (task->substate == 0) {
+            task->frame = 11;
+            task->lit = 1;
+            task->nextSubstate(task);
+        }
+        STDWTITL_drawGlintAlt(task);
+        break;
+    case TASK_KILL:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_showGlint);
 
