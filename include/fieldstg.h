@@ -84,6 +84,45 @@ typedef struct StreamTask {
     /* 0x070 */ s32 unk70;
 } StreamTask;
 
+/*
+ * The field's state (D_800990B4). The first 0x64 bytes are cleared by
+ * func_800913CC, which also picks the stage overlay for the current mode.
+ */
+typedef struct FieldState {
+    /* 0x00 */ s32 stageFile; /* the stage overlay's file */
+    /* 0x04 */ void (*stageInit)(void);
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ u8 *unk10;
+    /* 0x14 */ void *unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ struct Unk800990D4 *unk20;
+    /* 0x24 */ s32 *unk24;
+    /* 0x28 */ void *unk28;
+    /* 0x2C */ s32 unk2C;
+    /* 0x30 */ s32 unk30;
+    /* 0x34 */ s32 unk34;
+    /* 0x38 */ char unk38[4];
+    /* 0x3C */ s32 unk3C;
+    /* 0x40 */ s32 unk40;
+    /* 0x44 */ s32 unk44;
+    /* 0x48 */ s32 unk48;
+    /* 0x4C */ void *unk4C;
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s32 unk58;
+    /* 0x5C */ s32 unk5C;
+    /* 0x60 */ s32 unk60;
+    /* 0x64 */ s32 unk64;
+    /* 0x68 */ s32 unk68;
+    /* 0x6C */ s32 unk6C;
+    /* 0x70 */ void (*init)(void);
+    /* 0x74 */ s32 (*unk74)(s32 index);
+    /* 0x78 */ u8 (*unk78)(s32 index);
+    /* 0x7C */ void *(*unk7C)(u8 *list, s32 id);
+} FieldState;
+
 /* The task of func_80086144 (id 4, see func_80086418) */
 typedef struct Unk80086144 {
     TASK_HEADER(Unk80086144);
@@ -235,12 +274,11 @@ void func_8008B9D8();
 void func_800834A0();
 
 extern Point D_8009A938;
-extern s32 D_800990C4;
 extern u8 *D_8009A940;
 extern s32 D_8009A944;
 extern Point D_80097000[]; /* tile offset of each direction */
 extern Point D_8009A76C[];
-extern s32 D_80099108;
+extern FieldState D_800990B4;
 extern void (*D_80098B6C[])(void);
 
 extern u8 D_80099758[];

@@ -249,7 +249,7 @@ Task *func_800874C8(s32 arg0) {
     Task *task = createTaskWithId(func_800870D4, sizeof(Unk800870D4), 8, 9);
 
     task->key1 = arg0;
-    D_80099108 = 1;
+    D_800990B4.unk54 = 1;
     return task;
 }
 
@@ -310,7 +310,7 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80088C2C);
 
 void func_80088C9C(s32 arg0) {
     D_8009A944 = arg0;
-    D_8009A940 = (u8 *)D_800990C4;
+    D_8009A940 = D_800990B4.unk10;
     func_80088C2C();
 }
 
