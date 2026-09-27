@@ -434,7 +434,7 @@ typedef struct SvmCur {
     /* 0x0D */ char toneVol;
     /* 0x0E */ char tonePan;
     /* 0x0F */ char priority;
-    /* 0x10 */ u_char center;
+    /* 0x10 */ char center;
     /* 0x11 */ u_char shift;
     /* 0x12 */ char mode;
     /* 0x13 */ u8 unk13;
