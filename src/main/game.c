@@ -1770,7 +1770,23 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_80018774);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80018868);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80018BC0);
+s32 func_80018BC0(u16 port, u8 *data) {
+    u8 id = port;
+    s32 mode;
+
+    if (*data != 0 || func_80018774(id & 0xFF) == 0) {
+        D_8004AF78.slots[(id >> 4) & 1][port & 3].unk0 = 0;
+        D_8004AF78.slots[(id >> 4) & 1][port & 3].unk2 = 0;
+        D_8004AF78.slots[(id >> 4) & 1][port & 3].unk6 = 0;
+        return 0;
+    }
+    mode = PadInfoMode(id & 0xFF, 2, 0);
+    if (mode == 4 || mode == 7) {
+        func_80018EA0(id & 0xFF);
+    }
+    func_80018868(id & 0xFF, data, 0);
+    return 1;
+}
 
 s32 func_80018CA8(s32 port, s32 on) {
     u32 id = port & 0xFF;
