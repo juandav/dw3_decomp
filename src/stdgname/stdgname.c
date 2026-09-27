@@ -1,5 +1,9 @@
 #include "stdgname.h"
 
+/* One bit of pad 1: newly pressed, or auto-repeated while held */
+#define PAD_PRESSED(button) ((PAD.getPressed(0) >> PAD.getButtonBit(0, button)) & 1)
+#define PAD_REPEATED(button) ((PAD.getRepeated(0) >> PAD.getButtonBit(0, button)) & 1)
+
 void func_80082724(Task *task, void **children) {
     RECT rect;
     Layer *layer;
@@ -271,7 +275,31 @@ void func_80084998(MenuTask *task, TextWindow **window, s32 index, s32 show) {
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80084B0C);
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800850E0);
+s32 func_800850E0(MenuTask *task, TextWindow **windows) {
+    if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
+        if (--D_80087480.partner < 0) {
+            D_80087480.partner = task->partyCount - 1;
+        }
+        SOUND.playSound(0x4001B);
+    } else if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
+        if (++D_80087480.partner > task->partyCount - 1) {
+            D_80087480.partner = 0;
+        }
+        SOUND.playSound(0x4001B);
+    }
+    if (PAD_PRESSED(PAD_CROSS)) {
+        SOUND.playSound(0x4001C);
+        task->screen->choice = D_80087480.partner;
+        return 1;
+    }
+    if (PAD_PRESSED(PAD_TRIANGLE)) {
+        SOUND.playSound(0x800450BD);
+        task->screen->choice = -1;
+        task->screen->fadeOut(task->screen);
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80085354);
 
