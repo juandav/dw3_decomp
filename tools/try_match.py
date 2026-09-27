@@ -18,7 +18,6 @@ differing instructions marked with **.
 import sys,subprocess,struct,re,os,tempfile
 from elftools.elf.elffile import ELFFile
 D=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-exe=open(f'{D}/disks/us/SLUS_014.36','rb').read()[0x800:]
 src=sys.argv[1]; want=set(sys.argv[2:])
 w=os.path.join(tempfile.mkdtemp(prefix='try_match_'),'draft')
 cc1=os.environ.get('CC1',f'{D}/bin/gcc-2.8.1-psx/cc1')
@@ -58,22 +57,26 @@ for i,(off,name) in enumerate(syms):
     if want and name not in want: continue
     m=re.match(r'func_([0-9A-F]{8})',name)
     import glob
-    asm=next(iter(glob.glob(f'{D}/asm/main/nonmatchings/**/{name}.s',recursive=True)),None)
+    asm=next(iter(glob.glob(f'{D}/asm/*/nonmatchings/**/{name}.s',recursive=True)),None)
     if asm is not None:
         t=open(asm).read()
     else:
         # already in C: take it from splat's full disassembly
         t=None
-        for full in glob.glob(f'{D}/asm/main/**/*.s',recursive=True):
+        for full in glob.glob(f'{D}/asm/*/**/*.s',recursive=True):
             if '/nonmatchings/' in full: continue
             ft=open(full).read()
             k=ft.find(f'nonmatching {name}, ')
             if k>=0:
                 e=ft.find(f'endlabel {name}',k)
-                t=ft[k:e]; break
+                t=ft[k:e]; asm=full; break
         if t is None: print(name,'?'); continue
+    # the unit is asm/<unit>/...: its binary is config/<unit>.yaml's target_path
+    unit=os.path.relpath(asm,f'{D}/asm').split(os.sep)[0]
+    target=re.search(r'target_path:\s*(\S+)',open(f'{D}/config/{unit}.yaml').read()).group(1)
+    binary=open(f'{D}/{target}','rb').read()
     size=int(re.search(r'nonmatching \w+, 0x([0-9A-F]+)',t).group(1),16)
-    addr=int(re.search(r'glabel '+name+r'\n\s+/\* [0-9A-F]+ ([0-9A-F]{8}) ',t).group(1),16)
+    rom=int(re.search(r'glabel '+name+r'\n\s+/\* ([0-9A-F]+) [0-9A-F]{8} ',t).group(1),16)
     end=syms[i+1][0] if i+1<len(syms) else len(text)
     body=t[t.index('glabel '+name):] if 'glabel '+name in t else t
     tl=[re.sub(r'\s+',' ',re.sub(r'.*\*/\s+','',l)).strip() for l in body.splitlines() if re.match(r'\s+/\*',l)]
@@ -81,7 +84,7 @@ for i,(off,name) in enumerate(syms):
     for k in range(max(size,end-off)//4):
         o=off+4*k
         a=struct.unpack('<I',text[o:o+4])[0] if o<end else None
-        b=struct.unpack('<I',exe[addr-0x80010000+4*k:][:4])[0] if 4*k<size else None
+        b=struct.unpack('<I',binary[rom+4*k:][:4])[0] if 4*k<size else None
         if a is not None and b is not None and o in rel:
             mk=0xfc000000 if (a>>26) in (2,3) else 0xffff0000; a&=mk; b&=mk
         bad=a!=b; nd+=bad
