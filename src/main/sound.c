@@ -1,11 +1,8 @@
 #include "game.h"
 #include "libsnd.h"
 
-/* The sound buffers are read through fixed addresses (0x800100C4/0x800100C8 in
- * game.c's rodata); a symbol reference would be compiled differently. */
-#define FIXED_PTR(addr) (*(void **)(addr))
-
 extern s32 D_80055474[];
+extern void *D_800100C4;
 
 s32 func_8001FC68(s32 id) {
     s32 i;
@@ -251,7 +248,7 @@ void func_80020764(Task80011FBC *task, s32 *out) {
     switch (task->state) {
     case 0:
     default:
-        D_800554D8.unk0();
+        D_800554D8->unk0();
         *out = D_80055418[D_8004ABD8.unk8() >> 8]();
         task->unk38(task);
         break;
@@ -275,11 +272,11 @@ void func_80020870(void) {
     u8 *src;
     void *dst;
 
-    if (D_800554D0.unk0 != id) {
-        D_800554D0.unk0 = id;
-        D_800554D0.current = -1;
+    if (D_800554D0->unk0 != id) {
+        D_800554D0->unk0 = id;
+        D_800554D0->current = -1;
         src = D_80044B58[0](D_80055474[id]);
-        dst = FIXED_PTR(0x800100C4);
+        dst = D_800100C4;
         memcpy(dst, src, D_80047F04.getFileSectors(D_80055474[id]) << 11);
     }
 }
@@ -288,10 +285,10 @@ void func_8002091C(s32 id) {
     u8 *src;
     void *dst;
 
-    if (D_800554D0.current != id) {
-        D_800554D0.current = id;
+    if (D_800554D0->current != id) {
+        D_800554D0->current = id;
         src = D_80044B58[0](id);
-        dst = FIXED_PTR(0x800100C8);
+        dst = D_800100C8;
         memcpy(dst, src, D_80047F04.getFileSectors(id) << 11);
     }
 }
