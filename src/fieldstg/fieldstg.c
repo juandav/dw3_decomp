@@ -384,7 +384,22 @@ void func_8008E2A8(Actor *actor) {
     actor->unk108 = func_8008E1A4;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E2B8);
+void func_8008E2B8(Actor *actor) {
+    switch (actor->key2) {
+    case 0:
+        actor->unk108 = func_8008DB60;
+        actor->unkBC = 0;
+        break;
+    case 1:
+        actor->unk108 = NULL;
+        break;
+    case 2:
+    case 4:
+    case 8:
+        actor->unk108 = func_8008DD9C;
+        break;
+    }
+}
 
 void func_8008E318(Actor *actor, s32 dir) {
     actor->unk108 = NULL;
