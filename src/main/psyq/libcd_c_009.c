@@ -1,6 +1,5 @@
 #include "psyq.h"
 
-extern long D_80080C14;
 
 u_long StGetNext(u_long **addr, u_long **header) {
     volatile u_short *hdr = (u_short *)(D_80080C20 + D_80080C0C * 32);

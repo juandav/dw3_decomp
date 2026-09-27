@@ -76,11 +76,18 @@ typedef struct PadActInfo {
     /* 0x4 */ u_char unk4;
 } PadActInfo;
 
+/* one received block: its length and where its data went */
+typedef struct PadRecvBlock {
+    /* 0x0 */ u_char len;
+    /* 0x1 */ u8 unk1[3];
+    /* 0x4 */ u_char *data;
+} PadRecvBlock;
+
 /* libpad per-port command state */
 typedef struct PadPort {
-    /* 0x00 */ long unk0;
-    /* 0x04 */ long unk4;
-    /* 0x08 */ long unk8;
+    /* 0x00 */ u_short *unk0;
+    /* 0x04 */ PadActInfo *unk4;
+    /* 0x08 */ PadRecvBlock *unk8;
     /* 0x0C */ struct PadPort *unkC;
     /* 0x10 */ struct PadPort *unk10;
     /* 0x14 */ void (*unk14)();
@@ -232,13 +239,13 @@ typedef struct SeqStruct {
     /* 0x88 */ long unk88;
     /* 0x8C */ long unk8C;
     /* 0x90 */ long delta;
-    /* 0x94 */ long unk94;
+    /* 0x94 */ u_long unk94;
     /* 0x98 */ long flags;
     /* 0x9C */ long unk9C;
     /* 0xA0 */ long unkA0;
     /* 0xA4 */ long unkA4;
     /* 0xA8 */ long unkA8;
-    /* 0xAC */ long unkAC;
+    /* 0xAC */ u_long unkAC;
 } SeqStruct;
 
 /* libsnd decoded ADSR */
@@ -498,7 +505,7 @@ extern long D_80080BF0;
 extern long D_80080BF4;
 extern long D_80080BF8;
 extern long D_80080C10;
-extern long D_80080C14;
+extern u_long D_80080C14;
 extern long D_80080C18;
 extern void (*D_80080C38)();
 extern void (*D_80080C3C)();
