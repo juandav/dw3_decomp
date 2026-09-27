@@ -1,4 +1,4 @@
-// SOUNDTST.PRO: the debug sound test (scene 0x600)
+// SOUNDTST.PRO: the debug sound test (scene 0x800, "STSDTS")
 SOUNDTST_updateScene = 0x80083B08; // type:func
 SOUNDTST_start = 0x80083BA8; // type:func
 SOUNDTST_moveCursor = 0x80083BD4; // type:func

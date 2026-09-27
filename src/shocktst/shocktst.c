@@ -8,20 +8,20 @@ long func_80024CE8(long fd);
 int atoi(u8 *s);
 int strcspn(u8 *s, char *reject);
 
-extern char D_80082490[]; /* "パターンじっこう" */
-extern char D_80082500[]; /* "しんどうテスト" */
-extern char D_80082510[]; /* "×：じっこうていし" */
-extern char D_80082524[]; /* "ＳＴＡＲＴ：もどる" */
-extern ShockTestRow D_80084160[4];
-extern char D_800841C0[3][0x40];
-extern char *D_80084280[2];
-extern char *D_80084288;
+extern char SHOCKTST_STR_PLAY_PATTERN[]; /* "パターンじっこう" */
+extern char SHOCKTST_STR_VIBRATION_TEST[]; /* "しんどうテスト" */
+extern char SHOCKTST_STR_CROSS_STOP[]; /* "×：じっこうていし" */
+extern char SHOCKTST_STR_START_BACK[]; /* "ＳＴＡＲＴ：もどる" */
+extern ShockTestRow SHOCKTST_menuRows[4];
+extern char SHOCKTST_numberFormats[3][0x40];
+extern char *SHOCKTST_motorNames[2];
+extern char *SHOCKTST_textPath;
 
-Task *func_80084134(void);
-s32 func_80082D8C(ShockTest *task, ShockTestWindows *win);
-void func_80083B88(ShockLoader *task);
+Task *SHOCKTST_createLoader(void);
+s32 SHOCKTST_playAllPatterns(ShockTest *task, ShockTestWindows *win);
+void SHOCKTST_convertText(ShockLoader *task);
 
-void func_80082538(Task *task, Task **items) {
+void SHOCKTST_updateScene(Task *task, Task **items) {
     RECT rect;
     Layer *res;
 
@@ -37,7 +37,7 @@ void func_80082538(Task *task, Task **items) {
         rect.h = 0xF0;
         res = GFX.funcs.createLayer(&rect, 1, 0x1000);
         res->setBgColor(res, 0, 0, 0);
-        items[0] = func_80084134();
+        items[0] = SHOCKTST_createLoader();
         task->nextState(task);
         break;
     case 1:
@@ -47,11 +47,11 @@ void func_80082538(Task *task, Task **items) {
     }
 }
 
-Task *func_80082630(void) {
-    return createTask(func_80082538, sizeof(Task), 4);
+Task *SHOCKTST_start(void) {
+    return createTask(SHOCKTST_updateScene, sizeof(Task), 4);
 }
 
-void func_8008265C(ShockTest *task, ShockTestWindows *win, s32 highlight) {
+void SHOCKTST_highlight(ShockTest *task, ShockTestWindows *win, s32 highlight) {
     s32 i;
 
     win->pattern->setPalette(win->pattern, 0);
@@ -100,9 +100,9 @@ void func_8008265C(ShockTest *task, ShockTestWindows *win, s32 highlight) {
     }
 }
 
-void func_80082A0C(ShockTest *task, ShockTestWindows *win, s32 pattern);
+void SHOCKTST_showPattern(ShockTest *task, ShockTestWindows *win, s32 pattern);
 
-s32 func_800827FC(ShockTest *task, ShockTestWindows *win) {
+s32 SHOCKTST_selectPattern(ShockTest *task, ShockTestWindows *win) {
     if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_UP)) & 1) ||
         ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_UP)) & 1)) {
         if (--task->pattern < 0) {
@@ -115,7 +115,7 @@ s32 func_800827FC(ShockTest *task, ShockTestWindows *win) {
         }
     }
     win->pattern->setNumber(win->pattern, 1, task->pattern);
-    func_80082A0C(task, win, task->pattern);
+    SHOCKTST_showPattern(task, win, task->pattern);
     if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CROSS)) & 1) {
         return 1;
     }
@@ -125,7 +125,7 @@ s32 func_800827FC(ShockTest *task, ShockTestWindows *win) {
     return 0;
 }
 
-void func_80082A0C(ShockTest *task, ShockTestWindows *win, s32 pattern) {
+void SHOCKTST_showPattern(ShockTest *task, ShockTestWindows *win, s32 pattern) {
     s32 i;
 
     win->pattern->setNumber(win->pattern, 1, pattern);
@@ -135,7 +135,7 @@ void func_80082A0C(ShockTest *task, ShockTestWindows *win, s32 pattern) {
     }
 }
 
-void func_80082AC4(ShockTest *task, ShockTestWindows *win, s32 pattern) {
+void SHOCKTST_showTimers(ShockTest *task, ShockTestWindows *win, s32 pattern) {
     s32 i;
 
     for (i = 0; i < 2; i++) {
@@ -144,7 +144,7 @@ void func_80082AC4(ShockTest *task, ShockTestWindows *win, s32 pattern) {
     }
 }
 
-s32 func_80082B58(ShockTest *task, ShockTestWindows *win, s32 pattern) {
+s32 SHOCKTST_playPattern(ShockTest *task, ShockTestWindows *win, s32 pattern) {
     s32 i;
 
     for (i = 0; i < 2; i++) {
@@ -170,30 +170,30 @@ s32 func_80082B58(ShockTest *task, ShockTestWindows *win, s32 pattern) {
         for (i = 0; i < 2; i++) {
             PAD.setVibration(0, i, 0, 0);
         }
-        func_80082A0C(task, win, task->pattern);
+        SHOCKTST_showPattern(task, win, task->pattern);
         return 1;
     }
-    func_80082AC4(task, win, task->pattern);
+    SHOCKTST_showTimers(task, win, task->pattern);
     return 0;
 }
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80082D8C);
+INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", SHOCKTST_playAllPatterns);
 
-s32 func_80082E58(ShockTest *task, ShockTestWindows *win) {
+s32 SHOCKTST_moveCursor(ShockTest *task, ShockTestWindows *win) {
     if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_LEFT)) & 1) ||
         ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_LEFT)) & 1)) {
         do {
             if (--task->column < 0) {
                 task->column = 1;
             }
-        } while (D_80084160[task->row].enabled[task->column] == 0);
+        } while (SHOCKTST_menuRows[task->row].enabled[task->column] == 0);
     } else if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_RIGHT)) & 1) ||
                ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_RIGHT)) & 1)) {
         do {
             if (++task->column >= 2) {
                 task->column = 0;
             }
-        } while (D_80084160[task->row].enabled[task->column] == 0);
+        } while (SHOCKTST_menuRows[task->row].enabled[task->column] == 0);
     }
     if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_UP)) & 1) ||
         ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_UP)) & 1)) {
@@ -201,17 +201,17 @@ s32 func_80082E58(ShockTest *task, ShockTestWindows *win) {
             if (--task->row < 0) {
                 task->row = 3;
             }
-        } while (D_80084160[task->row].enabled[task->column] == 0);
+        } while (SHOCKTST_menuRows[task->row].enabled[task->column] == 0);
     } else if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_DOWN)) & 1) ||
                ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_DOWN)) & 1)) {
         do {
             if (++task->row >= 4) {
                 task->row = 0;
             }
-        } while (D_80084160[task->row].enabled[task->column] == 0);
+        } while (SHOCKTST_menuRows[task->row].enabled[task->column] == 0);
     }
     if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CROSS)) & 1) {
-        func_8008265C(task, win, D_80084160[task->row].highlight[task->column + 2]);
+        SHOCKTST_highlight(task, win, SHOCKTST_menuRows[task->row].highlight[task->column + 2]);
         if (task->row == 3) {
             return -1;
         }
@@ -220,11 +220,11 @@ s32 func_80082E58(ShockTest *task, ShockTestWindows *win) {
     if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CIRCLE)) & 1) {
         return 2;
     }
-    func_8008265C(task, win, D_80084160[task->row].highlight[task->column]);
+    SHOCKTST_highlight(task, win, SHOCKTST_menuRows[task->row].highlight[task->column]);
     return 0;
 }
 
-s32 func_800832C4(ShockTest *task, ShockTestWindows *win, TextWindow **windows, u8 *value, u8 toggle) {
+s32 SHOCKTST_editValue(ShockTest *task, ShockTestWindows *win, TextWindow **windows, u8 *value, u8 toggle) {
     if (toggle) {
         if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_UP)) & 1) ||
             ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_DOWN)) & 1)) {
@@ -239,7 +239,7 @@ s32 func_800832C4(ShockTest *task, ShockTestWindows *win, TextWindow **windows, 
     } else if ((PAD.getRepeated(0) >> PAD.getButtonBit(0, PAD_DOWN)) & 1) {
         *value -= 10;
     }
-    func_80082A0C(task, win, task->pattern);
+    SHOCKTST_showPattern(task, win, task->pattern);
     if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CROSS)) & 1) {
         return 1;
     }
@@ -249,27 +249,27 @@ s32 func_800832C4(ShockTest *task, ShockTestWindows *win, TextWindow **windows, 
     return 0;
 }
 
-s32 func_8008354C(ShockTest *task, ShockTestWindows *win) {
+s32 SHOCKTST_editRow(ShockTest *task, ShockTestWindows *win) {
     switch (task->row) {
     case 0:
     default:
-        if (func_800827FC(task, win) != 0) {
+        if (SHOCKTST_selectPattern(task, win) != 0) {
             return 1;
         }
         break;
     case 1:
         task->step = task->column;
-        if (func_800832C4(task, win, win->times, &task->steps[task->step][task->pattern].time, 0) != 0) {
+        if (SHOCKTST_editValue(task, win, win->times, &task->steps[task->step][task->pattern].time, 0) != 0) {
             return 1;
         }
         break;
     case 2:
         task->step = task->column;
         if (task->step != 0) {
-            if (func_800832C4(task, win, win->times, &task->steps[task->step][task->pattern].power, 0) != 0) {
+            if (SHOCKTST_editValue(task, win, win->times, &task->steps[task->step][task->pattern].power, 0) != 0) {
                 return 1;
             }
-        } else if (func_800832C4(task, win, win->times, &task->steps[0][task->pattern].power, 1) != 0) {
+        } else if (SHOCKTST_editValue(task, win, win->times, &task->steps[0][task->pattern].power, 1) != 0) {
             return 1;
         }
         break;
@@ -277,11 +277,13 @@ s32 func_8008354C(ShockTest *task, ShockTestWindows *win) {
     return 0;
 }
 
-INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", D_80082478);
+INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", SHOCKTST_STR_SLOW);
 
-INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", D_80082490);
+INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", SHOCKTST_STR_FAST);
 
-void func_8008363C(ShockTest *task, ShockTestWindows *win) {
+INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", SHOCKTST_STR_PLAY_PATTERN);
+
+void SHOCKTST_updateEditor(ShockTest *task, ShockTestWindows *win) {
     s32 i;
     s32 motor;
 
@@ -292,27 +294,27 @@ void func_8008363C(ShockTest *task, ShockTestWindows *win) {
         task->windowId = 0x1000;
         win->pattern = createTextWindow(task->windowId, 1, 0x28, 0x3C);
         task->unk50 = FILE_CACHE_LOAD[0](0xC5);
-        win->pattern->setString(win->pattern, D_800841C0[0], -1);
+        win->pattern->setString(win->pattern, SHOCKTST_numberFormats[0], -1);
         win->pattern->setNumber(win->pattern, 1, task->pattern);
         for (i = 0; i < 2; i++) {
             win->motors[i] = createTextWindow(task->windowId, 1, i * 100 + 0x3C, 0x50);
-            win->motors[i]->setText(win->motors[i], D_80084280[i]);
+            win->motors[i]->setText(win->motors[i], SHOCKTST_motorNames[i]);
             win->times[i] = createTextWindow(task->windowId, 1, i * 100 + 0x3C, 0x64);
-            win->times[i]->setString(win->times[i], D_800841C0[1], -1);
+            win->times[i]->setString(win->times[i], SHOCKTST_numberFormats[1], -1);
             win->times[i]->setNumber(win->times[i], 1, task->steps[i][0].time);
             win->powers[i] = createTextWindow(task->windowId, 1, i * 100 + 0x3C, 0x78);
-            win->powers[i]->setString(win->powers[i], D_800841C0[2], -1);
+            win->powers[i]->setString(win->powers[i], SHOCKTST_numberFormats[2], -1);
             win->powers[i]->setNumber(win->powers[i], 1, task->steps[i][0].power);
         }
         win->play = createTextWindow(task->windowId, 1, 0x28, 0x8C);
-        win->play->setText(win->play, D_80082490);
+        win->play->setText(win->play, SHOCKTST_STR_PLAY_PATTERN);
         break;
     case 1:
         switch (task->substate) {
         default:
             task->setSubstate(task, 0);
         case 0:
-            switch (func_80082E58(task, win)) {
+            switch (SHOCKTST_moveCursor(task, win)) {
             case 2:
                 task->setSubstate(task, 4);
                 break;
@@ -330,17 +332,17 @@ void func_8008363C(ShockTest *task, ShockTestWindows *win) {
             }
             break;
         case 1:
-            if (func_8008354C(task, win) != 0) {
+            if (SHOCKTST_editRow(task, win) != 0) {
                 task->setSubstate(task, 0);
             }
             break;
         case 2:
-            if (func_80082D8C(task, win) != 0) {
+            if (SHOCKTST_playAllPatterns(task, win) != 0) {
                 task->setSubstate(task, 0);
             }
             break;
         case 3:
-            if (func_80082B58(task, win, task->pattern) != 0) {
+            if (SHOCKTST_playPattern(task, win, task->pattern) != 0) {
                 task->setSubstate(task, 0);
             }
             break;
@@ -363,7 +365,7 @@ void func_8008363C(ShockTest *task, ShockTestWindows *win) {
     }
 }
 
-void func_80083A78(ShockTest *task, ShockFile *file) {
+void SHOCKTST_loadPatterns(ShockTest *task, ShockFile *file) {
     s32 i;
     u8 *times = (u8 *)file + file->timesOffset;
     u8 *powers = (u8 *)file + file->powersOffset;
@@ -378,8 +380,8 @@ void func_80083A78(ShockTest *task, ShockFile *file) {
     }
 }
 
-ShockTest *func_80083B04(s32 count) {
-    ShockTest *task = createTask(func_8008363C, sizeof(ShockTest), sizeof(ShockTestWindows));
+ShockTest *SHOCKTST_createEditor(s32 count) {
+    ShockTest *task = createTask(SHOCKTST_updateEditor, sizeof(ShockTest), sizeof(ShockTestWindows));
 
     task->count = count;
     task->steps[0] = HEAP.allocZeroed(count * sizeof(ShockStep), 2);
@@ -387,11 +389,11 @@ ShockTest *func_80083B04(s32 count) {
     return task;
 }
 
-INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", D_800824BC);
+INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", SHOCKTST_PATH_DLSKDATA_TXT);
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80083B88);
+INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", SHOCKTST_convertText);
 
-void func_80083EAC(ShockLoader *task, ShockLoaderWindows *win) {
+void SHOCKTST_updateLoader(ShockLoader *task, ShockLoaderWindows *win) {
     s32 fd;
 
     switch (task->state) {
@@ -399,30 +401,30 @@ void func_80083EAC(ShockLoader *task, ShockLoaderWindows *win) {
     default:
         task->nextState(task);
         win->title = createTextWindow(0x1000, 0, 0x14, 0x1E);
-        win->title->setText(win->title, D_80082500);
+        win->title->setText(win->title, SHOCKTST_STR_VIBRATION_TEST);
         win->help[0] = createTextWindow(0x1000, 1, 0xDC, 0xB4);
-        win->help[0]->setText(win->help[0], D_80082510);
+        win->help[0]->setText(win->help[0], SHOCKTST_STR_CROSS_STOP);
         win->help[1] = createTextWindow(0x1000, 1, 0xDC, 0xC8);
-        win->help[1]->setText(win->help[1], D_80082524);
+        win->help[1]->setText(win->help[1], SHOCKTST_STR_START_BACK);
         task->text = HEAP.allocZeroed(0x4000, 2);
         task->file = HEAP.allocZeroed(0x4000, 2);
         if (task->text == NULL || task->file == NULL) {
             task->setState(task, 3);
             break;
         }
-        fd = func_80024CB8(D_80084288, 1);
+        fd = func_80024CB8(SHOCKTST_textPath, 1);
         if (fd == -1) {
             task->setState(task, 3);
             break;
         }
         func_80024CC8(fd, task->text, 0x4000);
         func_80024CE8(fd);
-        func_80083B88(task);
+        SHOCKTST_convertText(task);
         if (task->file != NULL) {
-            win->test = func_80083B04(task->file->count);
-            func_80083A78(win->test, task->file);
+            win->test = SHOCKTST_createEditor(task->file->count);
+            SHOCKTST_loadPatterns(win->test, task->file);
         } else {
-            win->test = func_80083B04(10);
+            win->test = SHOCKTST_createEditor(10);
         }
         break;
     case 1:
@@ -444,12 +446,12 @@ void func_80083EAC(ShockLoader *task, ShockLoaderWindows *win) {
     }
 }
 
-Task *func_80084134(void) {
-    return createTask(func_80083EAC, sizeof(ShockLoader), sizeof(ShockLoaderWindows));
+Task *SHOCKTST_createLoader(void) {
+    return createTask(SHOCKTST_updateLoader, sizeof(ShockLoader), sizeof(ShockLoaderWindows));
 }
 
-INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", D_80082500);
+INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", SHOCKTST_STR_VIBRATION_TEST);
 
-INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", D_80082510);
+INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", SHOCKTST_STR_CROSS_STOP);
 
-INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", D_80082524);
+INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", SHOCKTST_STR_START_BACK);
