@@ -1063,4 +1063,14 @@ s32 STDWTITL_getMenuChoice(MenuTask *task) {
     return task->choice;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startMenuTask);
+MenuTask *STDWTITL_startMenuTask(s16 skip) {
+    MenuTask *task = createTask(STDWTITL_tickMenu, sizeof(MenuTask), 0);
+
+    task->show = STDWTITL_showMenu;
+    task->reset = STDWTITL_resetMenu;
+    task->getChoice = STDWTITL_getMenuChoice;
+    task->layerId = STDWTITL_TITLE_LAYER;
+    task->depth = 2;
+    task->skip = skip;
+    return task;
+}
