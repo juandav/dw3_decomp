@@ -2,11 +2,9 @@
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_vm_seq", _SsVmSetSeqVol);
 
-extern short D_80081E14;
-
 short _SsVmGetSeqVol(short seq_sep, short *voll, short *volr) {
     SeqStruct *score;
-    short *cur = &D_80081E14;
+    short *cur = &D_80081E00.seqSep;
 
     score = D_80080D38[seq_sep & 0xFF];
     *cur = seq_sep;
@@ -18,7 +16,6 @@ short _SsVmGetSeqVol(short seq_sep, short *voll, short *volr) {
 
 extern char D_80081DF4;
 extern long D_8005B818;
-extern short D_80081E18;
 void _SsVmKeyOffNow(int mode);
 
 void _SsVmSeqKeyOff(short seq_sep) {
@@ -26,7 +23,7 @@ void _SsVmSeqKeyOff(short seq_sep) {
 
     for (voice = 0; voice < D_80081DF4; voice++) {
         if (!(D_8005B818 & (1 << voice)) && D_800815D0[voice].unk10 == seq_sep) {
-            D_80081E18 = voice;
+            D_80081E00.voice = voice;
             _SsVmKeyOffNow(0);
         }
     }
