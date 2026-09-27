@@ -58,10 +58,154 @@ typedef struct Shop {
 } Shop;
 extern Shop D_8003E9D8[];
 
-void func_80011114(Task800119AC *task, Data800119AC *data);
 Task8001ACC8 *func_8001AFE0(s16 arg0, s32 arg1, s16 arg2, s16 arg3);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80011114);
+Task80011FBC *func_80012070(s32 arg0);
+
+void func_80011114(Task800119AC *task, Data800119AC *data) {
+    s32 prev;
+
+    switch (task->substate) {
+    case 0:
+    default:
+        func_80010F80(&task->fades[0], 1);
+        task->substate++;
+        break;
+    case 1:
+        if (func_80011014(&task->fades[0])) {
+            data->windows[0]->m114(data->windows[0], D_80044744.getText(0x5D), D_8003E9D8[task->shop].unk4);
+            data->windows[1]->m118(data->windows[1], 0, D_800484E8.money);
+            data->windows[1]->m148(data->windows[1], 1);
+            data->windows[2]->m114(data->windows[2], D_80044744.getText(0x5D), 0x10);
+            func_80010F80(&task->fades[1], 1);
+            task->substate++;
+        }
+        break;
+    case 2:
+        if (func_80011014(&task->fades[1])) {
+            data->windows[3]->m114(data->windows[3], D_80044744.getText(0x5D), 0x11);
+            data->windows[3]->m118(data->windows[3], 1, D_8003E9D8[task->shop].price);
+            data->windows[4]->m114(data->windows[4], D_80044744.getText(0x5D), 0x12);
+            data->windows[5]->m114(data->windows[5], D_80044744.getText(0x5D), 0x13);
+            data->unk1C->methods[0](data->unk1C, 1);
+            task->substate++;
+        }
+        break;
+    case 3:
+        prev = task->unk5C;
+        if (((D_8004AF78.getButtons(0) >> D_8004AF78.getButtonBit(0, 4)) & 1) ||
+            ((D_8004AF78.getButtonsNew(0) >> D_8004AF78.getButtonBit(0, 4)) & 1)) {
+            task->unk5C = 0;
+        } else if (((D_8004AF78.getButtons(0) >> D_8004AF78.getButtonBit(0, 6)) & 1) ||
+                   ((D_8004AF78.getButtonsNew(0) >> D_8004AF78.getButtonBit(0, 6)) & 1)) {
+            task->unk5C = 1;
+        }
+        if (prev != task->unk5C) {
+            D_800553DC.playSound(0x8004513E);
+            data->unk1C->methods[1](data->unk1C, 0xB8, task->unk5C * 16 + 0x5F);
+            break;
+        }
+        if ((D_8004AF78.getButtons(0) >> D_8004AF78.getButtonBit(0, 13)) & 1) {
+            D_800553DC.playSound(0x8004503C);
+            if (task->unk5C != 0) {
+                task->substate = 10;
+            } else if (D_800484E8.money >= D_8003E9D8[task->shop].price * task->count) {
+                task->substate = 20;
+            } else {
+                task->substate = 10;
+                task->unk14 = 1;
+            }
+        } else if ((D_8004AF78.getButtons(0) >> D_8004AF78.getButtonBit(0, 14)) & 1) {
+            D_800553DC.playSound(0x800450BD);
+            task->substate = 10;
+        }
+        break;
+    case 10:
+        func_80010F80(&task->fades[1], 0);
+        data->windows[3]->m144(data->windows[3], 0);
+        data->windows[4]->m144(data->windows[4], 0);
+        data->windows[5]->m144(data->windows[5], 0);
+        data->unk1C->methods[0](data->unk1C, 0);
+        task->substate++;
+        break;
+    case 11:
+        if (func_80011014(&task->fades[1])) {
+            if (task->unk14 != 0) {
+                func_80010F80(&task->fades[2], 1);
+                task->substate = 30;
+            } else {
+                func_80010F80(&task->fades[0], 0);
+                data->windows[0]->m144(data->windows[0], 0);
+                data->windows[1]->m144(data->windows[1], 0);
+                data->windows[2]->m144(data->windows[2], 0);
+                task->substate++;
+            }
+        }
+        break;
+    case 12:
+        if (func_80011014(&task->fades[0])) {
+            task->state = 3;
+        }
+        break;
+    case 20:
+        task->unk64 = D_80051194.unk4248;
+        task->unk68 = D_8004D708.unk38();
+        D_80051194.unk425C(0x4004000D);
+        data->unk0 = func_80012070(task->unk50);
+        data->unk0->unk64(data->unk0, 0, 0x14);
+        task->substate++;
+        break;
+    case 21:
+        if (data->unk0->state == 2) {
+            task->fades[0].level = 0;
+            task->fades[1].level = 0;
+            data->windows[0]->m144(data->windows[0], 0);
+            data->windows[1]->m144(data->windows[1], 0);
+            data->windows[2]->m144(data->windows[2], 0);
+            data->windows[3]->m144(data->windows[3], 0);
+            data->windows[4]->m144(data->windows[4], 0);
+            data->windows[5]->m144(data->windows[5], 0);
+            data->unk1C->methods[0](data->unk1C, 0);
+            D_800484E8.money -= D_8003E9D8[task->shop].price * task->count;
+            func_80011080();
+            task->substate++;
+        }
+        break;
+    case 22:
+        if (D_8004D708.unk38() - task->unk68 > 0xF0) {
+            data->unk0->unk64(data->unk0, 1, 0x14);
+            task->substate++;
+        }
+        break;
+    case 23:
+        if (data->unk0->state == 2) {
+            D_800553DC.playSound(task->unk64);
+            task->state = 3;
+        }
+        break;
+    case 30:
+        if (func_80011014(&task->fades[2])) {
+            data->windows[3]->m114(data->windows[3], D_80044744.getText(0x5D), 0x14);
+            task->unk14 = 0;
+            task->substate++;
+        }
+        break;
+    case 31:
+        if ((D_8004AF78.getButtons(0) >> D_8004AF78.getButtonBit(0, 13)) & 1) {
+            D_800553DC.playSound(0x4001C);
+            data->windows[3]->m144(data->windows[3], 0);
+            func_80010F80(&task->fades[2], 0);
+            task->substate++;
+        }
+        break;
+    case 32:
+        if (func_80011014(&task->fades[2])) {
+            func_80010F80(&task->fades[1], 1);
+            task->substate = 2;
+        }
+        break;
+    }
+}
 
 void func_800119AC(Task800119AC *task, Data800119AC *data) {
     Obj8001F22C obj;
@@ -209,12 +353,13 @@ void func_80011FBC(Task80011FBC *task) {
     }
 }
 
-void func_80012070(s32 arg0) {
+Task80011FBC *func_80012070(s32 arg0) {
     Task80011FBC *task = func_800144DC(func_80011FBC, 0x68, 0);
 
     task->unk64 = func_80011DF0;
     task->unk50 = arg0;
     task->unk54 = 0;
+    return task;
 }
 
 void func_800120B8(Fade *fade, s32 fadeIn) {
