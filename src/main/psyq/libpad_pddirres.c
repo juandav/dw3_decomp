@@ -82,7 +82,7 @@ void func_800213F0(int status) {
         p = &D_8007E4D0[D_80055558];
         if (status != -9) {
             if (status == 0) {
-                D_80055570[D_80055558] = 0;
+                *(D_80055570 + D_80055558) = 0;
             } else {
                 _dirFailAuto(p, status);
                 func_800214E4(p);
@@ -91,13 +91,8 @@ void func_800213F0(int status) {
         D_8005555C = 0;
         D_800554F0->ctrl = 0;
         D_80055558++;
-        if (D_80055558 <= D_8005556C) {
-            done = _padInitSioMode(&D_8007E4D0[D_80055558]);
-            status = 0xFFFF;
-        } else {
-            done = 1;
-            status = 0xFFFF;
-        }
+        done = D_8005556C < D_80055558 ? 1 : _padInitSioMode(&D_8007E4D0[D_80055558]);
+        status = 0xFFFF;
     } while (!done);
 }
 
