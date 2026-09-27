@@ -568,7 +568,33 @@ void func_8001E5B8(s32 arg0) {
     D_8005C4A0->unk20 = arg0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E5C4);
+void func_8001E5C4(s32 x, s32 y) {
+    SPRT *sprt = D_8004D5B8.funcs.allocPrim();
+    SPRT *base = sprt;
+    u8 *end;
+    u16 tpage;
+    u16 clut;
+
+    clut = getClut(D_8005C4A0->unkC, D_8005C4A0->unk10 + D_8005C4A0->unk14 * D_8005C4A0->unk1C + D_8005C4A0->unk18);
+    tpage = (1 << 7) | (1 << 5) | ((D_8005C4A0->unk8 & 0x100) >> 4) | (((D_8005C4A0->unk4 + D_8005C4A0->unk14 * 16) & 0x3C0) >> 6) | ((D_8005C4A0->unk8 & 0x200) << 2);
+    setSprt(sprt);
+    if (D_8005C4A0->unk20 != 0) {
+        setSemiTrans(sprt, 1);
+    }
+    setRGB0(sprt, 0x80, 0x80, 0x80);
+    setXY0(sprt, x, y);
+    setUV0(sprt, (D_8005C4A0->unk14 & 3) * 32, D_8005C4A0->unk18 * 32);
+    setWH(sprt, 32, 32);
+    sprt->clut = clut;
+    addPrim(D_8005C4A0->unk28, sprt);
+    sprt++;
+    SetDrawTPage((DR_TPAGE *)sprt, 0, 1, tpage);
+    end = (u8 *)base + 0x1C;
+    /* addPrim, with the tag written through the start of the block */
+    setaddr(base + 1, getaddr(D_8005C4A0->unk28));
+    setaddr(D_8005C4A0->unk28, sprt);
+    D_8004D5B8.funcs.setPrimEnd(end);
+}
 
 s32 func_8001E7B0(void) {
     return D_8004D774[D_8005C4A0->unk0[3]];
