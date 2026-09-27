@@ -36,7 +36,7 @@ $(BUILDDIR)/src/main/psyq/%.c.o: GCC_VERSION := 2.7.2
 $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_POST := | $(PYTHON) tools/aspsx_reorder.py
 $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_DIV := --expand-div
 $(BUILDDIR)/src/main/psyq/%.c.o: PSYQ_CSE := -fno-rerun-cse-after-loop
-PSYQ_RERUN_CSE := libc2_puts libgpu_break
+PSYQ_RERUN_CSE := libc2_puts libgpu_break libcd_bios_2
 $(PSYQ_RERUN_CSE:%=$(BUILDDIR)/src/main/psyq/%.c.o): PSYQ_CSE :=
 MASPSX := $(PYTHON) external/maspsx/maspsx.py
 OBJDIFF ?= bin/objdiff-cli-linux-x86_64
