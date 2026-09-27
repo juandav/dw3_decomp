@@ -69,7 +69,26 @@ Task *STDWTITL_start(void) {
     return createTask(STDWTITL_tickScreen, sizeof(Task), sizeof(ScreenChildren));
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawLogo);
+void STDWTITL_drawLogo(LogoTask *task) {
+    SpriteDrawer sprite;
+
+    if (task->visible) {
+        initSpriteDrawer(&sprite);
+        sprite.setLayerId(task->layerId, 0);
+        sprite.setTexture(0x280, 0);
+        sprite.draw(FILE_CACHE.getEntry(STDWTITL_spriteBank), 6, 29, 209);
+        initSpriteDrawer(&sprite);
+        sprite.setLayerId(task->layerId, 0);
+        sprite.setTexture(0x280, 0);
+        sprite.setClutRow(task->anims[0].frame);
+        sprite.draw(FILE_CACHE.getEntry(STDWTITL_spriteBank), 3, 8, 28);
+        initSpriteDrawer(&sprite);
+        sprite.setLayerId(task->layerId, 0);
+        sprite.setTexture(0x280, 0);
+        sprite.setClutRow(task->anims[1].frame);
+        sprite.draw(FILE_CACHE.getEntry(STDWTITL_spriteBank), 5, 20, 202);
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickLogo);
 
