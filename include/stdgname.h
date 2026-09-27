@@ -75,6 +75,8 @@ typedef struct NameTask {
 
 extern Keyboard D_8008837C;
 extern TextStyle D_80086FC0;
+extern s32 D_80086EE0[];
+extern s8 D_80086EEC[][7][15][2];
 
 void func_80082724(Task *task, void **children);
 Task *func_8008281C(void);
@@ -86,6 +88,14 @@ void func_80082B10(Tween *tween, s32 open);
 s32 func_80082BA4(Tween *tween);
 void func_80082C10(NameTask *task, NameWindows *windows);
 void func_80082E00(NameTask *task, NameWindows *windows, s32 show);
+void func_80083104(NameTask *task);
+void func_80083A30(NameTask *task, NameWindows *windows);
+void func_80084640(NameTask *task, NameWindows *windows);
+void func_80084744(NameTask *task, s32 x, s32 y);
+void func_80084750(NameTask *task, char *name);
+void func_800847E4(NameTask *task, char *out);
+void func_800848E4(NameTask *task);
+NameTask *func_800848F0(char *name, s32 partner);
 void *func_80085B20(void);
 
 #endif /* STDGNAME_H */

@@ -165,7 +165,33 @@ INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80083104);
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80083A30);
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80084640);
+void func_80084640(NameTask *task, NameWindows *windows) {
+    TimLoader loader;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->nextState(task);
+        initTimLoader(&loader);
+        loader.setImagePos(task->vramX, task->vramY);
+        loader.loadArchive(FILE_CACHE_GET_ENTRY[0](0x07620000));
+        D_8008837C.pageCount = 1;
+        D_8008837C.tabTexts = D_80086EE0;
+        D_8008837C.keys = D_80086EEC;
+        task->unkC0.duration = 10;
+        task->unkE0.duration = 10;
+        task->unkD0.duration = 10;
+        func_80082C10(task, windows);
+        break;
+    case TASK_RUN:
+        func_80083A30(task, windows);
+        func_80083104(task);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80084744);
 
