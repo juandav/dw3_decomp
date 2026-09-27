@@ -15,4 +15,28 @@ typedef struct StageTask {
     /* 0x50 */ void *owner;
 } StageTask;
 
+/* A frame of an animation script; a script ends with id 0xFF */
+typedef struct AnimFrame {
+    /* 0x0 */ s16 id;
+    /* 0x2 */ s16 duration;
+} AnimFrame;
+
+/* Where an animation script is */
+typedef struct Anim {
+    /* 0x0 */ s16 index;
+    /* 0x2 */ s16 timer;
+} Anim;
+
+/* An animation after one or two other words */
+typedef struct Anim4 {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ Anim anim;
+} Anim4;
+
+typedef struct Anim8 {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ s32 unk4;
+    /* 0x8 */ Anim anim;
+} Anim8;
+
 #endif /* STAGE_H */

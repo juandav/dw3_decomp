@@ -9,7 +9,33 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A4E54);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A4E8C);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A4EBC);
+s32 func_800A4EBC(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
+    AnimFrame *frame = &frames[obj->anim.index];
+    s32 dt = GFX_FUNCS.getFrameTime();
+
+    if (dt > 4) {
+        dt = 4;
+    }
+    if (depth == 0) {
+        obj->anim.timer -= dt;
+    }
+    if (obj->anim.timer <= 0) {
+        frame++;
+        obj->anim.index++;
+        obj->anim.timer += frame->duration;
+        if (once) {
+            if (frame->id == 0xFF) {
+                return 0xFF;
+            }
+        } else if (frame->id == 0xFF) {
+            frame = frames;
+            obj->anim.index = 0;
+            obj->anim.timer += frame->duration;
+        }
+        func_800A4EBC(obj, frames, once, depth + 1);
+    }
+    return frame->id;
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A4FDC);
 
@@ -19,7 +45,33 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A51EC);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A521C);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A5248);
+s32 func_800A5248(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
+    AnimFrame *frame = &frames[obj->anim.index];
+    s32 dt = GFX_FUNCS.getFrameTime();
+
+    if (dt > 4) {
+        dt = 4;
+    }
+    if (depth == 0) {
+        obj->anim.timer -= dt;
+    }
+    if (obj->anim.timer <= 0) {
+        frame++;
+        obj->anim.index++;
+        obj->anim.timer += frame->duration;
+        if (once) {
+            if (frame->id == 0xFF) {
+                return 0xFF;
+            }
+        } else if (frame->id == 0xFF) {
+            frame = frames;
+            obj->anim.index = 0;
+            obj->anim.timer += frame->duration;
+        }
+        func_800A5248(obj, frames, once, depth + 1);
+    }
+    return frame->id;
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A5368);
 
@@ -29,7 +81,33 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A564C);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A567C);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A56A8);
+s32 func_800A56A8(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
+    AnimFrame *frame = &frames[obj->anim.index];
+    s32 dt = GFX_FUNCS.getFrameTime();
+
+    if (dt > 4) {
+        dt = 4;
+    }
+    if (depth == 0) {
+        obj->anim.timer -= dt;
+    }
+    if (obj->anim.timer <= 0) {
+        frame++;
+        obj->anim.index++;
+        obj->anim.timer += frame->duration;
+        if (once) {
+            if (frame->id == 0xFF) {
+                return 0xFF;
+            }
+        } else if (frame->id == 0xFF) {
+            frame = frames;
+            obj->anim.index = 0;
+            obj->anim.timer += frame->duration;
+        }
+        func_800A56A8(obj, frames, once, depth + 1);
+    }
+    return frame->id;
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag460", func_800A57C8);
 

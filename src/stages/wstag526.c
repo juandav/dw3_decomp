@@ -9,7 +9,33 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A4EB4);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A4EEC);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A4F1C);
+s32 func_800A4F1C(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
+    AnimFrame *frame = &frames[obj->anim.index];
+    s32 dt = GFX_FUNCS.getFrameTime();
+
+    if (dt > 4) {
+        dt = 4;
+    }
+    if (depth == 0) {
+        obj->anim.timer -= dt;
+    }
+    if (obj->anim.timer <= 0) {
+        frame++;
+        obj->anim.index++;
+        obj->anim.timer += frame->duration;
+        if (once) {
+            if (frame->id == 0xFF) {
+                return 0xFF;
+            }
+        } else if (frame->id == 0xFF) {
+            frame = frames;
+            obj->anim.index = 0;
+            obj->anim.timer += frame->duration;
+        }
+        func_800A4F1C(obj, frames, once, depth + 1);
+    }
+    return frame->id;
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A503C);
 
@@ -19,7 +45,33 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A5244);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A5274);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A52A0);
+s32 func_800A52A0(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
+    AnimFrame *frame = &frames[obj->anim.index];
+    s32 dt = GFX_FUNCS.getFrameTime();
+
+    if (dt > 4) {
+        dt = 4;
+    }
+    if (depth == 0) {
+        obj->anim.timer -= dt;
+    }
+    if (obj->anim.timer <= 0) {
+        frame++;
+        obj->anim.index++;
+        obj->anim.timer += frame->duration;
+        if (once) {
+            if (frame->id == 0xFF) {
+                return 0xFF;
+            }
+        } else if (frame->id == 0xFF) {
+            frame = frames;
+            obj->anim.index = 0;
+            obj->anim.timer += frame->duration;
+        }
+        func_800A52A0(obj, frames, once, depth + 1);
+    }
+    return frame->id;
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A53C0);
 
@@ -29,7 +81,33 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A5684);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A56B4);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A56E0);
+s32 func_800A56E0(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
+    AnimFrame *frame = &frames[obj->anim.index];
+    s32 dt = GFX_FUNCS.getFrameTime();
+
+    if (dt > 4) {
+        dt = 4;
+    }
+    if (depth == 0) {
+        obj->anim.timer -= dt;
+    }
+    if (obj->anim.timer <= 0) {
+        frame++;
+        obj->anim.index++;
+        obj->anim.timer += frame->duration;
+        if (once) {
+            if (frame->id == 0xFF) {
+                return 0xFF;
+            }
+        } else if (frame->id == 0xFF) {
+            frame = frames;
+            obj->anim.index = 0;
+            obj->anim.timer += frame->duration;
+        }
+        func_800A56E0(obj, frames, once, depth + 1);
+    }
+    return frame->id;
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A5800);
 
@@ -39,7 +117,33 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A59D4);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A5A04);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A5A30);
+s32 func_800A5A30(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
+    AnimFrame *frame = &frames[obj->anim.index];
+    s32 dt = GFX_FUNCS.getFrameTime();
+
+    if (dt > 4) {
+        dt = 4;
+    }
+    if (depth == 0) {
+        obj->anim.timer -= dt;
+    }
+    if (obj->anim.timer <= 0) {
+        frame++;
+        obj->anim.index++;
+        obj->anim.timer += frame->duration;
+        if (once) {
+            if (frame->id == 0xFF) {
+                return 0xFF;
+            }
+        } else if (frame->id == 0xFF) {
+            frame = frames;
+            obj->anim.index = 0;
+            obj->anim.timer += frame->duration;
+        }
+        func_800A5A30(obj, frames, once, depth + 1);
+    }
+    return frame->id;
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A5B50);
 
