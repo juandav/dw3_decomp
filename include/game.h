@@ -67,7 +67,7 @@ typedef struct Funcs8004D708 {
     /* 0x0C */ void (*setPrimEnd)(void *end);
     /* 0x10 */ void (*unk10[3])();
     /* 0x1C */ Resource *(*unk1C)(RECT *rect, s32 depth, s32 id);
-    /* 0x20 */ void (*unk20)(s32 id);
+    /* 0x20 */ s32 (*unk20)(s32 id);
     /* 0x24 */ void (*unk24)(s32 w, s32 h, s32 hires, s32 interlace);
     /* 0x28 */ void (*unk28)();
     /* 0x2C */ Resource *(*unk2C)(s32);
