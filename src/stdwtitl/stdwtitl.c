@@ -520,7 +520,15 @@ GlintTask *STDWTITL_startGlintTask(s32 skip) {
     return task;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawSplash);
+void STDWTITL_drawSplash(SplashTask *task) {
+    SpriteDrawer sprite;
+
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(STDWTITL_SPLASH_LAYER, 1);
+    sprite.setTexture(0x280, 0);
+    sprite.setClutRow(task->fade);
+    sprite.draw(FILE_CACHE_GET_ENTRY[0](SPLASH_SPRITES), 0, 0, 0);
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickSplash);
 
