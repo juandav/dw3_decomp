@@ -70,7 +70,42 @@ extern MenuPos D_8003EA94[5];
 extern MenuPos D_8003EAD0[5];
 extern s32 D_8003EB0C[];
 
-INCLUDE_ASM("asm/main/nonmatchings/system", func_800121B8);
+typedef struct MenuTask {
+    /* 0x00 */ u8 unk0[0x50];
+    /* 0x50 */ s16 unk50;
+    /* 0x52 */ u8 unk52[6];
+    /* 0x58 */ s32 cursor;
+    /* 0x5C */ s32 count;
+} MenuTask;
+
+Task8001ACC8 *func_8001AFE0(s16 arg0, s32 arg1, s16 arg2, s16 arg3);
+
+void func_800121B8(MenuTask *task, MenuWindows *win) {
+    s32 i;
+    s32 j;
+    MenuPos *pos;
+
+    win->title = func_8001AAB4(task->unk50, 1, 0x98, 0x13);
+    for (i = 0; i < task->count; i++) {
+        win->items[i] = func_8001AAB4(task->unk50, 1, 0xBD, 0x31 + i * 14);
+    }
+    win->cursor = func_8001AFE0(task->unk50, 0, 0xB0, task->cursor * 14 + 0x31);
+    win->cursor->methods[0](win->cursor, 0);
+    win->unk4 = func_8001AAB4(task->unk50, 3, 0x46, 0xA6);
+    win->unk8 = func_8001AAB4(task->unk50, 3, 0x42, 0xA6);
+    for (j = 0; j < 3; j++) {
+        pos = &D_8003EA88[0];
+        win->pages[j].head = func_8001AAB4(task->unk50, 1, pos->x, pos->y + j * 46);
+        for (i = 0; i < 5; i++) {
+            pos = &D_8003EA94[i];
+            win->pages[j].left[i] = func_8001AAB4(task->unk50, 3, pos->x, pos->y + j * 46);
+        }
+        for (i = 0; i < 5; i++) {
+            pos = &D_8003EAD0[i];
+            win->pages[j].right[i] = func_8001AAB4(task->unk50, 3, pos->x, pos->y + j * 46);
+        }
+    }
+}
 
 void func_800123E4(void *arg0, MenuWindows *win, s32 page, s32 show) {
     Unk2728 stats;
