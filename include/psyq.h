@@ -18,7 +18,7 @@ typedef struct GpuDriver {
     /* 0x04 */ void *unk4;
     /* 0x08 */ int (*addque)(void *func, void *param, int size, long arg);
     /* 0x0C */ void *unkC;
-    /* 0x10 */ void *unk10;
+    /* 0x10 */ void (*ctrl)(u_long cmd);
     /* 0x14 */ int (*unk14)(u_long *p, int len);
     /* 0x18 */ void *unk18;
     /* 0x1C */ void *unk1C;
@@ -217,7 +217,9 @@ typedef struct GpuDebug {
     /* 0x4 */ short w;
     /* 0x6 */ short h;
     /* 0x8 */ long unk8;
-    /* 0xC */ void (*drawSyncCallback)();
+    /* 0x0C */ void (*drawSyncCallback)();
+    /* 0x10 */ DRAWENV draw; /* also reached as D_800556B0 */
+    /* 0x6C */ DISPENV disp; /* also reached as D_8005570C */
 } GpuDebug;
 extern GpuDebug D_800556A0;
 extern u_long *D_800557A8;
