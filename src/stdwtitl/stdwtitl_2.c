@@ -79,7 +79,13 @@ void STDWTITL_tickEdgeFade(EdgeFadeTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_startEdgeFadeTask);
+EdgeFadeTask *STDWTITL_startEdgeFadeTask(void) {
+    EdgeFadeTask *task = createTask(STDWTITL_tickEdgeFade, sizeof(EdgeFadeTask), 0);
+
+    task->start = STDWTITL_startEdgeFade;
+    task->isDone = STDWTITL_isEdgeFadeDone;
+    return task;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_stepLoopingAnimation);
 
