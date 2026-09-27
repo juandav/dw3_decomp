@@ -13,7 +13,12 @@ void SsStart2(void) {
     func_80032B98(0);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_ssstart", func_80032E08);
+void func_80032E08(void) {
+    if (D_8005B850[1] != NULL) {
+        D_8005B850[1]();
+    }
+    D_8005B850[0]();
+}
 
 void func_80032E54(void) {
     if (D_8005B85C == 0) {
