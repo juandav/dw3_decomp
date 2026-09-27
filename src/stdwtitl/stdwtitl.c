@@ -330,7 +330,13 @@ void STDWTITL_tickMoviePlayer(MoviePlayerTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startMoviePlayerTask);
+MoviePlayerTask *STDWTITL_startMoviePlayerTask(s32 file, u32 endFrame) {
+    MoviePlayerTask *task = createTask(STDWTITL_tickMoviePlayer, sizeof(MoviePlayerTask), 0);
+
+    STDWTITL_movieFile = file;
+    STDWTITL_movieEndFrame = endFrame;
+    return task;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickMovie);
 
