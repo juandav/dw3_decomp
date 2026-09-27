@@ -16,7 +16,13 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_Fw);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_Fr);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_FsetRXX);
+void _spu_FsetRXX(int reg, u_long value, int mode) {
+    if (mode == 0) {
+        D_8005BA28[reg] = value;
+    } else {
+        D_8005BA28[reg] = value >> D_8005BA50;
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu", _spu_FsetRXXa);
 
