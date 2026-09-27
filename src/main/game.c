@@ -2378,7 +2378,50 @@ Task *func_8001B804(s32 arg0) {
     return task;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001B864);
+void func_8001B864(Task8001B6A8 *task, Unk8001BA7C *data) {
+    switch (task->state) {
+    case 0:
+    default:
+        task->unk38(task);
+        break;
+    case 1:
+        switch (task->unk10) {
+        case 0:
+        default:
+            if (data->window->m16C(data->window) == 0 && data->unk4->unk10 == 1) {
+                data->window->m144(data->window, 1);
+                task->unk10++;
+            }
+            break;
+        case 1:
+            if (data->window->m168(data->window) != 0) {
+                data->unk4->unk10 = 2;
+                data->window->m144(data->window, 0);
+                task->unk10++;
+                D_800553DC.playSound(0x4001A);
+                break;
+            }
+            if ((D_8004AF78.getButtons(0) >> D_8004AF78.getButtonBit(0, 13)) & 1) {
+                data->window->m128(data->window);
+            }
+            if (data->window->m170(data->window) != 0) {
+                data->unk4->unk5C = 1;
+            } else {
+                data->unk4->unk5C = 0;
+            }
+            break;
+        case 2:
+            if (data->unk4 == NULL) {
+                task->unk28(task, 3);
+            }
+            break;
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 Task *func_8001BA7C(s32 id, s32 arg1, s32 arg2) {
     Task *task = func_800144DC(func_8001B864, 0x50, 8);

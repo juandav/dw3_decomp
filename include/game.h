@@ -357,9 +357,9 @@ typedef struct Unk80019DFC {
     /* 0x15C */ void (*m15C)();
     /* 0x160 */ void (*m160)();
     /* 0x164 */ void (*m164)();
-    /* 0x168 */ void (*m168)();
-    /* 0x16C */ void (*m16C)();
-    /* 0x170 */ void (*m170)();
+    /* 0x168 */ s32 (*m168)();
+    /* 0x16C */ s32 (*m16C)();
+    /* 0x170 */ s32 (*m170)();
 } Unk80019DFC;
 
 typedef struct Unk8004D49C {
@@ -392,7 +392,7 @@ typedef struct TextWait {
 
 typedef struct Unk8001BA7C {
     /* 0x0 */ Unk80019DFC *window;
-    /* 0x4 */ struct Task *unk4;
+    /* 0x4 */ struct Task8001B6A8 *unk4;
 } Unk8001BA7C;
 
 typedef struct Unk80041444 {
@@ -752,6 +752,11 @@ typedef struct PadState {
     /* 0x3D6 */ s16 unk3D6;
     /* 0x3D8 */ s32 unk3D8;
     /* 0x3DC */ s16 unk3DC;
+    /* 0x3DE */ u8 unk3DE[2];
+    /* 0x3E0 */ u8 unk3E0[0x14];
+    /* 0x3F4 */ s32 (*getButtons)(s32 port);
+    /* 0x3F8 */ u8 unk3F8[0x10];
+    /* 0x408 */ s32 (*getButtonBit)(s32 port, s32 button);
 } PadState;
 
 typedef struct Unk800484E8 {
@@ -929,7 +934,7 @@ s32 func_80014B8C(s32 port);
 s32 func_8001366C(void);
 s32 func_80013880(void);
 void func_80013890(void);
-void func_8001B864();
+void func_8001B864(struct Task8001B6A8 *task, struct Unk8001BA7C *data);
 s32 func_8001A108(Unk80019DFC *obj, TextBuffer *text, TextWait *wait, s16 *pos);
 void func_8001F22C(struct Obj8001F22C *obj);
 s32 func_800154F8(u8 *bits, s32 index, s32 set);
