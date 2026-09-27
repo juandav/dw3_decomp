@@ -33,7 +33,8 @@ typedef struct PadPort {
     /* 0x00 */ long unk0;
     /* 0x04 */ long unk4;
     /* 0x08 */ long unk8;
-    /* 0x0C */ u8 unkC[8];
+    /* 0x0C */ struct PadPort *unkC;
+    /* 0x10 */ u8 unk10[4];
     /* 0x14 */ void (*unk14)();
     /* 0x18 */ void (*unk18)();
     /* 0x1C */ u8 unk1C[4];
