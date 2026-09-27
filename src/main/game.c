@@ -2206,7 +2206,84 @@ s32 func_8001873C(s32 arg0) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80018774);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80018868);
+void func_80018868(s32 port, u8 *data, u8 *record) {
+    u32 id = port & 0xFF;
+    s32 mode = PadInfoMode(id, 2, 0);
+    u32 pad = (id >> 4) & 1;
+    PadSlot *slot = &D_8004AF78.slots[(u8)pad][port & 3];
+    s16 buttons;
+    s16 i;
+    u16 b;
+    s16 x, y, z;
+
+    if ((D_8004AF78.flags & 0x400000) && D_8004AF78.unk3D6 == ((port & 3) | pad)) {
+        buttons = (~*(u16 *)(data + 2) & 8) | (~*(u16 *)(record + 2) & ~8);
+        if (mode == 7) {
+            for (i = 0; i < 4; i++) {
+                slot->analog[i] = record[4 + i];
+            }
+        }
+    } else {
+        b = ~*(u16 *)(data + 2);
+        x = (b >> 13) & 1;
+        y = (b >> 14) & 1;
+        z = (b >> 12) & 1;
+        buttons = ~*(u16 *)(data + 2) & ~0x7000;
+        if (y) {
+            buttons |= 0x2000;
+        }
+        if (z) {
+            buttons |= 0x4000;
+        }
+        if (x) {
+            buttons |= 0x1000;
+        }
+        if (mode == 7) {
+            for (i = 0; i < 4; i++) {
+                slot->analog[i] = data[4 + i];
+            }
+        }
+    }
+    if (mode == 7) {
+        if (slot->analog[2] < 0x41) {
+            buttons |= 0x80;
+        } else if (slot->analog[2] >= 0xC0) {
+            buttons |= 0x20;
+        }
+        if (slot->analog[3] < 0x41) {
+            buttons |= 0x10;
+        } else if (slot->analog[3] >= 0xC0) {
+            buttons |= 0x40;
+        }
+    }
+    i = 0;
+    slot->unk2 = 0;
+    for (; i < 16; i++) {
+        u8 bit = slot->unk5C[i];
+        s32 *time = &slot->repeatTime[bit];
+        u8 *count = &slot->repeatCount[bit];
+
+        if ((buttons >> bit) & 1) {
+            if (D_8004AF78.unk3D4 > 0) {
+                if ((D_8004D5B8.funcs.unk38() - *time + *count) / D_8004AF78.unk3D4 != 0) {
+                    *count += 10;
+                    if (*count >= 12) {
+                        *count = 12;
+                    }
+                    *time = D_8004D5B8.funcs.unk38();
+                    slot->unk2 |= 1 << slot->unk5C[i];
+                }
+            }
+        } else {
+            *time = D_8004D5B8.funcs.unk38();
+            *count = 0;
+        }
+    }
+    b = slot->unk6;
+    slot->unk6 = buttons;
+    slot->unk4 = b;
+    slot->unk0 = buttons & (b ^ buttons);
+}
 
 s32 func_80018BC0(u16 port, u8 *data) {
     u8 id = port;
