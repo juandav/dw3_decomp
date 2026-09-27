@@ -104,7 +104,9 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", SetDrawEnv);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800264B8);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026728);
+u_long func_80026728(int dfe, int dtd, int tpage) {
+    return (dtd ? 0xE1000200 : 0xE1000000) | (dfe ? 0x400 : 0) | (tpage & 0x9FF);
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026748);
 
