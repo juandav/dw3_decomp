@@ -159,7 +159,8 @@ typedef struct SeqStruct {
     /* 0x00 */ u_char *readPos;
     /* 0x04 */ u_char *startPos;
     /* 0x08 */ u_char *loopPos;
-    /* 0x0C */ u8 unkC[8];
+    /* 0x0C */ u_char *unkC;
+    /* 0x10 */ u8 unk10[4];
     /* 0x14 */ char unk14;
     /* 0x15 */ u_char unk15;
     /* 0x16 */ u8 unk16;
