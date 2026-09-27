@@ -1567,7 +1567,33 @@ void func_800179A4(s8 *dst, s8 value, s32 count) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800179C8);
+void *func_800179C8(u32 size, s32 tag) {
+    MemBlock *b;
+    MemBlock *new;
+    u32 avail;
+    u32 splitSize;
+
+    size = (size + 3) >> 2 << 2;
+    splitSize = size + 20;
+    for (b = D_8004AD84.first; b->flags != 1; b = b->next) {
+        if (b->flags == 0) {
+            avail = (u8 *)b->next - (u8 *)b - sizeof(MemBlock);
+            if (avail >= size) {
+                if (avail > splitSize) {
+                    new = (MemBlock *)((u8 *)b + size + sizeof(MemBlock));
+                    new->prev = b;
+                    new->next = b->next;
+                    new->flags = 0;
+                    b->next->prev = new;
+                    b->next = new;
+                }
+                b->flags = tag;
+                return b + 1;
+            }
+        }
+    }
+    return NULL;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80017A78);
 
