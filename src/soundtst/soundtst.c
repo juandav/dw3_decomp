@@ -109,7 +109,39 @@ void func_80083FA0(SoundTest *task, SoundTestWindows *win) {
     }
 }
 
-INCLUDE_ASM("asm/soundtst/nonmatchings/soundtst", func_80084054);
+void func_80084054(SoundTest *task, SoundTestWindows *win) {
+    s32 i;
+    s32 j;
+
+    switch (task->step) {
+    case 0:
+    default:
+        task->bankCount = 0;
+        while (D_80084F98[task->bankCount].id != 0) {
+            task->bankCount++;
+        }
+        win->header->setText(win->header, D_80083AC4);
+        task->nextStep(task);
+    case 1:
+        break;
+    }
+    if ((PAD.getPressed(0) | PAD.getRepeated(0)) & 0x40) {
+        func_80083BD4(task, 1, &task->bankCursor, &task->bankTop, task->bankCount);
+    } else if ((PAD.getPressed(0) | PAD.getRepeated(0)) & 0x10) {
+        func_80083BD4(task, -1, &task->bankCursor, &task->bankTop, task->bankCount);
+    } else if (PAD.getPressed(0) & 0x2000) {
+        task->bank = D_80084F98[task->bankCursor].id;
+        task->nextSubstate(task);
+    }
+    for (i = 0, j = task->bankTop; i < 8 && D_80084F98[j].id != 0; i++, j++) {
+        win->lines[i]->setText(win->lines[i], D_80084F98[j].name);
+        win->lines[i]->setVisible(win->lines[i], 1);
+    }
+    for (; i < 8; i++) {
+        win->lines[i]->setVisible(win->lines[i], 0);
+    }
+    win->cursor->setPos(win->cursor, 0x20, (task->bankCursor - task->bankTop) * 16 + 0x46);
+}
 
 INCLUDE_ASM("asm/soundtst/nonmatchings/soundtst", func_800842C4);
 
