@@ -1,4 +1,14 @@
-#include "common.h"
+#include "stagslct.h"
+
+extern char D_800844D8[]; /* "ステージセレクト" */
+extern char D_800844FC[]; /* "＞" */
+extern char *D_800859A4[6]; /* "ＵＳＡ", "ＥＮＧ", "ＦＲＡ", "ＩＴＡ", "ＧＥＲ", "ＳＰＮ" */
+extern StageSelectEntry D_800859BC[];
+extern RECT D_80086F1C;
+extern u16 D_80086F24[10];
+extern u16 D_80086F38;
+
+Task *func_80085974(void);
 
 INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", func_80084500);
 
