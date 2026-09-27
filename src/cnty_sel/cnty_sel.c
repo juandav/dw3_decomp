@@ -141,7 +141,15 @@ s16 CNTY_SEL_stepAnimation(AnimState *anim, AnimFrame *frames, s32 depth) {
     return frame->frame;
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_drawCursor);
+void CNTY_SEL_drawCursor(CursorTask *task) {
+    Obj8001F22C sprite;
+
+    func_8001F22C(&sprite);
+    sprite.methods[3](CNTY_SEL_LAYER, 1);
+    sprite.methods[1](0x280, 0);
+    sprite.methods[6](task->frame);
+    sprite.methods[5](D_80044B68[0](CNTY_SEL_SPRITES), SPRITE_OPTIONS + task->selection, 0, 0);
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_setCursorSelection);
 
