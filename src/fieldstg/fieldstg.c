@@ -381,7 +381,11 @@ void func_8008E2A8(Actor *actor) {
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E2B8);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E318);
+void func_8008E318(Actor *actor, s32 dir) {
+    actor->unk108 = NULL;
+    actor->setSubstate(actor, 5);
+    actor->dir = dir;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E358);
 
