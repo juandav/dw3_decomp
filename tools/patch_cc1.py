@@ -28,6 +28,10 @@ accesses.
    run on both paths), then stops. Returns and other jumps are unchanged.
 4. find_best_addr: a `reg + const_int` address (`4(p)` with p holding &sym)
    stays as it is instead of being folded into the constant `sym+4`.
+5. alter_reg: a pseudo spilled to the stack gets a slot aligned to its own
+   mode (4 bytes for SImode) instead of BIGGEST_ALIGNMENT (8), like GCC 2.8's
+   `inherent_size == total_size ? 0 : -1`. Two spilled pseudos then sit at
+   0x5C/0x60 instead of 0x60/0x68 (libmcrd MemCardGetDirentry's frame).
 
 The libraries were also built without -msoft-float (FLOAT_ABI in the Makefile):
 with the FP registers counted, loop.c hoists more invariants into saved
@@ -138,6 +142,10 @@ def patch(src, dst):
     site = 0x080FD1ED
     put(site, b"\x66\x83\xf8\x34\x74\x2e",
         b"\xe9" + (cave - (site + 5)).to_bytes(4, "little", signed=True) + b"\x90")
+
+    # 5. alter_reg+348: `assign_stack_local (mode, total_size, -1)` for a
+    #    pseudo with no slot to reuse -> align 0 (the mode's alignment).
+    put(0x08161CD9, b"\x6a\xff", b"\x6a\x00")
 
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     tmp = dst + ".tmp"
