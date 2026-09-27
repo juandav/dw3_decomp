@@ -122,7 +122,45 @@ void STDWTITL_drawBackground(BackgroundTask *task) {
     sprite.draw(FILE_CACHE.getEntry(0x08760002), 0, 0, 0);
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_drawBackgroundSprites);
+void STDWTITL_drawBackgroundSprites(BackgroundTask *task) {
+    SpriteDrawer sprite;
+    s32 frame0 = STDWTITL_stepLoopingAnimation(&task->anims[0], STDWTITL_backgroundAnim0, 0);
+    s32 frame1 = STDWTITL_stepLoopingAnimation(&task->anims[1], STDWTITL_backgroundAnim1, 0);
+    s32 frame2 = STDWTITL_stepLoopingAnimation(&task->anims[2], STDWTITL_backgroundAnim2, 0);
+    s32 frame3 = STDWTITL_stepLoopingAnimation(&task->anims[3], STDWTITL_backgroundAnim3, 0);
+    s32 frame4 = STDWTITL_stepLoopingAnimation(&task->anims[4], STDWTITL_backgroundAnim4, 0);
+    s32 frame5 = STDWTITL_stepLoopingAnimation(&task->anims[5], STDWTITL_backgroundAnim5, 0);
+    s32 frame6 = STDWTITL_stepLoopingAnimation(&task->anims[6], STDWTITL_backgroundAnim6, 0);
+    s32 frame7 = STDWTITL_stepLoopingAnimation(&task->anims[7], STDWTITL_backgroundAnim7, 0);
+
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(task->layerId, 0);
+    sprite.setTexture(0x3C0, 0);
+    if (frame0 != 300) {
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760003), frame0, 0, 0);
+    }
+    if (frame1 != 300) {
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760003), frame1, 0, 0);
+    }
+    if (frame2 != 300) {
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760003), frame2, 0, 0);
+    }
+    if (frame3 != 300) {
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760003), frame3, 0, 0);
+    }
+    if (frame4 != 300) {
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760008), frame4, 0, 0);
+    }
+    if (frame5 != 300) {
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760008), frame5, 0, 0);
+    }
+    if (frame6 != 300) {
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760008), frame6, task->pos6.x, task->pos6.y);
+    }
+    if (frame7 != 300) {
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760008), frame7, task->pos7.x, task->pos7.y);
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_tickBackground);
 
