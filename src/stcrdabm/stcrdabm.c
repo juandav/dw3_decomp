@@ -88,7 +88,9 @@ void func_800828AC(CardAlbumGrid *grid, s32 first) {
     grid->setState(grid, 2);
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800828E4);
+void func_800828E4(CardAlbumGrid *grid) {
+    grid->setSubstate(grid, 1);
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_8008290C);
 
