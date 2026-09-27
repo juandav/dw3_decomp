@@ -524,7 +524,29 @@ void func_800142E0(Unk80017ECC *obj) {
     D_8004AD84.free(obj);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800143B4);
+void *func_800143B4(void (*update)(void *), s32 size, s32 nbytes, s32 arg3) {
+    Unk80017ECC *task = D_8004AD84.unk20(size, 2);
+
+    if (nbytes != 0) {
+        task->items = D_8004AD84.unk20(nbytes, 2);
+        task->count = nbytes / 4;
+    }
+    task->methods[0] = func_8001424C;
+    task->methods[1] = func_80014260;
+    task->methods[2] = func_80014270;
+    task->methods[3] = func_8001427C;
+    task->methods[4] = func_80014284;
+    task->methods[5] = func_800142A0;
+    task->methods[6] = func_800142B8;
+    task->methods[7] = func_800142CC;
+    task->update = update;
+    task->destroy = func_800142E0;
+    if (arg3 != 0) {
+        task->unk0 = arg3;
+        D_8004AF58.unk4(task);
+    }
+    return task;
+}
 
 void *func_800144DC(void (*update)(void *), s32 size, s32 arg2) {
     return func_800143B4(update, size, arg2, 0);

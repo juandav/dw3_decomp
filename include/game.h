@@ -42,7 +42,7 @@ typedef struct MemManager {
     /* 0x14 */ void (*unk14)();
     /* 0x18 */ void *(*malloc)(s32 size, s32 tag);
     /* 0x1C */ void *(*unk1C)(s32 size, s32 tag);
-    /* 0x20 */ void (*unk20)();
+    /* 0x20 */ void *(*unk20)(s32 size, s32 tag);
     /* 0x24 */ void (*bzero)(void *ptr, s32 size);
     /* 0x28 */ void (*unk28)();
     /* 0x2C */ void (*unk2C)();
@@ -513,9 +513,13 @@ typedef struct Unk80044744 {
 } Unk80044744;
 
 typedef struct Unk80017ECC {
-    /* 0x00 */ u8 unk0[0x20];
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ u8 unk4[0x1C];
     /* 0x20 */ s32 count;
     /* 0x24 */ s32 *items;
+    /* 0x28 */ void (*methods[8])();
+    /* 0x48 */ void (*update)();
+    /* 0x4C */ void (*destroy)(struct Unk80017ECC *);
 } Unk80017ECC;
 
 typedef struct Task8001C454 {
