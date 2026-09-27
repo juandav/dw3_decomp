@@ -675,7 +675,10 @@ typedef struct Unk80044744 {
 
 typedef struct Unk80017ECC {
     /* 0x00 */ s32 unk0;
-    /* 0x04 */ u8 unk4[0x1C];
+    /* 0x04 */ u8 unk4[8];
+    /* 0x0C */ s32 state;
+    /* 0x10 */ u8 unk10[0xC];
+    /* 0x1C */ s32 wait;
     /* 0x20 */ s32 count;
     /* 0x24 */ s32 *items;
     /* 0x28 */ void (*methods[8])();
@@ -943,7 +946,7 @@ int CdControlF(u_char com, u_char *param);
 void func_80019140(Unk80019DFC *obj, char *text);
 void func_80019184(u8 *buf, s32 value);
 void func_80016260(u16, u16);
-s32 func_80017DDC(s32);
+struct Unk80017ECC *func_80017DDC(struct Unk80017ECC *task);
 void *func_80017CE8(void);
 void func_8001816C(void);
 void func_8001D070(void);

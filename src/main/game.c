@@ -1747,14 +1747,14 @@ void func_80017ECC(Unk80017ECC *obj) {
 
     for (i = 0; i < count; i++) {
         if (items[i] != 0) {
-            items[i] = func_80017DDC(items[i]);
+            items[i] = (s32)func_80017DDC((Unk80017ECC *)items[i]);
         }
     }
 }
 
 s32 func_80017F38(s32 arg0) {
     if (arg0 != 0) {
-        return func_80017DDC(arg0);
+        return (s32)func_80017DDC((Unk80017ECC *)arg0);
     }
     return 0;
 }
