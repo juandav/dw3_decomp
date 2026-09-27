@@ -523,7 +523,9 @@ void func_8009106C(void) {
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091098);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800910F8);
+void func_800910F8(void) {
+    FLAG_FUNCS.applyAction(0x40F, 1);
+}
 
 INCLUDE_RODATA("asm/fieldstg/nonmatchings/fieldstg", D_80082E88);
 
