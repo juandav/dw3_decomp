@@ -921,7 +921,128 @@ void STDWTITL_drawMenu(MenuTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickMenu);
+void STDWTITL_tickMenu(MenuTask *task) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        if (task->skip == 0) {
+            task->nextState(task);
+        } else {
+            task->setState(task, TASK_DONE);
+        }
+        task->choice = 0;
+        return;
+    case TASK_RUN:
+        if (task->substate == 0) {
+            return;
+        }
+        switch (task->substate) {
+        case 1:
+        default:
+            if (task->timer++ >= 6) {
+                task->selection = 2;
+                task->timer = 0;
+                task->showCursor = 1;
+                task->nextSubstate(task);
+            }
+            break;
+        case 2:
+            if (PAD_PRESSED(PAD_START)) {
+                task->nextSubstate(task);
+                task->timer = 0;
+                SOUND.playSound(SE_TITLE_START);
+                task->blink = 0;
+            }
+            if (++task->timer >= 600) {
+                task->choice = 3;
+            }
+            break;
+        case 3:
+            if ((++task->timer & 3) == 0) {
+                task->timer = 0;
+                if (++task->blink >= 3) {
+                    task->nextSubstate(task);
+                    task->showOptions = 1;
+                    task->options[0].x = task->options[1].x = 79;
+                    task->options[0].y = task->options[1].y = 166;
+                    task->blink = 0;
+                    task->showCursor = 0;
+                    SOUND.playSound(SE_TITLE_OPTIONS);
+                }
+            }
+            break;
+        case 4:
+            task->options[0].x = (STDWTITL_menuCursorPositions[0].x - 79) * task->timer / 15 + 79;
+            task->options[0].y = (STDWTITL_menuCursorPositions[0].y - 166) * task->timer / 15 + 166;
+            task->options[1].x = (STDWTITL_menuCursorPositions[1].x - 79) * task->timer / 15 + 79;
+            task->options[1].y = (STDWTITL_menuCursorPositions[1].y - 166) * task->timer / 15 + 166;
+            if (++task->timer >= 15) {
+                task->timer = 0;
+                task->nextSubstate(task);
+            }
+            break;
+        case 5:
+            if (++task->timer >= 6) {
+                task->setState(task, TASK_DONE);
+            }
+            break;
+        }
+        break;
+    case TASK_DONE:
+        switch (task->substate) {
+        case 0:
+        default:
+            task->showOptions = 1;
+            task->selection = 1;
+            task->showCursor = 1;
+            task->options[0].x = STDWTITL_menuCursorPositions[0].x;
+            task->options[0].y = STDWTITL_menuCursorPositions[0].y;
+            task->options[1].x = STDWTITL_menuCursorPositions[1].x;
+            task->options[1].y = STDWTITL_menuCursorPositions[1].y;
+            task->nextSubstate(task);
+            break;
+        case 1:
+            if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
+                if (task->selection != 0) {
+                    SOUND.playSound(SE_TITLE_CURSOR);
+                }
+                task->selection = 0;
+            }
+            if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
+                if (task->selection != 1) {
+                    SOUND.playSound(SE_TITLE_CURSOR);
+                }
+                task->selection = 1;
+            }
+            if (PAD_PRESSED(PAD_CROSS)) {
+                task->timer = 0;
+                SOUND.playSound(SE_TITLE_START);
+                task->nextSubstate(task);
+            }
+            break;
+        case 2:
+            if ((++task->timer & 3) == 0) {
+                task->timer = 0;
+                if (++task->blink >= 3) {
+                    if (task->selection != 0) {
+                        task->choice = 2;
+                    } else {
+                        task->choice = 1;
+                    }
+                    task->nextSubstate(task);
+                    task->blink = 0;
+                }
+            }
+            break;
+        case 3:
+            break;
+        }
+        break;
+    case TASK_KILL:
+        return;
+    }
+    STDWTITL_drawMenu(task);
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_showMenu);
 
