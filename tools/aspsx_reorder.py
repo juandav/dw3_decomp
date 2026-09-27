@@ -8,9 +8,13 @@ is the index register).
 GCC 2.7.2 leaves jumps (`j $31`, `j label`) and some calls in reorder mode
 and maspsx follows them with a nop. The ASPSX used for those objects moved
 the previous instruction into the delay slot instead, unless that would put a load of
-$31 right before the jump.
+$31 right before the jump. A `la` before the jump is split, and its low half
+goes into the slot.
 
 A load delay nop that maspsx emits after a label belongs before it.
+
+The mfhi/mflo that ends an expanded div/rem has no load delay: ASPSX used its
+result in the next instruction (_spu_FsetRXXa), maspsx puts a nop there.
 
 usage: aspsx_reorder.py < maspsx_output.s > output.s
 """
@@ -22,11 +26,10 @@ BRANCHES = re.compile(
     r"(j|jal|jr|jalr|b|bal|beq|bne|blez|bgtz|bltz|bgez|beqz|bnez|"
     r"bltzal|bgezal|beql|bnel|blezl|bgtzl|bltzl|bgezl)$"
 )
-# conditional branches: ASPSX only moved the second half of a store into
-# their delay slot
-CONDITIONAL = re.compile(r"(beq|bne|blez|bgtz|bltz|bgez|beqz|bnez)$")
 LOADS = re.compile(r"(lw|lh|lhu|lb|lbu|lwl|lwr)$")
 STORES = re.compile(r"(sw|sh|sb|swl|swr)$")
+# conditional branches GCC can leave in reorder mode
+CONDBR = ("beq", "bne", "beqz", "bnez", "blez", "bgtz", "bltz", "bgez")
 # Instructions the assembler expands into several machine instructions
 MACROS = re.compile(r"(la|li|div|divu|rem|remu|mul|ulw|usw|ulh|ulhu)$")
 
@@ -42,7 +45,10 @@ def split(line):
 
 
 def loads_without_at(lines):
-    """lui $at / addu $at,$at,$r / lw $d,%lo(x)($at)  ->  use $d instead."""
+    """lui $at / addu $at,$at,$r / lw $d,%lo(x)($at)  ->  use $d instead.
+
+    maspsx expands a large constant offset (`lw $d,0x1F801088($r)`) with
+    `addu $at,$r,$at`; ASPSX wrote it as for a symbol."""
     out = list(lines)
     for i in range(len(out) - 2):
         a, b, c = (split(x) for x in out[i : i + 3])
@@ -52,10 +58,9 @@ def loads_without_at(lines):
             continue
         if not LOADS.match(c[0]) or not c[1][1].endswith("($at)"):
             continue
-        dest = c[1][0]
         index = b[1][2] if b[1][1] == "$at" else b[1][1]
-        # maspsx writes `addu $at,$r,$at` for a large constant offset
         out[i + 1] = f"addu\t$at,$at,{index}"
+        dest = c[1][0]
         if dest in ("$at", index):
             continue
         out[i] = out[i].replace("$at", dest)
@@ -65,21 +70,26 @@ def loads_without_at(lines):
 
 
 def delay_slot_hazards(lines):
-    """lw $x,symbol / jump / access through $x  ->  a nop after the load.
-
-    Only before jumps: ASPSX left `lw $x,symbol / jal / sw ..($x)` alone."""
+    """lw $x,symbol / jump / access through $x  ->  a nop after the load."""
     code = [i for i, x in enumerate(lines) if split(x)]
     insert = []
     for a, b, c in zip(code, code[1:], code[2:]):
         la, lb, lc = split(lines[a]), split(lines[b]), split(lines[c])
         if not LOADS.match(la[0]) or not BRANCHES.match(lb[0]) or len(la[1]) != 2:
             continue
+        reg = la[1][0]
         if re.search(r"\(\$\w+\)$", la[1][1]):
+            # a load through a register: only a store of the loaded value
+            # in the slot of a call (func_80056C18), and not for a
+            # symbol($reg) load, which ASPSX expanded through $at
+            # (GsSwapDispBuff)
+            if (lb[0] == "jal" and STORES.match(lc[0]) and lc[1][0] == reg
+                    and re.match(r"-?(0x)?[0-9a-fA-F]*\(", la[1][1])):
+                insert.append(a)
             continue
         # not for calls: `lw $x,symbol / jal / sw ..($x)` stays as it is
         if lb[0] in ("jal", "jalr"):
             continue
-        reg = la[1][0]
         # only when the slot uses it as the base of a memory access
         if (LOADS.match(lc[0]) or STORES.match(lc[0])) and lc[1][-1].endswith(
             f"({reg})"
@@ -90,21 +100,6 @@ def delay_slot_hazards(lines):
     return lines
 
 
-def no_nop_after_div(lines):
-    """maspsx follows an expanded div with a nop when the next instruction reads
-    its result; this ASPSX did not (mflo has no load delay)."""
-    out = []
-    for line in lines:
-        if line.startswith("nop # DEBUG: Reuse of"):
-            k = len(out) - 1
-            while k >= 0 and not out[k].strip():
-                k -= 1
-            if k >= 0 and out[k].strip() in ("# EXPAND_DIV END", "# EXPAND_DIVU END"):
-                continue
-        out.append(line)
-    return out
-
-
 def nops_before_labels(lines):
     """maspsx puts a load delay nop after a label; ASPSX kept it before."""
     out = list(lines)
@@ -113,6 +108,21 @@ def nops_before_labels(lines):
             j = i - 1
             if out[j].rstrip().endswith(":") and not out[j].startswith("."):
                 out[i], out[j] = out[j], out[i]
+    return out
+
+
+def no_nop_after_div(lines):
+    """Drop the load delay nop maspsx puts after an expanded div's mfhi/mflo."""
+    out = []
+    for line in lines:
+        if (
+            line.startswith("nop")
+            and "DEBUG: Reuse of" in line
+            and out
+            and out[-1].strip() in ("# EXPAND_DIV END", "# EXPAND_DIVU END")
+        ):
+            continue
+        out.append(line)
     return out
 
 
@@ -317,9 +327,8 @@ def fill_from_target(lines, split):
         if ud is None or len(ud[1]) != 1:
             continue
         r = next(iter(ud[1]))
-        # `lui $at` is the first half of a load maspsx expanded: reorg saw
-        # one load insn there, not a constant (_SsVmFlush)
-        if r in ud[0] or r in ("$0", "$1", "$29", "$31"):
+        # $at: the first half of an expanded macro, which reorg never saw
+        if r in ud[0] or r in ("$0", "$1", "$at", "$29", "$31"):
             continue
         if not is_dead(items, n + 2, r, labels):
             continue
@@ -380,15 +389,16 @@ def main():
         )
     )
     out = []
+    # index in out of the slot this pass filled after a call
+    call_slot = -1
     i = 0
     while i < len(lines):
         line = lines[i]
         ins = split(line)
         nxt = lines[i + 1] if i + 1 < len(lines) else ""
-        cond = ins is not None and CONDITIONAL.match(ins[0]) is not None
         if (
             ins
-            and (ins[0] == "j" or ins[0] == "jal" or cond)
+            and (ins[0] == "j" or ins[0] == "jal" or ins[0] in CONDBR)
             and nxt.strip().startswith("nop")
             and "branch/jump" in nxt
         ):
@@ -397,21 +407,41 @@ def main():
             while k >= 0 and not out[k].split("#", 1)[0].strip():
                 k -= 1
             prev = split(out[k]) if k >= 0 else None
+            prev_la = prev
             prev2 = None
-            labelled = False
+            after_call_slot = False
+            at_label = False
             if prev:
                 m = k - 1
                 while m >= 0 and not out[m].split("#", 1)[0].strip():
                     m -= 1
                 prev2 = split(out[m]) if m >= 0 else None
-                # a branch target stays where it is (only its second half
-                # can move)
-                labelled = m >= 0 and out[m].split("#", 1)[0].strip().endswith(":")
+                # a branch target stays where it is
+                at_label = m >= 0 and out[m].split("#", 1)[0].strip().endswith(":")
+                # nor does the instruction after a call whose slot GCC
+                # filled (CdRead); after one ASPSX filled itself it moves
+                n = m - 1
+                while n >= 0 and not out[n].split("#", 1)[0].strip():
+                    n -= 1
+                prev3 = split(out[n]) if n >= 0 else None
+                after_call_slot = (
+                    prev3 is not None
+                    and prev3[0] in ("jal", "jalr")
+                    and m != call_slot
+                    and "branch/jump" not in out[m]
+                )
                 # ...but the stack adjustment before `j $31` does move into
                 # its slot, unless the label follows a branch's delay slot
-                if labelled and ins[1] == ["$31"]:
+                if at_label and ins[1] == ["$31"]:
                     code = [x for x in out[:m] if split(x)]
-                    labelled = len(code) < 2 or BRANCHES.match(split(code[-2])[0])
+                    at_label = len(code) < 2 or bool(BRANCHES.match(split(code[-2])[0]))
+                # (a split la or store to a symbol leaves its lui there)
+                if at_label and prev[0] != "la" and not (
+                    STORES.match(prev[0])
+                    and len(prev[1]) == 2
+                    and not re.search(r"\(\$\w+\)$", prev[1][1])
+                ):
+                    prev = None
             sym_store = (
                 prev is not None
                 and STORES.match(prev[0]) is not None
@@ -424,10 +454,30 @@ def main():
                 and len(prev[1]) == 2
                 and re.match(r"^[A-Za-z_][\w.]*([+-]\d+)?\((\$\w+)\)$", prev[1][1])
             )
+            reg_store = (
+                prev is not None
+                and STORES.match(prev[0]) is not None
+                and len(prev[1]) == 2
+                and re.match(r"^-?(0x)?[0-9a-fA-F]*\(\$\w+\)$", prev[1][1])
+            )
+            if ins[0] in CONDBR:
+                # a conditional branch left in reorder mode only takes a store
+                # (a register-based one; GCC's reorg doesn't move volatile
+                # stores), a store to a symbol, or the low half of a `la`
+                idx_store = False
+                if (reg_store and not at_label and not after_call_slot
+                        and not (prev2 and BRANCHES.match(prev2[0]))):
+                    moved = out.pop(k)
+                    out.append(line)
+                    out.append(moved)
+                    i += 2
+                    continue
+                if not sym_store and not (prev_la and prev_la[0] == "la"):
+                    prev = prev_la = None
             movable = (
                 prev is not None
-                and not cond
-                and not labelled
+                and ins[0] not in CONDBR
+                and not at_label
                 and not sym_store
                 and not idx_store
                 and not BRANCHES.match(prev[0])
@@ -437,11 +487,34 @@ def main():
                 and not LOADS.match(prev[0])
                 and not (prev2 and LOADS.match(prev2[0]) and prev2[1][:1] == ["$31"])
                 and not (prev2 and BRANCHES.match(prev2[0]))
+                and not after_call_slot
+                # nor into the slot of a call through a register (func_800669AC)
+                and not (ins[0] == "jal" and ins[1][-1].startswith("$"))
             )
             if movable:
                 moved = out.pop(k)
                 out.append(line)
                 out.append(moved)
+                if ins[0] == "jal":
+                    call_slot = len(out) - 1
+                i += 2
+                continue
+            la_addr = (
+                prev_la is not None
+                and prev_la[0] == "la"
+                and len(prev_la[1]) == 2
+                and "(" not in prev_la[1][1]
+                and not (prev2 and BRANCHES.match(prev2[0]))
+            )
+            if la_addr:
+                # ASPSX expanded `la` itself and put the low half in the slot,
+                # even right after a label
+                reg, sym = prev_la[1]
+                out[k] = f"lui\t{reg},%hi({sym})"
+                out.append(line)
+                out.append(f"addiu\t{reg},{reg},%lo({sym})")
+                if ins[0] == "jal":
+                    call_slot = len(out) - 1
                 i += 2
                 continue
             if idx_store and not (prev2 and BRANCHES.match(prev2[0])):
@@ -451,6 +524,8 @@ def main():
                 out[k] = f".set\tnoat\nlui\t$at,%hi({sym})\naddu\t$at,$at,{base}"
                 out.append(line)
                 out.append(f"{prev[0]}\t{reg},%lo({sym})($at)\n.set\tat")
+                if ins[0] == "jal":
+                    call_slot = len(out) - 1
                 i += 2
                 continue
             if sym_store and not (prev2 and BRANCHES.match(prev2[0])):
@@ -459,21 +534,24 @@ def main():
                 out[k] = f".set\tnoat\nlui\t$at,%hi({sym})"
                 out.append(line)
                 out.append(f"{prev[0]}\t{reg},%lo({sym})($at)\n.set\tat")
+                if ins[0] == "jal":
+                    call_slot = len(out) - 1
                 i += 2
                 continue
             if (
                 prev is not None
                 and prev[0] == "la"
                 and prev[1][0] != "$31"
-                and not (cond and prev[1][0] in ins[1])
                 and not (prev2 and BRANCHES.match(prev2[0]))
             ):
-                # ASPSX expands la and moves its second half into the slot
-                # (of a conditional branch too, when it doesn't test that reg)
+                # ASPSX expands la and moves its second half into the slot,
+                # even when the la is a branch target: its lui stays there
                 reg, sym = prev[1]
                 out[k] = f"lui\t{reg},%hi({sym})"
                 out.append(line)
                 out.append(f"addiu\t{reg},{reg},%lo({sym})")
+                if ins[0] == "jal":
+                    call_slot = len(out) - 1
                 i += 2
                 continue
         out.append(line)

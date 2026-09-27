@@ -7,6 +7,8 @@ long SetIntrMask(long mask);
 void func_80027FD0(u_char *dst, int value, int n);
 void func_800264B8(DR_ENV *p, DRAWENV *env);
 u_long func_80026728(int dfe, int dtd, int tpage);
+u_long func_80026748(short x, short y);
+u_long func_800267E0(short x, short y);
 u_long func_80026894(RECT *tw);
 void func_80027978(void);
 int func_800279AC(void);
@@ -18,7 +20,7 @@ void func_80027154(u_long addr);
 extern u_long *D_800557B8;
 extern u_long *D_800557BC;
 extern u_long *D_800557C0;
-extern u_long *D_800557C4;
+extern volatile u_long *D_800557C4;
 extern volatile long D_800557C8; /* command queue write index */
 extern volatile long D_800557CC; /* command queue read index */
 extern long D_800557D8; /* interrupt mask saved by the reset */
@@ -39,9 +41,45 @@ extern u_long D_8007F170[]; /* drawing-area restore packet */
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_8001030C);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", ResetGraph);
+extern u_long D_80055658[];
+extern short D_80055720[3][2];
+extern short D_8005572C[3][2];
+void func_80027FF8(u_long);
+int func_80027700(int mode);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", SetGraphDebug);
+int ResetGraph(int mode) {
+    switch (mode & 7) {
+    case 0:
+    case 3:
+        printf("ResetGraph:jtb=%08x,env=%08x\n", D_80055658, &D_800556A0);
+    case 5:
+        func_80027FD0((u_char *)&D_800556A0, 0, sizeof(GpuDebug));
+        ResetCallback();
+        func_80027FF8((u_long)D_80055698 & 0xFFFFFF);
+        D_800556A0.type = func_80027700(mode);
+        D_800556A0.unk1 = 1;
+        D_800556A0.w = D_80055720[D_800556A0.type][0];
+        D_800556A0.h = D_8005572C[D_800556A0.type][0];
+        func_80027FD0((u_char *)&D_800556A0.draw, -1, sizeof(DRAWENV));
+        func_80027FD0((u_char *)&D_800556A0.disp, -1, sizeof(DISPENV));
+        return D_800556A0.type;
+    }
+    if (D_800556A0.level >= 2) {
+        D_8005569C("ResetGraph(%d)...\n", mode);
+    }
+    return D_80055698->unk34(1);
+}
+
+int SetGraphDebug(int level) {
+    int old = D_800556A0.level;
+
+    D_800556A0.level = level;
+    if (D_800556A0.level) {
+        D_8005569C("SetGraphDebug:level:%d,type:%d reverse:%d\n", D_800556A0.level, D_800556A0.type,
+                   D_800556A0.reverse);
+    }
+    return old;
+}
 
 int SetGraphQueue(int mode) {
     u_char old = D_800556A0.unk1;
@@ -89,7 +127,22 @@ int DrawSync(int mode) {
     return D_80055698->sync(mode);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800254DC);
+void func_800254DC(char *name, RECT *rect) {
+    switch (D_800556A0.level) {
+    case 1:
+        if (rect->w > D_800556A0.w || rect->w + rect->x > D_800556A0.w ||
+            rect->y > D_800556A0.h || rect->y + rect->h > D_800556A0.h ||
+            rect->w <= 0 || rect->x < 0 || rect->y < 0 || rect->h <= 0) {
+            D_8005569C("%s:bad RECT", name);
+            D_8005569C("(%d,%d)-(%d,%d)\n", rect->x, rect->y, rect->w, rect->h);
+        }
+        break;
+    case 2:
+        D_8005569C("%s:", name);
+        D_8005569C("(%d,%d)-(%d,%d)\n", rect->x, rect->y, rect->w, rect->h);
+        break;
+    }
+}
 
 int ClearImage(RECT *rect, u_char r, u_char g, u_char b) {
     func_800254DC("ClearImage", rect);
@@ -198,7 +251,102 @@ DRAWENV *GetDrawEnv(DRAWENV *env) {
     return env;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", PutDispEnv);
+typedef struct HRange {
+    u_short start;
+    u_short end;
+} HRange;
+
+extern u_char D_8005579C[5];      /* horizontal clock ticks per pixel, per mode */
+extern HRange D_80055774[2][5];   /* horizontal display range [pal][mode] */
+
+#define LIMIT(x, lo, hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
+
+DISPENV *PutDispEnv(DISPENV *env) {
+    long mode;
+    long hs, he, vs, ve;
+    int idx;
+    long d;
+
+    mode = 0x08000000;
+    if (D_800556A0.level >= 2) {
+        D_8005569C("PutDispEnv(%08x)...\n", env);
+    }
+    D_80055698->ctrl(0x05000000 | ((env->disp.y & 0x3FF) << 10) | (env->disp.x & 0x3FF));
+    if (*(long *)&D_800556A0.disp.isinter != *(long *)&env->isinter ||
+        ((volatile RECT *)&D_800556A0.disp.disp)->x != env->disp.x || ((volatile RECT *)&D_800556A0.disp.disp)->y != env->disp.y ||
+        ((volatile RECT *)&D_800556A0.disp.disp)->w != env->disp.w || ((volatile RECT *)&D_800556A0.disp.disp)->h != env->disp.h) {
+        env->pad0 = GetVideoMode();
+        if (env->pad0 == 1) {
+            mode |= 0x08;
+        }
+        if (env->isrgb24) {
+            mode |= 0x10;
+        }
+        if (env->isinter) {
+            mode |= 0x20;
+        }
+        if (D_800556A0.reverse) {
+            mode |= 0x80;
+        }
+        if (env->disp.w > 280) {
+            if (env->disp.w <= 352) {
+                mode |= 1;
+            } else if (env->disp.w <= 400) {
+                mode |= 0x40;
+            } else if (env->disp.w <= 560) {
+                mode |= 2;
+            } else {
+                mode |= 3;
+            }
+        }
+        {
+            int h = env->disp.h;
+            int fit = env->pad0 ? h < 289 : h < 257;
+
+            if (!fit) {
+                mode |= 0x24;
+            }
+        }
+        D_80055698->ctrl(mode);
+        env->pad0 = 8;
+    }
+    if (((volatile RECT *)&D_800556A0.disp.screen)->x != env->screen.x || ((volatile RECT *)&D_800556A0.disp.screen)->y != env->screen.y ||
+        ((volatile RECT *)&D_800556A0.disp.screen)->w != env->screen.w || ((volatile RECT *)&D_800556A0.disp.screen)->h != env->screen.h ||
+        env->pad0 == 8) {
+        env->pad0 = GetVideoMode();
+        vs = env->screen.y + (env->pad0 ? 0x13 : 0x10);
+        ve = vs + (env->screen.h ? env->screen.h : 240);
+        if (env->disp.w <= 280) {
+            idx = 0;
+        } else if (env->disp.w <= 352) {
+            idx = 1;
+        } else if (env->disp.w <= 400) {
+            idx = 2;
+        } else if (env->disp.w <= 560) {
+            idx = 3;
+        } else {
+            idx = 4;
+        }
+        hs = D_80055774[env->pad0][idx].start + env->screen.x * D_8005579C[idx];
+        d = D_80055774[env->pad0][idx].end - D_80055774[env->pad0][idx].start;
+        he = hs + (env->screen.w ? d * env->screen.w >> 8 : d);
+        if (env->pad0) {
+            hs = LIMIT(hs, 0x21C, 0xC94);
+            he = LIMIT(he, hs + D_8005579C[idx] * 4, 0xCBC);
+            vs = LIMIT(vs, 0x13, 0x12F);
+            ve = LIMIT(ve, vs + 2, 0x131);
+        } else {
+            hs = LIMIT(hs, 0x1F4, 0xCB2);
+            he = LIMIT(he, hs + D_8005579C[idx] * 4, 0xCDA);
+            vs = LIMIT(vs, 0x10, 0x101);
+            ve = LIMIT(ve, vs + 2, 0x102);
+        }
+        D_80055698->ctrl(0x06000000 | ((he & 0xFFF) << 12) | (hs & 0xFFF));
+        D_80055698->ctrl(0x07000000 | ((ve & 0x3FF) << 10) | (vs & 0x3FF));
+    }
+    memcpy((u_char *)&D_800556A0.disp, (u_char *)env, sizeof(DISPENV));
+    return env;
+}
 
 DISPENV *GetDispEnv(DISPENV *env) {
     memcpy((u_char *)env, (u_char *)&D_8005570C, sizeof(DISPENV));
@@ -287,9 +435,19 @@ u_long func_80026728(int dfe, int dtd, int tpage) {
     return (dtd ? 0xE1000200 : 0xE1000000) | (dfe ? 0x400 : 0) | (tpage & 0x9FF);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026748);
+#define CLAMP(x, lo, hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800267E0);
+u_long func_80026748(short x, short y) {
+    x = CLAMP(x, 0, D_800556A0.w - 1);
+    y = CLAMP(y, 0, D_800556A0.h - 1);
+    return 0xE3000000 | ((y & 0x3FF) << 10) | (x & 0x3FF);
+}
+
+u_long func_800267E0(short x, short y) {
+    x = CLAMP(x, 0, D_800556A0.w - 1);
+    y = CLAMP(y, 0, D_800556A0.h - 1);
+    return 0xE4000000 | ((y & 0x3FF) << 10) | (x & 0x3FF);
+}
 
 u_long func_80026878(short x, short y) {
     return 0xE5000000 | ((y & 0x7FF) << 11) | (x & 0x7FF);
@@ -359,9 +517,85 @@ int func_80026A0C(RECT *rect, u_long color) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026C3C);
+#define LIMIT(x, lo, hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80026E78);
+int func_80026C3C(RECT *rect, u_long *p) {
+    int size;
+    int blocks;
+    int n;
+    int stp = 0;
+
+    func_80027978();
+    rect->w = LIMIT(rect->w, 0, D_800556A0.w);
+    rect->h = LIMIT(rect->h, 0, D_800556A0.h);
+    size = (rect->w * rect->h + 1) / 2;
+    if (size <= 0) {
+        return -1;
+    }
+    n = size % 16;
+    blocks = size / 16;
+    while (!(*D_800557A8 & 0x4000000)) {
+        if (func_800279AC()) {
+            return -1;
+        }
+    }
+    *D_800557A8 = 0x4000000;
+    *D_800557A4 = 0x1000000;
+    *D_800557A4 = stp ? 0xB0000000 : 0xA0000000;
+    *D_800557A4 = *(u_long *)&rect->x;
+    *D_800557A4 = *(u_long *)&rect->w;
+    while (n--) {
+        *D_800557A4 = *p++;
+    }
+    if (blocks) {
+        *D_800557A8 = 0x4000002;
+        *D_800557AC = (u_long)p;
+        *D_800557B0 = (blocks << 16) | 0x10;
+        *D_800557B4 = 0x1000201;
+    }
+    return 0;
+}
+
+int func_80026E78(RECT *rect, u_long *p) {
+    int size;
+    int blocks;
+    int n;
+
+    func_80027978();
+    rect->w = LIMIT(rect->w, 0, D_800556A0.w);
+    rect->h = LIMIT(rect->h, 0, D_800556A0.h);
+    size = (rect->w * rect->h + 1) / 2;
+    if (size <= 0) {
+        return -1;
+    }
+    n = size % 16;
+    blocks = size / 16;
+    while (!(*D_800557A8 & 0x4000000)) {
+        if (func_800279AC()) {
+            return -1;
+        }
+    }
+    *D_800557A8 = 0x4000000;
+    *D_800557A4 = 0x1000000;
+    *D_800557A4 = 0xC0000000;
+    *D_800557A4 = *(u_long *)&rect->x;
+    *D_800557A4 = *(u_long *)&rect->w;
+    while (!(*D_800557A8 & 0x8000000)) {
+        if (func_800279AC()) {
+            return -1;
+        }
+    }
+    while (n--) {
+        *p++ = *D_800557A4;
+    }
+    if (blocks) {
+        *D_800557A8 = 0x4000003;
+        *D_800557AC = (u_long)p;
+        *D_800557B0 = (blocks << 16) | 0x10;
+        *D_800557B4 = 0x1000200;
+    }
+    return 0;
+}
 
 void func_800270F8(u_long value) {
     *D_800557A8 = value;
@@ -439,9 +673,32 @@ int func_800271F0(int (*func)(), u_long *param, int size, u_long value) {
     return (D_800557C8 - D_800557CC) & 0x3F;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800274A0);
+extern long D_800557D4;
 
-int func_80027700(int mode) {
+int func_800274A0(void) {
+    if (*D_800557B4 & 0x1000000) {
+        return 1;
+    }
+    D_800557D4 = SetIntrMask(0);
+    while (D_800557C8 != D_800557CC && !(*D_800557B4 & 0x1000000)) {
+        if (((D_800557CC + 1) & 0x3F) == D_800557C8 && D_800556A0.drawSyncCallback == NULL) {
+            DMACallback(2, NULL);
+        }
+        while (!(*D_800557A8 & 0x4000000)) {
+        }
+        D_8007F198[D_800557CC].func(D_8007F198[D_800557CC].param, D_8007F198[D_800557CC].value);
+        D_800557CC = (D_800557CC + 1) & 0x3F;
+    }
+    SetIntrMask(D_800557D4);
+    if (D_800557C8 == D_800557CC && !(*D_800557B4 & 0x1000000) && D_800556A0.unk8 &&
+        D_800556A0.drawSyncCallback != NULL) {
+        D_800556A0.unk8 = 0;
+        D_800556A0.drawSyncCallback();
+    }
+    return (D_800557C8 - D_800557CC) & 0x3F;
+}
+
+inline int func_80027700(int mode) {
     D_800557D8 = SetIntrMask(0);
     D_800557C8 = D_800557CC = 0;
     switch (mode & 7) {
@@ -490,9 +747,9 @@ int func_8002783C(int mode) {
     if (n != 0) {
         func_800274A0();
     }
-    if (((*(volatile u_long *)D_800557B4 & 0x01000000) ||
-         !(*(volatile u_long *)D_800557A8 & 0x04000000)) && n == 0) {
-        return 1;
+    if ((*(volatile u_long *)D_800557B4 & 0x01000000) ||
+        !(*(volatile u_long *)D_800557A8 & 0x04000000)) {
+        return n ? n : 1;
     }
     return n;
 }
@@ -502,7 +759,17 @@ inline void func_80027978(void) {
     D_800557E0 = 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800279AC);
+int func_800279AC(void) {
+    if (D_800557DC < VSync(-1) || D_800557E0++ > 0xF0000) {
+        *(volatile u_long *)D_800557A8;
+        printf("GPU timeout:que=%d,stat=%08x,chcr=%08x,madr=%08x\n",
+               (D_800557C8 - D_800557CC) & 0x3F, *(volatile u_long *)D_800557A8,
+               *(volatile u_long *)D_800557B4, *(volatile u_long *)D_800557AC);
+        func_80027700(1);
+        return -1;
+    }
+    return 0;
+}
 
 int func_80027AF0(int mode) {
     *D_800557A8 = 0x10000007;

@@ -63,7 +63,42 @@ u_short SetIntrMask(u_short mask) {
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002E7BC);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002E894);
+extern long D_8005B790;
+void func_8002ED08(void);
+
+void func_8002E894(void) {
+    int i;
+    u_short mask;
+    short pending;
+
+    if (D_8005A6F8.initialized == 0) {
+        printf("unexpected interrupt(%04x)\n", *D_8005B784);
+        func_8002ED08();
+    }
+    D_8005A6F8.inInterrupt = 1;
+    while ((mask = D_8005A6F8.enabledMask & *D_8005B784 & *D_8005B788) != 0) {
+        for (i = 0; mask != 0 && i < 11; i++, mask >>= 1) {
+            if (mask & 1) {
+                *D_8005B784 = ~(1 << i);
+                if (D_8005A6F8.handlers[i] != NULL) {
+                    D_8005A6F8.handlers[i]();
+                }
+            }
+        }
+    }
+    pending = *D_8005B784 & *D_8005B788;
+    if (pending) {
+        if (D_8005B790++ > 0x800) {
+            printf("intr timeout(%04x:%04x)\n", *D_8005B784, *D_8005B788);
+            D_8005B790 = 0;
+            *D_8005B784 = 0;
+        }
+    } else {
+        D_8005B790 = 0;
+    }
+    D_8005A6F8.inInterrupt = 0;
+    func_8002ED08();
+}
 
 void *func_8002EA64(int irq, void (*func)()) {
     void (*old)() = D_8005A6F8.handlers[irq];
@@ -138,5 +173,8 @@ void func_8002ECC4(long *p, int n) {
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002ECE8);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", _96_remove);
+
+/* ASPSX padded the string table of the object as well */
+__asm__(".section .rodata\n\t.align 2\n\t.space 4\n");
 
 OBJECT_END();

@@ -18,7 +18,7 @@ typedef struct GpuDriver {
     /* 0x04 */ void *unk4;
     /* 0x08 */ int (*addque)(void *func, void *param, int size, long arg);
     /* 0x0C */ void *unkC;
-    /* 0x10 */ void (*ctrl)(u_long cmd);
+    /* 0x10 */ int (*ctrl)(u_long cmd);
     /* 0x14 */ int (*unk14)(u_long *p, int len);
     /* 0x18 */ int (*exeque)(u_long *p); /* runs an OT / packet */
     /* 0x1C */ int (*storeImage)(RECT *rect, u_long *p);
@@ -66,6 +66,15 @@ typedef struct VmVoice {
     /* 0x36 */ short unk36;
 } VmVoice;
 extern VmVoice D_800815D0[];
+
+/* actuator info table entry (PadPort.unk4 points to an array of them) */
+typedef struct PadActInfo {
+    /* 0x0 */ u_char unk0;
+    /* 0x1 */ u_char unk1;
+    /* 0x2 */ u_char unk2;
+    /* 0x3 */ u_char power;
+    /* 0x4 */ u_char unk4;
+} PadActInfo;
 
 /* libpad per-port command state */
 typedef struct PadPort {
@@ -270,16 +279,16 @@ typedef struct GpuDebug {
     /* 0x3 */ u_char reverse;
     /* 0x4 */ short w;
     /* 0x6 */ short h;
-    /* 0x8 */ long unk8;
+    /* 0x8 */ volatile long unk8;
     /* 0x0C */ void (*drawSyncCallback)();
     /* 0x10 */ DRAWENV draw; /* also reached as D_800556B0 */
     /* 0x6C */ DISPENV disp; /* also reached as D_8005570C */
 } GpuDebug;
 extern GpuDebug D_800556A0;
-extern u_long *D_800557A8;
-extern u_long *D_800557AC;
-extern u_long *D_800557B0;
-extern u_long *D_800557B4;
+extern volatile u_long *D_800557A8;
+extern volatile u_long *D_800557AC;
+extern volatile u_long *D_800557B0;
+extern volatile u_long *D_800557B4;
 extern u_short D_8005A6FA;
 extern volatile u_short *D_8005B788;
 extern long D_8005B800;
@@ -324,7 +333,7 @@ void func_80024CE8(long fd);
 int CD_init(void);
 int CD_initvol(void);
 int func_80037AF0(int arg0, int arg1);
-short _SsVabOpenHeadWithMode(unsigned char *addr, short vabId, int (*func)(int, int), unsigned long sbaddr);
+short _SsVabOpenHeadWithMode(unsigned char *addr, short vabId, int (*alloc)(), unsigned long sbaddr);
 void SysDeqIntRP(int, u_char *);
 void ChangeClearRCnt(int, int);
 void func_8002B018(void);
@@ -333,18 +342,18 @@ void func_8002EE10();
 void *func_8002EE7C();
 void func_8002EEA8(long *p, int n);
 void func_8002EF24();
-void func_8002F0A4();
+void (*func_8002F0A4(int index, void (*callback)(void)))(void);
 void func_8002F150(long *p, int n);
 void func_8002FFF8(short);
 void func_80032B98(int);
 void func_80037FD8(void);
 void func_8003B1C8(void);
-void func_800274A0();
+int func_800274A0();
 
 extern IntrFuncs *D_8005B780;
 extern void (*D_8005551C)(PadPort *p);
 extern u_char D_80055578[];
-extern u_long *D_800557A4;
+extern volatile u_long *D_800557A4;
 extern long D_800557DC;
 extern long D_800557E0;
 extern long D_800557F4;
@@ -381,7 +390,7 @@ extern long D_8008217C;
 extern long D_80082180;
 extern long D_80082184;
 
-int func_800254DC(char *name, RECT *rect);
+void func_800254DC(char *name, RECT *rect);
 int func_8003B444(void);
 void func_8003B568(char *bufA, long lenA, char *bufB, long lenB);
 void func_8003B588(char *bufA, long lenA, char *bufB, long lenB);
@@ -419,7 +428,7 @@ long _SsReadDeltaValue(short seq, short sep);
 long _SsVmVSetUp(short vab, short prog);
 /* libsnd's current voice state */
 typedef struct SvmCur {
-    /* 0x00 */ u8 unk0;
+    /* 0x00 */ char tones;
     /* 0x01 */ char vabId;
     /* 0x02 */ char note;
     /* 0x03 */ u8 unk3;
@@ -434,7 +443,7 @@ typedef struct SvmCur {
     /* 0x0D */ char toneVol;
     /* 0x0E */ char tonePan;
     /* 0x0F */ char priority;
-    /* 0x10 */ u_char center;
+    /* 0x10 */ char center;
     /* 0x11 */ u_char shift;
     /* 0x12 */ char mode;
     /* 0x13 */ u8 unk13;

@@ -27,11 +27,11 @@ void UserFuncInit(void);
 void _card_start(void);
 long _card_format2(long chan);
 
-void PushCallbackFunc(void) {
+inline void PushCallbackFunc(void) {
     D_800820C0 = MemCardCallback(NULL);
 }
 
-void PullCallbackFunc(void) {
+inline void PullCallbackFunc(void) {
     MemCardCallback(D_800820C0);
 }
 
@@ -82,7 +82,7 @@ INCLUDE_RODATA("asm/main/nonmatchings/psyq/libmcrd_libmcrd", D_80010C9C);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003BAEC);
 
-long MemCardAccept(long chan) {
+inline long MemCardAccept(long chan) {
     if (D_80082068.unk0 > 0) {
         printf(D_80010C9C);
         return 0;
@@ -133,7 +133,64 @@ long MemCardReadData(u_long *adrs, long ofs, long bytes) {
     return 1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003C39C);
+extern long D_8005C2D0;
+long func_8003D248(long a, long b, long c);
+long func_80024CC8(long fd, long a, long b);
+long _chk_card_event(void);
+long _get_card_event(void);
+long _chk_card_event_x(void);
+long _get_card_event_x(void);
+void _clr_card_event(void);
+
+long func_8003C39C(UserFuncArg *arg) {
+    long ev;
+
+    switch (arg->data[0]) {
+    case 0:
+        D_8005C2D0 = 0;
+        arg->data[0] = 10;
+        UserFuncOpen(func_8003BAEC);
+        return 0;
+    case 10:
+        if (D_80082068.unk4 != 0) {
+            return 1;
+        }
+        while (func_8003D248(D_80082068.fd, D_80082068.unk18, 0) != D_80082068.unk18) {
+        }
+        _clr_card_event();
+        while (func_80024CC8(D_80082068.fd, D_80082068.unk20, D_80082068.unk1C) != 0) {
+        }
+        arg->data[0] = 30;
+        break;
+    case 30:
+        if (_chk_card_event() == 0) {
+            return 0;
+        }
+        ev = _get_card_event();
+        if (ev != 0) {
+            if (++D_8005C2D0 < 4) {
+                arg->data[0] = 10;
+                break;
+            }
+            if (ev == 4) {
+                _clr_card_event();
+                _card_clear(D_80082068.unk10);
+                arg->data[0] = 32;
+                break;
+            }
+        }
+        ((volatile McrdGlobal *)&D_80082068)->unk4 = func_8003D0EC(ev);
+        return 1;
+    case 32:
+        if (_chk_card_event_x() == 0) {
+            return 0;
+        }
+        _get_card_event_x();
+        arg->data[0] = 0;
+        break;
+    }
+    return 0;
+}
 
 long MemCardWriteData(u_long *adrs, long ofs, long bytes) {
     if (D_80082068.fd < 0) {
@@ -162,7 +219,57 @@ long MemCardWriteData(u_long *adrs, long ofs, long bytes) {
     return 1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003C604);
+extern long D_8005C2D4;
+
+long func_8003C604(UserFuncArg *arg) {
+    long ev;
+
+    switch (arg->data[0]) {
+    case 0:
+        D_8005C2D4 = 0;
+        UserFuncOpen(func_8003BAEC);
+        arg->data[0] = 10;
+        break;
+    case 10:
+        if (D_80082068.unk4 != 0) {
+            return 1;
+        }
+        while (func_8003D248(D_80082068.fd, D_80082068.unk18, 0) != D_80082068.unk18) {
+        }
+        _clr_card_event();
+        while (write(D_80082068.fd, D_80082068.unk20, D_80082068.unk1C) != 0) {
+        }
+        arg->data[0] = 30;
+        break;
+    case 30:
+        if (_chk_card_event() == 0) {
+            return 0;
+        }
+        ev = _get_card_event();
+        if (ev != 0) {
+            if (++D_8005C2D4 < 4) {
+                arg->data[0] = 10;
+                break;
+            }
+            if (ev == 4) {
+                _clr_card_event();
+                _card_clear(D_80082068.unk10);
+                arg->data[0] = 32;
+                break;
+            }
+        }
+        ((volatile McrdGlobal *)&D_80082068)->unk4 = func_8003D0EC(ev);
+        return 1;
+    case 32:
+        if (_chk_card_event_x() == 0) {
+            return 0;
+        }
+        _get_card_event_x();
+        arg->data[0] = 0;
+        break;
+    }
+    return 0;
+}
 
 long MemCardReadFile(long chan, char *file, u_long *adrs, long ofs, long bytes) {
     volatile long *busy = &D_80082068.unk0;
@@ -196,7 +303,36 @@ long MemCardReadFile(long chan, char *file, u_long *adrs, long ofs, long bytes) 
     return 1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003C8C8);
+extern long D_8005C2D8;
+long func_80024CB8(char *name, long mode);
+
+long func_8003C8C8(UserFuncArg *arg) {
+    switch (arg->data[0]) {
+    case 0:
+        D_8005C2D8 = 0;
+        UserFuncOpen(func_8003BAEC);
+        arg->data[0] = 10;
+        break;
+    case 10:
+        if (D_80082068.unk4 != 0) {
+            return 1;
+        }
+        D_80082068.fd = func_80024CB8((char *)D_80082068.unk24, 0x8001);
+        if (D_80082068.fd < 0) {
+            ((volatile McrdGlobal *)&D_80082068)->unk4 = 5;
+            return 1;
+        }
+    case 11:
+        arg->data[0] = 20;
+        UserFuncOpen(func_8003C39C);
+        return 0;
+    case 20:
+        func_80024CE8(D_80082068.fd);
+        D_80082068.fd = -1;
+        return 1;
+    }
+    return 0;
+}
 
 long MemCardWriteFile(long chan, char *file, u_long *adrs, long ofs, long bytes) {
     volatile long *busy = &D_80082068.unk0;
@@ -230,9 +366,108 @@ long MemCardWriteFile(long chan, char *file, u_long *adrs, long ofs, long bytes)
     return 1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003CAE8);
+extern long D_8005C2DC;
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardGetDirentry);
+long func_8003CAE8(UserFuncArg *arg) {
+    switch (arg->data[0]) {
+    case 0:
+        D_8005C2DC = 0;
+        UserFuncOpen(func_8003BAEC);
+        arg->data[0] = 10;
+        break;
+    case 10:
+        if (D_80082068.unk4 != 0) {
+            return 1;
+        }
+        D_80082068.fd = func_80024CB8((char *)D_80082068.unk24, 0x8001);
+        if (D_80082068.fd < 0) {
+            ((volatile McrdGlobal *)&D_80082068)->unk4 = 5;
+            return 1;
+        }
+    case 11:
+        arg->data[0] = 20;
+        UserFuncOpen(func_8003C604);
+        return 0;
+    case 20:
+        func_80024CE8(D_80082068.fd);
+        D_80082068.fd = -1;
+        return 1;
+    }
+    return 0;
+}
+
+extern long D_80082078;
+struct DIRENTRY *firstfile(char *name, struct DIRENTRY *dir);
+struct DIRENTRY *func_8003D258(struct DIRENTRY *dir); /* nextfile */
+
+long MemCardGetDirentry(long chan, char *name, struct DIRENTRY *dir, long *files, long ofs, long max) {
+    char key[32];
+    struct DIRENTRY d;
+    long ret;
+    long i;
+    long retry;
+    long n;
+    struct DIRENTRY *p;
+    volatile long *busy = &D_80082068.unk0;
+
+    if (*busy != 0) {
+        printf(D_80010E40);
+        return -1;
+    }
+    func_8003D1EC(chan, key);
+    strcat(key, name);
+    retry = 0;
+    i = 0;
+    ret = 0;
+    D_80082068.unkC |= 1 << chan;
+    for (n = 0; i < ofs + max; i++) {
+        if (i == 0) {
+            for (;;) {
+                _clr_card_event();
+                p = firstfile(key, &d);
+                if (p != NULL) {
+                    break;
+                }
+                ret = func_8003D0EC(_get_card_event_x());
+                if (ret == 0) {
+                    break;
+                }
+                if (++retry >= 4) {
+                    PushCallbackFunc();
+                    if (D_80082068.unk0 > 0) {
+                        printf(D_80010C9C);
+                    } else {
+                        D_80082068.unk0 = 2;
+                        D_80082068.unk4 = 0;
+                        D_80082068.unk8 = 0;
+                        D_80082078 = chan;
+                        UserFuncOpen(func_8003BE70);
+                    }
+                    MemCardSync(0, 0, &ret);
+                    PullCallbackFunc();
+                    return ret;
+                }
+            }
+        } else {
+            p = func_8003D258(&d);
+        }
+        if (p == NULL) {
+            break;
+        }
+        if (i >= ofs && dir != NULL) {
+            dir[n] = d;
+            n++;
+        }
+    }
+    if (files != NULL) {
+        *files = n;
+    }
+    return 0;
+}
+/* needs RERUN=1 (libmcrd_libmcrd in PSYQ_RERUN_CSE), extern long D_80082078 (unk10 as a separate
+   symbol inside the inlined MemCardAccept body), patch_cc1 #5 (spill slots). 20 diffs left: our reorg
+   puts `move s7,a2` (prologue param copy) into the first beqz slot; the ROM leaves it and takes
+   `addu a0,s6` from the branch target. */
 
 MemCB MemCardCallback(MemCB func) {
     MemCB old = D_80082068.callback;
@@ -243,7 +478,41 @@ MemCB MemCardCallback(MemCB func) {
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardSync);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardCreateFile);
+long _card_create2(long chan, char *file, long blocks);
+
+long MemCardCreateFile(long chan, char *file, long blocks) {
+    volatile long *busy = &D_80082068.unk0;
+    char name[32];
+    long ret;
+
+    if (*busy != 0) {
+        printf(D_80010E40);
+        return -1;
+    }
+    func_8003D1EC(chan, name);
+    strcat(name, file);
+    D_80082068.unkC |= 1 << chan;
+    for (;;) {
+        ret = _card_create2(chan, file, blocks);
+        if (ret == 0) {
+            break;
+        }
+        if (ret == -1) {
+            return 7;
+        }
+        if (ret == -2) {
+            return 4;
+        }
+        if (ret == -3) {
+            return 6;
+        }
+        if (ret == 4) {
+            return 2;
+        }
+        return func_8003D0EC(ret);
+    }
+    return 0;
+}
 
 long MemCardFormat(long chan) {
     volatile long *busy = &D_80082068.unk0;
@@ -286,7 +555,36 @@ long func_8003D0EC(long event) {
     return ret;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003D140);
+extern volatile long D_80082058[2]; /* last command and result, passed to the callback */
+void UserFuncExecute(void);
+long UserFuncComplete(void);
+
+void func_8003D140(void) {
+    MemCB cb;
+
+    if (UserFuncComplete() == 0) {
+        UserFuncExecute();
+        if (UserFuncComplete() != 0) {
+            volatile McrdGlobal *g = &D_80082068;
+
+            g->unk8 = 1;
+            D_80082058[0] = g->unk0;
+            D_80082058[1] = g->unk4;
+            cb = D_80082068.callback;
+            g->unk0 = 0;
+            g->unk4 = 0;
+            if (cb != NULL) {
+                cb(D_80082058[0], D_80082058[1]);
+            }
+        }
+    }
+    {
+        volatile McrdGlobal *g = &D_80082068;
+
+        g->unk50 = g->unk50 + 1;
+        g->unk54 = g->unk54 + 1;
+    }
+}
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libmcrd_libmcrd", D_80010D98);
 

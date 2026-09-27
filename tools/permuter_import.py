@@ -6,7 +6,7 @@ usage: tools/permuter_import.py draft.c func_name
 draft.c must compile on its own (the unit's header plus the draft of the
 function). The unit is taken from where the function's asm lives, which
 picks the toolchain: GCC 2.7.2 + aspsx_reorder.py for PsyQ (RERUN=1 for the
-objects in PSYQ_RERUN_CSE), GCC 2.8.1 for the game (-G8 for gfx and system). The result goes to permuter/<func_name>/; run it with
+objects in PSYQ_RERUN_CSE, GCC28=1 for those in PSYQ_GCC28), GCC 2.8.1 for the game (-G8 for gfx and system). The result goes to permuter/<func_name>/; run it with
 
     python3 external/decomp-permuter/permuter.py permuter/<func_name> -j8
 """
@@ -32,7 +32,7 @@ def main():
     asm = asm[0]
     unit = os.path.relpath(asm, f"{ROOT}/asm/main/nonmatchings").split("/")[0]
 
-    extra, div, fl = "", "", "-msoft-float"
+    extra, div, fl, pre = "", "", "-msoft-float", ""
     if unit == "psyq":
         div = " --expand-div"
         sys.path.insert(0, f"{ROOT}/tools")
@@ -41,7 +41,15 @@ def main():
         fl = "-mhard-float"  # FLOAT_ABI in the Makefile
         cc1, g, post = patch_cc1.ensure(), 0, f"| python3 {ROOT}/tools/aspsx_reorder.py"
         # PSYQ_RERUN_CSE in the Makefile
-        if not os.environ.get("RERUN"):
+        if os.environ.get("GCC28"):  # PSYQ_GCC28 in the Makefile
+            cc1 = f"{ROOT}/build/cc1-2.8.1-sn"
+            stock = f"{ROOT}/bin/gcc-2.8.1-psx/cc1"
+            if (not os.path.exists(cc1) or os.path.getmtime(cc1) < max(
+                    os.path.getmtime(stock), os.path.getmtime(f"{ROOT}/tools/sn_cc1.py"))):
+                subprocess.run([sys.executable, f"{ROOT}/tools/sn_cc1.py", stock, cc1], check=True)
+            extra = " -mno-split-addresses"
+            pre = f"python3 {ROOT}/tools/unfill_epilogue.py < \"$T.s\" | "
+        elif not os.environ.get("RERUN"):
             extra = " -fno-rerun-cse-after-loop"
     else:
         cc1, g, post = f"{ROOT}/bin/gcc-2.8.1-psx/cc1", 8 if unit in ("gfx", "system") else 0, ""
@@ -72,8 +80,8 @@ set -e
 IN="$1"; OUT="$3"; T="$OUT.tmp"
 {cc1} -quiet -O2 -G{g} -mips1 -mcpu=3000 -mgas {fl} \\
     -fsigned-char -fno-builtin -fdollars-in-identifiers -w{extra} -o "$T.s" "$IN"
-python3 {ROOT}/external/maspsx/maspsx.py --aspsx-version=2.86 -G{g} \\
-    --use-comm-section --use-comm-for-lcomm{div} < "$T.s" {post} > "$T.ms.s"
+{pre or "cat \"$T.s\" | "}python3 {ROOT}/external/maspsx/maspsx.py --aspsx-version=2.86 -G{g} \\
+    --use-comm-section --use-comm-for-lcomm{div} {post} > "$T.ms.s"
 mipsel-linux-gnu-as -EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 \\
     -I{ROOT}/include -o "$OUT" "$T.ms.s"
 rm -f "$T.s" "$T.ms.s"

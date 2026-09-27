@@ -1,9 +1,38 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_ssvol", _SsSndSetVol);
+void _SsVmSetSeqVol(short seq_sep, u_short voll, u_short volr, int flag);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_ssvol", SsSeqSetVol);
+void _SsSndSetVol(short sep, short seq, u_short voll, u_short volr) {
+    SeqStruct *score = *(D_80080D38 + sep) + seq;
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_ssvol", SsSepSetVol);
+    if (score->flags != 1) {
+        score->voll = voll;
+        score->volr = volr;
+    } else {
+        _SsVmSetSeqVol(sep | (seq << 8), voll, volr, 1);
+    }
+}
+
+void SsSeqSetVol(short sep, short voll, short volr) {
+    SeqStruct *score = *(D_80080D38 + sep);
+
+    if (score->flags != 1) {
+        score->voll = voll;
+        score->volr = volr;
+    } else {
+        _SsVmSetSeqVol(sep, voll, volr, 1);
+    }
+}
+
+void SsSepSetVol(short sep, short seq, short voll, short volr) {
+    SeqStruct *score = *(D_80080D38 + sep) + seq;
+
+    if (score->flags != 1) {
+        score->voll = voll;
+        score->volr = volr;
+    } else {
+        _SsVmSetSeqVol(sep | (seq << 8), voll, volr, 1);
+    }
+}
 
 OBJECT_END();

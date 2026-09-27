@@ -30,6 +30,7 @@ void _padSendAtLoadInfo(PadPort *port);
 void _padCmdParaMode(PadPort *port, u_char param);
 void _dirFailAuto(PadPort *p, int status);
 int _padInitSioMode(PadPort *p);
+int _padRecvAtLoadInfo(PadPort *p);
 
 void _padInitDirPort(void) {
     bzero((u_char *)D_8007E4D0, sizeof(D_8007E4D0));
@@ -82,7 +83,7 @@ void func_800213F0(int status) {
         p = &D_8007E4D0[D_80055558];
         if (status != -9) {
             if (status == 0) {
-                D_80055570[D_80055558] = 0;
+                *(D_80055570 + D_80055558) = 0;
             } else {
                 _dirFailAuto(p, status);
                 func_800214E4(p);
@@ -91,13 +92,8 @@ void func_800213F0(int status) {
         D_8005555C = 0;
         D_800554F0->ctrl = 0;
         D_80055558++;
-        if (D_80055558 <= D_8005556C) {
-            done = _padInitSioMode(&D_8007E4D0[D_80055558]);
-            status = 0xFFFF;
-        } else {
-            done = 1;
-            status = 0xFFFF;
-        }
+        done = D_8005556C < D_80055558 ? 1 : _padInitSioMode(&D_8007E4D0[D_80055558]);
+        status = 0xFFFF;
     } while (!done);
 }
 
@@ -108,9 +104,82 @@ void func_800214E4(PadPort *port) {
     port->prevCmd = cmd;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_800214F4);
+int func_800214F4(PadPort *p) {
+    int i = p->unk45 - 3;
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_800215B0);
+    switch (p->cmd) {
+    case 0:
+        if (i < 6 && p->unk57[i] == 0) {
+            return 0;
+        }
+        if (i < p->actLen) {
+            return p->actTable[i];
+        }
+        return 0;
+    case 0x4D:
+        return i < p->len ? p->data[i] : 0xFF;
+    }
+    return i < p->len ? p->data[i] : 0;
+}
+
+extern long D_80055560;
+
+void func_800215B0(PadPort *p) {
+    int i;
+    int j;
+    int n;
+    int found;
+    int power;
+    u_char mask;
+    u_char *align;
+    u_char *act;
+
+    bzero(p->unk57, 6);
+    if (p->unkE6 != 0 && p->actTable != NULL) {
+        n = p->actLen < 7 ? p->actLen : 6;
+        for (i = 0; i < p->unkE9; i++) {
+            found = 0;
+            mask = ((PadActInfo *)p->unk4)[i].unk2 ? 0xFF : 1;
+            align = p->unk5D;
+            act = p->actTable;
+            for (j = 0; j < n; align++, j++, act++) {
+                if (*align == i && (*act & mask)) {
+                    found = 1;
+                    break;
+                }
+            }
+            if (found) {
+                power = D_80055560 + ((PadActInfo *)p->unk4)[i].power;
+                if (power < 0x3D) {
+                    D_80055560 = power;
+                } else {
+                    found = 0;
+                }
+            }
+            if (found) {
+                align = p->unk5D;
+                act = p->unk57;
+                for (j = 0; j < n; j++, act++) {
+                    if (*align++ == i) {
+                        *act = 1;
+                    }
+                }
+            }
+        }
+    } else if ((p->unkE8 == 4 || p->unkE8 == 5 || p->unkE8 == 7) && p->unkE6 == 0 && p->actLen >= 2) {
+        if ((p->actTable[0] & 0xC0) == 0x40 && (p->actTable[1] & 1) && D_80055560 + 10 < 0x3D) {
+            p->unk57[1] = 1;
+            p->unk57[0] = 1;
+            D_80055560 += 10;
+        }
+    } else if (p->unkE8 == 3) {
+        p->unk57[0] = 1;
+    } else if (p->unkE6 == 0) {
+        for (j = 0; j < 6; j++) {
+            p->unk57[j] = 1;
+        }
+    }
+}
 
 PadPort *func_8002182C(int port) {
     PadPort *p = D_8007E4D0;
@@ -156,7 +225,67 @@ int func_8002184C(PadPort *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_8002195C);
+void func_8002195C(PadPort *p) {
+    int old;
+    u_char st;
+    int i;
+
+    if ((*p->unk3C & 0xF0) == 0) {
+        p->unk30[0] = 0xFF;
+        p->unk30[1] = 0;
+        p->unkE8 = 0;
+        p->unk35 = 0;
+        D_8005551C(p);
+        return;
+    }
+    old = p->unkE8;
+    p->unkE8 = *(volatile u_char *)p->unk3C >> 4;
+    if (p->unkE8 == 0xF) {
+        p->unkE8 = old;
+    } else {
+        p->unk30[0] = 0;
+        p->unk30[1] = p->unk3C[0];
+        p->unk35 = p->unk44;
+        for (i = 2; i < p->unk44; i++) {
+            p->unk30[i] = p->unk3C[i];
+        }
+    }
+    if ((p->unk3C[1] == 0 && (p->unk46 != 1 || p->unk14 != NULL) && p->unk50 == 0) || p->unkE8 != old) {
+        D_8005551C(p);
+    }
+    st = p->unk46;
+    p->unk4A = 0;
+    if (st == 0xFF) {
+        return;
+    }
+    if (st != 0 && p->cmd == 0) {
+        return;
+    }
+    if (st >= 2 && st < 0xFE && *p->unk3C != 0xF3) {
+        D_8005551C(p);
+        return;
+    }
+    switch (p->unk46) {
+    case 0:
+        p->unk49 = 1;
+        p->unk46++;
+        break;
+    case 1:
+        p->unk47[0] = 0;
+        p->unk46++;
+        break;
+    case 0xFE:
+        p->unk46 = 0xFF;
+        break;
+    default:
+        if (p->unk18 != NULL) {
+            p->unk46 += p->unk18(p);
+        } else {
+            p->unk46 += _padRecvAtLoadInfo(p);
+        }
+        break;
+    }
+}
 
 void _dirFailAuto(PadPort *p, int status) {
     p->unk4C++;

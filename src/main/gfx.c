@@ -711,11 +711,93 @@ s32 func_8001F328(s32 *table, s32 index) {
     return (s32)table + table[index + 1];
 }
 
-INCLUDE_RODATA("asm/main/nonmatchings/gfx", D_800102BC);
+s32 func_8001F354(TextBuffer *text, TextStyle *style, s32 spacing) {
+    s32 pos;
+    s32 w;
+    s32 max;
+    s32 c;
+    s32 op;
+    s32 n;
+    Glyph *g;
+    s32 len;
 
-INCLUDE_RODATA("asm/main/nonmatchings/gfx", D_800102CC);
-
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F354);
+    if (text->data == NULL) {
+        return 0;
+    }
+    pos = 0;
+    w = 0;
+    max = 0;
+    while (pos < text->len) {
+        c = ((s32 (*)())D_8004D5A8.decode)(text->data + pos, (u8)text->dirty, style);
+        switch (((u32)c >> 8) & 0xFF) {
+        case 0:
+            if ((s16)spacing != 0) {
+                w += (s16)spacing;
+            } else {
+                w += ((Glyph *)style->unk4)[(s16)c - 4].advance + ((Glyph *)style->unk4)[(s16)c - 4].dx;
+            }
+            if (text->dirty != 0) {
+                pos += 2;
+            } else {
+                pos += 1;
+            }
+            break;
+        case 1:
+            n = c & 0xFF;
+            if (n <= style->unk16 && n > 0) {
+                if ((s16)spacing != 0) {
+                    w += (s16)spacing;
+                } else {
+                    w += ((Glyph *)style->unk8)[n - 1].advance + ((Glyph *)style->unk8)[n - 1].dx;
+                }
+            }
+            pos += 2;
+            break;
+        case 2:
+            op = text->data[pos + 1];
+            switch (op) {
+            case 1:
+            case 3:
+                if (max < w) {
+                    max = w;
+                }
+                w = 0;
+                break;
+            case 5:
+                w += func_8001F354(&text[text->data[pos + 2]], style, (s16)spacing);
+                break;
+            case 8:
+                for (len = 0; (u8)D_800484E8.name[len] != 0; len++) {
+                }
+                w += len * 11;
+                break;
+            }
+            pos += D_8004D5A8.codeLengths[op];
+            break;
+        case 3:
+            if ((s16)spacing != 0) {
+                w += (s16)spacing;
+            } else {
+                w += ((Glyph *)style->unk4)->advance + ((Glyph *)style->unk4)->dx;
+            }
+            if (text->dirty != 0) {
+                pos += 2;
+            } else {
+                pos += 1;
+            }
+            break;
+        case 4:
+            if (max < w) {
+                return w;
+            }
+            return max;
+        }
+    }
+    if (max < w) {
+        return w;
+    }
+    return max;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001F658);
 
@@ -775,7 +857,51 @@ void func_8001F988(u_long *tim) {
     D_8005C4B8->h = image.h;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001FA70);
+void func_8001FA70(s32 archive) {
+    u8 *buf = D_8004AD84.malloc(D_8005C4B8->unk18, 2);
+    s32 i;
+    s32 compressed;
+    u8 *data;
+    u8 *src;
+    u8 *dst;
+    s32 c;
+    s32 n;
+    s32 k;
+
+    for (i = 0;; i++) {
+        data = D_80044744.unk428(i, archive);
+        if (data == (u8 *)archive) {
+            break;
+        }
+        src = data;
+        compressed = *(u32 *)src == 0x4E454C52;
+        dst = data;
+        if (compressed) {
+            dst = buf;
+            src += 8;
+            while ((c = *src) != 0) {
+                if (c & 0x80) {
+                    n = c & 0x7F;
+                    src++;
+                    for (k = 0; k < n; k++) {
+                        *dst++ = *src;
+                    }
+                    src++;
+                } else {
+                    n = *src++;
+                    for (k = 0; k < n; k++) {
+                        *dst++ = *src++;
+                    }
+                }
+            }
+            dst = buf;
+        }
+        func_8001F988((u_long *)dst);
+        DrawSync(0);
+        D_8005C4B8->unk8 += 0x40;
+    }
+    D_8004AD84.free(buf);
+}
 
 void func_8001FBD4(s32 arg0) {
     D_8005C4B8->unk18 = arg0;

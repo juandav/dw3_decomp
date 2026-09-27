@@ -32,6 +32,8 @@ void func_8002262C();
 void *bzero(u_char *p, int n);
 void _mtapFailAuto(PadPort *p);
 int _padInitSioMode(PadPort *p);
+void _padCmdParaMode(PadPort *port, u_char param);
+void _padSendAtLoadInfo(PadPort *port);
 
 void _padInitMtapPort(void) {
     bzero((u_char *)D_8007E740, sizeof(D_8007E740));
@@ -89,23 +91,18 @@ void func_80021E64(int status) {
     do {
         p = &D_8007E740[D_80055558];
         D_80055508->ctrl = 0;
-        D_80055500[D_80055558] = status;
+        *(D_80055500 + D_80055558) = status;
         if (status != -9) {
             if (status == 0) {
-                D_80055570[D_80055558] = ((*p->unk3C >> 4) == 8) * 4;
+                *(D_80055570 + D_80055558) = ((*p->unk3C >> 4) == 8) * 4;
             } else {
                 _mtapFailAuto(p);
             }
         }
         D_8005555C = 0;
         D_80055558++;
-        if (D_80055558 <= D_8005556C) {
-            done = _padInitSioMode(&D_8007E740[D_80055558]);
-            status = 0xFFFF;
-        } else {
-            done = 1;
-            status = 0xFFFF;
-        }
+        done = D_8005556C < D_80055558 ? 1 : _padInitSioMode(&D_8007E740[D_80055558]);
+        status = 0xFFFF;
     } while (!done);
 }
 
@@ -127,7 +124,64 @@ void func_80021F7C(PadPort *p) {
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021FC0);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_800220D0);
+extern long D_80055560;
+
+void func_800220D0(PadPort *p) {
+    int i;
+    int j;
+    int n;
+    int found;
+    int power;
+    u_char mask;
+    u_char *align;
+    u_char *act;
+
+    bzero(p->unk57, 6);
+    if (p->unkE6 != 0 && p->actTable != NULL) {
+        n = p->actLen < 7 ? p->actLen : 6;
+        for (i = 0; i < p->unkE9; i++) {
+            found = 0;
+            mask = ((PadActInfo *)p->unk4)[i].unk2 ? 0xFF : 1;
+            align = p->unk5D;
+            act = p->actTable;
+            for (j = 0; j < n; align++, j++, act++) {
+                if (*align == i && (*act & mask)) {
+                    found = 1;
+                    break;
+                }
+            }
+            if (found) {
+                power = D_80055560 + ((PadActInfo *)p->unk4)[i].power;
+                if (power < 0x3D) {
+                    D_80055560 = power;
+                } else {
+                    found = 0;
+                }
+            }
+            if (found) {
+                align = p->unk5D;
+                act = p->unk57;
+                for (j = 0; j < n; j++, act++) {
+                    if (*align++ == i) {
+                        *act = 1;
+                    }
+                }
+            }
+        }
+    } else if ((p->unkE8 == 4 || p->unkE8 == 5 || p->unkE8 == 7) && p->unkE6 == 0 && p->actLen >= 2) {
+        if ((p->actTable[0] & 0xC0) == 0x40 && (p->actTable[1] & 1) && D_80055560 + 10 < 0x3D) {
+            p->unk57[1] = 1;
+            p->unk57[0] = 1;
+            D_80055560 += 10;
+        }
+    } else if (p->unkE8 == 3) {
+        p->unk57[0] = 1;
+    } else if (p->unkE6 == 0) {
+        for (j = 0; j < 6; j++) {
+            p->unk57[j] = 1;
+        }
+    }
+}
 
 PadPort *func_8002234C(int port) {
     PadPort *p = &D_8007E740[0];
@@ -143,7 +197,71 @@ PadPort *func_8002234C(int port) {
     return p;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_800223BC);
+int func_800223BC(PadPort *p) {
+    int i;
+    PadPort *s;
+    u_char cmd;
+
+    if (p->unkC == NULL) {
+        cmd = p->prevCmd;
+        if (cmd != 0) {
+            if (D_80055500[D_80055558] != 0 && cmd != 0x43) {
+                p->cmd = cmd;
+                p->prevCmd = 0;
+            }
+            return 0;
+        }
+        s = p->unk10->unkC;
+        for (i = 0; i < 4; i++, s++) {
+            if ((s->cmd == 0x43 || s->prevCmd == 0x43) && *s->data == 1) {
+                return 0;
+            }
+        }
+    }
+    if (*p->unk3C == 0xF3) {
+        if (p->unkE8 == 0 || (p->unk46 == 0xFF && p->unk49 != 2)) {
+            _padCmdParaMode(p, 0);
+            return 0;
+        }
+        if (*p->unk3C == 0xF3 && p->unk49 == 2 && p->unkE8 != 8) {
+            D_8005551C(p);
+            return 0;
+        }
+    }
+    switch (p->unk46) {
+    case 0:
+        break;
+    case 1:
+        _padCmdParaMode(p, 1);
+        break;
+    case 0xFF:
+        if (p->unkE8 == 8 && (s = p->unkC) != NULL) {
+            for (i = 0; i < 4; i++, s++) {
+                if (s->unk46 == 1) {
+                    func_800223BC(s);
+                    return 0;
+                }
+            }
+            return 1;
+        }
+        break;
+    case 0xFE:
+        if (p->unk49 != 2) {
+            _padCmdParaMode(p, 0);
+            break;
+        }
+        p->cmd = 0;
+        break;
+    default:
+        if (p->unk14 != NULL) {
+            p->unk14(p);
+        } else {
+            _padSendAtLoadInfo(p);
+        }
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_8002262C);
 
