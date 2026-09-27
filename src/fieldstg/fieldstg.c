@@ -349,7 +349,11 @@ void func_8008C564(s32 arg0) {
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008C59C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008C9F8);
+void func_8008C9F8(Point pos) {
+    Unk8008C59C *task = createTask(func_8008C59C, sizeof(Unk8008C59C), 0);
+
+    task->pos = pos;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008CA3C);
 
