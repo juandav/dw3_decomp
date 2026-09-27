@@ -4,6 +4,9 @@ typedef struct CardName {
     char s[6];
 } CardName;
 
+long func_8003BAEC(UserFuncArg *arg);
+long func_8003BE70(UserFuncArg *arg);
+
 void PushCallbackFunc(void) {
     D_800820C0 = MemCardCallback(NULL);
 }

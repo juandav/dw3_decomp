@@ -1,9 +1,5 @@
 #include "psyq.h"
 
-typedef struct UserFuncArg {
-    long data[4];
-} UserFuncArg;
-
 extern UserFuncArg D_800820F8[];
 extern long (*D_80082138[])(UserFuncArg *arg);
 

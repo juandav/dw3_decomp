@@ -214,6 +214,13 @@ extern long D_8005C2B8;
 extern long D_8005C2E8;
 extern McrdGlobal D_80082068;
 
+/* argument block of a pending libmcrd event */
+typedef struct UserFuncArg {
+    long data[4];
+} UserFuncArg;
+
+void UserFuncOpen(long (*func)(UserFuncArg *arg));
+
 void *DMACallback(int dma, void (*func)());
 void *InterruptCallback(int irq, void (*func)());
 void *VSyncCallbacks(int ch, void (*func)());
