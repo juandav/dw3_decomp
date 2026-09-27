@@ -551,7 +551,30 @@ int func_800271F0(int (*func)(), u_long *param, int size, u_long value) {
     return (D_800557C8 - D_800557CC) & 0x3F;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800274A0);
+extern long D_800557D4;
+
+int func_800274A0(void) {
+    if (*D_800557B4 & 0x1000000) {
+        return 1;
+    }
+    D_800557D4 = SetIntrMask(0);
+    while (D_800557C8 != D_800557CC && !(*D_800557B4 & 0x1000000)) {
+        if (((D_800557CC + 1) & 0x3F) == D_800557C8 && D_800556A0.drawSyncCallback == NULL) {
+            DMACallback(2, NULL);
+        }
+        while (!(*D_800557A8 & 0x4000000)) {
+        }
+        D_8007F198[D_800557CC].func(D_8007F198[D_800557CC].param, D_8007F198[D_800557CC].value);
+        D_800557CC = (D_800557CC + 1) & 0x3F;
+    }
+    SetIntrMask(D_800557D4);
+    if (D_800557C8 == D_800557CC && !(*D_800557B4 & 0x1000000) && D_800556A0.unk8 &&
+        D_800556A0.drawSyncCallback != NULL) {
+        D_800556A0.unk8 = 0;
+        D_800556A0.drawSyncCallback();
+    }
+    return (D_800557C8 - D_800557CC) & 0x3F;
+}
 
 inline int func_80027700(int mode) {
     D_800557D8 = SetIntrMask(0);
