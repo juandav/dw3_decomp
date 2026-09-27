@@ -14,7 +14,46 @@ int strcmp(const char *, const char *);
 struct DIRENTRY *func_8003D508(char *name, struct DIRENTRY *dir);
 int func_8003D404(int *fcb, int a1, int a2);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libapi_first", firstfile);
+static inline int get_device_func(void) {
+    Dcb *dev;
+    Dcb *start;
+    u_long n;
+
+    n = *(u_long *)0x154 / sizeof(Dcb);
+    start = *(Dcb **)0x150;
+    for (dev = start; dev < start + n; dev++) {
+        if (dev->name != NULL && strcmp(dev->name, D_800820D0) == 0) {
+            D_800820C8 = dev->func;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+struct DIRENTRY *firstfile(char *name, struct DIRENTRY *dir) {
+    char *s = name;
+    char *d = D_800820D0;
+    Dcb *dev;
+    Dcb *start;
+    u_long n;
+
+    while (*s > ':') {
+        *d++ = *s++;
+    }
+    *d = 0;
+    if (!get_device_func()) {
+        return NULL;
+    }
+    n = *(u_long *)0x154 / sizeof(Dcb);
+    start = *(Dcb **)0x150;
+    for (dev = start; dev < start + n; dev++) {
+        if (dev->name != NULL && strcmp(dev->name, D_800820D0) == 0) {
+            dev->func = func_8003D404;
+            break;
+        }
+    }
+    return func_8003D508(name, dir);
+}
 
 int func_8003D404(int *fcb, int a1, int a2) {
     Dcb *d;
