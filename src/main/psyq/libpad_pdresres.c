@@ -56,7 +56,12 @@ void _padSendAtLoadInfo(PadPort *port) {
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padRecvAtLoadInfo);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padGetActSize);
+int _padGetActSize(PadPort *p) {
+    int a = ((p->unkE3 + 1) >> 1) * 4;
+    int b = ((p->unkE9 * 5 + 3) & 0xFFC) + 4;
+
+    return a + b + p->unkEC;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padLoadActInfo);
 
