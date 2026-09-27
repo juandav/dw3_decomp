@@ -599,7 +599,20 @@ Task *STDWTITL_startSplashTask(void) {
     return createTask(STDWTITL_tickSplash, sizeof(SplashTask), 0);
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_runTitleLoader);
+void STDWTITL_runTitleLoader(TitleLoaderTask *task, struct TitleTask **title) {
+    switch (task->substate) {
+    case 0:
+    default:
+        *title = STDWTITL_startTitleTask((Task *)task);
+        task->substate++;
+        break;
+    case 1:
+        if (*title == NULL) {
+            task->setState(task, TASK_KILL);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickTitleLoader);
 
