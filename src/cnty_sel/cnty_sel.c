@@ -1,5 +1,29 @@
 #include "cnty_sel.h"
 
+RECT CNTY_SEL_screenRect = {0, 0, 320, 240};
+RECT CNTY_SEL_vramRect = {0, 0, 1024, 512};
+/* A little larger than the screen */
+RECT CNTY_SEL_fadeRect = {0, -15, 320, 260};
+
+/* Sprite frames of the chosen option once Start is pressed */
+AnimFrame CNTY_SEL_cursorFlash[] = {
+    {8, 4}, {9, 4}, {10, 4}, {11, 30}, {0xFF, 999},
+};
+
+/* Opening (0) and closing (1) tweens of each panel's scale */
+PanelTween CNTY_SEL_topPanelTweens[] = {
+    {10, 0x1000, 0},
+    {5, 0, 0x1000},
+};
+PanelTween CNTY_SEL_rightPanelTweens[] = {
+    {10, 0x1000, 0},
+    {5, 0, 0x1000},
+};
+LeftPanelTween CNTY_SEL_leftPanelTweens[] = {
+    {10, 0x1000, 0, 0},
+    {5, 0, 0x1000, 0},
+};
+
 /* One bit of pad 1: newly pressed, or auto-repeated while held */
 #define PAD_PRESSED(button) ((D_8004AF78.getButtons(0) >> D_8004AF78.getButtonBit(0, button)) & 1)
 #define PAD_REPEATED(button) ((D_8004AF78.getButtonsNew(0) >> D_8004AF78.getButtonBit(0, button)) & 1)
