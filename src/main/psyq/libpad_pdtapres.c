@@ -30,8 +30,9 @@ int func_800223BC(PadPort *p);
 int func_80022D60(PadPort *p);
 void func_8002262C();
 void *bzero(u_char *p, int n);
-void _mtapFailAuto(PadPort *p);
+void _mtapFailAuto();
 int _padInitSioMode(PadPort *p);
+int _padRecvAtLoadInfo(PadPort *p);
 void _padCmdParaMode(PadPort *port, u_char param);
 void _padSendAtLoadInfo(PadPort *port);
 
@@ -263,7 +264,109 @@ int func_800223BC(PadPort *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_8002262C);
+void func_8002262C(PadPort *p) {
+    u_char *rx;
+    u_char *dst;
+    int id;
+    int old;
+    int i;
+    int cmd;
+
+    if ((*p->unk3C & 0xF0) == 0) {
+        p->unk30[0] = 0xFF;
+        p->unk30[1] = 0;
+        p->unkE8 = 0;
+        p->unk35 = 0;
+        D_8005551C(p);
+        return;
+    }
+    if (p != p->unk10 && ((p->unk3C[1] != 0 && p->unk3C[1] != 0x5A) || (*(volatile u_char *)p->unk3C >> 4) == 8)) {
+        _mtapFailAuto(p, 0xFF);
+        return;
+    }
+    id = *p->unk3C >> 4;
+    dst = p->unk30;
+    old = p->unkE8;
+    if (p->unk3C[1] == 0x5A) {
+        if (old == 8) {
+            *dst = 0;
+        } else if (id != 0xF) {
+            p->unkE8 = id;
+            rx = p->unk3C;
+            *dst++ = 0;
+            *dst++ = *rx++;
+            if (p != p->unk10) {
+                p->unk35 = 8;
+                rx++;
+                for (i = 2; i < 8; i++) {
+                    *dst++ = *rx++;
+                }
+            } else if (id == 8) {
+                p->unk35 = 2;
+            } else {
+                p->unk35 = p->unk44;
+                rx++;
+                for (i = 2; i < p->unk35; i++) {
+                    *dst++ = *rx++;
+                }
+            }
+        }
+    }
+    if ((p->unk3C[1] == 0 && (p->unk46 != 1 || p->unk14 != NULL) && p->unk50 == 0) || p->unkE8 != old) {
+        D_8005551C(p);
+    }
+    if (p->unkC != NULL || p->cmd == 0) {
+        p->unk4A = 0;
+    }
+    if (p->unk46 == 0xFF) {
+        return;
+    }
+    if ((u_char)(p->unk46 - 2) < 0xFC && *p->unk3C != 0xF3) {
+        D_8005551C(p);
+        return;
+    }
+    if (p->unkE8 == 8) {
+        if (p->unk46 != 0) {
+            p->unk46++;
+            return;
+        }
+    } else if (p->unk46 != 0) {
+        cmd = p == p->unk10 ? p->cmd : p->prevCmd;
+        if (cmd == 0) {
+            return;
+        }
+    }
+    switch (p->unk46) {
+    case 0:
+        if (p->unkC == NULL && p->cmd != 0) {
+            return;
+        }
+        if (p->unkE8 == 8 && p->unkC != NULL && *p->unkC->unk3C == 0xFF) {
+            p->unk49 = 2;
+            p->unk46 = 0xFF;
+        } else {
+            p->unk49 = 1;
+            p->unk46++;
+        }
+        break;
+    case 1:
+        p->unk47[0] = 0;
+        p->unk46++;
+        break;
+    case 0xFE:
+        p->unk46++;
+        break;
+    case 0xFF:
+        break;
+    default:
+        if (p->unk18 != NULL) {
+            p->unk46 += p->unk18(p);
+        } else {
+            p->unk46 += _padRecvAtLoadInfo(p);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", _mtapFailAuto);
 
