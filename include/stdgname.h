@@ -25,7 +25,7 @@ typedef struct Tween {
 /* The character pages of the keyboard */
 typedef struct Keyboard {
     /* 0x0 */ s32 pageCount;
-    /* 0x4 */ s32 *tabTexts; /* three per page */
+    /* 0x4 */ s32 (*tabTexts)[3]; /* three per page */
     /* 0x8 */ s8 (*keys)[7][15][2];
 } Keyboard;
 
@@ -82,14 +82,40 @@ typedef struct MenuWindow {
 
 struct ScreenTask;
 
+/* A sprite of the partner menu, that opens by scaling */
+typedef struct MenuSprite {
+    /* 0x00 */ s32 sprite; /* -1 ends the list */
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 x;
+    /* 0x0C */ s32 y;
+    /* 0x10 */ s32 pivotX;
+    /* 0x14 */ s32 pivotY;
+    /* 0x18 */ s32 vertical;
+} MenuSprite;
+
+typedef struct MenuSlot {
+    /* 0x0 */ s32 x;
+    /* 0x4 */ s32 y;
+    /* 0x8 */ s32 pivotX;
+    /* 0xC */ s32 pivotY;
+} MenuSlot;
+
+/* A partner's animation in the partner menu */
+typedef struct MenuAnim {
+    /* 0x0 */ s32 frame;
+    /* 0x4 */ s32 time;
+} MenuAnim;
+
 /* The partner menu */
 typedef struct MenuTask {
     TASK_HEADER(MenuTask);
     /* 0x50 */ struct ScreenTask *screen;
     /* 0x54 */ s32 layer;
-    /* 0x58 */ u8 unk58[0x20];
+    /* 0x58 */ s32 cursorClut;
+    /* 0x5C */ MenuAnim anims[3];
+    /* 0x74 */ s32 unk74;
     /* 0x78 */ s32 partyCount;
-    /* 0x7C */ s32 unk7C;
+    /* 0x7C */ s32 titleClut;
     /* 0x80 */ Tween tweens[6];
 } MenuTask;
 
@@ -123,9 +149,12 @@ typedef struct ScreenFuncs {
 
 extern Keyboard D_8008837C;
 extern TextStyle D_80086FC0;
-extern s32 D_80086EE0[];
+extern s32 D_80086EE0[][3];
 extern s8 D_80086EEC[][7][15][2];
+extern MenuSprite D_8008710C[];
+extern MenuSlot D_800872B0[];
 extern MenuWindow D_800872E0[];
+extern s32 D_800873A0[][7];
 extern ScreenFuncs D_80087480;
 
 void func_80082724(Task *task, void **children);

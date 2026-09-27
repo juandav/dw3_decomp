@@ -273,7 +273,90 @@ void func_80084998(MenuTask *task, TextWindow **window, s32 index, s32 show) {
     }
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80084B0C);
+void func_80084B0C(MenuTask *task, TextWindow **windows) {
+    SpriteDrawer sprite;
+    s32 i;
+    s32 value;
+    s32 partner;
+
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(task->layer, 2);
+    sprite.setTexture(0x280, 0);
+    for (i = 0; i < 3; i++) {
+        if (D_8008710C[i].sprite == -1) {
+            break;
+        }
+        value = task->tweens[i].value;
+        if (value != 0x1000) {
+            if (D_8008710C[i].vertical) {
+                sprite.setScale(0x1000, value, 0x1000);
+            } else {
+                sprite.setScale(value, 0x1000, 0x1000);
+            }
+            if (D_8008710C[i].sprite == 0x20) {
+                sprite.setPivot(D_8008710C[i].pivotX, D_8008710C[i].pivotY + D_80087480.partner * 43);
+            } else {
+                sprite.setPivot(D_8008710C[i].pivotX, D_8008710C[i].pivotY);
+            }
+        } else {
+            sprite.setScale(0x1000, 0x1000, 0x1000);
+        }
+        if (D_8008710C[i].sprite == 0x20) {
+            if ((GFX_FUNCS.getTime() & 3) == 3) {
+                if (++task->titleClut >= 16) {
+                    task->titleClut = 0;
+                }
+            }
+            sprite.setClutRow(task->titleClut);
+            sprite.draw(FILE_CACHE.getEntry(0x02790000), D_8008710C[i].sprite, D_8008710C[i].x, D_8008710C[i].y + D_80087480.partner * 43);
+            sprite.setClutRow(0);
+        } else {
+            sprite.draw(FILE_CACHE.getEntry(0x02790000), D_8008710C[i].sprite, D_8008710C[i].x, D_8008710C[i].y);
+        }
+    }
+    for (i = 0; i < task->partyCount; i++) {
+        partner = GAME.funcs.getPartyPartner(i);
+        if (partner >= 0 && task->tweens[i + 3].value != 0) {
+            if (GFX.funcs.getTime() - task->anims[i].time >= 13) {
+                task->anims[i].time = GFX.funcs.getTime();
+                if (D_800873A0[partner][++task->anims[i].frame] == -1) {
+                    task->anims[i].frame = 0;
+                }
+            }
+            if (task->tweens[i + 3].value != 0x1000) {
+                sprite.setScale(task->tweens[i + 3].value, 0x1000, 0x1000);
+                sprite.setPivot(D_800872B0[0].pivotX + 2, D_800872B0[0].pivotY + 2);
+            } else {
+                sprite.setScale(0x1000, 0x1000, 0x1000);
+            }
+            sprite.draw(FILE_CACHE_GET_ENTRY[0](0x02790000), D_800873A0[partner][task->anims[i].frame],
+                        D_800872B0[0].x + 2, D_800872B0[0].y + 2 + i * 43);
+        }
+    }
+    if ((GFX_FUNCS.getTime() & 3) == 3) {
+        if (++task->cursorClut >= 14) {
+            task->cursorClut = 0;
+        }
+    }
+    for (i = 0; i < task->partyCount; i++) {
+        if (GAME.funcs.getPartyPartner(i) >= 0) {
+            if (task->tweens[i + 3].value != 0) {
+                if (task->tweens[i + 3].value != 0x1000) {
+                    sprite.setScale(task->tweens[i + 3].value, 0x1000, 0x1000);
+                    sprite.setPivot(D_800872B0[0].pivotX, D_800872B0[0].pivotY + i * 43);
+                } else {
+                    sprite.setScale(0x1000, 0x1000, 0x1000);
+                }
+                sprite.setLayerId(task->layer, 1);
+                sprite.setClutRow(task->cursorClut);
+                sprite.draw(FILE_CACHE.getEntry(0x02790000), 0x1F, D_800872B0[0].x, D_800872B0[0].y + i * 43);
+                sprite.setLayerId(task->layer, 2);
+                sprite.setClutRow(0);
+                sprite.draw(FILE_CACHE.getEntry(0x02790000), 0x1E, D_800872B0[0].x, D_800872B0[0].y + i * 43);
+            }
+        }
+    }
+}
 
 s32 func_800850E0(MenuTask *task, TextWindow **windows) {
     if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
