@@ -319,7 +319,9 @@ void func_8008E284(Actor *actor, s32 arg1, s32 arg2, s32 arg3) {
     actor->unkF8 = arg3;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E29C);
+s32 func_8008E29C(Actor *actor) {
+    return actor->unkEC;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E2A8);
 
