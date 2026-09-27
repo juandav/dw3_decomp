@@ -857,7 +857,51 @@ void func_8001F988(u_long *tim) {
     D_8005C4B8->h = image.h;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001FA70);
+void func_8001FA70(s32 archive) {
+    u8 *buf = D_8004AD84.malloc(D_8005C4B8->unk18, 2);
+    s32 i;
+    s32 compressed;
+    u8 *data;
+    u8 *src;
+    u8 *dst;
+    s32 c;
+    s32 n;
+    s32 k;
+
+    for (i = 0;; i++) {
+        data = D_80044744.unk428(i, archive);
+        if (data == (u8 *)archive) {
+            break;
+        }
+        src = data;
+        compressed = *(u32 *)src == 0x4E454C52;
+        dst = data;
+        if (compressed) {
+            dst = buf;
+            src += 8;
+            while ((c = *src) != 0) {
+                if (c & 0x80) {
+                    n = c & 0x7F;
+                    src++;
+                    for (k = 0; k < n; k++) {
+                        *dst++ = *src;
+                    }
+                    src++;
+                } else {
+                    n = *src++;
+                    for (k = 0; k < n; k++) {
+                        *dst++ = *src++;
+                    }
+                }
+            }
+            dst = buf;
+        }
+        func_8001F988((u_long *)dst);
+        DrawSync(0);
+        D_8005C4B8->unk8 += 0x40;
+    }
+    D_8004AD84.free(buf);
+}
 
 void func_8001FBD4(s32 arg0) {
     D_8005C4B8->unk18 = arg0;
