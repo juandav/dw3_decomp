@@ -43,6 +43,18 @@ $(PSYQ_RERUN_CSE:%=$(BUILDDIR)/src/main/psyq/%.c.o): PSYQ_CSE :=
 # Our GCC 2.7.2 binary-patched into the libraries' cc1 (see tools/patch_cc1.py)
 PSYQ_CC1 := $(BUILDDIR)/tools/gcc-2.7.2-psx/cc1
 $(BUILDDIR)/src/main/psyq/%.c.o: CC1 := $(PSYQ_CC1)
+# Some objects come from a GCC 2.8.1 without split addresses (the same objects
+# are listed in dcb_decomp): it keeps the address of a global in a register
+# and reaches its fields from there, never used `return` insns (tools/sn_cc1.py)
+# and filled the delay slot of `j $31` itself, which tools/unfill_epilogue.py
+# undoes so that ASPSX's rule applies as for the rest.
+PSYQ_GCC28 :=
+SN_CC1 := $(BUILDDIR)/cc1-2.8.1-sn
+CC1_PRE := cat
+$(PSYQ_GCC28:%=$(BUILDDIR)/src/main/psyq/%.c.o): CC1 := $(SN_CC1)
+$(PSYQ_GCC28:%=$(BUILDDIR)/src/main/psyq/%.c.o): PSYQ_CSE := -mno-split-addresses
+$(PSYQ_GCC28:%=$(BUILDDIR)/src/main/psyq/%.c.o): CC1_PRE := $(PYTHON) tools/unfill_epilogue.py
+$(PSYQ_GCC28:%=$(BUILDDIR)/src/main/psyq/%.c.o): $(SN_CC1)
 MASPSX := $(PYTHON) external/maspsx/maspsx.py
 OBJDIFF ?= bin/objdiff-cli-linux-x86_64
 
@@ -108,13 +120,17 @@ $(ELF): $(OBJ) $(GENDIR)/main.ld config/undefined_syms.txt
 $(PSYQ_CC1): bin/gcc-2.7.2-psx/cc1 tools/patch_cc1.py
 	$(PYTHON) tools/patch_cc1.py $< $@
 
+$(SN_CC1): bin/gcc-2.8.1-psx/cc1 tools/sn_cc1.py
+	@mkdir -p $(dir $@)
+	$(PYTHON) tools/sn_cc1.py $< $@
+
 $(filter $(BUILDDIR)/src/main/psyq/%,$(C_OBJ)): $(PSYQ_CC1)
 
 $(BUILDDIR)/%.c.o: %.c
 	@mkdir -p $(dir $@)
 	$(CPP) $(CPPFLAGS) -MMD -MP -MT $@ -MF $(@:.o=.d) $< -o $(@:.o=.i)
 	$(CC1) $(CC1FLAGS) -o $(@:.o=.cc1.s) $(@:.o=.i)
-	$(MASPSX) $(MASPSXFLAGS) < $(@:.o=.cc1.s) $(MASPSX_POST) > $(@:.o=.s)
+	$(CC1_PRE) < $(@:.o=.cc1.s) | $(MASPSX) $(MASPSXFLAGS) $(MASPSX_POST) > $(@:.o=.s)
 	$(AS) $(ASFLAGS) -o $@ $(@:.o=.s)
 	@$(OBJCOPY) --set-section-alignment .text=4 --set-section-alignment .rodata=4 $@
 
