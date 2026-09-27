@@ -191,7 +191,85 @@ s32 func_80014C6C(s32 port, u8 *buf, s32 size, s32 slot) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game2", func_80014F2C);
+s32 func_80014F2C(s32 port, u8 *buf, s32 size, s32 slot) {
+    u8 *dst;
+
+    if (buf == NULL || size == 0) {
+        return 1;
+    }
+    if ((u32)(D_80047F14.iconCount - 1) >= 3) {
+        return 1;
+    }
+    dst = buf;
+    switch (D_80047F14.state) {
+    case 0:
+    default:
+        if (func_80014AAC(port) == 0) {
+            return 0;
+        }
+        switch (D_80047F14.result) {
+        case 0:
+            D_80047F14.progress = 0;
+            switch (slot & 0xFF) {
+            case 0:
+            default:
+                D_80047F14.offset = slot >> 8;
+                break;
+            case 1:
+                D_80047F14.offset = D_80047F14.iconCount * 128 + 128;
+                break;
+            case 2:
+                D_80047F14.offset = D_80047F14.iconCount * 128 + 128 + D_80047F14.unk310;
+                break;
+            case 3:
+                D_80047F14.offset = D_80047F14.iconCount * 128 + 128 + D_80047F14.unk310 + D_80047F14.unk30C;
+                break;
+            case 4:
+                D_80047F14.offset = D_80047F14.iconCount * 128 + 128 + D_80047F14.unk310 + D_80047F14.unk30C * 2;
+                break;
+            }
+            while (MemCardWriteFile(port << 4, D_80047F14.fileName, dst, D_80047F14.offset, 128) == 0) {
+                func_80014A10();
+            }
+            D_80047F14.state = 4;
+            break;
+        default:
+            D_80047F14.state = 0;
+            return D_80047F14.result + 1;
+        }
+        break;
+    case 4:
+        if (func_80014A10() != 0) {
+            switch (D_80047F14.result) {
+            case 0:
+                D_80047F14.progress += 128;
+                if (D_80047F14.progress >= size) {
+                    D_80047F14.state = 0;
+                    return 1;
+                }
+                while (1) {
+                    if (MemCardWriteFile(port << 4, D_80047F14.fileName, dst + D_80047F14.progress, D_80047F14.offset + D_80047F14.progress, 128) != 0) {
+                        return 0;
+                    }
+                    func_80014A10();
+                }
+            default:
+                D_80047F14.state = 0;
+                return D_80047F14.result + 1;
+            }
+        }
+        if (D_80047F14.unkA0 != 0) {
+            D_80047F14.unkA0 = 0;
+            D_80047F14.progress = 0;
+            while (MemCardWriteFile(port << 4, D_80047F14.fileName, dst, D_80047F14.offset, 128) == 0) {
+                func_80014A10();
+            }
+            return 0;
+        }
+        break;
+    }
+    return 0;
+}
 
 extern s32 D_80048270[];
 extern char D_8005C45C[];
