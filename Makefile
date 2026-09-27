@@ -38,7 +38,7 @@ $(BUILDDIR)/src/main/psyq/%.c.o: FLOAT_ABI := -mhard-float
 $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_POST := | $(PYTHON) tools/aspsx_reorder.py
 $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_DIV := --expand-div
 $(BUILDDIR)/src/main/psyq/%.c.o: PSYQ_CSE := -fno-rerun-cse-after-loop
-PSYQ_RERUN_CSE := libc2_puts libgpu_break libcd_bios_2 libcd_c_007 libsnd_midiread libspu_s_m_f libapi_first libsnd_ssclose libsnd_vm_pb libsnd_sscall libsnd_sstable libpad_pdresres libspu_s_m_int libc2_strcmp libc2_strcspn libsnd_vm_f libspu_s_sva libsnd_vm_stav libgpu_sys libmcrd_libmcrd libc2_prnt libetc_intr
+PSYQ_RERUN_CSE := libc2_puts libgpu_break libcd_bios_2 libcd_c_007 libsnd_midiread libspu_s_m_f libapi_first libsnd_ssclose libsnd_vm_pb libsnd_sscall libsnd_sstable libpad_pdresres libspu_s_m_int libc2_strcmp libc2_strcspn libsnd_vm_f libspu_s_sva libsnd_vm_stav libgpu_sys libmcrd_libmcrd libc2_prnt libetc_intr libsnd_vm_key
 $(PSYQ_RERUN_CSE:%=$(BUILDDIR)/src/main/psyq/%.c.o): PSYQ_CSE :=
 # Our GCC 2.7.2 binary-patched into the libraries' cc1 (see tools/patch_cc1.py)
 PSYQ_CC1 := $(BUILDDIR)/tools/gcc-2.7.2-psx/cc1
