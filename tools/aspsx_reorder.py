@@ -317,7 +317,9 @@ def fill_from_target(lines, split):
         if ud is None or len(ud[1]) != 1:
             continue
         r = next(iter(ud[1]))
-        if r in ud[0] or r in ("$0", "$29", "$31"):
+        # `lui $at` is the first half of a load maspsx expanded: reorg saw
+        # one load insn there, not a constant (_SsVmFlush)
+        if r in ud[0] or r in ("$0", "$1", "$29", "$31"):
             continue
         if not is_dead(items, n + 2, r, labels):
             continue
