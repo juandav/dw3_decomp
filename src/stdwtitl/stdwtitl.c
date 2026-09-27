@@ -879,7 +879,15 @@ void STDWTITL_tickTitle0(SlideTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startTitle0Task);
+SlideTask *STDWTITL_startTitle0Task(s32 skip) {
+    SlideTask *task = createTask(STDWTITL_tickTitle0, sizeof(SlideTask), 0);
+
+    task->show = STDWTITL_showTitle0;
+    task->layerId = STDWTITL_TITLE_LAYER;
+    task->depth = 2;
+    task->skip = skip;
+    return task;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawMenu);
 
