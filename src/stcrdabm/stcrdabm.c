@@ -10,7 +10,18 @@ s32 func_80082ECC(CardAlbumGrid *grid);
 void func_80083820(CardAlbum *album, CardAlbumWindows *win, s32 show);
 void func_80083C4C(CardAlbum *album);
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80082520);
+void func_80082520(CardAlbumFader *fader, s32 fadeIn, s32 frames) {
+    fader->setState(fader, 1);
+    fader->substate = 1;
+    fader->fadeIn = fadeIn;
+    if (fadeIn == 0) {
+        fader->level = 0;
+        fader->levelStep = 0xFF00 / frames;
+    } else {
+        fader->level = 0xFF00;
+        fader->levelStep = -(0xFF00 / frames);
+    }
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800825A8);
 
