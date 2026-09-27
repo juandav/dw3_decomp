@@ -110,7 +110,9 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086418);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086460);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800864E8);
+void func_800864E8(StreamTask *task) {
+    task->time = GFX_FUNCS.getTime();
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086518);
 
