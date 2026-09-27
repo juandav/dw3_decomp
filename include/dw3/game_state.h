@@ -107,7 +107,10 @@ typedef struct PartnerStats {
 } PartnerStats;
 
 typedef struct Unk80042728 {
-    /* 0x00 */ u8 unk0[0x58];
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ u8 unkC[0x4C];
     /* 0x58 */ s16 unk58[8];
 } Unk80042728;
 
@@ -125,7 +128,9 @@ typedef struct PartnerVitals {
     /* 0x22 */ u16 maxHp;
     /* 0x24 */ u16 mp;
     /* 0x26 */ u16 maxMp;
-    /* 0x28 */ u8 unk28[0x1A];
+    /* 0x28 */ u8 unk28[0xA];
+    /* 0x32 */ s16 unk32;
+    /* 0x34 */ u8 unk34[0xE];
     /* 0x42 */ s16 status[3];
 } PartnerVitals;
 
@@ -141,7 +146,9 @@ typedef struct GameState {
     /* 0x0004 */ s8 unk4;
     /* 0x0005 */ u8 unk5[7];
     /* 0x000C */ s32 unkC;
-    /* 0x0010 */ u8 unk10[0x20];
+    /* 0x0010 */ u8 unk10[0x18];
+    /* 0x0028 */ s32 stageSelectTop; /* the debug stage select's first line */
+    /* 0x002C */ s32 stageSelectCursor;
     /* 0x0030 */ s32 unk30;
     /* 0x0034 */ s32 fieldMode; /* where the menu returns to */
     /* 0x0038 */ u8 unk38[0xC];
