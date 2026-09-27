@@ -155,7 +155,38 @@ void CNTY_SEL_setCursorSelection(CursorTask *task, s16 selection) {
     task->selection = selection;
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_tickCursor);
+void CNTY_SEL_tickCursor(CursorTask *task) {
+    s16 frame;
+
+    switch (task->task.state) {
+    case TASK_INIT:
+    default:
+        task->task.nextState(task);
+        break;
+    case TASK_RUN:
+        task->blink++;
+        task->blink %= 32;
+        task->frame = task->blink / 4;
+        CNTY_SEL_drawCursor(task);
+        break;
+    case TASK_TRIGGER:
+        if (task->task.substate == 0) {
+            task->anim.index = 0;
+            task->anim.timer = CNTY_SEL_cursorFlash[0].duration;
+            task->task.substate++;
+        }
+        frame = CNTY_SEL_stepAnimation(&task->anim, CNTY_SEL_cursorFlash, 0);
+        task->frame = frame;
+        if (frame != 0xFF) {
+            CNTY_SEL_drawCursor(task);
+        } else {
+            task->task.setState(task, TASK_END);
+        }
+        break;
+    case TASK_END:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_startCursorTask);
 
