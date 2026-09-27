@@ -753,7 +753,64 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_80014C6C);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80014F2C);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_800151F0);
+extern s32 D_80048270[];
+extern char D_8005C45C[];
+
+s32 func_800151F0(s32 port, s32 cmd) {
+    switch (D_80047F14.state) {
+    case 0:
+    default:
+        if (func_80014B8C(port) == 0) {
+            return 0;
+        }
+        switch (D_80047F14.result) {
+        case 0:
+            D_80047F14.state = 5;
+            break;
+        case 4:
+            if (cmd == 2) {
+                D_80047F14.state = 5;
+                break;
+            }
+            D_80047F14.state = 0;
+            return 5;
+        default:
+            D_80047F14.state = 0;
+            return D_80047F14.result + 1;
+        }
+        break;
+    case 5:
+        if ((D_80047F14.result == 0 && (cmd == 0 || cmd == 1 || cmd == 3)) ||
+            (D_80047F14.result == 4 && cmd == 2)) {
+            D_8004AD84.bzero(&D_80047F14.fileCount, 0x25C);
+            D_80047F14.cmd = D_80048270[cmd];
+            switch (cmd) {
+            case 0:
+            default:
+                D_80047F14.result = MemCardGetDirentry(port << 4, D_8005C45C, D_80047F14.files, (long *)&D_80047F14.fileCount, 0, 15);
+                break;
+            case 1:
+                D_80047F14.result = MemCardCreateFile(port << 4, D_80047F14.fileName, 4);
+                break;
+            case 2:
+                D_80047F14.result = MemCardFormat(port << 4);
+                break;
+            case 3:
+                D_80047F14.result = MemCardUnformat(port << 4);
+                break;
+            }
+            if (D_80047F14.result == -1) {
+                D_80047F14.result = 8;
+            }
+        }
+        D_80047F14.state = 0;
+        if (D_80047F14.result == 0) {
+            return 1;
+        }
+        return D_80047F14.result + 1;
+    }
+    return 0;
+}
 
 s32 func_800153E8(s32 arg0) {
     s32 ret = func_800151F0(arg0, 0);
