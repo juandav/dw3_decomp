@@ -6,6 +6,8 @@ long SetIntrMask(long mask);
 
 void func_80027FD0(u_char *dst, int value, int n);
 void func_800264B8(DR_ENV *p, DRAWENV *env);
+u_long func_80026728(int dfe, int dtd, int tpage);
+u_long func_80026894(RECT *tw);
 void func_80027978(void);
 int func_800279AC(void);
 int func_80027AF0(int mode);
@@ -212,7 +214,33 @@ void SetDrawOffset(DR_OFFSET *p, u_short *ofs) {
     p->code[1] = 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", SetDrawEnv);
+void SetDrawEnv(DR_ENV *dr_env, DRAWENV *env) {
+    DR_ENV *p = dr_env;
+    RECT r;
+    int i;
+
+    p->code[0] = func_80026748(env->clip.x, env->clip.y);
+    p->code[1] = func_800267E0(env->clip.w + env->clip.x - 1, env->clip.y + env->clip.h - 1);
+    p->code[2] = func_80026878(env->ofs[0], env->ofs[1]);
+    p->code[3] = func_80026728(env->dfe, env->dtd, env->tpage);
+    p->code[4] = func_80026894(&env->tw);
+    p->code[5] = 0xE6000000;
+    i = 7;
+    if (env->isbg) {
+        r.x = env->clip.x;
+        r.y = env->clip.y;
+        r.w = env->clip.w;
+        r.h = env->clip.h;
+        r.w = (r.w < 0) ? 0 : ((r.w > D_800556A0.w - 1) ? D_800556A0.w - 1 : r.w);
+        r.h = (r.h < 0) ? 0 : ((r.h > D_800556A0.h - 1) ? D_800556A0.h - 1 : r.h);
+        r.x -= env->ofs[0];
+        r.y -= env->ofs[1];
+        ((u_long *)p)[i++] = 0x60000000 | (env->b0 << 16) | (env->g0 << 8) | env->r0;
+        ((u_long *)p)[i++] = *(u_long *)&r.x;
+        ((u_long *)p)[i++] = *(u_long *)&r.w;
+    }
+    setlen(p, i - 1);
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800264B8);
 
