@@ -119,7 +119,26 @@ void func_80082D54(CardAlbumGrid *grid) {
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80082ECC);
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80082F18);
+void func_80082F18(CardAlbumGrid *grid) {
+    switch (grid->substate) {
+    case 0:
+        break;
+    case 1:
+        if (grid->shown != 0) {
+            grid->shown--;
+            grid->nextSubstate(grid);
+            grid->counter = GFX_FUNCS.getTime();
+        } else {
+            grid->state = 3;
+        }
+        break;
+    case 2:
+        if (GFX_FUNCS.getTime() - grid->counter >= 2) {
+            grid->substate = 1;
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80082FE0);
 
