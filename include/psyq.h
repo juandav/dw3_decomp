@@ -95,6 +95,10 @@ typedef struct McrdGlobal {
     /* 0x14 */ long fd;
     /* 0x18 */ u8 unk18[0x2C];
     /* 0x44 */ MemCB callback;
+    /* 0x48 */ long unk48;
+    /* 0x4C */ long unk4C;
+    /* 0x50 */ long unk50;
+    /* 0x54 */ long unk54;
 } McrdGlobal;
 
 /* serial port registers */
@@ -139,7 +143,10 @@ typedef struct SeqStruct {
     /* 0x26 */ char vabId;
     /* 0x27 */ u_char panpot[16];
     /* 0x37 */ u_char programs[16];
-    /* 0x47 */ u8 unk47[0x11];
+    /* 0x47 */ u8 unk47;
+    /* 0x48 */ short unk48;
+    /* 0x4A */ short unk4A;
+    /* 0x4C */ u8 unk4C[0xC];
     /* 0x58 */ u_short voll;
     /* 0x5A */ u_short volr;
     /* 0x5C */ u8 unk5C[4];
@@ -148,7 +155,9 @@ typedef struct SeqStruct {
     /* 0x90 */ long delta;
     /* 0x94 */ u8 unk94[4];
     /* 0x98 */ long flags;
-    /* 0x9C */ u8 unk9C[0x14];
+    /* 0x9C */ long unk9C;
+    /* 0xA0 */ long unkA0;
+    /* 0xA4 */ u8 unkA4[0xC];
 } SeqStruct;
 
 /* libsnd decoded ADSR */
@@ -323,7 +332,7 @@ extern short D_80081D98;
 long _SsReadDeltaValue(short seq, short sep);
 void _SsVmSetProgVol(char vab, u_char prog, u_char vol);
 void _SsVmSetVol(short seq_sep, char vab, u_char prog, u_short vol, u_char pan);
-void _SsSndSetVolData();
+void _SsSndSetVolData(short seq, short sep, short vol, long count);
 u_long _SpuSetAnyVoice(long on_off, u_long bits, int addr1, int addr2);
 int func_800271F0(int, int, int, int);
 
