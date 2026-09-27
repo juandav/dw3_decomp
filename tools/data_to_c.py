@@ -16,7 +16,7 @@ data real types once the code that uses it is understood.
 import re
 import sys
 
-VALUE = re.compile(r"^\s+/\* [0-9A-F]+ ([0-9A-F]{8})(?: [0-9A-F]{8})? \*/\s+\.(word|short|byte)\s+(\S+)")
+VALUE = re.compile(r"^\s+/\* [0-9A-F]+ ([0-9A-F]{8})(?: [0-9A-F]{8})? \*/\s+\.(word|short|byte)\s+(\S+(?: [+-] \S+)?)")
 LABEL = re.compile(r"^dlabel (\w+)")
 OTHER = re.compile(r"^\s+/\* .*\*/\s+\.(half|ascii|asciz|space)\b")
 TYPES = {"word": "s32", "short": "u16", "byte": "u8"}
@@ -73,8 +73,9 @@ def main():
             n = int(v, 16) if "0x" in v else int(v)
             n &= 0xFFFFFFFF
             return str(n - (1 << 32) if n & 0x80000000 else n) if n < 0x10000 or n > 0xFFFF0000 else f"0x{n:X}"
-        addr = f"&{v}" if v in scalars else v
-        return f"(s32){addr}"
+        sym, _, off = v.partition(" ")
+        addr = f"&{sym}" if sym in scalars else sym
+        return f"(s32){addr}" + (f" {off}" if off else "")
 
     out, decls = [], []
     for name, _, values in symbols:
@@ -92,7 +93,8 @@ def main():
             continue
         vs = [v for _, v in values]
         for v in vs:
-            if re.fullmatch(r"(func|D|jtbl)_[0-9A-F]{8}", v):
+            if not re.fullmatch(r"-?(0x[0-9A-Fa-f]+|\d+)", v):
+                v = v.split(" ")[0]
                 d = f"void {v}();" if v.startswith("func_") else (
                     f"extern s32 {v};" if v in scalars else f"extern s32 {v}[];")
                 if d not in decls:
