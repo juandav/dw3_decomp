@@ -150,9 +150,12 @@ typedef struct Task80011FBC {
 } Task80011FBC;
 
 typedef struct Task8001ACC8 {
-    /* 0x00 */ u8 unk0[0x10];
+    /* 0x00 */ u8 unk0[0xC];
+    /* 0x0C */ s32 state;
     /* 0x10 */ s32 unk10;
-    /* 0x14 */ u8 unk14[0x3C];
+    /* 0x14 */ u8 unk14[0x24];
+    /* 0x38 */ void (*unk38)(struct Task8001ACC8 *);
+    /* 0x3C */ u8 unk3C[0x14];
     /* 0x50 */ s32 unk50;
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
@@ -349,10 +352,10 @@ typedef struct Unk80019DFC {
     /* 0x12C */ void (*m12C)();
     /* 0x130 */ void (*m130)();
     /* 0x134 */ void (*setPos)(struct Unk80019DFC *obj, s16 x, s16 y);
-    /* 0x138 */ void (*m138)();
+    /* 0x138 */ void (*m138)(struct Unk80019DFC *obj, u8 arg);
     /* 0x13C */ void (*m13C)();
     /* 0x140 */ void (*m140)();
-    /* 0x144 */ void (*m144)();
+    /* 0x144 */ void (*m144)(struct Unk80019DFC *obj, u8 arg);
     /* 0x148 */ void (*m148)();
     /* 0x14C */ void (*m14C)();
     /* 0x150 */ void (*m150)();
@@ -1027,6 +1030,7 @@ extern u8 D_800427B4[];
 extern s32 D_800483F8[];
 extern u8 D_8004AB5F[];
 extern u8 D_8004829C[];
+extern char *D_8004D488[];
 extern u8 D_8004AB88[];
 extern u8 D_8004AB6A[];
 extern u8 D_8004AB56[];

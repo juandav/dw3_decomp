@@ -2330,7 +2330,54 @@ void func_8001AD18(Task8001ACC8 *task, s32 arg1) {
     task->unk7C = arg1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001AD20);
+void func_8001AD20(Task8001ACC8 *task, Unk80019DFC **win) {
+    switch (task->state) {
+    case 0:
+    default:
+        if (*win == NULL) {
+            *win = func_8001AAB4(task->unk50, 1, task->unk58, task->unk5C);
+        }
+        (*win)->m110(*win, D_8004D488[task->unk6C]);
+        (*win)->m144(*win, task->unk64);
+        (*win)->m15C(*win, task->unk54);
+        task->unk70 = D_8004D708.unk38();
+        task->unk38(task);
+        break;
+    case 1:
+        if (task->dirty != 0) {
+            (*win)->m144(*win, task->unk64);
+            (*win)->setPos(*win, task->unk58, task->unk5C);
+            (*win)->m138(*win, task->unk60);
+            task->dirty = 0;
+        }
+        if (task->unk64 != 0) {
+            if (task->unk7C != 0) {
+                if (task->unk6C != 0) {
+                    task->unk6C = 0;
+                    (*win)->m110(*win, D_8004D488[0]);
+                }
+            } else if (task->unk10 == 0) {
+                if ((D_8004D5B8.funcs.unk38() - task->unk70) / task->unk74 != 0) {
+                    task->unk70 = D_8004D5B8.funcs.unk38();
+                    task->unk6C = 1;
+                    (*win)->m110(*win, D_8004D488[1]);
+                    task->unk10 = 1;
+                }
+            } else if ((D_8004D5B8.funcs.unk38() - task->unk70) / task->unk78 != 0) {
+                task->unk70 = D_8004D5B8.funcs.unk38();
+                if (++task->unk6C >= 5) {
+                    task->unk6C = 0;
+                    task->unk10 = 0;
+                }
+                (*win)->m110(*win, D_8004D488[task->unk6C]);
+            }
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001AFE0);
 
