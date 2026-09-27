@@ -1788,7 +1788,75 @@ INCLUDE_RODATA("asm/main/nonmatchings/game", D_80010268);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80019420);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80019C2C);
+void func_80019C2C(Unk80019DFC *obj) {
+    s32 extra;
+    s32 pos;
+    s32 lines;
+    s32 going;
+    u8 *p;
+    u8 index;
+    s32 c;
+
+    if (obj->unkC == 1) {
+        pos = obj->unkA6;
+        extra = 0;
+        lines = 0;
+        going = 1;
+        do {
+            switch ((s32)((u32)(D_8004D5A8.decode(obj->text[0].data + pos, (u8)obj->text[0].dirty, obj->unk50) << 16) >> 24)) {
+            case 0:
+            default:
+                if (obj->text[0].dirty != 0) {
+                    pos += 2;
+                } else {
+                    pos += 1;
+                }
+                break;
+            case 1:
+                pos += 2;
+                break;
+            case 2:
+                p = (u8 *)(pos + (s32)obj->text[0].data);
+                c = p[1];
+                switch (c) {
+                default:
+                    pos += D_8004D5A8.codeLengths[c];
+                    break;
+                case 1:
+                    if (++lines < obj->unkBF) {
+                        pos += D_8004D5A8.codeLengths[1];
+                    } else {
+                        going = 0;
+                    }
+                    break;
+                case 2:
+                    if (p[2] < 5) {
+                        going = 0;
+                    }
+                    pos += D_8004D5A8.codeLengths[2];
+                    break;
+                case 5:
+                    index = p[2];
+                    if (index < 6) {
+                        extra += obj->text[index].len;
+                        pos += D_8004D5A8.codeLengths[5];
+                    } else {
+                        going = 0;
+                    }
+                    break;
+                case 3:
+                    going = 0;
+                    break;
+                }
+                break;
+            case 4:
+                going = 0;
+                break;
+            }
+        } while (going != 0);
+        obj->unkA4 = pos + extra;
+    }
+}
 
 void func_80019DFC(Unk80019DFC *arg0, s32 arg1) {
     u8 *entry;
