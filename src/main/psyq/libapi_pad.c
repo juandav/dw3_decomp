@@ -1,5 +1,7 @@
 #include "psyq.h"
 
+extern long *D_8005C2C0;
+
 void SetInitPadFlag(long flag) {
     D_8005C2B8 = flag;
 }
@@ -49,6 +51,11 @@ int func_8003B4BC(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libapi_pad", func_8003B524);
+int func_8003B524(void) {
+    if ((D_8005C2C0[1] & 1) == 0 || (D_8005C2C0[0] & 1) == 0) {
+        return 0;
+    }
+    return 1;
+}
 
 OBJECT_END();
