@@ -1,6 +1,17 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padIsVsync);
+int _padIsVsync(void) {
+    if (!(D_8005558C[1] & 1)) {
+        return 0;
+    }
+    if (!(D_8005558C[0] & 1)) {
+        return 0;
+    }
+    if (D_80055540 != NULL) {
+        D_80055540();
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres", _padIntPad);
 
