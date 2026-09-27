@@ -1,5 +1,15 @@
 #include "psyq.h"
+#include <libgte.h>
+#include <libgs.h>
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgs_matrix9", GsMulCoord3);
+void GsMulCoord3(MATRIX *m1, MATRIX *m2) {
+    VECTOR v;
+
+    ApplyMatrixLV(m1, (VECTOR *)m2->t, &v);
+    MulMatrix(m1, m2);
+    m1->t[0] = v.vx + m1->t[0];
+    m1->t[1] = v.vy + m1->t[1];
+    m1->t[2] = v.vz + m1->t[2];
+}
 
 OBJECT_END();
