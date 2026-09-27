@@ -137,7 +137,21 @@ retry:
     return ev >> 1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_bios", _get_card_event_x);
+long _get_card_event_x(void) {
+    long ev;
+
+retry:
+    ev = D_80082178 + D_8008217C * 2 + D_80082180 * 4 + D_80082184 * 8;
+    if (ev == 0) {
+        goto retry;
+    }
+    func_8003A588(D_80082148);
+    func_8003A588(D_8008214C);
+    func_8003A588(D_80082150);
+    func_8003A588(D_80082154);
+    D_80082178 = D_8008217C = D_80082180 = D_80082184 = 0;
+    return ev >> 1;
+}
 
 long _chk_card_event(void) {
     return D_80082168 + D_8008216C * 2 + D_80082170 * 4 + D_80082174 * 8;
