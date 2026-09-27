@@ -1,4 +1,13 @@
+/* DICR is volatile here and the callback table holds function pointers */
+#define D_8005B7D0 D_8005B7D0_sdk
+#define D_8005B7D4 D_8005B7D4_sdk
 #include "psyq.h"
+#undef D_8005B7D0
+#undef D_8005B7D4
+
+extern volatile u_long *D_8005B7D0;
+extern void (*D_8005B7D4[])();
+extern volatile u_long *D_8005B7F4;
 
 void *startIntrDMA(void) {
     func_8002F150((long *)D_8005B7D4, 8);
@@ -7,7 +16,27 @@ void *startIntrDMA(void) {
     return func_8002F0A4;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr_dma", func_8002EF24);
+void func_8002EF24(void) {
+    int i;
+    u_long mask;
+
+    while ((mask = (*D_8005B7D0 >> 24) & 0x7F) != 0) {
+        for (i = 0; mask != 0 && i < 7; i++, mask >>= 1) {
+            if (mask & 1) {
+                *D_8005B7D0 &= (1 << (i + 24)) | 0xFFFFFF;
+                if (D_8005B7D4[i] != NULL) {
+                    D_8005B7D4[i]();
+                }
+            }
+        }
+    }
+    if ((*D_8005B7D0 & 0xFF000000) == 0x80000000 || (*D_8005B7D0 & 0x8000)) {
+        printf("DMA bus error: code=%08x\n", *D_8005B7D0);
+        for (i = 0; i < 7; i++) {
+            printf("MADR[%d]=%08x\n", i, D_8005B7F4[i * 4]);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr_dma", func_8002F0A4);
 
@@ -20,5 +49,8 @@ void func_8002F150(long *p, int n) {
         } while (i-- != 0);
     }
 }
+
+/* ASPSX padded the string table as well */
+__asm__(".section .rodata\n\t.align 4\n");
 
 OBJECT_END();
