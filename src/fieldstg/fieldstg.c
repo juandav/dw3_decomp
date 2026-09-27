@@ -126,7 +126,9 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086858);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800868AC);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086A3C);
+void func_80086A3C(StreamTask *task) {
+    task->unk70 = -1;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086A48);
 
