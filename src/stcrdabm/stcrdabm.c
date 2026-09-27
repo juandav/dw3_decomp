@@ -61,7 +61,24 @@ CardAlbumFader *func_800827A0(void) {
     return fader;
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800827E4);
+void func_800827E4(CardAlbumGrid *grid) {
+    CardDrawer icon;
+    s32 card;
+    s32 col;
+    s32 row;
+
+    initCardDrawer(&icon);
+    icon.setImagePos(0x140, 0x100);
+    icon.setClutPos(0x300, 0x100);
+    card = grid->first;
+    for (row = 0; row < 2; row++) {
+        for (col = 0; col < 6 && card < CARD_COUNT; col++) {
+            icon.setCard(card++);
+            icon.setCell(col, row);
+            icon.loadImage();
+        }
+    }
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_800828AC);
 
