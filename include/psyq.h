@@ -72,7 +72,10 @@ typedef struct PadPort {
 
 /* libmcrd global state, returned by McrdGetGlobalStructure */
 typedef struct McrdGlobal {
-    /* 0x00 */ u8 unk0[0x44];
+    /* 0x00 */ long unk0;
+    /* 0x04 */ u8 unk4[0x10];
+    /* 0x14 */ long fd;
+    /* 0x18 */ u8 unk18[0x2C];
     /* 0x44 */ MemCB callback;
 } McrdGlobal;
 
@@ -189,6 +192,7 @@ void Snd_SetPlayMode(short, short, char, short);
 void _SpuInit(int);
 u_long _SpuGetAnyVoice(int, int);
 void _padSetCmd(PadPort *port, u_char cmd, u_char *data, u_char len);
+void func_80024CE8(long fd);
 int CD_init(void);
 int CD_initvol(void);
 int func_80037AF0(int arg0, int arg1);
