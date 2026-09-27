@@ -229,7 +229,20 @@ void func_800848E4(NameTask *task) {
     task->substate = 10;
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800848F0);
+NameTask *func_800848F0(char *name, s32 partner) {
+    NameTask *task = createTask(func_80084640, sizeof(NameTask), sizeof(NameWindows));
+
+    task->getName = func_800847E4;
+    task->unkF4 = func_800848E4;
+    task->layer = 0x1000;
+    task->depth = 3;
+    task->mode = 1;
+    task->partner = partner;
+    task->maxLength = 8;
+    func_80084750(task, name);
+    func_80084744(task, 0x280, 0x100);
+    return task;
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80084998);
 
