@@ -176,7 +176,12 @@ typedef struct Task8001B6A8 {
     /* 0x00 */ u8 unk0[0xC];
     /* 0x0C */ s32 state;
     /* 0x10 */ s32 unk10;
-    /* 0x14 */ u8 unk14[0x3C];
+    /* 0x14 */ u8 unk14[0x14];
+    /* 0x28 */ void (*unk28)(struct Task8001B6A8 *, s32);
+    /* 0x2C */ u8 unk2C[0xC];
+    /* 0x38 */ void (*unk38)(struct Task8001B6A8 *);
+    /* 0x3C */ void (*unk3C)(struct Task8001B6A8 *);
+    /* 0x40 */ u8 unk40[0x10];
     /* 0x50 */ s32 unk50;
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
@@ -184,7 +189,7 @@ typedef struct Task8001B6A8 {
     /* 0x60 */ s32 unk60;
     /* 0x64 */ s32 unk64;
     /* 0x68 */ s16 unk68;
-    /* 0x6A */ u8 unk6A[2];
+    /* 0x6A */ s16 unk6A;
 } Task8001B6A8;
 
 typedef struct Task8001B3A0 {
@@ -318,6 +323,13 @@ typedef struct Unk8004D49C {
     /* 0x0A */ u16 unkA;
     /* 0x0C */ u8 unkC[0x14];
 } Unk8004D49C;
+
+typedef struct TextFont {
+    /* 0x0 */ u8 *styles;
+    /* 0x4 */ s32 *codeLengths;
+    /* 0x8 */ s32 unk8;
+    /* 0xC */ s16 (*decode)();
+} TextFont;
 
 typedef struct TextWait {
     /* 0x00 */ u8 unk0[0x10];
@@ -675,6 +687,8 @@ typedef struct Unk800484E8 {
 } Unk800484E8;
 
 void PadStartCom(void);
+void func_8001B490(struct Task8001B6A8 *task);
+void func_8001B5AC(struct Task8001B6A8 *task);
 void func_8001D9C0(struct DrawContext *ctx);
 s32 func_80015DD8(s32 slot, s32 item);
 s32 func_800155F8(s32 op, s32 arg);
@@ -803,7 +817,7 @@ int CdPosToInt(void *pos);
 void func_8001B314(Task8001B3A0 *task, s32 *data, s32 arg2);
 void *func_8001B368(Task8001B3A0 *task);
 void func_8001B3A0(Task8001B3A0 *task);
-void func_8001B6A8(void *task);
+void func_8001B6A8(struct Task8001B6A8 *task);
 void func_8001C0C4(Task *task);
 void func_80020764(struct Task80011FBC *task, s32 *out);
 s32 func_80014A10(void);
@@ -866,7 +880,7 @@ extern Unk8004ADB8 D_8004ADB8;
 extern PadState D_8004AF78;
 extern u16 D_8004B3AC[0x1000];
 extern s32 D_8004D3AC;
-extern u8 *D_8004D5A8;
+extern TextFont D_8004D5A8;
 extern s32 (*D_80044B68)(s32 id);
 extern Unk8004D49C D_8004D49C[];
 extern GfxState D_8004D5B8;

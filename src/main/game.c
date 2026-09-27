@@ -1761,7 +1761,7 @@ void func_80019DFC(Unk80019DFC *arg0, s32 arg1) {
     if (arg1 < 1 || arg1 > 3) {
         arg1 = 1;
     }
-    entry = D_8004D5A8 + arg1 * 0x18;
+    entry = D_8004D5A8.styles + arg1 * 0x18;
     arg0->unk50 = entry;
     arg0->unkBE = *entry;
 }
@@ -1916,7 +1916,38 @@ s32 func_8001A4A8(Unk80019DFC *obj, TextBuffer *buf) {
     return 0x8003;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001A530);
+s32 func_8001A530(Unk80019DFC *obj, TextBuffer *buf) {
+    u8 c;
+
+    if (obj->unkAA != 0) {
+        obj->unkA4 = buf->pos + 2;
+    } else {
+        obj->unkA4 = buf->len;
+    }
+    while (buf->pos < buf->len) {
+        switch ((s32)((u32)(D_8004D5A8.decode(buf->data + buf->pos, (u8)buf->dirty, obj->unk50) << 16) >> 24)) {
+        case 0:
+        case 1:
+        default:
+            obj->unkA6 = buf->pos;
+            buf->pos = buf->len + 1;
+            break;
+        case 2:
+            c = buf->data[buf->pos + 1];
+            if (c == 5 || c == 8) {
+                obj->unkA6 = buf->pos;
+                buf->pos = buf->len + 1;
+            } else {
+                buf->pos += D_8004D5A8.codeLengths[c];
+            }
+            break;
+        case 4:
+            obj->unkA6 = buf->pos - 1;
+            return 3;
+        }
+    }
+    return 0;
+}
 
 s32 func_8001A684(void) {
     return 0x8003;
@@ -2156,7 +2187,45 @@ void func_8001B5AC(Task8001B6A8 *task) {
     obj.methods[5](D_80044B68(0x02770000), 10, 0x124, 0xCD);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001B6A8);
+void func_8001B6A8(Task8001B6A8 *task) {
+    switch (task->state) {
+    case 0:
+    default:
+        task->unk38(task);
+        task->unk6A = 0x199;
+        break;
+    case 1:
+        switch (task->unk10) {
+        case 0:
+        default:
+            task->unk68 += task->unk6A;
+            if (task->unk68 > 0x1000) {
+                task->unk68 = 0x1000;
+                task->unk3C(task);
+            }
+            break;
+        case 1:
+            if (task->unk5C != 0) {
+                func_8001B5AC(task);
+            }
+            break;
+        case 2:
+            if (D_8004D5B8.funcs.unk38() - task->unk54 >= 3) {
+                task->unk54 = D_8004D5B8.funcs.unk38();
+                if (++task->unk58 >= 5) {
+                    task->unk28(task, 3);
+                    return;
+                }
+            }
+            break;
+        }
+        func_8001B490(task);
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 Task *func_8001B804(s32 arg0) {
     Task *task = func_800144DC(func_8001B6A8, 0x6C, 0);
