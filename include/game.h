@@ -6,12 +6,8 @@
 #include <libgte.h>
 #include <libgpu.h>
 
-typedef struct Resource {
-    /* 0x000 */ u8 unk0[0x138];
-    /* 0x138 */ s32 (*unk138)(struct Resource *, s32);
-    /* 0x13C */ u8 unk13C[0x2C];
-    /* 0x168 */ void (*unk168)(struct Resource *);
-} Resource;
+/* Drawing layer: an ordering table with its DRAWENV and methods */
+typedef struct DrawContext Resource;
 
 /* Function tables in .data */
 typedef struct Funcs80047F04 {
@@ -304,7 +300,11 @@ typedef struct Unk80019DFC {
     /* 0x10 */ s32 unk10;
     /* 0x14 */ s32 unk14;
     /* 0x18 */ s32 unk18;
-    /* 0x1C */ u8 unk1C[0x34];
+    /* 0x1C */ u8 unk1C[0xC];
+    /* 0x28 */ void (*unk28)(struct Unk80019DFC *, s32);
+    /* 0x2C */ u8 unk2C[0xC];
+    /* 0x38 */ void (*unk38)(struct Unk80019DFC *);
+    /* 0x3C */ u8 unk3C[0x14];
     /* 0x50 */ u8 *unk50;
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
@@ -361,9 +361,9 @@ typedef struct Unk80019DFC {
     /* 0x15C */ void (*m15C)();
     /* 0x160 */ void (*m160)();
     /* 0x164 */ void (*m164)();
-    /* 0x168 */ void (*m168)();
-    /* 0x16C */ void (*m16C)();
-    /* 0x170 */ void (*m170)();
+    /* 0x168 */ s32 (*m168)();
+    /* 0x16C */ s32 (*m16C)();
+    /* 0x170 */ s32 (*m170)();
 } Unk80019DFC;
 
 typedef struct Unk8004D49C {
@@ -386,8 +386,17 @@ typedef struct TextFont {
     /* 0xC */ s16 (*decode)();
 } TextFont;
 
+typedef struct TextStyle {
+    /* 0x00 */ u8 unk0[4];
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ u8 unkC[0xA];
+    /* 0x16 */ s16 unk16;
+} TextStyle;
+
 typedef struct TextWait {
-    /* 0x00 */ u8 unk0[0x10];
+    /* 0x00 */ u8 unk0[0xC];
+    /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ s16 unk14;
     /* 0x16 */ s16 unk16;
@@ -396,8 +405,31 @@ typedef struct TextWait {
 
 typedef struct Unk8001BA7C {
     /* 0x0 */ Unk80019DFC *window;
-    /* 0x4 */ struct Task *unk4;
+    /* 0x4 */ struct Task8001B6A8 *unk4;
 } Unk8001BA7C;
+
+typedef struct MenuPage {
+    /* 0x00 */ Unk80019DFC *head;
+    /* 0x04 */ Unk80019DFC *left[5];
+    /* 0x18 */ Unk80019DFC *right[5];
+} MenuPage;
+
+typedef struct MenuWindows {
+    /* 0x00 */ Unk80019DFC *title;
+    /* 0x04 */ Unk80019DFC *unk4;
+    /* 0x08 */ Unk80019DFC *unk8;
+    /* 0x0C */ Unk80019DFC *items[6];
+    /* 0x24 */ struct Task8001ACC8 *cursor;
+    /* 0x28 */ MenuPage pages[3];
+} MenuWindows;
+
+typedef struct WindowPos {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ s16 x;
+    /* 0x6 */ s16 unk6;
+    /* 0x8 */ s16 y;
+    /* 0xA */ s16 unkA;
+} WindowPos;
 
 typedef struct Unk80041444 {
     /* 0x0 */ u8 unk0[8];
@@ -406,11 +438,17 @@ typedef struct Unk80041444 {
     /* 0xA */ u8 unkA[2];
 } Unk80041444;
 
+/* Digimon definition */
 typedef struct Unk8003EB68 {
     /* 0x00 */ u16 id;
-    /* 0x02 */ u8 unk2[6];
-    /* 0x08 */ u8 unk8;
-    /* 0x09 */ u8 unk9[0x4F];
+    /* 0x02 */ u16 unk2[6];
+    /* 0x0E */ u16 unkE[7];
+    /* 0x1C */ u8 unk1C[0x23];
+    /* 0x3F */ u8 unk3F;
+    /* 0x40 */ u8 unk40;
+    /* 0x41 */ u8 unk41[0x14];
+    /* 0x55 */ u8 nameId;
+    /* 0x56 */ u8 unk56[2];
 } Unk8003EB68;
 
 typedef struct Unk80048C50Entry {
@@ -421,14 +459,24 @@ typedef struct Unk80048C50Entry {
 } Unk80048C50Entry;
 
 typedef struct Unk628 {
-    /* 0x00 */ u8 unk0[0x16];
+    /* 0x00 */ char name[0x16];
     /* 0x16 */ u16 items[40];
 } Unk628;
 
 typedef struct Unk8004883C {
     /* 0x000 */ u8 unk0[4];
     /* 0x004 */ s32 unk4;
-    /* 0x008 */ u8 unk8[0x4C];
+    /* 0x008 */ u8 unk8[4];
+    /* 0x00C */ char name[0x1C];
+    /* 0x028 */ s16 unk28;
+    /* 0x02A */ s16 unk2A;
+    /* 0x02C */ s16 unk2C;
+    /* 0x02E */ s16 unk2E;
+    /* 0x030 */ s16 unk30;
+    /* 0x032 */ s16 unk32;
+    /* 0x034 */ u16 unk34[6];
+    /* 0x040 */ u16 unk40[7];
+    /* 0x04E */ u8 unk4E[6];
     /* 0x054 */ s16 unk54[4];
     /* 0x05C */ Unk80048C50Entry entries[44];
     /* 0x3CC */ u8 unk3CC[0x10];
@@ -468,6 +516,29 @@ typedef struct DrawContext {
     /* 0x8C */ MATRIX unk8C[2];
     /* 0xCC */ s32 unkCC;
     /* 0xD0 */ MATRIX matrices[2];
+    /* 0x110 */ void (*unk110)();
+    /* 0x114 */ void (*unk114)();
+    /* 0x118 */ void (*unk118)();
+    /* 0x11C */ void (*unk11C)();
+    /* 0x120 */ void (*unk120)();
+    /* 0x124 */ void (*unk124)();
+    /* 0x128 */ void (*unk128)();
+    /* 0x12C */ void (*unk12C)();
+    /* 0x130 */ void (*unk130)(struct DrawContext *);
+    /* 0x134 */ void (*unk134)(struct DrawContext *);
+    /* 0x138 */ s32 (*unk138)(struct DrawContext *, s32);
+    /* 0x13C */ void (*unk13C)();
+    /* 0x140 */ void (*unk140)();
+    /* 0x144 */ void (*unk144)();
+    /* 0x148 */ void (*unk148)();
+    /* 0x14C */ void (*unk14C)();
+    /* 0x150 */ void (*unk150)();
+    /* 0x154 */ void (*unk154)(struct DrawContext *);
+    /* 0x158 */ void (*unk158)(struct DrawContext *);
+    /* 0x15C */ void (*unk15C)();
+    /* 0x160 */ void (*unk160)(struct DrawContext *);
+    /* 0x164 */ void (*unk164)();
+    /* 0x168 */ void (*unk168)(struct DrawContext *);
 } DrawContext;
 
 typedef struct SoundEntry {
@@ -592,7 +663,7 @@ typedef struct Unk80044744 {
     /* 0x408 */ void (*outOfMemory)(void);
     /* 0x40C */ void (*unk40C)(s32);
     /* 0x410 */ void (*unk410)(void);
-    /* 0x414 */ u8 unk414[4];
+    /* 0x414 */ char *(*getText)(s32 table);
     /* 0x418 */ void (*unk418)(s32);
     /* 0x41C */ u8 unk41C[8];
     /* 0x424 */ s32 (*unk424)(s32);
@@ -647,7 +718,9 @@ typedef struct Unk2728 {
 } Unk2728;
 
 typedef struct Unk2744 {
-    /* 0x00 */ u8 unk0[0x20];
+    /* 0x00 */ u8 unk0[0x1C];
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ u8 unk1E[2];
     /* 0x20 */ u16 unk20;
     /* 0x22 */ u16 unk22;
     /* 0x24 */ u16 unk24;
@@ -657,14 +730,45 @@ typedef struct Unk2744 {
 } Unk2744;
 
 /* Memory card state */
+/* Memory card save header (first 0x80 bytes of a save) */
+typedef struct CardClut {
+    /* 0x00 */ u8 data[0x20];
+} CardClut;
+
+typedef struct CardHeader {
+    /* 0x00 */ char magic[2];
+    /* 0x02 */ u8 type;
+    /* 0x03 */ u8 blocks;
+    /* 0x04 */ char title[64];
+    /* 0x44 */ u8 reserved[28];
+    /* 0x60 */ CardClut clut;
+} CardHeader;
+
+/* Same layout as the kernel's struct DIRENTRY */
+typedef struct CardDirEntry {
+    /* 0x00 */ char name[20];
+    /* 0x14 */ s32 attr;
+    /* 0x18 */ s32 size;
+    /* 0x1C */ struct CardDirEntry *next;
+    /* 0x20 */ s32 head;
+    /* 0x24 */ char system[4];
+} CardDirEntry;
+
 typedef struct Unk80047F14 {
     /* 0x00 */ s32 state;
-    /* 0x04 */ u8 unk4[0x8C];
+    /* 0x04 */ u8 unk4[8];
+    /* 0x0C */ char *fileName;
+    /* 0x10 */ CardHeader header;
     /* 0x90 */ s32 cmd;
     /* 0x94 */ u32 result;
     /* 0x98 */ s32 retries;
     /* 0x9C */ s32 maxRetries;
     /* 0xA0 */ s32 unkA0;
+    /* 0xA4 */ s32 fileCount;
+    /* 0xA8 */ CardDirEntry files[15];
+    /* 0x300 */ u8 unk300[0x14];
+    /* 0x314 */ s32 iconCount;
+    /* 0x318 */ s32 icons[3];
 } Unk80047F14;
 
 typedef struct MemBlock {
@@ -698,6 +802,11 @@ typedef struct PadState {
     /* 0x3D6 */ s16 unk3D6;
     /* 0x3D8 */ s32 unk3D8;
     /* 0x3DC */ s16 unk3DC;
+    /* 0x3DE */ u8 unk3DE[2];
+    /* 0x3E0 */ u8 unk3E0[0x14];
+    /* 0x3F4 */ s32 (*getButtons)(s32 port);
+    /* 0x3F8 */ u8 unk3F8[0x10];
+    /* 0x408 */ s32 (*getButtonBit)(s32 port, s32 button);
 } PadState;
 
 typedef struct Unk800484E8 {
@@ -716,7 +825,7 @@ typedef struct Unk800484E8 {
     /* 0x004E */ s16 playMinutes;
     /* 0x0050 */ s16 playSeconds;
     /* 0x0052 */ s16 playTimeMaxed;
-    /* 0x0054 */ u8 unk54[0x18];
+    /* 0x0054 */ char name[0x18];
     /* 0x006C */ s32 money;
     /* 0x0070 */ s32 unk70[3];
     /* 0x007C */ s8 unk7C[0x193];
@@ -739,18 +848,21 @@ typedef struct Unk800484E8 {
     /* 0x26F8 */ s32 (*unk26F8)(void);
     /* 0x26FC */ u8 unk26FC[0x10];
     /* 0x270C */ s32 (*unk270C)(s32);
-    /* 0x2710 */ u8 unk2710[0x18];
+    /* 0x2710 */ u8 unk2710[8];
+    /* 0x2718 */ void (*unk2718)(void);
+    /* 0x271C */ u8 unk271C[0xC];
     /* 0x2728 */ void (*unk2728)(s32, struct Unk2728 *);
     /* 0x272C */ u8 unk272C[0x18];
     /* 0x2744 */ struct Unk2744 *(*unk2744)(s32);
 } Unk800484E8;
 
 void PadStartCom(void);
+void func_8001DBB0();
 void func_8001B490(struct Task8001B6A8 *task);
 void func_8001B5AC(struct Task8001B6A8 *task);
 void func_8001D9C0(struct DrawContext *ctx);
 s32 func_80015DD8(s32 slot, s32 item);
-s32 func_800155F8(s32 op, s32 arg);
+s32 func_800155F8(u32 op, s32 arg);
 void func_80020218(void);
 s32 func_80020064(void);
 void func_800345B8(void);
@@ -793,7 +905,11 @@ void func_80016AC8(s32 item, s32 count);
 long MemCardSync(long mode, long *cmds, u_long *result);
 long MemCardExist(long chan);
 long MemCardAccept(long chan);
-Resource *func_8001E1A0(DRAWENV *env, s32 arg1);
+long MemCardCreateFile(long chan, char *file, long blocks);
+long MemCardFormat(long chan);
+long MemCardUnformat(long chan);
+long MemCardGetDirentry(long chan, char *name, CardDirEntry *dir, long *files, long ofs, long max);
+Resource *func_8001E1A0(DRAWENV *env, s32 depth);
 s32 func_8001D6B4(s32 id);
 s32 func_800172E8(s32 slot, s32 id);
 void func_8001D718(s32 index);
@@ -849,6 +965,7 @@ void func_8001F988();
 void func_8001FA70();
 void func_8001FBD4();
 int strlen(char *);
+char *strcpy(char *dst, char *src);
 void *memcpy(void *, void *, int);
 void func_8001794C(void *dst, s32 size);
 void *func_80017B20();
@@ -856,17 +973,20 @@ void *func_800179C8(u32 size, s32 tag);
 void *func_80017A78(u32 size, s32 tag);
 s32 func_80016064(u16, u16);
 void func_80017FAC(s32, s32);
-s32 func_8001837C(s32 port, s32 motor, s16 time, u8 value);
+s32 func_8001837C(u16 port, s32 motor, s16 time, u8 value);
 void *func_8001B2B8(Task8001B3A0 *task, s32 *data);
 void func_8001B1D0(Task8001B3A0 *task);
 void func_80019C2C(Unk80019DFC *obj);
 int func_8002E268(void *buf, int size);
 void func_8002DE88(s32 arg0);
-s32 func_800151F0(s32 arg0, s32 arg1);
+s32 func_800151F0(s32 port, u32 op);
+s32 func_80014AAC(s32 port);
+s32 func_80014B8C(s32 port);
 s32 func_8001366C(void);
 s32 func_80013880(void);
 void func_80013890(void);
-void func_8001B864();
+void func_80019420(struct Unk80019DFC *obj);
+void func_8001B864(struct Task8001B6A8 *task, struct Unk8001BA7C *data);
 s32 func_8001A108(Unk80019DFC *obj, TextBuffer *text, TextWait *wait, s16 *pos);
 void func_8001F22C(struct Obj8001F22C *obj);
 s32 func_800154F8(u8 *bits, s32 index, s32 set);
@@ -907,6 +1027,20 @@ extern u8 D_800427B4[];
 extern s32 D_800483F8[];
 extern u8 D_8004AB5F[];
 extern u8 D_8004829C[];
+extern u8 D_8004AB88[];
+extern u8 D_8004AB6A[];
+extern u8 D_8004AB56[];
+extern u8 D_8004AB55[];
+extern u8 D_8004AB53[];
+extern u8 D_8004AB47[];
+extern u8 D_8004AB3F[];
+extern u8 D_8004AB3D[];
+extern u8 D_8004AB3C[];
+extern u8 D_8004AB3B[];
+extern u8 D_8004AB39[];
+extern u8 D_8004AB2C[];
+extern s16 D_8004D748[];
+extern s32 D_8004D474[];
 extern s32 D_80048420[];
 extern s32 D_80048440[];
 extern u8 D_80048280[];

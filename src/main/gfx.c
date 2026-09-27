@@ -27,7 +27,51 @@ void func_8001D114(void) {
     VSyncCallback(func_8001D070);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D138);
+void func_8001D138(s32 draw) {
+    s32 i;
+    DrawContext *ctx;
+
+    if (draw) {
+        s32 j;
+
+        for (j = 0; j < 30; j++) {
+            ctx = D_8004D5B8.resources[j];
+            if (ctx != NULL) {
+                if (ctx->unk84 != 0) {
+                    ctx->unk158(ctx);
+                }
+                if (ctx->unkCC != 0) {
+                    ctx->unk160(ctx);
+                }
+                ctx->unk154(ctx);
+            }
+        }
+    }
+    DrawSync(0);
+    D_8005C498 = 1;
+    while (*(volatile s32 *)&D_8005C498 != 0) {
+    }
+    if (D_8004D5B8.unk20 != 0) {
+        for (i = 0; i < 30; i++) {
+            if (D_8004D5B8.resources[i] != NULL) {
+                D_8004D5B8.resources[i]->unk130(D_8004D5B8.resources[i]);
+            }
+        }
+    }
+    D_8004D5B8.buffer = D_8004D5B8.buffer == 0;
+    D_8004D5B8.unkC += 0x100;
+    D_8004D5B8.unk8 = D_8004D5B8.unkC >> 8;
+    D_8004D5B8.unk10 = D_8004D5B8.unk14 >> 8;
+    D_8004D5B8.unk18 = D_8004D5B8.unk1C >> 8;
+    D_8004D5B8.unk1C &= 0xFF;
+    D_8004ABD8.unk28[13]();
+    D_8004D5B8.unk20 = (s32)D_8004D5B8.bufs[D_8004D5B8.buffer];
+    for (i = 0; i < 30; i++) {
+        if (D_8004D5B8.resources[i] != NULL) {
+            D_8004D5B8.resources[i]->unk134(D_8004D5B8.resources[i]);
+        }
+    }
+}
 
 s32 func_8001D2EC(void) {
     return D_8004D5B8.unk8;
@@ -413,7 +457,41 @@ void func_8001E140(DrawContext *ctx) {
     D_80080A90 = ctx->matrices[D_8004D5B8.buffer];
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001E1A0);
+Resource *func_8001E1A0(DRAWENV *env, s32 depth) {
+    DrawContext *ctx = D_8004AD84.unk20(0x16C, 2);
+
+    ctx->env = *env;
+    ctx->otShift = depth;
+    ctx->otLen = D_8004D748[depth - 1];
+    ctx->ot[0] = D_8004AD84.malloc(ctx->otLen << 2, 2);
+    ctx->ot[1] = D_8004AD84.malloc(ctx->otLen << 2, 2);
+    ClearOTagR(ctx->ot[0], ctx->otLen);
+    ClearOTagR(ctx->ot[1], ctx->otLen);
+    ctx->unk12C = func_8001DC0C;
+    ctx->unk130 = (void *)func_8001DA4C;
+    ctx->unk134 = (void *)func_8001D984;
+    ctx->unk138 = (void *)func_8001DB8C;
+    ctx->unk13C = func_8001DBB0;
+    ctx->unk168 = (void *)func_8001DCFC;
+    ctx->unk110 = func_8001DC94;
+    ctx->unk114 = func_8001DCA0;
+    ctx->unk118 = func_8001DC3C;
+    ctx->unk120 = func_8001DC6C;
+    ctx->unk124 = func_8001DC78;
+    ctx->unk11C = func_8001DC48;
+    ctx->unk128 = func_8001DCAC;
+    ctx->unk140 = func_8001DBE0;
+    ctx->unk144 = func_8001DC00;
+    ctx->unk148 = func_8001DDCC;
+    ctx->unk14C = func_8001DE24;
+    ctx->unk150 = func_8001DF08;
+    ctx->unk154 = (void *)func_8001DF70;
+    ctx->unk15C = func_8001DFE8;
+    ctx->unk158 = (void *)func_8001E054;
+    ctx->unk164 = func_8001E0D8;
+    ctx->unk160 = (void *)func_8001E140;
+    return ctx;
+}
 
 void func_8001E3C4(Obj8001E7DC *obj) {
     D_8005C4A0 = obj;

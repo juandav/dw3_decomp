@@ -12,7 +12,43 @@ s32 func_8001FC68(s32 id) {
     return -1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/sound", func_8001FCA4);
+s32 func_8001FCA4(s32 packed) {
+    s32 id = (packed >> 18) & 0x7F;
+    u32 keyOn = (u32)packed >> 31;
+    s32 exclusive = (packed >> 30) & 1;
+    s32 prog = (packed >> 11) & 0x7F;
+    s32 tone = (packed >> 7) & 0xF;
+    s32 note = packed & 0x7F;
+    s32 seq = (packed >> 8) & 0xFF;
+    s32 sep = packed & 0xFF;
+    s32 index = func_8001FC68(id);
+    s32 voice = -1;
+
+    if (index != -1) {
+        if (index != 0) {
+            D_800553DC.unk4 = index;
+        }
+        if (exclusive) {
+            if (D_80051194.unk4248 == packed) {
+                return 0;
+            }
+            if (D_80051194.unk4248 != 0) {
+                D_80051194.unk427C(D_80051194.unk4248);
+            }
+            D_80051194.unk4248 = packed;
+        }
+        if (keyOn) {
+            voice = SsUtKeyOn(D_80051194.sounds[index].vabId, prog, tone, note, 0, 0x7F, 0x7F);
+        } else {
+            id = sep;
+            SsSepStop(D_80051194.sounds[index].seqs[seq], id);
+            SsSepSetVol(D_80051194.sounds[index].seqs[seq], id, 0x7F, 0x7F);
+            SsSepPlay(D_80051194.sounds[index].seqs[seq], id, 1, 1);
+        }
+        return voice;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/sound", func_8001FE3C);
 
