@@ -313,7 +313,8 @@ typedef struct Unk628 {
 typedef struct Unk8004883C {
     /* 0x000 */ u8 unk0[4];
     /* 0x004 */ s32 unk4;
-    /* 0x008 */ u8 unk8[0x54];
+    /* 0x008 */ u8 unk8[0x4C];
+    /* 0x054 */ s16 unk54[4];
     /* 0x05C */ Unk80048C50Entry entries[44];
     /* 0x3CC */ u8 unk3CC[0x10];
 } Unk8004883C;
@@ -347,7 +348,7 @@ typedef struct DrawContext {
 typedef struct SoundEntry {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s16 vabId;
-    /* 0x06 */ u8 unk6[2];
+    /* 0x06 */ s16 numSeqs;
     /* 0x08 */ s16 seqs[8];
 } SoundEntry;
 
@@ -400,7 +401,7 @@ typedef struct Obj8001F22C {
 } Obj8001F22C;
 
 typedef struct Obj8001F8F8 {
-    /* 0x0 */ void (*unk0)();
+    /* 0x0 */ char *(*unk0)();
     /* 0x4 */ s16 (*unk4)();
     /* 0x8 */ void (*unk8)();
 } Obj8001F8F8;
@@ -585,7 +586,8 @@ void *func_800144DC(void (*update)(void *), s32 size, s32 arg2);
 void *func_800143B4(void (*update)(void *), s32 size, s32 arg2, s32 arg3);
 s32 func_80013484(s32 id);
 Unk80041444 *func_80013534(s32 id);
-void func_80019360(s32, void *, s32, s32);
+void func_80018FEC(struct Unk80019DFC *obj, struct TextBuffer *buf, char *text);
+void func_80019360(struct Unk80019DFC *obj, char *text, s32 id, s32 index);
 void *CdIntToPos(s32 i, void *p);
 short SsUtKeyOn(short vabId, short prog, short tone, short note, short fine, short voll, short volr);
 void func_800119AC(void *task);
@@ -624,7 +626,7 @@ int CdControlF(u_char com, u_char *param);
 void func_80019140(Unk80019DFC *obj, char *text);
 void func_80016260(u16, u16);
 s32 func_80017DDC(s32);
-void func_80017CE8(void);
+void *func_80017CE8(void);
 void func_8001816C(void);
 void func_8001D070(void);
 void func_80019E34(Unk80019DFC *, s32);

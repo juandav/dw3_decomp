@@ -961,7 +961,19 @@ s32 func_800172E8(s32 slot, s32 id) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80017348);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001746C);
+void func_8001746C(s32 slot, s16 *ids) {
+    s32 i;
+    s32 index;
+
+    for (i = 0; i < 3; i++) {
+        index = func_800172E8(slot, ids[i]);
+        if (index >= 0) {
+            D_800484E8.records[slot].unk54[i] = D_800484E8.records[slot].entries[index].unk0;
+        } else {
+            D_800484E8.records[slot].unk54[i] = -1;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80017534);
 
@@ -1134,7 +1146,21 @@ void func_80017CB0(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80017CE8);
+void *func_80017CE8(void) {
+    s32 i;
+    s32 *e;
+
+    for (i = D_8004ADB8.unk19C; i < 100; i++) {
+        e = (s32 *)D_8004ADB8.list[i];
+        if (e != NULL && (D_8004ADB8.unk190 == -1 || e[0] == D_8004ADB8.unk190) &&
+            (D_8004ADB8.unk194 == -1 || e[1] == D_8004ADB8.unk194) &&
+            (D_8004ADB8.unk198 == -1 || e[2] == D_8004ADB8.unk198)) {
+            D_8004ADB8.unk19C = i + 1;
+            return (void *)D_8004ADB8.list[i];
+        }
+    }
+    return NULL;
+}
 
 void func_80017DA8(s32 arg0, s32 arg1, s32 arg2) {
     D_8004ADB8.unk190 = arg0;
@@ -1330,8 +1356,8 @@ void func_80019140(Unk80019DFC *obj, char *text) {
     func_80018FEC(obj, &obj->text[0], text);
 }
 
-void func_80019164(s32 arg0, void *arg1, s32 arg2) {
-    func_80019360(arg0, arg1, arg2, 0);
+void func_80019164(Unk80019DFC *obj, char *text, s32 id) {
+    func_80019360(obj, text, id, 0);
 }
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80019184);
@@ -1346,7 +1372,22 @@ void func_80019308(Unk80019DFC *obj, char *text, s32 index) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80019360);
+void func_80019360(Unk80019DFC *obj, char *text, s32 id, s32 index) {
+    Obj8001F8F8 cls;
+    char *str;
+
+    if (id >= 0) {
+        func_8001F8F8(&cls);
+        str = cls.unk0(text, id);
+        if (str == NULL) {
+            return;
+        }
+        func_80018FEC(obj, &obj->text[index], str);
+    } else {
+        func_80018FEC(obj, &obj->text[index], text);
+    }
+    obj->text[index].dirty = 0;
+}
 
 INCLUDE_RODATA("asm/main/nonmatchings/game", D_800101D8);
 
