@@ -48,11 +48,14 @@ def loads_without_at(lines):
         a, b, c = (split(x) for x in out[i : i + 3])
         if not (a and b and c) or a[0] != "lui" or a[1][:1] != ["$at"]:
             continue
-        if b[0] != "addu" or b[1][:2] != ["$at", "$at"]:
+        if b[0] != "addu" or b[1][0] != "$at" or "$at" not in b[1][1:]:
             continue
         if not LOADS.match(c[0]) or not c[1][1].endswith("($at)"):
             continue
-        dest, index = c[1][0], b[1][2]
+        dest = c[1][0]
+        index = b[1][2] if b[1][1] == "$at" else b[1][1]
+        # maspsx writes `addu $at,$r,$at` for a large constant offset
+        out[i + 1] = f"addu\t$at,$at,{index}"
         if dest in ("$at", index):
             continue
         out[i] = out[i].replace("$at", dest)
