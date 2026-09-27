@@ -28,7 +28,9 @@ void func_80083B08(Task *task, Task **items) {
     }
 }
 
-INCLUDE_ASM("asm/soundtst/nonmatchings/soundtst", func_80083BA8);
+Task *func_80083BA8(void) {
+    return createTask(func_80083B08, sizeof(Task), 4);
+}
 
 INCLUDE_ASM("asm/soundtst/nonmatchings/soundtst", func_80083BD4);
 
