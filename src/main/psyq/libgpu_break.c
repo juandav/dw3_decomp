@@ -1,8 +1,26 @@
 #include "psyq.h"
 
+extern volatile u_long *D_80055800;
+extern volatile u_long *D_80055808;
 extern volatile u_long *D_80055810;
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_break", BreakDraw);
+u_long *BreakDraw(void) {
+    volatile u_long addr;
+
+    if (!(*D_80055808 & 0x01000000)) {
+        return 0;
+    }
+    if (((*D_80055808 & 0x700) >> 8) == 4) {
+        *D_80055808 &= ~0x01000000;
+        addr = *D_80055808;
+        addr = *D_80055800;
+        if ((addr & 0xFFFFFF) == 0xFFFFFF) {
+            return 0;
+        }
+        return (u_long *)addr;
+    }
+    return (u_long *)-1;
+}
 
 int IsIdleGPU(int max_count) {
     int count = 0;
