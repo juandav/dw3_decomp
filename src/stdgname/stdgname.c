@@ -209,7 +209,21 @@ void func_80084750(NameTask *task, char *name) {
     }
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800847E4);
+void func_800847E4(NameTask *task, char *out) {
+    TextTools conv;
+    s32 i;
+
+    for (i = 0; i < task->maxLength * 2; i++) {
+        out[i] = 0;
+    }
+    for (i = task->maxLength - 1; i >= 0 && task->name[i] == 0x4081; i--) {
+        task->name[i] = 0;
+    }
+    for (i = 0; i < task->maxLength && task->name[i] == 0x4081; i++) {
+    }
+    initTextTools(&conv);
+    conv.convert(out, &task->name[i], 1);
+}
 
 INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_800848E4);
 
