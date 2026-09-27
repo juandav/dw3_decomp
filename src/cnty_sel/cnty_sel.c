@@ -530,4 +530,6 @@ void CNTY_SEL_tickMenu(MenuTask *task, MenuChildren *children) {
     }
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_startMenuTask);
+MenuTask *CNTY_SEL_startMenuTask(void) {
+    return func_800144DC(CNTY_SEL_tickMenu, sizeof(MenuTask), sizeof(MenuChildren));
+}
