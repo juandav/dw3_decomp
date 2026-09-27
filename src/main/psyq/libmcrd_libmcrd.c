@@ -196,7 +196,36 @@ long MemCardReadFile(long chan, char *file, u_long *adrs, long ofs, long bytes) 
     return 1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003C8C8);
+extern long D_8005C2D8;
+long func_80024CB8(char *name, long mode);
+
+long func_8003C8C8(UserFuncArg *arg) {
+    switch (arg->data[0]) {
+    case 0:
+        D_8005C2D8 = 0;
+        UserFuncOpen(func_8003BAEC);
+        arg->data[0] = 10;
+        break;
+    case 10:
+        if (D_80082068.unk4 != 0) {
+            return 1;
+        }
+        D_80082068.fd = func_80024CB8((char *)D_80082068.unk24, 0x8001);
+        if (D_80082068.fd < 0) {
+            ((volatile McrdGlobal *)&D_80082068)->unk4 = 5;
+            return 1;
+        }
+    case 11:
+        arg->data[0] = 20;
+        UserFuncOpen(func_8003C39C);
+        return 0;
+    case 20:
+        func_80024CE8(D_80082068.fd);
+        D_80082068.fd = -1;
+        return 1;
+    }
+    return 0;
+}
 
 long MemCardWriteFile(long chan, char *file, u_long *adrs, long ofs, long bytes) {
     volatile long *busy = &D_80082068.unk0;
