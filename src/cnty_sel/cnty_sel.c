@@ -37,13 +37,17 @@ void CNTY_SEL_tickScreen(TaskHeader *task, MenuTask **menu) {
     default:
         /* Wait for the sound bank requested by CNTY_SEL_start */
         if (D_80051194.unk4274() == 0) {
+            /* Free every draw layer, get two 0xA000-byte primitive buffers
+               and a 320x240 display */
             D_8004D5B8.funcs.unk0[0]();
             D_8004D5B8.funcs.unk0[1](0xA000);
             D_8004D5B8.funcs.unk24(320, 240, 0, 0);
+            /* Upload the images to VRAM from (640, 0), their CLUTs from (0, 496) */
             func_8001FBE0(&loader);
             loader.methods[2](0x280, 0);
             loader.methods[3](0, 0x1F0);
             loader.methods[4](D_80044B68[0](CNTY_SEL_IMAGES));
+            /* A full-screen layer cleared to dark gray */
             layer = D_8004D5B8.funcs.unk1C(&CNTY_SEL_screenRect, 3, CNTY_SEL_LAYER);
             layer->unk12C(layer, 0x1F, 0x1F, 0x1F);
             *menu = CNTY_SEL_startMenuTask();
