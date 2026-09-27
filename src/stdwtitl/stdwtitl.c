@@ -159,7 +159,11 @@ LogoTask *STDWTITL_startLogoTask(s32 skip) {
     return task;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_clearVram);
+void STDWTITL_clearVram(void) {
+    ResetGraph(1);
+    ClearImage2(&STDWTITL_vramRect, 0, 0, 0);
+    DrawSync(0);
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_initDecEnv);
 
