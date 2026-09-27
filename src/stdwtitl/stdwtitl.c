@@ -439,7 +439,15 @@ void STDWTITL_showGlint(GlintTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startGlintAltTask);
+GlintTask *STDWTITL_startGlintAltTask(s32 skip) {
+    GlintTask *task = createTask(STDWTITL_tickGlintAlt, sizeof(GlintTask), 0);
+
+    task->show = STDWTITL_showGlint;
+    task->layerId = STDWTITL_TITLE_LAYER;
+    task->depth = 2;
+    task->skip = skip;
+    return task;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawGlint);
 
