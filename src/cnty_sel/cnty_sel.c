@@ -151,7 +151,9 @@ void CNTY_SEL_drawCursor(CursorTask *task) {
     sprite.methods[5](D_80044B68[0](CNTY_SEL_SPRITES), SPRITE_OPTIONS + task->selection, 0, 0);
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_setCursorSelection);
+void CNTY_SEL_setCursorSelection(CursorTask *task, s16 selection) {
+    task->selection = selection;
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_tickCursor);
 
