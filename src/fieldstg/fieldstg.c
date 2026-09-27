@@ -112,7 +112,13 @@ void func_80084294(void) {
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800842C8);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800844B8);
+Unk800842C8 *func_800844B8(s32 arg0) {
+    Unk800842C8 *task = createTask(func_800842C8, sizeof(Unk800842C8), 8);
+
+    task->unk50 = arg0;
+    D_80098B6C[0]();
+    return task;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80084514);
 
