@@ -478,7 +478,41 @@ MemCB MemCardCallback(MemCB func) {
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardSync);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardCreateFile);
+long _card_create2(long chan, char *file, long blocks);
+
+long MemCardCreateFile(long chan, char *file, long blocks) {
+    volatile long *busy = &D_80082068.unk0;
+    char name[32];
+    long ret;
+
+    if (*busy != 0) {
+        printf(D_80010E40);
+        return -1;
+    }
+    func_8003D1EC(chan, name);
+    strcat(name, file);
+    D_80082068.unkC |= 1 << chan;
+    for (;;) {
+        ret = _card_create2(chan, file, blocks);
+        if (ret == 0) {
+            break;
+        }
+        if (ret == -1) {
+            return 7;
+        }
+        if (ret == -2) {
+            return 4;
+        }
+        if (ret == -3) {
+            return 6;
+        }
+        if (ret == 4) {
+            return 2;
+        }
+        return func_8003D0EC(ret);
+    }
+    return 0;
+}
 
 long MemCardFormat(long chan) {
     volatile long *busy = &D_80082068.unk0;
