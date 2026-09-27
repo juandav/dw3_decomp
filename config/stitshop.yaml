@@ -50,5 +50,5 @@ segments:
     subsegments:
       - [0x0, .rodata, stitshop]
       - [0x56C, c, stitshop]
-      - [0x9C8C, data, stitshop]
+      - [0x9C8C, .data, stitshop]
   - [0xA3BC]
