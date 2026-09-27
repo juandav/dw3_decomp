@@ -194,17 +194,25 @@ typedef struct Task8001B6A8 {
 typedef struct Unk8001C5C4 {
     /* 0x00 */ struct Task8001C454 *items[3];
     /* 0x0C */ struct Unk80019DFC *windows[2];
-    /* 0x14 */ struct Task *unk14;
+    /* 0x14 */ struct Task8001BB68 *unk14;
 } Unk8001C5C4;
 
 typedef struct Unk8001BB68 {
-    /* 0x00 */ u8 unk0[0x24];
+    /* 0x00 */ u8 unk0[0xC];
+    /* 0x0C */ s32 state;
+    /* 0x10 */ s32 mode;
+    /* 0x14 */ s32 step;
+    /* 0x18 */ u8 unk18[0xC];
     /* 0x24 */ Unk8001C5C4 *children;
-    /* 0x28 */ u8 unk28[0x28];
+    /* 0x28 */ void (*unk28)(struct Unk8001BB68 *, s32);
+    /* 0x2C */ void (*unk2C)(struct Unk8001BB68 *, s32);
+    /* 0x30 */ u8 unk30[0x10];
+    /* 0x40 */ void (*unk40)(struct Unk8001BB68 *);
+    /* 0x44 */ u8 unk44[0xC];
     /* 0x50 */ s32 file;
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 type;
-    /* 0x5C */ u8 unk5C[4];
+    /* 0x5C */ s32 counter;
     /* 0x60 */ s16 x;
     /* 0x62 */ s16 y;
     /* 0x64 */ s16 w;
@@ -213,7 +221,9 @@ typedef struct Unk8001BB68 {
 } Unk8001BB68;
 
 typedef struct Task8001BB68 {
-    /* 0x00 */ u8 unk0[0x50];
+    /* 0x00 */ u8 unk0[0x28];
+    /* 0x28 */ void (*unk28)(struct Task8001BB68 *, s32);
+    /* 0x2C */ u8 unk2C[0x24];
     /* 0x50 */ Unk8001BB68 *parent;
     /* 0x54 */ s32 frame;
     /* 0x58 */ s32 time;
