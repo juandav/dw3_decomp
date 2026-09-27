@@ -1,5 +1,14 @@
 #include "psyq.h"
 
+/* actuator info table entry (PadPort.unk4 points to an array of them) */
+typedef struct PadActInfo {
+    /* 0x0 */ u_char unk0;
+    /* 0x1 */ u_char unk1;
+    /* 0x2 */ u_char unk2;
+    /* 0x3 */ u_char power;
+    /* 0x4 */ u_char unk4;
+} PadActInfo;
+
 extern u_char D_8007E6B0[2][0x23];
 extern u_char D_8007E6F8[2][0x23];
 extern void (*D_80055518)();
@@ -121,7 +130,64 @@ int func_800214F4(PadPort *p) {
     return i < p->len ? p->data[i] : 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_800215B0);
+extern long D_80055560;
+
+void func_800215B0(PadPort *p) {
+    int i;
+    int j;
+    int n;
+    int found;
+    int power;
+    u_char mask;
+    u_char *align;
+    u_char *act;
+
+    bzero(p->unk57, 6);
+    if (p->unkE6 != 0 && p->actTable != NULL) {
+        n = p->actLen < 7 ? p->actLen : 6;
+        for (i = 0; i < p->unkE9; i++) {
+            found = 0;
+            mask = ((PadActInfo *)p->unk4)[i].unk2 ? 0xFF : 1;
+            align = p->unk5D;
+            act = p->actTable;
+            for (j = 0; j < n; align++, j++, act++) {
+                if (*align == i && (*act & mask)) {
+                    found = 1;
+                    break;
+                }
+            }
+            if (found) {
+                power = D_80055560 + ((PadActInfo *)p->unk4)[i].power;
+                if (power < 0x3D) {
+                    D_80055560 = power;
+                } else {
+                    found = 0;
+                }
+            }
+            if (found) {
+                align = p->unk5D;
+                act = p->unk57;
+                for (j = 0; j < n; j++, act++) {
+                    if (*align++ == i) {
+                        *act = 1;
+                    }
+                }
+            }
+        }
+    } else if ((p->unkE8 == 4 || p->unkE8 == 5 || p->unkE8 == 7) && p->unkE6 == 0 && p->actLen >= 2) {
+        if ((p->actTable[0] & 0xC0) == 0x40 && (p->actTable[1] & 1) && D_80055560 + 10 < 0x3D) {
+            p->unk57[1] = 1;
+            p->unk57[0] = 1;
+            D_80055560 += 10;
+        }
+    } else if (p->unkE8 == 3) {
+        p->unk57[0] = 1;
+    } else if (p->unkE6 == 0) {
+        for (j = 0; j < 6; j++) {
+            p->unk57[j] = 1;
+        }
+    }
+}
 
 PadPort *func_8002182C(int port) {
     PadPort *p = D_8007E4D0;
