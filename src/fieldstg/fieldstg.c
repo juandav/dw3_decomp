@@ -471,7 +471,17 @@ u8 func_800913B4(s32 index) {
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800913CC);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091490);
+void *func_80091490(u8 *list, s32 id) {
+    s32 i;
+
+    for (i = 0; i < 30; i++) {
+        if (*(s32 *)(list + 4) == id) {
+            return list;
+        }
+        list += 0x1C;
+    }
+    return NULL;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800914C0);
 
