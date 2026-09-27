@@ -270,7 +270,19 @@ void STDWTITL_onSliceDecoded(void) {
     LoadImage(&rect, (u_long *)STDWTITL_decEnv.imgbuf[id]);
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_waitFrameDecoded);
+void STDWTITL_waitFrameDecoded(DecEnv *dec, s32 mode) {
+    volatile s32 count = 0x800000;
+
+    while (dec->isdone == 0) {
+        if (--count == 0) {
+            dec->isdone = 1;
+            dec->rectid = dec->rectid == 0;
+            dec->slice.x = dec->rect[dec->rectid].x;
+            dec->slice.y = dec->rect[dec->rectid].y;
+        }
+    }
+    dec->isdone = 0;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickMoviePlayer);
 
