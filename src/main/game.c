@@ -338,7 +338,15 @@ s32 func_80015490(void) {
     return 2;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80015498);
+s32 func_80015498(u8 *data, s32 size, char expected) {
+    u8 sum = 0;
+    s32 i;
+
+    for (i = 0; i < size; i++) {
+        sum ^= *data++;
+    }
+    return ((expected ^ sum) & 0xFF) == 0;
+}
 
 u8 func_800154CC(u8 *data, s32 size) {
     u8 sum = 0;
@@ -378,7 +386,17 @@ INCLUDE_ASM("asm/main/nonmatchings/game", func_800155F8);
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80015814);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80015904);
+s32 func_80015904(s32 arg0, s32 index) {
+    s32 value = D_8004AB24;
+    s32 min = D_80048468[index][0];
+    s32 max = D_80048468[index][1];
+    s32 ret = 0;
+
+    if (value >= min) {
+        ret = max >= value;
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80015940);
 
