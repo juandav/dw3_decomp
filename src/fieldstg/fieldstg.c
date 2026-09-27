@@ -298,7 +298,9 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008B320);
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008B398);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008B410);
+s32 func_8008B410(s32 angle, s32 radius) {
+    return rsin(angle >> 2) * radius / 4096;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008B450);
 
