@@ -275,7 +275,47 @@ void func_8001DDCC(Sprite *sprite, s32 count) {
     func_8001DD80(sprite);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001DE24);
+void func_8001DE24(DrawContext *ctx, s32 arg1, s32 arg2, s32 key, s32 arg4) {
+    DrawEntry *cur;
+    DrawEntry *prev;
+    DrawEntry *e;
+    s32 i;
+    s32 cap;
+
+    if (ctx->unk7C < ctx->unk78) {
+        cur = ctx->unk80;
+        e = &cur[ctx->unk7C];
+        e->unk8 = arg1;
+        e->unkC = arg2;
+        e->key = key;
+        e->unk4 = arg4;
+        prev = NULL;
+        if (ctx->unk7C != 0) {
+            cap = ctx->unk78;
+            for (i = 0; i < cap; i++) {
+                if (cur->key < key) {
+                    cur = prev;
+                    break;
+                }
+                prev = cur;
+                if (cur->next == NULL) {
+                    break;
+                }
+                cur = cur->next;
+            }
+            if (cur->next == NULL) {
+                cur->next = e;
+                e->next = NULL;
+            } else {
+                e->next = cur->next;
+                cur->next = e;
+            }
+        } else {
+            e->next = NULL;
+        }
+        ctx->unk7C++;
+    }
+}
 
 void func_8001DF08(Sprite *sprite, void (*func)(s32, void *, s32), s32 arg2) {
     Callback *cb;
