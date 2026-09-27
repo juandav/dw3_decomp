@@ -63,9 +63,15 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5BB8);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5E48);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5EA4);
+void func_800A5EA4(void) {
+    FLAGS_00.applyAction(0x1C0A, 1);
+    FLAGS_00.applyAction(0x4061, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5EF0);
+void func_800A5EF0(void) {
+    FLAGS_00.applyAction(0x4044, 1);
+    FLAGS_00.applyAction(0x7400, 1);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5F3C);
 

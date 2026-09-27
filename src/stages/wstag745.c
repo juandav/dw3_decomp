@@ -51,7 +51,10 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag745", func_800A54A4);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag745", func_800A5734);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag745", func_800A5790);
+void func_800A5790(void) {
+    FLAGS_00.applyAction(0x4041, 1);
+    FLAGS_00.applyAction(0x7400, 1);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag745", func_800A57DC);
 
