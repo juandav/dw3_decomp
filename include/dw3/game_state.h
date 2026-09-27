@@ -196,20 +196,22 @@ extern ItemInfo ITEM_DATA[];
 extern struct ItemInfo *(*GET_ITEM)(s32 item);
 extern u8 ITEM_TYPE_CATEGORIES[];
 extern s32 MONEY_REQUIRED[];
-extern u8 FLAGS_1C[];
 extern u8 SPECIAL_CONDITIONS[];
 extern u8 FLAGS_40[];
-extern u8 FLAGS_20[];
-extern u8 FLAGS_1A[];
-extern u8 FLAGS_18[];
-extern u8 FLAGS_10[];
-extern u8 FLAGS_0E[];
-extern u8 FLAGS_0C[];
-extern u8 FLAGS_0A[];
-extern u8 FLAGS_08[];
-extern u8 FLAGS_06[];
-extern u8 FLAGS_04[];
+/* The event flag groups in GAME.flags: bitsets packed one after the other, so
+   most start at an odd byte; they are offsets into FLAGS_02 */
 extern u8 FLAGS_02[];
+#define FLAGS_04 (FLAGS_02 + 0xD)
+#define FLAGS_06 (FLAGS_02 + 0xF)
+#define FLAGS_08 (FLAGS_02 + 0x10)
+#define FLAGS_0A (FLAGS_02 + 0x11)
+#define FLAGS_0C (FLAGS_02 + 0x13)
+#define FLAGS_0E (FLAGS_02 + 0x1B)
+#define FLAGS_10 (FLAGS_02 + 0x27)
+#define FLAGS_18 (FLAGS_02 + 0x29)
+#define FLAGS_1A (FLAGS_02 + 0x2A)
+#define FLAGS_1C (FLAGS_02 + 0x33)
+#define FLAGS_20 (FLAGS_02 + 0x3E)
 extern s32 MONEY_GAINS[];
 extern s32 MONEY_LOSSES[];
 extern u8 FLAGS_00[];
