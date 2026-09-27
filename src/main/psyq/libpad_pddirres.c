@@ -21,6 +21,8 @@ int func_8002184C(PadPort *p);
 void func_8002195C();
 int func_80021CA8(PadPort *p);
 void *bzero(u_char *p, int n);
+void _padSendAtLoadInfo(PadPort *port);
+void _padCmdParaMode(PadPort *port, u_char param);
 
 void _padInitDirPort(void) {
     bzero((u_char *)D_8007E4D0, sizeof(D_8007E4D0));
@@ -87,7 +89,40 @@ PadPort *func_8002182C(int port) {
     return p;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_8002184C);
+int func_8002184C(PadPort *p) {
+    if (*p->unk3C == 0xF3) {
+        if (p->unkE8 == 0) {
+            _padCmdParaMode(p, 0);
+            return 0;
+        }
+        if (p->unk46 == 0xFF) {
+            _padCmdParaMode(p, 0);
+            return 0;
+        }
+        if (p->unk49 == 2) {
+            D_8005551C(p);
+        }
+    }
+    switch (p->unk46) {
+    case 1:
+        _padCmdParaMode(p, 1);
+        break;
+    case 0xFE:
+        _padCmdParaMode(p, 0);
+        break;
+    default:
+        if (p->unk14 != NULL) {
+            p->unk14(p);
+        } else {
+            _padSendAtLoadInfo(p);
+        }
+        break;
+    case 0:
+    case 0xFF:
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pddirres", func_8002195C);
 
