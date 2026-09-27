@@ -1,5 +1,11 @@
 #include "psyq.h"
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_ut_rfb", SsUtSetReverbFeedback);
+extern SpuReverbAttr D_80081D00;
+
+void SsUtSetReverbFeedback(short feedback) {
+    D_80081D00.mask = SPU_REV_FEEDBACK;
+    D_80081D00.feedback = feedback;
+    SpuSetReverbModeParam(&D_80081D00);
+}
 
 OBJECT_END();
