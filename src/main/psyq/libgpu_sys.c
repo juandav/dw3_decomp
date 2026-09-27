@@ -206,7 +206,19 @@ void func_80027978(void) {
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_800279AC);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80027AF0);
+int func_80027AF0(int mode) {
+    *D_800557A8 = 0x10000007;
+    if ((*D_800557A4 & 0xFFFFFF) != 2) {
+        *D_800557A4 = (*D_800557A8 & 0x3FFF) | 0xE1001000;
+        *(volatile u_long *)D_800557A4;
+        return 0;
+    }
+    if (!(mode & 8)) {
+        return 1;
+    }
+    *D_800557A8 = 0x09000001;
+    return 2;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", LoadImage2);
 
