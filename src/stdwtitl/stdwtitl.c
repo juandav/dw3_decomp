@@ -1059,6 +1059,8 @@ void STDWTITL_resetMenu(MenuTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_getMenuChoice);
+s32 STDWTITL_getMenuChoice(MenuTask *task) {
+    return task->choice;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startMenuTask);
