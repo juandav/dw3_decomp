@@ -1,5 +1,9 @@
 #include "psyq.h"
 
+typedef struct CardName {
+    char s[6];
+} CardName;
+
 void PushCallbackFunc(void) {
     D_800820C0 = MemCardCallback(NULL);
 }
@@ -106,8 +110,15 @@ INCLUDE_RODATA("asm/main/nonmatchings/psyq/libmcrd_libmcrd", D_80010E10);
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libmcrd_libmcrd", D_80010E40);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003D1EC);
+void func_8003D1EC(long chan, char *name) {
+    *(CardName *)name = *(CardName *)"bu00:";
+    name[2] = '0' + chan / 16;
+    name[3] = '0' + chan % 16;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003D248);
+
+/* ASPSX padded the string table as well */
+__asm__(".section .rodata\n\t.align 4\n");
 
 OBJECT_END();
