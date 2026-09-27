@@ -595,7 +595,9 @@ void STDWTITL_tickSplash(SplashTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startSplashTask);
+Task *STDWTITL_startSplashTask(void) {
+    return createTask(STDWTITL_tickSplash, sizeof(SplashTask), 0);
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_runTitleLoader);
 
