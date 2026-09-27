@@ -1,5 +1,23 @@
 #include "psyq.h"
 
+/* libetc interrupt environment (intrEnv) */
+typedef struct IntrEnv {
+    /* 0x00 */ u_short initialized;
+    /* 0x02 */ u_short inInterrupt;
+    /* 0x04 */ void (*handlers[11])();
+    /* 0x30 */ u_short enabledMask;
+    /* 0x32 */ u_short savedMask;
+    /* 0x34 */ long savedPcr;
+    /* 0x38 */ long buf[12];
+    /* 0x68 */ long stack[1024];
+} IntrEnv;
+
+extern IntrEnv D_8005A6F8;
+extern volatile u_short *D_8005B784;
+extern volatile long *D_8005B78C;
+void func_8002ED18(void);
+void func_8002ED28(long *buf);
+
 int ResetCallback(void) {
     return D_8005B780->resetCallback();
 }
@@ -49,24 +67,6 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002E894);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002EA64);
 
-/* libetc interrupt environment (intrEnv) */
-typedef struct IntrEnv {
-    /* 0x00 */ u_short initialized;
-    /* 0x02 */ u_short inInterrupt;
-    /* 0x04 */ void (*handlers[11])();
-    /* 0x30 */ u_short enabledMask;
-    /* 0x32 */ u_short savedMask;
-    /* 0x34 */ long savedPcr;
-    /* 0x38 */ long buf[12];
-    /* 0x68 */ long stack[1024];
-} IntrEnv;
-
-extern IntrEnv D_8005A6F8;
-extern volatile u_short *D_8005B784;
-extern volatile long *D_8005B78C;
-void func_8002ED18(void);
-void func_8002ED28(long *buf);
-
 void *func_8002EBAC(void) {
     if (D_8005A6F8.initialized == 0) {
         return NULL;
@@ -81,7 +81,17 @@ void *func_8002EBAC(void) {
     return &D_8005A6F8;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002EC4C);
+void *func_8002EC4C(void) {
+    if (D_8005A6F8.initialized != 0) {
+        return NULL;
+    }
+    func_8002ED28(D_8005A6F8.buf);
+    D_8005A6F8.initialized = 1;
+    *D_8005B788 = D_8005A6F8.savedMask;
+    *D_8005B78C = D_8005A6F8.savedPcr;
+    ExitCriticalSection();
+    return &D_8005A6F8;
+}
 
 void func_8002ECC4(long *p, int n) {
     int i = n - 1;
