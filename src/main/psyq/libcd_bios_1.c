@@ -6,7 +6,14 @@ typedef struct {
     u_char c;
 } CD_intr;
 
+typedef struct {
+    int unk0;
+    int unk4;
+    char *unk8;
+} Alarm_t;
+
 extern volatile CD_intr D_8005A5A4[1];
+extern volatile Alarm_t D_80080C68;
 
 INCLUDE_RODATA("asm/main/nonmatchings/psyq/libcd_bios_1", D_8001083C);
 
@@ -18,6 +25,7 @@ extern long D_8005A2DC;
 extern u_char D_8005A2E4;
 extern u_char D_8005A2E5;
 extern char *D_8005A2EC[];
+extern char *D_8005A36C[];
 extern int D_8005A38C[];
 extern int D_8005A48C[];
 extern u_char D_80080C50[8];
@@ -118,6 +126,27 @@ int func_8002C738(void) {
         printf("(%d)\n", nReg);
         return 0;
     }
+}
+
+void CD_flush(void);
+extern char D_80010978[];
+extern char D_80010988[];
+
+static inline void set_alarm(char *name) {
+    ((Alarm_t *)&D_80080C68)->unk0 = VSync(-1) + 960;
+    ((Alarm_t *)&D_80080C68)->unk4 = 0;
+    ((Alarm_t *)&D_80080C68)->unk8 = name;
+}
+
+static inline int get_alarm(void) {
+    if (((Alarm_t *)&D_80080C68)->unk0 < VSync(-1) || ((Alarm_t *)&D_80080C68)->unk4++ > 0x3C0000) {
+        puts(D_80010978);
+        printf(D_80010988, ((Alarm_t *)&D_80080C68)->unk8, *(D_8005A2EC + D_8005A2E5),
+               *(D_8005A36C + D_8005A5A4->sync), *(D_8005A36C + D_8005A5A4->ready));
+        CD_flush();
+        return -1;
+    }
+    return 0;
 }
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_sync);
@@ -230,7 +259,29 @@ int CD_init(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_datasync);
+extern volatile u_long *D_8005A5C0;
+
+int CD_datasync(int mode) {
+    int ret;
+    int m = mode;
+
+    set_alarm("CD_datasync");
+    while (1) {
+        if (get_alarm()) {
+            ret = -1;
+            break;
+        }
+        if (!(*D_8005A5C0 & 0x01000000)) {
+            ret = 0;
+            break;
+        }
+        if (m != 0) {
+            ret = 1;
+            break;
+        }
+    }
+    return ret;
+}
 
 void CD_set_test_parmnum(int num) {
     D_8005A570 = num;
@@ -254,4 +305,5 @@ void func_8002DBDC(void) {
     *D_8005A58C = mask;
 }
 
+__asm__(".section .rodata\n\t.align 4\n");
 OBJECT_END();
