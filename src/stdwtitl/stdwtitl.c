@@ -1050,7 +1050,14 @@ void STDWTITL_showMenu(MenuTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_resetMenu);
+void STDWTITL_resetMenu(MenuTask *task) {
+    if (task->state == TASK_RUN) {
+        task->selection = 2;
+        task->showCursor = 1;
+        task->timer = 0;
+        task->setSubstate(task, 2);
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_getMenuChoice);
 
