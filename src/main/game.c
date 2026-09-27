@@ -1797,7 +1797,21 @@ s32 func_80018CA8(s32 port, s32 on) {
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_80018DC4);
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_80018EA0);
+void func_80018EA0(u16 port) {
+    u8 id = port;
+    s32 i;
+    PadSlot *slot = &D_8004AF78.slots[id >> 4][port & 3];
+
+    for (i = 0; i < 2; i++) {
+        if (slot->actTimers[i] != 0) {
+            if ((slot->actTimers[i] -= D_8004D5B8.funcs.unk3C()) <= 0) {
+                slot->actTimers[i] = 0;
+                D_8004AF78.act[id >> 4][i] = 0;
+            }
+            PadSetAct(port & 0xFF, D_8004AF78.act[id >> 4], 2);
+        }
+    }
+}
 
 void func_80018FA8(s32 arg0) {
     D_8004D3AC = arg0 & 0xFFF;

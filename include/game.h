@@ -70,7 +70,7 @@ typedef struct Funcs8004D708 {
     /* 0x30 */ void (*unk30)();
     /* 0x34 */ void (*unk34)();
     /* 0x38 */ s32 (*unk38)(void);
-    /* 0x3C */ void (*unk3C)();
+    /* 0x3C */ s32 (*unk3C)(void);
 } Funcs8004D708;
 
 typedef struct SoundFuncs {
