@@ -27,7 +27,51 @@ void func_8001D114(void) {
     VSyncCallback(func_8001D070);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/gfx", func_8001D138);
+void func_8001D138(s32 draw) {
+    s32 i;
+    DrawContext *ctx;
+
+    if (draw) {
+        s32 j;
+
+        for (j = 0; j < 30; j++) {
+            ctx = D_8004D5B8.resources[j];
+            if (ctx != NULL) {
+                if (ctx->unk84 != 0) {
+                    ctx->unk158(ctx);
+                }
+                if (ctx->unkCC != 0) {
+                    ctx->unk160(ctx);
+                }
+                ctx->unk154(ctx);
+            }
+        }
+    }
+    DrawSync(0);
+    D_8005C498 = 1;
+    while (*(volatile s32 *)&D_8005C498 != 0) {
+    }
+    if (D_8004D5B8.unk20 != 0) {
+        for (i = 0; i < 30; i++) {
+            if (D_8004D5B8.resources[i] != NULL) {
+                D_8004D5B8.resources[i]->unk130(D_8004D5B8.resources[i]);
+            }
+        }
+    }
+    D_8004D5B8.buffer = D_8004D5B8.buffer == 0;
+    D_8004D5B8.unkC += 0x100;
+    D_8004D5B8.unk8 = D_8004D5B8.unkC >> 8;
+    D_8004D5B8.unk10 = D_8004D5B8.unk14 >> 8;
+    D_8004D5B8.unk18 = D_8004D5B8.unk1C >> 8;
+    D_8004D5B8.unk1C &= 0xFF;
+    D_8004ABD8.unk28[13]();
+    D_8004D5B8.unk20 = (s32)D_8004D5B8.bufs[D_8004D5B8.buffer];
+    for (i = 0; i < 30; i++) {
+        if (D_8004D5B8.resources[i] != NULL) {
+            D_8004D5B8.resources[i]->unk134(D_8004D5B8.resources[i]);
+        }
+    }
+}
 
 s32 func_8001D2EC(void) {
     return D_8004D5B8.unk8;

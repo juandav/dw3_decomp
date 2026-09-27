@@ -6,12 +6,8 @@
 #include <libgte.h>
 #include <libgpu.h>
 
-typedef struct Resource {
-    /* 0x000 */ u8 unk0[0x138];
-    /* 0x138 */ s32 (*unk138)(struct Resource *, s32);
-    /* 0x13C */ u8 unk13C[0x2C];
-    /* 0x168 */ void (*unk168)(struct Resource *);
-} Resource;
+/* Drawing layer: an ordering table with its DRAWENV and methods */
+typedef struct DrawContext Resource;
 
 /* Function tables in .data */
 typedef struct Funcs80047F04 {
@@ -468,6 +464,17 @@ typedef struct DrawContext {
     /* 0x8C */ MATRIX unk8C[2];
     /* 0xCC */ s32 unkCC;
     /* 0xD0 */ MATRIX matrices[2];
+    /* 0x110 */ u8 unk110[0x20];
+    /* 0x130 */ void (*unk130)(struct DrawContext *);
+    /* 0x134 */ void (*unk134)(struct DrawContext *);
+    /* 0x138 */ s32 (*unk138)(struct DrawContext *, s32);
+    /* 0x13C */ u8 unk13C[0x18];
+    /* 0x154 */ void (*unk154)(struct DrawContext *);
+    /* 0x158 */ void (*unk158)(struct DrawContext *);
+    /* 0x15C */ u8 unk15C[4];
+    /* 0x160 */ void (*unk160)(struct DrawContext *);
+    /* 0x164 */ u8 unk164[4];
+    /* 0x168 */ void (*unk168)(struct DrawContext *);
 } DrawContext;
 
 typedef struct SoundEntry {
