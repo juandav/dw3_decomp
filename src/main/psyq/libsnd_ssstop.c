@@ -27,7 +27,7 @@ void _SsSndStop(short sep, short seq) {
     score->unk1C = 0;
     score->unk1D = 0;
     score->unk15 = 0;
-    score->unk16 = 0;
+    score->status = 0;
     score->delta = score->unk84;
     score->unk94 = score->unk8C;
     score->unk54 = score->unk56;
