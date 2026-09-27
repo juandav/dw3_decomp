@@ -25,8 +25,9 @@ if psyq and os.path.realpath(cc1)==os.path.realpath(f'{D}/bin/gcc-2.7.2-psx/cc1'
     sys.path.insert(0,f'{D}/tools'); import patch_cc1; cc1=patch_cc1.ensure()  # what the Makefile uses
 if psyq and not os.environ.get('RERUN'): cflags+=' -fno-rerun-cse-after-loop'
 mflags=os.environ.get('MASPSXFLAGS','--aspsx-version=2.86'+(' --expand-div' if psyq else ''))
+fl='-mhard-float' if psyq else '-msoft-float'  # FLOAT_ABI in the Makefile
 post=f'| python3 {D}/tools/aspsx_reorder.py' if (psyq or os.environ.get('REORDER')) else ''
-cmd=f"mipsel-linux-gnu-cpp -P -undef -D__GNUC__=2 -Dmips -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C -I{D}/include -I{D}/external/psyq_headers/psyq_lib47/include -DSKIP_ASM {src} > {w}.i && {cc1} -quiet -mips1 -mcpu=3000 -mgas -msoft-float -fgnu-linker -Wall -Wno-unused {cflags} -o {w}.s {w}.i && python3 {D}/external/maspsx/maspsx.py {mflags} < {w}.s {post} > {w}.ms.s && mipsel-linux-gnu-as -EL -march=r3000 -no-pad-sections -O1 -G0 -o {w}.o {w}.ms.s"
+cmd=f"mipsel-linux-gnu-cpp -P -undef -D__GNUC__=2 -Dmips -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C -I{D}/include -I{D}/external/psyq_headers/psyq_lib47/include -DSKIP_ASM {src} > {w}.i && {cc1} -quiet -mips1 -mcpu=3000 -mgas {fl} -fgnu-linker -Wall -Wno-unused {cflags} -o {w}.s {w}.i && python3 {D}/external/maspsx/maspsx.py {mflags} < {w}.s {post} > {w}.ms.s && mipsel-linux-gnu-as -EL -march=r3000 -no-pad-sections -O1 -G0 -o {w}.o {w}.ms.s"
 r=subprocess.run(cmd,shell=True,capture_output=True,text=True)
 if r.returncode: print(r.stderr); sys.exit(1)
 if r.stderr.strip(): print(r.stderr.strip())

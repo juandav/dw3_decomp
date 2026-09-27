@@ -32,12 +32,13 @@ def main():
     asm = asm[0]
     unit = os.path.relpath(asm, f"{ROOT}/asm/main/nonmatchings").split("/")[0]
 
-    extra, div = "", ""
+    extra, div, fl = "", "", "-msoft-float"
     if unit == "psyq":
         div = " --expand-div"
         sys.path.insert(0, f"{ROOT}/tools")
         import patch_cc1
 
+        fl = "-mhard-float"  # FLOAT_ABI in the Makefile
         cc1, g, post = patch_cc1.ensure(), 0, f"| python3 {ROOT}/tools/aspsx_reorder.py"
         # PSYQ_RERUN_CSE in the Makefile
         if not os.environ.get("RERUN"):
@@ -69,7 +70,7 @@ def main():
 # usage: compile.sh input.c -o output.o
 set -e
 IN="$1"; OUT="$3"; T="$OUT.tmp"
-{cc1} -quiet -O2 -G{g} -mips1 -mcpu=3000 -mgas -msoft-float \\
+{cc1} -quiet -O2 -G{g} -mips1 -mcpu=3000 -mgas {fl} \\
     -fsigned-char -fno-builtin -fdollars-in-identifiers -w{extra} -o "$T.s" "$IN"
 python3 {ROOT}/external/maspsx/maspsx.py --aspsx-version=2.86 -G{g} \\
     --use-comm-section --use-comm-for-lcomm{div} < "$T.s" {post} > "$T.ms.s"

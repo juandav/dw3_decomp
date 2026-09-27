@@ -32,7 +32,9 @@ CC1 ?= bin/gcc-$(GCC_VERSION)-psx/cc1
 # address of a global where the first pass kept it in a register.
 MASPSX_POST :=
 PSYQ_CSE :=
+FLOAT_ABI := -msoft-float
 $(BUILDDIR)/src/main/psyq/%.c.o: GCC_VERSION := 2.7.2
+$(BUILDDIR)/src/main/psyq/%.c.o: FLOAT_ABI := -mhard-float
 $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_POST := | $(PYTHON) tools/aspsx_reorder.py
 $(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_DIV := --expand-div
 $(BUILDDIR)/src/main/psyq/%.c.o: PSYQ_CSE := -fno-rerun-cse-after-loop
@@ -49,7 +51,7 @@ INC := -Iinclude -Iexternal/psyq_headers/psyq_lib47/include
 CPPFLAGS = $(INC) -undef -nostdinc \
 	    -D__GNUC__=2 -D__GNUC_MINOR__=$(word 2,$(subst ., ,$(GCC_VERSION))) -Dmips -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx \
 	    -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C
-CC1FLAGS = -quiet -O2 -G$(SDATA_LIMIT) -mips1 -mcpu=3000 -mgas -msoft-float \
+CC1FLAGS = -quiet -O2 -G$(SDATA_LIMIT) -mips1 -mcpu=3000 -mgas $(FLOAT_ABI) \
 	    -fgnu-linker -fsigned-char -fno-builtin -fdollars-in-identifiers -Wall -Wno-unused $(PSYQ_CSE)
 MASPSXFLAGS = --aspsx-version=2.86 -G$(SDATA_LIMIT) --use-comm-section --use-comm-for-lcomm $(MASPSX_DIV)
 

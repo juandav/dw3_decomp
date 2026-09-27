@@ -19,11 +19,11 @@ accesses.
    With no costs recorded their preferred class came out as ST_REGS (FP
    condition codes, no SImode), so global.c couldn't place them and reload
    gave them stack slots. The best-class search now starts below ST_REGS,
-   which the soft-float PsyQ code never uses.
-3. scan_loop: invariants of loops that contain calls were judged with half
-   the threshold (`(loop_has_call ? 1 : 2) * (1 + n_non_fixed_regs)`), so
-   constants like the `1` of `1 << voice` stayed in the loop; the ROM hoists
-   them into saved registers (_SsVmKeyOff). The factor is 2 for every loop.
+   which the PsyQ code (no floating point) never uses.
+
+The libraries were also built without -msoft-float (FLOAT_ABI in the Makefile):
+with the FP registers counted, loop.c hoists more invariants into saved
+registers (e.g. the `1` of `1 << voice` in _SsVmKeyOff).
 
 The whole build matches with the patched cc1 (none of the functions that
 already matched changes).
@@ -67,8 +67,6 @@ def patch(src, dst):
         b"\xe9" + (rel + 1).to_bytes(4, "little", signed=True) + b"\x90")
     # 2. regclass+2986: `for (class = ALL_REGS - 1; ...)` -> start at MD_REGS (6)
     put(0x0814313C, b"\xbe\x07\x00\x00\x00", b"\xbe\x06\x00\x00\x00")
-    # 3. scan_loop+596: `mov $1,%edx` (loop_has_call factor) -> `mov $2,%edx`
-    put(0x0810EC65, b"\xba\x01\x00\x00\x00", b"\xba\x02\x00\x00\x00")
 
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     tmp = dst + ".tmp"
