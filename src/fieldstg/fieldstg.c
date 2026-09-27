@@ -156,7 +156,12 @@ Point *func_800863F4(Unk80086144 *arg0) {
     return &D_8009A938;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086418);
+void func_80086418(s32 arg0) {
+    Unk80086144 *task = createTaskWithId(func_80086144, sizeof(Unk80086144), 0x7C, 4);
+
+    task->unk64 = arg0;
+    task->unk130 = func_800863F4;
+}
 
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086460);
 
