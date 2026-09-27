@@ -1,8 +1,28 @@
 #include "psyq.h"
 
 extern u_long *D_8005BA38;
+extern long D_8005BA4C;
+extern long D_8005BA54;
+extern long D_8005BA58;
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libspu_spu_2", _spu_FsetRXXa);
+long _spu_FsetRXXa(long reg, u_long value) {
+    u_short v;
+
+    if (D_8005BA4C != 0 && (value % D_8005BA54) != 0) {
+        value += D_8005BA54;
+        value &= ~D_8005BA58;
+    }
+    v = value >> D_8005BA50;
+    switch (reg) {
+    case -1:
+        return v;
+    case -2:
+        return value;
+    default:
+        D_8005BA28[reg] = v;
+        return value;
+    }
+}
 
 u_long _spu_FgetRXXa(int reg, int mode) {
     u_short v = D_8005BA28[reg];
