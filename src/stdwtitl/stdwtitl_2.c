@@ -162,7 +162,48 @@ void STDWTITL_drawBackgroundSprites(BackgroundTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_tickBackground);
+void STDWTITL_tickBackground(BackgroundTask *task) {
+    s32 i;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->nextState(task);
+        break;
+    case TASK_DONE:
+        if (task->substate == 0) {
+            task->anims[0].index = 0;
+            task->anims[0].timer = STDWTITL_backgroundAnim0[0].duration;
+            task->anims[1].index = 0;
+            task->anims[1].timer = STDWTITL_backgroundAnim1[0].duration;
+            task->anims[2].index = 0;
+            task->anims[2].timer = STDWTITL_backgroundAnim2[0].duration;
+            task->anims[3].index = 0;
+            task->anims[3].timer = STDWTITL_backgroundAnim3[0].duration;
+            task->anims[4].index = 0;
+            task->anims[4].timer = STDWTITL_backgroundAnim4[0].duration;
+            task->anims[5].index = 0;
+            task->anims[5].timer = STDWTITL_backgroundAnim5[0].duration;
+            task->anims[6].index = 0;
+            task->anims[6].timer = STDWTITL_backgroundAnim6[0].duration + RANDOM.next() % 300;
+            task->anims[7].index = 0;
+            task->anims[7].timer = STDWTITL_backgroundAnim7[0].duration + RANDOM.next() % 240;
+            i = RANDOM.next() % 3;
+            task->pos6.x = STDWTITL_background6Positions[i].x;
+            task->pos6.y = STDWTITL_background6Positions[i].y;
+            i = RANDOM.next() % 5;
+            task->pos7.x = STDWTITL_background7Positions[i].x;
+            task->pos7.y = STDWTITL_background7Positions[i].y;
+            task->setSubstate(task, 1);
+        }
+        STDWTITL_drawBackgroundSprites(task);
+    case TASK_RUN:
+        STDWTITL_drawBackground(task);
+        break;
+    case TASK_KILL:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_animateBackground);
 
