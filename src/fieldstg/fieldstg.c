@@ -420,7 +420,12 @@ void func_8008E768(Actor *actor, s32 arg1) {
     actor->unkE8 = 0;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E77C);
+void func_8008E77C(Actor *actor, s32 arg1, s32 dir) {
+    actor->unkEC = 0;
+    actor->setSubstate(actor, 0);
+    actor->dir = dir;
+    func_8008E768(actor, arg1);
+}
 
 s32 func_8008E7D4(Actor *actor) {
     return actor->unkE8;
