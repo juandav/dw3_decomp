@@ -4,6 +4,7 @@ void func_80027FD0(u_char *dst, int value, int n);
 void func_800264B8(DR_ENV *p, DRAWENV *env);
 void func_80027978(void);
 int func_800279AC(void);
+void _GPU_ResetCallback(void);
 
 extern u_long *D_800557B8;
 extern u_long *D_800557BC;
@@ -298,7 +299,7 @@ INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_80027700);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", func_8002783C);
 
-void func_80027978(void) {
+inline void func_80027978(void) {
     D_800557DC = VSync(-1) + 240;
     D_800557E0 = 0;
 }
@@ -319,7 +320,19 @@ int func_80027AF0(int mode) {
     return 2;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", LoadImage2);
+int LoadImage2(RECT *rect, u_long *p) {
+    func_800254DC("LoadImage2", rect);
+    func_80027978();
+    while ((*(volatile u_long *)D_800557B4 & 0x01000000) ||
+           !(*(volatile u_long *)D_800557A8 & 0x04000000)) {
+        if (func_800279AC() != 0) {
+            return -1;
+        }
+    }
+    DMACallback(2, _GPU_ResetCallback);
+    D_80055698->loadImage(rect, p);
+    return 0;
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", StoreImage2);
 
