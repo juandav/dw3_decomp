@@ -368,7 +368,12 @@ void STDWTITL_tickMovie(MovieTask *task, MoviePlayerTask **player) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startMovieTask);
+MovieTask *STDWTITL_startMovieTask(s32 movie) {
+    MovieTask *task = createTask(STDWTITL_tickMovie, sizeof(MovieTask), sizeof(MoviePlayerTask *));
+
+    task->movie = movie;
+    return task;
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_drawGlintAlt);
 
