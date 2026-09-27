@@ -383,6 +383,30 @@ typedef struct Unk80019DFC {
     /* 0x170 */ s32 (*m170)();
 } Unk80019DFC;
 
+typedef struct Task800119AC {
+    /* 0x00 */ u8 unk0[0xC];
+    /* 0x0C */ s32 state;
+    /* 0x10 */ s32 substate;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ u8 unk18[0x20];
+    /* 0x38 */ void (*unk38)(struct Task800119AC *);
+    /* 0x3C */ u8 unk3C[0x14];
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s32 shop;
+    /* 0x5C */ s32 unk5C;
+    /* 0x60 */ s32 count;
+    /* 0x64 */ s32 unk64;
+    /* 0x68 */ s32 unk68;
+    /* 0x6C */ Fade fades[3];
+} Task800119AC;
+
+typedef struct Data800119AC {
+    /* 0x00 */ Task *unk0;
+    /* 0x04 */ Unk80019DFC *windows[6];
+    /* 0x1C */ Task8001ACC8 *unk1C;
+} Data800119AC;
+
 typedef struct Unk8004D49C {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ DVECTOR unk4;
@@ -926,7 +950,7 @@ void func_80018FEC(struct Unk80019DFC *obj, struct TextBuffer *buf, char *text);
 void func_80019360(struct Unk80019DFC *obj, char *text, s32 id, s32 index);
 void *CdIntToPos(s32 i, void *p);
 short SsUtKeyOn(short vabId, short prog, short tone, short note, short fine, short voll, short volr);
-void func_800119AC(void *task);
+void func_800119AC(struct Task800119AC *task, struct Data800119AC *data);
 void func_80011DF0(Task80011FBC *task, s32 fadeOut, s32 duration);
 void func_80011E78(struct Task80011FBC *task);
 void func_80011FBC(struct Task80011FBC *task);
