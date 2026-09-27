@@ -21,7 +21,31 @@ Task *func_80084134(void);
 s32 func_80082D8C(ShockTest *task, ShockTestWindows *win);
 void func_80083B88(ShockLoader *task);
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80082538);
+void func_80082538(Task *task, Task **items) {
+    RECT rect;
+    Layer *res;
+
+    switch (task->state) {
+    case 0:
+    default:
+        GFX.funcs.reset();
+        GFX.funcs.allocPrimBuffers(0x5000);
+        GFX.funcs.setDisplayMode(0x140, 0xF0, 0, 0);
+        rect.x = 0;
+        rect.y = 0;
+        rect.w = 0x140;
+        rect.h = 0xF0;
+        res = GFX.funcs.createLayer(&rect, 1, 0x1000);
+        res->setBgColor(res, 0, 0, 0);
+        items[0] = func_80084134();
+        task->nextState(task);
+        break;
+    case 1:
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", func_80082630);
 
