@@ -270,7 +270,7 @@ typedef struct GpuDebug {
     /* 0x3 */ u_char reverse;
     /* 0x4 */ short w;
     /* 0x6 */ short h;
-    /* 0x8 */ long unk8;
+    /* 0x8 */ volatile long unk8;
     /* 0x0C */ void (*drawSyncCallback)();
     /* 0x10 */ DRAWENV draw; /* also reached as D_800556B0 */
     /* 0x6C */ DISPENV disp; /* also reached as D_8005570C */
@@ -339,7 +339,7 @@ void func_8002FFF8(short);
 void func_80032B98(int);
 void func_80037FD8(void);
 void func_8003B1C8(void);
-void func_800274A0();
+int func_800274A0();
 
 extern IntrFuncs *D_8005B780;
 extern void (*D_8005551C)(PadPort *p);
