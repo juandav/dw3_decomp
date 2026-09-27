@@ -2144,7 +2144,57 @@ s32 func_8001A820(s32 arg0, TextBuffer *buf) {
     return 0x8003;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/game", func_8001A890);
+void func_8001A890(Unk80019DFC *obj) {
+    s32 i;
+
+    switch (obj->unkC) {
+    case 0:
+    default:
+        obj->unk38(obj);
+        break;
+    case 1:
+        if (obj->unkC1 != 0) {
+            if (obj->unkAA > 0 && obj->unkC3 == 0) {
+                if (++obj->unkA8 > obj->unkAA) {
+                    obj->unkA8 = 0;
+                    obj->unkA4++;
+                    if (obj->unkC8 != 0) {
+                        D_800553DC.playSound(obj->unkC8);
+                    }
+                }
+            }
+            func_80019420(obj);
+        }
+        break;
+    case 2:
+        switch (obj->unk10) {
+        case 0:
+        default:
+            func_80019420(obj);
+            if (++obj->unkA8 > obj->unk14) {
+                obj->unkA8 = 0;
+                obj->unk28(obj, 1);
+            }
+            break;
+        case 1:
+            if ((D_8004AF78.getButtons(0) >> D_8004AF78.getButtonBit(0, D_8004D474[obj->unk14])) & 1) {
+                obj->text[0].data[obj->unk18] = 5;
+                obj->unkA8 = obj->unkAA;
+                obj->unk28(obj, 1);
+            }
+            func_80019420(obj);
+            break;
+        }
+        break;
+    case 3:
+        for (i = 0; i < 6; i++) {
+            if (obj->text[i].data != NULL) {
+                D_8004AD84.free(obj->text[i].data);
+            }
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/main/nonmatchings/game", func_8001AAB4);
 
