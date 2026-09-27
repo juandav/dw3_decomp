@@ -3305,10 +3305,11 @@ void func_8001C0C4(Task *task) {
     }
 }
 
-void func_8001C130(s32 arg0) {
-    Task *task = func_800144DC(func_8001C0C4, 0x60, 0);
+Task8001BB68 *func_8001C130(Unk8001BB68 *parent) {
+    Task8001BB68 *task = func_800144DC(func_8001C0C4, 0x60, 0);
 
-    task->unk50 = arg0;
+    task->parent = parent;
+    return task;
 }
 
 typedef struct Order4 {
