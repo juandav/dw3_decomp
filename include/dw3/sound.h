@@ -61,7 +61,7 @@ typedef struct SoundState {
     /* 0x424C */ s32 lastSlot;
     /* 0x4250 */ SoundLoader loader;
     /* 0x4258 */ void (*init)(void);
-    /* 0x425C */ s32 (*playSound)(s32 id); /* returns the voice of a key-on */
+    /* 0x425C */ short (*playSound)(s32 id); /* returns the voice of a key-on */
     /* 0x4260 */ short (*keyOn)(s32 slot, short prog, short note);
     /* 0x4264 */ void (*keyOff)(s32 id, s16 voice);
     /* 0x4268 */ void (*loadBank)(s32 id);
