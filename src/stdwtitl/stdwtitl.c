@@ -338,7 +338,35 @@ MoviePlayerTask *STDWTITL_startMoviePlayerTask(s32 file, u32 endFrame) {
     return task;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickMovie);
+void STDWTITL_tickMovie(MovieTask *task, MoviePlayerTask **player) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        GFX.funcs.reset();
+        GFX.funcs.allocPrimBuffers(0x2800);
+        GFX.funcs.setDisplayMode(320, 480, 1, 1);
+        if (task->movie != 10) {
+            *player = STDWTITL_startMoviePlayerTask(STDWTITL_movies[task->movie].file, STDWTITL_movies[task->movie].endFrame);
+            task->nextMode = STDWTITL_movies[task->movie].nextMode;
+        } else {
+            *player = STDWTITL_startMoviePlayerTask(STDWTITL_movies[11].file, STDWTITL_movies[11].endFrame);
+            task->nextMode = STDWTITL_movies[11].nextMode;
+        }
+        SOUND_STATE.stopAll();
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+        if (*player == NULL) {
+            FONT.load();
+            GAME_FUNCS.requestMode(task->nextMode, 0);
+            task->setState(task, TASK_DONE);
+        }
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startMovieTask);
 
