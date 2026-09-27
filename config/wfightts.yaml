@@ -50,5 +50,5 @@ segments:
     subsegments:
       - [0x0, .rodata, wfightts]
       - [0x9D8, c, wfightts]
-      - [0x3578, data, wfightts]
+      - [0x3578, .data, wfightts]
   - [0x38FC]
