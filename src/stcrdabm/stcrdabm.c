@@ -212,7 +212,31 @@ CardAlbumGrid *func_80083210(CardAlbum *album) {
 
 Task *func_80084DB8(void);
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80083270);
+void func_80083270(Task *task, Task **items) {
+    RECT rect;
+    Layer *res;
+
+    switch (task->state) {
+    case 0:
+    default:
+        GFX.funcs.reset();
+        GFX.funcs.allocPrimBuffers(0xF000);
+        GFX.funcs.setDisplayMode(0x140, 0xF0, 0, 0);
+        rect.x = 0;
+        rect.y = 0;
+        rect.w = 0x140;
+        rect.h = 0xF0;
+        res = GFX.funcs.createLayer(&rect, 3, 0x1000);
+        res->setBgColor(res, 0, 0, 0);
+        items[0] = func_80084DB8();
+        task->nextState(task);
+        break;
+    case 1:
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80083368);
 
