@@ -842,7 +842,42 @@ void STDWTITL_drawTitle0(SlideTask *task) {
     sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 0, task->x, task->y);
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickTitle0);
+void STDWTITL_tickTitle0(SlideTask *task) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->x = -301;
+        task->y = 24;
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+        switch (task->substate) {
+        case 0:
+            break;
+        case 1:
+            task->steps = 10;
+            task->nextSubstate(task);
+        case 2:
+            task->x = -(task->steps * 320) / 10 + 19;
+            if (task->steps-- <= 0) {
+                task->setState(task, TASK_DONE);
+            }
+            STDWTITL_drawTitle0(task);
+            break;
+        }
+        break;
+    case TASK_DONE:
+        if (task->substate == 0) {
+            task->x = 19;
+            task->y = 24;
+            task->nextSubstate(task);
+        }
+        STDWTITL_drawTitle0(task);
+        break;
+    case TASK_KILL:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_startTitle0Task);
 
