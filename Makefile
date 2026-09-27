@@ -150,6 +150,7 @@ C_OVL_OBJ += $$(filter %.c.o,$$($(1)_OBJ))
 $$(GENDIR)/$(1).ld: .EXTRA_PREREQS :=
 $$(GENDIR)/$(1).ld: config/$(1).yaml config/symbols.txt config/symbols_$(1).txt
 	$$(SPLAT) $$< --disassemble-all --make-full-disasm-for-code
+	@touch $$@
 
 $(1)_SYMS := $$(MAIN_SYMS) $$(if $$(OVL_PARENT_$(1)),$$(BUILDDIR)/$$(OVL_PARENT_$(1))_syms.ld)
 $$(BUILDDIR)/$(1).elf: $$($(1)_OBJ) $$(GENDIR)/$(1).ld $$($(1)_SYMS)
@@ -167,10 +168,12 @@ OVL_BIN := $(foreach o,$(OVERLAYS),$(BUILDDIR)/AAA/PRO/$(OVL_FILE_$(o)))
 
 all: $(EXE) $(OVL_BIN)
 
-# Only rerun splat when its own inputs change, never for Makefile edits
+# Only rerun splat when its own inputs change, never for Makefile edits. splat
+# leaves an unchanged linker script alone, so touch it or it reruns every time.
 $(GENDIR)/main.ld: .EXTRA_PREREQS :=
 $(GENDIR)/main.ld: config/main.yaml config/symbols.txt
 	$(SPLAT) $< --disassemble-all --make-full-disasm-for-code
+	@touch $@
 
 generate: $(GENDIR)/main.ld $(OVERLAYS:%=$(GENDIR)/%.ld)
 
