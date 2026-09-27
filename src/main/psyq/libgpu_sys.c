@@ -41,7 +41,16 @@ INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_8001030C);
 
 INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", ResetGraph);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libgpu_sys", SetGraphDebug);
+int SetGraphDebug(int level) {
+    int old = D_800556A0.level;
+
+    D_800556A0.level = level;
+    if (D_800556A0.level) {
+        D_8005569C("SetGraphDebug:level:%d,type:%d reverse:%d\n", D_800556A0.level, D_800556A0.type,
+                   D_800556A0.reverse);
+    }
+    return old;
+}
 
 int SetGraphQueue(int mode) {
     u_char old = D_800556A0.unk1;
