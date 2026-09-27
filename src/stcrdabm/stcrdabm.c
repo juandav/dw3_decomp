@@ -304,7 +304,22 @@ INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80083820);
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80083C4C);
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80084314);
+void func_80084314(CardAlbum *album) {
+    s32 i;
+    s32 card;
+
+    album->pageHasCards = 0;
+    card = album->page * ALBUM_PAGE_CARDS;
+    for (i = 0; i < ALBUM_PAGE_CARDS; i++) {
+        card++;
+        if (card < CARD_COUNT && GAME.cardsSeen[card] != 0) {
+            album->slotHasCard[i] = 1;
+            album->pageHasCards = 1;
+        } else {
+            album->slotHasCard[i] = 0;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", func_80084384);
 
