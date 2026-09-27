@@ -176,7 +176,10 @@ typedef struct SeqStruct {
     /* 0x47 */ u8 unk47;
     /* 0x48 */ short unk48;
     /* 0x4A */ short unk4A;
-    /* 0x4C */ u8 unk4C[0xC];
+    /* 0x4C */ u8 unk4C[6];
+    /* 0x52 */ short unk52;
+    /* 0x54 */ short unk54;
+    /* 0x56 */ u8 unk56[2];
     /* 0x58 */ u_short voll;
     /* 0x5A */ u_short volr;
     /* 0x5C */ u8 unk5C[4];
