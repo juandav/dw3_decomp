@@ -85,7 +85,33 @@ void CNTY_SEL_drawFade(s32 level) {
     D_8004D5B8.funcs.setPrimEnd(mode + 1);
 }
 
-INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_tickBackground);
+void CNTY_SEL_tickBackground(BackgroundTask *task) {
+    switch (task->task.state) {
+    case TASK_INIT:
+    default:
+        task->task.nextState(task);
+        task->scroll = 0;
+        break;
+    case TASK_RUN:
+        task->scroll = (s16)(task->scroll + 1) % 192;
+        CNTY_SEL_drawBackground(task);
+        break;
+    case TASK_TRIGGER:
+        if (task->task.substate == 0) {
+            task->fade = 0;
+            task->task.substate = 1;
+        }
+        task->scroll = (s16)(task->scroll + 1) % 192;
+        CNTY_SEL_drawBackground(task);
+        CNTY_SEL_drawFade(CNTY_SEL_getFadeLevel(task->fade++));
+        if (task->fade >= 30) {
+            task->task.setState(task, TASK_END);
+        }
+        break;
+    case TASK_END:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/cnty_sel/nonmatchings/cnty_sel", CNTY_SEL_startBackgroundTask);
 
