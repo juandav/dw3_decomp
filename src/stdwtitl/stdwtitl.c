@@ -90,7 +90,58 @@ void STDWTITL_drawLogo(LogoTask *task) {
     }
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_tickLogo);
+void STDWTITL_tickLogo(LogoTask *task) {
+    s32 i;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        if (task->skip == 0) {
+            task->nextState(task);
+        } else {
+            task->setState(task, TASK_DONE);
+        }
+        break;
+    case TASK_RUN:
+        switch (task->substate) {
+        case 0:
+            break;
+        case 1:
+            task->visible = 1;
+            task->nextSubstate(task);
+            task->anims[0].index = 0;
+            task->anims[1].index = 0;
+        case 2:
+            for (i = 0; i < 2; i++) {
+                if (!task->anims[i].done) {
+                    if (STDWTITL_logoFrames[i][task->anims[i].index] == -1) {
+                        task->anims[i].done = 1;
+                        task->anims[i].index--;
+                    }
+                    task->anims[i].frame = STDWTITL_logoFrames[i][task->anims[i].index];
+                    task->anims[i].index++;
+                }
+            }
+            if (task->anims[0].done + task->anims[1].done == 2) {
+                task->setSubstate(task, 2);
+            }
+            STDWTITL_drawLogo(task);
+            break;
+        }
+        break;
+    case TASK_DONE:
+        if (task->substate == 0) {
+            task->anims[0].frame = 11;
+            task->anims[1].frame = 7;
+            task->visible = 1;
+            task->nextSubstate(task);
+        }
+        STDWTITL_drawLogo(task);
+        break;
+    case TASK_KILL:
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl", STDWTITL_showLogo);
 
