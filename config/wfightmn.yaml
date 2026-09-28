@@ -1,0 +1,54 @@
+name: wfightmn
+sha1: 282918640a4cb1b3f1911eeb88981d8f4d73533f
+options:
+  basename: wfightmn
+  target_path: disks/us/AAA/PRO/WFIGHTMN.PRO
+  base_path: ..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/wfightmn
+  src_path: src/wfightmn
+  build_path: build
+
+  ld_script_path: build/generated/wfightmn.ld
+
+  global_vram_start: 0x80000000
+  global_vram_end: 0x80200000
+
+  find_file_boundaries: True
+  gp_value: 0x8005C2F8
+
+  generate_asm_macros_files: False
+
+  section_order: [".rodata", ".text", ".data", ".bss"]
+
+  symbol_addrs_path:
+    - config/symbols.txt
+    - config/symbols_wfightmn.txt
+
+  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_wfightmn.txt
+  undefined_syms_auto_path: build/generated/undefined_syms_auto_wfightmn.txt
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  ld_bss_is_noload: False
+
+  migrate_rodata_to_functions: True
+  create_data_pads: False
+
+segments:
+  - name: wfightmn
+    type: code
+    start: 0x0
+    vram: 0x800A4CA4
+    align: 4
+    subalign: 4
+    subsegments:
+      - [0x0, .rodata, wfightmn]
+      - [0xEC, c, wfightmn]
+      - [0x4EB4, data, wfightmn]
+  - [0x5078]

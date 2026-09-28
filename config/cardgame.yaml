@@ -1,0 +1,54 @@
+name: cardgame
+sha1: 882601c1b0dd9a1e43f4eb5335885e6856691763
+options:
+  basename: cardgame
+  target_path: disks/us/AAA/PRO/CARDGAME.PRO
+  base_path: ..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/cardgame
+  src_path: src/cardgame
+  build_path: build
+
+  ld_script_path: build/generated/cardgame.ld
+
+  global_vram_start: 0x80000000
+  global_vram_end: 0x80200000
+
+  find_file_boundaries: True
+  gp_value: 0x8005C2F8
+
+  generate_asm_macros_files: False
+
+  section_order: [".rodata", ".text", ".data", ".bss"]
+
+  symbol_addrs_path:
+    - config/symbols.txt
+    - config/symbols_cardgame.txt
+
+  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_cardgame.txt
+  undefined_syms_auto_path: build/generated/undefined_syms_auto_cardgame.txt
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  ld_bss_is_noload: False
+
+  migrate_rodata_to_functions: True
+  create_data_pads: False
+
+segments:
+  - name: cardgame
+    type: code
+    start: 0x0
+    vram: 0x80082448
+    align: 4
+    subalign: 4
+    subsegments:
+      - [0x0, .rodata, cardgame]
+      - [0x117C, c, cardgame]
+      - [0x218B0, data, cardgame]
+  - [0x2285C]

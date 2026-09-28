@@ -26,11 +26,12 @@ DEFINES = (
 
 def main():
     draft, func = sys.argv[1], sys.argv[2]
-    asm = glob.glob(f"{ROOT}/asm/main/nonmatchings/**/{func}.s", recursive=True)
+    asm = glob.glob(f"{ROOT}/asm/*/nonmatchings/**/{func}.s", recursive=True)
     if not asm:
         sys.exit(f"no asm for {func}")
     asm = asm[0]
-    unit = os.path.relpath(asm, f"{ROOT}/asm/main/nonmatchings").split("/")[0]
+    # asm/<main or overlay>/nonmatchings/<unit>/...
+    unit = os.path.relpath(asm, f"{ROOT}/asm").split("/")[2]
 
     extra, div, fl, pre = "", "", "-msoft-float", ""
     if unit == "psyq":

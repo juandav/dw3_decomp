@@ -1,5 +1,7 @@
 .EXTRA_PREREQS := $(abspath $(lastword $(MAKEFILE_LIST)))
 
+.DEFAULT_GOAL := all
+
 -include local.mk
 
 TOOLCHAIN ?= mipsel-linux-gnu-
@@ -82,12 +84,13 @@ LDFLAGS := -nostdlib --no-check-sections -Map $(MAP) \
 	   -T $(GENDIR)/undefined_syms_auto_main.txt \
 	   -T $(GENDIR)/undefined_funcs_auto_main.txt
 
-C_SRC := $(shell find src -name '*.c' 2> /dev/null)
+ALL_C_SRC := $(shell find src -name '*.c' 2> /dev/null)
+C_SRC := $(filter src/main/%,$(ALL_C_SRC))
 
 # Target objects for objdiff: splat's full disassembly of every C unit
-TARGET_ASM := $(C_SRC:src/%.c=$(ASM_DIR)/%.s)
+TARGET_ASM := $(ALL_C_SRC:src/%.c=$(ASM_DIR)/%.s)
 
-ASM_SRC := $(filter-out $(TARGET_ASM),$(shell find $(ASM_DIR) -name '*.s' \
+ASM_SRC := $(filter-out $(TARGET_ASM),$(shell find $(ASM_DIR)/main -name '*.s' \
 	   -not -path '*/nonmatchings/*' -not -path '*/matchings/*' 2> /dev/null))
 
 C_OBJ := $(C_SRC:%.c=$(BUILDDIR)/%.c.o)
@@ -96,20 +99,107 @@ TARGET_OBJ := $(TARGET_ASM:%.s=$(BUILDDIR)/%.s.o)
 BIN_OBJ := $(BUILDDIR)/assets/tail.bin.o
 OBJ := $(C_OBJ) $(ASM_OBJ) $(BIN_OBJ)
 
-all: $(EXE)
+# Overlays: the game's AAA/PRO/*.PRO files, loaded at 0x80082448 after the
+# executable's .bss. Each one has its own splat config (config/<name>.yaml),
+# sources (src/<name>, asm/<name>) and output (build/AAA/PRO/<FILE>.PRO), and
+# is linked against the executable's symbols (MAIN_SYMS).
+OVERLAYS := cardgame cnty_sel fieldstg fightstg shocktst soundtst stagslct stcrdabm stcrddek stcrdshp stdgname stdwtitl stfgtrep stgdglab stgmcard stgtrain stitshop stplnmet ststatus wfightmn wfightts
+OVL_FILE_cardgame := CARDGAME.PRO
+OVL_FILE_cnty_sel := CNTY_SEL.PRO
+OVL_FILE_fieldstg := FIELDSTG.PRO
+OVL_FILE_fightstg := FIGHTSTG.PRO
+OVL_FILE_shocktst := SHOCKTST.PRO
+OVL_FILE_soundtst := SOUNDTST.PRO
+OVL_FILE_stagslct := STAGSLCT.PRO
+OVL_FILE_stcrdabm := STCRDABM.PRO
+OVL_FILE_stcrddek := STCRDDEK.PRO
+OVL_FILE_stcrdshp := STCRDSHP.PRO
+OVL_FILE_stdgname := STDGNAME.PRO
+OVL_FILE_stdwtitl := STDWTITL.PRO
+OVL_FILE_stfgtrep := STFGTREP.PRO
+OVL_FILE_stgdglab := STGDGLAB.PRO
+OVL_FILE_stgmcard := STGMCARD.PRO
+OVL_FILE_stgtrain := STGTRAIN.PRO
+OVL_FILE_stitshop := STITSHOP.PRO
+OVL_FILE_stplnmet := STPLNMET.PRO
+OVL_FILE_ststatus := STSTATUS.PRO
+OVL_FILE_wfightmn := WFIGHTMN.PRO
+OVL_FILE_wfightts := WFIGHTTS.PRO
+OVL_PARENT_wfightmn := cardgame
+OVL_PARENT_wfightts := cardgame
 
-# Only rerun splat when its own inputs change, never for Makefile edits
+# The stage overlays (AAA/PRO/WSTAG###.PRO), listed in config/stages.txt, load
+# on top of FIELDSTG. Their splat configs are made by tools/stage_yaml.py and
+# their sources are src/stages/<name>.c and asm/stages/.
+STAGES := $(shell awk '!/^\#/ && NF { print tolower($$1) }' config/stages.txt)
+OVERLAYS += $(STAGES)
+$(foreach s,$(STAGES),\
+	$(eval OVL_FILE_$(s) := $(shell echo $(s) | tr a-z A-Z).PRO)\
+	$(eval OVL_PARENT_$(s) := fieldstg)\
+	$(eval OVL_YAML_$(s) := $(GENDIR)/stages/$(s).yaml)\
+	$(eval OVL_C_SRC_$(s) := src/stages/$(s).c)\
+	$(eval OVL_ASM_SRC_$(s) := $(wildcard $(ASM_DIR)/stages/data/$(s).*.s))\
+	$(eval OVL_SYMBOLS_$(s) := config/symbols_fieldstg.txt $(wildcard config/stages/$(s).txt)))
+
+$(GENDIR)/stages/%.yaml: config/stages.txt tools/stage_yaml.py
+	$(PYTHON) tools/stage_yaml.py $* $@
+
+# The executable's own symbols for the overlays to link against (not the
+# absolute ones it only references, such as FIELDSTG functions it calls).
+NM := $(TOOLCHAIN)nm
+MAIN_SYMS := $(BUILDDIR)/main_syms.ld
+$(MAIN_SYMS): $(ELF)
+	$(NM) $< | awk '$$2 ~ /^[TDRBSG]$$/ { printf "%s = 0x%s;\n", $$3, $$1 }' > $@
+
+# An overlay loaded on top of another one (OVL_PARENT_<name>) also links
+# against its parent's symbols.
+$(BUILDDIR)/%_syms.ld: $(BUILDDIR)/%.elf
+	$(NM) $< | awk '$$2 ~ /^[TDRBSG]$$/ { printf "%s = 0x%s;\n", $$3, $$1 }' > $@
+
+define OVERLAY_template
+$(1)_C_SRC := $$(filter $$(or $$(OVL_C_SRC_$(1)),src/$(1)/%),$$(ALL_C_SRC))
+$(1)_ASM_SRC := $$(filter-out $$(TARGET_ASM),$$(if $$(OVL_YAML_$(1)),$$(OVL_ASM_SRC_$(1)),\
+	$$(shell find $$(ASM_DIR)/$(1) -name '*.s' \
+	-not -path '*/nonmatchings/*' -not -path '*/matchings/*' 2> /dev/null)))
+$(1)_OBJ := $$($(1)_C_SRC:%.c=$$(BUILDDIR)/%.c.o) $$($(1)_ASM_SRC:%.s=$$(BUILDDIR)/%.s.o)
+C_OVL_OBJ += $$(filter %.c.o,$$($(1)_OBJ))
+
+$$(GENDIR)/$(1).ld: .EXTRA_PREREQS :=
+$$(GENDIR)/$(1).ld: $$(or $$(OVL_YAML_$(1)),config/$(1).yaml) config/symbols.txt \
+		$$(or $$(OVL_SYMBOLS_$(1)),config/symbols_$(1).txt)
+	$$(SPLAT) $$< --disassemble-all --make-full-disasm-for-code
+	@touch $$@
+
+$(1)_SYMS := $$(MAIN_SYMS) $$(if $$(OVL_PARENT_$(1)),$$(BUILDDIR)/$$(OVL_PARENT_$(1))_syms.ld)
+$$(BUILDDIR)/$(1).elf: $$($(1)_OBJ) $$(GENDIR)/$(1).ld $$($(1)_SYMS)
+	$$(LD) -nostdlib --no-check-sections -Map $$(BUILDDIR)/$(1).map \
+		-T $$(GENDIR)/$(1).ld $$(addprefix -T ,$$($(1)_SYMS)) \
+		-T $$(GENDIR)/undefined_syms_auto_$(1).txt \
+		-T $$(GENDIR)/undefined_funcs_auto_$(1).txt -o $$@
+
+$$(BUILDDIR)/AAA/PRO/$$(OVL_FILE_$(1)): $$(BUILDDIR)/$(1).elf
+	@mkdir -p $$(dir $$@)
+	$$(OBJCOPY) -O binary $$< $$@
+endef
+$(foreach o,$(OVERLAYS),$(eval $(call OVERLAY_template,$(o))))
+OVL_BIN := $(foreach o,$(OVERLAYS),$(BUILDDIR)/AAA/PRO/$(OVL_FILE_$(o)))
+
+all: $(EXE) $(OVL_BIN)
+
+# Only rerun splat when its own inputs change, never for Makefile edits. splat
+# leaves an unchanged linker script alone, so touch it or it reruns every time.
 $(GENDIR)/main.ld: .EXTRA_PREREQS :=
 $(GENDIR)/main.ld: config/main.yaml config/symbols.txt
 	$(SPLAT) $< --disassemble-all --make-full-disasm-for-code
+	@touch $@
 
-generate: $(GENDIR)/main.ld
+generate: $(GENDIR)/main.ld $(OVERLAYS:%=$(GENDIR)/%.ld)
 
 regenerate: reset
 	$(MAKE) generate
 
-compare: $(EXE)
-	@sha1sum -c config/SLUS_014.36.sha1
+compare: $(EXE) $(OVL_BIN)
+	@sha1sum -c config/SLUS_014.36.sha1 config/overlays.sha1 config/stages.sha1
 
 $(EXE): $(ELF)
 	$(OBJCOPY) -O binary $< $@
@@ -148,7 +238,7 @@ $(BUILDDIR)/assets/%.bin.o: assets/%.bin
 	@mkdir -p $(dir $@)
 	$(LD) -r -b binary -o $@ $<
 
-expected: $(TARGET_OBJ) $(C_OBJ)
+expected: $(TARGET_OBJ) $(C_OBJ) $(C_OVL_OBJ)
 	rm -rf $(EXPECTEDDIR)
 	@mkdir -p $(EXPECTEDDIR)
 	cp -r $(BUILDDIR)/$(ASM_DIR) $(EXPECTEDDIR)/$(ASM_DIR)
@@ -165,6 +255,6 @@ clean:
 reset: clean
 	rm -rf $(ASM_DIR) $(EXPECTEDDIR) assets
 
--include $(C_OBJ:.o=.d)
+-include $(C_OBJ:.o=.d) $(C_OVL_OBJ:.o=.d)
 
 .PHONY: all generate regenerate compare expected objdiff report clean reset

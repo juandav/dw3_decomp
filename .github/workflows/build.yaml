@@ -7,7 +7,7 @@ permissions:
   contents: read
 jobs:
   build:
-    # The original executable lives in a private repository that only this
+    # The original executable and overlays live in a private repository that only this
     # repository's own runs can read, so builds from forks are skipped.
     if: >-
       github.repository == 'juandav/dw3_decomp' &&
@@ -28,8 +28,9 @@ jobs:
         persist-credentials: false
 
     - run: |
-        mkdir -p disks/us
+        mkdir -p disks/us/AAA
         cp dependencies/SLUS_014.36 disks/us/
+        cp -r dependencies/AAA/PRO disks/us/AAA/
         rm -rf dependencies
 
     - run: |
