@@ -79,7 +79,27 @@ void func_80087B34(NameEntry *entry, char *text) {
     }
 }
 
-INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80087BC8);
+void func_80087BC8(NameEntry *entry, char *dst) {
+    TextTools tools;
+    s32 i;
+
+    for (i = 0; i < entry->maxLength * 2; i++) {
+        dst[i] = 0;
+    }
+    for (i = entry->maxLength - 1; i >= 0; i--) {
+        if (entry->text[i] != SJIS_SPACE) {
+            break;
+        }
+        entry->text[i] = 0;
+    }
+    for (i = 0; i < entry->maxLength; i++) {
+        if (entry->text[i] != SJIS_SPACE) {
+            break;
+        }
+    }
+    initTextTools(&tools);
+    tools.convert(dst, &entry->text[i], 1);
+}
 
 INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80087CC8);
 
