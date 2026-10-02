@@ -62,8 +62,6 @@ void func_8002E580(long count, long timeout) {
     }
 }
 
-INCLUDE_ASM("main/nonmatchings/psyq/libetc_vsync", ChangeClearPAD);
-
 __asm__(".section .rodata\n"
         "\t.align 2\n"
         "\t.asciz \"$Id: intr.c,v 1.75 1997/02/07 09:00:36 makoto Exp $\"\n"

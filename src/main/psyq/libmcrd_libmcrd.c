@@ -632,8 +632,6 @@ void func_8003D1EC(long chan, char *name) {
     name[3] = '0' + chan % 16;
 }
 
-INCLUDE_ASM("main/nonmatchings/psyq/libmcrd_libmcrd", func_8003D248);
-
 /* ASPSX padded the string table as well */
 __asm__(".section .rodata\n\t.align 4\n");
 

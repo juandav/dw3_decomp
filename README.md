@@ -50,7 +50,8 @@ badges above are always current:
   (`text_window.c`). Its data is C too, in `src/main/data/`, until it moves
   next to the code that uses it.
 - The PsyQ 4.7 libraries linked into the executable are decompiled too, one
-  file per library object: 475 of their 563 functions are C. They are Sony's
+  file per library object: 479 of their 563 functions are C, and the 71 Sony
+  wrote in assembly are `.s` sources. They are Sony's
   code, not the game's, so like other PSX decomps they are built and compared
   but left out of the progress.
 - `CNTY_SEL` and `SOUNDTST` are all C, and `STDWTITL`, `STDGNAME`,
@@ -81,7 +82,7 @@ above counts them: fake matches, then the other two kinds together.
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 2 | `/* unused, but it is in the original stack frame */` |
 | Form-dependent matches | 0 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 2,048 | `INCLUDE_ASM` |
+| Functions still in assembly | 1,977 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -160,7 +161,7 @@ named by subsystem:
 | `src/main/text_window.c` | text windows, font, cursor and message boxes | `0x80018FEC`-`0x8001D070` |
 | `src/main/graphics.c` | display, drawing layers, sprite/TIM/card drawers | `0x8001D070`-`0x8001FC68` |
 | `src/main/sound.c` | sound banks and the mode overlay loader | `0x8001FC68`-`0x80020998` |
-| `src/main/psyq/` | the PsyQ libraries, one file per library object | `0x80020998`-`0x8003E9D8` |
+| `src/main/psyq/` | the PsyQ libraries, one file per library object (`.s` for the ones written in assembly) | `0x80020998`-`0x8003E9D8` |
 
 Memory maps (psylink puts `.rodata` in front of `.text`):
 
@@ -248,9 +249,14 @@ One source tree builds every version, one at a time, picked with `VERSION`
   built with the second CSE pass.
 - `src/main/psyq/` is cut at the object boundaries found from the signatures
   and from the padding between objects: ASPSX pads the `.text` of every
-  object to a multiple of 16 bytes with `nop`s. Every file ends with
+  object to a multiple of 16 bytes with `nop`s. Every C file ends with
   `OBJECT_END()` (from `include_asm.h`), which reproduces that padding when
   the last function is in C.
+- The 56 PsyQ objects Sony wrote in assembly (the BIOS calls, the GTE
+  functions of `libgte`, the BIOS patches, `setjmp`) are `src/main/psyq/*.s`,
+  splat `hasm` segments: each says at its top what shows it is hand-written.
+  splat writes such a file only when it is missing, and the symbols it uses
+  are named in `config/<version>/symbols.txt` as for C.
 - The PsyQ files include the PsyQ 4.7 headers from
   [psyq_headers](https://github.com/jype0/psyq_headers). `libgte.h` names
   some parameters `$2`, hence `-fdollars-in-identifiers`. Both code bases use
@@ -410,7 +416,7 @@ versions in the Docker image whenever the image or what it installs changes.
 |---|---|
 | `src/main/` | the executable's game code, one file per original object (see [above](#the-games-binaries)) |
 | `src/main/data/` | the executable's data as C, until it moves next to the code that uses it |
-| `src/main/psyq/` | the PsyQ libraries, one file per library object |
+| `src/main/psyq/` | the PsyQ libraries, one file per library object: C, or `.s` for the 56 objects Sony wrote in assembly |
 | `src/<overlay>/` | each overlay's C; `<overlay>_2.c` is the second half of an object split in two |
 | `src/stages/` | one C file per stage, `wstag###.c` |
 | `include/game.h`, `include/dw3/` | types and declarations of the game code, one header per engine module (`task.h`, `heap.h`, `graphics.h`, `files.h`, `pad.h`, `sound.h`, `text.h`, `game_state.h`, `memcard.h`, `menus.h`) |

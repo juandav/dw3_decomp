@@ -127,8 +127,11 @@ TARGET_ASM := $(filter-out $(ASM_DIR)/main/data/%,$(ALL_C_SRC:src/%.c=$(ASM_DIR)
 ASM_SRC := $(filter-out $(TARGET_ASM),$(shell find $(ASM_DIR)/main -name '*.s' \
 	   -not -path '*/nonmatchings/*' -not -path '*/matchings/*' 2> /dev/null))
 
+# The PsyQ objects Sony wrote in assembly are source too (hasm segments)
+HASM_SRC := $(wildcard src/main/psyq/*.s)
+
 C_OBJ := $(MAIN_C_SRC:%.c=$(BUILDDIR)/%.c.o)
-ASM_OBJ := $(ASM_SRC:%.s=$(BUILDDIR)/%.s.o)
+ASM_OBJ := $(ASM_SRC:%.s=$(BUILDDIR)/%.s.o) $(HASM_SRC:%.s=$(BUILDDIR)/%.s.o)
 TARGET_OBJ := $(TARGET_ASM:%.s=$(BUILDDIR)/%.s.o)
 BIN_OBJ := $(BUILDDIR)/$(ASSETS_DIR)/tail.bin.o
 OBJ := $(C_OBJ) $(ASM_OBJ) $(BIN_OBJ)

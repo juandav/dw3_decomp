@@ -75,10 +75,10 @@ version's C. The stages are still one asm segment each.
 
 ## PsyQ
 
-- [ ] 84 of the 563 PsyQ functions are still `INCLUDE_ASM`, in 64 objects
-  (`libcard_patch` 7, `libmcrd_libmcrd` 4 and the rest 3 or fewer); 166
-  are still named `func_`. Check which of them were written in assembly,
-  not compiled, and make those `.s` sources.
+- [ ] 13 of the 563 PsyQ functions are still `INCLUDE_ASM`, in 9 objects
+  (`libmcrd_libmcrd` 3 and the rest 2 or fewer), all compiled code; 166
+  are still named `func_`. What Sony wrote in assembly (71 functions, 56
+  objects) is `.s` sources in `src/main/psyq/`.
 - [ ] 9 `INCLUDE_RODATA`: `libgpu_sys` 4, `libcd_bios_1` 3 and
   `libmcrd_libmcrd` 2 (two strings that `MemCardOpen`, still asm, reads).
 

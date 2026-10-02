@@ -117,7 +117,9 @@ give it real types once the code that uses it is understood.
   `do { } while (0)` whose loop notes keep GCC 2.8's scheduler from moving
   code across it, probably a debug print compiled out of the release.
 - Code that was written in assembly, not compiled, stays as assembly. Say in
-  a comment what shows it is hand-written (things no compiler emits).
+  a comment what shows it is hand-written (things no compiler emits). An
+  object that is all assembly is a `.s` source, a splat `hasm` segment, as
+  the PsyQ ones in `src/main/psyq/` are.
 
 ## Versions
 

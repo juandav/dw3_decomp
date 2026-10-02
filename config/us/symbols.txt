@@ -865,6 +865,22 @@ MCRD_READ_RETRIES = 0x8005C2D0;
 MCRD_WRITE_RETRIES = 0x8005C2D4;
 MCRD_READ_FILE_RETRIES = 0x8005C2D8;
 MCRD_WRITE_FILE_RETRIES = 0x8005C2DC;
+// libgte: the sine and cosine of each of the 4096 angles, as RotMatrix reads
+// them, and the square roots SquareRoot0 scales
+rcossin_tbl = 0x800561D0;
+SQRT_TABLE = 0x80056050;
+// The hand-written patches of the BIOS (libapi, libcard, libgte) and InitGeom
+// keep $ra here while they call out
+PATCH_PAD_RA = 0x80081FF8;
+REMOVE_CHGCLRPAD_RA = 0x80082008;
+PATCH_CARD_RA = 0x80082018;
+EXIT_CARD_RA = 0x80082028;
+PATCH_GTE_RA = 0x80080BD0;
+INIT_GEOM_RA = 0x80056040;
+// libapi: the BIOS's routines that EnablePAD and DisablePAD jump to, which
+// _patch_pad finds
+PAD_ENABLE_FUNC = 0x80082000;
+PAD_DISABLE_FUNC = 0x80082004;
 
 // Start of RAM, reached by OR-ing 0x80000000 into physical addresses: a constant, not a symbol
 D_80000000 = 0x80000000; // ignore:true
