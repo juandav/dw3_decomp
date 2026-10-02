@@ -1,17 +1,18 @@
+# Digimon World 3, USA (SLUS-01436): soundtst
 name: soundtst
 sha1: a98ad009db0c0c15b210755c2cb108e6e3e1a0dd
 options:
   basename: soundtst
   target_path: disks/us/AAA/PRO/SOUNDTST.PRO
-  base_path: ..
+  base_path: ../..
   platform: psx
   compiler: GCC
 
-  asm_path: asm/soundtst
+  asm_path: asm/us/soundtst
   src_path: src/soundtst
-  build_path: build
+  build_path: build/us
 
-  ld_script_path: build/generated/soundtst.ld
+  ld_script_path: build/us/generated/soundtst.ld
 
   global_vram_start: 0x80000000
   global_vram_end: 0x80200000
@@ -24,11 +25,11 @@ options:
   section_order: [".rodata", ".text", ".data", ".bss"]
 
   symbol_addrs_path:
-    - config/symbols.txt
-    - config/symbols_soundtst.txt
+    - config/us/symbols.txt
+    - config/us/symbols_soundtst.txt
 
-  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_soundtst.txt
-  undefined_syms_auto_path: build/generated/undefined_syms_auto_soundtst.txt
+  undefined_funcs_auto_path: build/us/generated/undefined_funcs_auto_soundtst.txt
+  undefined_syms_auto_path: build/us/generated/undefined_syms_auto_soundtst.txt
 
   string_encoding: ASCII
   data_string_encoding: ASCII

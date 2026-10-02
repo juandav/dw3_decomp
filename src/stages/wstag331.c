@@ -32,4 +32,4 @@ void func_800A4D78(void) {
     FLAGS_00.applyAction(0x406A, 1);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag331", func_800A4DA4);
+INCLUDE_ASM("stages/nonmatchings/wstag331", func_800A4DA4);

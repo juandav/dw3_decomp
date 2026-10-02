@@ -62,7 +62,7 @@ void func_8002E580(long count, long timeout) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_vsync", ChangeClearPAD);
+INCLUDE_ASM("main/nonmatchings/psyq/libetc_vsync", ChangeClearPAD);
 
 __asm__(".section .rodata\n"
         "\t.align 2\n"

@@ -1,17 +1,18 @@
+# Digimon World 3, USA (SLUS-01436): fieldstg
 name: fieldstg
 sha1: 1168fd67a6fed16e7a084ee67449af9b8f216b8c
 options:
   basename: fieldstg
   target_path: disks/us/AAA/PRO/FIELDSTG.PRO
-  base_path: ..
+  base_path: ../..
   platform: psx
   compiler: GCC
 
-  asm_path: asm/fieldstg
+  asm_path: asm/us/fieldstg
   src_path: src/fieldstg
-  build_path: build
+  build_path: build/us
 
-  ld_script_path: build/generated/fieldstg.ld
+  ld_script_path: build/us/generated/fieldstg.ld
 
   global_vram_start: 0x80000000
   global_vram_end: 0x80200000
@@ -24,11 +25,11 @@ options:
   section_order: [".rodata", ".text", ".data", ".bss"]
 
   symbol_addrs_path:
-    - config/symbols.txt
-    - config/symbols_fieldstg.txt
+    - config/us/symbols.txt
+    - config/us/symbols_fieldstg.txt
 
-  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_fieldstg.txt
-  undefined_syms_auto_path: build/generated/undefined_syms_auto_fieldstg.txt
+  undefined_funcs_auto_path: build/us/generated/undefined_funcs_auto_fieldstg.txt
+  undefined_syms_auto_path: build/us/generated/undefined_syms_auto_fieldstg.txt
 
   string_encoding: ASCII
   data_string_encoding: ASCII

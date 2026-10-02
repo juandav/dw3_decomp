@@ -9,7 +9,7 @@ extern u8 D_800A5E48[];
 extern void (*D_800A61D4[])(void);
 void func_800A4CA4();
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag395", func_800A4CA4);
+INCLUDE_ASM("stages/nonmatchings/wstag395", func_800A4CA4);
 
 StageTask *func_800A4D7C(void *owner) {
     StageTask *task = createTask(func_800A4CA4, sizeof(StageTask), 4);
@@ -23,7 +23,7 @@ void func_800A4DD8(void) {
     FLAGS_00.applyAction(0x4011, 1);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag395", func_800A4E04);
+INCLUDE_ASM("stages/nonmatchings/wstag395", func_800A4E04);
 
 void func_800A4E64(void) {
     D_800990B4.unk44 = 0xF7;

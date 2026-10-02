@@ -1,17 +1,18 @@
+# Digimon World 3, USA (SLUS-01436): fightstg
 name: fightstg
 sha1: e0605a184bff15e3b25887033d593f9564aac286
 options:
   basename: fightstg
   target_path: disks/us/AAA/PRO/FIGHTSTG.PRO
-  base_path: ..
+  base_path: ../..
   platform: psx
   compiler: GCC
 
-  asm_path: asm/fightstg
+  asm_path: asm/us/fightstg
   src_path: src/fightstg
-  build_path: build
+  build_path: build/us
 
-  ld_script_path: build/generated/fightstg.ld
+  ld_script_path: build/us/generated/fightstg.ld
 
   global_vram_start: 0x80000000
   global_vram_end: 0x80200000
@@ -24,11 +25,11 @@ options:
   section_order: [".rodata", ".text", ".data", ".bss"]
 
   symbol_addrs_path:
-    - config/symbols.txt
-    - config/symbols_fightstg.txt
+    - config/us/symbols.txt
+    - config/us/symbols_fightstg.txt
 
-  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_fightstg.txt
-  undefined_syms_auto_path: build/generated/undefined_syms_auto_fightstg.txt
+  undefined_funcs_auto_path: build/us/generated/undefined_funcs_auto_fightstg.txt
+  undefined_syms_auto_path: build/us/generated/undefined_syms_auto_fightstg.txt
 
   string_encoding: ASCII
   data_string_encoding: ASCII

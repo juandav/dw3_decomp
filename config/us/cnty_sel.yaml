@@ -1,17 +1,18 @@
+# Digimon World 3, USA (SLUS-01436): cnty_sel
 name: cnty_sel
 sha1: 0e8d6f9dc110daaeacadb2d478d84e3d1a511028
 options:
   basename: cnty_sel
   target_path: disks/us/AAA/PRO/CNTY_SEL.PRO
-  base_path: ..
+  base_path: ../..
   platform: psx
   compiler: GCC
 
-  asm_path: asm/cnty_sel
+  asm_path: asm/us/cnty_sel
   src_path: src/cnty_sel
-  build_path: build
+  build_path: build/us
 
-  ld_script_path: build/generated/cnty_sel.ld
+  ld_script_path: build/us/generated/cnty_sel.ld
 
   global_vram_start: 0x80000000
   global_vram_end: 0x80200000
@@ -24,11 +25,11 @@ options:
   section_order: [".rodata", ".text", ".data", ".bss"]
 
   symbol_addrs_path:
-    - config/symbols.txt
-    - config/symbols_cnty_sel.txt
+    - config/us/symbols.txt
+    - config/us/symbols_cnty_sel.txt
 
-  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_cnty_sel.txt
-  undefined_syms_auto_path: build/generated/undefined_syms_auto_cnty_sel.txt
+  undefined_funcs_auto_path: build/us/generated/undefined_funcs_auto_cnty_sel.txt
+  undefined_syms_auto_path: build/us/generated/undefined_syms_auto_cnty_sel.txt
 
   string_encoding: ASCII
   data_string_encoding: ASCII

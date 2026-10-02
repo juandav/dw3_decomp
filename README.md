@@ -46,7 +46,8 @@ git submodule update --init --recursive
 # doesn't see: only the ISO9660 path table reaches them)
 python3 tools/extract_disc.py "/path/to/Digimon World 3 (USA).bin" disks/us
 
-# Disassemble the original executable and overlays
+# Disassemble the original executable and overlays (VERSION=us is the
+# default; every make command and tool takes it)
 make regenerate
 
 # (Optional) Create file local.mk to override defaults
@@ -63,7 +64,7 @@ make objdiff
 make report
 ```
 
-`make compare` must print OK for `build/SLUS_014.36` and every overlay. A
+`make compare` must print OK for `build/us/SLUS_014.36` and every overlay. A
 function only counts as decompiled once all of them still match.
 
 The progress report counts the game's code: the executable's and the
@@ -74,8 +75,9 @@ other PSX decomps it is built and compared but not counted.
 
 | Path | Contents |
 |---|---|
-| `config/main.yaml` | splat config for `SLUS_014.36` |
-| `config/symbols.txt` | known symbols |
+| `mk/version/<version>.mk` | each version's executable, disc, overlays and C files |
+| `config/<version>/main.yaml` | splat config for the executable (`config/us/main.yaml`: `SLUS_014.36`) |
+| `config/<version>/symbols.txt` | known symbols |
 | `src/main/inn.c` | the inn and the full-screen fade, `0x80010F80`-`0x800120B8` |
 | `src/main/system.c` | field menu, CD reader, file cache, task creation and `main`, `0x800120B8`-`0x80014884` (built with `-G8`) |
 | `src/main/memcard.c` | memory card saves, `0x80014884`-`0x800154F8` |
@@ -88,12 +90,12 @@ other PSX decomps it is built and compared but not counted.
 | `include/game.h`, `include/dw3/` | types and declarations of the game code, one header per engine module |
 | `src/main/psyq/` | PsyQ libraries, one file per library object, `0x80020998`-`0x8003E9D8` |
 | `include/psyq.h` | declarations shared by the PsyQ files |
-| `asm/main/crt0.s` | PsyQ startup (`2MBYTE.OBJ`), `0x80010EBC`-`0x80010F80` |
-| `config/<overlay>.yaml`, `src/<overlay>/` | the game's overlays (`AAA/PRO/*.PRO`), loaded at `0x80082448`; `WFIGHTMN` and `WFIGHTTS` load on top of `CARDGAME`, at `0x800A4CA4` |
-| `config/overlays.sha1` | checksums of the overlays |
-| `config/stages.txt`, `src/stages/` | the 238 stage overlays (`AAA/PRO/WSTAG###.PRO`), loaded at `0x800A4CA4` on top of `FIELDSTG`; `tools/stage_yaml.py` makes their splat configs |
-| `config/stages.sha1` | checksums of the stage overlays |
-| `include/` | headers and assembler macros |
+| `asm/<version>/main/crt0.s` | PsyQ startup (`2MBYTE.OBJ`), `0x80010EBC`-`0x80010F80` |
+| `config/<version>/<overlay>.yaml`, `src/<overlay>/` | the game's overlays (`AAA/PRO/*.PRO`), loaded at `0x80082448`; `WFIGHTMN` and `WFIGHTTS` load on top of `CARDGAME`, at `0x800A4CA4` |
+| `config/<version>/overlays.sha1` | checksums of the overlays |
+| `config/<version>/stages.txt`, `src/stages/` | the 238 stage overlays (`AAA/PRO/WSTAG###.PRO`), loaded at `0x800A4CA4` on top of `FIELDSTG`; `tools/stage_yaml.py` makes their splat configs |
+| `config/<version>/stages.sha1` | checksums of the stage overlays |
+| `include/` | headers and assembler macros; `include/version.h` gives `VERSION_US`/`VERSION_EU` for `#if` |
 | `tools/` | build helpers |
 
 Memory map of `SLUS_014.36` (psylink puts `.rodata` in front of `.text`):

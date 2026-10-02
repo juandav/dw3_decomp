@@ -1,17 +1,18 @@
+# Digimon World 3, USA (SLUS-01436): stgtrain
 name: stgtrain
 sha1: 54f80f3cc813dddfdf9865e2ad26a0a44beb2769
 options:
   basename: stgtrain
   target_path: disks/us/AAA/PRO/STGTRAIN.PRO
-  base_path: ..
+  base_path: ../..
   platform: psx
   compiler: GCC
 
-  asm_path: asm/stgtrain
+  asm_path: asm/us/stgtrain
   src_path: src/stgtrain
-  build_path: build
+  build_path: build/us
 
-  ld_script_path: build/generated/stgtrain.ld
+  ld_script_path: build/us/generated/stgtrain.ld
 
   global_vram_start: 0x80000000
   global_vram_end: 0x80200000
@@ -24,11 +25,11 @@ options:
   section_order: [".rodata", ".text", ".data", ".bss"]
 
   symbol_addrs_path:
-    - config/symbols.txt
-    - config/symbols_stgtrain.txt
+    - config/us/symbols.txt
+    - config/us/symbols_stgtrain.txt
 
-  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_stgtrain.txt
-  undefined_syms_auto_path: build/generated/undefined_syms_auto_stgtrain.txt
+  undefined_funcs_auto_path: build/us/generated/undefined_funcs_auto_stgtrain.txt
+  undefined_syms_auto_path: build/us/generated/undefined_syms_auto_stgtrain.txt
 
   string_encoding: ASCII
   data_string_encoding: ASCII

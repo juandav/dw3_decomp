@@ -3,7 +3,7 @@
 extern void (*D_800A6EAC[])(void);
 void func_800A4CA8();
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag200", func_800A4CA8);
+INCLUDE_ASM("stages/nonmatchings/wstag200", func_800A4CA8);
 
 StageTask *func_800A4D40(void *owner) {
     StageTask *task = createTask(func_800A4CA8, sizeof(StageTask), 4);
@@ -22,4 +22,4 @@ void func_800A4DE8(void) {
     GAME_PROGRESS = 4;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag200", func_800A4DF8);
+INCLUDE_ASM("stages/nonmatchings/wstag200", func_800A4DF8);

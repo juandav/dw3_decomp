@@ -1040,6 +1040,6 @@ void initMemCard(void) {
     MEMCARD.dataSize = 0x2700;
 }
 
-INCLUDE_RODATA("asm/main/nonmatchings/system", OVERLAY_ADDRESS);
+INCLUDE_RODATA("main/nonmatchings/system", OVERLAY_ADDRESS);
 
-INCLUDE_RODATA("asm/main/nonmatchings/system", SUB_OVERLAY_ADDRESS);
+INCLUDE_RODATA("main/nonmatchings/system", SUB_OVERLAY_ADDRESS);

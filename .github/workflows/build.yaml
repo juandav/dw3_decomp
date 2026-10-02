@@ -14,6 +14,20 @@ jobs:
       (github.event_name != 'pull_request' ||
        github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # deps: where the version's executable and AAA/PRO are in the
+        # dependencies repository. report: upload build/<version>/report.json
+        # as <exe>_report, the artifact decomp.dev reads.
+        include:
+          - version: us
+            exe: SLUS_014.36
+            deps: .
+            report: true
+    name: build (${{ matrix.version }})
+    env:
+      VERSION: ${{ matrix.version }}
     steps:
     - uses: actions/checkout@v5
       with:
@@ -28,10 +42,13 @@ jobs:
         persist-credentials: false
 
     - run: |
-        mkdir -p disks/us/AAA
-        cp dependencies/SLUS_014.36 disks/us/
-        cp -r dependencies/AAA/PRO disks/us/AAA/
+        mkdir -p "disks/$VERSION/AAA"
+        cp "dependencies/$DEPS/$EXE" "disks/$VERSION/"
+        cp -r "dependencies/$DEPS/AAA/PRO" "disks/$VERSION/AAA/"
         rm -rf dependencies
+      env:
+        DEPS: ${{ matrix.deps }}
+        EXE: ${{ matrix.exe }}
 
     - run: |
         sudo apt-get update
@@ -46,6 +63,7 @@ jobs:
 
     - run: tools/dl_deps.sh
 
+    # make and the tools take VERSION from the environment
     - run: |
         make generate
         make -j$(nproc)
@@ -53,7 +71,8 @@ jobs:
 
     - run: make report
 
-    - uses: actions/upload-artifact@v6
+    - if: matrix.report
+      uses: actions/upload-artifact@v6
       with:
-        name: SLUS_014.36_report
-        path: build/report.json
+        name: ${{ matrix.exe }}_report
+        path: build/${{ matrix.version }}/report.json

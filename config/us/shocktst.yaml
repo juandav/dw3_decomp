@@ -1,17 +1,18 @@
+# Digimon World 3, USA (SLUS-01436): shocktst
 name: shocktst
 sha1: 1c934c59465f27524cd42f30c9ef72a915702f3a
 options:
   basename: shocktst
   target_path: disks/us/AAA/PRO/SHOCKTST.PRO
-  base_path: ..
+  base_path: ../..
   platform: psx
   compiler: GCC
 
-  asm_path: asm/shocktst
+  asm_path: asm/us/shocktst
   src_path: src/shocktst
-  build_path: build
+  build_path: build/us
 
-  ld_script_path: build/generated/shocktst.ld
+  ld_script_path: build/us/generated/shocktst.ld
 
   global_vram_start: 0x80000000
   global_vram_end: 0x80200000
@@ -24,11 +25,11 @@ options:
   section_order: [".rodata", ".text", ".data", ".bss"]
 
   symbol_addrs_path:
-    - config/symbols.txt
-    - config/symbols_shocktst.txt
+    - config/us/symbols.txt
+    - config/us/symbols_shocktst.txt
 
-  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_shocktst.txt
-  undefined_syms_auto_path: build/generated/undefined_syms_auto_shocktst.txt
+  undefined_funcs_auto_path: build/us/generated/undefined_funcs_auto_shocktst.txt
+  undefined_syms_auto_path: build/us/generated/undefined_syms_auto_shocktst.txt
 
   string_encoding: ASCII
   data_string_encoding: ASCII

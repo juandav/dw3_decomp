@@ -15,11 +15,11 @@ typedef struct {
 extern volatile CD_intr D_8005A5A4[1];
 extern volatile Alarm_t D_80080C68;
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libcd_bios_1", D_8001083C);
+INCLUDE_RODATA("main/nonmatchings/psyq/libcd_bios_1", D_8001083C);
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libcd_bios_1", D_80010978);
+INCLUDE_RODATA("main/nonmatchings/psyq/libcd_bios_1", D_80010978);
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libcd_bios_1", D_80010988);
+INCLUDE_RODATA("main/nonmatchings/psyq/libcd_bios_1", D_80010988);
 
 extern long D_8005A2DC;
 extern u_char D_8005A2E4;
@@ -169,9 +169,9 @@ static inline void callback(void) {
     *D_8005A58C = mask;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_sync);
+INCLUDE_ASM("main/nonmatchings/psyq/libcd_bios_1", CD_sync);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libcd_bios_1", CD_ready);
+INCLUDE_ASM("main/nonmatchings/psyq/libcd_bios_1", CD_ready);
 
 extern int D_8005A40C[];
 extern int D_8005A50C[];

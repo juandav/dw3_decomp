@@ -12,35 +12,35 @@ void func_800A4DC4();
 extern void (*D_800A6D44[])(void);
 void func_800A5748();
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A4CA4);
+INCLUDE_ASM("stages/nonmatchings/wstag800", func_800A4CA4);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A4DC4);
+INCLUDE_ASM("stages/nonmatchings/wstag800", func_800A4DC4);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5038);
+INCLUDE_ASM("stages/nonmatchings/wstag800", func_800A5038);
 
 void *func_800A5084(s32 arg) {
     return createTaskWithId(func_800A4DC4, 0x64, 0, arg);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A50B4);
+INCLUDE_ASM("stages/nonmatchings/wstag800", func_800A50B4);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A50E8);
+INCLUDE_ASM("stages/nonmatchings/wstag800", func_800A50E8);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5208);
+INCLUDE_ASM("stages/nonmatchings/wstag800", func_800A5208);
 
 void *func_800A53D4(s32 arg) {
     return createTaskWithId(func_800A5208, 0x6C, 0, arg);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5404);
+INCLUDE_ASM("stages/nonmatchings/wstag800", func_800A5404);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A554C);
+INCLUDE_ASM("stages/nonmatchings/wstag800", func_800A554C);
 
 void *func_800A571C(void) {
     return createTask(func_800A554C, 0x54, 0x4);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5748);
+INCLUDE_ASM("stages/nonmatchings/wstag800", func_800A5748);
 
 StageTask *func_800A5890(void *owner) {
     StageTask *task = createTask(func_800A5748, sizeof(StageTask), 0x20);
@@ -78,13 +78,13 @@ s32 func_800A58EC(AnimState *anim, AnimFrame *frames, s32 once, s32 depth) {
     return frame->frame;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5A0C);
+INCLUDE_ASM("stages/nonmatchings/wstag800", func_800A5A0C);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5AF4);
+INCLUDE_ASM("stages/nonmatchings/wstag800", func_800A5AF4);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5BB8);
+INCLUDE_ASM("stages/nonmatchings/wstag800", func_800A5BB8);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag800", func_800A5E48);
+INCLUDE_ASM("stages/nonmatchings/wstag800", func_800A5E48);
 
 void func_800A5EA4(void) {
     FLAGS_00.applyAction(0x1C0A, 1);

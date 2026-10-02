@@ -2,7 +2,7 @@
 """Write the splat config of a stage overlay (AAA/PRO/WSTAG###.PRO).
 
 The 238 stage overlays all have the same layout, so instead of a config file
-each, config/stages.txt lists them with the offsets where their code starts
+each, config/<version>/stages.txt lists them with the offsets where their code starts
 and ends:
 
     WSTAG200 0x4 0x2B8
@@ -13,16 +13,20 @@ others with a word no function of the stage reads (a color such as 0x808080,
 or a pointer), which stays in asm, so there is no other .rodata to migrate to
 functions. From the end of the code on, the file is data.
 
-usage: stage_yaml.py wstag200 build/generated/stages/wstag200.yaml
+usage: stage_yaml.py wstag200 build/us/generated/stages/wstag200.yaml
+(VERSION, as for make, picks the version; us by default)
 """
 
 import hashlib
 import os
 import sys
 
+import version
+
 VRAM = 0x800A4CA4
 
 TEMPLATE = """\
+# Digimon World 3, {version_name}: {name}, written by tools/stage_yaml.py
 name: {name}
 sha1: {sha1}
 options:
@@ -32,11 +36,11 @@ options:
   platform: psx
   compiler: GCC
 
-  asm_path: asm/stages
+  asm_path: asm/{version}/stages
   src_path: src/stages
-  build_path: build
+  build_path: build/{version}
 
-  ld_script_path: build/generated/{name}.ld
+  ld_script_path: build/{version}/generated/{name}.ld
 
   global_vram_start: 0x80000000
   global_vram_end: 0x80200000
@@ -50,8 +54,8 @@ options:
 
   symbol_addrs_path:
 {symbols}
-  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_{name}.txt
-  undefined_syms_auto_path: build/generated/undefined_syms_auto_{name}.txt
+  undefined_funcs_auto_path: build/{version}/generated/undefined_funcs_auto_{name}.txt
+  undefined_syms_auto_path: build/{version}/generated/undefined_syms_auto_{name}.txt
 
   string_encoding: ASCII
   data_string_encoding: ASCII
@@ -79,26 +83,30 @@ segments:
 
 def main():
     name, out = sys.argv[1], sys.argv[2]
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    root = str(version.ROOT)
+    config = f"config/{version.VERSION}"
     text_end = None
-    for line in open(os.path.join(root, "config/stages.txt")):
+    for line in open(os.path.join(root, config, "stages.txt")):
         words = line.split("#", 1)[0].split()
         if words and words[0].lower() == name:
             text_start, text_end = int(words[1], 16), int(words[2], 16)
     if text_end is None:
-        sys.exit(f"{name} is not in config/stages.txt")
+        sys.exit(f"{name} is not in {config}/stages.txt")
 
-    target = f"disks/us/AAA/PRO/{name.upper()}.PRO"
+    disk = os.path.relpath(version.DISK_DIR, root)
+    target = f"{disk}/AAA/PRO/{name.upper()}.PRO"
     data = open(os.path.join(root, target), "rb").read()
-    symbols = ["config/symbols.txt", "config/symbols_fieldstg.txt"]
-    if os.path.exists(os.path.join(root, f"config/stages/{name}.txt")):
-        symbols.append(f"config/stages/{name}.txt")
+    symbols = [f"{config}/symbols.txt", f"{config}/symbols_fieldstg.txt"]
+    if os.path.exists(os.path.join(root, f"{config}/stages/{name}.txt")):
+        symbols.append(f"{config}/stages/{name}.txt")
 
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w") as f:
         f.write(
             TEMPLATE.format(
                 name=name,
+                version=version.VERSION,
+                version_name=version.VERSION_NAME,
                 sha1=hashlib.sha1(data).hexdigest(),
                 target=target,
                 base=os.path.relpath(root, os.path.dirname(os.path.abspath(out))),

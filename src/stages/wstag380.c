@@ -28,4 +28,4 @@ void func_800A4D4C(void) {
     GAME_PROGRESS = 9;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag380", func_800A4D5C);
+INCLUDE_ASM("stages/nonmatchings/wstag380", func_800A4D5C);

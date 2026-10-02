@@ -177,7 +177,7 @@ s32 SHOCKTST_playPattern(ShockTest *task, ShockTestWindows *win, s32 pattern) {
     return 0;
 }
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", SHOCKTST_playAllPatterns);
+INCLUDE_ASM("shocktst/nonmatchings/shocktst", SHOCKTST_playAllPatterns);
 
 s32 SHOCKTST_moveCursor(ShockTest *task, ShockTestWindows *win) {
     if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_LEFT)) & 1) ||
@@ -277,11 +277,11 @@ s32 SHOCKTST_editRow(ShockTest *task, ShockTestWindows *win) {
     return 0;
 }
 
-INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", SHOCKTST_STR_SLOW);
+INCLUDE_RODATA("shocktst/nonmatchings/shocktst", SHOCKTST_STR_SLOW);
 
-INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", SHOCKTST_STR_FAST);
+INCLUDE_RODATA("shocktst/nonmatchings/shocktst", SHOCKTST_STR_FAST);
 
-INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", SHOCKTST_STR_PLAY_PATTERN);
+INCLUDE_RODATA("shocktst/nonmatchings/shocktst", SHOCKTST_STR_PLAY_PATTERN);
 
 void SHOCKTST_updateEditor(ShockTest *task, ShockTestWindows *win) {
     s32 i;
@@ -389,9 +389,9 @@ ShockTest *SHOCKTST_createEditor(s32 count) {
     return task;
 }
 
-INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", SHOCKTST_PATH_DLSKDATA_TXT);
+INCLUDE_RODATA("shocktst/nonmatchings/shocktst", SHOCKTST_PATH_DLSKDATA_TXT);
 
-INCLUDE_ASM("asm/shocktst/nonmatchings/shocktst", SHOCKTST_convertText);
+INCLUDE_ASM("shocktst/nonmatchings/shocktst", SHOCKTST_convertText);
 
 void SHOCKTST_updateLoader(ShockLoader *task, ShockLoaderWindows *win) {
     s32 fd;
@@ -450,8 +450,8 @@ Task *SHOCKTST_createLoader(void) {
     return createTask(SHOCKTST_updateLoader, sizeof(ShockLoader), sizeof(ShockLoaderWindows));
 }
 
-INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", SHOCKTST_STR_VIBRATION_TEST);
+INCLUDE_RODATA("shocktst/nonmatchings/shocktst", SHOCKTST_STR_VIBRATION_TEST);
 
-INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", SHOCKTST_STR_CROSS_STOP);
+INCLUDE_RODATA("shocktst/nonmatchings/shocktst", SHOCKTST_STR_CROSS_STOP);
 
-INCLUDE_RODATA("asm/shocktst/nonmatchings/shocktst", SHOCKTST_STR_START_BACK);
+INCLUDE_RODATA("shocktst/nonmatchings/shocktst", SHOCKTST_STR_START_BACK);

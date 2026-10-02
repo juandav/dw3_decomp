@@ -1,17 +1,18 @@
+# Digimon World 3, USA (SLUS-01436): stitshop
 name: stitshop
 sha1: a7ef0031107436bf7c31f8a9b2518128f653aa22
 options:
   basename: stitshop
   target_path: disks/us/AAA/PRO/STITSHOP.PRO
-  base_path: ..
+  base_path: ../..
   platform: psx
   compiler: GCC
 
-  asm_path: asm/stitshop
+  asm_path: asm/us/stitshop
   src_path: src/stitshop
-  build_path: build
+  build_path: build/us
 
-  ld_script_path: build/generated/stitshop.ld
+  ld_script_path: build/us/generated/stitshop.ld
 
   global_vram_start: 0x80000000
   global_vram_end: 0x80200000
@@ -24,11 +25,11 @@ options:
   section_order: [".rodata", ".text", ".data", ".bss"]
 
   symbol_addrs_path:
-    - config/symbols.txt
-    - config/symbols_stitshop.txt
+    - config/us/symbols.txt
+    - config/us/symbols_stitshop.txt
 
-  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_stitshop.txt
-  undefined_syms_auto_path: build/generated/undefined_syms_auto_stitshop.txt
+  undefined_funcs_auto_path: build/us/generated/undefined_funcs_auto_stitshop.txt
+  undefined_syms_auto_path: build/us/generated/undefined_syms_auto_stitshop.txt
 
   string_encoding: ASCII
   data_string_encoding: ASCII

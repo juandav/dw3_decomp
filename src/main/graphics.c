@@ -653,7 +653,7 @@ void spriteDrawerSetLayerId(s32 id, s32 depth) {
     spriteDrawerSetLayer(GFX_FUNCS.getLayer(id), depth);
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/graphics", spriteDrawerDraw);
+INCLUDE_ASM("main/nonmatchings/graphics", spriteDrawerDraw);
 
 void spriteDrawerSetScale(s32 x, s32 y, s32 z) {
     SPRITE_DRAWER->scaleX = x;
@@ -807,7 +807,7 @@ s32 measureText(TextBuffer *text, TextStyle *style, s32 spacing) {
     return max;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/graphics", convertText);
+INCLUDE_ASM("main/nonmatchings/graphics", convertText);
 
 void initTextTools(TextTools *obj) {
     HEAP.zero(obj, sizeof(TextTools));

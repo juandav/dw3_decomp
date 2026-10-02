@@ -23,7 +23,7 @@ void STCRDABM_startFader(CardAlbumFader *fader, s32 fadeIn, s32 frames) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", STCRDABM_drawFader);
+INCLUDE_ASM("stcrdabm/nonmatchings/stcrdabm", STCRDABM_drawFader);
 
 void STCRDABM_updateFader(CardAlbumFader *fader) {
     switch (fader->state) {
@@ -387,7 +387,7 @@ void STCRDABM_showPageInfo(CardAlbum *album, CardAlbumWindows *win, s32 show) {
     }
 }
 
-INCLUDE_ASM("asm/stcrdabm/nonmatchings/stcrdabm", STCRDABM_showCardInfo);
+INCLUDE_ASM("stcrdabm/nonmatchings/stcrdabm", STCRDABM_showCardInfo);
 
 void STCRDABM_drawAlbum(CardAlbum *album) {
     SpriteDrawer sprite;

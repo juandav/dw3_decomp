@@ -191,10 +191,10 @@ Task *SOUNDTST_createSoundTest(void) {
     return createTask(SOUNDTST_updateSoundTest, sizeof(SoundTest), sizeof(SoundTestWindows));
 }
 
-INCLUDE_RODATA("asm/soundtst/nonmatchings/soundtst", SOUNDTST_entryNames);
+INCLUDE_RODATA("soundtst/nonmatchings/soundtst", SOUNDTST_entryNames);
 
-INCLUDE_RODATA("asm/soundtst/nonmatchings/soundtst", SOUNDTST_STR_SELECT_VAB);
+INCLUDE_RODATA("soundtst/nonmatchings/soundtst", SOUNDTST_STR_SELECT_VAB);
 
-INCLUDE_RODATA("asm/soundtst/nonmatchings/soundtst", SOUNDTST_STR_SOUND_TEST);
+INCLUDE_RODATA("soundtst/nonmatchings/soundtst", SOUNDTST_STR_SOUND_TEST);
 
-INCLUDE_RODATA("asm/soundtst/nonmatchings/soundtst", SOUNDTST_STR_CURSOR);
+INCLUDE_RODATA("soundtst/nonmatchings/soundtst", SOUNDTST_STR_CURSOR);

@@ -4,13 +4,13 @@ void func_800A4CA4();
 extern void (*D_800A57B0[])(void);
 void func_800A4E8C();
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag326", func_800A4CA4);
+INCLUDE_ASM("stages/nonmatchings/wstag326", func_800A4CA4);
 
 void *func_800A4E24(s32 arg) {
     return createTaskWithId(func_800A4CA4, 0x50, 0, arg);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag326", func_800A4E54);
+INCLUDE_ASM("stages/nonmatchings/wstag326", func_800A4E54);
 
 void func_800A4E8C(StageTask *task, void **children) {
     switch (task->state) {
@@ -46,4 +46,4 @@ void func_800A4FD4(void) {
     FLAGS_00.applyAction(0x802A, 1);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag326", func_800A5020);
+INCLUDE_ASM("stages/nonmatchings/wstag326", func_800A5020);

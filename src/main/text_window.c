@@ -123,13 +123,13 @@ void textWindowSetSubString(TextWindow *obj, char *text, s32 id, s32 index) {
     obj->text[index].sjis = 0;
 }
 
-INCLUDE_RODATA("asm/main/nonmatchings/text_window", STR_NULL_MESSAGE);
+INCLUDE_RODATA("main/nonmatchings/text_window", STR_NULL_MESSAGE);
 
-INCLUDE_RODATA("asm/main/nonmatchings/text_window", STR_BAD_DIGIT_BUFFER);
+INCLUDE_RODATA("main/nonmatchings/text_window", STR_BAD_DIGIT_BUFFER);
 
-INCLUDE_RODATA("asm/main/nonmatchings/text_window", STR_BAD_EXT_BUFFER);
+INCLUDE_RODATA("main/nonmatchings/text_window", STR_BAD_EXT_BUFFER);
 
-INCLUDE_RODATA("asm/main/nonmatchings/text_window", STR_MESSAGE_NOT_SET);
+INCLUDE_RODATA("main/nonmatchings/text_window", STR_MESSAGE_NOT_SET);
 
 void textWindowDraw(TextWindow *obj) {
     TextDraw wait;
@@ -1172,7 +1172,7 @@ Task *createMessageBox(s32 layerId, s32 strings, s32 index) {
     return task;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/text_window", drawTalkBoxArrow);
+INCLUDE_ASM("main/nonmatchings/text_window", drawTalkBoxArrow);
 
 void drawTalkBoxFrame(TalkBoxFrame *task) {
     SpriteDrawer obj;
@@ -1603,6 +1603,6 @@ s16 decodeChar(u8 *s, u8 mode, TextStyle *font) {
     return 0x300;
 }
 
-INCLUDE_RODATA("asm/main/nonmatchings/text_window", OUTLINE_ORDER);
+INCLUDE_RODATA("main/nonmatchings/text_window", OUTLINE_ORDER);
 
-INCLUDE_RODATA("asm/main/nonmatchings/text_window", ZOOM_BOX_DELAYS);
+INCLUDE_RODATA("main/nonmatchings/text_window", ZOOM_BOX_DELAYS);

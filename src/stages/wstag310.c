@@ -12,7 +12,7 @@ void func_800A4DF8();
 extern void (*D_800A7BA0[])(void);
 void func_800A5A80();
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A4CA8);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A4CA8);
 
 s32 func_800A4D04(AnimState *anim, AnimFrame *frames, s32 depth) {
     AnimFrame *frame = &frames[anim->index];
@@ -38,7 +38,7 @@ s32 func_800A4D04(AnimState *anim, AnimFrame *frames, s32 depth) {
     return frame->frame;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A4DF8);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A4DF8);
 
 void *func_800A4F48(void) {
     return createTask(func_800A4DF8, 0x60, 0);
@@ -72,11 +72,11 @@ s32 func_800A4F74(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
     return frame->frame;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A5094);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A5094);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A545C);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A545C);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A5498);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A5498);
 
 void *func_800A54D0(void) {
     return createTask(func_800A5094, 0x84, 0);
@@ -110,17 +110,17 @@ s32 func_800A54FC(Anim8 *obj, AnimFrame *frames, s32 once, s32 depth) {
     return frame->frame;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A561C);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A561C);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A59E0);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A59E0);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A5A1C);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A5A1C);
 
 void *func_800A5A54(void) {
     return createTask(func_800A561C, 0x9C, 0);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A5A80);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A5A80);
 
 StageTask *func_800A5C40(void *owner) {
     StageTask *task = createTask(func_800A5A80, sizeof(StageTask), 0x18);
@@ -158,13 +158,13 @@ s32 func_800A5C9C(AnimState *anim, AnimFrame *frames, s32 once, s32 depth) {
     return frame->frame;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A5DBC);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A5DBC);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A5EAC);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A5EAC);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A5F70);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A5F70);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A6190);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A6190);
 
 s32 func_800A61FC(AnimState *anim, AnimFrame *frames, s32 once, s32 depth) {
     AnimFrame *frame = &frames[anim->index];
@@ -194,15 +194,15 @@ s32 func_800A61FC(AnimState *anim, AnimFrame *frames, s32 once, s32 depth) {
     return frame->frame;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A631C);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A631C);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A6404);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A6404);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A64C8);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A64C8);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A6758);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A6758);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A67B0);
+INCLUDE_ASM("stages/nonmatchings/wstag310", func_800A67B0);
 
 void func_800A6810(void) {
     FLAGS_00.applyAction(0x404F, 1);

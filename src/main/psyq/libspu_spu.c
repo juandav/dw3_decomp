@@ -8,7 +8,7 @@ extern u_short D_8005BA40;
 
 extern u_long *D_8005BA38;
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libspu_spu", D_80010BCC);
+INCLUDE_RODATA("main/nonmatchings/psyq/libspu_spu", D_80010BCC);
 
 extern char D_80010BCC[];
 extern long D_8005BA48;

@@ -163,11 +163,11 @@ void func_80082C10(NameTask *task, NameWindows *windows) {
     windows->unk30 = createTextWindow(task->layer, 1, 0x3E, 0x72);
 }
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80082E00);
+INCLUDE_ASM("stdgname/nonmatchings/stdgname", func_80082E00);
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80083104);
+INCLUDE_ASM("stdgname/nonmatchings/stdgname", func_80083104);
 
-INCLUDE_ASM("asm/stdgname/nonmatchings/stdgname", func_80083A30);
+INCLUDE_ASM("stdgname/nonmatchings/stdgname", func_80083A30);
 
 void func_80084640(NameTask *task, NameWindows *windows) {
     TimLoader loader;

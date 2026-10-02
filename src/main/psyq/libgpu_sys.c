@@ -39,7 +39,7 @@ extern char D_80010450[]; /* "MoveImage" */
 extern u_long D_8007F148[]; /* clear/fill packet */
 extern u_long D_8007F170[]; /* drawing-area restore packet */
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_8001030C);
+INCLUDE_RODATA("main/nonmatchings/psyq/libgpu_sys", D_8001030C);
 
 extern u_long D_80055658[];
 extern short D_80055720[3][2];
@@ -175,9 +175,9 @@ int MoveImage(RECT *rect, int x, int y) {
     return D_80055698->addque(D_80055698->exeque, &D_80055740[-2], 0x14, 0);
 }
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_80010444);
+INCLUDE_RODATA("main/nonmatchings/psyq/libgpu_sys", D_80010444);
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_80010450);
+INCLUDE_RODATA("main/nonmatchings/psyq/libgpu_sys", D_80010450);
 
 u_long *ClearOTag(u_long *ot, int n) {
     u_long *term;
@@ -223,7 +223,7 @@ void DrawOTag(u_long *p) {
     D_80055698->addque(D_80055698->exeque, p, 0, 0);
 }
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libgpu_sys", D_8001048C);
+INCLUDE_RODATA("main/nonmatchings/psyq/libgpu_sys", D_8001048C);
 
 DRAWENV *PutDrawEnv(DRAWENV *env) {
     if (D_800556A0.level >= 2) {

@@ -1,17 +1,18 @@
+# Digimon World 3, USA (SLUS-01436): cardgame
 name: cardgame
 sha1: 882601c1b0dd9a1e43f4eb5335885e6856691763
 options:
   basename: cardgame
   target_path: disks/us/AAA/PRO/CARDGAME.PRO
-  base_path: ..
+  base_path: ../..
   platform: psx
   compiler: GCC
 
-  asm_path: asm/cardgame
+  asm_path: asm/us/cardgame
   src_path: src/cardgame
-  build_path: build
+  build_path: build/us
 
-  ld_script_path: build/generated/cardgame.ld
+  ld_script_path: build/us/generated/cardgame.ld
 
   global_vram_start: 0x80000000
   global_vram_end: 0x80200000
@@ -24,11 +25,11 @@ options:
   section_order: [".rodata", ".text", ".data", ".bss"]
 
   symbol_addrs_path:
-    - config/symbols.txt
-    - config/symbols_cardgame.txt
+    - config/us/symbols.txt
+    - config/us/symbols_cardgame.txt
 
-  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_cardgame.txt
-  undefined_syms_auto_path: build/generated/undefined_syms_auto_cardgame.txt
+  undefined_funcs_auto_path: build/us/generated/undefined_funcs_auto_cardgame.txt
+  undefined_syms_auto_path: build/us/generated/undefined_syms_auto_cardgame.txt
 
   string_encoding: ASCII
   data_string_encoding: ASCII

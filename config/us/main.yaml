@@ -1,17 +1,19 @@
+# Digimon World 3, USA (SLUS-01436): main
 name: main
 sha1: 444653259f78ddb483fd22af72cce9276f42f214
 options:
   basename: main
   target_path: disks/us/SLUS_014.36
-  base_path: ..
+  base_path: ../..
   platform: psx
   compiler: GCC
 
-  asm_path: asm/main
+  asm_path: asm/us/main
   src_path: src/main
-  build_path: build
+  asset_path: assets/us
+  build_path: build/us
 
-  ld_script_path: build/generated/main.ld
+  ld_script_path: build/us/generated/main.ld
 
   global_vram_start: 0x80000000
   global_vram_end: 0x80200000
@@ -24,10 +26,10 @@ options:
   section_order: [".rodata", ".text", ".data", ".bss"]
 
   symbol_addrs_path:
-    - config/symbols.txt
+    - config/us/symbols.txt
 
-  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_main.txt
-  undefined_syms_auto_path: build/generated/undefined_syms_auto_main.txt
+  undefined_funcs_auto_path: build/us/generated/undefined_funcs_auto_main.txt
+  undefined_syms_auto_path: build/us/generated/undefined_syms_auto_main.txt
 
   string_encoding: ASCII
   data_string_encoding: ASCII

@@ -75,6 +75,6 @@ void _SsSeqGetEof(short sep, short seq) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libsnd_midiread", _SsGetSeqData);
+INCLUDE_ASM("main/nonmatchings/psyq/libsnd_midiread", _SsGetSeqData);
 
 OBJECT_END();

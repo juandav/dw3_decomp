@@ -1,17 +1,18 @@
+# Digimon World 3, USA (SLUS-01436): stdwtitl
 name: stdwtitl
 sha1: 386e24d70f729d02edb945878733f7622e6eff27
 options:
   basename: stdwtitl
   target_path: disks/us/AAA/PRO/STDWTITL.PRO
-  base_path: ..
+  base_path: ../..
   platform: psx
   compiler: GCC
 
-  asm_path: asm/stdwtitl
+  asm_path: asm/us/stdwtitl
   src_path: src/stdwtitl
-  build_path: build
+  build_path: build/us
 
-  ld_script_path: build/generated/stdwtitl.ld
+  ld_script_path: build/us/generated/stdwtitl.ld
 
   global_vram_start: 0x80000000
   global_vram_end: 0x80200000
@@ -24,11 +25,11 @@ options:
   section_order: [".rodata", ".text", ".data", ".bss"]
 
   symbol_addrs_path:
-    - config/symbols.txt
-    - config/symbols_stdwtitl.txt
+    - config/us/symbols.txt
+    - config/us/symbols_stdwtitl.txt
 
-  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_stdwtitl.txt
-  undefined_syms_auto_path: build/generated/undefined_syms_auto_stdwtitl.txt
+  undefined_funcs_auto_path: build/us/generated/undefined_funcs_auto_stdwtitl.txt
+  undefined_syms_auto_path: build/us/generated/undefined_syms_auto_stdwtitl.txt
 
   string_encoding: ASCII
   data_string_encoding: ASCII

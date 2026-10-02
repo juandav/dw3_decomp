@@ -9,6 +9,7 @@ the path table lists and writes its files under OUT, keeping the paths.
 XA/STR files are copied as the 2048-byte user data of their sectors.
 
 usage: extract_disc.py "Digimon World 3 (USA).bin" disks/us
+       extract_disc.py "Digimon World 2003 (Europe).bin" disks/eu
 """
 
 import os

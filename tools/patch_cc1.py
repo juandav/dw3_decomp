@@ -119,7 +119,7 @@ import struct
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STOCK = f"{ROOT}/bin/gcc-2.7.2-psx/cc1"
+STOCK = f"{os.environ.get('BIN_DIR') or ROOT + '/bin'}/gcc-2.7.2-psx/cc1"
 PATCHED = f"{ROOT}/build/tools/gcc-2.7.2-psx/cc1"
 
 

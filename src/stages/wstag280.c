@@ -8,11 +8,11 @@ extern u8 D_800A64D0[];
 extern void (*D_800A67D0[])(void);
 void func_800A529C();
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag280", func_800A4CA8);
+INCLUDE_ASM("stages/nonmatchings/wstag280", func_800A4CA8);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag280", func_800A5270);
+INCLUDE_ASM("stages/nonmatchings/wstag280", func_800A5270);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag280", func_800A529C);
+INCLUDE_ASM("stages/nonmatchings/wstag280", func_800A529C);
 
 StageTask *func_800A535C(void *owner) {
     StageTask *task = createTask(func_800A529C, sizeof(StageTask), 4);
@@ -43,6 +43,6 @@ void func_800A53B8(void) {
     D_8009A70C.unk50(0);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag280", func_800A54A4);
+INCLUDE_ASM("stages/nonmatchings/wstag280", func_800A54A4);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag280", func_800A5538);
+INCLUDE_ASM("stages/nonmatchings/wstag280", func_800A5538);

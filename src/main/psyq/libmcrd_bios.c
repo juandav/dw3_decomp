@@ -172,6 +172,6 @@ long _chk_card_event_x(void) {
     return D_80082178 + D_8008217C * 2 + D_80082180 * 4 + D_80082184 * 8;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_bios", CloseEvent);
+INCLUDE_ASM("main/nonmatchings/psyq/libmcrd_bios", CloseEvent);
 
 OBJECT_END();

@@ -1,17 +1,18 @@
+# Digimon World 3, USA (SLUS-01436): stplnmet
 name: stplnmet
 sha1: ee8dbb8cb4f3c1b8db0164e82d4d1f4923878190
 options:
   basename: stplnmet
   target_path: disks/us/AAA/PRO/STPLNMET.PRO
-  base_path: ..
+  base_path: ../..
   platform: psx
   compiler: GCC
 
-  asm_path: asm/stplnmet
+  asm_path: asm/us/stplnmet
   src_path: src/stplnmet
-  build_path: build
+  build_path: build/us
 
-  ld_script_path: build/generated/stplnmet.ld
+  ld_script_path: build/us/generated/stplnmet.ld
 
   global_vram_start: 0x80000000
   global_vram_end: 0x80200000
@@ -24,11 +25,11 @@ options:
   section_order: [".rodata", ".text", ".data", ".bss"]
 
   symbol_addrs_path:
-    - config/symbols.txt
-    - config/symbols_stplnmet.txt
+    - config/us/symbols.txt
+    - config/us/symbols_stplnmet.txt
 
-  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_stplnmet.txt
-  undefined_syms_auto_path: build/generated/undefined_syms_auto_stplnmet.txt
+  undefined_funcs_auto_path: build/us/generated/undefined_funcs_auto_stplnmet.txt
+  undefined_syms_auto_path: build/us/generated/undefined_syms_auto_stplnmet.txt
 
   string_encoding: ASCII
   data_string_encoding: ASCII

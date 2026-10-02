@@ -1,17 +1,18 @@
+# Digimon World 3, USA (SLUS-01436): stgdglab
 name: stgdglab
 sha1: 7a68a26cb400a209c11afa85bcc4f12667a99a77
 options:
   basename: stgdglab
   target_path: disks/us/AAA/PRO/STGDGLAB.PRO
-  base_path: ..
+  base_path: ../..
   platform: psx
   compiler: GCC
 
-  asm_path: asm/stgdglab
+  asm_path: asm/us/stgdglab
   src_path: src/stgdglab
-  build_path: build
+  build_path: build/us
 
-  ld_script_path: build/generated/stgdglab.ld
+  ld_script_path: build/us/generated/stgdglab.ld
 
   global_vram_start: 0x80000000
   global_vram_end: 0x80200000
@@ -24,11 +25,11 @@ options:
   section_order: [".rodata", ".text", ".data", ".bss"]
 
   symbol_addrs_path:
-    - config/symbols.txt
-    - config/symbols_stgdglab.txt
+    - config/us/symbols.txt
+    - config/us/symbols_stgdglab.txt
 
-  undefined_funcs_auto_path: build/generated/undefined_funcs_auto_stgdglab.txt
-  undefined_syms_auto_path: build/generated/undefined_syms_auto_stgdglab.txt
+  undefined_funcs_auto_path: build/us/generated/undefined_funcs_auto_stgdglab.txt
+  undefined_syms_auto_path: build/us/generated/undefined_syms_auto_stgdglab.txt
 
   string_encoding: ASCII
   data_string_encoding: ASCII
