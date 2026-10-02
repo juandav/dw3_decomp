@@ -379,12 +379,12 @@ segments:
       - [0x2EA7C, c, psyq/libmcrd_low]
       - [0x2F50C, hasm, psyq/libmcrd_func_8003e918]
       - [0x2F51C, c, psyq/libmcrd_unformat]
-      - [0x2F5CC, data, data/game]
+      - [0x2F5CC, .data, data/game]
       - [0x45088, data, gte_tables]
-      - [0x463EC, data, data/game_2]
+      - [0x463EC, .data, data/game_2]
       - [0x46538, data, psyq]
-      - [0x4D350, data, data/game_3]
-      - { start: 0x4D4E8, type: bss, vram: 0x8005CCE8, name: data/game_bss }
+      - [0x4D350, .data, data/game_3]
+      - { start: 0x4D4E8, type: .bss, vram: 0x8005CCE8, name: data/game_bss }
       - { start: 0x6F538, type: bss, vram: 0x8007ED38, name: psyq }
 
   # psylink stores .bss in the file as zeros because a later section follows
