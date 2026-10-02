@@ -95,3 +95,6 @@ C_SRC += $(addprefix src/main/psyq/, \
 	libsnd_ut_gva.c libsnd_ut_sva.c libsnd_vm_f.c libsnd_vm_init.c \
 	libsnd_vm_vsu.c libsnd_vs_vab.c libsnd_vs_vh_2.c libsnd_vs_vtb.c \
 	libspu_s_crwa.c libspu_s_ini.c libspu_s_sav.c libspu_s_srmp.c libspu_spu.c)
+
+# game
+C_SRC += src/main/inn.c

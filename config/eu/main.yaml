@@ -59,7 +59,7 @@ segments:
     subalign: 4
     subsegments:
       # us's modules, each with its rodata, data and bss (tools/split_version.py)
-      - [0x800, rodata, inn]
+      - [0x800, .rodata, inn]
       - [0x884, rodata, system]
       - [0x8CC, rodata, memcard]
       - [0x960, rodata, game3]
@@ -89,7 +89,7 @@ segments:
       - [0x1658, .rodata, psyq/libmcrd_low]
       - [0x1668, .rodata, psyq/libmcrd_unformat]
       - [0x1688, asm, crt0]
-      - [0x174C, asm, inn]
+      - [0x174C, c, inn]
       - [0x28B4, asm, system]
       - [0x5130, asm, memcard]
       - [0x5D90, asm, game3]

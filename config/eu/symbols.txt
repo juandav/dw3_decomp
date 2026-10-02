@@ -5,6 +5,10 @@ __SN_ENTRY_POINT = 0x80010E90; // type:func
 // their code: eu's picks the save file name by the language
 setSaveFileName = 0x800148C0; // type:func
 
+// The European version's own names
+// the language picked in CNTY_SEL: 1 English, 2-5 the others (TEXT_FILE())
+LANGUAGE = 0x8005CCA8; // version-only
+
 // names from us (tools/match_versions.py --seed): the same function or datum
 OVERLAY_ADDRESS = 0x800100C4;
 SUB_OVERLAY_ADDRESS = 0x800100C8;

@@ -80,20 +80,20 @@ void updateInnMenu(Inn *task, InnChildren *data) {
         break;
     case 1:
         if (innUpdatePanel(&task->panels[0])) {
-            data->windows[0]->setString(data->windows[0], FILE_CACHE.load(0x5D), INNS[task->inn].string);
+            data->windows[0]->setString(data->windows[0], FILE_CACHE.load(TEXT_FILE(0x5D)), INNS[task->inn].string);
             data->windows[1]->setNumber(data->windows[1], 0, GAME.money);
             data->windows[1]->setRightAlign(data->windows[1], 1);
-            data->windows[2]->setString(data->windows[2], FILE_CACHE.load(0x5D), 0x10);
+            data->windows[2]->setString(data->windows[2], FILE_CACHE.load(TEXT_FILE(0x5D)), 0x10);
             innStartPanel(&task->panels[1], 1);
             task->substate++;
         }
         break;
     case 2:
         if (innUpdatePanel(&task->panels[1])) {
-            data->windows[3]->setString(data->windows[3], FILE_CACHE.load(0x5D), 0x11);
+            data->windows[3]->setString(data->windows[3], FILE_CACHE.load(TEXT_FILE(0x5D)), 0x11);
             data->windows[3]->setNumber(data->windows[3], 1, INNS[task->inn].price);
-            data->windows[4]->setString(data->windows[4], FILE_CACHE.load(0x5D), 0x12);
-            data->windows[5]->setString(data->windows[5], FILE_CACHE.load(0x5D), 0x13);
+            data->windows[4]->setString(data->windows[4], FILE_CACHE.load(TEXT_FILE(0x5D)), 0x12);
+            data->windows[5]->setString(data->windows[5], FILE_CACHE.load(TEXT_FILE(0x5D)), 0x13);
             data->cursor->setVisible(data->cursor, 1);
             task->substate++;
         }
@@ -192,7 +192,7 @@ void updateInnMenu(Inn *task, InnChildren *data) {
         break;
     case 30:
         if (innUpdatePanel(&task->panels[2])) {
-            data->windows[3]->setString(data->windows[3], FILE_CACHE.load(0x5D), 0x14);
+            data->windows[3]->setString(data->windows[3], FILE_CACHE.load(TEXT_FILE(0x5D)), 0x14);
             task->step = 0;
             task->substate++;
         }
@@ -259,29 +259,29 @@ void updateInn(Inn *task, InnChildren *data) {
                 obj.setScale(task->panels[0].level, 0x1000, 0x1000);
                 obj.setPivot(0x57, 0x19);
             }
-            obj.draw(FILE_CACHE.getEntry(0x02770000), 0x41, 0x16, 0x12);
+            obj.draw(FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16), 0x41, 0x16, 0x12);
             if (task->panels[0].level != 0x1000) {
                 obj.setPivot(0x140, 0x18);
             }
-            obj.draw(FILE_CACHE.getEntry(0x02770000), 0x42, 0xD6, 0xF);
+            obj.draw(FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16), 0x42, 0xD6, 0xF);
         }
         if (task->panels[1].level != 0) {
             if (task->panels[1].level != 0x1000) {
                 obj.setScale(task->panels[1].level, 0x1000, 0x1000);
                 obj.setPivot(0x140, 0x41);
             }
-            obj.draw(FILE_CACHE.getEntry(0x02770000), 0x43, 0x4C, 0x2E);
+            obj.draw(FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16), 0x43, 0x4C, 0x2E);
             if (task->panels[1].level != 0x1000) {
                 obj.setPivot(0x140, 0x6D);
             }
-            obj.draw(FILE_CACHE.getEntry(0x02770000), 0x44, 0xAF, 0x59);
+            obj.draw(FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16), 0x44, 0xAF, 0x59);
         }
         if (task->panels[2].level != 0) {
             if (task->panels[2].level != 0x1000) {
                 obj.setScale(task->panels[2].level, 0x1000, 0x1000);
                 obj.setPivot(0x140, 0x41);
             }
-            obj.draw(FILE_CACHE.getEntry(0x02770000), 0x43, 0x4C, 0x2E);
+            obj.draw(FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16), 0x43, 0x4C, 0x2E);
         }
         break;
     case 2:

@@ -189,6 +189,7 @@ typedef struct GameState {
     /* 0x075C */ Partner partners[8];
     /* 0x263C */ s32 progress; /* GAME_PROGRESS */
     /* 0x2640 */ s32 partySet; /* PARTY_SET */
+#if VERSION_US
     /* 0x2644 */ u8 flags[0x78]; /* FLAGS_02... */
     /* 0x26BC */ s32 mode;
     /* 0x26C0 */ s32 nextMode;
@@ -207,6 +208,27 @@ typedef struct GameState {
     /* 0x26E8 */ s32 unk26E8;
     /* 0x26EC */ s32 unk26EC;
     /* 0x26F0 */ GameFuncs funcs; /* GAME_FUNCS */
+#elif VERSION_EU
+    /* 0x2644 */ u8 flags[0x80]; /* FLAGS_02... */
+    /* 0x26C4 */ s32 mode;
+    /* 0x26C8 */ s32 nextMode;
+    /* 0x26CC */ s32 prevMode;
+    /* 0x26D0 */ s32 modeArg;
+    /* 0x26D4 */ s8 unk26CC;
+    /* 0x26D5 */ s8 unk26CD;
+    /* 0x26D6 */ s8 unk26CE;
+    /* 0x26D7 */ s8 unk26CF;
+    /* 0x26D8 */ s32 clearTempFlags;
+    /* 0x26DC */ s32 unk26D4;
+    /* 0x26E0 */ s32 unk26D8;
+    /* 0x26E4 */ s32 unk26DC;
+    /* 0x26E8 */ s32 unk26E0;
+    /* 0x26EC */ s32 unk26E4;
+    /* 0x26F0 */ s32 unk26E8;
+    /* 0x26F4 */ s32 unk26EC;
+    /* 0x26F8 */ s32 unk26F8;
+    /* 0x26FC */ GameFuncs funcs; /* GAME_FUNCS */
+#endif
 } GameState;
 
 s32 unequipItem(s32 slot, s32 item);

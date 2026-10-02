@@ -97,8 +97,11 @@ MASPSXFLAGS = --aspsx-version=2.86 -G$(SDATA_LIMIT) --use-comm-section --use-com
 
 # Most of the game is built with -G0; graphics.c reads its own small variables
 # through $gp. Declare those variables static in C: maspsx then emits them
-# as common symbols that resolve to the definitions in the data asm.
+# as common symbols that resolve to the definitions in the data asm. With
+# -G8 GCC leaves the address of a small extern (inn.c's LANGUAGE, in the
+# European version) to the assembler, which loads it again for each read.
 SDATA_LIMIT := 0
+$(BUILDDIR)/src/main/inn.c.o: SDATA_LIMIT := 8
 $(BUILDDIR)/src/main/system.c.o: SDATA_LIMIT := 8
 $(BUILDDIR)/src/main/graphics.c.o: SDATA_LIMIT := 8
 $(BUILDDIR)/src/main/sound.c.o: SDATA_LIMIT := 8
