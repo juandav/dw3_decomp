@@ -41,7 +41,6 @@ options:
   create_data_pads: False
 
 segments:
-  # not split into the USA version's files yet: its rodata, code and data
   - name: stfgtrep
     type: code
     start: 0x0
@@ -49,6 +48,7 @@ segments:
     align: 4
     subalign: 4
     subsegments:
+      # us's modules, each with its rodata, data and bss (tools/split_version.py)
       - [0x0, rodata, stfgtrep]
       - [0x1C0, asm, stfgtrep]
       - [0x3DD8, data, stfgtrep]

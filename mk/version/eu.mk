@@ -28,6 +28,7 @@ STAGE_VRAM := 0x800A5DE0
 # (tools/stage_yaml.py writes the stages' with it)
 GP_VALUE := 0x8005CB50
 
-# The C files this version builds: none yet. The executable is still one
-# asm segment per section and the overlays are blobs.
+# The C files this version builds: none yet. The executable and the
+# overlays are split into the USA version's modules (tools/split_version.py),
+# each one still in asm, at the same paths under asm/eu/ as under asm/us/.
 C_SRC :=
