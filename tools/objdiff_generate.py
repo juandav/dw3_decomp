@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Write objdiff.json with one unit per C file under src/, for the version
-being built (VERSION, as for make; us by default).
+being built (VERSION, as for make; eu by default).
 
 Target objects are splat's full disassembly of each C segment
 (expected/<version>/asm/<segment>/<file>.s.o); base objects are the files
@@ -57,12 +57,44 @@ def link(out: str, parts: list) -> None:
     subprocess.run(["mipsel-linux-gnu-ld", "-r", "-o", out] + parts, cwd=ROOT, check=True)
 
 
+def asm_units(names: list) -> list:
+    """One unit per binary that has no C file yet, with no base object: splat's
+    code and data of the executable, an overlay or a stage linked together,
+    so that the progress counts the whole of a version even before its first
+    C file (the European one, for now)."""
+    stages = [line.split()[0] for line in open(version.CONFIG_DIR / "stages.txt")
+              if line.strip() and not line.startswith("#")]
+    binaries = {d.name: [f"{d.name}/{d.name}.s"] + [f"{d.name}/data/{f.name}"
+                for f in sorted((d / "data").glob("*.s"))]
+                for d in sorted(ASM.iterdir()) if d.is_dir() and d.name != "stages"}
+    for stage in (s.lower() for s in stages):
+        binaries[f"stages/{stage}"] = [f"stages/{stage}.s"] + [
+            f"stages/data/{f.name}" for f in sorted((ASM / "stages/data").glob(f"{stage}[._]*s"))]
+    if "main" in binaries:
+        binaries["main"][0] = "main/text.s"
+    units = []
+    for binary, files in binaries.items():
+        if any(n == binary or n.startswith(f"{binary}/") for n in names):
+            continue
+        objs = [f"expected/{V}/asm/{f}.o" for f in files if (ASM / f).exists()]
+        if not objs:
+            continue
+        name = binary if "/" in binary else f"{binary}/{binary}"
+        target = f"expected/{V}/report/{name}.s.o"
+        link(target, objs)
+        units.append({"name": name, "target_path": target,
+                      "metadata": {"progress_categories": [category_for(name)]}})
+    return units
+
+
 def main() -> None:
     names = [src.relative_to(ROOT / "src").with_suffix("").as_posix()
              for src in sorted((ROOT / "src").rglob("*.c"))]
     names = [n for n in names if not is_library(n) and not n.startswith("main/data/")]
-    # the C files of this version: the ones splat made a full disassembly of
-    names = [n for n in names if (ASM / f"{n}.s").exists()]
+    # the C files of this version: the ones built for it, which splat made a
+    # full disassembly of
+    names = [n for n in names if (ASM / f"{n}.s").exists()
+             and (ROOT / f"build/{V}/src/{n}.c.o").exists()]
     halves = {n[:-2]: n for n in names if n.endswith("_2") and n[:-2] in names}
     units = []
     for name in names:
@@ -100,6 +132,8 @@ def main() -> None:
             link(f"build/{V}/report/main/game_data.c.o", base)
             unit["base_path"] = f"build/{V}/report/main/game_data.c.o"
         units.append(unit)
+
+    units += asm_units(names)
 
     categories = list(CATEGORIES)
     for overlay in sorted({category_for(u["name"]) for u in units} - {"game"}):
