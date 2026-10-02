@@ -138,8 +138,8 @@ or 1; the assembly gets the same names from `--defsym`.
   version, its `#if` blocks name only the versions that build it from C.
 - Each version lists the C files it builds in `mk/version/<version>.mk`
   (`C_SRC`), and the Makefile builds nothing else. `us` builds every C file
-  under `src/`; `eu` the ones that match unchanged so far (the PsyQ
-  libraries, `game3_2`, `SOUNDTST`, `STDWTITL`'s `libpress`). The rest of
+  under `src/`; `eu` the ones it shares so far (the PsyQ libraries, the
+  executable's game code and data, `SOUNDTST`, `STDWTITL`'s `libpress`). The rest of
   `eu`'s executable and overlays is split into the USA files as asm
   segments with the same names (`tools/split_version.py`).
 - To build a file for `eu` too: add it to `eu`'s `C_SRC`, make its segments
@@ -218,7 +218,11 @@ does:
 - A file `X_2.c` is the second half of an original object that the splat
   config splits in two; the report counts both halves as the unit `X`.
 - The executable's data is in `src/main/data/` until it moves to the module
-  that defines it.
+  that defines it. Its European tables differ all over (file numbers,
+  screen positions, overlay addresses) and splat names them at other
+  addresses: they are `data_to_c.py`'s output for `asm/eu/` next to the USA
+  ones, in `#if VERSION_US`/`#elif VERSION_EU` blocks for the objects that
+  differ. Give a table the same name in both versions when you name it.
 
 ## Names
 

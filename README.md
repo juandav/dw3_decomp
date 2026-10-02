@@ -22,8 +22,9 @@ World 3*, and the European one, *Digimon World 2003*, both build from this
 source tree and match byte for byte. The USA release is the one being
 decompiled; the European one, the most complete release, is where the work
 is heading next: it is split into the USA release's files and carries its
-names, and builds the PsyQ libraries and a few files from the same C, but is
-splat's disassembly otherwise.
+names, and builds the PsyQ libraries, the executable's game code and data
+and a few overlay files from the same C, but is splat's disassembly
+otherwise.
 
 This repository does not contain any game data. You need your own copy of the
 game to build it.
@@ -61,9 +62,10 @@ badges above are always current:
   same source, so one match often repeats across stages.
 - The European version, the default one and the one decomp.dev shows first,
   is split into the USA version's files, with the USA names, and builds the
-  275 PsyQ files, `game3_2`, `SOUNDTST` and `STDWTITL`'s `libpress`
-  from the USA version's C. The rest of its executable, 21 overlays and 293
-  stages is splat's disassembly, so its report counts it as still to do.
+  275 PsyQ files, the executable's game code and data (the same 343 of 346
+  functions as the USA version), `SOUNDTST` and `STDWTITL`'s `libpress` from
+  the USA version's C. The rest of its executable, 21 overlays and 293 stages
+  is splat's disassembly, so its report counts it as still to do.
 
 Progress is measured by [objdiff](https://github.com/encounter/objdiff), with
 one unit per C file, and tracked on
@@ -188,7 +190,7 @@ One source tree builds every version, one at a time, picked with `VERSION`
 | `VERSION` | Release | Executable (SHA-1) | Disc image (SHA-1) | Overlays | Stages | C |
 |---|---|---|---|---|---|---|
 | `us` | *Digimon World 3*, USA, SLUS-01436 | `SLUS_014.36` (`444653259f78ddb483fd22af72cce9276f42f214`) | `Digimon World 3 (USA).bin` (`f0b022f9be53cbce14640abd8f01beaadcb35208`) | 21 | 238 | yes |
-| `eu` | *Digimon World 2003*, Europe, SLES-03936 | `SLES_039.36` (`d1b7e4d646e3a9c2b88fdb25d20b5f7116bbb06d`) | `Digimon World 2003 (Europe).bin` (`457cb233349ba841e03b33d8060f8fbcadd45cb3`) | 21 | 293 | PsyQ, 3 files |
+| `eu` | *Digimon World 2003*, Europe, SLES-03936 | `SLES_039.36` (`d1b7e4d646e3a9c2b88fdb25d20b5f7116bbb06d`) | `Digimon World 2003 (Europe).bin` (`457cb233349ba841e03b33d8060f8fbcadd45cb3`) | 21 | 293 | PsyQ, the game code and data, 2 overlay files |
 
 - `mk/version/<version>.mk` has each version's settings: the release's name,
   the executable's name, the disc directory, the overlays, where they load
@@ -208,8 +210,9 @@ One source tree builds every version, one at a time, picked with `VERSION`
 - The C sees `VERSION_US` and `VERSION_EU`, each 0 or 1
   (`include/version.h`), and so does the assembly (`--defsym`). Code tests
   them with `#if VERSION_EU`, never `#ifdef`; CONTRIBUTING.md has the rules.
-- `us` builds every C file under `src/`. `eu` builds the ones that match
-  unchanged (`C_SRC`); the rest of its executable and overlays is split into
+- `us` builds every C file under `src/`. `eu` builds the ones it shares so
+  far (`C_SRC`), with `#if VERSION_EU` blocks where its code or data differ;
+  the rest of its executable and overlays is split into
   the USA version's files as asm segments, so its asm lands at the same paths
   (`asm/eu/main/system.s` for `asm/us/main/system.s`), and each stage is its
   rodata, code and data as asm. The European release has the USA one's 21
