@@ -68,7 +68,16 @@ void func_80087B28(NameEntry *entry, s32 x, s32 y) {
     entry->imageY = y;
 }
 
-INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80087B34);
+void func_80087B34(NameEntry *entry, char *text) {
+    TextTools tools;
+    s32 i;
+
+    initTextTools(&tools);
+    tools.convert(entry->text, text, 0);
+    for (i = strlen((char *)entry->text) >> 1; i < entry->maxLength; i++) {
+        entry->text[i] = SJIS_SPACE;
+    }
+}
 
 INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80087BC8);
 
