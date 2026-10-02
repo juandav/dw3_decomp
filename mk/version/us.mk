@@ -24,6 +24,10 @@ OVERLAYS := cardgame cnty_sel fieldstg fightstg shocktst soundtst stagslct \
 OVERLAY_VRAM := 0x80082448
 STAGE_VRAM := 0x800A4CA4
 
+# $gp, as crt0 sets it: the gp_value of every splat config of the version
+# (tools/stage_yaml.py writes the stages' with it)
+GP_VALUE := 0x8005C2F8
+
 # The C files this version builds: the Makefile compiles these and nothing
 # else under src/, and gives each binary the ones under src/<name>/ (the
 # stages theirs under src/stages/). Every C file is the USA version's.

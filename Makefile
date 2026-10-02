@@ -156,7 +156,7 @@ $(foreach s,$(STAGES),\
 	$(eval OVL_ASM_SRC_$(s) := $(wildcard $(ASM_DIR)/stages/data/$(s).*.s $(ASM_DIR)/stages/data/$(s).s $(ASM_DIR)/stages/data/$(s)_end.s $(ASM_DIR)/stages/$(s).s))\
 	$(eval OVL_SYMBOLS_$(s) := $(wildcard $(CONFIG_DIR)/symbols_fieldstg.txt $(CONFIG_DIR)/stages/$(s).txt)))
 
-$(GENDIR)/stages/%.yaml: $(CONFIG_DIR)/stages.txt tools/stage_yaml.py tools/version.py
+$(GENDIR)/stages/%.yaml: $(CONFIG_DIR)/stages.txt tools/stage_yaml.py tools/version.py mk/version/$(VERSION).mk
 	$(PYTHON) tools/stage_yaml.py $* $@
 
 # The executable's own symbols for the overlays to link against (not the

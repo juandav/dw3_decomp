@@ -24,6 +24,10 @@ OVERLAYS := cardgame cnty_sel fieldstg fightstg shocktst soundtst stagslct \
 OVERLAY_VRAM := 0x80082CB0
 STAGE_VRAM := 0x800A5DE0
 
+# $gp, as crt0 sets it: the gp_value of every splat config of the version
+# (tools/stage_yaml.py writes the stages' with it)
+GP_VALUE := 0x8005CB50
+
 # The C files this version builds: none yet. The executable is still one
 # asm segment per section and the overlays are blobs.
 C_SRC :=

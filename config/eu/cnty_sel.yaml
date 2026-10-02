@@ -19,7 +19,7 @@ options:
   global_vram_end: 0x80200000
 
   find_file_boundaries: True
-  gp_value: 0x8005C2F8
+  gp_value: 0x8005CB50
 
   generate_asm_macros_files: False
 
