@@ -16,3 +16,6 @@ SOUNDTST_soundLists = 0x800856E4;
 SOUNDTST_banks = 0x80085800;
 SOUNDTST_screenRect = 0x80085A40;
 // end of the names from us
+
+// names from the C of the modules this version builds (tools/version_symbols.py)
+SOUNDTST_entryNames = 0x80082CB0;

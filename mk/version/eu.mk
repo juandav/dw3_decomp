@@ -28,13 +28,13 @@ STAGE_VRAM := 0x800A5DE0
 # (tools/stage_yaml.py writes the stages' with it)
 GP_VALUE := 0x8005CB50
 
-# The C files this version builds: the PsyQ modules that build from the
-# same C as the USA version's, at this version's addresses
-# (tools/version_symbols.py names what they use). The rest of the
-# executable and the overlays are split into the USA version's modules
-# (tools/split_version.py), still in asm, at the same paths under asm/eu/ as
-# under asm/us/.
-C_SRC := $(addprefix src/main/psyq/, \
+# The C files this version builds: the modules that build from the same C
+# as the USA version's, at this version's addresses (tools/version_symbols.py
+# names what they use). The rest of the executable and the overlays are split
+# into the USA version's modules (tools/split_version.py), still in asm, at
+# the same paths under asm/eu/ as under asm/us/.
+C_SRC := src/main/game3_2.c src/soundtst/soundtst.c src/stdwtitl/libpress.c
+C_SRC += $(addprefix src/main/psyq/, \
 	libpad_pdcmd1.c libpad_pdcmd2.c libpad_pdcmd3.c libpad_pdent2.c \
 	libpad_pdent3.c libpad_pdent4.c libpad_pdmaiini.c libpad_pdmain2.c \
 	libpad_pddirini.c libpad_pdtapini.c libpad_pddirres.c libpad_pdtapres.c \

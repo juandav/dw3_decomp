@@ -52,10 +52,10 @@ segments:
       # us's modules, each with its rodata, data and bss (tools/split_version.py)
       - [0x0, rodata, stdwtitl]
       - [0x4C, rodata, stdwtitl_2]
-      - [0x70, rodata, libpress]
+      - [0x70, .rodata, libpress]
       - [0xC0, asm, stdwtitl]
       - [0x3024, asm, stdwtitl_2]
-      - [0x449C, asm, libpress]
+      - [0x449C, c, libpress]
       - [0x4F90, data, stdwtitl]
       - [0x510C, data, stdwtitl_2]
       - [0x55D4, data, libpress]

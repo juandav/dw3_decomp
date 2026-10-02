@@ -89,7 +89,7 @@ segments:
       - [0x28B4, asm, system]
       - [0x5130, asm, memcard]
       - [0x5D90, asm, game3]
-      - [0x7E4C, asm, game3_2]
+      - [0x7E4C, c, game3_2]
       - [0x8B10, asm, pad]
       - [0x9B70, asm, text_window]
       - [0xDBF4, asm, graphics]

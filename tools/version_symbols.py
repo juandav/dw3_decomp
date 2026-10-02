@@ -24,12 +24,12 @@ of the C's data that a module still in asm reads by splat's name
 
 The functions and rodata the C still includes as asm (INCLUDE_ASM,
 INCLUDE_RODATA) need their name before the object builds: splat writes the
-file the C includes under it. A named one has it already
-(tools/match_versions.py --seed); one with us's automatic name
-(func_80012345, D_80012345) gets it at the address of its confident pair in
-build/<version>/version_pairs.tsv (tools/match_versions.py), or, when the
-module's code or rodata is as long as us's, at the same offset in it; in the
-binary's own file. So a module takes two runs: one to name those, then make
+file the C includes under it. Most have it already
+(tools/match_versions.py --seed); one that hasn't, such as one with us's
+automatic name (func_80012345, D_80012345), gets it at the address of its
+confident pair in build/<version>/version_pairs.tsv
+(tools/match_versions.py) or, when the module's code or rodata is as long
+as us's, at the same offset in it; in the binary's own file. So a module takes two runs: one to name those, then make
 VERSION=<version> generate and the object, and one for the rest.
 
 A name goes in the version's files that have it in us (config/<v>/symbols.txt,
@@ -134,13 +134,14 @@ def extent(version: str, binary: str, module: str, kinds: tuple) -> tuple:
     return None
 
 
-def included_asm(version: str, source: str, named: set) -> tuple:
-    """([(address, name)], [problems]): the functions and rodata with us's
-    automatic names that SOURCE includes as asm and the version hasn't
-    NAMED yet, at their pairs' addresses."""
+def included_asm(version: str, source: str, named: set, us_names: dict) -> tuple:
+    """([(address, name)], [problems]): the functions and rodata that
+    SOURCE includes as asm and the version hasn't NAMED yet, at their pairs'
+    addresses or at their offset in a module as long as us's (us has them
+    at their automatic name's address or at US_NAMES')."""
     binary, module, _ = source_module(source)
     included = re.findall(r"^\s*INCLUDE_(ASM|RODATA)\(\s*\"[^\"]+\",\s*(\w+)\s*\)", Path(source).read_text(), re.M)
-    kind = {n: k for k, n in included if AUTO_NAME.match(n) and n not in named}
+    kind = {n: k for k, n in included if n not in named}
     names = list(kind)
     if not names:
         return [], []
@@ -160,10 +161,11 @@ def included_asm(version: str, source: str, named: set) -> tuple:
         ours = extent(version, binary, module, kinds[kind[name]])
         theirs = extent("us", binary, module, kinds[kind[name]])
         same = ours and theirs and ours[1] is not None and ours[1] == theirs[1]
+        us_addr = int(name[-8:], 16) if AUTO_NAME.match(name) else us_names.get(name)
         if len(found[name]) == 1:
             out.append((next(iter(found[name])), name))
-        elif not found[name] and same and 0 <= int(name[-8:], 16) - theirs[0] < theirs[1]:
-            out.append((ours[0] + int(name[-8:], 16) - theirs[0], name))
+        elif not found[name] and same and us_addr is not None and 0 <= us_addr - theirs[0] < theirs[1]:
+            out.append((ours[0] + us_addr - theirs[0], name))
         else:
             problems.append(f"{name}: {len(found[name])} confident pairs in {binary}")
     return out, problems
@@ -341,12 +343,22 @@ def main() -> None:
                 by_address[file][addr].add(name)
         own = own_file(binary)
 
+        # where us has each name (for this binary's link)
+        us_files = defaultdict(list)
+        us_comment = {}
+        us_addr = {}
+        for file in symbol_files("us", binary):
+            path = ROOT / "config" / "us" / file
+            for name, addr, comment in read_names(path) if path.exists() else []:
+                us_files[name].append(file)
+                us_comment.setdefault(name, comment)
+                us_addr.setdefault(name, addr)
         # the functions the C includes as asm: their names first, for the
         # object to build
         missing = False
         labels = own_labels(args.version, binary)
         for source in sources:
-            included, p = included_asm(args.version, source, set().union(*have.values()))
+            included, p = included_asm(args.version, source, set().union(*have.values()), us_addr)
             problems += p
             for addr, name in included:
                 others = {n for f in by_address for n in by_address[f].get(addr, ())}
@@ -356,7 +368,8 @@ def main() -> None:
                 if labels.get(name, addr) != addr:
                     problems.append(f"{name} = {addr:#010x}: the version's {binary} has its own {name}")
                     continue
-                add[own].append((addr, name, "type:func" if name.startswith("func_") else ""))
+                comment = us_comment.get(name, "type:func" if name.startswith("func_") else "")
+                add[own].append((addr, name, comment))
                 missing = True
         if missing:
             problems.append(f"{binary}: name the functions the C includes as asm (--write), then make "
@@ -375,15 +388,6 @@ def main() -> None:
                 for a, n in addrs.items():
                     found[name][a] += n
 
-        # where us has each name (for this binary's link), and the version's
-        # names
-        us_files = defaultdict(list)
-        us_comment = {}
-        for file in symbol_files("us", binary):
-            path = ROOT / "config" / "us" / file
-            for name, _, comment in read_names(path) if path.exists() else []:
-                us_files[name].append(file)
-                us_comment.setdefault(name, comment)
         # the literals only the data points to get splat's automatic name,
         # in the binary's own file (as in us)
         for addr in sorted(found.pop(None, {})):
