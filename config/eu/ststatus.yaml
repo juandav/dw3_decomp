@@ -1,0 +1,34 @@
+# Digimon World 2003, Europe (SLES-03936): ststatus
+name: ststatus
+sha1: 1dea5c72f3f4187261298d0d7a1e1c7a06fadffe
+options:
+  basename: ststatus
+  target_path: disks/eu/AAA/PRO/STSTATUS.PRO
+  base_path: ../..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/eu/ststatus
+  asset_path: asm/eu/ststatus/bin
+  src_path: src/ststatus
+  build_path: build/eu
+
+  ld_script_path: build/eu/generated/ststatus.ld
+
+  symbol_addrs_path:
+    - config/eu/symbols.txt
+  undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_ststatus.txt
+  undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_ststatus.txt
+
+  generate_asm_macros_files: False
+  create_c_files: False
+
+segments:
+  # still one blob, not split into the USA version's files yet
+  - name: ststatus
+    type: databin
+    start: 0x0
+    vram: 0x80082CB0
+    subalign: 4
+
+  - [0x18A48]

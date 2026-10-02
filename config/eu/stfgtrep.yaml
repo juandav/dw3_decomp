@@ -1,0 +1,34 @@
+# Digimon World 2003, Europe (SLES-03936): stfgtrep
+name: stfgtrep
+sha1: b59048734824ee31e3b4e777710c05926b47381d
+options:
+  basename: stfgtrep
+  target_path: disks/eu/AAA/PRO/STFGTREP.PRO
+  base_path: ../..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/eu/stfgtrep
+  asset_path: asm/eu/stfgtrep/bin
+  src_path: src/stfgtrep
+  build_path: build/eu
+
+  ld_script_path: build/eu/generated/stfgtrep.ld
+
+  symbol_addrs_path:
+    - config/eu/symbols.txt
+  undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_stfgtrep.txt
+  undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_stfgtrep.txt
+
+  generate_asm_macros_files: False
+  create_c_files: False
+
+segments:
+  # still one blob, not split into the USA version's files yet
+  - name: stfgtrep
+    type: databin
+    start: 0x0
+    vram: 0x80082CB0
+    subalign: 4
+
+  - [0x65F8]

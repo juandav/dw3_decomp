@@ -1,0 +1,34 @@
+# Digimon World 2003, Europe (SLES-03936): stgmcard
+name: stgmcard
+sha1: 925dcb2835f6ac18c3c460f2c99c72d87fcd7db2
+options:
+  basename: stgmcard
+  target_path: disks/eu/AAA/PRO/STGMCARD.PRO
+  base_path: ../..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/eu/stgmcard
+  asset_path: asm/eu/stgmcard/bin
+  src_path: src/stgmcard
+  build_path: build/eu
+
+  ld_script_path: build/eu/generated/stgmcard.ld
+
+  symbol_addrs_path:
+    - config/eu/symbols.txt
+  undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_stgmcard.txt
+  undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_stgmcard.txt
+
+  generate_asm_macros_files: False
+  create_c_files: False
+
+segments:
+  # still one blob, not split into the USA version's files yet
+  - name: stgmcard
+    type: databin
+    start: 0x0
+    vram: 0x80082CB0
+    subalign: 4
+
+  - [0x5CA0]

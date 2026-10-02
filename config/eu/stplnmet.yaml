@@ -1,0 +1,34 @@
+# Digimon World 2003, Europe (SLES-03936): stplnmet
+name: stplnmet
+sha1: 033c688b39835931ff0231a94363ceb5b4031ee1
+options:
+  basename: stplnmet
+  target_path: disks/eu/AAA/PRO/STPLNMET.PRO
+  base_path: ../..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/eu/stplnmet
+  asset_path: asm/eu/stplnmet/bin
+  src_path: src/stplnmet
+  build_path: build/eu
+
+  ld_script_path: build/eu/generated/stplnmet.ld
+
+  symbol_addrs_path:
+    - config/eu/symbols.txt
+  undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_stplnmet.txt
+  undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_stplnmet.txt
+
+  generate_asm_macros_files: False
+  create_c_files: False
+
+segments:
+  # still one blob, not split into the USA version's files yet
+  - name: stplnmet
+    type: databin
+    start: 0x0
+    vram: 0x80082CB0
+    subalign: 4
+
+  - [0x6F0C]

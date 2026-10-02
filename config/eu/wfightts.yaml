@@ -1,0 +1,34 @@
+# Digimon World 2003, Europe (SLES-03936): wfightts
+name: wfightts
+sha1: 926c81ca92f9fbf2af5816c7a7f742e5efe1a372
+options:
+  basename: wfightts
+  target_path: disks/eu/AAA/PRO/WFIGHTTS.PRO
+  base_path: ../..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/eu/wfightts
+  asset_path: asm/eu/wfightts/bin
+  src_path: src/wfightts
+  build_path: build/eu
+
+  ld_script_path: build/eu/generated/wfightts.ld
+
+  symbol_addrs_path:
+    - config/eu/symbols.txt
+  undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_wfightts.txt
+  undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_wfightts.txt
+
+  generate_asm_macros_files: False
+  create_c_files: False
+
+segments:
+  # still one blob, not split into the USA version's files yet
+  - name: wfightts
+    type: databin
+    start: 0x0
+    vram: 0x800A5DE0
+    subalign: 4
+
+  - [0x390C]

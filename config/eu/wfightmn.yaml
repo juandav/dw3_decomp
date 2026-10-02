@@ -1,0 +1,34 @@
+# Digimon World 2003, Europe (SLES-03936): wfightmn
+name: wfightmn
+sha1: fe2db0a83e09b2fcb9ecedf0a6c1c2114be5dabe
+options:
+  basename: wfightmn
+  target_path: disks/eu/AAA/PRO/WFIGHTMN.PRO
+  base_path: ../..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/eu/wfightmn
+  asset_path: asm/eu/wfightmn/bin
+  src_path: src/wfightmn
+  build_path: build/eu
+
+  ld_script_path: build/eu/generated/wfightmn.ld
+
+  symbol_addrs_path:
+    - config/eu/symbols.txt
+  undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_wfightmn.txt
+  undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_wfightmn.txt
+
+  generate_asm_macros_files: False
+  create_c_files: False
+
+segments:
+  # still one blob, not split into the USA version's files yet
+  - name: wfightmn
+    type: databin
+    start: 0x0
+    vram: 0x800A5DE0
+    subalign: 4
+
+  - [0x50C8]

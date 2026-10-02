@@ -1,0 +1,34 @@
+# Digimon World 2003, Europe (SLES-03936): fieldstg
+name: fieldstg
+sha1: bc5fb336d7befa61e34d6d50331eedbc9c40e078
+options:
+  basename: fieldstg
+  target_path: disks/eu/AAA/PRO/FIELDSTG.PRO
+  base_path: ../..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/eu/fieldstg
+  asset_path: asm/eu/fieldstg/bin
+  src_path: src/fieldstg
+  build_path: build/eu
+
+  ld_script_path: build/eu/generated/fieldstg.ld
+
+  symbol_addrs_path:
+    - config/eu/symbols.txt
+  undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_fieldstg.txt
+  undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_fieldstg.txt
+
+  generate_asm_macros_files: False
+  create_c_files: False
+
+segments:
+  # still one blob, not split into the USA version's files yet
+  - name: fieldstg
+    type: databin
+    start: 0x0
+    vram: 0x80082CB0
+    subalign: 4
+
+  - [0x18E98]

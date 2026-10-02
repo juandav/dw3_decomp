@@ -1,0 +1,34 @@
+# Digimon World 2003, Europe (SLES-03936): stdgname
+name: stdgname
+sha1: ae175dd74fd855e08cfdf0bec9d03f473f02d25a
+options:
+  basename: stdgname
+  target_path: disks/eu/AAA/PRO/STDGNAME.PRO
+  base_path: ../..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/eu/stdgname
+  asset_path: asm/eu/stdgname/bin
+  src_path: src/stdgname
+  build_path: build/eu
+
+  ld_script_path: build/eu/generated/stdgname.ld
+
+  symbol_addrs_path:
+    - config/eu/symbols.txt
+  undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_stdgname.txt
+  undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_stdgname.txt
+
+  generate_asm_macros_files: False
+  create_c_files: False
+
+segments:
+  # still one blob, not split into the USA version's files yet
+  - name: stdgname
+    type: databin
+    start: 0x0
+    vram: 0x80082CB0
+    subalign: 4
+
+  - [0x6190]

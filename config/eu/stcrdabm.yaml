@@ -1,0 +1,34 @@
+# Digimon World 2003, Europe (SLES-03936): stcrdabm
+name: stcrdabm
+sha1: 0e58e7aef70165be0bb6b95d59236941ab648b28
+options:
+  basename: stcrdabm
+  target_path: disks/eu/AAA/PRO/STCRDABM.PRO
+  base_path: ../..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/eu/stcrdabm
+  asset_path: asm/eu/stcrdabm/bin
+  src_path: src/stcrdabm
+  build_path: build/eu
+
+  ld_script_path: build/eu/generated/stcrdabm.ld
+
+  symbol_addrs_path:
+    - config/eu/symbols.txt
+  undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_stcrdabm.txt
+  undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_stcrdabm.txt
+
+  generate_asm_macros_files: False
+  create_c_files: False
+
+segments:
+  # still one blob, not split into the USA version's files yet
+  - name: stcrdabm
+    type: databin
+    start: 0x0
+    vram: 0x80082CB0
+    subalign: 4
+
+  - [0x2DCC]

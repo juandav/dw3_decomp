@@ -1,0 +1,34 @@
+# Digimon World 2003, Europe (SLES-03936): stdwtitl
+name: stdwtitl
+sha1: 1777ec5d204bce2dcb77495a401291a22bd7e262
+options:
+  basename: stdwtitl
+  target_path: disks/eu/AAA/PRO/STDWTITL.PRO
+  base_path: ../..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/eu/stdwtitl
+  asset_path: asm/eu/stdwtitl/bin
+  src_path: src/stdwtitl
+  build_path: build/eu
+
+  ld_script_path: build/eu/generated/stdwtitl.ld
+
+  symbol_addrs_path:
+    - config/eu/symbols.txt
+  undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_stdwtitl.txt
+  undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_stdwtitl.txt
+
+  generate_asm_macros_files: False
+  create_c_files: False
+
+segments:
+  # still one blob, not split into the USA version's files yet
+  - name: stdwtitl
+    type: databin
+    start: 0x0
+    vram: 0x80082CB0
+    subalign: 4
+
+  - [0x65C0]

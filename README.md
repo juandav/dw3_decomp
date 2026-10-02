@@ -11,9 +11,9 @@ game to build it.
 
 | | |
 |---|---|
-| Version | USA (`SLUS-01436`) |
-| Disc image | `Digimon World 3 (USA).bin`, SHA-1 `f0b022f9be53cbce14640abd8f01beaadcb35208` |
-| Main executable | `SLUS_014.36`, SHA-1 `444653259f78ddb483fd22af72cce9276f42f214` |
+| Versions | USA (`SLUS-01436`, `VERSION=us`, the default) and Europe (`SLES-03936`, *Digimon World 2003*, `VERSION=eu`) |
+| Disc images | `Digimon World 3 (USA).bin`, SHA-1 `f0b022f9be53cbce14640abd8f01beaadcb35208`; `Digimon World 2003 (Europe).bin`, SHA-1 `457cb233349ba841e03b33d8060f8fbcadd45cb3` |
+| Main executables | `SLUS_014.36`, SHA-1 `444653259f78ddb483fd22af72cce9276f42f214`; `SLES_039.36`, SHA-1 `d1b7e4d646e3a9c2b88fdb25d20b5f7116bbb06d` |
 | Compiler | Game: GCC 2.8.1 (`-O2 -G0`); PsyQ: GCC 2.7.2 (`-O2`); ASPSX emulated with [maspsx](https://github.com/mkst/maspsx) |
 | SDK | PsyQ 4.7 |
 
@@ -45,6 +45,7 @@ git submodule update --init --recursive
 # Extract the disc (the executable and the AAA/ directories, which dumpsxiso
 # doesn't see: only the ISO9660 path table reaches them)
 python3 tools/extract_disc.py "/path/to/Digimon World 3 (USA).bin" disks/us
+python3 tools/extract_disc.py "/path/to/Digimon World 2003 (Europe).bin" disks/eu
 
 # Disassemble the original executable and overlays (VERSION=us is the
 # default; every make command and tool takes it)
@@ -64,7 +65,8 @@ make objdiff
 make report
 ```
 
-`make compare` must print OK for `build/us/SLUS_014.36` and every overlay. A
+`make compare` must print OK for `build/us/SLUS_014.36` and every overlay
+(`make VERSION=eu ...` for `build/eu/SLES_039.36`). A
 function only counts as decompiled once all of them still match.
 
 The progress report counts the game's code: the executable's and the

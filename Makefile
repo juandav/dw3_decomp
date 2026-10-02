@@ -153,8 +153,8 @@ $(foreach s,$(STAGES),\
 	$(eval OVL_PARENT_$(s) := fieldstg)\
 	$(eval OVL_YAML_$(s) := $(GENDIR)/stages/$(s).yaml)\
 	$(eval OVL_C_SRC_$(s) := src/stages/$(s).c)\
-	$(eval OVL_ASM_SRC_$(s) := $(wildcard $(ASM_DIR)/stages/data/$(s).*.s))\
-	$(eval OVL_SYMBOLS_$(s) := $(CONFIG_DIR)/symbols_fieldstg.txt $(wildcard $(CONFIG_DIR)/stages/$(s).txt)))
+	$(eval OVL_ASM_SRC_$(s) := $(wildcard $(ASM_DIR)/stages/data/$(s).*.s $(ASM_DIR)/stages/data/$(s).s))\
+	$(eval OVL_SYMBOLS_$(s) := $(wildcard $(CONFIG_DIR)/symbols_fieldstg.txt $(CONFIG_DIR)/stages/$(s).txt)))
 
 $(GENDIR)/stages/%.yaml: $(CONFIG_DIR)/stages.txt tools/stage_yaml.py tools/version.py
 	$(PYTHON) tools/stage_yaml.py $* $@

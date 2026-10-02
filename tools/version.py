@@ -23,11 +23,15 @@ if not _MK.is_file():
 # the NAME := VALUE settings of the version's .mk
 _SETTINGS = dict(re.findall(r"^(\w+)\s*:=\s*(.*?)\s*$", _MK.read_text(), re.M))
 
-# the release, such as "USA (SLUS-01436)"
+# the release, such as "Digimon World 3, USA (SLUS-01436)"
 VERSION_NAME = _SETTINGS.get("VERSION_NAME", VERSION)
 # the executable's name (SLUS_014.36) and the extracted disc it is on
 EXE_NAME = _SETTINGS["EXE_NAME"]
 DISK_DIR = ROOT / _SETTINGS["DISK_DIR"]
+
+# where the overlays load, and the stage overlays (after CARDGAME)
+OVERLAY_VRAM = int(_SETTINGS["OVERLAY_VRAM"], 16)
+STAGE_VRAM = int(_SETTINGS["STAGE_VRAM"], 16)
 
 # splat configs (<binary>.yaml), symbols and checksums
 CONFIG_DIR = ROOT / "config" / VERSION

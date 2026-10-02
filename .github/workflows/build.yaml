@@ -25,6 +25,11 @@ jobs:
             exe: SLUS_014.36
             deps: .
             report: true
+          # no C units yet, so no progress report
+          - version: eu
+            exe: SLES_039.36
+            deps: eu
+            report: false
     name: build (${{ matrix.version }})
     env:
       VERSION: ${{ matrix.version }}
@@ -69,7 +74,8 @@ jobs:
         make -j$(nproc)
         make compare
 
-    - run: make report
+    - if: matrix.report
+      run: make report
 
     - if: matrix.report
       uses: actions/upload-artifact@v6

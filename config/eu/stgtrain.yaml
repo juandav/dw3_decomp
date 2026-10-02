@@ -1,0 +1,34 @@
+# Digimon World 2003, Europe (SLES-03936): stgtrain
+name: stgtrain
+sha1: 32344e9ffca3db7686aa70f6e0082510d0ba258b
+options:
+  basename: stgtrain
+  target_path: disks/eu/AAA/PRO/STGTRAIN.PRO
+  base_path: ../..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/eu/stgtrain
+  asset_path: asm/eu/stgtrain/bin
+  src_path: src/stgtrain
+  build_path: build/eu
+
+  ld_script_path: build/eu/generated/stgtrain.ld
+
+  symbol_addrs_path:
+    - config/eu/symbols.txt
+  undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_stgtrain.txt
+  undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_stgtrain.txt
+
+  generate_asm_macros_files: False
+  create_c_files: False
+
+segments:
+  # still one blob, not split into the USA version's files yet
+  - name: stgtrain
+    type: databin
+    start: 0x0
+    vram: 0x80082CB0
+    subalign: 4
+
+  - [0xA658]
