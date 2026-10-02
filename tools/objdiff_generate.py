@@ -8,7 +8,7 @@ built from src/ (build/<version>/src/...), where every function still behind INC
 label that objdiff drops from the progress count.
 
 A source file X_2.c is the second half of an original object split in
-config/main.yaml (X.c and X_2.c come from one file before the split). Its
+config/us/main.yaml (X.c and X_2.c come from one file before the split). Its
 unit is reported together with X's under X's name, from the two objects
 linked with `ld -r`, so progress keeps being tracked per unit as before.
 

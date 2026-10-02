@@ -2,7 +2,8 @@
 
 Both versions build byte for byte, but most of the game is still assembly:
 the USA executable's game code is almost all C, its overlays and stages are
-mostly not, and the European version has no C at all. The project's focus
+mostly not, and the European version builds little C besides the PsyQ
+libraries. The project's focus
 now moves to the European version, *Digimon World 2003*, the most complete
 release: it has every USA overlay and stage plus 55 stages of its own. The
 counts below were taken from the source and from the `us` and `eu` builds at
@@ -11,41 +12,48 @@ commit `45827a6`.
 ## The European version
 
 `make VERSION=eu compare` is OK for `SLES_039.36`, its 21 overlays and its 293
-stages, but all of it is splat's disassembly: the executable is one segment
-per section (`config/eu/main.yaml`), each overlay its rodata, code and data as
-asm, and every stage is marked `asm` in `config/eu/stages.txt`.
-`config/eu/symbols.txt` is empty and `eu`'s `C_SRC` is too.
+stages. The executable and the overlays are split into the USA version's
+files (`tools/split_version.py`), so their asm lands at the USA paths, and
+their functions carry the USA names (`tools/match_versions.py --seed`). The
+European C is the PsyQ libraries and three game files built from the USA
+version's C. The stages are still one asm segment each.
 
-- [ ] Pair the European functions with the USA ones. splat finds the same
-  number of functions in 19 of the 21 overlays; it finds 907 in the
-  executable against 911 (346 game, 563 PsyQ and 2 start-up), 301 in
-  `FIGHTSTG` against 297 (splat's labels; objdiff counts 310 in the USA
-  one) and 71 in `STGDGLAB` against 70, and 1,595 in the
-  293 stages against 1,374 in the USA version's 238. The pairs say where the
-  USA version's files start and end in the European binaries, and which
-  functions differ.
-- [ ] Split the European executable into the USA version's files: `crt0`,
-  `inn`, `system`, `memcard`, `game3`, `game3_2`, `pad`, `text_window`,
-  `graphics`, `sound`, the PsyQ objects and the data files, each as an asm
-  segment under the USA name, so that the report has the same units.
-- [ ] Split each European overlay the same way (`STDWTITL` into `stdwtitl`,
-  `stdwtitl_2` and `libpress`, `STDGNAME` into `stdgname` and `stdgname_2`).
-- [ ] Seed `config/eu/symbols.txt` and `config/eu/symbols_<overlay>.txt` with
-  the USA names of the paired functions and data, so that the two versions
-  share their names.
-- [ ] Start the European C: build the USA files that match unchanged
-  (`C_SRC` in `mk/version/eu.mk`, `c` segments in the configs), then the ones
-  that need `#if VERSION_EU` blocks or a copy of their own.
-- [ ] Give each stage the USA version has a C file in both versions, and write
+- [x] Pair the European functions with the USA ones
+  (`tools/match_versions.py`, which writes `build/eu/version_pairs.txt`):
+  910 of the executable's 913 functions, 1,680 of the overlays' 1,689 and
+  1,358 of the stages' 1,595 pair with confidence. The USA version's
+  functions are 99.9 %, 99.7 % and 98.8 % paired; what is left of the
+  European stages is mostly `WSTAG920`-`974`.
+- [x] Split the European executable into the USA version's files (`crt0`,
+  `inn`, `system`, ..., the PsyQ objects and the data files) and each
+  overlay the same way (`STDWTITL` into `stdwtitl`, `stdwtitl_2` and
+  `libpress`, `STDGNAME` into `stdgname` and `stdgname_2`), so that the
+  report has the USA units.
+- [x] Seed `config/eu/symbols.txt` and `config/eu/symbols_<overlay>.txt` with
+  the USA names of the paired functions and data: 1,064 of the USA
+  version's 1,091 names are in the European files.
+- [x] Build the USA files that match unchanged: 258 of the 275 PsyQ files,
+  `game3_2`, `SOUNDTST` and `STDWTITL`'s `libpress`
+  (`tools/version_symbols.py` names what they use).
+- [ ] 17 PsyQ files (`libsnd_vm_init`, `libspu_s_sav`, `libmcrd_libmcrd`...)
+  use a `D_` name of the USA version that the European asm has at another
+  address; they can be shared once those data have real names.
+- [ ] The other game files need `#if VERSION_EU` blocks or a copy of their
+  own. Their code differs in length (the European executable picks the save
+  file name by language: `setSaveFileName`), or loads other file numbers: the
+  disc's files are numbered differently, so `text_window` loads `0x286`
+  where the USA version loads `0x277`, and `SHOCKTST` `0xBE` for `0xC5`.
+- [ ] 27 USA names are still missing in the European files, mostly data
+  that code which differs reads (`SAVE_FILE_NAMES`, `ROOT_TASK`,
+  `STDWTITL_movies`...), and a few European functions have no confident
+  pair: 2 in `CARDGAME`, 6 in `FIGHTSTG`, 1 in `STGDGLAB`.
+- [ ] The stages: 233 of the USA version's 238 are 8 bytes longer in the
+  European version, the other 5 more, and their functions only have
+  splat's names, so the European ones get none.
+  Give each stage the USA version has a C file in both versions, and write
   C for the 55 European stages, `WSTAG920`-`974`.
-- [ ] The European report has one unit per binary until the split: its
-  `main/main` counts PsyQ too, which the USA report leaves out.
-- [ ] The European overlay and stage configs still say `gp_value: 0x8005C2F8`,
-  the USA executable's `$gp` (`tools/stage_yaml.py` writes it for every
-  version); the European one is `0x8005CB50`, as `config/eu/main.yaml` has
-  it.
-- [ ] `mk/version/eu.mk` still says the overlays are blobs: since
-  `45827a6` they are disassembled.
+- [ ] `game3_2` is C in the European version, but its unit in the report is
+  `game3`'s, which isn't, so it doesn't count yet.
 
 ## The USA executable
 
@@ -112,10 +120,9 @@ asm, and every stage is marked `asm` in `config/eu/stages.txt`.
 
 - [ ] 405 `unk` struct fields in the headers, and 2,008 different `D_`
   symbols referenced from `src/` and `include/`.
-- [ ] The versions share their names, and `tools/check_names.py` fails the CI
-  on a European name that isn't the USA one; but `config/eu/symbols.txt` is
-  empty, so it checks nothing yet. A tool that renames in every version's
-  symbol files, `src/` and `include/` at once would keep them in step.
+- [x] The versions share their names, and `tools/check_names.py` fails the CI
+  on a European name that isn't the USA one; `tools/rename.py` renames in
+  every version's symbol files, `src/` and `include/` at once.
 
 ## Tooling and docs
 
@@ -127,6 +134,6 @@ asm, and every stage is marked `asm` in `config/eu/stages.txt`.
   files.
 - [ ] `objdiff.json` holds one version at a time: the last one `make
   objdiff` was run for.
-- [ ] Some comments still describe the USA version only:
-  `tools/stage_yaml.py` speaks of "the 238 stage overlays", and
+- [x] Some comments still described the USA version only:
+  `tools/stage_yaml.py` spoke of "the 238 stage overlays", and
   `tools/objdiff_generate.py` of `config/main.yaml`.
