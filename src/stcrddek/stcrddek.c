@@ -101,7 +101,9 @@ void func_80087BC8(NameEntry *entry, char *dst) {
     tools.convert(dst, &entry->text[i], 1);
 }
 
-INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80087CC8);
+void func_80087CC8(NameEntry *entry) {
+    entry->substate = 10;
+}
 
 INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80087CD4);
 
