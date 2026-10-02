@@ -6,9 +6,10 @@ __SN_ENTRY_POINT = 0x80010E90; // type:func
 setSaveFileName = 0x800148C0; // type:func
 
 // us's names that tools/match_versions.py can't pair: data that only
-// system.c's code reads, through $gp
+// system.c's and graphics.c's code reads, through $gp
 BOOT_IMAGE_RECT = 0x8005CCB4;
 ROOT_TASK = 0x8005CCBC;
+FLIP_PENDING = 0x8005CD00;
 
 // The European version's own names
 // the language picked in CNTY_SEL (TEXT_FILE())
