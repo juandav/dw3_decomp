@@ -2,8 +2,9 @@
 __SN_ENTRY_POINT = 0x80010E90; // type:func
 
 // The same functions as us's, which tools/match_versions.py can't pair by
-// their code: eu's picks the save file name by the language
-setSaveFileName = 0x800148C0; // type:func
+// their code: eu's picks the save file name by the language (its size, or
+// splat ends it at its first jr $ra, before the cases of its jump table)
+setSaveFileName = 0x800148C0; // type:func size:0x70
 
 // us's names that tools/match_versions.py can't pair: data that only
 // system.c's and graphics.c's code reads, through $gp
