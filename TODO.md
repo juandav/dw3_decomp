@@ -79,8 +79,8 @@ version's C. The stages are still one asm segment each.
   (`libcard_patch` 7, `libmcrd_libmcrd` 4 and the rest 3 or fewer); 166
   are still named `func_`. Check which of them were written in assembly,
   not compiled, and make those `.s` sources.
-- [ ] 13 `INCLUDE_RODATA`: `libmcrd_libmcrd` 6, `libgpu_sys` 4,
-  `libcd_bios_1` 3.
+- [ ] 9 `INCLUDE_RODATA`: `libgpu_sys` 4, `libcd_bios_1` 3 and
+  `libmcrd_libmcrd` 2 (two strings that `MemCardOpen`, still asm, reads).
 
 ## Overlays
 
