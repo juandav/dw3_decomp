@@ -1045,7 +1045,7 @@ void drawMessageBoxFrame(MessageBoxFrame *task) {
         } else if (task->substate == 2) {
             obj.setClutRow(task->fadeRow);
         }
-        obj.draw(cache->getEntry(0x02770000), i + 8, 0, 0xA6);
+        obj.draw(cache->getEntry(FILE_MENU_SPRITES << 16), i + 8, 0, 0xA6);
         x += 0x140;
     }
 }
@@ -1063,7 +1063,7 @@ void drawMessageBoxArrow(MessageBoxFrame *task) {
         }
     }
     obj.setClutRow(task->arrowFrame);
-    obj.draw(FILE_CACHE_GET_ENTRY[0](0x02770000), 10, 0x124, 0xCD);
+    obj.draw(FILE_CACHE_GET_ENTRY[0](FILE_MENU_SPRITES << 16), 10, 0x124, 0xCD);
 }
 
 void updateMessageBoxFrame(MessageBoxFrame *task) {
@@ -1200,18 +1200,18 @@ void drawTalkBoxFrame(TalkBoxFrame *task) {
     for (i = 0; i < 4; pos++, i++) {
         switch (i) {
         case 0:
-            obj.draw(cache->getEntry(0x02770000), TALK_BOX_LAYOUTS[type].sprite, task->parent->x + pos->vx,
+            obj.draw(cache->getEntry(FILE_MENU_SPRITES << 16), TALK_BOX_LAYOUTS[type].sprite, task->parent->x + pos->vx,
                            task->parent->y + pos->vy);
             break;
         case 1:
-            obj.draw(cache->getEntry(0x02770000), 0, task->parent->x + pos->vx - pad, task->parent->y + pos->vy);
+            obj.draw(cache->getEntry(FILE_MENU_SPRITES << 16), 0, task->parent->x + pos->vx - pad, task->parent->y + pos->vy);
             break;
         case 3:
             if (type < 2) {
-                obj.draw(cache->getEntry(0x02770000), 2, task->parent->x + pos->vx, task->parent->y + pos->vy);
+                obj.draw(cache->getEntry(FILE_MENU_SPRITES << 16), 2, task->parent->x + pos->vx, task->parent->y + pos->vy);
             } else {
                 x = task->parent->w - 14;
-                obj.draw(cache->getEntry(0x02770000), 2, task->parent->x + x, task->parent->y + pos->vy);
+                obj.draw(cache->getEntry(FILE_MENU_SPRITES << 16), 2, task->parent->x + x, task->parent->y + pos->vy);
             }
             break;
         }
@@ -1228,7 +1228,11 @@ void drawTalkBoxFrame(TalkBoxFrame *task) {
     setPolyFT4(p);
     setRGB0(p, 0x80, 0x80, 0x80);
     p->tpage = 0x45;
+#if VERSION_US
     p->clut = 0x2E57;
+#elif VERSION_EU
+    p->clut = 0x2C57;
+#endif
     setSemiTrans(p, 1);
     p->x0 = v[0].vx;
     p->y0 = v[0].vy;
@@ -1548,9 +1552,9 @@ void loadFont(void) {
 
     initTimLoader(&obj);
     obj.setImagePos(0x140, 0);
-    obj.loadArchive(FILE_CACHE.getEntry(0x2780000));
-    FILE_CACHE.free(0x278);
-    FILE_CACHE.request(0x277);
+    obj.loadArchive(FILE_CACHE.getEntry(FILE_FONT << 16));
+    FILE_CACHE.free(FILE_FONT);
+    FILE_CACHE.request(FILE_MENU_SPRITES);
 }
 
 
