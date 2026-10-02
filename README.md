@@ -223,7 +223,7 @@ One source tree builds every version, one at a time, picked with `VERSION`
 
 | | |
 |---|---|
-| Game code | GCC 2.8.1 (`-O2 -G0`; `-G8` for `inn.c`, `system.c`, `memcard.c`, `game3_2.c`, `graphics.c` and `sound.c`) + ASPSX 2.86, emulated with [maspsx](https://github.com/mkst/maspsx) |
+| Game code | GCC 2.8.1 (`-O2 -G0`; `-G8` for `inn.c`, `system.c`, `memcard.c`, `game3.c`, `game3_2.c`, `graphics.c` and `sound.c`) + ASPSX 2.86, emulated with [maspsx](https://github.com/mkst/maspsx) |
 | SDK | PsyQ 4.7: GCC 2.7.2 (`-O2`, binary-patched), some objects a patched GCC 2.8.1 |
 | Splitting | [splat](https://github.com/ethteck/splat) 0.50.0 |
 | Diffing | [objdiff](https://github.com/encounter/objdiff) 3.8.1, [decomp.dev](https://decomp.dev) |
@@ -237,9 +237,10 @@ One source tree builds every version, one at a time, picked with `VERSION`
 - Four files read their small variables through `$gp`, so they are built with
   `-G8` in both GCC and maspsx (`SDATA_LIMIT` in the Makefile). Those
   variables are declared `static` in the C; maspsx emits them as common
-  symbols that resolve to their definitions. `inn.c` and `memcard.c` are
-  built with `-G8` too: the European version reads `LANGUAGE`, a small
-  extern, as the assembler's macro, its address loaded again for every read. The rest of the game uses
+  symbols that resolve to their definitions. `inn.c`, `memcard.c` and
+  `game3.c` are built with `-G8` too: the European version reads
+  `LANGUAGE`, a small extern, as the assembler's macro, its address loaded
+  again for every read. The rest of the game uses
   `-G0`.
 - The PsyQ libraries were built with GCC 2.7.2, whose ASPSX moved the
   instruction before each `j $31` into its delay slot:

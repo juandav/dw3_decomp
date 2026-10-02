@@ -246,7 +246,7 @@ extern DigimonData DIGIMON_DATA[];
 extern GameFuncs GAME_FUNCS;
 extern Unk80042728 D_80042728;
 extern ItemInfo ITEM_DATA[];
-extern struct ItemInfo *(*GET_ITEM)(s32 item);
+extern struct ItemInfo *(*GET_ITEM[])(s32 item);
 extern u8 ITEM_TYPE_CATEGORIES[];
 extern s32 MONEY_REQUIRED[];
 extern u8 SPECIAL_CONDITIONS[];
@@ -254,6 +254,7 @@ extern u8 FLAGS_40[];
 /* The event flag groups in GAME.flags: bitsets packed one after the other, so
    most start at an odd byte; they are offsets into FLAGS_02 */
 extern u8 FLAGS_02[];
+#if VERSION_US
 #define FLAGS_04 (FLAGS_02 + 0xD)
 #define FLAGS_06 (FLAGS_02 + 0xF)
 #define FLAGS_08 (FLAGS_02 + 0x10)
@@ -265,6 +266,19 @@ extern u8 FLAGS_02[];
 #define FLAGS_1A (FLAGS_02 + 0x2A)
 #define FLAGS_1C (FLAGS_02 + 0x33)
 #define FLAGS_20 (FLAGS_02 + 0x3E)
+#elif VERSION_EU
+#define FLAGS_04 (FLAGS_02 + 0x12)
+#define FLAGS_06 (FLAGS_02 + 0x14)
+#define FLAGS_08 (FLAGS_02 + 0x15)
+#define FLAGS_0A (FLAGS_02 + 0x16)
+#define FLAGS_0C (FLAGS_02 + 0x1A)
+#define FLAGS_0E (FLAGS_02 + 0x22)
+#define FLAGS_10 (FLAGS_02 + 0x2E)
+#define FLAGS_18 (FLAGS_02 + 0x32)
+#define FLAGS_1A (FLAGS_02 + 0x34)
+#define FLAGS_1C (FLAGS_02 + 0x3D)
+#define FLAGS_20 (FLAGS_02 + 0x48)
+#endif
 extern s32 MONEY_GAINS[];
 extern s32 MONEY_LOSSES[];
 extern GameFlags FLAGS_00;
