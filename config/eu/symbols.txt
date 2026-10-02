@@ -5,9 +5,18 @@ __SN_ENTRY_POINT = 0x80010E90; // type:func
 // their code: eu's picks the save file name by the language
 setSaveFileName = 0x800148C0; // type:func
 
+// us's names that tools/match_versions.py can't pair: data that only
+// system.c's code reads, through $gp
+BOOT_IMAGE_RECT = 0x8005CCB4;
+ROOT_TASK = 0x8005CCBC;
+
 // The European version's own names
-// the language picked in CNTY_SEL: 1 English, 2-5 the others (TEXT_FILE())
+// the language picked in CNTY_SEL (TEXT_FILE())
 LANGUAGE = 0x8005CCA8; // version-only
+// nonzero: 60 Hz, NTSC (main, the vsync callback, drawFrame, fadeOutSound)
+NTSC_MODE = 0x8005CCAC; // version-only
+// nonzero: setDisplayMode moves the display areas 0x18 lines down
+SHIFT_PAL_SCREEN = 0x8005CCB0; // version-only
 
 // names from us (tools/match_versions.py --seed): the same function or datum
 OVERLAY_ADDRESS = 0x800100C4;
@@ -1365,3 +1374,14 @@ PATCH_GTE_RA = 0x80081438;
 INIT_GEOM_RA = 0x80056898;
 PAD_ENABLE_FUNC = 0x80082868;
 PAD_DISABLE_FUNC = 0x8008286C;
+func_80012698 = 0x800126A8;
+func_8001350C = 0x80013534;
+func_80013590 = 0x800135B8;
+PAGE_STATS = 0x8003EF00;
+FIELD_MENU_OPTIONS = 0x8003EF14;
+FIELD_MENU_SPRITES = 0x8003EF44;
+D_80042728 = 0x80042B1C;
+FILE_CACHE_UPDATE = 0x80044F48;
+PAD_INIT = 0x8004BBB0;
+FONT_LOAD = 0x8004DE08;
+FIELD_MENU_EXTRA = 0x8005CCF4;

@@ -88,10 +88,9 @@ extern s32 (*FILE_CACHE_GET_ENTRY[])(s32 id);
 
 /*
  * Files the engine loads by number. The European disc numbers its files
- * differently, and has each text file once per language, five files in a
- * row: TEXT_FILE() gives the copy of the language the player picked
- * (LANGUAGE, set by CNTY_SEL), the English one being at the USA version's
- * number.
+ * differently, and has each text file once per language, in a row:
+ * TEXT_FILE() gives the copy of the language the player picked (LANGUAGE,
+ * set by CNTY_SEL), copy 1 being at the USA version's number.
  */
 #if VERSION_US
 #define FILE_MENU_SPRITES 0x277 /* the menu graphics, a sprite sheet */
@@ -101,7 +100,7 @@ extern s32 (*FILE_CACHE_GET_ENTRY[])(s32 id);
 #define FILE_MENU_SPRITES 0x286
 #define FILE_FONT 0x287
 #define TEXT_FILE(file) (LANGUAGE + (file) - 1)
-extern s32 LANGUAGE; /* 1 English, 2-5 the others */
+extern s32 LANGUAGE; /* 2-5 */
 #endif
 
 #endif /* DW3_FILES_H */

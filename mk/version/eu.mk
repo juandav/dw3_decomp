@@ -97,4 +97,4 @@ C_SRC += $(addprefix src/main/psyq/, \
 	libspu_s_crwa.c libspu_s_ini.c libspu_s_sav.c libspu_s_srmp.c libspu_spu.c)
 
 # game
-C_SRC += src/main/inn.c
+C_SRC += src/main/inn.c src/main/system.c
