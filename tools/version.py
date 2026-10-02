@@ -1,7 +1,7 @@
 """The version of the game the tools work on, and where its files are.
 
 VERSION comes from the environment, as the Makefile exports it (make
-VERSION=eu), and defaults to us like the Makefile. Each version has its
+VERSION=us), and defaults to eu like the Makefile. Each version has its
 settings in mk/version/<version>.mk (the executable's name and the disc),
 its splat configs, symbols and checksums in config/<version>/; splat writes
 its disassembly to asm/<version>/, the build goes to build/<version>/ and
@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-VERSION = os.environ.get("VERSION") or "us"
+VERSION = os.environ.get("VERSION") or "eu"
 
 _MK = ROOT / "mk" / "version" / f"{VERSION}.mk"
 if not _MK.is_file():

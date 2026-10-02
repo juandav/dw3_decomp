@@ -37,15 +37,15 @@ jobs:
         # dependencies repository. report: upload build/<version>/report.json
         # as <exe>_report, the artifact decomp.dev reads.
         include:
+          # the default version, and decomp.dev's
+          - version: eu
+            exe: SLES_039.36
+            deps: eu
+            report: true
           - version: us
             exe: SLUS_014.36
             deps: .
             report: true
-          # no C units yet, so no progress report
-          - version: eu
-            exe: SLES_039.36
-            deps: eu
-            report: false
     name: build (${{ matrix.version }})
     env:
       VERSION: ${{ matrix.version }}

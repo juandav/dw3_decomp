@@ -38,9 +38,8 @@ asm, and every stage is marked `asm` in `config/eu/stages.txt`.
   that need `#if VERSION_EU` blocks or a copy of their own.
 - [ ] Give each stage the USA version has a C file in both versions, and write
   C for the 55 European stages, `WSTAG920`-`974`.
-- [ ] Upload a report for `eu` from the CI once it has C units (the matrix has
-  `report: false` for it), and add its decomp.dev badges to the README with
-  `version=SLES_039.36`.
+- [ ] The European report has one unit per binary until the split: its
+  `main/main` counts PsyQ too, which the USA report leaves out.
 - [ ] The European overlay and stage configs still say `gp_value: 0x8005C2F8`,
   the USA executable's `$gp` (`tools/stage_yaml.py` writes it for every
   version); the European one is `0x8005CB50`, as `config/eu/main.yaml` has

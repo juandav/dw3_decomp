@@ -14,7 +14,7 @@ or a pointer), which stays in asm, so there is no other .rodata to migrate to
 functions. From the end of the code on, the file is data.
 
 usage: stage_yaml.py wstag200 build/us/generated/stages/wstag200.yaml
-(VERSION, as for make, picks the version; us by default)
+(VERSION, as for make, picks the version; eu by default)
 """
 
 import hashlib
