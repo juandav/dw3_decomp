@@ -75,7 +75,7 @@ version's C. The stages are still one asm segment each.
 
 ## PsyQ
 
-- [ ] 85 of the 563 PsyQ functions are still `INCLUDE_ASM`, in 64 objects
+- [ ] 84 of the 563 PsyQ functions are still `INCLUDE_ASM`, in 64 objects
   (`libcard_patch` 7, `libmcrd_libmcrd` 4 and the rest 3 or fewer); 166
   are still named `func_`. Check which of them were written in assembly,
   not compiled, and make those `.s` sources.
