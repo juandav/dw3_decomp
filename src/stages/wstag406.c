@@ -10,7 +10,7 @@ void func_800A4D98();
 extern void (*D_800A5958[])(void);
 void func_800A4E98();
 
-s32 func_800A4CA4(Anim *anim, AnimFrame *frames, s32 depth) {
+s32 func_800A4CA4(AnimState *anim, AnimFrame *frames, s32 depth) {
     AnimFrame *frame = &frames[anim->index];
     s32 dt = GFX_FUNCS.getFrameTime();
 
@@ -24,14 +24,14 @@ s32 func_800A4CA4(Anim *anim, AnimFrame *frames, s32 depth) {
         frame++;
         anim->index++;
         anim->timer += frame->duration;
-        if (frame->id == 0xFF) {
+        if (frame->frame == 0xFF) {
             frame = frames;
             anim->index = 0;
             anim->timer += frame->duration;
         }
         func_800A4CA4(anim, frames, depth + 1);
     }
-    return frame->id;
+    return frame->frame;
 }
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag406", func_800A4D98);

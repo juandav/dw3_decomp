@@ -34,17 +34,17 @@ s32 func_800A4F1C(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
         obj->anim.index++;
         obj->anim.timer += frame->duration;
         if (once) {
-            if (frame->id == 0xFF) {
+            if (frame->frame == 0xFF) {
                 return 0xFF;
             }
-        } else if (frame->id == 0xFF) {
+        } else if (frame->frame == 0xFF) {
             frame = frames;
             obj->anim.index = 0;
             obj->anim.timer += frame->duration;
         }
         func_800A4F1C(obj, frames, once, depth + 1);
     }
-    return frame->id;
+    return frame->frame;
 }
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A503C);
@@ -74,17 +74,17 @@ s32 func_800A52A0(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
         obj->anim.index++;
         obj->anim.timer += frame->duration;
         if (once) {
-            if (frame->id == 0xFF) {
+            if (frame->frame == 0xFF) {
                 return 0xFF;
             }
-        } else if (frame->id == 0xFF) {
+        } else if (frame->frame == 0xFF) {
             frame = frames;
             obj->anim.index = 0;
             obj->anim.timer += frame->duration;
         }
         func_800A52A0(obj, frames, once, depth + 1);
     }
-    return frame->id;
+    return frame->frame;
 }
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A53C0);
@@ -114,17 +114,17 @@ s32 func_800A56E0(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
         obj->anim.index++;
         obj->anim.timer += frame->duration;
         if (once) {
-            if (frame->id == 0xFF) {
+            if (frame->frame == 0xFF) {
                 return 0xFF;
             }
-        } else if (frame->id == 0xFF) {
+        } else if (frame->frame == 0xFF) {
             frame = frames;
             obj->anim.index = 0;
             obj->anim.timer += frame->duration;
         }
         func_800A56E0(obj, frames, once, depth + 1);
     }
-    return frame->id;
+    return frame->frame;
 }
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A5800);
@@ -154,17 +154,17 @@ s32 func_800A5A30(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
         obj->anim.index++;
         obj->anim.timer += frame->duration;
         if (once) {
-            if (frame->id == 0xFF) {
+            if (frame->frame == 0xFF) {
                 return 0xFF;
             }
-        } else if (frame->id == 0xFF) {
+        } else if (frame->frame == 0xFF) {
             frame = frames;
             obj->anim.index = 0;
             obj->anim.timer += frame->duration;
         }
         func_800A5A30(obj, frames, once, depth + 1);
     }
-    return frame->id;
+    return frame->frame;
 }
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag526", func_800A5B50);

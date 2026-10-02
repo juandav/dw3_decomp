@@ -27,7 +27,7 @@ StageTask *func_800A52DC(void *owner) {
     return task;
 }
 
-s32 func_800A5338(Anim *anim, AnimFrame *frames, s32 once, s32 depth) {
+s32 func_800A5338(AnimState *anim, AnimFrame *frames, s32 once, s32 depth) {
     AnimFrame *frame = &frames[anim->index];
     s32 dt = GFX_FUNCS.getFrameTime();
 
@@ -42,17 +42,17 @@ s32 func_800A5338(Anim *anim, AnimFrame *frames, s32 once, s32 depth) {
         anim->index++;
         anim->timer += frame->duration;
         if (once) {
-            if (frame->id == 0xFF) {
+            if (frame->frame == 0xFF) {
                 return 0xFF;
             }
-        } else if (frame->id == 0xFF) {
+        } else if (frame->frame == 0xFF) {
             frame = frames;
             anim->index = 0;
             anim->timer += frame->duration;
         }
         func_800A5338(anim, frames, once, depth + 1);
     }
-    return frame->id;
+    return frame->frame;
 }
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag810", func_800A5458);

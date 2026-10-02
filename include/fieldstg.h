@@ -289,22 +289,6 @@ typedef struct ChoiceTask {
     /* 0x64 */ s32 unk64;
 } ChoiceTask;
 
-/*
- * The game flag functions: a table in the executable's .data right after
- * FLAGS_00 and PENDING_FLAG_10 (game3.c), with no symbol of its own yet.
- */
-typedef struct FlagFuncs {
-    /* 0x00 */ u8 flags[4]; /* FLAGS_00 */
-    /* 0x04 */ s32 pendingFlag10; /* PENDING_FLAG_10 */
-    /* 0x08 */ s32 (*checkConditions)(u16 *list);
-    /* 0x0C */ void (*applyAction)(s32 code, s32 value);
-    /* 0x10 */ s32 (*checkCondition)(u16 code, u16 value);
-    /* 0x14 */ void (*applyActions)(u16 *list);
-    /* 0x18 */ void (*updateModeFlags)(void);
-} FlagFuncs;
-
-#define FLAG_FUNCS (*(FlagFuncs *)FLAGS_00)
-
 void func_80082F1C(Task *task);
 void func_80083998();
 void func_80086C4C();

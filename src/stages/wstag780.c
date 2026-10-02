@@ -21,7 +21,7 @@ void *func_800A5220(s32 arg) {
     return createTaskWithId(func_800A508C, 0x54, 0, arg);
 }
 
-s32 func_800A5250(Anim *anim, AnimFrame *frames, s32 depth) {
+s32 func_800A5250(AnimState *anim, AnimFrame *frames, s32 depth) {
     AnimFrame *frame = &frames[anim->index];
     s32 dt = GFX_FUNCS.getFrameTime();
 
@@ -35,14 +35,14 @@ s32 func_800A5250(Anim *anim, AnimFrame *frames, s32 depth) {
         frame++;
         anim->index++;
         anim->timer += frame->duration;
-        if (frame->id == 0xFF) {
+        if (frame->frame == 0xFF) {
             frame = frames;
             anim->index = 0;
             anim->timer += frame->duration;
         }
         func_800A5250(anim, frames, depth + 1);
     }
-    return frame->id;
+    return frame->frame;
 }
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag780", func_800A5344);
@@ -65,14 +65,14 @@ s32 func_800A5574(Anim4 *obj, AnimFrame *frames, s32 depth) {
         frame++;
         obj->anim.index++;
         obj->anim.timer += frame->duration;
-        if (frame->id == 0xFF) {
+        if (frame->frame == 0xFF) {
             frame = frames;
             obj->anim.index = 0;
             obj->anim.timer += frame->duration;
         }
         func_800A5574(obj, frames, depth + 1);
     }
-    return frame->id;
+    return frame->frame;
 }
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag780", func_800A5668);

@@ -42,7 +42,7 @@ void func_800838BC(Unk800834A0 *task, s32 arg1) {
 Unk800834A0 *func_80083930(s32 id) {
     Unk800834A0 *task = createTaskWithId(func_800834A0, sizeof(Unk800834A0), 0, id);
 
-    if (FLAG_FUNCS.checkCondition(0x1C3D, 1)) {
+    if (FLAGS_00.checkCondition(0x1C3D, 1)) {
         task->unk58 = 1;
     } else {
         task->unk58 = 0;
@@ -594,163 +594,163 @@ INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80090294);
 INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80090450);
 
 void func_80090864(void) {
-    FLAG_FUNCS.applyAction(0x707E, 1);
-    FLAG_FUNCS.applyAction(0x8B19, 1);
-    FLAG_FUNCS.applyAction(0x400, 1);
+    FLAGS_00.applyAction(0x707E, 1);
+    FLAGS_00.applyAction(0x8B19, 1);
+    FLAGS_00.applyAction(0x400, 1);
 }
 
 void func_800908C4(void) {
-    FLAG_FUNCS.applyAction(0x400, 1);
+    FLAGS_00.applyAction(0x400, 1);
 }
 
 void func_800908F0(void) {
-    FLAG_FUNCS.applyAction(0x707E, 1);
-    FLAG_FUNCS.applyAction(0x8B1F, 1);
-    FLAG_FUNCS.applyAction(0x401, 1);
+    FLAGS_00.applyAction(0x707E, 1);
+    FLAGS_00.applyAction(0x8B1F, 1);
+    FLAGS_00.applyAction(0x401, 1);
 }
 
 void func_80090950(void) {
-    FLAG_FUNCS.applyAction(0x401, 1);
+    FLAGS_00.applyAction(0x401, 1);
 }
 
 void func_8009097C(void) {
-    FLAG_FUNCS.applyAction(0x707F, 1);
-    FLAG_FUNCS.applyAction(0x8B1A, 1);
-    FLAG_FUNCS.applyAction(0x402, 1);
+    FLAGS_00.applyAction(0x707F, 1);
+    FLAGS_00.applyAction(0x8B1A, 1);
+    FLAGS_00.applyAction(0x402, 1);
 }
 
 void func_800909DC(void) {
-    FLAG_FUNCS.applyAction(0x402, 1);
+    FLAGS_00.applyAction(0x402, 1);
 }
 
 void func_80090A08(void) {
-    FLAG_FUNCS.applyAction(0x707F, 1);
-    FLAG_FUNCS.applyAction(0x8B20, 1);
-    FLAG_FUNCS.applyAction(0x403, 1);
+    FLAGS_00.applyAction(0x707F, 1);
+    FLAGS_00.applyAction(0x8B20, 1);
+    FLAGS_00.applyAction(0x403, 1);
 }
 
 void func_80090A68(void) {
-    FLAG_FUNCS.applyAction(0x403, 1);
+    FLAGS_00.applyAction(0x403, 1);
 }
 
 void func_80090A94(void) {
-    FLAG_FUNCS.applyAction(0x7080, 1);
-    FLAG_FUNCS.applyAction(0x8489, 1);
-    FLAG_FUNCS.applyAction(0x404, 1);
+    FLAGS_00.applyAction(0x7080, 1);
+    FLAGS_00.applyAction(0x8489, 1);
+    FLAGS_00.applyAction(0x404, 1);
 }
 
 void func_80090AF4(void) {
-    FLAG_FUNCS.applyAction(0x404, 1);
+    FLAGS_00.applyAction(0x404, 1);
 }
 
 void func_80090B20(void) {
-    FLAG_FUNCS.applyAction(0x7080, 1);
-    FLAG_FUNCS.applyAction(0x8495, 1);
-    FLAG_FUNCS.applyAction(0x405, 1);
+    FLAGS_00.applyAction(0x7080, 1);
+    FLAGS_00.applyAction(0x8495, 1);
+    FLAGS_00.applyAction(0x405, 1);
 }
 
 void func_80090B80(void) {
-    FLAG_FUNCS.applyAction(0x405, 1);
+    FLAGS_00.applyAction(0x405, 1);
 }
 
 void func_80090BAC(void) {
-    FLAG_FUNCS.applyAction(0x7081, 1);
-    FLAG_FUNCS.applyAction(0x847C, 1);
-    FLAG_FUNCS.applyAction(0x406, 1);
+    FLAGS_00.applyAction(0x7081, 1);
+    FLAGS_00.applyAction(0x847C, 1);
+    FLAGS_00.applyAction(0x406, 1);
 }
 
 void func_80090C0C(void) {
-    FLAG_FUNCS.applyAction(0x406, 1);
+    FLAGS_00.applyAction(0x406, 1);
 }
 
 void func_80090C38(void) {
-    FLAG_FUNCS.applyAction(0x7081, 1);
-    FLAG_FUNCS.applyAction(0x8462, 1);
-    FLAG_FUNCS.applyAction(0x407, 1);
+    FLAGS_00.applyAction(0x7081, 1);
+    FLAGS_00.applyAction(0x8462, 1);
+    FLAGS_00.applyAction(0x407, 1);
 }
 
 void func_80090C98(void) {
-    FLAG_FUNCS.applyAction(0x407, 1);
+    FLAGS_00.applyAction(0x407, 1);
 }
 
 void func_80090CC4(void) {
-    FLAG_FUNCS.applyAction(0x7082, 1);
-    FLAG_FUNCS.applyAction(0x8ADE, 1);
-    FLAG_FUNCS.applyAction(0x408, 1);
+    FLAGS_00.applyAction(0x7082, 1);
+    FLAGS_00.applyAction(0x8ADE, 1);
+    FLAGS_00.applyAction(0x408, 1);
 }
 
 void func_80090D24(void) {
-    FLAG_FUNCS.applyAction(0x408, 1);
+    FLAGS_00.applyAction(0x408, 1);
 }
 
 void func_80090D50(void) {
-    FLAG_FUNCS.applyAction(0x7082, 1);
-    FLAG_FUNCS.applyAction(0x8AE8, 1);
-    FLAG_FUNCS.applyAction(0x409, 1);
+    FLAGS_00.applyAction(0x7082, 1);
+    FLAGS_00.applyAction(0x8AE8, 1);
+    FLAGS_00.applyAction(0x409, 1);
 }
 
 void func_80090DB0(void) {
-    FLAG_FUNCS.applyAction(0x409, 1);
+    FLAGS_00.applyAction(0x409, 1);
 }
 
 void func_80090DDC(void) {
-    FLAG_FUNCS.applyAction(0x7083, 1);
-    FLAG_FUNCS.applyAction(0x8AF4, 1);
-    FLAG_FUNCS.applyAction(0x40A, 1);
+    FLAGS_00.applyAction(0x7083, 1);
+    FLAGS_00.applyAction(0x8AF4, 1);
+    FLAGS_00.applyAction(0x40A, 1);
 }
 
 void func_80090E3C(void) {
-    FLAG_FUNCS.applyAction(0x40A, 1);
+    FLAGS_00.applyAction(0x40A, 1);
 }
 
 void func_80090E68(void) {
-    FLAG_FUNCS.applyAction(0x7083, 1);
-    FLAG_FUNCS.applyAction(0x8AF3, 1);
-    FLAG_FUNCS.applyAction(0x40B, 1);
+    FLAGS_00.applyAction(0x7083, 1);
+    FLAGS_00.applyAction(0x8AF3, 1);
+    FLAGS_00.applyAction(0x40B, 1);
 }
 
 void func_80090EC8(void) {
-    FLAG_FUNCS.applyAction(0x40B, 1);
+    FLAGS_00.applyAction(0x40B, 1);
 }
 
 void func_80090EF4(void) {
-    FLAG_FUNCS.applyAction(0x7084, 1);
-    FLAG_FUNCS.applyAction(0x8B01, 1);
-    FLAG_FUNCS.applyAction(0x40C, 1);
+    FLAGS_00.applyAction(0x7084, 1);
+    FLAGS_00.applyAction(0x8B01, 1);
+    FLAGS_00.applyAction(0x40C, 1);
 }
 
 void func_80090F54(void) {
-    FLAG_FUNCS.applyAction(0x40C, 1);
+    FLAGS_00.applyAction(0x40C, 1);
 }
 
 void func_80090F80(void) {
-    FLAG_FUNCS.applyAction(0x7085, 1);
-    FLAG_FUNCS.applyAction(0x8B0D, 1);
-    FLAG_FUNCS.applyAction(0x40D, 1);
+    FLAGS_00.applyAction(0x7085, 1);
+    FLAGS_00.applyAction(0x8B0D, 1);
+    FLAGS_00.applyAction(0x40D, 1);
 }
 
 void func_80090FE0(void) {
-    FLAG_FUNCS.applyAction(0x40D, 1);
+    FLAGS_00.applyAction(0x40D, 1);
 }
 
 void func_8009100C(void) {
-    FLAG_FUNCS.applyAction(0x7086, 1);
-    FLAG_FUNCS.applyAction(0x8B02, 1);
-    FLAG_FUNCS.applyAction(0x40E, 1);
+    FLAGS_00.applyAction(0x7086, 1);
+    FLAGS_00.applyAction(0x8B02, 1);
+    FLAGS_00.applyAction(0x40E, 1);
 }
 
 void func_8009106C(void) {
-    FLAG_FUNCS.applyAction(0x40E, 1);
+    FLAGS_00.applyAction(0x40E, 1);
 }
 
 void func_80091098(void) {
-    FLAG_FUNCS.applyAction(0x7087, 1);
-    FLAG_FUNCS.applyAction(0x8B0F, 1);
-    FLAG_FUNCS.applyAction(0x40F, 1);
+    FLAGS_00.applyAction(0x7087, 1);
+    FLAGS_00.applyAction(0x8B0F, 1);
+    FLAGS_00.applyAction(0x40F, 1);
 }
 
 void func_800910F8(void) {
-    FLAG_FUNCS.applyAction(0x40F, 1);
+    FLAGS_00.applyAction(0x40F, 1);
 }
 
 INCLUDE_RODATA("asm/fieldstg/nonmatchings/fieldstg", D_80082E88);

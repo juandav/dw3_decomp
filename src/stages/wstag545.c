@@ -43,17 +43,17 @@ s32 func_800A5230(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
         obj->anim.index++;
         obj->anim.timer += frame->duration;
         if (once) {
-            if (frame->id == 0xFF) {
+            if (frame->frame == 0xFF) {
                 return 0xFF;
             }
-        } else if (frame->id == 0xFF) {
+        } else if (frame->frame == 0xFF) {
             frame = frames;
             obj->anim.index = 0;
             obj->anim.timer += frame->duration;
         }
         func_800A5230(obj, frames, once, depth + 1);
     }
-    return frame->id;
+    return frame->frame;
 }
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag545", func_800A5350);

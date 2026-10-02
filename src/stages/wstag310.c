@@ -14,7 +14,7 @@ void func_800A5A80();
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A4CA8);
 
-s32 func_800A4D04(Anim *anim, AnimFrame *frames, s32 depth) {
+s32 func_800A4D04(AnimState *anim, AnimFrame *frames, s32 depth) {
     AnimFrame *frame = &frames[anim->index];
     s32 dt = GFX_FUNCS.getFrameTime();
 
@@ -28,14 +28,14 @@ s32 func_800A4D04(Anim *anim, AnimFrame *frames, s32 depth) {
         frame++;
         anim->index++;
         anim->timer += frame->duration;
-        if (frame->id == 0xFF) {
+        if (frame->frame == 0xFF) {
             frame = frames;
             anim->index = 0;
             anim->timer += frame->duration;
         }
         func_800A4D04(anim, frames, depth + 1);
     }
-    return frame->id;
+    return frame->frame;
 }
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A4DF8);
@@ -59,17 +59,17 @@ s32 func_800A4F74(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
         obj->anim.index++;
         obj->anim.timer += frame->duration;
         if (once) {
-            if (frame->id == 0xFF) {
+            if (frame->frame == 0xFF) {
                 return 0xFF;
             }
-        } else if (frame->id == 0xFF) {
+        } else if (frame->frame == 0xFF) {
             frame = frames;
             obj->anim.index = 0;
             obj->anim.timer += frame->duration;
         }
         func_800A4F74(obj, frames, once, depth + 1);
     }
-    return frame->id;
+    return frame->frame;
 }
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A5094);
@@ -97,17 +97,17 @@ s32 func_800A54FC(Anim8 *obj, AnimFrame *frames, s32 once, s32 depth) {
         obj->anim.index++;
         obj->anim.timer += frame->duration;
         if (once) {
-            if (frame->id == 0xFF) {
+            if (frame->frame == 0xFF) {
                 return 0xFF;
             }
-        } else if (frame->id == 0xFF) {
+        } else if (frame->frame == 0xFF) {
             frame = frames;
             obj->anim.index = 0;
             obj->anim.timer += frame->duration;
         }
         func_800A54FC(obj, frames, once, depth + 1);
     }
-    return frame->id;
+    return frame->frame;
 }
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A561C);
@@ -130,7 +130,7 @@ StageTask *func_800A5C40(void *owner) {
     return task;
 }
 
-s32 func_800A5C9C(Anim *anim, AnimFrame *frames, s32 once, s32 depth) {
+s32 func_800A5C9C(AnimState *anim, AnimFrame *frames, s32 once, s32 depth) {
     AnimFrame *frame = &frames[anim->index];
     s32 dt = GFX_FUNCS.getFrameTime();
 
@@ -145,17 +145,17 @@ s32 func_800A5C9C(Anim *anim, AnimFrame *frames, s32 once, s32 depth) {
         anim->index++;
         anim->timer += frame->duration;
         if (once) {
-            if (frame->id == 0xFF) {
+            if (frame->frame == 0xFF) {
                 return 0xFF;
             }
-        } else if (frame->id == 0xFF) {
+        } else if (frame->frame == 0xFF) {
             frame = frames;
             anim->index = 0;
             anim->timer += frame->duration;
         }
         func_800A5C9C(anim, frames, once, depth + 1);
     }
-    return frame->id;
+    return frame->frame;
 }
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A5DBC);
@@ -166,7 +166,7 @@ INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A5F70);
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A6190);
 
-s32 func_800A61FC(Anim *anim, AnimFrame *frames, s32 once, s32 depth) {
+s32 func_800A61FC(AnimState *anim, AnimFrame *frames, s32 once, s32 depth) {
     AnimFrame *frame = &frames[anim->index];
     s32 dt = GFX_FUNCS.getFrameTime();
 
@@ -181,17 +181,17 @@ s32 func_800A61FC(Anim *anim, AnimFrame *frames, s32 once, s32 depth) {
         anim->index++;
         anim->timer += frame->duration;
         if (once) {
-            if (frame->id == 0xFF) {
+            if (frame->frame == 0xFF) {
                 return 0xFF;
             }
-        } else if (frame->id == 0xFF) {
+        } else if (frame->frame == 0xFF) {
             frame = frames;
             anim->index = 0;
             anim->timer += frame->duration;
         }
         func_800A61FC(anim, frames, once, depth + 1);
     }
-    return frame->id;
+    return frame->frame;
 }
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag310", func_800A631C);
