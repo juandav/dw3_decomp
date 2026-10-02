@@ -1,4 +1,4 @@
-#include "common.h"
+#include "name_entry.h"
 
 INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80082988);
 
@@ -63,7 +63,10 @@ INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80086E14);
 
 INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80087A24);
 
-INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80087B28);
+void func_80087B28(NameEntry *entry, s32 x, s32 y) {
+    entry->imageX = x;
+    entry->imageY = y;
+}
 
 INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80087B34);
 
