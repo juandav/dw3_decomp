@@ -34,9 +34,9 @@ The folder is relative to `asm/<version>/`, so the function above is
    differing instructions marked `**`. Relocated fields are masked, so a
    different symbol name doesn't count as a difference. Set `UNIT=wstag210`
    (any part of the path) when several units have a function of that name, as
-   the stages do; `VERSION` picks the version. For a `-G8` file
-   (`inn.c`, `system.c`, `game3_2.c`, `graphics.c`, `sound.c`), pass the same flags as
-   the Makefile: `CFLAGS='-O2 -G8 -fsigned-char -fno-builtin
+   the stages do; `VERSION` picks the version. For a `-G8` file (`inn.c`,
+   `system.c`, `memcard.c`, `game3_2.c`, `graphics.c`, `sound.c`), pass the
+   same flags as the Makefile: `CFLAGS='-O2 -G8 -fsigned-char -fno-builtin
    -fdollars-in-identifiers' MASPSXFLAGS='--aspsx-version=2.86 -G8'`. For
    PsyQ code, `CC1=bin/gcc-2.7.2-psx/cc1` (plus `RERUN=1` or `GCC28=1` for the
    objects in `PSYQ_RERUN_CSE` or `PSYQ_GCC28`); the docstring of
