@@ -75,7 +75,7 @@ version's C. The stages are still one asm segment each.
 
 ## PsyQ
 
-- [ ] 13 of the 563 PsyQ functions are still `INCLUDE_ASM`, in 9 objects
+- [ ] 12 of the 563 PsyQ functions are still `INCLUDE_ASM`, in 8 objects
   (`libmcrd_libmcrd` 3 and the rest 2 or fewer), all compiled code; 166
   are still named `func_`. What Sony wrote in assembly (71 functions, 56
   objects) is `.s` sources in `src/main/psyq/`.

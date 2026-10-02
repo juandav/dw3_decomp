@@ -50,7 +50,7 @@ badges above are always current:
   (`text_window.c`). Its data is C too, in `src/main/data/`, until it moves
   next to the code that uses it.
 - The PsyQ 4.7 libraries linked into the executable are decompiled too, one
-  file per library object: 479 of their 563 functions are C, and the 71 Sony
+  file per library object: 480 of their 563 functions are C, and the 71 Sony
   wrote in assembly are `.s` sources. They are Sony's
   code, not the game's, so like other PSX decomps they are built and compared
   but left out of the progress.
@@ -82,7 +82,7 @@ above counts them: fake matches, then the other two kinds together.
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 2 | `/* unused, but it is in the original stack frame */` |
 | Form-dependent matches | 0 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 1,977 | `INCLUDE_ASM` |
+| Functions still in assembly | 1,976 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
