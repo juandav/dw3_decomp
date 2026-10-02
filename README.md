@@ -66,16 +66,26 @@ make report
 `make compare` must print OK for `build/SLUS_014.36` and every overlay. A
 function only counts as decompiled once all of them still match.
 
+The progress report counts the game's code: the executable's and the
+overlays'. The PsyQ SDK linked into the executable is Sony's code, so like
+other PSX decomps it is built and compared but not counted.
+
 ## Layout
 
 | Path | Contents |
 |---|---|
 | `config/main.yaml` | splat config for `SLUS_014.36` |
 | `config/symbols.txt` | known symbols |
-| `src/main/game.c` | game code, `0x80010F80`-`0x8001D070` |
-| `src/main/gfx.c` | graphics and object code, `0x8001D070`-`0x8001FC68` (built with `-G8`) |
-| `src/main/sound.c` | sound code, `0x8001FC68`-`0x80020998` |
-| `include/game.h` | types and declarations shared by the game files |
+| `src/main/inn.c` | the inn and the full-screen fade, `0x80010F80`-`0x800120B8` |
+| `src/main/system.c` | field menu, CD reader, file cache, task creation and `main`, `0x800120B8`-`0x80014884` (built with `-G8`) |
+| `src/main/memcard.c` | memory card saves, `0x80014884`-`0x800154F8` |
+| `src/main/game3.c` | game state: flags, event conditions, modes, party and stats, `0x800154F8`-`0x800172E8` |
+| `src/main/game3_2.c` | partner data, heap and task registry, `0x800172E8`-`0x80017FAC` (built with `-G8`) |
+| `src/main/pad.c` | controllers and random numbers, `0x80017FAC`-`0x80018FEC` |
+| `src/main/text_window.c` | text windows, font, cursor and message boxes, `0x80018FEC`-`0x8001D070` |
+| `src/main/graphics.c` | display, drawing layers, sprite/TIM/card drawers, `0x8001D070`-`0x8001FC68` (built with `-G8`) |
+| `src/main/sound.c` | sound banks and the mode overlay loader, `0x8001FC68`-`0x80020998` (built with `-G8`) |
+| `include/game.h`, `include/dw3/` | types and declarations of the game code, one header per engine module |
 | `src/main/psyq/` | PsyQ libraries, one file per library object, `0x80020998`-`0x8003E9D8` |
 | `include/psyq.h` | declarations shared by the PsyQ files |
 | `asm/main/crt0.s` | PsyQ startup (`2MBYTE.OBJ`), `0x80010EBC`-`0x80010F80` |
@@ -124,11 +134,11 @@ the defaults.
   and 2.8.1 give the same results, and so do ASPSX 2.56 to 2.86.
 - Divisions carry no divide-by-zero check, so maspsx runs without
   `--expand-div`.
-- `gfx.c` reads its small variables through `$gp`, so it is built with `-G8`
+- `graphics.c` reads its small variables through `$gp`, so it is built with `-G8`
   in both GCC and maspsx (see `SDATA_LIMIT` in the Makefile). Those variables
-  are declared `static` in `gfx.c`; maspsx emits them as common symbols that
+  are declared `static` in `graphics.c`; maspsx emits them as common symbols that
   resolve to the definitions in the data asm. The rest of the game uses
-  `-G0`. `main` and `func_80013758` also use `$gp` and will need the same
+  `-G0`. `main` and `cdSyncCallback` also use `$gp` and will need the same
   treatment once their files are split out.
 - The PsyQ libraries were built with GCC 2.7.2, whose ASPSX moved the
   instruction before each `j $31` into its delay slot unless it was a load or
@@ -143,17 +153,20 @@ the defaults.
   [psyq_headers](https://github.com/jype0/psyq_headers). `libgte.h` names
   some parameters `$2`, hence `-fdollars-in-identifiers`. Both code bases use
   signed `char` (`-fsigned-char`).
-- Most global function pointers live in tables (`D_8004AD90` holds `free`,
-  `malloc` and `bzero`, for example) and must be called through a struct.
+- Most global function pointers live in tables (the heap, `HEAP`, holds
+  `free`, `alloc` and `zero`, for example) and must be called through a struct.
   GCC 2.8 assumes a struct field and a scalar global never alias, so with a
   scalar `extern` it moves stores to struct fields past the load of the
   function pointer.
 
 ### Where to start
 
-- `src/main/game.c` still holds most of the game. splat reports likely file
-  boundaries from the jump tables in `.rodata` (at `0x884`, `0x9A0`, `0x9BC`,
-  `0xA90` and `0xAEC`), which are a good first hint to split it further.
+- The executable's game code is split at its original object boundaries
+  (see the table above) and named by subsystem. Every engine module is a
+  global struct holding its state and a table of methods (`GFX`, `HEAP`,
+  `FILE_CACHE`, `PAD`, `SOUND`, `GAME`...), and every game object is a task
+  (`createTask`, see `include/game.h`); the overlays reach the engine through
+  those tables.
 - The PsyQ functions were named from the
   [PsyQ 4.7 signatures](https://github.com/lab313ru/psx_psyq_signatures).
 - Most of the game lives outside the main executable, in the overlays. The

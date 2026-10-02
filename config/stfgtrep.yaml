@@ -50,5 +50,5 @@ segments:
     subsegments:
       - [0x0, .rodata, stfgtrep]
       - [0x1C0, c, stfgtrep]
-      - [0x3D2C, data, stfgtrep]
+      - [0x3D2C, .data, stfgtrep]
   - [0x654C]

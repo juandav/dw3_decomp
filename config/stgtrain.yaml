@@ -50,5 +50,5 @@ segments:
     subsegments:
       - [0x0, .rodata, stgtrain]
       - [0x3A8, c, stgtrain]
-      - [0x92E4, data, stgtrain]
+      - [0x92E4, .data, stgtrain]
   - [0xA3C8]

@@ -2,16 +2,16 @@
 """Write the splat config of a stage overlay (AAA/PRO/WSTAG###.PRO).
 
 The 238 stage overlays all have the same layout, so instead of a config file
-each, config/stages.txt lists them with the offset where their code ends:
+each, config/stages.txt lists them with the offsets where their code starts
+and ends:
 
-    WSTAG200 0x2B8
+    WSTAG200 0x4 0x2B8
 
 A stage loads at 0x800A4CA4, after the largest main overlay (CARDGAME), on top
-of FIELDSTG, whose functions it calls. Its first word is a color (0x808080,
-0x966754...) that no function of the stage reads, so it stays in asm (and with
-no other .rodata there is nothing to migrate to functions); the code
-starts right after it and the rest of the file, from the end of the code, is
-data.
+of FIELDSTG, whose functions it calls. Most stages start right with code; the
+others with a word no function of the stage reads (a color such as 0x808080,
+or a pointer), which stays in asm, so there is no other .rodata to migrate to
+functions. From the end of the code on, the file is data.
 
 usage: stage_yaml.py wstag200 build/generated/stages/wstag200.yaml
 """
@@ -71,8 +71,7 @@ segments:
     align: 4
     subalign: 4
     subsegments:
-      - [0x0, rodata, {name}]
-      - [0x4, c, {name}]
+{header}      - [0x{text_start:X}, c, {name}]
       - [0x{text_end:X}, data, {name}]
   - [0x{size:X}]
 """
@@ -85,7 +84,7 @@ def main():
     for line in open(os.path.join(root, "config/stages.txt")):
         words = line.split("#", 1)[0].split()
         if words and words[0].lower() == name:
-            text_end = int(words[1], 16)
+            text_start, text_end = int(words[1], 16), int(words[2], 16)
     if text_end is None:
         sys.exit(f"{name} is not in config/stages.txt")
 
@@ -105,6 +104,8 @@ def main():
                 base=os.path.relpath(root, os.path.dirname(os.path.abspath(out))),
                 symbols="".join(f"    - {s}\n" for s in symbols),
                 vram=VRAM,
+                header=f"      - [0x0, rodata, {name}]\n" if text_start else "",
+                text_start=text_start,
                 text_end=text_end,
                 size=len(data),
             )

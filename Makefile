@@ -69,12 +69,12 @@ CC1FLAGS = -quiet -O2 -G$(SDATA_LIMIT) -mips1 -mcpu=3000 -mgas $(FLOAT_ABI) \
 	    -fgnu-linker -fsigned-char -fno-builtin -fdollars-in-identifiers -Wall -Wno-unused $(PSYQ_CSE)
 MASPSXFLAGS = --aspsx-version=2.86 -G$(SDATA_LIMIT) --use-comm-section --use-comm-for-lcomm $(MASPSX_DIV)
 
-# Most of the game is built with -G0; gfx.c reads its own small variables
+# Most of the game is built with -G0; graphics.c reads its own small variables
 # through $gp. Declare those variables static in C: maspsx then emits them
 # as common symbols that resolve to the definitions in the data asm.
 SDATA_LIMIT := 0
 $(BUILDDIR)/src/main/system.c.o: SDATA_LIMIT := 8
-$(BUILDDIR)/src/main/gfx.c.o: SDATA_LIMIT := 8
+$(BUILDDIR)/src/main/graphics.c.o: SDATA_LIMIT := 8
 $(BUILDDIR)/src/main/sound.c.o: SDATA_LIMIT := 8
 $(BUILDDIR)/src/main/game3_2.c.o: SDATA_LIMIT := 8
 ASFLAGS := -EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 $(INC)
@@ -87,8 +87,10 @@ LDFLAGS := -nostdlib --no-check-sections -Map $(MAP) \
 ALL_C_SRC := $(shell find src -name '*.c' 2> /dev/null)
 C_SRC := $(filter src/main/%,$(ALL_C_SRC))
 
-# Target objects for objdiff: splat's full disassembly of every C unit
-TARGET_ASM := $(ALL_C_SRC:src/%.c=$(ASM_DIR)/%.s)
+# Target objects for objdiff: splat's full disassembly of every C unit (the
+# executable's data files, src/main/data/, have none: objdiff_generate.py
+# compares them with splat's data files)
+TARGET_ASM := $(filter-out $(ASM_DIR)/main/data/%,$(ALL_C_SRC:src/%.c=$(ASM_DIR)/%.s))
 
 ASM_SRC := $(filter-out $(TARGET_ASM),$(shell find $(ASM_DIR)/main -name '*.s' \
 	   -not -path '*/nonmatchings/*' -not -path '*/matchings/*' 2> /dev/null))
@@ -216,6 +218,10 @@ $(SN_CC1): bin/gcc-2.8.1-psx/cc1 tools/sn_cc1.py
 	$(PYTHON) tools/sn_cc1.py $< $@
 
 $(filter $(BUILDDIR)/src/main/psyq/%,$(C_OBJ)): $(PSYQ_CC1)
+
+# The executable's .bss in C: maspsx turns its commons into definitions in
+# order in .bss when they aren't kept as .comm
+$(BUILDDIR)/src/main/data/game_bss.c.o: MASPSXFLAGS := $(filter-out --use-comm-section,$(MASPSXFLAGS))
 
 $(BUILDDIR)/%.c.o: %.c
 	@mkdir -p $(dir $@)

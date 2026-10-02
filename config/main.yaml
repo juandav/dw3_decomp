@@ -53,13 +53,13 @@ segments:
     subalign: 4
     subsegments:
       # psylink places .rdata ahead of .text
-      - [0x800, .rodata, game]
+      - [0x800, .rodata, inn]
       - [0x884, .rodata, system]
-      - [0x8CC, .rodata, game2]
+      - [0x8CC, .rodata, memcard]
       - [0x9A0, .rodata, game3]
       - [0x9BC, .rodata, pad]
-      - [0x9D8, .rodata, text]
-      - [0xAD8, .rodata, gfx]
+      - [0x9D8, .rodata, text_window]
+      - [0xAD8, .rodata, graphics]
       - [0xAEC, .rodata, psyq/libpad_pdent4]
       # PsyQ, one file per library object
       - [0xB0C, .rodata, psyq/libgpu_sys]
@@ -84,16 +84,16 @@ segments:
       - [0x168C, .rodata, psyq/libmcrd_low]
       - [0x169C, .rodata, psyq/libmcrd_unformat]
       - [0x16BC, asm, crt0]
-      - [0x1780, c, game]
+      - [0x1780, c, inn]
       # Compiled with -G8 (main reaches its variables through $gp)
       - [0x28B8, c, system]
-      - [0x5084, c, game2]
+      - [0x5084, c, memcard]
       - [0x5CF8, c, game3]
       - [0x7AE8, c, game3_2]
       - [0x87AC, c, pad]
-      - [0x97EC, c, text]
+      - [0x97EC, c, text_window]
       # Compiled with -G8: its small variables are addressed through $gp
-      - [0xD870, c, gfx]
+      - [0xD870, c, graphics]
       - [0x10468, c, sound]
       # PsyQ, one file per library object
       - [0x11198, c, psyq/libpad_pdcmd1]
@@ -371,13 +371,14 @@ segments:
       - [0x2E688, c, psyq/libmcrd_low]
       - [0x2F118, c, psyq/libmcrd_func_8003e918]
       - [0x2F128, c, psyq/libmcrd_unformat]
-      - [0x2F1D8, data, game]
+      # the game's data (src/main/data/)
+      - [0x2F1D8, .data, data/game]
       # libgte sine/cosine tables, referenced by rsin/rcos
       - [0x44830, data, gte_tables]
-      - [0x45B94, data, game_2]
+      - [0x45B94, .data, data/game_2]
       - [0x45CE0, data, psyq]
-      - [0x4CAF8, data, game_3]
-      - { start: 0x4CC80, type: bss, vram: 0x8005C480, name: game }
+      - [0x4CAF8, .data, data/game_3]
+      - { start: 0x4CC80, type: .bss, vram: 0x8005C480, name: data/game_bss }
       - { start: 0x6ECD0, type: bss, vram: 0x8007E4D0, name: psyq }
 
   # psylink stores .bss in the file as zeros because a later section follows

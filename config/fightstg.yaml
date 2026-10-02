@@ -50,5 +50,5 @@ segments:
     subsegments:
       - [0x0, .rodata, fightstg]
       - [0x608, c, fightstg]
-      - [0x1EDF0, data, fightstg]
+      - [0x1EDF0, .data, fightstg]
   - [0x210B8]

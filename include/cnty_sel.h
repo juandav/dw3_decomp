@@ -12,36 +12,12 @@
 
 #include "game.h"
 
-/* Header of every task made by func_800144DC (see func_800143B4) */
-typedef struct TaskHeader {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ u8 unk4[8];
-    /* 0x0C */ s32 state;
-    /* 0x10 */ s32 substate;
-    /* 0x14 */ s32 step;
-    /* 0x18 */ s32 counter;
-    /* 0x1C */ s32 unk1C;
-    /* 0x20 */ s32 childCount;
-    /* 0x24 */ void **children;
-    /* 0x28 */ void (*setState)(void *task, s32 state);
-    /* 0x2C */ void (*setSubstate)(void *task, s32 substate);
-    /* 0x30 */ void (*setStep)(void *task, s32 step);
-    /* 0x34 */ void (*setCounter)(void *task, s32 counter);
-    /* 0x38 */ void (*nextState)(void *task);
-    /* 0x3C */ void (*nextSubstate)(void *task);
-    /* 0x40 */ void (*nextStep)(void *task);
-    /* 0x44 */ void (*nextCounter)(void *task);
-    /* 0x48 */ void (*update)(void *task, void *children);
-    /* 0x4C */ void (*destroy)(void *task);
-} TaskHeader;
+/*
+ * The screen's tasks use the engine states (task.h); the owner sets TASK_DONE
+ * to make a task fade out, flash, or open/close its panel.
+ */
 
-/* States (TaskHeader.state) of every task of the screen */
-#define TASK_INIT 0    /* set up, then go to TASK_RUN */
-#define TASK_RUN 1
-#define TASK_TRIGGER 2 /* set by the owner: fade out, flash or open/close */
-#define TASK_END 3
-
-/* Entries of file 0x892, read with D_80044B68[0] */
+/* Entries of file 0x892, read with FILE_CACHE_GET_ENTRY[0] */
 #define CNTY_SEL_SPRITES 0x08920000 /* sprite bank */
 #define CNTY_SEL_IMAGES 0x08920001  /* TIM archive for VRAM */
 
@@ -55,7 +31,7 @@ typedef struct TaskHeader {
 /* Draw layer of the screen */
 #define CNTY_SEL_LAYER 0x100
 
-/* Sounds (D_80051194.unk425C) */
+/* Sounds (SOUND_STATE.playSound) */
 #define CNTY_SEL_SOUND_BANK 0x21
 #define CNTY_SEL_MUSIC 0x60840002
 #define SE_CURSOR 0x4001B
@@ -95,14 +71,14 @@ typedef struct LeftPanelTween {
 
 /* The scrolling background, which also fades the screen out */
 typedef struct BackgroundTask {
-    /* 0x00 */ TaskHeader task;
+    TASK_HEADER(BackgroundTask);
     /* 0x50 */ s16 scroll;
     /* 0x52 */ s16 fade;
 } BackgroundTask;
 
 /* The highlighted option */
 typedef struct CursorTask {
-    /* 0x00 */ TaskHeader task;
+    TASK_HEADER(CursorTask);
     /* 0x50 */ s32 blink;
     /* 0x54 */ s16 selection;
     /* 0x56 */ s16 frame;
@@ -112,7 +88,7 @@ typedef struct CursorTask {
 
 /* A panel that opens and closes by scaling */
 typedef struct PanelTask {
-    /* 0x00 */ TaskHeader task;
+    TASK_HEADER(PanelTask);
     /* 0x50 */ s16 phase; /* 0: opening, 1: closing */
     /* 0x52 */ s16 time;
     /* 0x54 */ s16 scaleX;
@@ -129,12 +105,12 @@ typedef struct MenuChildren {
 
 /* The screen's controller */
 typedef struct MenuTask {
-    /* 0x00 */ TaskHeader task;
+    TASK_HEADER(MenuTask);
     /* 0x50 */ s16 selection;
     /* 0x52 */ s16 timer;
 } MenuTask;
 
-/* MenuTask substates (TaskHeader.substate) in TASK_RUN */
+/* MenuTask substates (Task.substate) in TASK_RUN */
 enum MenuStep {
     MENU_OPEN_RIGHT_PANEL,
     MENU_WAIT_RIGHT_PANEL,
@@ -160,8 +136,8 @@ extern PanelTween CNTY_SEL_topPanelTweens[];
 extern PanelTween CNTY_SEL_rightPanelTweens[];
 extern LeftPanelTween CNTY_SEL_leftPanelTweens[];
 
-void CNTY_SEL_tickScreen(TaskHeader *task, MenuTask **menu);
-TaskHeader *CNTY_SEL_start(void);
+void CNTY_SEL_tickScreen(Task *task, MenuTask **menu);
+Task *CNTY_SEL_start(void);
 void CNTY_SEL_drawBackground(BackgroundTask *task);
 s32 CNTY_SEL_getFadeLevel(s32 time);
 void CNTY_SEL_drawFade(s32 level);

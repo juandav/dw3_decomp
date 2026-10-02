@@ -50,5 +50,5 @@ segments:
     subsegments:
       - [0x0, .rodata, cardgame]
       - [0x117C, c, cardgame]
-      - [0x218B0, data, cardgame]
+      - [0x218B0, .data, cardgame]
   - [0x2285C]

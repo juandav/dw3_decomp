@@ -10,6 +10,14 @@ A source file X_2.c is the second half of an original object split in
 config/main.yaml (X.c and X_2.c come from one file before the split). Its
 unit is reported together with X's under X's name, from the two objects
 linked with `ld -r`, so progress keeps being tracked per unit as before.
+
+The PsyQ SDK (src/main/psyq/) is Sony's code linked into the executable, not
+the game's: like other PSX decomps (jype0/dw_decomp), progress doesn't count
+it, so it gets no unit. It is still built and checked by `make compare`.
+
+The executable's game data is one unit, main/game_data: splat's data files
+(GAME_DATA) against the C files in src/main/data/ that hold it until it moves
+next to the code that uses it.
 """
 
 import json
@@ -18,17 +26,22 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# The executable's game code, the PsyQ SDK linked into it, and one category
-# per overlay (src/<overlay>/, see OVERLAYS in the Makefile).
+# The executable's game code and one category per overlay (src/<overlay>/,
+# see OVERLAYS in the Makefile).
 CATEGORIES = [
     {"id": "game", "name": "Game (executable)"},
-    {"id": "sdk", "name": "PsyQ SDK"},
 ]
 
 
+def is_library(name: str) -> bool:
+    return name == "main/psyq" or name.startswith("main/psyq/")
+
+
+# splat's files of the executable's game data (not the SDK's psyq and gte_tables)
+GAME_DATA = ["data/game.data", "data/game_2.data", "data/game_3.data", "data/game_bss.bss"]
+
+
 def category_for(name: str) -> str:
-    if name == "main/psyq" or name.startswith("main/psyq/"):
-        return "sdk"
     if name.startswith("main/"):
         return "game"
     return name.split("/")[0]
@@ -43,6 +56,7 @@ def link(out: str, parts: list) -> None:
 def main() -> None:
     names = [src.relative_to(ROOT / "src").with_suffix("").as_posix()
              for src in sorted((ROOT / "src").rglob("*.c"))]
+    names = [n for n in names if not is_library(n) and not n.startswith("main/data/")]
     halves = {n[:-2]: n for n in names if n.endswith("_2") and n[:-2] in names}
     units = []
     for name in names:
@@ -65,8 +79,24 @@ def main() -> None:
             }
         )
 
+    data = [f"expected/asm/main/data/{d}.s.o" for d in GAME_DATA
+            if (ROOT / f"asm/main/data/{d}.s").exists()]
+    if data:
+        link("expected/report/main/game_data.s.o", data)
+        unit = {
+            "name": "main/game_data",
+            "target_path": "expected/report/main/game_data.s.o",
+            "metadata": {"progress_categories": ["game"]},
+        }
+        base = [f"build/{c.with_suffix('.c.o').relative_to(ROOT).as_posix()}"
+                for c in sorted((ROOT / "src/main/data").glob("*.c"))]
+        if base:
+            link("build/report/main/game_data.c.o", base)
+            unit["base_path"] = "build/report/main/game_data.c.o"
+        units.append(unit)
+
     categories = list(CATEGORIES)
-    for overlay in sorted({category_for(u["name"]) for u in units} - {"game", "sdk"}):
+    for overlay in sorted({category_for(u["name"]) for u in units} - {"game"}):
         label = "Stage overlays" if overlay == "stages" else f"{overlay.upper()} overlay"
         categories.append({"id": overlay, "name": label})
 
