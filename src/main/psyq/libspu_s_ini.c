@@ -13,7 +13,7 @@ extern long D_8005BA14;
 extern long D_8005BA88;
 extern long D_8005BA8C;
 extern long D_8005BA90;
-extern long D_8005BFB8[];
+extern long _spu_rev_startaddr[];
 
 void _spu_init(int mode);
 long _spu_FsetRXX(long reg, u_long addr, long flag);
@@ -38,7 +38,7 @@ void _SpuInit(int mode) {
     D_8005B9CC.depthRight = 0;
     D_8005B9CC.delay = 0;
     D_8005B9CC.feedback = 0;
-    D_8005B9C4 = D_8005BFB8[0];
+    D_8005B9C4 = _spu_rev_startaddr[0];
     _spu_FsetRXX(0xD1, D_8005B9C4, 0);
     D_8005BA88 = 0;
     D_8005BA8C = 0;

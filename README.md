@@ -59,8 +59,8 @@ badges above are always current:
 - 64 of the 238 stages are all C. Many stages share functions built from the
   same source, so one match often repeats across stages.
 - The European version, the default one and the one decomp.dev shows first,
-  is split into the USA version's files, with the USA names, and builds 258
-  of the 275 PsyQ files, `game3_2`, `SOUNDTST` and `STDWTITL`'s `libpress`
+  is split into the USA version's files, with the USA names, and builds the
+  275 PsyQ files, `game3_2`, `SOUNDTST` and `STDWTITL`'s `libpress`
   from the USA version's C. The rest of its executable, 21 overlays and 293
   stages is splat's disassembly, so its report counts it as still to do.
 

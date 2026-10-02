@@ -850,6 +850,22 @@ _card_format2 = 0x8003DE88; // type:func
 _card_create2 = 0x8003E258; // type:func
 MemCardUnformat = 0x8003E928; // type:func
 
+// PsyQ 4.7 data: the SDK's own names where they are known, otherwise names
+// for what they hold.
+// libspu: each reverb mode's work area start, in 8-byte units, and the voice
+// registers 0xC4-0xCD it queues while SpuSetEnv asks it to
+_spu_rev_startaddr = 0x8005BFB8;
+_spu_RQ = 0x80081FD0;
+// libapi's pad: pointers to the controller port and the interrupt registers
+PAD_SIO_REGS = 0x8005C2BC;
+PAD_INTR_REGS = 0x8005C2C0;
+// libmcrd: the retries of MemCardReadData, MemCardWriteData, MemCardReadFile
+// and MemCardWriteFile
+MCRD_READ_RETRIES = 0x8005C2D0;
+MCRD_WRITE_RETRIES = 0x8005C2D4;
+MCRD_READ_FILE_RETRIES = 0x8005C2D8;
+MCRD_WRITE_FILE_RETRIES = 0x8005C2DC;
+
 // Start of RAM, reached by OR-ing 0x80000000 into physical addresses: a constant, not a symbol
 D_80000000 = 0x80000000; // ignore:true
 D_8004852C = 0x8004852C; // size:0x10

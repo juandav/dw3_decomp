@@ -2,7 +2,7 @@
 
 extern long D_8005B9C4;        /* reverb work area offset */
 extern SpuRevAttrInternal D_8005B9CC;
-extern long D_8005BFB8[];      /* work area start per mode */
+extern long _spu_rev_startaddr[];      /* work area start per mode */
 extern SpuReverbRegs D_8005BFE8[];
 long _SpuIsInAllocateArea_(u_long addr);
 void _spu_setReverbAttr(SpuReverbRegs *attr);
@@ -32,12 +32,12 @@ long SpuSetReverbModeParam(SpuReverbAttr *attr) {
             mode &= ~SPU_REV_MODE_CLEAR_WA;
             clearWA = 1;
         }
-        if (mode >= 10 || _SpuIsInAllocateArea_(D_8005BFB8[mode])) {
+        if (mode >= 10 || _SpuIsInAllocateArea_(_spu_rev_startaddr[mode])) {
             return -1;
         }
         setMode = 1;
         D_8005B9CC.mode = mode;
-        D_8005B9C4 = D_8005BFB8[D_8005B9CC.mode];
+        D_8005B9C4 = _spu_rev_startaddr[D_8005B9CC.mode];
         _memcpy((char *)&entry, (char *)&D_8005BFE8[D_8005B9CC.mode], sizeof(SpuReverbRegs));
         switch (D_8005B9CC.mode) {
         case SPU_REV_MODE_ECHO:

@@ -133,7 +133,7 @@ long MemCardReadData(u_long *adrs, long ofs, long bytes) {
     return 1;
 }
 
-extern long D_8005C2D0;
+extern long MCRD_READ_RETRIES;
 long func_8003D248(long a, long b, long c);
 long func_80024CC8(long fd, long a, long b);
 long _chk_card_event(void);
@@ -147,7 +147,7 @@ long func_8003C39C(UserFuncArg *arg) {
 
     switch (arg->data[0]) {
     case 0:
-        D_8005C2D0 = 0;
+        MCRD_READ_RETRIES = 0;
         arg->data[0] = 10;
         UserFuncOpen(func_8003BAEC);
         return 0;
@@ -168,7 +168,7 @@ long func_8003C39C(UserFuncArg *arg) {
         }
         ev = _get_card_event();
         if (ev != 0) {
-            if (++D_8005C2D0 < 4) {
+            if (++MCRD_READ_RETRIES < 4) {
                 arg->data[0] = 10;
                 break;
             }
@@ -219,14 +219,14 @@ long MemCardWriteData(u_long *adrs, long ofs, long bytes) {
     return 1;
 }
 
-extern long D_8005C2D4;
+extern long MCRD_WRITE_RETRIES;
 
 long func_8003C604(UserFuncArg *arg) {
     long ev;
 
     switch (arg->data[0]) {
     case 0:
-        D_8005C2D4 = 0;
+        MCRD_WRITE_RETRIES = 0;
         UserFuncOpen(func_8003BAEC);
         arg->data[0] = 10;
         break;
@@ -247,7 +247,7 @@ long func_8003C604(UserFuncArg *arg) {
         }
         ev = _get_card_event();
         if (ev != 0) {
-            if (++D_8005C2D4 < 4) {
+            if (++MCRD_WRITE_RETRIES < 4) {
                 arg->data[0] = 10;
                 break;
             }
@@ -303,13 +303,13 @@ long MemCardReadFile(long chan, char *file, u_long *adrs, long ofs, long bytes) 
     return 1;
 }
 
-extern long D_8005C2D8;
+extern long MCRD_READ_FILE_RETRIES;
 long func_80024CB8(char *name, long mode);
 
 long func_8003C8C8(UserFuncArg *arg) {
     switch (arg->data[0]) {
     case 0:
-        D_8005C2D8 = 0;
+        MCRD_READ_FILE_RETRIES = 0;
         UserFuncOpen(func_8003BAEC);
         arg->data[0] = 10;
         break;
@@ -366,12 +366,12 @@ long MemCardWriteFile(long chan, char *file, u_long *adrs, long ofs, long bytes)
     return 1;
 }
 
-extern long D_8005C2DC;
+extern long MCRD_WRITE_FILE_RETRIES;
 
 long func_8003CAE8(UserFuncArg *arg) {
     switch (arg->data[0]) {
     case 0:
-        D_8005C2DC = 0;
+        MCRD_WRITE_FILE_RETRIES = 0;
         UserFuncOpen(func_8003BAEC);
         arg->data[0] = 10;
         break;

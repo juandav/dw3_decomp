@@ -103,3 +103,10 @@ C_SRC += $(addprefix src/main/psyq/, \
 	libc2_func_8003d648.c libcard_card.c libcard_func_8003d698.c \
 	libcard_func_8003d6a8.c libmcrd_bios.c libmcrd_low.c \
 	libmcrd_func_8003e918.c libmcrd_unformat.c)
+
+# PsyQ
+C_SRC += $(addprefix src/main/psyq/, \
+	libapi_pad.c libmcrd_libmcrd.c libmcrd_userfunc.c libsnd_ut_gpa.c \
+	libsnd_ut_gva.c libsnd_ut_sva.c libsnd_vm_f.c libsnd_vm_init.c \
+	libsnd_vm_vsu.c libsnd_vs_vab.c libsnd_vs_vh_2.c libsnd_vs_vtb.c \
+	libspu_s_crwa.c libspu_s_ini.c libspu_s_sav.c libspu_s_srmp.c libspu_spu.c)

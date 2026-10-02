@@ -1,6 +1,6 @@
 #include "psyq.h"
 
-extern long *D_8005C2C0;
+extern long *PAD_INTR_REGS;
 extern long D_80081FE8;
 extern int (*D_80081FEC[2])(void);
 extern long D_80081FF4;
@@ -61,7 +61,7 @@ int func_8003B444(void) {
 int func_8003B4BC(void) {
     volatile int i, j, k;
 
-    D_8005C2BC[5] = 0;
+    PAD_SIO_REGS[5] = 0;
     i = 10;
     while (--i != -1) {
     }
@@ -69,7 +69,7 @@ int func_8003B4BC(void) {
 }
 
 int func_8003B524(void) {
-    if ((D_8005C2C0[1] & 1) == 0 || (D_8005C2C0[0] & 1) == 0) {
+    if ((PAD_INTR_REGS[1] & 1) == 0 || (PAD_INTR_REGS[0] & 1) == 0) {
         return 0;
     }
     return 1;

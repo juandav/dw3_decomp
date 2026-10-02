@@ -494,7 +494,7 @@ extern long D_8005A2E8;
 extern u_long *D_8005B868;
 extern u_long D_8005B870[];
 extern long D_8005BA50;
-extern volatile u_short *D_8005C2BC;
+extern volatile u_short *PAD_SIO_REGS;
 void _spu_t();
 extern void (*D_80055540)(void);
 extern volatile u_long *D_8005558C;
