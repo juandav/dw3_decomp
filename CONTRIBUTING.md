@@ -55,7 +55,7 @@ The folder is relative to `asm/<version>/`, so the function above is
    prototypes and types it needs to the headers, rebuild and check:
    ```
    make -j$(nproc) && make compare
-   make VERSION=eu -j$(nproc) && make VERSION=eu compare
+   make VERSION=us -j$(nproc) && make VERSION=us compare
    ```
    Every line of both versions has to say `OK`.
 5. **Check it in objdiff.** `make objdiff` and the objdiff GUI show the
@@ -121,7 +121,7 @@ give it real types once the code that uses it is understood.
 
 ## Versions
 
-The same source builds every version of the game (`make VERSION=us`, `eu`).
+The same source builds every version of the game (`make VERSION=eu`, the default, or `us`).
 The Makefile passes one `-DVERSION_<VERSION>`, and `include/version.h`
 (through `common.h`) makes `VERSION_US` and `VERSION_EU` both defined, each 0
 or 1; the assembly gets the same names from `--defsym`.
@@ -268,8 +268,8 @@ get `us`'s names once they are paired (see [TODO.md](TODO.md)).
   (address, old name, new name).
 - Before opening one, run `make compare` for both versions; both must print
   only `OK`. Run `tools/hacks.py --check README.md` and
-  `tools/check_names.py` too, which the CI runs first. The CI builds and compares `us` and `eu`, and uploads the USA
-  report that decomp.dev reads.
+  `tools/check_names.py` too, which the CI runs first. The CI builds and compares `eu` and `us`, and uploads both
+  reports that decomp.dev reads.
 - Pull requests are squash-merged, titled "Title (#N)": "Build the overlays
   and decompile CNTY_SEL (#12)". The title says what the pull request does,
   like a commit message.

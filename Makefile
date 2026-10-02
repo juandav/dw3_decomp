@@ -8,8 +8,8 @@
 # mk/version/<version>.mk: the executable's name, the disc, the overlays and
 # the source files. The C and the assembly see VERSION_US and VERSION_EU, the
 # one being built as 1 and the other as 0 (include/version.h).
-VERSION ?= us
-VERSIONS := us eu
+VERSION ?= eu
+VERSIONS := eu us
 ifeq ($(filter $(VERSION),$(VERSIONS)),)
 $(error unsupported VERSION $(VERSION); supported: $(VERSIONS))
 endif

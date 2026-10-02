@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Compile a C file with the project toolchain and compare every function in it
 byte-wise against the original executable or overlay of the version being
-worked on (VERSION, as for make; us by default), with relocated fields
+worked on (VERSION, as for make; eu by default), with relocated fields
 masked.
 
 usage: tools/try_match.py draft.c [func ...]

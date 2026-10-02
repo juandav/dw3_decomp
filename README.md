@@ -2,8 +2,8 @@
 
 | Version | Code | Data | Functions |
 |---|---|---|---|
+| 🇪🇺 Europe (`SLES_039.36`) | [![Code](https://decomp.dev/juandav/dw3_decomp.svg?mode=shield&measure=code&version=SLES_039.36&label=Code)](https://decomp.dev/juandav/dw3_decomp/SLES_039.36) | [![Data](https://decomp.dev/juandav/dw3_decomp.svg?mode=shield&measure=data&version=SLES_039.36&label=Data)](https://decomp.dev/juandav/dw3_decomp/SLES_039.36) | [![Functions](https://decomp.dev/juandav/dw3_decomp.svg?mode=shield&measure=functions&version=SLES_039.36&label=Functions)](https://decomp.dev/juandav/dw3_decomp/SLES_039.36) |
 | 🇺🇸 USA (`SLUS_014.36`) | [![Code](https://decomp.dev/juandav/dw3_decomp.svg?mode=shield&measure=code&version=SLUS_014.36&label=Code)](https://decomp.dev/juandav/dw3_decomp/SLUS_014.36) | [![Data](https://decomp.dev/juandav/dw3_decomp.svg?mode=shield&measure=data&version=SLUS_014.36&label=Data)](https://decomp.dev/juandav/dw3_decomp/SLUS_014.36) | [![Functions](https://decomp.dev/juandav/dw3_decomp.svg?mode=shield&measure=functions&version=SLUS_014.36&label=Functions)](https://decomp.dev/juandav/dw3_decomp/SLUS_014.36) |
-| 🇪🇺 Europe (`SLES_039.36`) | not tracked yet: no C | | |
 
 [![Executable](https://decomp.dev/juandav/dw3_decomp.svg?mode=shield&measure=code&version=SLUS_014.36&category=game&label=USA%20executable)](https://decomp.dev/juandav/dw3_decomp/SLUS_014.36?category=game)
 [![Stages](https://decomp.dev/juandav/dw3_decomp.svg?mode=shield&measure=code&version=SLUS_014.36&category=stages&label=USA%20stages)](https://decomp.dev/juandav/dw3_decomp/SLUS_014.36?category=stages)
@@ -56,9 +56,10 @@ badges above are always current:
   the other large overlays are still almost all assembly.
 - 64 of the 238 stages are all C. Many stages share functions built from the
   same source, so one match often repeats across stages.
-- The European version builds and matches from splat's disassembly only: its
-  executable, 21 overlays and 293 stages have no C yet, and the CI uploads no
-  report for it.
+- The European version, the default one and the one decomp.dev shows first,
+  builds and matches from splat's disassembly only: its executable, 21
+  overlays and 293 stages have no C yet, so its report counts them all as
+  still to do.
 
 Progress is measured by [objdiff](https://github.com/encounter/objdiff), with
 one unit per C file, and tracked on
@@ -178,7 +179,7 @@ largest overlay.
 ## How the versions are organised
 
 One source tree builds every version, one at a time, picked with `VERSION`
-(`us` by default):
+(`eu` by default):
 
 | `VERSION` | Release | Executable (SHA-1) | Disc image (SHA-1) | Overlays | Stages | C |
 |---|---|---|---|---|---|---|
@@ -322,18 +323,18 @@ against: `<executable>.sha1`, `overlays.sha1` and `stages.sha1`.
 
 ### Build
 
-The same steps build each version, with `VERSION` set to `us` or `eu` (`us`
+The same steps build each version, with `VERSION` set to `eu` or `us` (`eu`
 when it is left out):
 ```
 # Split the executable, the overlays and the stages with splat
 # (asm/<version>/, build/<version>/generated/)
-make VERSION=us generate
+make VERSION=eu generate
 
 # Build build/<version>/<executable> and build/<version>/AAA/PRO/*.PRO
-make VERSION=us -j$(nproc)
+make VERSION=eu -j$(nproc)
 
 # Check the executable, every overlay and every stage against the originals
-make VERSION=us compare
+make VERSION=eu compare
 ```
 
 `make compare` prints one `OK` per binary, and a change only counts once
@@ -363,10 +364,10 @@ OBJDIFF := /path/to/objdiff-cli
 
 ```
 # Write objdiff.json and the target objects in expected/<version>/
-make VERSION=us objdiff
+make VERSION=eu objdiff
 
 # Write build/<version>/report.json
-make VERSION=us report
+make VERSION=eu report
 ```
 
 After `make objdiff`, open the repository in the
@@ -376,14 +377,19 @@ unit per C file (`main/system`, `cnty_sel/cnty_sel`, `stages/wstag200`...); a
 file `X_2.c`, the second half of one original object, is reported together
 with `X.c`. The units go into the category `game` (the executable), one
 category per overlay, and `stages` for all the stages. The executable's data
-is one unit, `main/game_data`. `src/main/psyq/` gets no unit. `objdiff.json`
+is one unit, `main/game_data`. `src/main/psyq/` gets no unit. A binary with
+no C file in the version being reported (all of the European version, for
+now) is one unit of splat's code and data with no base object
+(`main/main`, `cardgame/cardgame`, `stages/wstag200`...), so the report
+counts it as still to do. `objdiff.json`
 is for the version it was last written for.
 
 The CI (`.github/workflows/build.yaml`) first runs `tools/check_names.py` and
 `tools/hacks.py`, which only read the source and the configs. It then builds
-both versions on every push and runs `make compare`; for `us` it also runs `make report` and uploads
-`build/us/report.json` as the `SLUS_014.36_report` artifact, which decomp.dev
-reads. `eu` has no C units yet, so it uploads no report. The original files
+both versions on every push, runs `make compare` and `make report`, and uploads
+each `build/<version>/report.json` as the `SLES_039.36_report` and
+`SLUS_014.36_report` artifacts, which decomp.dev reads; its default version is
+the European one. The original files
 come from a private repository, so pull requests from forks only run the
 first two checks. `.github/workflows/docker.yaml` builds and compares both
 versions in the Docker image whenever the image or what it installs changes.
@@ -405,7 +411,7 @@ versions in the Docker image whenever the image or what it installs changes.
 | `mk/version/` | each version's settings for the Makefile and the tools |
 | `tools/` | build helpers, matching helpers and the report generator (see [Tools](#tools)) |
 | `external/` | submodules: maspsx, m2c, decomp-permuter, psyq_headers |
-| `.github/workflows/build.yaml` | the CI: checks the names and the hacks, builds and compares both versions, uploads the USA report |
+| `.github/workflows/build.yaml` | the CI: checks the names and the hacks, builds and compares both versions, uploads their reports |
 | `Dockerfile`, `tools/docker.sh`, `.github/workflows/docker.yaml` | the build environment as a Docker image, the script that runs a command in it, and its CI |
 | `asm/<version>/`, `build/<version>/`, `expected/<version>/`, `assets/<version>/` | generated; not in git |
 | `disks/<version>/` | the extracted disc; not in git |
