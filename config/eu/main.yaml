@@ -97,7 +97,7 @@ segments:
       - [0x8B10, c, pad]
       - [0x9B70, c, text_window]
       - [0xDBF4, c, graphics]
-      - [0x10830, asm, sound]
+      - [0x10830, c, sound]
       - [0x1158C, c, psyq/libpad_pdcmd1]
       - [0x115CC, c, psyq/libpad_pdcmd2]
       - [0x1173C, c, psyq/libpad_pdcmd3]
