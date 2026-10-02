@@ -6,6 +6,18 @@ on:
 permissions:
   contents: read
 jobs:
+  # The source has no NON_MATCHING code or inline asm in place of C
+  # (tools/hacks.py, which also counts the fake matches and hacks). It only
+  # reads src/ and include/, so it needs no disc and runs for forks too.
+  names:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        persist-credentials: false
+
+    - run: python3 tools/hacks.py
+
   build:
     # The original executable and overlays live in a private repository that only this
     # repository's own runs can read, so builds from forks are skipped.
