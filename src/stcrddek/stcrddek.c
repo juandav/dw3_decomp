@@ -1,5 +1,7 @@
 #include "name_entry.h"
 
+void func_80087A24();
+
 INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80082988);
 
 INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80082A80);
@@ -105,7 +107,20 @@ void func_80087CC8(NameEntry *entry) {
     entry->substate = 10;
 }
 
-INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80087CD4);
+NameEntry *func_80087CD4(char *text) {
+    NameEntry *entry = createTask(func_80087A24, sizeof(NameEntry), 0x34);
+
+    entry->getText = func_80087BC8;
+    entry->close = func_80087CC8;
+    entry->unk54 = 0x1000;
+    entry->unk58 = 3;
+    entry->unk50 = 2;
+    entry->maxLength = 10;
+    entry->unk64 = -1;
+    func_80087B34(entry, text);
+    func_80087B28(entry, 0x280, 0x100);
+    return entry;
+}
 
 INCLUDE_ASM("asm/stcrddek/nonmatchings/stcrddek", func_80087D74);
 
