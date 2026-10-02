@@ -5,7 +5,7 @@ The 238 stage overlays all have the same layout, so instead of a config file
 each, config/<version>/stages.txt lists them with the offsets where their code starts
 and ends:
 
-    WSTAG200 0x4 0x2B8
+    WSTAG200 0x4 0x2B8 [asm]
 
 A stage loads at STAGE_VRAM (mk/version/<version>.mk; 0x800A4CA4 in us), after
 the largest main overlay (CARDGAME), on top of FIELDSTG, whose functions it calls. Most stages start right with code; the
@@ -36,6 +36,7 @@ options:
   compiler: GCC
 
   asm_path: asm/{version}/stages
+  asset_path: asm/{version}/stages/bin
   src_path: src/stages
   build_path: build/{version}
 
@@ -74,9 +75,18 @@ segments:
     align: 4
     subalign: 4
     subsegments:
-{header}      - [0x{text_start:X}, c, {name}]
+{header}      - [0x{text_start:X}, {code}, {name}]
       - [0x{text_end:X}, data, {name}]
-  - [0x{size:X}]
+{tail}  - [0x{size:X}]
+"""
+
+# the bytes after the last word, which splat's data segment would pad
+TAIL = """\
+  - name: {name}_end
+    type: databin
+    start: 0x{start:X}
+    vram: 0x{vram:X}
+    subalign: 4
 """
 
 
@@ -131,6 +141,8 @@ def main():
                 text_start = text_end = 0
             else:
                 text_start, text_end = int(words[1], 16), int(words[2], 16)
+            # "asm": the code is still splat's assembly in this version
+            code = "asm" if words[3:] == ["asm"] else "c"
     if not found:
         sys.exit(f"{name} is not in {config}/stages.txt")
 
@@ -156,6 +168,10 @@ def main():
                 symbols="".join(f"    - {s}\n" for s in symbols),
                 vram=version.STAGE_VRAM,
                 header=f"      - [0x0, rodata, {name}]\n" if text_start else "",
+                code=code,
+                # splat's data drops the bytes after the last word
+                tail=TAIL.format(name=name, start=len(data) & ~3, vram=version.STAGE_VRAM + (len(data) & ~3))
+                if len(data) % 4 else "",
                 text_start=text_start,
                 text_end=text_end,
                 size=len(data),

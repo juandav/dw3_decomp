@@ -9,26 +9,47 @@ options:
   compiler: GCC
 
   asm_path: asm/eu/stdwtitl
-  asset_path: asm/eu/stdwtitl/bin
   src_path: src/stdwtitl
   build_path: build/eu
 
   ld_script_path: build/eu/generated/stdwtitl.ld
 
+  global_vram_start: 0x80000000
+  global_vram_end: 0x80200000
+
+  find_file_boundaries: True
+  gp_value: 0x8005C2F8
+
+  generate_asm_macros_files: False
+
+  section_order: [".rodata", ".text", ".data", ".bss"]
+
   symbol_addrs_path:
     - config/eu/symbols.txt
+
   undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_stdwtitl.txt
   undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_stdwtitl.txt
 
-  generate_asm_macros_files: False
-  create_c_files: False
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  ld_bss_is_noload: False
+
+  migrate_rodata_to_functions: True
+  create_data_pads: False
 
 segments:
-  # still one blob, not split into the USA version's files yet
+  # not split into the USA version's files yet: its rodata, code and data
   - name: stdwtitl
-    type: databin
+    type: code
     start: 0x0
     vram: 0x80082CB0
+    align: 4
     subalign: 4
-
+    subsegments:
+      - [0x0, rodata, stdwtitl]
+      - [0xC0, asm, stdwtitl]
+      - [0x4F90, data, stdwtitl]
   - [0x65C0]
