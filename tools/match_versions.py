@@ -85,6 +85,8 @@ MIN_OPCODES = 10        # ...and for an opcode-only one
 MAX_GAP_CELLS = 250_000
 
 AUTO_NAME = re.compile(r"^(?:[A-Z]+_)?(?:func|D|jtbl|jlabel)_[0-9A-F]{8}$")
+# the names splat's linker scripts give the segments (cardgame_DATA_START)
+LINKER_NAME = re.compile(r"^[a-z0-9_]+_(?:VRAM|ROM|TEXT|RODATA|DATA|BSS|SDATA|SBSS)(?:_START|_END|_SIZE)?$")
 
 
 def settings(version: str) -> dict:
@@ -149,7 +151,7 @@ def binaries(version: str) -> list:
 
 class Func:
     __slots__ = ("version", "binary", "name", "addr", "size", "module", "region",
-                 "words", "ops", "mhash", "ohash", "calls", "refs", "index",
+                 "words", "masked", "ops", "mhash", "ohash", "calls", "refs", "index",
                  "callers")
 
     def __repr__(self):
@@ -172,8 +174,10 @@ class Memory:
         self.code[binary] = [(a, b) for a, b, _ in code]
         r = []
         for sec in elf.iter_sections():
-            if sec["sh_flags"] & 2 and sec["sh_type"] != "SHT_NOBITS" and sec["sh_size"]:
-                r.append((sec["sh_addr"], sec["sh_addr"] + sec["sh_size"], sec.data(), sec.name))
+            if sec["sh_flags"] & 2 and sec["sh_size"]:
+                # the .bss as zeros
+                data = bytes(sec["sh_size"]) if sec["sh_type"] == "SHT_NOBITS" else sec.data()
+                r.append((sec["sh_addr"], sec["sh_addr"] + sec["sh_size"], data, sec.name))
         self.ranges[binary] = sorted(r)
 
     def find(self, binary, addr):
@@ -259,7 +263,7 @@ def writes_gpr(w):
     return None
 
 
-def analyse(f, words):
+def analyse(f, words, gp):
     """Fill F's masked hash, opcode string, calls and data references."""
     hi = {}
     masked = []
@@ -280,6 +284,7 @@ def analyse(f, words):
             refs.append((i, (hi[rs_of(w)] + simm(w)) & 0xFFFFFFFF))
             m = w & 0xFFFF0000
         elif op in LO_USERS and rs_of(w) == 28:  # $gp-relative
+            refs.append((i, (gp + simm(w)) & 0xFFFFFFFF))
             m = w & 0xFFFF0000
         masked.append(m)
         # what the register holds now
@@ -289,6 +294,7 @@ def analyse(f, words):
                 hi[r] = (w & 0xFFFF) << 16
             else:
                 hi.pop(r, None)
+    f.masked = masked
     f.mhash = hash(struct.pack(f"<{len(masked)}I", *masked))
     f.ops = "".join(ops)
     f.ohash = hash(f.ops)
@@ -320,6 +326,7 @@ def load(version, psyq_region=True):
     version whose executable is still one asm segment."""
     memory = Memory()
     funcs = []
+    gp = int(settings(version)["GP_VALUE"], 16)
     for binary, elf_path, map_path in binaries(version):
         if not elf_path.exists():
             sys.exit(f"{elf_path.relative_to(ROOT)} is missing: run make VERSION={version} first")
@@ -359,7 +366,7 @@ def load(version, psyq_region=True):
     for f in funcs:
         by_addr[(f.binary, f.addr)] = f
     for f in funcs:
-        analyse(f, f.words)
+        analyse(f, f.words, gp)
         f.callers = []
     def resolve(binary, addr):
         for b in chain(binary):
@@ -415,6 +422,7 @@ class Pairing:
         self.pair = {}       # target func -> (us func, score, method)
         self.rev = {}        # us func -> target func
         self.cand = {}       # target func -> (us func, score, method)
+        self.joined = []     # (target func, offset, us func): see find_joined
         self.sim_cache = {}
 
     def scope(self, region):
@@ -772,6 +780,56 @@ class Pairing:
             if s >= MOVED_SIM and best_u[u][0] is t:
                 self.add_candidate(t, u, s, "moved")
 
+    # -- functions splat joined -------------------------------------------
+    def find_joined(self):
+        """The us functions that splat joined to the one before in the
+        version (no call or name told it a function starts there): the us
+        functions that follow a pair's us function, or a candidate's own us
+        function after something else, whose instructions, masked, start
+        inside the version's function right after a jump that doesn't come
+        back (`jr`, `j`, `b`) and its delay slot. A name there makes splat
+        split them, and the next run pairs them."""
+        def leaves(w):
+            return (w & 0xFC1FFFFF) == 0x00000008 or op_of(w) == 2 or (w >> 16) == 0x1000
+
+        def ends_before(m, off):
+            """Whether a function ends right before M[OFF]: a jump that
+            doesn't come back and its delay slot, maybe nops after them."""
+            j = off - 1
+            while j >= 1 and m[j] == 0:
+                j -= 1
+            return leaves(m[off - 2]) or leaves(m[j - 1]) or leaves(m[j])
+
+        def find(t, u, after):
+            probe = u.masked[:min(u.n, 8)]
+            for off in range(max(after, 0) + 2, t.n - len(probe) + 1):
+                if t.masked[off:off + len(probe)] == probe and ends_before(t.masked, off):
+                    return off
+            return None
+
+        items = [(t, u, True) for t, (u, _, _) in self.pair.items()]
+        items += [(t, u, False) for t, (u, _, _) in self.cand.items()]
+        for t, u, confident in sorted(items, key=lambda x: x[0].addr):
+            if t.n <= u.n:
+                continue
+            k = 0
+            if not confident:
+                # a candidate whose us function is in it after something
+                # else (code us has at the end of the module before)
+                k = find(t, u, 0)
+                if k is None or u in self.rev:
+                    continue
+                self.joined.append((t, k * 4, u))
+            ur = self.us_regions[u.region]
+            i = u.index + 1
+            while i < len(ur) and ur[i] not in self.rev and ur[i].n >= 4:
+                off = find(t, ur[i], k)
+                if off is None:
+                    break
+                self.joined.append((t, off * 4, ur[i]))
+                k = off
+                i += 1
+
     # -- the rest -----------------------------------------------------------
     def best_candidates(self):
         """For every function left: its most similar unpaired us function in
@@ -816,6 +874,7 @@ def run_pairing(us, target):
             break
     p.moved()
     p.best_candidates()
+    p.find_joined()
     return p
 
 
@@ -833,13 +892,13 @@ def data_symbols(version):
             ends = [sec["sh_addr"] + sec["sh_size"] for sec in elf.iter_sections() if sec["sh_flags"] & 2]
             syms = {}
             for s in elf.get_section_by_name(".symtab").iter_symbols():
-                if (s.name and s["st_shndx"] not in ("SHN_ABS", "SHN_UNDEF")
+                if (s.name and "." not in s.name and s["st_shndx"] not in ("SHN_ABS", "SHN_UNDEF")
                         and s["st_info"]["type"] in ("STT_OBJECT", "STT_NOTYPE")
                         and not any(a <= s["st_value"] < b for a, b in code)):
                     syms.setdefault(s["st_value"], s.name)
         addrs = sorted(set(syms) | set(ends))
         for a, b in zip(addrs, addrs[1:]):
-            if a in syms and "." not in syms[a]:
+            if a in syms:
                 out[(binary, a)] = (syms[a], b - a)
     return out
 
@@ -860,39 +919,74 @@ def same_data(ub, tb):
 
 
 def pair_data(p, us_mem, mem, us_data, us_named):
-    """Data the confident pairs reference at the same place, named in us,
-    with the same bytes in both (the pointers aside): [(binary, addr, name,
-    us_addr, kind)]. Only from pairs with as many references on each side,
-    which line up."""
-    votes = defaultdict(set)
-    support = Counter()
+    """Data the confident pairs reference at the same place, named in us:
+    [(binary, addr, name, us_addr, kind)]. Only from pairs with as many
+    references on each side, which line up. A pair of the same
+    instructions (exact, or its opcodes one by one) names what it reads
+    wherever in the datum it reads it (HEAP + 0x24 names HEAP), whatever
+    its bytes (eu's tables of text differ, the .bss is zeros); another
+    pair only names a datum it reads at its start that has the same bytes
+    as us's (the pointers aside)."""
+    starts = defaultdict(list)  # binary -> sorted us data addresses
+    for (b, a) in us_data:
+        starts[b].append(a)
+    for b in starts:
+        starts[b].sort()
+
+    def containing(binary, ua):
+        """(owner, start) of the us datum that holds UA, as BINARY sees it."""
+        for b in chain(binary):
+            lst = starts.get(b, [])
+            k = bisect_right(lst, ua) - 1
+            if k >= 0 and ua < lst[k] + us_data[(b, lst[k])][1]:
+                return b, lst[k]
+        return None, None
+
+    # (owner, name, us start, kind) -> {addr: reads}, for the reads of its
+    # start and those inside it; and the names a pair of the same
+    # instructions reads
+    direct = defaultdict(Counter)
+    inside = defaultdict(Counter)
+    strong = set()
     for t, (u, s, method) in p.pair.items():
         if t.binary != u.binary or len(t.refs) != len(u.refs):
             continue
+        same = method == "exact" or t.ops == u.ops
         for (_, ta), (_, ua) in zip(t.refs, u.refs):
-            owner = next((b for b in chain(u.binary) if (b, ua) in us_data), None)
-            if owner is None:
+            owner, start = containing(u.binary, ua)
+            if owner is None or (not same and start != ua):
                 continue
-            sym = us_data[(owner, ua)]
-            if sym[0] not in us_named or AUTO_NAME.match(sym[0]):
+            name, size = us_data[(owner, start)]
+            if name not in us_named or AUTO_NAME.match(name) or LINKER_NAME.match(name):
                 continue
-            name, size = sym
-            ub = us_mem.read(u.binary, ua, size)
-            tb = mem.read(t.binary, ta, size)
-            # the same bytes, in the same binary
-            if not ub or not tb or not any(ub) or not same_data(ub, tb) or mem.find(t.binary, ta)[3] != owner:
+            ta -= ua - start
+            # in the same binary
+            if mem.find(t.binary, ta)[3] != owner:
                 continue
-            kind = "string" if us_mem.string(u.binary, ua) else "table"
-            votes[(owner, name, ua, kind)].add(ta)
-            support[(owner, name, ta)] += 1
-    # a name for one address, an address for one name; a scalar's few bytes
-    # are the same by chance too often, so it needs two references
+            if not same:
+                ub = us_mem.read(u.binary, start, size)
+                tb = mem.read(t.binary, ta, size)
+                if not ub or not tb or not any(ub) or not same_data(ub, tb):
+                    continue
+            kind = "string" if us_mem.string(u.binary, start) else "table" if size >= 8 else "scalar"
+            key = (owner, name, start, kind)
+            (direct if ua == start else inside)[key][ta] += 1
+            if same:
+                strong.add(key)
+    # a name for one address, an address for one name: where the reads of
+    # its start agree (a read inside it can be of another layout, eu's
+    # tables of text are longer), or else all the reads inside it; a
+    # scalar's few bytes are the same by chance too often, so it needs two
+    # reads or a pair of the same instructions
     by_addr = defaultdict(set)
-    for (owner, name, ua, kind), tas in votes.items():
-        size = us_data[(owner, ua)][1]
-        ta = next(iter(tas))
-        if len(tas) == 1 and (kind == "string" or size >= 8 or support[(owner, name, ta)] >= 2):
-            by_addr[(owner, next(iter(tas)))].add((name, ua, kind))
+    for key in set(direct) | set(inside):
+        owner, name, ua, kind = key
+        tas = direct[key] or inside[key]
+        if len(tas) != 1:
+            continue
+        ta, n = next(iter(tas.items()))
+        if kind != "scalar" or n >= 2 or key in strong:
+            by_addr[(owner, ta)].add((name, ua, kind))
     out = []
     for (owner, ta), names in by_addr.items():
         if len(names) == 1:
@@ -923,7 +1017,7 @@ def us_names(us_funcs, us_data):
     {name: attributes of its symbol line, or "" for a name only the C gives}."""
     out = {name: attrs for name, (_, attrs) in us_symbol_lines().items()}
     for name in [f.name for f in us_funcs] + [n for n, _ in us_data.values()]:
-        if not AUTO_NAME.match(name) and not name.startswith(("$", ".L", "L")):
+        if not AUTO_NAME.match(name) and not LINKER_NAME.match(name) and not name.startswith(("$", ".L")):
             out.setdefault(name, "")
     return out
 
@@ -1047,6 +1141,9 @@ def write_outputs(version, p, target, us, data_pairs):
             moved[(t.region, q[0].module, "confident" if t in p.pair else "candidate")] += 1
     for (reg, mod, c), n in sorted(moved.items()):
         w(f"{reg:16} {mod:44} {c:10} {n:4}")
+    w(f"\n## us functions inside a function of {version} (splat joined them): {len(p.joined)}\n")
+    for t, off, u in p.joined:
+        w(f"{t.binary:16} {t.name}+0x{off:X} (0x{t.addr + off:08X})  {u.module} {u.name}")
     w(f"\n## data named from confident pairs: {len(data_pairs)}")
     (build / "version_pairs.txt").write_text("\n".join(out) + "\n")
     return "\n".join(out)
@@ -1138,6 +1235,13 @@ def seed(version, p, data_pairs, names):
             continue
         extra = " ".join(attrs(u.name, t.size))
         entries[t.binary].append((t.addr, f"{u.name} = 0x{t.addr:08X}; // type:func" + (f" {extra}" if extra else "")))
+        used.add(u.name)
+    for t, off, u in p.joined:
+        if t.binary != u.binary or u.name not in names or AUTO_NAME.match(u.name) or u.name in used:
+            continue
+        if not free(u.name, t.binary, t.addr + off):
+            continue
+        entries[t.binary].append((t.addr + off, f"{u.name} = 0x{t.addr + off:08X}; // type:func"))
         used.add(u.name)
     for owner, addr, name, ua, kind in data_pairs:
         if name in used or name not in names or not free(name, owner, addr):

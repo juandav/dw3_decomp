@@ -1,0 +1,18 @@
+// SOUNDTST.PRO's own symbols, which only its splat config reads
+
+// names from us (tools/match_versions.py --seed): the same function or datum
+SOUNDTST_STR_SELECT_VAB = 0x8008432C;
+SOUNDTST_STR_SOUND_TEST = 0x8008435C;
+SOUNDTST_STR_CURSOR = 0x8008436C;
+SOUNDTST_updateScene = 0x80084370; // type:func
+SOUNDTST_start = 0x80084410; // type:func
+SOUNDTST_moveCursor = 0x8008443C; // type:func
+SOUNDTST_playSounds = 0x800844A8; // type:func
+SOUNDTST_loadBank = 0x80084808; // type:func
+SOUNDTST_selectBank = 0x800848BC; // type:func
+SOUNDTST_updateSoundTest = 0x80084B2C; // type:func
+SOUNDTST_createSoundTest = 0x80084D48; // type:func
+SOUNDTST_soundLists = 0x800856E4;
+SOUNDTST_banks = 0x80085800;
+SOUNDTST_screenRect = 0x80085A40;
+// end of the names from us

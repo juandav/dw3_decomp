@@ -26,6 +26,7 @@ options:
 
   symbol_addrs_path:
     - config/eu/symbols.txt
+    - config/eu/symbols_stdwtitl.txt
 
   undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_stdwtitl.txt
   undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_stdwtitl.txt
