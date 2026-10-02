@@ -4,13 +4,13 @@ void func_800A4CA4();
 extern void (*D_800A5A08[])(void);
 void func_800A4E8C();
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag325", func_800A4CA4);
+INCLUDE_ASM("stages/nonmatchings/wstag325", func_800A4CA4);
 
 void *func_800A4E24(s32 arg) {
     return createTaskWithId(func_800A4CA4, 0x50, 0, arg);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag325", func_800A4E54);
+INCLUDE_ASM("stages/nonmatchings/wstag325", func_800A4E54);
 
 void func_800A4E8C(StageTask *task, void **children) {
     switch (task->state) {
@@ -50,4 +50,4 @@ void func_800A5020(void) {
     GAME_PROGRESS = 22;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag325", func_800A5030);
+INCLUDE_ASM("stages/nonmatchings/wstag325", func_800A5030);

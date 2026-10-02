@@ -1,0 +1,55 @@
+# Digimon World 3, USA (SLUS-01436): stgdglab
+name: stgdglab
+sha1: 7a68a26cb400a209c11afa85bcc4f12667a99a77
+options:
+  basename: stgdglab
+  target_path: disks/us/AAA/PRO/STGDGLAB.PRO
+  base_path: ../..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/us/stgdglab
+  src_path: src/stgdglab
+  build_path: build/us
+
+  ld_script_path: build/us/generated/stgdglab.ld
+
+  global_vram_start: 0x80000000
+  global_vram_end: 0x80200000
+
+  find_file_boundaries: True
+  gp_value: 0x8005C2F8
+
+  generate_asm_macros_files: False
+
+  section_order: [".rodata", ".text", ".data", ".bss"]
+
+  symbol_addrs_path:
+    - config/us/symbols.txt
+    - config/us/symbols_stgdglab.txt
+
+  undefined_funcs_auto_path: build/us/generated/undefined_funcs_auto_stgdglab.txt
+  undefined_syms_auto_path: build/us/generated/undefined_syms_auto_stgdglab.txt
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  ld_bss_is_noload: False
+
+  migrate_rodata_to_functions: True
+  create_data_pads: False
+
+segments:
+  - name: stgdglab
+    type: code
+    start: 0x0
+    vram: 0x80082448
+    align: 4
+    subalign: 4
+    subsegments:
+      - [0x0, .rodata, stgdglab]
+      - [0x298, c, stgdglab]
+      - [0xC84C, .data, stgdglab]
+  - [0xD18C]

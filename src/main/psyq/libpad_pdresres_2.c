@@ -571,4 +571,4 @@ int func_80024570(PadPort *p) {
     return -4;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdresres_2", func_8002468C);
+INCLUDE_ASM("main/nonmatchings/psyq/libpad_pdresres_2", func_8002468C);

@@ -61,7 +61,7 @@ u_short SetIntrMask(u_short mask) {
     return old;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002E7BC);
+INCLUDE_ASM("main/nonmatchings/psyq/libetc_intr", func_8002E7BC);
 
 extern long D_8005B790;
 void func_8002ED08(void);
@@ -170,9 +170,9 @@ void func_8002ECC4(long *p, int n) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", func_8002ECE8);
+INCLUDE_ASM("main/nonmatchings/psyq/libetc_intr", func_8002ECE8);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libetc_intr", _96_remove);
+INCLUDE_ASM("main/nonmatchings/psyq/libetc_intr", _96_remove);
 
 /* ASPSX padded the string table of the object as well */
 __asm__(".section .rodata\n\t.align 2\n\t.space 4\n");

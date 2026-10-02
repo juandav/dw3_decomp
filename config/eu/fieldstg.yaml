@@ -1,0 +1,55 @@
+# Digimon World 2003, Europe (SLES-03936): fieldstg
+name: fieldstg
+sha1: bc5fb336d7befa61e34d6d50331eedbc9c40e078
+options:
+  basename: fieldstg
+  target_path: disks/eu/AAA/PRO/FIELDSTG.PRO
+  base_path: ../..
+  platform: psx
+  compiler: GCC
+
+  asm_path: asm/eu/fieldstg
+  src_path: src/fieldstg
+  build_path: build/eu
+
+  ld_script_path: build/eu/generated/fieldstg.ld
+
+  global_vram_start: 0x80000000
+  global_vram_end: 0x80200000
+
+  find_file_boundaries: True
+  gp_value: 0x8005C2F8
+
+  generate_asm_macros_files: False
+
+  section_order: [".rodata", ".text", ".data", ".bss"]
+
+  symbol_addrs_path:
+    - config/eu/symbols.txt
+
+  undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_fieldstg.txt
+  undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_fieldstg.txt
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  ld_bss_is_noload: False
+
+  migrate_rodata_to_functions: True
+  create_data_pads: False
+
+segments:
+  # not split into the USA version's files yet: its rodata, code and data
+  - name: fieldstg
+    type: code
+    start: 0x0
+    vram: 0x80082CB0
+    align: 4
+    subalign: 4
+    subsegments:
+      - [0x0, rodata, fieldstg]
+      - [0xAD4, asm, fieldstg]
+      - [0x1014C, data, fieldstg]
+  - [0x18E98]

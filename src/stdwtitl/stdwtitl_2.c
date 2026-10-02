@@ -221,20 +221,20 @@ BackgroundTask *STDWTITL_startBackgroundTask(s32 skip) {
     return task;
 }
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_leaveTitle);
+INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_leaveTitle);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_stepTitle);
+INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_stepTitle);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_tickTitle);
+INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_tickTitle);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_startTitleTask);
+INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_startTitleTask);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_loadTitleImages);
+INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_loadTitleImages);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_startFade);
+INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_startFade);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_stepFade);
+INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_stepFade);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_startTween);
+INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_startTween);
 
-INCLUDE_ASM("asm/stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_stepTween);
+INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_stepTween);

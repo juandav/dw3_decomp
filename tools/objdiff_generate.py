@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Write objdiff.json with one unit per C file under src/.
+"""Write objdiff.json with one unit per C file under src/, for the version
+being built (VERSION, as for make; us by default).
 
 Target objects are splat's full disassembly of each C segment
-(expected/asm/<segment>/<file>.s.o); base objects are the files built from
-src/, where every function still behind INCLUDE_ASM carries a .NON_MATCHING
+(expected/<version>/asm/<segment>/<file>.s.o); base objects are the files
+built from src/ (build/<version>/src/...), where every function still behind INCLUDE_ASM carries a .NON_MATCHING
 label that objdiff drops from the progress count.
 
 A source file X_2.c is the second half of an original object split in
@@ -22,9 +23,12 @@ next to the code that uses it.
 
 import json
 import subprocess
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+import version
+
+ROOT = version.ROOT
+V = version.VERSION
+ASM = version.ASM_DIR
 
 # The executable's game code and one category per overlay (src/<overlay>/,
 # see OVERLAYS in the Makefile).
@@ -57,19 +61,21 @@ def main() -> None:
     names = [src.relative_to(ROOT / "src").with_suffix("").as_posix()
              for src in sorted((ROOT / "src").rglob("*.c"))]
     names = [n for n in names if not is_library(n) and not n.startswith("main/data/")]
+    # the C files of this version: the ones splat made a full disassembly of
+    names = [n for n in names if (ASM / f"{n}.s").exists()]
     halves = {n[:-2]: n for n in names if n.endswith("_2") and n[:-2] in names}
     units = []
     for name in names:
         if name in halves.values():
             continue
-        target = f"expected/asm/{name}.s.o"
-        base = f"build/src/{name}.c.o"
+        target = f"expected/{V}/asm/{name}.s.o"
+        base = f"build/{V}/src/{name}.c.o"
         if name in halves:
             second = halves[name]
-            target = f"expected/report/{name}.s.o"
-            base = f"build/report/{name}.c.o"
-            link(target, [f"expected/asm/{name}.s.o", f"expected/asm/{second}.s.o"])
-            link(base, [f"build/src/{name}.c.o", f"build/src/{second}.c.o"])
+            target = f"expected/{V}/report/{name}.s.o"
+            base = f"build/{V}/report/{name}.c.o"
+            link(target, [f"expected/{V}/asm/{name}.s.o", f"expected/{V}/asm/{second}.s.o"])
+            link(base, [f"build/{V}/src/{name}.c.o", f"build/{V}/src/{second}.c.o"])
         units.append(
             {
                 "name": name,
@@ -79,20 +85,20 @@ def main() -> None:
             }
         )
 
-    data = [f"expected/asm/main/data/{d}.s.o" for d in GAME_DATA
-            if (ROOT / f"asm/main/data/{d}.s").exists()]
+    data = [f"expected/{V}/asm/main/data/{d}.s.o" for d in GAME_DATA
+            if (ASM / f"main/data/{d}.s").exists()]
     if data:
-        link("expected/report/main/game_data.s.o", data)
+        link(f"expected/{V}/report/main/game_data.s.o", data)
         unit = {
             "name": "main/game_data",
-            "target_path": "expected/report/main/game_data.s.o",
+            "target_path": f"expected/{V}/report/main/game_data.s.o",
             "metadata": {"progress_categories": ["game"]},
         }
-        base = [f"build/{c.with_suffix('.c.o').relative_to(ROOT).as_posix()}"
+        base = [f"build/{V}/{c.with_suffix('.c.o').relative_to(ROOT).as_posix()}"
                 for c in sorted((ROOT / "src/main/data").glob("*.c"))]
         if base:
-            link("build/report/main/game_data.c.o", base)
-            unit["base_path"] = "build/report/main/game_data.c.o"
+            link(f"build/{V}/report/main/game_data.c.o", base)
+            unit["base_path"] = f"build/{V}/report/main/game_data.c.o"
         units.append(unit)
 
     categories = list(CATEGORIES)
@@ -103,6 +109,7 @@ def main() -> None:
     config = {
         "$schema": "https://raw.githubusercontent.com/encounter/objdiff/main/config.schema.json",
         "custom_make": "make",
+        "custom_args": [f"VERSION={V}"],
         "build_target": False,
         "build_base": True,
         "watch_patterns": ["*.c", "*.h", "*.s", "*.inc"],

@@ -20,22 +20,28 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, f"{ROOT}/tools")
+import version  # noqa: E402
+
+ASM = str(version.ASM_DIR)
+BIN = str(version.BIN_DIR)
 DEFINES = (
     "-D__GNUC__=2 -Dmips -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D_PSYQ "
-    "-D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C -DSKIP_ASM"
+    "-D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C -DSKIP_ASM "
+    f"-DVERSION_{version.VERSION.upper()}"
 )
 
 
 def main():
     draft, func = sys.argv[1], sys.argv[2]
-    asm = glob.glob(f"{ROOT}/asm/*/nonmatchings/**/{func}.s", recursive=True)
+    asm = glob.glob(f"{ASM}/*/nonmatchings/**/{func}.s", recursive=True)
     if os.environ.get("UNIT"):  # the stages all have their own func_800A4CA8...
         asm = [a for a in asm if os.environ["UNIT"] in a]
     if not asm:
         sys.exit(f"no asm for {func}")
     asm = asm[0]
-    # asm/<main or overlay>/nonmatchings/<unit>/...
-    unit = os.path.relpath(asm, f"{ROOT}/asm").split("/")[2]
+    # asm/<version>/<main or overlay>/nonmatchings/<unit>/...
+    unit = os.path.relpath(asm, ASM).split("/")[2]
 
     extra, div, fl, pre = "", "", "-msoft-float", ""
     if unit == "psyq":
@@ -47,17 +53,18 @@ def main():
         cc1, g, post = patch_cc1.ensure(), 0, f"| python3 {ROOT}/tools/aspsx_reorder.py"
         # PSYQ_RERUN_CSE in the Makefile
         if os.environ.get("GCC28"):  # PSYQ_GCC28 in the Makefile
-            cc1 = f"{ROOT}/build/cc1-2.8.1-sn"
-            stock = f"{ROOT}/bin/gcc-2.8.1-psx/cc1"
+            cc1 = f"{version.TOOLS_BUILD_DIR}/cc1-2.8.1-sn"
+            stock = f"{BIN}/gcc-2.8.1-psx/cc1"
             if (not os.path.exists(cc1) or os.path.getmtime(cc1) < max(
                     os.path.getmtime(stock), os.path.getmtime(f"{ROOT}/tools/sn_cc1.py"))):
+                os.makedirs(os.path.dirname(cc1), exist_ok=True)
                 subprocess.run([sys.executable, f"{ROOT}/tools/sn_cc1.py", stock, cc1], check=True)
             extra = " -mno-split-addresses"
             pre = f"python3 {ROOT}/tools/unfill_epilogue.py < \"$T.s\" | "
         elif not os.environ.get("RERUN"):
             extra = " -fno-rerun-cse-after-loop"
     else:
-        cc1, g, post = f"{ROOT}/bin/gcc-2.8.1-psx/cc1", 8 if unit in ("graphics", "system") else 0, ""
+        cc1, g, post = f"{BIN}/gcc-2.8.1-psx/cc1", 8 if unit in ("graphics", "system") else 0, ""
 
     out = f"{ROOT}/permuter/{func}"
     os.makedirs(out, exist_ok=True)

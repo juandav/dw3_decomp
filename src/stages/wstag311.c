@@ -12,7 +12,7 @@ void func_800A4DF8();
 extern void (*D_800A79D4[])(void);
 void func_800A5AD4();
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A4CA8);
+INCLUDE_ASM("stages/nonmatchings/wstag311", func_800A4CA8);
 
 s32 func_800A4D04(AnimState *anim, AnimFrame *frames, s32 depth) {
     AnimFrame *frame = &frames[anim->index];
@@ -38,7 +38,7 @@ s32 func_800A4D04(AnimState *anim, AnimFrame *frames, s32 depth) {
     return frame->frame;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A4DF8);
+INCLUDE_ASM("stages/nonmatchings/wstag311", func_800A4DF8);
 
 void *func_800A4F48(void) {
     return createTask(func_800A4DF8, 0x60, 0);
@@ -72,9 +72,9 @@ s32 func_800A4F74(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
     return frame->frame;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5094);
+INCLUDE_ASM("stages/nonmatchings/wstag311", func_800A5094);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5458);
+INCLUDE_ASM("stages/nonmatchings/wstag311", func_800A5458);
 
 void *func_800A54C8(s32 arg) {
     return createTaskWithId(func_800A5094, 0x84, 0, arg);
@@ -112,9 +112,9 @@ s32 func_800A5524(Anim4 *obj, AnimFrame *frames, s32 once, s32 depth) {
     return frame->frame;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5644);
+INCLUDE_ASM("stages/nonmatchings/wstag311", func_800A5644);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5A08);
+INCLUDE_ASM("stages/nonmatchings/wstag311", func_800A5A08);
 
 void *func_800A5A78(s32 arg) {
     return createTaskWithId(func_800A5644, 0x84, 0, arg);
@@ -124,7 +124,7 @@ void *func_800A5AA8(void) {
     return createTask(func_800A5644, 0x84, 0);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5AD4);
+INCLUDE_ASM("stages/nonmatchings/wstag311", func_800A5AD4);
 
 StageTask *func_800A5C94(void *owner) {
     StageTask *task = createTask(func_800A5AD4, sizeof(StageTask), 0x1C);
@@ -162,17 +162,17 @@ s32 func_800A5CF0(AnimState *anim, AnimFrame *frames, s32 once, s32 depth) {
     return frame->frame;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5E10);
+INCLUDE_ASM("stages/nonmatchings/wstag311", func_800A5E10);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5EF8);
+INCLUDE_ASM("stages/nonmatchings/wstag311", func_800A5EF8);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A5FBC);
+INCLUDE_ASM("stages/nonmatchings/wstag311", func_800A5FBC);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A624C);
+INCLUDE_ASM("stages/nonmatchings/wstag311", func_800A624C);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A62A8);
+INCLUDE_ASM("stages/nonmatchings/wstag311", func_800A62A8);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag311", func_800A6324);
+INCLUDE_ASM("stages/nonmatchings/wstag311", func_800A6324);
 
 void func_800A6384(void) {
     FLAGS_00.applyAction(0x4067, 1);

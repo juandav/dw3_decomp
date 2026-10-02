@@ -78,9 +78,9 @@ long MemCardExist(long chan) {
     return 1;
 }
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libmcrd_libmcrd", D_80010C9C);
+INCLUDE_RODATA("main/nonmatchings/psyq/libmcrd_libmcrd", D_80010C9C);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003BAEC);
+INCLUDE_ASM("main/nonmatchings/psyq/libmcrd_libmcrd", func_8003BAEC);
 
 inline long MemCardAccept(long chan) {
     if (D_80082068.unk0 > 0) {
@@ -95,9 +95,9 @@ inline long MemCardAccept(long chan) {
     return 1;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003BE70);
+INCLUDE_ASM("main/nonmatchings/psyq/libmcrd_libmcrd", func_8003BE70);
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", MemCardOpen);
+INCLUDE_ASM("main/nonmatchings/psyq/libmcrd_libmcrd", MemCardOpen);
 
 void MemCardClose(void) {
     if (D_80082068.fd >= 0) {
@@ -629,15 +629,15 @@ void func_8003D140(void) {
     }
 }
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libmcrd_libmcrd", D_80010D98);
+INCLUDE_RODATA("main/nonmatchings/psyq/libmcrd_libmcrd", D_80010D98);
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libmcrd_libmcrd", D_80010DC0);
+INCLUDE_RODATA("main/nonmatchings/psyq/libmcrd_libmcrd", D_80010DC0);
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libmcrd_libmcrd", D_80010DE4);
+INCLUDE_RODATA("main/nonmatchings/psyq/libmcrd_libmcrd", D_80010DE4);
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libmcrd_libmcrd", D_80010E10);
+INCLUDE_RODATA("main/nonmatchings/psyq/libmcrd_libmcrd", D_80010E10);
 
-INCLUDE_RODATA("asm/main/nonmatchings/psyq/libmcrd_libmcrd", D_80010E40);
+INCLUDE_RODATA("main/nonmatchings/psyq/libmcrd_libmcrd", D_80010E40);
 
 void func_8003D1EC(long chan, char *name) {
     *(CardName *)name = *(CardName *)"bu00:";
@@ -645,7 +645,7 @@ void func_8003D1EC(long chan, char *name) {
     name[3] = '0' + chan % 16;
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libmcrd_libmcrd", func_8003D248);
+INCLUDE_ASM("main/nonmatchings/psyq/libmcrd_libmcrd", func_8003D248);
 
 /* ASPSX padded the string table as well */
 __asm__(".section .rodata\n\t.align 4\n");

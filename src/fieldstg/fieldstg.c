@@ -16,13 +16,13 @@ void func_80082F1C(Task *task) {
     }
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80082F84);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80082F84);
 
 void func_80083470(void) {
     createTaskWithId(func_80082F1C, sizeof(Task), 0, 0x32D);
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800834A0);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800834A0);
 
 void func_800838BC(Unk800834A0 *task, s32 arg1) {
     if (task != NULL) {
@@ -50,7 +50,7 @@ Unk800834A0 *func_80083930(s32 id) {
     return task;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80083998);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80083998);
 
 void func_80083F8C(void) {
     ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
@@ -132,7 +132,7 @@ void func_80084294(void) {
     task->type = 15;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800842C8);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800842C8);
 
 Unk800842C8 *func_800844B8(s32 arg0) {
     Unk800842C8 *task = createTask(func_800842C8, sizeof(Unk800842C8), 8);
@@ -158,13 +158,13 @@ s32 func_80084514(Unk80084654 *arg0, s32 id) {
     return 0;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80084558);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80084558);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80084654);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80084654);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80084B80);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80084B80);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80084D0C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80084D0C);
 
 void func_80085240(s32 arg0) {
     Unk80084D0C *task = createTask(func_80084D0C, sizeof(Unk80084D0C), 0);
@@ -172,9 +172,9 @@ void func_80085240(s32 arg0) {
     task->unk50 = arg0;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80085278);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80085278);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80085350);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80085350);
 
 void func_80085588(s32 arg0, s32 arg1, s32 arg2) {
     Unk80085350 *task = createTask(func_80085350, sizeof(Unk80085350), 0);
@@ -184,19 +184,19 @@ void func_80085588(s32 arg0, s32 arg1, s32 arg2) {
     task->unk58 = arg2;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800855E0);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800855E0);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80085650);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80085650);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800857DC);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800857DC);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80085A00);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80085A00);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80085A78);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80085A78);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80085EEC);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80085EEC);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086144);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80086144);
 
 Point *func_800863F4(Unk80086144 *arg0) {
     D_8009A938.x = arg0->unk68 << 7;
@@ -211,23 +211,23 @@ void func_80086418(s32 arg0) {
     task->unk130 = func_800863F4;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086460);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80086460);
 
 void func_800864E8(StreamTask *task) {
     task->time = GFX_FUNCS.getTime();
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086518);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80086518);
 
 s32 func_800865A0(StreamTask *task) {
     return task->loaded;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800865AC);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800865AC);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086858);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80086858);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800868AC);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800868AC);
 
 void func_80086A3C(StreamTask *task) {
     task->unk70 = -1;
@@ -241,23 +241,23 @@ s32 func_80086A54(StreamTask *task) {
     return task->frame;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086A60);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80086A60);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086B54);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80086B54);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086C4C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80086C4C);
 
 void func_80086CF4(void) {
     createTask(func_80086C4C, sizeof(Task), 0xC);
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086D20);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80086D20);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086E64);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80086E64);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80086FB4);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80086FB4);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800870D4);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800870D4);
 
 Task *func_800874C8(s32 arg0) {
     Task *task = createTaskWithId(func_800870D4, sizeof(Unk800870D4), 8, 9);
@@ -267,11 +267,11 @@ Task *func_800874C8(s32 arg0) {
     return task;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80087510);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80087510);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800875DC);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800875DC);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800876E4);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800876E4);
 
 void func_800878A4(s32 arg0, s32 arg1, s32 arg2) {
     Task *task = createTaskWithId(func_800876E4, 0x6C, 0, arg2);
@@ -283,17 +283,17 @@ void func_800878F0(s32 arg0) {
     func_800878A4(0, 0, arg0);
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80087918);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80087918);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800879E8);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800879E8);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80087ACC);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80087ACC);
 
-INCLUDE_RODATA("asm/fieldstg/nonmatchings/fieldstg", D_80082624);
+INCLUDE_RODATA("fieldstg/nonmatchings/fieldstg", D_80082624);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80087D28);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80087D28);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80087FDC);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80087FDC);
 
 void func_800881A0(s32 arg0) {
     Unk80087FDC *task = createTask(func_80087FDC, sizeof(Unk80087FDC), 8);
@@ -301,17 +301,17 @@ void func_800881A0(s32 arg0) {
     task->unk50 = arg0;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800881D8);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800881D8);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800882D8);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800882D8);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800883F4);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800883F4);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008848C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008848C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80088640);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80088640);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008878C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008878C);
 
 void func_80088BE4(s32 arg0, s32 arg1) {
     Unk8008878C *task = createTask(func_8008878C, sizeof(Unk8008878C), 4);
@@ -320,7 +320,7 @@ void func_80088BE4(s32 arg0, s32 arg1) {
     task->unk50 = arg0;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80088C2C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80088C2C);
 
 void func_80088C9C(s32 arg0) {
     D_8009A944 = arg0;
@@ -328,13 +328,13 @@ void func_80088C9C(s32 arg0) {
     func_80088C2C();
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80088CD0);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80088CD0);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80088D5C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80088D5C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80088E4C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80088E4C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008926C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008926C);
 
 void func_800892E8(s32 arg0) {
     Task *task = createTask(func_8008926C, 0x54, 0);
@@ -342,7 +342,7 @@ void func_800892E8(s32 arg0) {
     task->key2 = arg0;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80089320);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80089320);
 
 Unk80089320 *func_80089668(Actor *actor) {
     Unk80089320 *task;
@@ -355,9 +355,9 @@ Unk80089320 *func_80089668(Actor *actor) {
     return NULL;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800896C0);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800896C0);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80089D28);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80089D28);
 
 s32 func_8008A0F4(void) {
     if (GAME.funcs.getMode() == 0x22D) {
@@ -366,37 +366,37 @@ s32 func_8008A0F4(void) {
     return GAME.funcs.getMode() == 0x2DE;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008A154);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008A154);
 
 void func_8008ADE8(void) {
     createTaskWithId(func_8008A154, 0x80, 0x7C, 7);
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008AE18);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008AE18);
 
 void func_8008AEB4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     func_8008AE18(arg0, arg1, arg2, arg3, arg4, 0);
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008AEDC);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008AEDC);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008B258);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008B258);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008B2C4);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008B2C4);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008B320);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008B320);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008B398);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008B398);
 
 s32 func_8008B410(s32 angle, s32 radius) {
     return rsin(angle >> 2) * radius / 4096;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008B450);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008B450);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008B930);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008B930);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008B9D8);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008B9D8);
 
 void func_8008BBD4(Point from, Point to) {
     Unk8008B9D8 *task = createTask(func_8008B9D8, sizeof(Unk8008B9D8), 0);
@@ -405,19 +405,19 @@ void func_8008BBD4(Point from, Point to) {
     task->to = to;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008BC30);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008BC30);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008BCAC);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008BCAC);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008BFE8);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008BFE8);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008C160);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008C160);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008C23C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008C23C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008C2F4);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008C2F4);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008C388);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008C388);
 
 void func_8008C564(s32 arg0) {
     Task *task = createTask(func_8008C388, 0x64, 0);
@@ -425,7 +425,7 @@ void func_8008C564(s32 arg0) {
     task->key1 = arg0;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008C59C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008C59C);
 
 void func_8008C9F8(Point pos) {
     Unk8008C59C *task = createTask(func_8008C59C, sizeof(Unk8008C59C), 0);
@@ -433,9 +433,9 @@ void func_8008C9F8(Point pos) {
     task->pos = pos;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008CA3C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008CA3C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008CC4C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008CC4C);
 
 void func_8008CF0C(void) {
     Unk8008CC4C *task = createTaskWithId(func_8008CC4C, sizeof(Unk8008CC4C), 0, 0x10);
@@ -443,9 +443,9 @@ void func_8008CF0C(void) {
     task->unk64 = -1;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008CF44);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008CF44);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008CFF4);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008CFF4);
 
 void func_8008D07C(s32 arg0) {
     Unk8008CC4C *task = TASK_FUNCS.find(0x10, -1, -1);
@@ -455,27 +455,27 @@ void func_8008D07C(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008D0C0);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008D0C0);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008D2A0);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008D2A0);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008D3F0);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008D3F0);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008D4C4);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008D4C4);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008D580);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008D580);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008D710);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008D710);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008DB60);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008DB60);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008DCF8);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008DCF8);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008DD9C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008DD9C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008DFE0);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008DFE0);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E1A4);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008E1A4);
 
 void func_8008E284(Actor *actor, s32 arg1, s32 arg2, s32 arg3) {
     actor->unkEC = 1;
@@ -529,17 +529,17 @@ void func_8008E3A4(Actor *actor) {
     }
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E3DC);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008E3DC);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E488);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008E488);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E534);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008E534);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E5B8);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008E5B8);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E698);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008E698);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E700);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008E700);
 
 void func_8008E768(Actor *actor, s32 arg1) {
     actor->unkA0 = arg1;
@@ -559,28 +559,28 @@ s32 func_8008E7D4(Actor *actor) {
     return actor->unkE8;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008E7E0);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008E7E0);
 
 void func_8008EC6C(Actor *actor, s32 arg1) {
     actor->dir = arg1;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008EC74);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008EC74);
 
 void func_8008F014(Actor *actor) {
     actor->unk108 = func_8008DB60;
     actor->unk90 = 0;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008F028);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008F028);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008F11C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008F11C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8008F184);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008F184);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80090154);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80090154);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800901D4);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800901D4);
 
 void func_80090254(Actor *actor, Point *out) {
     Point *delta = &D_80097000[actor->dir];
@@ -589,9 +589,9 @@ void func_80090254(Actor *actor, Point *out) {
     out->y = actor->tile.y + delta->y;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80090294);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80090294);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80090450);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80090450);
 
 void func_80090864(void) {
     FLAGS_00.applyAction(0x707E, 1);
@@ -753,13 +753,13 @@ void func_800910F8(void) {
     FLAGS_00.applyAction(0x40F, 1);
 }
 
-INCLUDE_RODATA("asm/fieldstg/nonmatchings/fieldstg", D_80082E88);
+INCLUDE_RODATA("fieldstg/nonmatchings/fieldstg", D_80082E88);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091124);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091124);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091298);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091298);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_8009132C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8009132C);
 
 s32 func_80091398(s32 index) {
     return D_80099134[index];
@@ -769,7 +769,7 @@ u8 func_800913B4(s32 index) {
     return D_80099758[index];
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800913CC);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800913CC);
 
 void *func_80091490(u8 *list, s32 id) {
     s32 i;
@@ -791,7 +791,7 @@ Actor *func_800914F0(s32 arg0) {
     return TASK_FUNCS.find(5, arg0, -1);
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091520);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091520);
 
 void func_800915B0(s32 id, s32 *pc) {
     Actor *actor = func_800914F0(id);
@@ -801,9 +801,9 @@ void func_800915B0(s32 id, s32 *pc) {
     }
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800915FC);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800915FC);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091648);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091648);
 
 void func_800916B4(void) {
     Actor *actor = func_800914F0(1);
@@ -843,15 +843,15 @@ void func_80091774(s32 arg0, s32 id, s32 arg2, s32 arg3) {
     }
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_800917D8);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800917D8);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091854);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091854);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091910);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091910);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091A4C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091A4C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091AA8);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091AA8);
 
 void func_80091B78(s32 index, s32 value) {
     D_8009A70C[index] = value;
@@ -867,11 +867,11 @@ void func_80091BB4(s32 arg0) {
     GAME.unk26D8 = arg0;
 }
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091BC0);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091BC0);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091D3C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091D3C);
 
-INCLUDE_ASM("asm/fieldstg/nonmatchings/fieldstg", func_80091F4C);
+INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091F4C);
 
 void func_8009204C(s32 arg0, s32 scale, s32 index, Point *out) {
     out->x = D_8009A76C[index].x * scale / 4096;

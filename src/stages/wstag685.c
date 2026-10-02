@@ -8,7 +8,7 @@ extern u8 D_800A5998[];
 extern void (*D_800A5AFC[])(void);
 void func_800A4CA4();
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag685", func_800A4CA4);
+INCLUDE_ASM("stages/nonmatchings/wstag685", func_800A4CA4);
 
 StageTask *func_800A4D1C(void *owner) {
     StageTask *task = createTask(func_800A4CA4, sizeof(StageTask), 4);

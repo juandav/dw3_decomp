@@ -69,7 +69,7 @@ void STAGSLCT_scrollPage(StageSelect *sel, s32 delta) {
     }
 }
 
-INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", STAGSLCT_showBiosVersion);
+INCLUDE_ASM("stagslct/nonmatchings/stagslct", STAGSLCT_showBiosVersion);
 
 void STAGSLCT_zoomTitle(StageSelect *sel, StageSelectWindows *win) {
     if (sel->fading != 0) {
@@ -95,14 +95,14 @@ void STAGSLCT_zoomTitle(StageSelect *sel, StageSelectWindows *win) {
     }
 }
 
-INCLUDE_ASM("asm/stagslct/nonmatchings/stagslct", STAGSLCT_updateStageSelect);
+INCLUDE_ASM("stagslct/nonmatchings/stagslct", STAGSLCT_updateStageSelect);
 
 Task *STAGSLCT_createStageSelect(void) {
     return createTask(STAGSLCT_updateStageSelect, 0, 0);
 }
 
-INCLUDE_RODATA("asm/stagslct/nonmatchings/stagslct", STAGSLCT_entryNames);
+INCLUDE_RODATA("stagslct/nonmatchings/stagslct", STAGSLCT_entryNames);
 
-INCLUDE_RODATA("asm/stagslct/nonmatchings/stagslct", STAGSLCT_STR_STAGE_SELECT);
+INCLUDE_RODATA("stagslct/nonmatchings/stagslct", STAGSLCT_STR_STAGE_SELECT);
 
-INCLUDE_RODATA("asm/stagslct/nonmatchings/stagslct", STAGSLCT_STR_CURSOR);
+INCLUDE_RODATA("stagslct/nonmatchings/stagslct", STAGSLCT_STR_CURSOR);

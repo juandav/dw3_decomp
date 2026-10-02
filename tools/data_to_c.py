@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Turn a splat data file (.word lines) into C definitions.
 
-usage: data_to_c.py [--sizes | --bss] asm/<ovl>/data/<ovl>.data.s > data.c
+usage: data_to_c.py [--sizes | --bss] asm/<version>/<ovl>/data/<ovl>.data.s > data.c
 
 Each data symbol becomes an s32 (one word) or an s32 array; words that splat
 wrote as a symbol become that symbol's address. Symbols of .short or .byte

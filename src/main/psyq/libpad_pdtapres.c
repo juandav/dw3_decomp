@@ -123,7 +123,7 @@ void func_80021F7C(PadPort *p) {
     }
 }
 
-INCLUDE_ASM("asm/main/nonmatchings/psyq/libpad_pdtapres", func_80021FC0);
+INCLUDE_ASM("main/nonmatchings/psyq/libpad_pdtapres", func_80021FC0);
 
 extern long D_80055560;
 

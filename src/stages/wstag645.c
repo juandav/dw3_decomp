@@ -32,13 +32,13 @@ s32 func_800A4CA4(AnimState *anim, AnimFrame *frames, s32 depth) {
     return frame->frame;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag645", func_800A4D98);
+INCLUDE_ASM("stages/nonmatchings/wstag645", func_800A4D98);
 
 void *func_800A4F04(void) {
     return createTask(func_800A4D98, 0x5C, 0);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag645", func_800A4F30);
+INCLUDE_ASM("stages/nonmatchings/wstag645", func_800A4F30);
 
 StageTask *func_800A4F94(void *owner) {
     StageTask *task = createTask(func_800A4F30, sizeof(StageTask), 4);

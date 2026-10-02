@@ -4,15 +4,15 @@ void func_800A4E48();
 extern void (*D_800A70B4[])(void);
 void func_800A5054();
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag480", func_800A4CBC);
+INCLUDE_ASM("stages/nonmatchings/wstag480", func_800A4CBC);
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag480", func_800A4E48);
+INCLUDE_ASM("stages/nonmatchings/wstag480", func_800A4E48);
 
 void *func_800A5028(void) {
     return createTask(func_800A4E48, 0x78, 0);
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag480", func_800A5054);
+INCLUDE_ASM("stages/nonmatchings/wstag480", func_800A5054);
 
 StageTask *func_800A50F4(void *owner) {
     StageTask *task = createTask(func_800A5054, sizeof(StageTask), 0x8);
@@ -31,4 +31,4 @@ void func_800A519C(void) {
     GAME_PROGRESS = 8;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag480", func_800A51AC);
+INCLUDE_ASM("stages/nonmatchings/wstag480", func_800A51AC);
