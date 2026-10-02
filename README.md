@@ -12,6 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%202-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -62,6 +63,42 @@ badges above are always current:
 Progress is measured by [objdiff](https://github.com/encounter/objdiff), with
 one unit per C file, and tracked on
 [decomp.dev](https://decomp.dev/juandav/dw3_decomp).
+
+### Fake matches and hacks
+
+The matched C is meant to read as natural C, but some spots only match
+through a form that natural C wouldn't take for granted. Each one carries a
+comment that says so, in one of three standard forms
+([CONTRIBUTING.md](CONTRIBUTING.md#matching) has the rules), and the badge
+above counts them: fake matches, then the other two kinds together.
+
+| Kind | Count | Marker |
+|---|---|---|
+| Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
+| Unused frame locals | 2 | `/* unused, but it is in the original stack frame */` |
+| Form-dependent matches | 0 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 2,052 | `INCLUDE_ASM` |
+
+- A fake match is the last resort: a form forced only for the code it makes,
+  such as an empty `do {} while (0)` that ends a CSE block or a variable
+  that exists only to shape the code. There are none so far.
+- An unused frame local is a local that the code never touches, kept because
+  the original's stack frame has room for it: without it, the frame is
+  smaller than the original's. Both are in PsyQ objects (`libgs_gs_107`,
+  `libgs_gs_131`).
+- A form-dependent match is C that matches in one of several equivalent
+  forms only: an extra block, an `if` without braces, a copy of a variable, a
+  type, or one version's own form of a loop.
+- The functions still in assembly are not in the badge: they are the work
+  left, in the game and in PsyQ.
+
+`tools/hacks.py --list` lists every one with its file, line and function, and
+also what is assembly without being a hack: the rodata still behind
+`INCLUDE_RODATA`, data written as a top-level `__asm__`, and the macros that
+wrap the inline asm C can't say. The CI fails on what the source must never
+have: `NON_MATCHING` code, `#if 0` blocks, and inline asm in place of C.
+`tools/hacks.py --check README.md` checks that the badge and the table above
+are up to date.
 
 ## The game's binaries
 
@@ -222,6 +259,7 @@ On Debian or Ubuntu (the CI uses Ubuntu 24.04 and Python 3.12), install:
 ```
 binutils-mipsel-linux-gnu gcc-mipsel-linux-gnu git make python3 python3-venv unzip wget
 ```
+Or build in Docker instead ([below](#building-with-docker)).
 
 Clone with the submodules (maspsx, m2c, decomp-permuter and the PsyQ headers):
 ```
@@ -244,6 +282,25 @@ They are GCC 2.8.1 and 2.7.2 for the PSX, objdiff-cli and mkpsxiso:
 ```
 tools/dl_deps.sh
 ```
+
+### Building with Docker
+
+The `Dockerfile` has the CI's build environment: Ubuntu 24.04 with the MIPS
+binutils, Python with `requirements.txt`, and the compilers and tools that
+`tools/dl_deps.sh` downloads. It holds no game data. `tools/docker.sh` builds
+the image and runs a command in it, with the repository (`disks/` and
+`external/` included) mounted at `/dw3`, as your own user. `VERSION` is passed
+on when it is set; without a command it opens a shell. No `bin/` or `.venv`
+is needed on the host: `BIN_DIR` points at the image's tools. Clone with the
+submodules and put the disc files in `disks/` as below, then:
+```
+git submodule update --init --recursive
+tools/docker.sh make generate
+tools/docker.sh sh -c 'make -j$(nproc)'
+tools/docker.sh make compare
+VERSION=eu tools/docker.sh make generate
+```
+The prebuilt tools are x86 Linux binaries, so the image is `linux/amd64`.
 
 ### Getting the game files
 
@@ -322,11 +379,14 @@ category per overlay, and `stages` for all the stages. The executable's data
 is one unit, `main/game_data`. `src/main/psyq/` gets no unit. `objdiff.json`
 is for the version it was last written for.
 
-The CI (`.github/workflows/build.yaml`) builds both versions on every push and
-runs `make compare`; for `us` it also runs `make report` and uploads
+The CI (`.github/workflows/build.yaml`) first runs `tools/check_names.py` and
+`tools/hacks.py`, which only read the source and the configs. It then builds
+both versions on every push and runs `make compare`; for `us` it also runs `make report` and uploads
 `build/us/report.json` as the `SLUS_014.36_report` artifact, which decomp.dev
 reads. `eu` has no C units yet, so it uploads no report. The original files
-come from a private repository, so pull requests from forks are not built.
+come from a private repository, so pull requests from forks only run the
+first two checks. `.github/workflows/docker.yaml` builds and compares both
+versions in the Docker image whenever the image or what it installs changes.
 
 ## Layout
 
@@ -345,7 +405,8 @@ come from a private repository, so pull requests from forks are not built.
 | `mk/version/` | each version's settings for the Makefile and the tools |
 | `tools/` | build helpers, matching helpers and the report generator (see [Tools](#tools)) |
 | `external/` | submodules: maspsx, m2c, decomp-permuter, psyq_headers |
-| `.github/workflows/build.yaml` | the CI: builds and compares both versions, uploads the USA report |
+| `.github/workflows/build.yaml` | the CI: checks the names and the hacks, builds and compares both versions, uploads the USA report |
+| `Dockerfile`, `tools/docker.sh`, `.github/workflows/docker.yaml` | the build environment as a Docker image, the script that runs a command in it, and its CI |
 | `asm/<version>/`, `build/<version>/`, `expected/<version>/`, `assets/<version>/` | generated; not in git |
 | `disks/<version>/` | the extracted disc; not in git |
 
@@ -363,6 +424,9 @@ come from a private repository, so pull requests from forks are not built.
 | `tools/data_sizes.py` | gives compiled data symbols their ELF size, for objdiff (part of the build) |
 | `tools/patch_cc1.py`, `tools/sn_cc1.py`, `tools/cc1_mtlr28.c`, `tools/cc1_mtlr28.sh` | patch the PSX GCCs into the compilers of the PsyQ objects |
 | `tools/aspsx_reorder.py`, `tools/unfill_epilogue.py` | reproduce the PsyQ objects' assembler (part of the build) |
+| `tools/hacks.py` | counts the fake matches and hacks (`--list`, `--check README.md`) and fails on `NON_MATCHING` code, `#if 0` and inline asm in place of C |
+| `tools/check_names.py` | checks that every version's symbol files use the USA version's names |
+| `tools/docker.sh` | runs a command in the Docker build environment |
 | `tools/version.py` | the version being worked on and its paths, for the other tools |
 
 ## Contributing

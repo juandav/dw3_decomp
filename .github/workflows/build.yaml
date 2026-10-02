@@ -20,7 +20,7 @@ jobs:
 
     - run: python3 tools/check_names.py
 
-    - run: python3 tools/hacks.py
+    - run: python3 tools/hacks.py --check README.md
 
   build:
     # The original executable and overlays live in a private repository that only this

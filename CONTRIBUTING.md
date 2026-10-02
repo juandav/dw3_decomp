@@ -75,10 +75,13 @@ give it real types once the code that uses it is understood.
   both versions: the executable, the overlays and the stages have to stay
   byte for byte identical. Run it for `us` and for `eu` before opening a pull
   request; the CI runs both.
-- Only byte-identical matches go in. No `NON_MATCHING` code, no inline
-  assembly in place of C, and no tricks that wouldn't pass review. A function
-  that doesn't match yet stays behind its `INCLUDE_ASM`; a draft that came
-  close can go in the pull request's description, not in the source.
+- Only byte-identical matches go in. No `NON_MATCHING` code, no `#if 0`
+  blocks, no inline assembly in place of C, and no tricks that wouldn't pass
+  review. A function that doesn't match yet stays behind its `INCLUDE_ASM`; a
+  draft that came close can go in the pull request's description, not in the
+  source. `tools/hacks.py` fails the CI on `NON_MATCHING` (or `NONMATCHING`),
+  on `#if 0`, on inline asm in a function's body, on a register variable
+  pinned with `asm("$reg")` and on a top-level asm that isn't data.
 - A fake match is the last resort, not a shortcut: only for a function that
   natural C has failed to match after a real search (other source shapes,
   types, statement order, the permuter's legitimate finds), a forced form is
@@ -86,8 +89,29 @@ give it real types once the code that uses it is understood.
   barrier, a variable reused for an unrelated job, or a local that only
   shapes the stack frame. Mark the exact spot with a comment that starts with
   `/* fake match:` and gives, in one or two lines, what is forced and why:
-  the compiler decision it reproduces. A forced form without its reason
-  doesn't pass review, and the rest of the function stays readable C.
+  the compiler decision it reproduces. Example: `/* fake match: the empty
+  loop ends a CSE block, so GFX's address is loaded again, as in the
+  original */`. A forced form without its reason doesn't pass review, and
+  the rest of the function stays readable C.
+- Two lesser workarounds have a standard marker of their own, so that
+  `tools/hacks.py` can count them for the README's badge:
+  - a local that nothing reads or writes, kept because the original's stack
+    frame has room for it, ends its declaration with exactly
+    `/* unused, but it is in the original stack frame */`
+    (`MATRIX unused; /* unused, but it is in the original stack frame */` in
+    `libgs_gs_131.c`). Anything more to say about it goes in a comment of its
+    own above it. A local that makes no difference to the output is deleted
+    instead.
+  - C that only matches in one of several equivalent forms (an extra block,
+    an `if` without braces, a copy of a variable, a type, one version's own
+    form of a loop) has a comment that says the `match depends on` that
+    form, and why: `/* kept on one line: the match depends on it, since GCC
+    2.8.1's line notes decide where the index is computed */`.
+
+  After adding or removing a fake match or one of these, run
+  `tools/hacks.py` and update the README's badge and table to its counts:
+  the CI runs `tools/hacks.py --check README.md`. `tools/hacks.py --list`
+  lists them all.
 - When a form recurs and has a likely origin, give it a name and say so
   once, as `DEBUG_LOG()` in `include/stage.h` does: an empty
   `do { } while (0)` whose loop notes keep GCC 2.8's scheduler from moving
@@ -209,11 +233,26 @@ same addresses, so their functions keep splat's names for now; the
 Makefile already reads a stage's own symbol file,
 `config/<version>/stages/<stage>.txt`, when there is one.
 
-The versions are meant to share their names: a function or datum is called
-the same in every version, each at its own address. `config/eu/symbols.txt`
-is still empty; a name given to the USA version's code will have to be
-given to the European version's too once its functions are paired (see
-[TODO.md](TODO.md)).
+The versions share their names: a function or datum is called the same in
+every version, each at its own address, and a name in `eu`'s symbol files
+means what that name means in `us`'s. The CI runs `tools/check_names.py`,
+which fails when a name in `eu`'s symbol files isn't `us`'s name in the same
+binary (a function there if it is one here), or is named twice. splat's
+automatic names (`func_`, `D_`) and the binaries `us` doesn't have (`eu`'s
+own stages) aren't checked. So a rename touches every version's symbol
+files the same way, then `make VERSION=<version> regenerate` each version.
+
+- A name only one version has, for its own code, says so with
+  `version-only` in its comment:
+  `func_name = 0x80012345; // type:func version-only`.
+- Code that `us` has in another binary is given `us`'s name, with
+  `us-<binary>` in the comment (`us-main` for the executable, `us-cardgame`
+  for an overlay, `us-wstag200` for a stage); check_names checks it against
+  that binary's names in `us`:
+  `drawWindow = 0x800A5123; // type:func us-main`.
+
+`config/eu/symbols.txt` is still empty: the European version's functions
+get `us`'s names once they are paired (see [TODO.md](TODO.md)).
 
 ## Commits and pull requests
 
@@ -228,7 +267,8 @@ given to the European version's too once its functions are paired (see
 - A pull request that renames things lists every rename in a table
   (address, old name, new name).
 - Before opening one, run `make compare` for both versions; both must print
-  only `OK`. The CI builds and compares `us` and `eu`, and uploads the USA
+  only `OK`. Run `tools/hacks.py --check README.md` and
+  `tools/check_names.py` too, which the CI runs first. The CI builds and compares `us` and `eu`, and uploads the USA
   report that decomp.dev reads.
 - Pull requests are squash-merged, titled "Title (#N)": "Build the overlays
   and decompile CNTY_SEL (#12)". The title says what the pull request does,

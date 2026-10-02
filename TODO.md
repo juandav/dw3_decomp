@@ -113,18 +113,19 @@ asm, and every stage is marked `asm` in `config/eu/stages.txt`.
 
 - [ ] 405 `unk` struct fields in the headers, and 2,008 different `D_`
   symbols referenced from `src/` and `include/`.
-- [ ] The versions should share their names: once the European version is
-  paired, a rename has to touch both versions' symbol files, and a check in
-  the CI should catch a name that differs.
+- [ ] The versions share their names, and `tools/check_names.py` fails the CI
+  on a European name that isn't the USA one; but `config/eu/symbols.txt` is
+  empty, so it checks nothing yet. A tool that renames in every version's
+  symbol files, `src/` and `include/` at once would keep them in step.
 
 ## Tooling and docs
 
-- [ ] A Docker build environment, as the Digimon Digital Card Battle decomp
-  has, so that the build doesn't depend on the host's packages.
 - [ ] The README's status and overlay tables are written by hand from
-  `make report`; nothing checks that they are current.
-- [ ] Pull requests from forks are not built: the builds need the private
-  repository with the original files.
+  `make report`; the CI checks the hacks badge and table
+  (`tools/hacks.py --check README.md`), but not them.
+- [ ] Pull requests from forks only run the `names` job (`check_names.py`
+  and `hacks.py`): the builds need the private repository with the original
+  files.
 - [ ] `objdiff.json` holds one version at a time: the last one `make
   objdiff` was run for.
 - [ ] Some comments still describe the USA version only:
