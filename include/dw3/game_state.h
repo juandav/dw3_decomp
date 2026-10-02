@@ -36,6 +36,21 @@ typedef struct GameFuncs {
     /* 0x5C */ void (*updatePlayTime)();
 } GameFuncs;
 
+/*
+ * FLAGS_00, the first flag bitset, followed by the event functions: FIELDSTG
+ * and the stages call them through here (+0xC applies an action, +0x10 checks
+ * a condition).
+ */
+typedef struct GameFlags {
+    /* 0x00 */ u8 bits[4];
+    /* 0x04 */ s32 pendingFlag10; /* PENDING_FLAG_10 */
+    /* 0x08 */ s32 (*checkConditions)(u16 *list);
+    /* 0x0C */ void (*applyAction)(s32 code, s32 value);
+    /* 0x10 */ s32 (*checkCondition)(u16 code, u16 value);
+    /* 0x14 */ void (*applyActions)(u16 *list);
+    /* 0x18 */ void (*updateModeFlags)(void);
+} GameFlags;
+
 /* Digimon definition (DIGIMON_DATA, 52 of them; the first 8 are the partners) */
 typedef struct DigimonData {
     /* 0x00 */ u16 id;
@@ -107,7 +122,13 @@ typedef struct PartnerStats {
 } PartnerStats;
 
 typedef struct Unk80042728 {
-    /* 0x00 */ u8 unk0[0x58];
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ u8 unk18[0x40];
     /* 0x58 */ s16 unk58[8];
 } Unk80042728;
 
@@ -125,7 +146,9 @@ typedef struct PartnerVitals {
     /* 0x22 */ u16 maxHp;
     /* 0x24 */ u16 mp;
     /* 0x26 */ u16 maxMp;
-    /* 0x28 */ u8 unk28[0x1A];
+    /* 0x28 */ u8 unk28[0xA];
+    /* 0x32 */ s16 unk32;
+    /* 0x34 */ u8 unk34[0xE];
     /* 0x42 */ s16 status[3];
 } PartnerVitals;
 
@@ -141,7 +164,9 @@ typedef struct GameState {
     /* 0x0004 */ s8 unk4;
     /* 0x0005 */ u8 unk5[7];
     /* 0x000C */ s32 unkC;
-    /* 0x0010 */ u8 unk10[0x20];
+    /* 0x0010 */ u8 unk10[0x18];
+    /* 0x0028 */ s32 stageSelectTop; /* the debug stage select's first line */
+    /* 0x002C */ s32 stageSelectCursor;
     /* 0x0030 */ s32 unk30;
     /* 0x0034 */ s32 fieldMode; /* where the menu returns to */
     /* 0x0038 */ u8 unk38[0xC];
@@ -158,7 +183,7 @@ typedef struct GameState {
     /* 0x007C */ s8 items[0x193]; /* counts, up to 99 */
     /* 0x020F */ s8 equippedItems[0x193];
     /* 0x03A2 */ s8 cards[0x13D]; /* counts, up to 9 */
-    /* 0x04DF */ s8 cardsSeen[0x149];
+    /* 0x04DF */ u8 cardsSeen[0x149];
     /* 0x0628 */ Deck decks[3];
     /* 0x075A */ u8 unk75A[2];
     /* 0x075C */ Partner partners[8];
@@ -174,7 +199,13 @@ typedef struct GameState {
     /* 0x26CE */ s8 unk26CE;
     /* 0x26CF */ s8 unk26CF;
     /* 0x26D0 */ s32 clearTempFlags;
-    /* 0x26D4 */ u8 unk26D4[0x1C];
+    /* 0x26D4 */ s32 unk26D4;
+    /* 0x26D8 */ s32 unk26D8;
+    /* 0x26DC */ s32 unk26DC;
+    /* 0x26E0 */ s32 unk26E0;
+    /* 0x26E4 */ s32 unk26E4;
+    /* 0x26E8 */ s32 unk26E8;
+    /* 0x26EC */ s32 unk26EC;
     /* 0x26F0 */ GameFuncs funcs; /* GAME_FUNCS */
 } GameState;
 
@@ -214,7 +245,7 @@ extern u8 FLAGS_02[];
 #define FLAGS_20 (FLAGS_02 + 0x3E)
 extern s32 MONEY_GAINS[];
 extern s32 MONEY_LOSSES[];
-extern u8 FLAGS_00[];
+extern GameFlags FLAGS_00;
 extern s32 PENDING_FLAG_10;
 extern s32 GAME_CLEAR_TEMP_FLAGS;
 extern s32 STARTER_DECK[40];

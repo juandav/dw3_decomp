@@ -5208,9 +5208,8 @@ u16 RANDOM_TABLE[] = {
     0x086B, 0x008C, 0x0234, 0x0DD6, 0x08FF, 0x0A94, 0x055E, 0x0BF2,
     0x0399, 0x0B39, 0x0953, 0x067B, 0x04C9, 0x0E40, 0x0549, 0x07BD,
 };
-s32 RANDOM_INDEX = 0;
 s32 RANDOM[] = {
-    (s32)seedRandom, (s32)random,
+    0, (s32)seedRandom, (s32)random,
 };
 s32 D_8004D3B8[] = {
     0, 0, 0, 0,

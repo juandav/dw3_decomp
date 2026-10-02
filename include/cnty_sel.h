@@ -37,24 +37,6 @@
 #define SE_CURSOR 0x4001B
 #define SE_START 0x4001C
 
-/* Pad buttons, as bit numbers of the pad word */
-#define BUTTON_START 3
-#define BUTTON_UP 4
-#define BUTTON_RIGHT 5
-#define BUTTON_DOWN 6
-#define BUTTON_LEFT 7
-
-/* One frame of a sprite animation; frame 0xFF ends it */
-typedef struct AnimFrame {
-    /* 0x0 */ s16 frame;
-    /* 0x2 */ s16 duration;
-} AnimFrame;
-
-typedef struct AnimState {
-    /* 0x0 */ s16 index;
-    /* 0x2 */ s16 timer;
-} AnimState;
-
 /* A linear tween of a panel's scale */
 typedef struct PanelTween {
     /* 0x0 */ s32 duration;

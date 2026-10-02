@@ -168,7 +168,7 @@ typedef struct CardDrawer {
     /* 0x44 */ void (*setCell)(); /* (x, y) */
     /* 0x48 */ void (*setClutStride)(); /* (stride) */
     /* 0x4C */ void (*setSemiTrans)(); /* (on) */
-    /* 0x50 */ void (*getKind)();
+    /* 0x50 */ s32 (*getKind)(void);
 } CardDrawer;
 
 /*
@@ -214,6 +214,17 @@ typedef struct SpriteDrawer {
     /* 0x98 */ void (*setFollowScroll)(); /* (on) */
     /* 0x9C */ void (*setColor)(); /* (CVECTOR *) */
 } SpriteDrawer;
+
+/* One frame of a sprite animation; frame 0xFF ends it (or loops it) */
+typedef struct AnimFrame {
+    /* 0x0 */ s16 frame;
+    /* 0x2 */ s16 duration;
+} AnimFrame;
+
+typedef struct AnimState {
+    /* 0x0 */ s16 index;
+    /* 0x2 */ s16 timer;
+} AnimState;
 
 /* Text helpers (initTextTools) */
 typedef struct TextTools {

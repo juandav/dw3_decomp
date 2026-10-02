@@ -24,10 +24,6 @@ LeftPanelTween CNTY_SEL_leftPanelTweens[] = {
     {5, 0, 0x1000, 0},
 };
 
-/* One bit of pad 1: newly pressed, or auto-repeated while held */
-#define PAD_PRESSED(button) ((PAD.getPressed(0) >> PAD.getButtonBit(0, button)) & 1)
-#define PAD_REPEATED(button) ((PAD.getRepeated(0) >> PAD.getButtonBit(0, button)) & 1)
-
 void CNTY_SEL_tickScreen(Task *task, MenuTask **menu) {
     TimLoader loader;
     Layer *layer;
@@ -473,7 +469,7 @@ void CNTY_SEL_tickMenu(MenuTask *task, MenuChildren *children) {
             task->nextSubstate(task);
             break;
         case MENU_SELECT:
-            if (PAD_PRESSED(BUTTON_START)) {
+            if (PAD_PRESSED(PAD_START)) {
                 SOUND_STATE.playSound(SE_START);
                 children->cursor->setState(children->cursor, TASK_DONE);
                 task->nextSubstate(task);
@@ -484,27 +480,27 @@ void CNTY_SEL_tickMenu(MenuTask *task, MenuChildren *children) {
                 switch (task->step) {
                 case 0:
                 default:
-                    if (PAD_PRESSED(BUTTON_UP) || PAD_REPEATED(BUTTON_UP)) {
+                    if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
                         if (task->selection > 0) {
                             SOUND_STATE.playSound(SE_CURSOR);
                             task->selection--;
                         }
-                    } else if (PAD_PRESSED(BUTTON_DOWN) || PAD_REPEATED(BUTTON_DOWN)) {
+                    } else if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
                         if (task->selection < 4) {
                             SOUND_STATE.playSound(SE_CURSOR);
                             task->selection++;
                         }
-                    } else if (PAD_PRESSED(BUTTON_LEFT)) {
+                    } else if (PAD_PRESSED(PAD_LEFT)) {
                         /* Left does nothing in this column */
                     }
                     break;
                 case 1:
-                    if (PAD_PRESSED(BUTTON_LEFT) || PAD_REPEATED(BUTTON_LEFT)) {
+                    if (PAD_PRESSED(PAD_LEFT) || PAD_REPEATED(PAD_LEFT)) {
                         if (task->selection != 6) {
                             SOUND_STATE.playSound(SE_CURSOR);
                         }
                         task->selection = 6;
-                    } else if (PAD_PRESSED(BUTTON_RIGHT) || PAD_REPEATED(BUTTON_RIGHT)) {
+                    } else if (PAD_PRESSED(PAD_RIGHT) || PAD_REPEATED(PAD_RIGHT)) {
                         if (task->selection == 6) {
                             SOUND_STATE.playSound(SE_CURSOR);
                             task->selection = 5;

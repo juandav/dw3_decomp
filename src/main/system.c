@@ -6,7 +6,6 @@ static u_char CD_MODE[8];
 static RECT BOOT_IMAGE_RECT;
 static void *ROOT_TASK;
 
-extern void (*MEMCARD_FUNCS[])();
 extern void (*PAD_INIT[])();
 extern void (*PAD_UPDATE[])();
 extern void (*FONT_LOAD[])();
@@ -1004,7 +1003,7 @@ int main(void) {
     HEAP.init();
     SOUND.init();
     RANDOM.seed(0);
-    MEMCARD_FUNCS[0]();
+    MEMCARD_FUNCS.init();
     PAD_INIT[0](0, 0x12);
     GAME_FUNCS.newGame();
     FONT_LOAD[0]();

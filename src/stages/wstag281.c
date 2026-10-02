@@ -1,5 +1,9 @@
 #include "common.h"
 #include "stage.h"
+extern u8 D_800A53F4[];
+extern u8 D_800A4E2C[];
+extern u8 D_800A5624[];
+extern u8 D_800A5450[];
 extern void (*D_800A569C[])(void);
 void func_800A4CA4();
 
@@ -24,4 +28,22 @@ StageTask *func_800A4CEC(void *owner) {
     return task;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag281", func_800A4D48);
+void func_800A4D48(void) {
+    D_800990B4.unk44 = 0xE2;
+    D_800990B4.unk8 = 0x506;
+    D_800990B4.unkC = 0x5070000;
+    D_800990B4.unk10 = D_800A5450;
+    D_800990B4.unk14 = D_800A5624;
+    D_800990B4.unk1C = 0x505;
+    DEBUG_LOG();
+    D_800990B4.unk2C = 0x12000;
+    D_800990B4.unk30 = 0x13400;
+    D_800990B4.unk28 = D_800A4E2C;
+    D_800990B4.unk3C = 8;
+    D_800990B4.unk40 = 0x60200000;
+    D_800990B4.unk34 = 0;
+    D_800990B4.unk4C = D_800A53F4;
+    D_8009A70C.unk40(0, 0x5070001);
+    D_8009A70C.unk40(7, 0x5070002);
+    D_8009A70C.unk50(0);
+}

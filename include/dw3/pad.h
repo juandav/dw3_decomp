@@ -8,11 +8,12 @@
 #include <libgte.h>
 #include <libgpu.h>
 
-/* Random numbers from a table of 4096 (RANDOM) */
-typedef struct RandomFuncs {
-    /* 0x0 */ void (*seed)(s32 seed);
-    /* 0x4 */ u16 (*next)(void);
-} RandomFuncs;
+/* Random numbers from a table of 4096 (RANDOM_TABLE) */
+typedef struct Random {
+    /* 0x0 */ s32 index; /* the entry returned last */
+    /* 0x4 */ void (*seed)(s32 seed);
+    /* 0x8 */ s32 (*next)(void); /* 0-0xFFFF */
+} Random;
 
 /*
  * Logical buttons: bits of PadSlot.held/pressed/repeated, which readPadButtons
@@ -72,7 +73,7 @@ typedef struct PadState {
     /* 0x3E0 */ void (*init)(); /* PAD_INIT */
     /* 0x3E4 */ void (*shutdown)();
     /* 0x3E8 */ void (*update)(); /* PAD_UPDATE */
-    /* 0x3EC */ s32 (*setVibration)();
+    /* 0x3EC */ s32 (*setVibration)(u16 port, s32 motor, s16 time, u8 value);
     /* 0x3F0 */ s32 (*setAnalogMode)();
     /* 0x3F4 */ s32 (*getPressed)(s32 pad);
     /* 0x3F8 */ s32 (*getHeld)(s32 pad);
@@ -88,6 +89,10 @@ typedef struct PadState {
     /* 0x420 */ s32 (*isDemoPlaying)();
 } PadState;
 
+/* One button of pad 1: newly pressed, or auto-repeated while held */
+#define PAD_PRESSED(button) ((PAD.getPressed(0) >> PAD.getButtonBit(0, button)) & 1)
+#define PAD_REPEATED(button) ((PAD.getRepeated(0) >> PAD.getButtonBit(0, button)) & 1)
+
 void readPadButtons(s32 port, u8 *data, u8 *record);
 void updateVibration(u16 port);
 void resetButtonMap(u16 port);
@@ -98,10 +103,9 @@ void stopPad(void);
 void initPad(s32, s32);
 s32 setVibration(u16 port, s32 motor, s16 time, u8 value);
 
-extern RandomFuncs RANDOM;
+extern Random RANDOM;
 extern u8 DEFAULT_BUTTON_MAP[16];
 extern PadState PAD;
 extern u16 RANDOM_TABLE[0x1000];
-extern s32 RANDOM_INDEX;
 
 #endif /* DW3_PAD_H */

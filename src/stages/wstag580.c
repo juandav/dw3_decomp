@@ -13,18 +13,38 @@ StageTask *func_800A4D6C(void *owner) {
     return task;
 }
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag580", func_800A4DC8);
+void func_800A4DC8(void) {
+    FLAGS_00.applyAction(0x403C, 1);
+    FLAGS_00.applyAction(0x1C1F, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag580", func_800A4E14);
+void func_800A4E14(void) {
+    FLAGS_00.applyAction(0x4021, 1);
+    FLAGS_00.applyAction(0x1C20, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag580", func_800A4E60);
+void func_800A4E60(void) {
+    FLAGS_00.applyAction(0x4034, 1);
+    FLAGS_00.applyAction(0x1C22, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag580", func_800A4EAC);
+void func_800A4EAC(void) {
+    FLAGS_00.applyAction(0x4035, 1);
+    FLAGS_00.applyAction(0x1C23, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag580", func_800A4EF8);
+void func_800A4EF8(void) {
+    FLAGS_00.applyAction(0x4036, 1);
+    FLAGS_00.applyAction(0x1C24, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag580", func_800A4F44);
+void func_800A4F44(void) {
+    FLAGS_00.applyAction(0x4037, 1);
+    FLAGS_00.applyAction(0x1C25, 1);
+}
 
-INCLUDE_ASM("asm/stages/nonmatchings/wstag580", func_800A4F90);
+void func_800A4F90(void) {
+    FLAGS_00.applyAction(0x4038, 1);
+}
 
 INCLUDE_ASM("asm/stages/nonmatchings/wstag580", func_800A4FBC);

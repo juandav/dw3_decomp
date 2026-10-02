@@ -1,0 +1,17 @@
+// SOUNDTST.PRO: the debug sound test (scene 0x800, "STSDTS")
+SOUNDTST_updateScene = 0x80083B08; // type:func
+SOUNDTST_start = 0x80083BA8; // type:func
+SOUNDTST_moveCursor = 0x80083BD4; // type:func
+SOUNDTST_playSounds = 0x80083C40; // type:func
+SOUNDTST_loadBank = 0x80083FA0; // type:func
+SOUNDTST_selectBank = 0x80084054; // type:func
+SOUNDTST_updateSoundTest = 0x800842C4; // type:func
+SOUNDTST_createSoundTest = 0x800844E0; // type:func
+
+SOUNDTST_entryNames = 0x80082448;
+SOUNDTST_STR_SELECT_VAB = 0x80083AC4;
+SOUNDTST_STR_SOUND_TEST = 0x80083AF4;
+SOUNDTST_STR_CURSOR = 0x80083B04;
+SOUNDTST_soundLists = 0x80084E7C;
+SOUNDTST_banks = 0x80084F98;
+SOUNDTST_screenRect = 0x800851D8;

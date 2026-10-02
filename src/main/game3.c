@@ -354,7 +354,7 @@ s32 checkCondition(u16 code, u16 value) {
     u16 arg = value;
 
     if (group == 0x00) {
-        return testBit(FLAGS_00, id, arg);
+        return testBit(FLAGS_00.bits, id, arg);
     } else if (group == 0x02) {
         return testBit(FLAGS_02, id, arg);
     } else if (group == 0x04) {
@@ -411,7 +411,7 @@ void applyAction(s32 code, s32 value) {
     s32 id = code & 0x1FF;
 
     if (group == 0x00) {
-        setBit(FLAGS_00, id, value);
+        setBit(FLAGS_00.bits, id, value);
     }
     if (group == 0x02) {
         setBit(FLAGS_02, id, value);
@@ -521,7 +521,7 @@ void updateModeFlags(void) {
     u8 *p;
 
     if (GAME_CLEAR_TEMP_FLAGS != 0) {
-        for (i = 2, p = &FLAGS_00[i]; i >= 0; i--) {
+        for (i = 2, p = &FLAGS_00.bits[i]; i >= 0; i--) {
             *p-- = 0;
         }
         applyAction(0x12, 0);
