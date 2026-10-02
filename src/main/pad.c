@@ -259,6 +259,7 @@ void readPadButtons(s32 port, u8 *data, u8 *record) {
             }
         }
     } else {
+#if VERSION_US
         b = ~*(u16 *)(data + 2);
         circle = (b >> 13) & 1;
         cross = (b >> 14) & 1;
@@ -273,6 +274,26 @@ void readPadButtons(s32 port, u8 *data, u8 *record) {
         if (circle) {
             buttons |= 0x1000;
         }
+#elif VERSION_EU
+        /* the Japanese language keeps the buttons as they are */
+        buttons = ~*(u16 *)(data + 2);
+        if (LANGUAGE != 0) {
+            b = buttons;
+            circle = (b >> 13) & 1;
+            cross = (b >> 14) & 1;
+            triangle = (b >> 12) & 1;
+            buttons &= ~0x7000;
+            if (cross) {
+                buttons |= 0x2000;
+            }
+            if (triangle) {
+                buttons |= 0x4000;
+            }
+            if (circle) {
+                buttons |= 0x1000;
+            }
+        }
+#endif
         if (mode == 7) {
             for (i = 0; i < 4; i++) {
                 slot->analog[i] = data[4 + i];
