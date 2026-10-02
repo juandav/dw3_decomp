@@ -1172,7 +1172,35 @@ Task *createMessageBox(s32 layerId, s32 strings, s32 index) {
     return task;
 }
 
-INCLUDE_ASM("main/nonmatchings/text_window", drawTalkBoxArrow);
+void drawTalkBoxArrow(TalkBoxFrame *task) {
+    SpriteDrawer obj;
+    SVECTOR unused; /* unused, but it is in the original stack frame */
+    s32 x;
+    DVECTOR *arrow;
+    DVECTOR *pos;
+
+    pos = &TALK_BOX_LAYOUTS[task->parent->type].arrow;
+    if ((u32)(task->parent->type - 2) < 2) {
+        x = task->parent->w - 14;
+    } else {
+        x = pos->vx;
+    }
+    if (task->showArrow) {
+        initSpriteDrawer(&obj);
+        obj.setLayerId(task->parent->layerId, 0);
+        obj.setTexture(0x140, 0);
+        /* the match depends on this copy of pos: it puts pos in $s2 and x in $s3 */
+        arrow = pos;
+        if (GFX.funcs.getTime() - task->arrowTime >= 6) {
+            task->arrowTime = GFX.funcs.getTime();
+            if (++task->arrowFrame >= 4) {
+                task->arrowFrame = 0;
+            }
+        }
+        obj.setClutRow(task->arrowFrame);
+        obj.draw(FILE_CACHE_GET_ENTRY[0](FILE_MENU_SPRITES << 16), 7, task->parent->x + x, task->parent->y + arrow->vy);
+    }
+}
 
 void drawTalkBoxFrame(TalkBoxFrame *task) {
     SpriteDrawer obj;

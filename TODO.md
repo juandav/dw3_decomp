@@ -47,7 +47,7 @@ segment each.
   sound's tick and fades and the video mode; the disc's files are numbered
   differently (`FILE_MENU_SPRITES`, `FILE_FONT`); `GAME` has 8 more bytes of
   flags. Its data is `data_to_c.py`'s output for `asm/eu/` where it differs.
-  The European executable's game code is the USA one's 343 of 346 functions.
+  The European executable's game code is the USA one's 344 of 346 functions.
 - [ ] The overlays' files need `#if VERSION_EU` blocks or a copy of their
   own: `SHOCKTST` loads `0xBE` for `0xC5`.
 - [ ] 12 USA names are still missing in the European overlays' files, data
@@ -66,8 +66,8 @@ segment each.
 
 ## The USA executable
 
-- [ ] 3 game functions left: `spriteDrawerDraw` and `convertText`
-  (`graphics.c`) and `drawTalkBoxArrow` (`text_window.c`).
+- [ ] 2 game functions left: `spriteDrawerDraw` and `convertText`
+  (`graphics.c`).
 - [ ] Rodata still behind `INCLUDE_RODATA`: 6 strings and tables in
   `text_window.c` and 2 in `system.c`, which the C could define once their
   users are all C.

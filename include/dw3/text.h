@@ -204,8 +204,7 @@ typedef struct TalkBoxLayout {
     /* 0x16 */ s16 nameY;
     /* 0x18 */ s16 textX;
     /* 0x1A */ s16 textY;
-    /* 0x1C */ s16 arrowX;
-    /* 0x1E */ s16 arrowY;
+    /* 0x1C */ DVECTOR arrow; /* where the talk box arrow is drawn */
 } TalkBoxLayout;
 
 /*

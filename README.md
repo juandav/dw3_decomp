@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%202-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%204-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -41,14 +41,13 @@ badges above are always current:
 
 | Part | Functions in C | Code | Data |
 |---|---|---|---|
-| Executable, game code | 343 / 346 | 95.04 % | 99.67 % |
+| Executable, game code | 344 / 346 | 95.60 % | 99.67 % |
 | The 21 overlays | 295 / 1,697 | 7.30 % | 37.15 % |
 | The 238 stages | 815 / 1,374 | 35.88 % | 0 % |
-| **Total** | **1,453 / 3,417** | **19.18 %** | **23.86 %** |
+| **Total** | **1,454 / 3,417** | **19.21 %** | **23.86 %** |
 
-- The executable's game code is all C but three functions:
-  `spriteDrawerDraw` and `convertText` (`graphics.c`) and `drawTalkBoxArrow`
-  (`text_window.c`). Its data is C too, in `src/main/data/`, until it moves
+- The executable's game code is all C but two functions,
+  `spriteDrawerDraw` and `convertText` (`graphics.c`). Its data is C too, in `src/main/data/`, until it moves
   next to the code that uses it.
 - The PsyQ 4.7 libraries linked into the executable are decompiled too, one
   file per library object: 480 of their 563 functions are C, and the 71 Sony
@@ -62,7 +61,7 @@ badges above are always current:
   same source, so one match often repeats across stages.
 - The European version, the default one and the one decomp.dev shows first,
   is split into the USA version's files, with the USA names, and builds the
-  275 PsyQ files, the executable's game code and data (the same 343 of 346
+  275 PsyQ files, the executable's game code and data (the same 344 of 346
   functions as the USA version), `SOUNDTST` and `STDWTITL`'s `libpress` from
   the USA version's C. The rest of its executable, 21 overlays and 293 stages
   is splat's disassembly, so its report counts it as still to do.
@@ -82,20 +81,21 @@ above counts them: fake matches, then the other two kinds together.
 | Kind | Count | Marker |
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
-| Unused frame locals | 2 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 0 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 1,976 | `INCLUDE_ASM` |
+| Unused frame locals | 3 | `/* unused, but it is in the original stack frame */` |
+| Form-dependent matches | 1 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 1,975 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
   that exists only to shape the code. There are none so far.
 - An unused frame local is a local that the code never touches, kept because
   the original's stack frame has room for it: without it, the frame is
-  smaller than the original's. Both are in PsyQ objects (`libgs_gs_107`,
-  `libgs_gs_131`).
+  smaller than the original's. Two are in PsyQ objects (`libgs_gs_107`,
+  `libgs_gs_131`), one in the game's `drawTalkBoxArrow`.
 - A form-dependent match is C that matches in one of several equivalent
   forms only: an extra block, an `if` without braces, a copy of a variable, a
-  type, or one version's own form of a loop.
+  type, or one version's own form of a loop. The one so far is a copy of a
+  variable in `drawTalkBoxArrow`.
 - The functions still in assembly are not in the badge: they are the work
   left, in the game and in PsyQ.
 
