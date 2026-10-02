@@ -6,6 +6,22 @@ on:
 permissions:
   contents: read
 jobs:
+  # Every version names its symbols as us does (tools/check_names.py), and
+  # the source has no NON_MATCHING code or inline asm in place of C
+  # (tools/hacks.py, which also counts the fake matches and hacks). They only
+  # read config/, src/ and include/, so they need no disc and run for forks
+  # too.
+  names:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        persist-credentials: false
+
+    - run: python3 tools/check_names.py
+
+    - run: python3 tools/hacks.py
+
   build:
     # The original executable and overlays live in a private repository that only this
     # repository's own runs can read, so builds from forks are skipped.

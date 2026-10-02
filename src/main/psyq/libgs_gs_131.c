@@ -16,7 +16,7 @@ int func_80029DB8(GsRVIEW2 *pv) {
     GsRVIEW2 v;
     MATRIX tmp;
     MATRIX tmp2;
-    MATRIX unused; /* never referenced, but it has a stack slot in the ROM */
+    MATRIX unused; /* unused, but it is in the original stack frame */
     VECTOR vec;
     long r;
     long t;
