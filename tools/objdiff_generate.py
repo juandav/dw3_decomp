@@ -8,7 +8,7 @@ built from src/ (build/<version>/src/...), where every function still behind INC
 label that objdiff drops from the progress count.
 
 A source file X_2.c is the second half of an original object split in
-config/main.yaml (X.c and X_2.c come from one file before the split). Its
+config/us/main.yaml (X.c and X_2.c come from one file before the split). Its
 unit is reported together with X's under X's name, from the two objects
 linked with `ld -r`, so progress keeps being tracked per unit as before.
 
@@ -19,6 +19,13 @@ it, so it gets no unit. It is still built and checked by `make compare`.
 The executable's game data is one unit, main/game_data: splat's data files
 (GAME_DATA) against the C files in src/main/data/ that hold it until it moves
 next to the code that uses it.
+
+A version that doesn't build a C file yet still has its unit, with no base
+object, when splat writes the module's code at the same path as in the USA
+version (the European one is split into the USA modules,
+tools/split_version.py): asm/<version>/main/system.s is main/system's code,
+not yet C. A binary with neither (not split, or a stage only that version
+has) is one unit of its own, from all its code and data (asm_units).
 """
 
 import json
@@ -58,10 +65,10 @@ def link(out: str, parts: list) -> None:
 
 
 def asm_units(names: list) -> list:
-    """One unit per binary that has no C file yet, with no base object: splat's
+    """One unit per binary that has no unit yet, with no base object: splat's
     code and data of the executable, an overlay or a stage linked together,
-    so that the progress counts the whole of a version even before its first
-    C file (the European one, for now)."""
+    so that the progress counts the whole of a version even before it is
+    split into the USA modules (and a stage only it has)."""
     stages = [line.split()[0] for line in open(version.CONFIG_DIR / "stages.txt")
               if line.strip() and not line.startswith("#")]
     binaries = {d.name: [f"{d.name}/{d.name}.s"] + [f"{d.name}/data/{f.name}"
@@ -91,31 +98,30 @@ def main() -> None:
     names = [src.relative_to(ROOT / "src").with_suffix("").as_posix()
              for src in sorted((ROOT / "src").rglob("*.c"))]
     names = [n for n in names if not is_library(n) and not n.startswith("main/data/")]
-    # the C files of this version: the ones built for it, which splat made a
-    # full disassembly of
-    names = [n for n in names if (ASM / f"{n}.s").exists()
-             and (ROOT / f"build/{V}/src/{n}.c.o").exists()]
+    # the modules of this version: the ones splat writes the code of at the
+    # C file's path (a full disassembly of a C segment, or an asm segment of
+    # a module the version doesn't build from C yet)
+    names = [n for n in names if (ASM / f"{n}.s").exists()]
+    built = {n for n in names if (ROOT / f"build/{V}/src/{n}.c.o").exists()}
     halves = {n[:-2]: n for n in names if n.endswith("_2") and n[:-2] in names}
     units = []
     for name in names:
         if name in halves.values():
             continue
+        parts = [name] + ([halves[name]] if name in halves else [])
         target = f"expected/{V}/asm/{name}.s.o"
         base = f"build/{V}/src/{name}.c.o"
         if name in halves:
-            second = halves[name]
             target = f"expected/{V}/report/{name}.s.o"
             base = f"build/{V}/report/{name}.c.o"
-            link(target, [f"expected/{V}/asm/{name}.s.o", f"expected/{V}/asm/{second}.s.o"])
-            link(base, [f"build/{V}/src/{name}.c.o", f"build/{V}/src/{second}.c.o"])
-        units.append(
-            {
-                "name": name,
-                "target_path": target,
-                "base_path": base,
-                "metadata": {"progress_categories": [category_for(name)]},
-            }
-        )
+            link(target, [f"expected/{V}/asm/{n}.s.o" for n in parts])
+            if all(n in built for n in parts):
+                link(base, [f"build/{V}/src/{n}.c.o" for n in parts])
+        unit = {"name": name, "target_path": target}
+        if all(n in built for n in parts):
+            unit["base_path"] = base
+        unit["metadata"] = {"progress_categories": [category_for(name)]}
+        units.append(unit)
 
     data = [f"expected/{V}/asm/main/data/{d}.s.o" for d in GAME_DATA
             if (ASM / f"main/data/{d}.s").exists()]
@@ -128,7 +134,7 @@ def main() -> None:
         }
         base = [f"build/{V}/{c.with_suffix('.c.o').relative_to(ROOT).as_posix()}"
                 for c in sorted((ROOT / "src/main/data").glob("*.c"))]
-        if base:
+        if base and all((ROOT / b).exists() for b in base):
             link(f"build/{V}/report/main/game_data.c.o", base)
             unit["base_path"] = f"build/{V}/report/main/game_data.c.o"
         units.append(unit)

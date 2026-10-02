@@ -18,7 +18,7 @@ options:
   global_vram_end: 0x80200000
 
   find_file_boundaries: True
-  gp_value: 0x8005C2F8
+  gp_value: 0x8005CB50
 
   generate_asm_macros_files: False
 
@@ -26,6 +26,7 @@ options:
 
   symbol_addrs_path:
     - config/eu/symbols.txt
+    - config/eu/symbols_stdwtitl.txt
 
   undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_stdwtitl.txt
   undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_stdwtitl.txt
@@ -41,7 +42,6 @@ options:
   create_data_pads: False
 
 segments:
-  # not split into the USA version's files yet: its rodata, code and data
   - name: stdwtitl
     type: code
     start: 0x0
@@ -49,7 +49,14 @@ segments:
     align: 4
     subalign: 4
     subsegments:
+      # us's modules, each with its rodata, data and bss (tools/split_version.py)
       - [0x0, rodata, stdwtitl]
+      - [0x4C, rodata, stdwtitl_2]
+      - [0x70, .rodata, libpress]
       - [0xC0, asm, stdwtitl]
+      - [0x3024, asm, stdwtitl_2]
+      - [0x449C, c, libpress]
       - [0x4F90, data, stdwtitl]
+      - [0x510C, data, stdwtitl_2]
+      - [0x55D4, data, libpress]
   - [0x65C0]

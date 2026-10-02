@@ -136,10 +136,29 @@ or 1; the assembly gets the same names from `--defsym`.
   version, its `#if` blocks name only the versions that build it from C.
 - Each version lists the C files it builds in `mk/version/<version>.mk`
   (`C_SRC`), and the Makefile builds nothing else. `us` builds every C file
-  under `src/`; `eu` builds none yet. A file `eu` starts building goes in
-  its `C_SRC`, and its segments in `config/eu/` become `c` (with `.rodata`
-  and `.data` when those are C too). For a stage, drop the `asm` mark of its
-  line in `config/eu/stages.txt` once it has a C file there.
+  under `src/`; `eu` the ones that match unchanged so far (the PsyQ
+  libraries, `game3_2`, `SOUNDTST`, `STDWTITL`'s `libpress`). The rest of
+  `eu`'s executable and overlays is split into the USA files as asm
+  segments with the same names (`tools/split_version.py`).
+- To build a file for `eu` too: add it to `eu`'s `C_SRC`, make its segments
+  in `config/eu/` `c` (with `.rodata` and `.data` when those are C in
+  `us`), then name what the C uses at the European addresses:
+
+  ```
+  tools/match_versions.py eu      # with both versions built: build/eu/version_pairs.tsv
+  tools/version_symbols.py eu src/<binary>/<file>.c --write
+  make VERSION=eu generate build/eu/src/<binary>/<file>.c.o
+  tools/version_symbols.py eu src/<binary>/<file>.c --write
+  make VERSION=eu regenerate && make VERSION=eu && make VERSION=eu compare
+  ```
+
+  The first run names the functions and rodata the C includes as asm, so
+  that splat writes their files; the second, after the object builds, names
+  every function and datum it reads from where the original has them.
+  `version_symbols.py` lists what it can't name: a name whose reads
+  disagree, or one of splat's names from `us` (`D_80081E20`) that the
+  European asm has at another address. For a stage, drop the `asm` mark of
+  its line in `config/eu/stages.txt` once it has a C file there.
 - A file whose contents differ throughout between versions gets one copy per
   version instead of an `#if` around all of it, named after the version
   (`<module>_eu.c` next to `<module>.c`).
@@ -240,7 +259,9 @@ which fails when a name in `eu`'s symbol files isn't `us`'s name in the same
 binary (a function there if it is one here), or is named twice. splat's
 automatic names (`func_`, `D_`) and the binaries `us` doesn't have (`eu`'s
 own stages) aren't checked. So a rename touches every version's symbol
-files the same way, then `make VERSION=<version> regenerate` each version.
+files the same way: `tools/rename.py OLD NEW` renames in every version's
+symbol files, `src/` and `include/` (an overlay's name keeps its prefix),
+then `make VERSION=<version> regenerate` each version.
 
 - A name only one version has, for its own code, says so with
   `version-only` in its comment:
@@ -251,8 +272,14 @@ files the same way, then `make VERSION=<version> regenerate` each version.
   that binary's names in `us`:
   `drawWindow = 0x800A5123; // type:func us-main`.
 
-`config/eu/symbols.txt` is still empty: the European version's functions
-get `us`'s names once they are paired (see [TODO.md](TODO.md)).
+The European version's names come from `us`: `tools/match_versions.py eu`
+pairs its functions with the USA ones (by their instructions with the
+addresses masked, their order, their calls and their strings) and the data
+they read, and `--seed` writes the USA names of the confident pairs into
+`config/eu/symbols*.txt`, between the lines it marks, keeping the names
+written by hand. Name a function in `us` and run it again to give `eu` the
+name too; a function whose code differs too much to pair is named by hand,
+above the seeded block.
 
 ## Commits and pull requests
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Write the splat config of a stage overlay (AAA/PRO/WSTAG###.PRO).
 
-The 238 stage overlays all have the same layout, so instead of a config file
+The stage overlays all have the same layout, so instead of a config file
 each, config/<version>/stages.txt lists them with the offsets where their code starts
 and ends:
 
@@ -46,7 +46,7 @@ options:
   global_vram_end: 0x80200000
 
   find_file_boundaries: True
-  gp_value: 0x8005C2F8
+  gp_value: 0x{gp:X}
 
   generate_asm_macros_files: False
 
@@ -167,6 +167,7 @@ def main():
                 base=os.path.relpath(root, os.path.dirname(os.path.abspath(out))),
                 symbols="".join(f"    - {s}\n" for s in symbols),
                 vram=version.STAGE_VRAM,
+                gp=version.GP_VALUE,
                 header=f"      - [0x0, rodata, {name}]\n" if text_start else "",
                 code=code,
                 # splat's data drops the bytes after the last word

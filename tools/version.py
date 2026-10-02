@@ -32,6 +32,8 @@ DISK_DIR = ROOT / _SETTINGS["DISK_DIR"]
 # where the overlays load, and the stage overlays (after CARDGAME)
 OVERLAY_VRAM = int(_SETTINGS["OVERLAY_VRAM"], 16)
 STAGE_VRAM = int(_SETTINGS["STAGE_VRAM"], 16)
+# $gp, as crt0 sets it
+GP_VALUE = int(_SETTINGS["GP_VALUE"], 16)
 
 # splat configs (<binary>.yaml), symbols and checksums
 CONFIG_DIR = ROOT / "config" / VERSION

@@ -20,8 +20,10 @@ PlayStation: C source that compiles back into byte-identical copies of the
 game's executable, its overlays and its stages. The USA release, *Digimon
 World 3*, and the European one, *Digimon World 2003*, both build from this
 source tree and match byte for byte. The USA release is the one being
-decompiled; the European one, the most complete release, is splat's
-disassembly for now and is where the work is heading next.
+decompiled; the European one, the most complete release, is where the work
+is heading next: it is split into the USA release's files and carries its
+names, and builds the PsyQ libraries and a few files from the same C, but is
+splat's disassembly otherwise.
 
 This repository does not contain any game data. You need your own copy of the
 game to build it.
@@ -57,9 +59,10 @@ badges above are always current:
 - 64 of the 238 stages are all C. Many stages share functions built from the
   same source, so one match often repeats across stages.
 - The European version, the default one and the one decomp.dev shows first,
-  builds and matches from splat's disassembly only: its executable, 21
-  overlays and 293 stages have no C yet, so its report counts them all as
-  still to do.
+  is split into the USA version's files, with the USA names, and builds 258
+  of the 275 PsyQ files, `game3_2`, `SOUNDTST` and `STDWTITL`'s `libpress`
+  from the USA version's C. The rest of its executable, 21 overlays and 293
+  stages is splat's disassembly, so its report counts it as still to do.
 
 Progress is measured by [objdiff](https://github.com/encounter/objdiff), with
 one unit per C file, and tracked on
@@ -184,7 +187,7 @@ One source tree builds every version, one at a time, picked with `VERSION`
 | `VERSION` | Release | Executable (SHA-1) | Disc image (SHA-1) | Overlays | Stages | C |
 |---|---|---|---|---|---|---|
 | `us` | *Digimon World 3*, USA, SLUS-01436 | `SLUS_014.36` (`444653259f78ddb483fd22af72cce9276f42f214`) | `Digimon World 3 (USA).bin` (`f0b022f9be53cbce14640abd8f01beaadcb35208`) | 21 | 238 | yes |
-| `eu` | *Digimon World 2003*, Europe, SLES-03936 | `SLES_039.36` (`d1b7e4d646e3a9c2b88fdb25d20b5f7116bbb06d`) | `Digimon World 2003 (Europe).bin` (`457cb233349ba841e03b33d8060f8fbcadd45cb3`) | 21 | 293 | not yet |
+| `eu` | *Digimon World 2003*, Europe, SLES-03936 | `SLES_039.36` (`d1b7e4d646e3a9c2b88fdb25d20b5f7116bbb06d`) | `Digimon World 2003 (Europe).bin` (`457cb233349ba841e03b33d8060f8fbcadd45cb3`) | 21 | 293 | PsyQ, 3 files |
 
 - `mk/version/<version>.mk` has each version's settings: the release's name,
   the executable's name, the disc directory, the overlays, where they load
@@ -204,10 +207,16 @@ One source tree builds every version, one at a time, picked with `VERSION`
 - The C sees `VERSION_US` and `VERSION_EU`, each 0 or 1
   (`include/version.h`), and so does the assembly (`--defsym`). Code tests
   them with `#if VERSION_EU`, never `#ifdef`; CONTRIBUTING.md has the rules.
-- `us` builds every C file under `src/`. `eu`'s `C_SRC` is empty: its
-  executable is one asm segment per section, and each overlay and stage is
-  its rodata, code and data as asm. The European release has the USA one's
-  21 overlays and 238 stages plus 55 stages of its own (`WSTAG920`-`974`).
+- `us` builds every C file under `src/`. `eu` builds the ones that match
+  unchanged (`C_SRC`); the rest of its executable and overlays is split into
+  the USA version's files as asm segments, so its asm lands at the same paths
+  (`asm/eu/main/system.s` for `asm/us/main/system.s`), and each stage is its
+  rodata, code and data as asm. The European release has the USA one's 21
+  overlays and 238 stages plus 55 stages of its own (`WSTAG920`-`974`).
+- The versions share their names: the European symbol files hold the USA
+  names of the functions and data paired between the two
+  (`tools/match_versions.py`), and `tools/check_names.py` checks that they
+  stay the same.
 
 ## Toolchain
 
@@ -377,12 +386,13 @@ unit per C file (`main/system`, `cnty_sel/cnty_sel`, `stages/wstag200`...); a
 file `X_2.c`, the second half of one original object, is reported together
 with `X.c`. The units go into the category `game` (the executable), one
 category per overlay, and `stages` for all the stages. The executable's data
-is one unit, `main/game_data`. `src/main/psyq/` gets no unit. A binary with
-no C file in the version being reported (all of the European version, for
-now) is one unit of splat's code and data with no base object
-(`main/main`, `cardgame/cardgame`, `stages/wstag200`...), so the report
-counts it as still to do. `objdiff.json`
-is for the version it was last written for.
+is one unit, `main/game_data`. `src/main/psyq/` gets no unit. A file the
+version being reported doesn't build from C yet, but has split at the same
+path (the European `asm/eu/main/system.s`), is its unit with no base object,
+so the report counts it as still to do; a binary with no such file (the
+European stages) is one unit of splat's code and data
+(`stages/wstag920`...). `objdiff.json` is for the version it was last
+written for.
 
 The CI (`.github/workflows/build.yaml`) first runs `tools/check_names.py` and
 `tools/hacks.py`, which only read the source and the configs. It then builds
@@ -432,6 +442,10 @@ versions in the Docker image whenever the image or what it installs changes.
 | `tools/aspsx_reorder.py`, `tools/unfill_epilogue.py` | reproduce the PsyQ objects' assembler (part of the build) |
 | `tools/hacks.py` | counts the fake matches and hacks (`--list`, `--check README.md`) and fails on `NON_MATCHING` code, `#if 0` and inline asm in place of C |
 | `tools/check_names.py` | checks that every version's symbol files use the USA version's names |
+| `tools/match_versions.py` | pairs a version's functions with the USA ones (`build/<version>/version_pairs.txt`) and, with `--seed`, writes their USA names into the version's symbol files |
+| `tools/split_version.py` | splits a version's executable and overlays into the USA version's files, from the pairs |
+| `tools/version_symbols.py` | names, at a version's addresses, what a USA C file uses, so that the version can build it |
+| `tools/rename.py` | renames a symbol in every version's symbol files, `src/` and `include/` |
 | `tools/docker.sh` | runs a command in the Docker build environment |
 | `tools/version.py` | the version being worked on and its paths, for the other tools |
 
