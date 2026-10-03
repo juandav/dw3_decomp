@@ -58,7 +58,8 @@ typedef struct FileCache {
     /* 0x410 */ void (*update)(void);
     /* 0x414 */ char *(*load)(s32 file);
     /* 0x418 */ void (*free)(s32 file);
-    /* 0x41C */ u8 unk41C[8];
+    /* 0x41C */ void (*freeAll)(void);
+    /* 0x420 */ void (*freeFrom)(u32 addr);
     /* 0x424 */ s32 (*getEntry)(s32 fileAndIndex);
     /* 0x428 */ u8 *(*getArchiveEntry)(s32 index, s32 archive);
     /* 0x42C */ void (*markCached)(void);

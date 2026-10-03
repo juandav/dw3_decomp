@@ -3,7 +3,9 @@
 /* The 18-byte entries of the executable's table at D_800427D6 */
 typedef struct Unk800427D6 {
     /* 0x00 */ s16 unk0;
-    /* 0x02 */ u8 unk2[5];
+    /* 0x02 */ u8 unk2[2];
+    /* 0x04 */ u8 unk4;
+    /* 0x05 */ u8 unk5[2];
     /* 0x07 */ u8 unk7;
     /* 0x08 */ u8 unk8;
     /* 0x09 */ u8 unk9;
@@ -46,16 +48,29 @@ extern s32 (*D_800A30F0)(void);
 void func_8009C000(s32 partner);
 void func_8009B678(s32 arg0);
 BattleTask *func_8008E390(s32 arg0);
+BattleCommands *func_80092124(void);
+Unk800919EC *func_800919EC(s32 layer);
+Task *func_80086128(s32 id, s32 fadeInTime);
+BattleModels *func_800877D4(void);
+Task *func_8008A838(s32 layer);
+extern s16 D_800A32BE;
+extern ActionResult D_800A317C;
+#if VERSION_EU
+Task *func_800A246C(void);
+#endif
 
 extern RECT D_800A9B58;
 void func_800A59A0(BattleMenu *task, BattleMenuChildren *children);
+void func_800A5538(s32 digimon);
 void func_800A5878(void);
 void func_800A61C8(void);
 s32 func_800A9840(u8 id, s32 damage);
-BattleTask *func_800A9040(u8 actor, s32 arg1);
+BattleTask *func_800A9040(u8 actor, s32 id);
 void func_800A99F0(u8 side);
+void func_800A9960(u8 side, s32 damage);
+extern s32 D_800A9CC4[][2];
 
-void func_800A5ACC();
+void WFIGHTMN_updateMenu();
 extern void (*WFIGHTMN_states[])(BattleMenu *task, BattleMenuChildren *children);
 
 void func_800A52C8(void) {
@@ -181,7 +196,175 @@ void func_800A59A0(BattleMenu *task, BattleMenuChildren *children) {
     }
 }
 
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn_2", func_800A5ACC);
+/* The battle menu's task: sets up the battle (its music, FIGHTSTG's tasks and
+   the fighters' models), then runs the menu (func_800A8B08), playing sound
+   0x60040000 once a partner has flag 4 and the battle's music again after */
+void WFIGHTMN_updateMenu(BattleMenu *task, BattleMenuChildren *children) {
+    s16 slots[4];
+    s32 digimon;
+    s32 partner;
+    s32 chance;
+    s32 mode;
+    BattleStats *stats;
+    BattleUnit *unit;
+    BattleUnit *units;
+    s32 found;
+    s32 i;
+
+    switch (task->state) {
+    case 0:
+    default:
+        switch (task->substate) {
+        case 0:
+        default:
+            func_800A52C8();
+            task->nextSubstate(task);
+        case 1:
+            switch (task->step) {
+            case 0:
+            default:
+                SOUND.loadBank((D_80042728.unk14 >> 18) & 0x7F);
+                task->nextStep(task);
+            case 1:
+                if (SOUND_STATE.isLoading() == 0) {
+                    SOUND_STATE.playSound(D_80042728.unk14);
+                    task->nextSubstate(task);
+                }
+                break;
+            }
+            break;
+        case 2:
+            switch (task->step) {
+            case 0:
+            default:
+                children->commands = func_80092124();
+                children->unk8 = func_800919EC(0x1001);
+                children->stage = func_80086128(D_80042728.unkC, 60);
+                children->models = func_800877D4();
+                children->lights = func_8008A838(0x1001);
+                task->nextStep(task);
+                break;
+            case 1:
+                mode = GAME_FUNCS.getPrevMode();
+                if (mode == 0x22D && D_80042728.unk10 == 0x143) {
+                    D_800A32BE = 1;
+                } else if (mode == 0x23A && D_80042728.unk10 == 0xB) {
+                    D_800A32BE = 2;
+                } else if (mode == 0x272 && D_80042728.unk10 == 0x1E) {
+                    D_800A32BE = 3;
+                } else if (D_80042728.unk10 == 0x144) {
+                    D_800A31E8.unkD6 = 4;
+                    D_800A31E8.unkDB = 0;
+                    D_800A31E8.unkDA = 0;
+                    D_800A31E8.unkD8 = 0;
+                } else {
+                    D_800A32BE = 0;
+                }
+                partner = GAME.funcs.getPartyMember(0);
+                if (func_800A56D4() != 0) {
+                    digimon = DIGIMON_DATA[partner].id;
+                    task->counter = 1;
+                } else if (GAME.funcs.getPartnerSlots(partner, slots) > 0 && GAME.partners[partner].unk8 != 0) {
+                    digimon = GAME.partners[partner].unk8;
+                } else {
+                    digimon = DIGIMON_DATA[partner].id;
+                }
+                children->models->add(children->models, 0, digimon, 1);
+                children->models->face(children->models, 0);
+                children->models->add(children->models, 0x10, D_80042728.enemies[0].fighter, 1);
+                children->models->face(children->models, 0x10);
+                func_800A5538(digimon);
+                unit = &D_800A31E8.units[0][D_800A31E8.current[0]];
+                if (unit->maxHp / 4 >= unit->hp) {
+                    children->models->setIdleMotion(children->models, 0, 1);
+                }
+#if VERSION_EU
+                GFX.frameTime = 1;
+                children->unk18 = func_800A246C();
+#else
+                children->unk8->unkF8(children->unk8, children->unk8->unk100(children->unk8));
+#endif
+                task->step++;
+                break;
+            case 2:
+#if VERSION_EU
+                GFX.frameTime = 1;
+#endif
+                children->loader = WFIGHTMN_createLoader();
+                task->step++;
+                break;
+            case 3:
+                if (children->loader == NULL) {
+                    task->step++;
+                }
+                break;
+            case 4:
+                func_800A5878();
+                task->step++;
+                break;
+            case 5:
+                if (task->counter != 0) {
+                    func_8009B5F8(0);
+                    func_8009B5BC(D_800A3104(0, 0) / 2);
+                    children->task = func_80099400();
+                    task->args[0] = 7;
+                    children->task->show(children->task, 1, task->args);
+                    task->step++;
+                    func_80092154(1);
+                } else {
+                    stats = D_800A3308.getStats(0, 1, D_800A31E8.current[0]);
+                    chance = D_800A3308.getStats(0x10, 0, D_800A31E8.current[1])->unk8[1] * 8 / stats->unk8[1];
+                    if (RANDOM.next() % 128 < chance) {
+                        func_8009B5F8(0);
+                        func_8009B5BC(D_800A3104(0, 0) / 2);
+                        func_80092154(1);
+                    } else {
+                        func_8009B5BC(0);
+                        func_8009B5F8(D_800A3104(0, 0) / 2);
+                    }
+                    task->nextState(task);
+                }
+                WFIGHTMN_checkParty();
+                break;
+            case 6:
+                if (children->task == NULL) {
+                    task->nextState(task);
+                }
+                break;
+            }
+            break;
+        }
+        break;
+    case 1:
+        func_800A8B08(task);
+        units = D_800A31E8.units[0];
+        if (task->unk70 == 0) {
+            for (i = 0; i < 3; i++) {
+                if (units[i].flags & 4) {
+                    SOUND.playSound(0x60040000);
+                    task->unk70 = 1;
+                    break;
+                }
+            }
+        } else {
+            found = 0;
+            for (i = 0; i < 3; i++) {
+                if (units[i].flags & 4) {
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found) {
+                SOUND.playSound(D_80042728.unk14);
+                task->unk70 = 0;
+            }
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 /* Undoes the current partner's unk1A and the actions that go with it */
 void func_800A61C8(void) {
@@ -348,7 +531,121 @@ void func_800A69D0(BattleMenu *task, BattleMenuChildren *children) {
     }
 }
 
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn_2", func_800A6AC8);
+/* After a won battle, picks the enemy whose item the player may get; saves the
+   partners' HP and MP, fades out and requests the next mode */
+void WFIGHTMN_endBattle(BattleMenu *task, BattleMenuChildren *children) {
+    Battle *battle;
+    BattleUnit *units;
+    BattleUnit *unit;
+    EnemyInfo *info;
+    BattleEnd *end;
+    Layer *layer;
+    s32 count;
+    s32 pick;
+    s32 i;
+    s32 partner;
+    s32 member;
+    s32 mode;
+
+    switch (task->step) {
+    case 0:
+    default:
+#if VERSION_EU
+        if (children->unk18 != NULL && children->unk18->state != TASK_DONE) {
+            break;
+        }
+#endif
+        if (D_800A30E4 != 0) {
+            count = 0;
+            battle = &D_800A31E8;
+            units = battle->units[1];
+            D_80042790.battle = D_80042728.unk10;
+            D_80042790.member = battle->current[0];
+            for (i = 0; i < 3; i++) {
+                if (units[i].id != 0 && units[i].unk18 != 0) {
+                    count++;
+                }
+            }
+            pick = RANDOM.next() % count;
+            count = 0;
+            for (i = 0; i < 3; i++) {
+                if (units[i].id != 0 && units[i].unk18 != 0) {
+                    if (pick == count) {
+                        break;
+                    }
+                    count++;
+                }
+            }
+            /* an address sum with the offset first: the match depends on it, which
+               puts the offset first in the addu */
+            unit = (BattleUnit *)(count * sizeof(BattleUnit) + (s32)units);
+            info = D_800A2584(unit->id);
+            if (unit->unk18 > 0 && info->itemChance + 1 > RANDOM.next() % 1024) {
+                D_80042790.item = unit->unk18;
+            } else {
+                D_80042790.item = 0;
+            }
+            if (D_80042728.unk4C == 1) {
+                D_80042790.item = D_80042728.unk50;
+            }
+        }
+        for (member = 0; member < 3; member++) {
+            partner = GAME.funcs.getPartyMember(member);
+            if (partner >= 0) {
+                if ((D_800A31E8.units[0] + member)->hp <= 0) {
+                    GAME.partners[partner].hp = 1;
+                    D_80042790.partners[member].fought = 0;
+                    D_80042790.partners[member].used[0] = 0;
+                    D_80042790.partners[member].used[1] = 0;
+                    D_80042790.partners[member].used[2] = 0;
+                } else {
+                    GAME.partners[partner].hp = (D_800A31E8.units[0] + member)->hp;
+                }
+                GAME.partners[partner].mp = (D_800A31E8.units[0] + member)->mp;
+            }
+        }
+        end = func_8008A22C();
+        children->task = (BattleTask *)end;
+        end->start(end, 0, 10);
+        task->step++;
+        break;
+    case 1:
+        if (children->task->state == TASK_DONE) {
+            layer = GFX_FUNCS.getLayer(0x1000);
+            layer->setBgColor(layer, 0, 0, 0);
+#if VERSION_EU
+            if (children->unk18 != NULL) {
+                children->unk18->setState(children->unk18, TASK_KILL);
+            }
+#endif
+            task->step++;
+        }
+        break;
+    case 2:
+        func_800A61C8();
+        switch (D_800A30E4) {
+        case 0:
+        default:
+            GAME.funcs.requestMode(GAME.fieldMode, 0);
+            break;
+        case 1:
+#if VERSION_EU
+            mode = 0xE0B;
+#else
+            mode = 0xE0A;
+#endif
+            if (D_800A31E8.unkD6 != 6) {
+                mode = 0x1400;
+            }
+            GAME_FUNCS.requestMode(mode, 0);
+            break;
+        case 2:
+            GAME_FUNCS.requestMode(0xE00, 0);
+            break;
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("wfightmn/nonmatchings/wfightmn_2", func_800A6E6C);
 
@@ -462,9 +759,9 @@ void func_800A7358(BattleMenu *task, BattleMenuChildren *children) {
                 children->task->unk70 = 0x1A;
                 children->task->unk68 = -1;
                 if (unit->hp - task->args[2] <= 0) {
-                    children->task->unk64 = 2;
+                    children->task->hits[3] = 2;
                 } else {
-                    children->task->unk64 = 1;
+                    children->task->hits[3] = 1;
                 }
             }
             func_800A9840(action->actor, task->args[2]);
@@ -698,7 +995,19 @@ void func_800A7CB8(BattleMenu *task, BattleMenuChildren *children) {
 
 INCLUDE_ASM("wfightmn/nonmatchings/wfightmn_2", func_800A7DB0);
 
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn_2", func_800A83D8);
+void func_800A83D8(BattleMenu *task, BattleMenuChildren *children) {
+    BattleAction *action = &D_800A25F0.entries[D_800A25F0.current];
+    BattleUnit *unit;
+
+    unit = &D_800A31E8.units[0][action->unit];
+    unit->unk1B = 0;
+    children->task = func_80099400();
+    task->args[0] = 0x59;
+    task->args[1] = action->actor;
+    task->args[2] = action->unit;
+    children->task->show(children->task, 7, task->args);
+    task->setSubstate(task, 2);
+}
 
 void func_800A8494(BattleMenu *task, BattleMenuChildren *children) {
     Battle *battle;
@@ -900,7 +1209,7 @@ void func_800A8B08(BattleMenu *task) {
 }
 
 Task *WFIGHTMN_start(void) {
-    Task *task = createTaskWithId(func_800A5ACC, 0x74, 0x20, 0xC);
+    Task *task = createTaskWithId(WFIGHTMN_updateMenu, 0x74, 0x20, 0xC);
 
     HEAP.zero(D_800A31F0, sizeof(D_800A31F0));
     HEAP.zero(&D_80042790, sizeof(D_80042790));
@@ -944,7 +1253,218 @@ void func_800A8F60(u8 side, s32 damage) {
     }
 }
 
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn_2", func_800A9040);
+/* Starts the effect of actor's move id (FIGHTSTG's func_8008C090): its kind
+   and motions from D_800427D6, which hits land from D_800A317C, then sets
+   the fighters' idle motions for the damage it does */
+BattleTask *func_800A9040(u8 actor, s32 id) {
+    Unk800427D6 *info;
+    s32 side;
+    BattleStats *own;
+    BattleStats *other;
+    BattleTask *task;
+    BattleUnit *units;
+    s32 damage;
+    s32 i;
+    s32 j;
+
+    side = actor != 0;
+    info = &D_800427D6[id];
+    own = D_800A3308.getStats(actor, 1, D_800A31E8.current[side]);
+    other = D_800A3308.getStats((u8)(0x10 - actor), 0, D_800A31E8.current[1 - side]);
+    task = func_8008C090();
+    task->unk50 = actor;
+    if (actor == 0) {
+        if (info->unk10 == 5) {
+            if (own->unk30[7] != 0) {
+                task->unk54 = 8;
+                task->unk6C = info->unkE;
+                task->unk70 = info->unkF;
+            } else {
+                for (i = 2; i < 13; i++) {
+                    if (D_800A317C.unk38[i] != 0) {
+                        task->unk54 = 6;
+                        {
+                            s32 (*table)[2] = D_800A9CC4; /* match depends on the pointer */
+
+                            j = i - 2;
+                            task->unk6C = table[j][0];
+                            task->unk70 = table[j][1];
+                        }
+                        break;
+                    }
+                }
+                if (task->unk54 == 0) {
+                    for (i = 0; i < 3; i++) {
+                        if (own->unk28[i] >= 2 && own->unk28[i] == other->unk25) {
+                            task->unk54 = 6;
+                            task->unk6C = info->unkE;
+                            task->unk70 = info->unkF;
+                            break;
+                        }
+                    }
+                    if (task->unk54 == 0) {
+                        task->unk54 = info->unk10;
+                        task->unk6C = info->unkE;
+                        task->unk70 = info->unkF;
+                    }
+                }
+            }
+        } else {
+            if (info->unkA < 2 && info->unk4 == 2 && info->unk10 == 6 && own->unk30[7] != 0) {
+                task->unk54 = 8;
+            } else {
+                task->unk54 = info->unk10;
+            }
+            task->unk6C = info->unkE;
+            task->unk70 = info->unkF;
+            if (info->unk7 >= 2 || (info->unk9 >= 2 && info->unk9 == other->unk25)) {
+                task->unk68 = info->unkD;
+            } else {
+                task->unk68 = -1;
+            }
+        }
+        if (task->unk68 <= 0) {
+            if (own->unk2B >= 2) {
+                s32 n;
+                s32 m;
+
+                if (info->unk7 >= 2) {
+                    n = info->unk7 - 2;
+                } else {
+                    n = own->unk2B - 2;
+                }
+                m = n * 3 + 0x21;
+                if (own->unk2C >= 0x40) {
+                    task->unk68 = m + 1;
+                } else {
+                    task->unk68 = m;
+                }
+            } else if (info->unk9 < 2) {
+                for (i = 0; i < 3; i++) {
+                    if (own->unk28[i] == 2 && other->unk25 == 2) {
+                        task->unk68 = 0x35;
+                        break;
+                    }
+                    if (own->unk28[i] == 10 && other->unk25 == 10) {
+                        task->unk68 = 0x36;
+                        break;
+                    }
+                }
+            }
+        }
+    } else {
+        task->unk54 = info->unk10;
+        task->unk6C = info->unkE;
+        task->unk70 = info->unkF;
+        if (info->unk7 >= 2 || (info->unk9 >= 2 && info->unk9 == other->unk25)) {
+            task->unk68 = info->unkD;
+        } else {
+            task->unk68 = -1;
+        }
+    }
+    units = D_800A31E8.units[1 - side];
+    if (id == 0x1B5) {
+        damage = 9999;
+        task->hits[3] = 1;
+    } else if (info->unkA == 0x1F) {
+        if (D_800A317C.unk34 != 0) {
+            damage = D_800A317C.unk60[0] + D_800A317C.unk60[1];
+            if (units[D_800A31E8.current[1 - side]].hp - damage <= 0) {
+                if (D_800A317C.unk34 == 1) {
+                    task->hits[0] = 3;
+                } else {
+                    task->hits[0] = 0;
+                }
+                task->hits[3] = 2;
+            } else {
+                for (i = 0; i < 2; i++) {
+                    if (D_800A317C.hits[i] != 0) {
+                        task->hits[i * 3] = 0;
+                    } else {
+                        task->hits[i * 3] = 3;
+                    }
+                }
+            }
+        } else {
+            damage = 0;
+            task->hits[0] = 3;
+            task->hits[3] = 3;
+        }
+    } else if (D_800A317C.unk38[9] != 0) {
+        damage = D_800A317C.unk34 * D_800A317C.damage;
+        if (units[D_800A31E8.current[1 - side]].hp - damage <= 0) {
+            for (i = 0; i < D_800A317C.unk34 - 1; i++) {
+                if (D_800A317C.hits[i] != 0) {
+                    task->hits[i] = 0;
+                } else {
+                    task->hits[i] = 3;
+                }
+            }
+            task->hits[3] = 2;
+        } else {
+            for (i = 0; i < D_800A317C.unk36 - 1; i++) {
+                if (D_800A317C.hits[i] != 0) {
+                    task->hits[i] = 0;
+                } else {
+                    task->hits[i] = 3;
+                }
+            }
+            if (D_800A317C.hits[i] != 0) {
+                task->hits[3] = 1;
+            } else {
+                task->hits[3] = 3;
+            }
+        }
+    } else if (D_800A317C.unk38[6] != 0) {
+        task->hits[3] = 2;
+        damage = 9999;
+    } else if (info->unkA == 0x23 && D_800A317C.unk38[0x23] != 0) {
+        task->hits[3] = 1;
+        damage = D_800A317C.damage;
+    } else if ((u32)(info->unk4 - 2) < 2) {
+        if (D_800A317C.hits[0] != 0) {
+            if (units[D_800A31E8.current[1 - side]].hp - D_800A317C.damage <= 0) {
+                task->hits[3] = 2;
+            } else {
+                task->hits[3] = 1;
+            }
+            damage = D_800A317C.damage;
+        } else {
+            task->hits[3] = 3;
+            damage = 0;
+        }
+    } else {
+        switch (id) {
+        case 0x64:
+        case 0x177:
+            damage = -9999;
+            break;
+        case 0xB8:
+        case 0xB9:
+        case 0xBA:
+        case 0xBB:
+        case 0xBC:
+        case 0x190:
+            damage = -D_800A3308.unk90[1](actor, id);
+            break;
+        default:
+            damage = 0;
+            break;
+        }
+    }
+    if ((u32)(info->unk4 - 2) < 2) {
+        func_800A8EBC(actor, id);
+        func_800A9960(actor, damage);
+        func_800A9840(0x10 - actor, damage);
+        if (D_800A317C.unk38[8] != 0) {
+            func_800A9840(actor, -D_800A317C.unk2C);
+        }
+    } else {
+        func_800A99F0(actor);
+        func_800A9840(actor, damage);
+    }
+    return task;
+}
 
 /* Sets the idle motion of side id >> 4's fighter: 1 (weak) if damage
    leaves it with a quarter of its HP or less; returns whether it did */
@@ -1028,7 +1548,7 @@ void func_800A62B8();
 void func_800A6654();
 void func_800A6778();
 void func_800A69D0();
-void func_800A6AC8();
+void WFIGHTMN_endBattle();
 void func_800A6E6C();
 void func_800A6FA0();
 void func_800A70E8();
@@ -1084,18 +1604,16 @@ s32 D_800A9BD8[][4] = {
 };
 void (*WFIGHTMN_states[])(BattleMenu *task, BattleMenuChildren *children) = {
     NULL, NULL, NULL, func_800A62B8,
-    func_800A6654, func_800A6778, func_800A69D0, func_800A6AC8,
+    func_800A6654, func_800A6778, func_800A69D0, WFIGHTMN_endBattle,
     func_800A6E6C, func_800A6FA0, func_800A70E8, func_800A72E0,
     func_800A7358, func_800A75F8, func_800A75F8, func_800A75F8,
     func_800A7754, func_800A7878, func_800A7950, func_800A7A7C,
     func_800A7CB8, func_800A7DB0, func_800A83D8, func_800A8494,
     func_800A8610, func_800A86E0, func_800A8A64,
 };
-s32 D_800A9CC4[] = {
-    19, 26, 20, 26,
-    21, 27, 22, 50,
-    26, 50, 0, 0,
-    28, 39, 0, 0,
-    46, 30, 0, 59,
-    31, 58,
+/* func_800A9040's unk6C and unk70 by the first of D_800A317C.unk38[2..12]
+   that is set */
+s32 D_800A9CC4[][2] = {
+    {19, 26}, {20, 26}, {21, 27}, {22, 50}, {26, 50}, {0, 0},
+    {28, 39}, {0, 0}, {46, 30}, {0, 59}, {31, 58},
 };

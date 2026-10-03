@@ -10,3 +10,5 @@ WFIGHTTS_createStageList = 0x800A7614; // type:func
 WFIGHTTS_loadImages = 0x800A58EC; // type:func
 WFIGHTTS_initLayers = 0x800A567C; // type:func
 WFIGHTTS_screen = 0x800A821C;
+D_800A31E8 = 0x800A31E8; // FIGHTSTG's battle (Battle)
+D_800A32E0 = 0x800A32E0; // FIGHTSTG's fighter cache (FighterCache)

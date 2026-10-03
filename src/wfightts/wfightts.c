@@ -4,8 +4,34 @@ extern RECT WFIGHTTS_screen;
 extern s32 WFIGHTTS_stageCursor;
 extern s32 WFIGHTTS_stageScroll;
 extern char *WFIGHTTS_stageNames[];
+extern s16 D_800A8224[][2];
+extern s32 D_800A8240[];
+extern s32 D_800A8250[];
+extern s32 D_800A8260;
+extern s32 D_800A84EC[];
+extern s32 D_800A852C[];
+extern s32 D_800A8560;
+extern s32 D_800A8564;
 
-void func_800A5A54();
+/* FIGHTSTG's */
+Task *func_80092124(void);
+Unk800911C8 *func_800919EC(s32 layer);
+FightStage *func_80086128(s32 id, s32 fadeInTime);
+Models *func_800877D4(void);
+Task *func_8008A838(s32 layer);
+void func_80092154(s32 arg0);
+void *func_80086780(s32 digimon, s32 arg1, s32 arg2);
+void *func_80089F74(s32 digimon, s32 arg1);
+void *func_800A120C(void);
+BattleTestMove *func_8008C090(void);
+void *func_80087ACC(s32 arg0, s32 arg1);
+
+void func_800A5A54(BattleTest *task, BattleTestChildren *children);
+BattleTestList *func_800A6E80(s32 *arg, s32 *done);
+BattleTestList *func_800A72EC(s32 *arg, s32 *done);
+BattleTestStageList *WFIGHTTS_createStageList(s32 *result);
+BattleTestMotions *func_800A7B9C(s32 *side, s32 *motion);
+BattleTestEffects *func_800A81D0(s32 *side, s32 *effect);
 void func_800A6954();
 void func_800A6ECC();
 void WFIGHTTS_stageList();
@@ -59,7 +85,309 @@ void WFIGHTTS_loadImages(void) {
     loader.loadArchive(FILE_CACHE.load(FILE_BATTLE_IMAGES_4));
 }
 
-INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A5A54);
+/* The battle test: sets up the battle, then runs its pages. Page 0 plays
+   things on CROSS (back to the last list), R1, R2 and L2; the lists pick the
+   fighters, the camera, the stage, a motion and an effect. SELECT cycles
+   D_800A8260 and R2 with the pad moves the display */
+void func_800A5A54(BattleTest *task, BattleTestChildren *children) {
+    Unk80091618 unused; /* unused, but it is in the original stack frame */
+    s32 list = 0;
+    s32 pressed;
+    s32 arg;
+    FighterInfo *partner;
+    EnemyFighterInfo *enemy;
+
+    switch (task->state) {
+    case 0:
+    default:
+        switch (task->substate) {
+        case 0:
+        default:
+            FILE_CACHE.freeAll();
+            WFIGHTTS_initLayers();
+            task->nextSubstate(task);
+        case 1:
+            switch (task->step) {
+            case 0:
+            default:
+                SOUND.loadBank(2);
+                task->nextStep(task);
+            case 1:
+                if (SOUND_STATE.isLoading() == 0) {
+                    SOUND_STATE.playSound(0x60080000);
+                    D_80042728.unk14 = 0x60080000;
+                    task->nextSubstate(task);
+                }
+                break;
+            }
+            break;
+        case 2:
+            WFIGHTTS_loadImages();
+            task->nextSubstate(task);
+        case 3:
+            switch (task->step) {
+            case 0:
+            default:
+                children->commands = func_80092124();
+                children->unk8 = func_800919EC(0x1001);
+                children->stage = func_80086128(D_80042728.unkC, 60);
+                children->models = func_800877D4();
+                children->lights = func_8008A838(0x1001);
+                task->nextStep(task);
+                break;
+            case 1:
+                arg = GAME_FUNCS.getModeArg();
+                children->models->add(children->models, 0, D_800A8224[arg][0], 1);
+                children->models->face(children->models, 0);
+                children->models->add(children->models, 0x10, D_800A8224[arg][1], 1);
+                children->models->face(children->models, 0x10);
+                children->unk8->unkF8(children->unk8, children->unk8->unk100(children->unk8));
+                func_80092154(0);
+                task->page = 1;
+                task->nextState(task);
+                break;
+            }
+            break;
+        }
+        break;
+    case 1:
+        switch (task->substate) {
+        case 0:
+        default:
+            switch (task->step) {
+            case 0:
+            default:
+                func_80092154(0);
+                task->nextStep(task);
+            case 1:
+                pressed = PAD.getPressed(0);
+                if (pressed & 0x2000) {
+                    func_80092154(0);
+                    task->setSubstate(task, task->page);
+                }
+                if ((pressed & 0x800) && children->task == NULL) {
+                    children->task = func_80086780(0x94, 0, 0);
+                }
+                if ((pressed & 0x200) && children->task == NULL) {
+                    children->task = func_80089F74(0x3B, 0);
+                }
+                if ((pressed & 0x100) && children->task == NULL) {
+                    children->task = func_800A120C();
+                }
+                break;
+            }
+            break;
+        case 1:
+            list = 1;
+            switch (task->step) {
+            case 0:
+            default:
+                task->page = 1;
+                children->fighters = func_800A6E80(&task->side, &task->fighter);
+                task->nextStep(task);
+                break;
+            case 1:
+                if (PAD.getPressed(0) & 0x400) {
+                    task->setSubstate(task, 2);
+                    children->fighters->setState(children->fighters, 3);
+                } else if (PAD.getPressed(0) & 0x800) {
+                    task->setSubstate(task, 5);
+                    children->fighters->setState(children->fighters, 3);
+                } else if (children->fighters == NULL) {
+                    if (task->side != -1) {
+                        if (task->side == 0) {
+                            children->models->add(children->models, 0, task->fighter, 1);
+                            children->models->face(children->models, 0);
+                        } else {
+                            children->models->add(children->models, 0x10, task->fighter, 1);
+                            children->models->face(children->models, 0x10);
+                        }
+                        children->unk8->unkF8(children->unk8, children->unk8->unk100(children->unk8));
+                    }
+                    task->setSubstate(task, 0);
+                }
+                break;
+            }
+            break;
+        case 2:
+            list = 1;
+            switch (task->step) {
+            case 0:
+            default:
+                task->page = 2;
+                children->cameras = func_800A72EC(&task->side, &task->camera);
+                task->nextStep(task);
+                break;
+            case 1:
+                if (PAD.getPressed(0) & 0x400) {
+                    children->cameras->setState(children->cameras, 3);
+                    task->setSubstate(task, 3);
+                } else if (PAD.getPressed(0) & 0x800) {
+                    children->cameras->setState(children->cameras, 3);
+                    task->setSubstate(task, 1);
+                } else if (children->cameras == NULL) {
+                    if (task->side != -1) {
+                        if (task->side == 0) {
+                            partner = D_800A32E0.funcs.getInfo(children->models->getFighter(children->models, 0));
+                            D_800A84EC[0] = partner->camPos[task->camera].x;
+                            D_800A84EC[1] = -partner->camPos[task->camera].y;
+                            D_800A84EC[2] = -partner->camPos[task->camera].z;
+                            D_800A84EC[3] = partner->camRef[task->camera].x;
+                            D_800A84EC[4] = -partner->camRef[task->camera].y;
+                            D_800A84EC[5] = -partner->camRef[task->camera].z;
+                            D_800A84EC[11] = 0;
+                            D_800A84EC[12] = partner->camProj[task->camera];
+                            children->unk8->unkFC(children->unk8, 0, D_800A84EC, 60);
+                        } else {
+                            enemy = (EnemyFighterInfo *)D_800A32E0.funcs.getInfo(children->models->getFighter(children->models, 0x10));
+                            D_800A852C[0] = enemy->camPos[task->camera].x;
+                            D_800A852C[1] = -enemy->camPos[task->camera].y;
+                            D_800A852C[2] = -enemy->camPos[task->camera].z;
+                            D_800A852C[3] = enemy->camRef[task->camera].x;
+                            D_800A852C[4] = -enemy->camRef[task->camera].y;
+                            D_800A852C[5] = -enemy->camRef[task->camera].z;
+                            D_800A852C[11] = 0;
+                            D_800A852C[12] = enemy->camProj[task->camera];
+                            children->unk8->unkFC(children->unk8, 0, D_800A852C, 60);
+                        }
+                    }
+                    task->setSubstate(task, 0);
+                }
+                break;
+            }
+            break;
+        case 3:
+            list = 1;
+            switch (task->step) {
+            case 0:
+            default:
+                task->page = 3;
+                children->stages = WFIGHTTS_createStageList(&task->stage);
+                task->nextStep(task);
+                break;
+            case 1:
+                if (PAD.getPressed(0) & 0x400) {
+                    children->stages->setState(children->stages, 3);
+                    task->setSubstate(task, 4);
+                } else if (PAD.getPressed(0) & 0x800) {
+                    children->stages->setState(children->stages, 3);
+                    task->setSubstate(task, 2);
+                } else if (children->stages == NULL) {
+                    if (task->stage != -1) {
+                        D_80042728.unkC = task->stage;
+                        children->stage->setStage(children->stage, task->stage, 60, 60);
+                    }
+                    task->setSubstate(task, 0);
+                }
+                break;
+            }
+            break;
+        case 4:
+            list = 1;
+            switch (task->step) {
+            case 0:
+            default:
+                task->page = 4;
+                children->motions = func_800A7B9C(&task->side, &task->motion);
+                task->nextStep(task);
+                break;
+            case 1:
+                if (PAD.getPressed(0) & 0x400) {
+                    children->motions->setState(children->motions, 3);
+                    task->setSubstate(task, 5);
+                } else if (PAD.getPressed(0) & 0x800) {
+                    children->motions->setState(children->motions, 3);
+                    task->setSubstate(task, 3);
+                } else if (children->motions == NULL) {
+                    /* match depends on the call in each branch */
+                    if (task->side == -1) {
+                        task->setSubstate(task, 0);
+                    } else {
+                        children->models->get(children->models, (task->side != 0) * 0x10)->motion = task->motion;
+                        task->setSubstate(task, 0);
+                    }
+                }
+                break;
+            }
+            break;
+        case 5:
+            list = 1;
+            switch (task->step) {
+            case 0:
+            default:
+                task->page = 5;
+                children->effects = func_800A81D0(&task->side, &task->effect);
+                task->nextStep(task);
+                break;
+            case 1:
+                if (PAD.getPressed(0) & 0x400) {
+                    children->effects->setState(children->effects, 3);
+                    task->setSubstate(task, 1);
+                } else if (PAD.getPressed(0) & 0x800) {
+                    children->effects->setState(children->effects, 3);
+                    task->setSubstate(task, 4);
+                } else if (children->effects == NULL) {
+                    if (task->side == -1) {
+                        task->setSubstate(task, 0);
+                    } else {
+                        if (task->effect != 0x12) {
+                            children->task = func_8008C090();
+                            children->task->kind = task->effect;
+                            children->task->actor = task->side;
+                            children->task->hits[0] = 3;
+                            children->task->hits[1] = 3;
+                            children->task->hits[2] = 3;
+                            children->task->hits[3] = 2;
+                            children->task->unk68 = -1;
+                            children->task->unk70 = 0x39;
+                        } else {
+                            children->task = func_80087ACC(1, 0);
+                        }
+                        task->nextStep(task);
+                    }
+                }
+                break;
+            case 2:
+                list = 0;
+                if (children->task == NULL) {
+                    task->setSubstate(task, 0);
+                }
+                break;
+            }
+            break;
+        }
+        if (list) {
+            D_800A31E8.unkF4(0x1005, 1, D_800A8240, D_800A8250);
+        }
+        if (PAD.getPressed(0) & 1) {
+            if (++D_800A8260 == 4) {
+                D_800A8260 = 0;
+            }
+            D_800A31E8.unkE8(D_800A8260);
+        }
+        if ((PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_R2)) & 1) {
+            if ((PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_LEFT)) & 1) {
+                D_800A8560 -= 10;
+            } else if ((PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_RIGHT)) & 1) {
+                D_800A8560 += 10;
+            } else if ((PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_UP)) & 1) {
+                D_800A8564 -= 10;
+            } else if ((PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_DOWN)) & 1) {
+                D_800A8564 += 10;
+            } else if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_START)) & 1) {
+                D_800A8564 = 0;
+                D_800A8560 = 0;
+            }
+            GFX_FUNCS.setDisplayArea(D_800A8560, D_800A8564, 0x140, 0xF0);
+        } else {
+            GFX_FUNCS.setDisplayMode(0x140, 0xF0, 0, 0);
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 Task *WFIGHTTS_start(void) {
     return createTaskWithId(func_800A5A54, 0, 0, 0);
@@ -67,22 +395,24 @@ Task *WFIGHTTS_start(void) {
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A6954);
 
-void func_800A6E80(s32 *arg, s32 *done) {
+BattleTestList *func_800A6E80(s32 *arg, s32 *done) {
     BattleTestList *task = createTask(func_800A6954, sizeof(BattleTestList), 0x70);
 
     task->unk50 = arg;
     task->done = done;
     *done = 0;
+    return task;
 }
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A6ECC);
 
-void func_800A72EC(s32 *arg, s32 *done) {
+BattleTestList *func_800A72EC(s32 *arg, s32 *done) {
     BattleTestList *task = createTask(func_800A6ECC, sizeof(BattleTestList), 0x3C);
 
     task->unk50 = arg;
     task->done = done;
     *done = 0;
+    return task;
 }
 
 /* The fight stage list: 14 of the 55 stages at a time (UP and DOWN, ten at a
@@ -159,21 +489,21 @@ BattleTestStageList *WFIGHTTS_createStageList(s32 *result) {
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A764C);
 
-BattleTestMotions *func_800A7B9C(s32 a, s32 b) {
+BattleTestMotions *func_800A7B9C(s32 *side, s32 *motion) {
     BattleTestMotions *task = createTaskWithId(func_800A764C, sizeof(BattleTestMotions), 0x70, 0xFFFF);
 
-    task->unk250 = a;
-    task->unk254 = b;
+    task->side = side;
+    task->motion = motion;
     return task;
 }
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A7BE8);
 
-BattleTestEffects *func_800A81D0(s32 a, s32 b) {
+BattleTestEffects *func_800A81D0(s32 *side, s32 *effect) {
     BattleTestEffects *task = createTaskWithId(func_800A7BE8, sizeof(BattleTestEffects), 0x70, 0xFFFF);
 
-    task->unkF8 = a;
-    task->unkFC = b;
+    task->side = side;
+    task->effect = effect;
     return task;
 }
 
@@ -186,9 +516,11 @@ extern char WFIGHTTS_strings[];
 
 /* The screen, for the layers */
 RECT WFIGHTTS_screen = { 0, 0, 0x140, 0xF0 };
-u16 D_800A8224[] = {
-    0x017A, 0x01B9, 0x016E, 0x0073, 0x0103, 0x00CA, 0x016E, 0x01B4,
-    0x0091, 0x00C5, 0x001F, 0x0089, 0x0097, 0x006C,
+/* The partner and the enemy the battle test starts with, by the mode's
+   argument */
+s16 D_800A8224[][2] = {
+    {0x017A, 0x01B9}, {0x016E, 0x0073}, {0x0103, 0x00CA}, {0x016E, 0x01B4},
+    {0x0091, 0x00C5}, {0x001F, 0x0089}, {0x0097, 0x006C},
 };
 s32 D_800A8240[] = {
     0, 320, 0xF00000, 0xF00140,

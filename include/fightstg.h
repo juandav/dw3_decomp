@@ -519,7 +519,7 @@ typedef struct Unk800911C8 {
     /* 0x0F4 */ s32 unkF4;
     /* 0x0F8 */ void (*unkF8)(struct Unk800911C8 *task, Unk80091618 *arg1);
     /* 0x0FC */ void (*unkFC)();
-    /* 0x100 */ void (*unk100)();
+    /* 0x100 */ Unk80091618 *(*unk100)(struct Unk800911C8 *task); /* func_80091950 */
     /* 0x104 */ void (*unk104)();
 } Unk800911C8;
 
@@ -823,7 +823,7 @@ void func_800999E4();
 void func_800911C8();
 void func_80091688();
 void func_80091788();
-void func_80091950();
+Unk80091618 *func_80091950();
 void func_80086180();
 void func_8009245C(Unk80092350 *task, s32 frames);
 Unk80092350 *func_80092494(s32 frames);

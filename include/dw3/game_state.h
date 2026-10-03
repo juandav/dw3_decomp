@@ -108,7 +108,7 @@ typedef struct Deck {
 typedef struct Partner {
     /* 0x000 */ u8 unk0[4];
     /* 0x004 */ s32 unlocked; /* partner id + 3, 0 while locked */
-    /* 0x008 */ s32 unk8; /* an entry id, compared with the slots' */
+    /* 0x008 */ s32 unk8; /* an entry id, compared with the slots': the Digimon the battle starts it as, 0 for its own */
     /* 0x00C */ char name[0x1C];
     /* 0x028 */ s16 level;
     /* 0x02A */ s16 unk2A;
