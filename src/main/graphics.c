@@ -679,7 +679,153 @@ void spriteDrawerSetLayerId(s32 id, s32 depth) {
     spriteDrawerSetLayer(GFX_FUNCS.getLayer(id), depth);
 }
 
-INCLUDE_ASM("main/nonmatchings/graphics", spriteDrawerDraw);
+/*
+ * Draws frame `frame` of a sprite sheet (see SpritePart) at (x, y): as
+ * sprites, changing the texture page between parts when needed, or as
+ * textured quads when the drawer is scaled or rotated.
+ */
+void spriteDrawerDraw(s32 *sheet, s32 frame, s32 x, s32 y) {
+    Vec2 scroll;
+    SVECTOR out;
+    SVECTOR in[4];
+    SpritePart *parts;
+    SpritePart *part;
+    u8 *ids;
+    s16 *p;
+    void *prim;
+    s32 transform;
+    s32 count;
+    s32 frameRow;
+    s32 semi;
+    s32 abr;
+    s32 i;
+    s32 k;
+    u8 u;
+    u8 v;
+
+    transform = 0;
+    ids = (u8 *)sheet + sheet[1];
+    parts = (SpritePart *)((u8 *)sheet + sheet[0]);
+    for (i = 0; ids[i] != frame; i++) {
+    }
+    p = (s16 *)((u8 *)sheet + sheet[i + 2]);
+    /* rot.vx and rot.vy are tested as one word */
+    if (SPRITE_DRAWER->scaleX != 0x1000 || SPRITE_DRAWER->scaleY != 0x1000 || SPRITE_DRAWER->scaleZ != 0x1000 ||
+        *(s32 *)&SPRITE_DRAWER->rot.vx != 0 || SPRITE_DRAWER->rot.vz != 0) {
+        transform = 1;
+        if (SPRITE_DRAWER->transformDirty) {
+            RotMatrixYXZ_gte(&SPRITE_DRAWER->rot, &SPRITE_DRAWER->matrix);
+            ScaleMatrix(&SPRITE_DRAWER->matrix, (VECTOR *)&SPRITE_DRAWER->scaleX);
+        }
+    }
+    count = *p++;
+    frameRow = *p++;
+    abr = *p++;
+    if (abr == -1) {
+        semi = 0;
+        abr = 0;
+    } else {
+        semi = 1;
+    }
+    if (SPRITE_DRAWER->followScroll) {
+        SPRITE_DRAWER->layer->getScroll(SPRITE_DRAWER->layer, &scroll);
+    } else {
+        scroll.x = 0;
+        scroll.y = 0;
+    }
+    p += (count - 1) * 3;
+    prim = GFX_FUNCS.getPrim();
+    if (!transform) {
+        u16 clut;
+        u16 tpage;
+        u16 prevTpage;
+
+        tpage = 0;
+        prevTpage = 0;
+        for (i = 0; i < count; i++) {
+            part = &parts[p[0]];
+            clut = getClut((part->mode ? SPRITE_DRAWER->altClutX : SPRITE_DRAWER->clutX) + part->clutX,
+                           (part->mode ? SPRITE_DRAWER->altClutY : SPRITE_DRAWER->clutY) + part->clutY + frameRow +
+                               SPRITE_DRAWER->clutRow);
+            tpage = getTPage(part->mode, abr, SPRITE_DRAWER->tpageX + (part->mode ? part->u / 2 : part->u / 4),
+                             SPRITE_DRAWER->tpageY);
+            if (i == 0) {
+                prevTpage = tpage;
+            }
+            if (prevTpage != tpage) {
+                SetDrawTPage(prim, 0, 1, prevTpage);
+                addPrim(SPRITE_DRAWER->ot, prim);
+                prim = (DR_TPAGE *)prim + 1;
+                prevTpage = tpage;
+            }
+            *(CVECTOR *)&((SPRT *)prim)->r0 = SPRITE_DRAWER->color;
+            setSprt((SPRT *)prim);
+            if (semi) {
+                setSemiTrans((SPRT *)prim, 1);
+            }
+            ((SPRT *)prim)->x0 = p[1] + x - scroll.x;
+            ((SPRT *)prim)->y0 = p[2] + y - scroll.y;
+            if (part->mode) {
+                ((SPRT *)prim)->u0 = part->u & 0x7F;
+            } else {
+                ((SPRT *)prim)->u0 = part->u;
+            }
+            ((SPRT *)prim)->v0 = part->v;
+            ((SPRT *)prim)->w = part->w;
+            ((SPRT *)prim)->h = part->h;
+            ((SPRT *)prim)->clut = clut;
+            addPrim(SPRITE_DRAWER->ot, prim);
+            prim = (SPRT *)prim + 1;
+            p -= 3;
+        }
+        SetDrawTPage(prim, 0, 1, tpage);
+        addPrim(SPRITE_DRAWER->ot, prim);
+        prim = (DR_TPAGE *)prim + 1;
+    } else {
+        u16 clut;
+        u16 tpage;
+
+        for (i = 0; i < count; i++) {
+            part = &parts[p[0]];
+            clut = getClut((part->mode ? SPRITE_DRAWER->altClutX : SPRITE_DRAWER->clutX) + part->clutX,
+                           (part->mode ? SPRITE_DRAWER->altClutY : SPRITE_DRAWER->clutY) + part->clutY + frameRow +
+                               SPRITE_DRAWER->clutRow);
+            tpage = getTPage(part->mode, abr, SPRITE_DRAWER->tpageX + (part->mode ? part->u / 2 : part->u / 4),
+                             SPRITE_DRAWER->tpageY);
+            *(CVECTOR *)&((POLY_FT4 *)prim)->r0 = SPRITE_DRAWER->color;
+            setPolyFT4((POLY_FT4 *)prim);
+            if (semi) {
+                setSemiTrans((POLY_FT4 *)prim, 1);
+            }
+            in[0].vx = in[2].vx = p[1] + x - SPRITE_DRAWER->pivotX;
+            in[1].vx = in[3].vx = in[0].vx + part->w;
+            in[0].vy = in[1].vy = p[2] + y - SPRITE_DRAWER->pivotY;
+            in[2].vy = in[3].vy = in[0].vy + part->h;
+            in[0].vz = in[1].vz = in[2].vz = in[3].vz = 0;
+            for (k = 0; k < 4; k++) {
+                ApplyMatrixSV(&SPRITE_DRAWER->matrix, &in[k], &out);
+                (&((POLY_FT4 *)prim)->x0)[k * 4] = out.vx - scroll.x + SPRITE_DRAWER->pivotX;
+                (&((POLY_FT4 *)prim)->y0)[k * 4] = out.vy - scroll.y + SPRITE_DRAWER->pivotY;
+            }
+            if (part->mode) {
+                u = part->u & 0x7F;
+            } else {
+                u = part->u;
+            }
+            ((POLY_FT4 *)prim)->u0 = ((POLY_FT4 *)prim)->u2 = u;
+            ((POLY_FT4 *)prim)->u1 = ((POLY_FT4 *)prim)->u3 = u + part->w - 1;
+            v = part->v;
+            ((POLY_FT4 *)prim)->v0 = ((POLY_FT4 *)prim)->v1 = v;
+            ((POLY_FT4 *)prim)->v2 = ((POLY_FT4 *)prim)->v3 = v + part->h - 1;
+            ((POLY_FT4 *)prim)->tpage = tpage;
+            ((POLY_FT4 *)prim)->clut = clut;
+            addPrim(SPRITE_DRAWER->ot, prim);
+            prim = (POLY_FT4 *)prim + 1;
+            p -= 3;
+        }
+    }
+    GFX_FUNCS.setPrim(prim);
+}
 
 void spriteDrawerSetScale(s32 x, s32 y, s32 z) {
     SPRITE_DRAWER->scaleX = x;
@@ -689,9 +835,9 @@ void spriteDrawerSetScale(s32 x, s32 y, s32 z) {
 }
 
 void spriteDrawerSetRotation(s16 x, s16 y, s16 z) {
-    SPRITE_DRAWER->rotX = x;
-    SPRITE_DRAWER->rotY = y;
-    SPRITE_DRAWER->rotZ = z;
+    SPRITE_DRAWER->rot.vx = x;
+    SPRITE_DRAWER->rot.vy = y;
+    SPRITE_DRAWER->rot.vz = z;
     SPRITE_DRAWER->transformDirty = 1;
 }
 
@@ -837,7 +983,70 @@ s32 measureText(TextBuffer *text, TextStyle *style, s32 spacing) {
     return max;
 }
 
-INCLUDE_ASM("main/nonmatchings/graphics", convertText);
+/* Swaps the bytes of a Shift-JIS code: the text has them big-endian */
+#define SWAP16(x) ((((x) & 0xFF00) >> 8) | (((x) & 0xFF) << 8))
+
+/*
+ * Converts the string `text` to `buf`: mode 0 from font codes to Shift-JIS (a
+ * code below 4 is followed by an icon's), mode 1 back. Not terminated.
+ */
+void convertText(void *buf, void *text, s32 mode) {
+    u8 *dst = buf;
+    u8 *src = text;
+    s32 len;
+    s32 i;
+    s32 j;
+    s32 n;
+    s32 found;
+
+    len = strlen(src);
+    if (mode == 0) {
+        n = 0;
+        for (i = 0; i < len; i++) {
+            if (src[i] >= 4) {
+                for (j = 4; FONT_GLYPH_MAP[j].code != 0xFFFF; j++) {
+                    if (FONT_GLYPH_MAP[j].index == src[i]) {
+                        *(u16 *)&dst[n] = SWAP16(FONT_GLYPH_MAP[j].code);
+                        n += 2;
+                        break;
+                    }
+                }
+            } else {
+                for (j = 1; FONT_ICON_MAP[j].code != 0xFFFF; j++) {
+                    if (FONT_ICON_MAP[j].index == src[i + 1]) {
+                        *(u16 *)&dst[n] = SWAP16(FONT_ICON_MAP[j].code);
+                        n += 2;
+                        break;
+                    }
+                }
+                i++;
+            }
+        }
+    } else if (mode == 1) {
+        len >>= 1;
+        n = 0;
+        for (i = 0; i < len; i++) {
+            found = 0;
+            for (j = 4; FONT_GLYPH_MAP[j].code != 0xFFFF; j++) {
+                if (FONT_GLYPH_MAP[j].code == SWAP16(((s16 *)src)[i])) {
+                    dst[n++] = FONT_GLYPH_MAP[j].index;
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found) {
+                for (j = 1; FONT_ICON_MAP[j].code != 0xFFFF; j++) {
+                    if (FONT_ICON_MAP[j].code == SWAP16(((s16 *)src)[i])) {
+                        dst[n++] = 1;
+                        /* the glyph map's index, not the icon's */
+                        dst[n++] = FONT_GLYPH_MAP[j].index;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
 
 void initTextTools(TextTools *obj) {
     HEAP.zero(obj, sizeof(TextTools));

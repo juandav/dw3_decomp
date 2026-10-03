@@ -325,14 +325,16 @@ void updateTalkBoxFrame(Task *task);
 Task *createMessageBox(s32 layerId, s32 strings, s32 index);
 TalkBox *createTalkBox(s32 id, s16 x, s16 y, s32 file, s32 index, u32 type);
 
-extern char STR_NULL_MESSAGE[];
-extern char STR_BAD_DIGIT_BUFFER[];
-extern char STR_BAD_EXT_BUFFER[];
-extern char STR_MESSAGE_NOT_SET[];
+extern const char STR_NULL_MESSAGE[];
+extern const char STR_BAD_DIGIT_BUFFER[];
+extern const char STR_BAD_EXT_BUFFER[];
+extern const char STR_MESSAGE_NOT_SET[];
 extern s16 (*FONT_DECODE)(u8 *text, s32 arg1, u8 *arg2, s32 pos);
 extern char *CURSOR_FRAMES[];
 extern s32 TEXT_WAIT_BUTTONS[];
 extern Font FONT;
+extern GlyphMap FONT_GLYPH_MAP[];
+extern GlyphMap FONT_ICON_MAP[];
 extern TalkBoxLayout TALK_BOX_LAYOUTS[];
 
 #endif /* DW3_TEXT_H */
