@@ -151,18 +151,21 @@ own.
 
 ## Overlays
 
-- [ ] 1,620 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,624 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`, `STCRDABM`. Mostly:
   `STCRDDEK` (54 / 55), `SHOCKTST` (16 / 17), `STAGSLCT` (7 / 8),
-  `FIELDSTG` (211 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
-  `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (88 / 94),
+  `FIELDSTG` (214 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
+  `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (89 / 94),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
   `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
   `WFIGHTMN` (41 / 42), `FIGHTSTG` (263 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_createScreenWindows` (3 diffs): the `unk5C` loop's counter
     gets `s2` where the original has `s3`, the register of the other loops'
-    counter.
+    counter. Only one shape of the counters keeps the outer loop's: `a` for
+    the first loop and the last, `b` inside, `c` for the `unk5C` loop (any
+    other reuse lets the loop optimizer drop `a` and the frame shrinks), and
+    no order of the declarations moves `c` to `s3`.
   - `STAGSLCT_showBiosVersion` matches only with an empty `do {} while (0)`
     that ends a CSE block, a fake match.
   - `SHOCKTST_convertText` (173 diffs): the
@@ -175,14 +178,22 @@ own.
     stop the second scheduler from moving the load of `GFX.buffer` up into
     the load delay of `task->counter`'s. Nothing hints at a print
     or a loop there, so it stays asm.
-    `func_80091124`, `func_80091AA8`, `func_8008D4C4` and `func_80085650`
-    are close but the permuter found no match; `func_8008DB60` and
+    `func_80091AA8` differs only in its prologue: the original stores `ra`
+    right after the frame is made, where the second scheduler moves it in
+    ours. `func_8008DB60` and
     `func_8008DFE0` only match with the permuter's copy of a variable kept
-    for nothing; `func_8008EC74` differs in its block layout,
-    `func_80085EEC` is a near miss too, and `func_80090450` matches in Europe
-    but swaps `s4` and `s5` in the USA. `func_8008A154` (the field's
+    for nothing. `func_8008EC74` differs in its block layout: the original
+    picks `unk9C` with a tree of compares placed after the bodies (`< 8`,
+    `== 8`, `< 0x16`, `< 0x1A`, `< 0x25`) and one store, where a `switch`
+    gives a jump table and an `if` chain puts the bodies inline.
+    `func_80085EEC` has a frame 8 bytes larger than ours. `func_80090450`
+    matches in Europe (with `actor->dir = actor->unkA0 = 1`) but swaps `s4`
+    and `s5` in the USA: without the European PAL branch the constant 1
+    lives shorter and outranks `kind` in the global allocator.
+    `func_8008A154` (the field's
     update, which creates the characters and runs the transition) has the
-    right code but 80 diffs of registers; the permuter only got closer with
+    right code but 80 diffs of registers (`task` gets `s3` where the
+    original has `s4`); the permuter only got closer with
     an empty `do {} while (0)`, a fake match.
 - [ ] `FIGHTSTG`'s blocked functions: `func_8009C764`, `func_8009C8EC` and
   `func_8009C998` differ only in registers and the order of a few loads (the
@@ -289,14 +300,18 @@ own.
   the permuter). `STCRDSHP` is three objects, like
   `STSTATUS`'s ten: GCC aligns a jump table to 8 bytes, and the original's
   tables only line up at its object boundaries.
-- [ ] `STGTRAIN`'s near misses: `func_80085AF8` (3 diffs: the original
-  schedules the table's `lui` later in two of the three branches; the
-  permuter's best reuses a variable), `func_800859F4` (15, `s0`/`s2`
-  swapped) and `func_8008B35C` (the RLEN loader: the original reloads
-  `D_8008C4D4` in the loop and spills `clutX`; ours keeps both in
-  registers). `func_80087E34`, `func_80088CFC` and `func_800867A0` were
-  tried without a match (register allocation; `func_800867A0` is closest
-  in Europe).
+- [ ] `STGTRAIN`'s near misses: `func_80085AF8` (3 diffs: the scheduled
+  code is the same, but the delayed-branch pass fills the second test's
+  delay slot with the resistance's address where the original takes the
+  table's `lui`), `func_8008B35C` (the RLEN loader: it is right but for one
+  block, where the original copies the image pointer before the RLEN test,
+  which keeps the `ori` of the magic number out of the load delay; a copy
+  written before the test is merged into the load, and one in an `else`
+  gives the right registers but not that order), `func_800867A0` (4 diffs
+  in Europe: in the shown values, the original adds the stat's index to
+  `result`, ours adds `result` to the index), `func_80087E34` (11: `PAD`'s
+  address and `last` swap `s1` and `s3`) and `func_80088CFC` (13: three
+  registers rotated).
 - [ ] Check `STFGTREP`'s guess (the report after a battle) against its
   texts, and `STGDGLAB`'s (the partners' digivolutions) against its
   strings.
@@ -312,19 +327,19 @@ own.
 - [ ] Overlay data: 82 % of it is C in both versions; the `.data` of every
   overlay is C. objdiff counts a section only when all of it
   matches, so the `.rodata` of the overlays with functions still in asm
-  doesn't count yet. `INCLUDE_RODATA` is left in `SHOCKTST` (7),
-  `FIGHTSTG` (4), `FIELDSTG` and the European `STAGSLCT` and `SOUNDTST`
-  (1 each). `STAGSLCT`'s texts are C, but the European overlay pads its
-  cursor, `"＞"`, with 0x39 where the build gives 0 (as `SOUNDTST` pads its
-  own with 0x2D, below), so that one stays asm. `WFIGHTTS`'s strings are a
-  `const char` array whose padding after each table's last string is what
-  the assembler left there, in both versions. The European `CNTY_SEL` `.data`
+  doesn't count yet. `INCLUDE_RODATA` is left in `SHOCKTST` (7) and
+  `FIGHTSTG` (4).
+  `WFIGHTTS`'s strings are a `const char` array whose padding after each
+  table's last string is what the assembler left there, in both versions,
+  and so are the cursors, `"＞"`, of `SOUNDTST` and the European
+  `STAGSLCT`, which the European overlays pad with 0x2D and 0x39 where GCC
+  would put 0. The European `CNTY_SEL` `.data`
   stays at 98.95 % in the report: the file ends 3 bytes into its last
   word, which splat's object leaves out.
 - [x] `SOUNDTST`'s texts are string literals in its lists, which GCC puts
   in `.rodata` in reverse order of each list. The European file pads the
-  last one, `"＞"`, with 0x2D instead of 0, so there it stays asm
-  (`SOUNDTST_STR_CURSOR`).
+  last one, `"＞"`, with 0x2D instead of 0, so that one is a `const char`
+  array with its padding (`SOUNDTST_STR_CURSOR`).
 
 ## Stages
 

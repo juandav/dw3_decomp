@@ -853,6 +853,7 @@ s32 func_80091AA8(s32 index);
 s32 func_80091BC0(s32, Point *);
 extern FieldState D_800990B4;
 extern ScriptCommand D_8009A448[];
+extern Encounter D_800939E0[];
 extern StageEntry D_800998E4[];
 extern u8 (*D_80096A7C[])[2]; /* func_80089320's animation of each substate */
 extern s16 D_80096A8C[][2]; /* offsets, up to (0, 0) */

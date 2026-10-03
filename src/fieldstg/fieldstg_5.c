@@ -908,8 +908,6 @@ void func_8008AEB4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     func_8008AE18(arg0, arg1, arg2, arg3, arg4, 0);
 }
 
-extern Encounter D_800939E0[]; /* fieldstg.c's s32 words */
-
 /*
  * Starts encounter D_800939E0[encounter]: the field task (id 7) goes to state 2
  * with mode 0x600, or 0xE0A (USA 0xE09) at GAME_PROGRESS 0x2B, and
@@ -2267,7 +2265,28 @@ void func_8008D3F0(Actor *actor, s32 pad) {
     }
 }
 
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg_5", func_8008D4C4);
+/*
+ * The first actor (task id 5) whose box holds the tile pos: unk80 tiles to
+ * each side of it, half that above and below. The match depends on the
+ * registry being held in a variable.
+ */
+Actor *func_8008D4C4(Point *pos) {
+    TaskRegistry *registry = &TASK_REGISTRY;
+    Actor *actor = registry->funcs.find(5, -1, 1);
+
+    while (actor != NULL) {
+        s32 size = actor->unk80;
+
+        if (pos->x >= actor->tile.x - size && actor->tile.x + size >= pos->x) {
+            size >>= 1;
+            if (pos->y >= actor->tile.y - size && actor->tile.y + size >= pos->y) {
+                return actor;
+            }
+        }
+        actor = registry->funcs.findNext();
+    }
+    return NULL;
+}
 
 s32 func_8008D580(Actor *actor, Point *pos) {
     Actor *target;
@@ -3618,9 +3637,75 @@ void func_800910F8(void) {
     FLAGS_00.applyAction(0x40F, 1);
 }
 
-INCLUDE_RODATA("fieldstg/nonmatchings/fieldstg_5", D_80082E88);
+/* The color the field's stage starts with (FieldState.unk38) */
+const CVECTOR D_80082E88 = {0x80, 0x80, 0x80, 0};
 
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg_5", func_80091124);
+extern s32 D_80097040[];
+extern s32 D_80098828[];
+extern s32 D_800989F8[];
+extern s32 D_80098AF4[];
+extern s32 D_80098B78[];
+
+#if VERSION_US
+#define FIELD_FILE 0x19F
+#elif VERSION_EU
+#define FIELD_FILE 0x1AD
+#endif
+
+/*
+ * The setup of the field's own stage (FIELDSTG_initFuncs), which fills
+ * D_800990B4 as the stage overlays' setup functions do; some points of the
+ * story change its unk3C and unk40. As theirs, the match depends on the
+ * start position being set with a constructor, (Vec2){x, y}.
+ */
+void func_80091124(void) {
+#if VERSION_US
+    D_800990B4.unk44 = 0xF0;
+#endif
+    D_800990B4.unk8 = FIELD_FILE - 1;
+    D_800990B4.unkC = FIELD_FILE << 16;
+    D_800990B4.unk10 = (u8 *)D_800989F8;
+    D_800990B4.unk14 = D_80098AF4;
+#if VERSION_US
+    D_800990B4.unk1C = 0x31D;
+#elif VERSION_EU
+    D_800990B4.unk1C = 0x32C;
+    D_800990B4.unk44 = LANGUAGE + 0xE8;
+#endif
+    D_800990B4.unk2C = (Vec2){0x6700, 0x12300};
+    D_800990B4.unk28 = (FieldImage *)D_80097040;
+    D_800990B4.unk3C = 0x42;
+    D_800990B4.unk4C = D_80098828;
+    D_800990B4.unk34 = 0;
+    D_800990B4.unk40 = 0x61080002;
+    D_800990B4.unk38 = D_80082E88;
+    D_800990B4.unk24 = (Unk80084B80Entry *)D_80098B78;
+    D_8009A70C.setFile(0, FIELD_FILE << 16 | 2);
+    D_8009A70C.setFile(1, FIELD_FILE << 16 | 3);
+    D_8009A70C.setFile(7, FIELD_FILE << 16 | 1);
+    D_8009A70C.unk50(0);
+    switch (GAME_PROGRESS) {
+    case 5:
+    case 8:
+    case 12:
+    case 14:
+    case 16:
+    case 22:
+    case 24:
+    case 26:
+    case 28:
+    case 30:
+    case 31:
+    case 34:
+    case 36:
+    case 37:
+    case 38:
+    case 39:
+        D_800990B4.unk3C = 0x42;
+        D_800990B4.unk40 = 0x61080000;
+        break;
+    }
+}
 
 void func_80091298(Tween *tween, s32 in) {
     tween->active = 1;
