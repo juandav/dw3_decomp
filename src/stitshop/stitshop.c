@@ -34,7 +34,18 @@ Task *func_80082AB0(void) {
     return createTask(func_800829B4, sizeof(Task), 4);
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082ADC);
+void func_80082ADC(ScreenFade *task, s32 fadeIn, s32 duration) {
+    task->setState(task, TASK_RUN);
+    task->substate = 1;
+    task->fadeIn = fadeIn;
+    if (fadeIn == 0) {
+        task->level = 0;
+        task->levelStep = 0xFF00 / duration;
+    } else {
+        task->level = 0xFF00;
+        task->levelStep = -(0xFF00 / duration);
+    }
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082B64);
 
