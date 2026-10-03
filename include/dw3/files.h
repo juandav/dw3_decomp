@@ -105,4 +105,23 @@ extern s32 (*FILE_CACHE_GET_ENTRY[])(s32 id);
 extern s32 LANGUAGE; /* 2-5 */
 #endif
 
+/* The battle menu's files (WFIGHTMN, WFIGHTTS): FILE_BATTLE_IMAGES is an
+   archive whose entries go through FILE_CACHE.getEntry, the four after it
+   are archives of images for VRAM */
+#if VERSION_US
+#define FILE_BATTLE_MENU 0x445
+#define FILE_BATTLE_IMAGES 0x446
+#define FILE_BATTLE_IMAGES_1 0x78F
+#define FILE_BATTLE_IMAGES_2 0x79F
+#define FILE_BATTLE_IMAGES_3 0x7D2
+#define FILE_BATTLE_IMAGES_4 0x7D4
+#elif VERSION_EU
+#define FILE_BATTLE_MENU 0x455
+#define FILE_BATTLE_IMAGES 0x456
+#define FILE_BATTLE_IMAGES_1 0x79E
+#define FILE_BATTLE_IMAGES_2 0x7AE
+#define FILE_BATTLE_IMAGES_3 0x7E1
+#define FILE_BATTLE_IMAGES_4 0x7E3
+#endif
+
 #endif /* DW3_FILES_H */

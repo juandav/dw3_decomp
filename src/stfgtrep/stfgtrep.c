@@ -1,11 +1,13 @@
 #include "stfgtrep.h"
 
-void func_80082ECC();
-void func_800835FC();
-void func_80084608();
+void STFGTREP_drawPartner(ReportPartner *partner);
+s32 func_80085A38(s32 partner);
+void STFGTREP_runPartner(ReportPartner *partner, ReportPartnerWindows *windows);
+void STFGTREP_runReport(FightReport *report, FightReportChildren *children);
 void STFGTREP_updatePartner();
 void STFGTREP_updateReport();
 FightReport *STFGTREP_createScreen(void);
+extern s32 STFGTREP_animations[][7];
 
 void STFGTREP_updateScene(Task *task, Task **children) {
     RECT rect;
@@ -172,7 +174,100 @@ void STFGTREP_fillPartnerWindows(ReportPartner *partner, ReportPartnerWindows *w
     }
 }
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80082ECC);
+/* Draws a partner's panel: the level and slot blinks, the cursor, the
+   partner's animation and its frames */
+void STFGTREP_drawPartner(ReportPartner *partner) {
+    SpriteDrawer sprite;
+    s32 digimon;
+    s32 y;
+    s32 i;
+
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(partner->layer, partner->depth);
+    sprite.setTexture(0x280, 0);
+    if (partner->substate >= 20) {
+        if (partner->levelBlink.on != 0) {
+            if (GFX.funcs.getTime() - partner->levelBlink.time >= 3) {
+                partner->levelBlink.time = GFX.funcs.getTime();
+                if (++partner->levelBlink.frame >= 11) {
+                    partner->levelBlink.frame = 10;
+                }
+            }
+            sprite.setClutRow(partner->levelBlink.frame);
+            y = partner->index * 50;
+            sprite.draw(FILE_CACHE_GET_ENTRY[0]((FILE_FGTREP_SPRITES - 1) << 16), 0x22, 0x63, y + 0x2B);
+            sprite.setClutRow(0);
+        }
+        for (i = 0; i < 3; i++) {
+            if (partner->slotBlinks[i].blink.on != 0) {
+                if (GFX.funcs.getTime() - partner->slotBlinks[i].blink.time >= 3) {
+                    partner->slotBlinks[i].blink.time = GFX.funcs.getTime();
+                    if (++partner->slotBlinks[i].blink.frame >= 11) {
+                        partner->slotBlinks[i].blink.frame = 10;
+                    }
+                }
+                sprite.setClutRow(partner->slotBlinks[i].blink.frame);
+                y = partner->index * 50 + i * 15;
+                sprite.draw(FILE_CACHE.getEntry((FILE_FGTREP_SPRITES - 1) << 16), 0x23, 0xEF, y + 0x23);
+            }
+        }
+        sprite.setClutRow(0);
+    }
+    if (partner->selected != 0) {
+        if (GFX.funcs.getTime() - partner->cursorTime >= 5) {
+            partner->cursorTime = GFX.funcs.getTime();
+            if (++partner->cursorFrame >= 4) {
+                partner->cursorFrame = 0;
+            }
+        }
+        sprite.setClutRow(partner->cursorFrame);
+        y = partner->index * 50;
+        sprite.draw(FILE_CACHE.getEntry((FILE_FGTREP_SPRITES - 1) << 16), 0x24, 0x11, y + 0x26);
+        if (partner->substate >= 20) {
+            if (partner->slot >= 0 && partner->slots[partner->slot] >= 4) {
+                y = partner->index * 50 + partner->slot * 15;
+                sprite.draw(FILE_CACHE.getEntry((FILE_FGTREP_SPRITES - 1) << 16), 0x25, 0x87, y + 0x26);
+            }
+        }
+        sprite.setClutRow(0);
+    }
+    if (partner->fade.level != 0) {
+        if (partner->fade.level != 0x1000) {
+            sprite.setScale(partner->fade.level, 0x1000, 0x1000);
+        }
+        digimon = GAME_FUNCS.getPartyMember(partner->index);
+        y = partner->index * 50;
+        if (partner->fade.level != 0x1000) {
+            sprite.setPivot(0x11, y + 0x3A);
+        }
+        if (GFX.funcs.getTime() - partner->frameTime >= 13) {
+            partner->frameTime = GFX.funcs.getTime();
+            if (++partner->frame >= 8 || STFGTREP_animations[digimon][partner->frame] == -1) {
+                partner->frame = 0;
+            }
+        }
+        sprite.draw(FILE_CACHE.getEntry((FILE_FGTREP_SPRITES - 1) << 16), STFGTREP_animations[digimon][partner->frame], 0x14, y + 0x28);
+        if (partner->levelBlink.on != 0) {
+            sprite.setClutRow(partner->levelBlink.frame);
+        }
+        sprite.draw(FILE_CACHE.getEntry((FILE_FGTREP_SPRITES - 1) << 16), 0x1F, 0x11, y + 0x26);
+        if (partner->levelBlink.on != 0) {
+            sprite.setClutRow(0);
+        }
+        for (i = 0; i < 3; i++) {
+            y = partner->index * 50 + i * 15;
+            if (partner->fade.level != 0x1000) {
+                sprite.setPivot(0x87, y + 0x2D);
+            }
+            if (partner->slotBlinks[i].blink.on != 0) {
+                sprite.setClutRow(partner->slotBlinks[i].blink.frame);
+            } else {
+                sprite.setClutRow(0);
+            }
+            sprite.draw(FILE_CACHE.getEntry((FILE_FGTREP_SPRITES - 1) << 16), 0x20, 0x87, y + 0x26);
+        }
+    }
+}
 
 /* Rolls the shown exp towards the target, digit by digit; 0 once it is there */
 s32 STFGTREP_rollExp(ReportPartner *partner) {
@@ -205,7 +300,215 @@ s32 STFGTREP_rollExp(ReportPartner *partner) {
     return 1;
 }
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_800835FC);
+/* A panel's steps: it fades in and out, gives each slot's Digimon its exp,
+   with the levels and skills that brings, then the partner's exp and the
+   Digimon it learns, each with its message */
+void STFGTREP_runPartner(ReportPartner *partner, ReportPartnerWindows *windows) {
+    s32 member;
+    s32 id;
+    s32 done;
+    s32 i;
+
+    switch (partner->substate) {
+    case 0: /* the match depends on it, which starts the jump table at 0 */
+        break;
+    case 1:
+        STFGTREP_funcs.startFade(&partner->fade, 1);
+        partner->substate++;
+        break;
+    case 2:
+        if (STFGTREP_funcs.updateFade(&partner->fade) != 0) {
+            STFGTREP_fillPartnerWindows(partner, windows, 1);
+            partner->substate = 5;
+        }
+        break;
+    case 11:
+        STFGTREP_funcs.startFade(&partner->fade, 0);
+        STFGTREP_fillPartnerWindows(partner, windows, 0);
+        partner->substate++;
+        break;
+    case 12:
+        if (STFGTREP_funcs.updateFade(&partner->fade) != 0) {
+            partner->substate = 15;
+        }
+        break;
+    case 20:
+        member = GAME.funcs.getPartyMember(partner->index);
+        GAME.funcs.getPartnerSlots(member, partner->slots);
+        if (D_80042790.partners[partner->index].used[partner->slot] != 0 && partner->slots[partner->slot] >= 4) {
+            partner->slotBlinks[partner->slot].blink.on = STFGTREP_funcs.addDigimonExp(
+                member, partner->slots[partner->slot],
+                STFGTREP_funcs.getDigimonExp(member, partner->slots[partner->slot],
+                                             STFGTREP_rewards[D_80042790.battle].digimonExp, partner->report->used));
+        }
+        partner->substate++;
+        break;
+    case 21:
+        if (partner->slotBlinks[partner->slot].blink.on != 0) {
+            if (partner->voice != -1) {
+                SOUND.keyOff(partner->sound, partner->voice);
+                partner->voice = -1;
+            }
+            partner->voice = SOUND.playSound(0x4000C);
+            partner->sound = 0x4000C;
+            windows->message->setString(windows->message, FILE_CACHE_LOAD[0](TEXT_FILE(0x56)), 4);
+            windows->message->setTypeDelay(windows->message, 6);
+            STFGTREP_fillPartnerWindows(partner, windows, 1);
+            partner->substate = 25;
+            partner->step = 0;
+        } else {
+            partner->substate = 24;
+        }
+        break;
+    case 22:
+        member = GAME.funcs.getPartyMember(partner->index);
+        GAME.funcs.getPartnerSlots(member, partner->slots);
+        id = STFGTREP_funcs.addSkill(member, partner->slots[partner->slot]);
+        if (id != 0) {
+            windows->message->setString(windows->message, FILE_CACHE.load(TEXT_FILE(0x56)), 5);
+            windows->message->setSubString(windows->message, FILE_CACHE.load(TEXT_FILE(0xA3)), id, 1);
+            windows->message->setTypeDelay(windows->message, 6);
+            partner->substate = 25;
+            partner->step = 1;
+        } else {
+            partner->substate = 23;
+        }
+        break;
+    case 23:
+        member = GAME.funcs.getPartyMember(partner->index);
+        GAME.funcs.getPartnerSlots(member, partner->slots);
+        id = STFGTREP_funcs.learnSkill(member, partner->slots[partner->slot]);
+        if (id != 0) {
+            windows->message->setString(windows->message, FILE_CACHE.load(TEXT_FILE(0x56)), 6);
+            windows->message->setSubString(windows->message, FILE_CACHE.load(TEXT_FILE(0xA3)), id, 1);
+            windows->message->setTypeDelay(windows->message, 6);
+            partner->substate = 25;
+            partner->step = 2;
+        } else {
+            partner->substate = 24;
+        }
+        break;
+    case 24:
+        if (++partner->slot >= 3) {
+            partner->slot = -1;
+            partner->substate = 40;
+        } else {
+            partner->substate = 20;
+        }
+        break;
+    case 25:
+    case 45:
+        if (windows->message->isFinished(windows->message) != 0) {
+            windows->message->setVisible(windows->message, 0);
+            partner->report->arrowOn = 0;
+            switch (partner->step) {
+            case 0:
+            case 1:
+            default:
+                partner->substate = 22;
+                break;
+            case 2:
+                partner->substate = 23;
+                break;
+            case 3:
+            case 4:
+                partner->substate = 41;
+                break;
+            case 5:
+                partner->substate = 50;
+                break;
+            }
+        } else if (windows->message->isWaitingForButton(windows->message) != 0) {
+            if (PAD_PRESSED(PAD_CROSS)) {
+                SOUND.playSound(0x4001C);
+            } else {
+                partner->report->arrowOn = 1;
+            }
+        } else if (PAD_PRESSED(PAD_CROSS)) {
+            windows->message->showPage(windows->message);
+        }
+        break;
+    case 40: {
+        /* this case's and the next one's own locals: the match depends on
+           them, which keep the partner and the Digimon learnt out of the
+           registers member and id get */
+        s32 raised = GAME.funcs.getPartyMember(partner->index);
+        ReportPartnerStats *stats;
+
+        if (STFGTREP_funcs.addExp(raised, partner->exp) != 0) {
+            stats = (ReportPartnerStats *)GAME.funcs.getPartnerStats(raised);
+            partner->levelBlink.on = 1;
+            if (partner->voice != -1) {
+                SOUND.keyOff(partner->sound, partner->voice);
+                partner->voice = -1;
+            }
+            partner->voice = SOUND.playSound(0x4000B);
+            partner->sound = 0x4000B;
+            windows->message->setString(windows->message, FILE_CACHE_LOAD[0](TEXT_FILE(0x56)), 7);
+            windows->message->setSubString(windows->message, stats->name, -1, 1);
+            windows->message->setNumber(windows->message, 2, stats->stats[0]);
+            windows->message->setTypeDelay(windows->message, 6);
+            partner->substate = 45;
+            partner->step = 3;
+        } else {
+            partner->substate = 41;
+        }
+        STFGTREP_fillPartnerWindows(partner, windows, 1);
+        break;
+    }
+    case 41: {
+        s32 learnt;
+        DigimonData *digimon;
+
+        learnt = STFGTREP_funcs.learnDigimon(GAME_FUNCS.getPartyMember(partner->index));
+        if (learnt != 0) {
+            digimon = ON_PARTNER_ENTRY_ADDED(learnt);
+            windows->message->setString(windows->message, FILE_CACHE.load(TEXT_FILE(0x56)), 8);
+            windows->message->setSubString(windows->message, FILE_CACHE.load(TEXT_FILE(0x4F)), digimon->nameId, 1);
+            windows->message->setTypeDelay(windows->message, 6);
+            STFGTREP_fillPartnerWindows(partner, windows, 1);
+            partner->substate = 45;
+            partner->step = 4;
+            partner->learned = 1;
+        } else if (partner->learned != 0) {
+            partner->substate = 42;
+        } else {
+            partner->substate = 50;
+        }
+        break;
+    }
+    case 42:
+        if (GAME.funcs.listPartnerEntries(GAME.funcs.getPartyMember(partner->index), partner->entries) >= 4) {
+            windows->message->setString(windows->message, FILE_CACHE_LOAD[0](TEXT_FILE(0x56)), 9);
+            windows->message->setTypeDelay(windows->message, 6);
+            partner->substate = 45;
+            partner->step = 5;
+        } else {
+            partner->substate = 50;
+        }
+        break;
+    case 50:
+        done = 1;
+        if (partner->levelBlink.on != 0) {
+            done = partner->levelBlink.frame >= 10;
+        }
+        if (done) {
+            for (i = 0; i < 3; i++) {
+                if (partner->slotBlinks[i].blink.on != 0 && partner->slotBlinks[i].blink.frame < 10) {
+                    done = 0;
+                }
+            }
+            if (done) {
+                partner->substate = 5;
+                partner->selected = 0;
+            }
+        }
+        break;
+    }
+    if (partner->substate >= 20 && STFGTREP_rollExp(partner) != 0) {
+        SOUND.playSound(0x800452C6);
+    }
+}
 
 /* A partner's panel task */
 void STFGTREP_updatePartner(ReportPartner *partner, ReportPartnerWindows *windows) {
@@ -231,8 +534,8 @@ void STFGTREP_updatePartner(ReportPartner *partner, ReportPartnerWindows *window
         }
         break;
     case TASK_RUN:
-        func_800835FC(partner, windows);
-        func_80082ECC(partner);
+        STFGTREP_runPartner(partner, windows);
+        STFGTREP_drawPartner(partner);
         break;
     case TASK_DONE:
     case TASK_KILL:
@@ -342,7 +645,189 @@ void STFGTREP_drawReport(FightReport *report) {
     }
 }
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80084608);
+/* The report while it runs: shows the panels, then for each partner that
+   got exp its message and the raise, then the money and the item won, and
+   fades out */
+void STFGTREP_runReport(FightReport *report, FightReportChildren *children) {
+    ReportPartnerStats *stats;
+    s32 money;
+    s32 shown;
+    s32 hidden;
+    s32 i;
+    s32 j;
+
+    switch (report->substate) {
+    case 1:
+        for (i = 0; i < report->count; i++) {
+            children->partners[i]->show(children->partners[i]);
+        }
+    case 0:
+    default:
+        report->substate++;
+        break;
+    case 4:
+        shown = 1;
+        for (j = 0; j < report->count; j++) {
+            if (children->partners[j]->substate != 5) {
+                shown = 0;
+                break;
+            }
+        }
+        if (shown) {
+            STFGTREP_funcs.startFade(&report->footer, 1);
+            report->substate++;
+        }
+        break;
+    case 5:
+        if (STFGTREP_funcs.updateFade(&report->footer) != 0) {
+            report->substate++;
+        }
+        break;
+    case 6:
+        if (report->step < report->count) {
+            if (report->exp[report->step] == 0) {
+                report->step++;
+            } else {
+                STFGTREP_funcs.startFade(&report->header, 1);
+                children->partners[report->step]->select(children->partners[report->step]);
+                report->substate++;
+            }
+        } else {
+            report->setSubstate(report, 0x14);
+        }
+        break;
+    case 7:
+        if (STFGTREP_funcs.updateFade(&report->header) != 0) {
+            children->message->setString(children->message, FILE_CACHE.load(TEXT_FILE(0x56)), 2);
+            children->message->setNumber(children->message, 1, report->exp[report->step]);
+            children->message->setTypeDelay(children->message, 6);
+            children->exp->setNumber(children->exp, 0, report->exp[report->step]);
+            children->exp->setRightAlign(children->exp, 1);
+            children->expLabel->setString(children->expLabel, FILE_CACHE.load(TEXT_FILE(0x56)), 1);
+            report->substate++;
+        }
+        break;
+    case 8:
+        if (children->message->isFinished(children->message) != 0) {
+            report->arrowOn = 0;
+            children->message->setVisible(children->message, 0);
+            report->substate = 10;
+        } else if (children->message->isWaitingForButton(children->message) != 0) {
+            if (PAD_PRESSED(PAD_CROSS)) {
+                SOUND.playSound(0x4001C);
+            } else {
+                report->arrowOn = 1;
+            }
+        } else if (PAD_PRESSED(PAD_CROSS)) {
+            children->message->showPage(children->message);
+        }
+        break;
+    case 10:
+        children->partners[report->step]->raise(children->partners[report->step]);
+        report->substate++;
+        break;
+    case 11:
+        if (children->partners[report->step]->substate == 5) {
+            STFGTREP_funcs.startFade(&report->header, 0);
+            children->exp->setVisible(children->exp, 0);
+            children->expLabel->setVisible(children->expLabel, 0);
+            report->substate++;
+            report->step++;
+        }
+        break;
+    case 12:
+        if (STFGTREP_funcs.updateFade(&report->header) != 0) {
+            report->substate = 6;
+        }
+        break;
+    case 0x14:
+        stats = (ReportPartnerStats *)GAME.funcs.getPartnerStats(GAME.funcs.getPartyMember(D_80042790.member));
+        money = STFGTREP_rewards[D_80042790.battle].money;
+        if (stats->equip[4] == 0x142 || stats->equip[5] == 0x142) {
+            money += STFGTREP_rewards[D_80042790.battle].money / 5;
+        }
+        children->message->setString(children->message, FILE_CACHE.load(TEXT_FILE(0x56)), 10);
+        children->message->setNumber(children->message, 1, money);
+        children->message->setTypeDelay(children->message, 6);
+        report->substate = 0x19;
+        report->step = 0;
+        GAME.money += money;
+        if (GAME.money > 9999999) {
+            GAME.money = 9999999;
+        }
+        break;
+    case 0x15:
+        if (D_80042790.item != 0) {
+            children->message->setString(children->message, FILE_CACHE.load(TEXT_FILE(0x56)), 11);
+            children->message->setSubString(children->message, FILE_CACHE.load(TEXT_FILE(0x6B)), D_80042790.item, 1);
+            children->message->setTypeDelay(children->message, 6);
+            report->substate = 0x19;
+            report->step = 1;
+            GAME.items[D_80042790.item]++;
+            if (GAME.items[D_80042790.item] >= 100) {
+                GAME.items[D_80042790.item] = 99;
+            }
+        } else {
+            report->substate = 0x32;
+        }
+        break;
+    case 0x19:
+        if (children->message->isFinished(children->message) != 0) {
+            children->message->setVisible(children->message, 0);
+            report->arrowOn = 0;
+            switch (report->step) {
+            case 0:
+            default:
+                report->substate = 0x15;
+                break;
+            case 1:
+                report->substate = 0x32;
+                break;
+            }
+        } else if (children->message->isWaitingForButton(children->message) != 0) {
+            if (PAD_PRESSED(PAD_CROSS)) {
+                SOUND.playSound(0x4001C);
+            } else {
+                report->arrowOn = 1;
+            }
+        } else if (PAD_PRESSED(PAD_CROSS)) {
+            children->message->showPage(children->message);
+        }
+        break;
+    case 0x32:
+        children->fade = STFGTREP_createFader();
+        children->fade->start(children->fade, 0, 30);
+        STFGTREP_funcs.startFade(&report->footer, 0);
+        children->message->setVisible(children->message, 0);
+        report->substate++;
+        break;
+    case 0x33:
+        if (STFGTREP_funcs.updateFade(&report->footer) != 0) {
+            for (i = 0; i < report->count; i++) {
+                children->partners[i]->hide(children->partners[i]);
+            }
+            report->substate++;
+        }
+        break;
+    case 0x34:
+        hidden = 1;
+        for (j = 0; j < report->count; j++) {
+            if (children->partners[j]->substate != 15) {
+                hidden = 0;
+                break;
+            }
+        }
+        if (hidden) {
+            report->substate++;
+        }
+        break;
+    case 0x35:
+        if (children->fade->state == TASK_DONE) {
+            report->state = TASK_KILL;
+        }
+        break;
+    }
+}
 
 /* The report's main task: loads the files, shares the battle's exp among the
    partners who fought and creates their panels */
@@ -409,7 +894,7 @@ void STFGTREP_updateReport(FightReport *report, FightReportChildren *children) {
         }
         break;
     case TASK_RUN:
-        func_80084608(report, children);
+        STFGTREP_runReport(report, children);
         STFGTREP_drawReport(report);
         break;
     case TASK_DONE:
@@ -512,26 +997,254 @@ s32 STFGTREP_updateLerp(MenuLerp *lerp) {
     return 0;
 }
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80085528);
+/* Raises a partner's max HP, max MP, battle stats and, up to level 40, its
+   resistances for a new level, by its growth (DIGIMON_DATA) and at random */
+void STFGTREP_raiseStats(s32 partner, s32 level) {
+    ReportPartnerStats *stats = (ReportPartnerStats *)GAME_FUNCS.getPartnerStats(partner);
+    DigimonData *digimon = &DIGIMON_DATA[partner];
+    s32 tier;
+    s32 i;
+    s32 growth;
+    s32 gain;
+    s16 *values;
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80085870);
+    if (level < 5) {
+        tier = 0;
+    } else if (level < 20) {
+        tier = 1;
+    } else if (level < 40) {
+        tier = 2;
+    } else {
+        tier = 3;
+    }
+    /* read into a variable of its own: the match depends on it, since the
+       original reads the growth before it calls RANDOM.next and adds the
+       gain as a whole */
+    growth = digimon->hpGrowth;
+    gain = growth - STFGTREP_vitalCuts[tier] + STFGTREP_vitalRandom[RANDOM.next() % 9];
+    stats->stats[3] += gain;
+    if (stats->stats[3] >= 10000) {
+        stats->stats[3] = 9999;
+    }
+    growth = digimon->mpGrowth;
+    gain = growth - STFGTREP_vitalCuts[tier] + STFGTREP_vitalRandom[RANDOM.next() % 9];
+    stats->stats[5] += gain;
+    if (stats->stats[5] >= 10000) {
+        stats->stats[5] = 9999;
+    }
+    values = stats->stats;
+    if (level < 5) {
+        tier = 0;
+    } else if (level < 20) {
+        tier = 1;
+    } else if (level < 40) {
+        tier = 2;
+    } else if (level < 60) {
+        tier = 3;
+    } else if (level < 80) {
+        tier = 4;
+    } else {
+        tier = 5;
+    }
+    for (i = 0; i < 6; i++) {
+        growth = digimon->statGrowth[i];
+        gain = STFGTREP_statGains[tier][growth + RANDOM.next() % 5];
+        values[6 + i] += gain;
+        if (values[6 + i] >= 1000) {
+            values[6 + i] = 999;
+        }
+    }
+    if (level < 41) {
+        for (i = 0; i < 7; i++) {
+            growth = digimon->resistGrowth[i];
+            gain = STFGTREP_resistGains[growth + RANDOM.next() % 4];
+            values[12 + i] += gain;
+            if (values[12 + i] >= 1000) {
+                values[12 + i] = 999;
+            }
+        }
+    }
+}
+
+/* Adds exp to a partner and raises its level, and its stats with it, as far
+   as the exp reaches; whether it went up */
+s32 STFGTREP_addExp(s32 partner, s32 exp) {
+    ReportPartnerStats *stats = (ReportPartnerStats *)GAME_FUNCS.getPartnerStats(partner);
+    DigimonData *digimon = &DIGIMON_DATA[partner];
+    s32 leveled;
+    s32 level;
+    s32 tier;
+    s32 up;
+
+    stats->exp += exp;
+    if (stats->exp > 999999) {
+        stats->exp = 999999;
+    }
+    leveled = 0;
+    /* two statements: the match depends on it, since the level is loaded
+       into the register that counts the levels */
+    level = stats->stats[0];
+    level++;
+    do {
+        if (level < 5) {
+            tier = 0;
+        } else if (level < 20) {
+            tier = 1;
+        } else if (level < 40) {
+            tier = 2;
+        } else if (level < 100) {
+            tier = 3;
+        } else {
+            break;
+        }
+        if ((level * level * level + level * 5 - 6) * digimon->expRate / 10 + STFGTREP_levelExp[tier] < stats->exp) {
+            if (++stats->stats[0] < 100) {
+                STFGTREP_raiseStats(partner, stats->stats[0]);
+            } else {
+                stats->stats[0] = 99;
+            }
+            stats->stats[1] += 5;
+            if (stats->stats[1] >= 100) {
+                stats->stats[1] = 99;
+            }
+            leveled = 1;
+            up = 1;
+        } else {
+            up = 0;
+        }
+        level++;
+    } while (up);
+    return leveled;
+}
 
 INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80085A38);
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80085CAC);
+/* Adds exp to one of a partner's Digimon and raises its level as far as the
+   exp reaches, up to 99; whether it went up */
+s32 STFGTREP_addDigimonExp(s32 partner, s32 id, s32 exp) {
+    DigimonData *digimon = ON_PARTNER_ENTRY_ADDED(id);
+    ReportEntry entry;
+    s32 leveled;
+    s32 need;
+    s32 up;
+    s32 n;
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80085DF8);
+    GAME_FUNCS.getPartnerEntry(partner, id, &entry);
+    entry.exp += exp;
+    if (entry.exp > 9999999) {
+        entry.exp = 9999999;
+    }
+    if (entry.level >= 99) {
+        return 0;
+    }
+    leveled = 0;
+    do {
+        /* 10 exp a level up to expLevel, 50 after it */
+        if (digimon->expLevel >= entry.level + 1) {
+            need = entry.level * 10;
+        } else {
+            n = digimon->expLevel - 1;
+            need = n * 10 + (entry.level - n) * 50;
+        }
+        up = 0;
+        if (entry.exp >= need) {
+            leveled = 1;
+            entry.level++;
+            up = entry.level < 99;
+        }
+    } while (up);
+    GAME_FUNCS.setPartnerEntry(partner, id, &entry);
+    return leveled;
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80085F30);
+/* Gives one of a partner's Digimon the first skill whose level it has
+   reached and that it hasn't yet (DigimonData.skills); the skill, or 0 */
+s32 STFGTREP_addSkill(s32 partner, s32 id) {
+    ReportEntry entry;
+    DigimonData *digimon;
+    s32 i;
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80086010);
+    GAME.funcs.getPartnerEntry(partner, id, &entry);
+    for (i = 0; i < 6; i++) {
+        if (entry.skills[i] == 0) {
+            digimon = ON_PARTNER_ENTRY_ADDED(id);
+            if (digimon->skills[i + 1] != 0 && entry.level >= digimon->skillLevels[i]) {
+                entry.skills[i] = digimon->skills[i + 1];
+                if (i == 5) {
+                    entry.skills[i] |= 0x8000;
+                }
+                GAME.funcs.setPartnerEntry(partner, id, &entry);
+                return digimon->skills[i + 1];
+            }
+        }
+    }
+    return 0;
+}
 
-s32 func_80085870(s32 partner, s32 exp);
-s32 func_80085A38(s32 partner);
-s32 func_80085CAC(s32 partner, s32 id, s32 exp);
-s32 func_80085DF8(s32 partner, s32 id);
-s32 func_80085F30(s32 partner, s32 id);
-s32 func_80086010(s32 partner, s32 id, s32 exp, s32 used);
+/* Marks known (0x2000) the first skill of one of a partner's Digimon whose
+   level it has reached (DigimonData.knownLevels); the skill, or 0 */
+s32 STFGTREP_learnSkill(s32 partner, s32 id) {
+    ReportEntry entry;
+    DigimonData *digimon;
+    s32 i;
+
+    GAME.funcs.getPartnerEntry(partner, id, &entry);
+    digimon = ON_PARTNER_ENTRY_ADDED(id);
+    for (i = 0; i < 5; i++) {
+        if (entry.skills[i] > 0 && !(entry.skills[i] & 0x2000) && entry.level >= digimon->knownLevels[i]) {
+            entry.skills[i] |= 0x2000;
+            GAME.funcs.setPartnerEntry(partner, id, &entry);
+            return entry.skills[i] & 0x1FFF;
+        }
+    }
+    return 0;
+}
+
+/* The exp one of a partner's Digimon gets of a battle's: less as the partner
+   goes up in level, shared by the Digimon used, at least 1 and at most 10,
+   or 50 once the Digimon is past its expLevel */
+s32 STFGTREP_getDigimonExp(s32 partner, s32 id, s32 exp, s32 used) {
+    ReportEntry entry;
+    DigimonData *digimon;
+    s32 level = ((ReportPartnerStats *)GAME_FUNCS.getPartnerStats(partner))->stats[0];
+    s32 share;
+    s32 n;
+    s32 tenfold;
+
+    /* computed apart: the match depends on it, since the original multiplies
+       before it compares the level */
+    tenfold = exp * 10;
+    if (level < 51) {
+        n = tenfold / level;
+    } else {
+        n = exp / 5;
+    }
+    switch (used) {
+    case 0:
+    case 1:
+        share = n;
+        break;
+    case 2:
+        share = n * 6 / 10;
+        break;
+    default:
+        share = n / used;
+        break;
+    }
+    digimon = ON_PARTNER_ENTRY_ADDED(id);
+    GAME_FUNCS.getPartnerEntry(partner, id, &entry);
+    if (share <= 0) {
+        share = 1;
+    } else if (entry.level < digimon->expLevel) {
+        if (share > 10) {
+            share = 10;
+        }
+    } else if (share > 50) {
+        share = 50;
+    }
+    return share;
+}
+
 
 #if VERSION_US
 BattleReward STFGTREP_rewards[] = {
@@ -1594,37 +2307,29 @@ s32 STFGTREP_animations[][7] = {
 };
 FightReportFuncs STFGTREP_funcs = {
     STFGTREP_loadFiles, STFGTREP_filesLoading, STFGTREP_startFade, STFGTREP_updateFade,
-    STFGTREP_startLerp, STFGTREP_updateLerp, func_80085870, func_80085A38,
-    func_80085CAC, func_80085DF8, func_80085F30, func_80086010,
+    STFGTREP_startLerp, STFGTREP_updateLerp, STFGTREP_addExp, func_80085A38,
+    STFGTREP_addDigimonExp, STFGTREP_addSkill, STFGTREP_learnSkill, STFGTREP_getDigimonExp,
 };
-s32 D_80088858[] = {
+s32 STFGTREP_levelExp[] = {
     0, 50, 800, 3000,
 };
-s32 D_80088868[] = {
+s32 STFGTREP_vitalCuts[] = {
     0, 5, 10, 15,
 };
-s32 D_80088878[] = {
+s32 STFGTREP_vitalRandom[] = {
     -4, -3, -2, -1,
     0, 1, 2, 3,
     4,
 };
-s32 D_8008889C[] = {
-    2, 3, 4, 6,
-    8, 10, 12, 13,
-    14, 1, 2, 3,
-    4, 6, 8, 9,
-    10, 11, 0, 1,
-    3, 4, 4, 4,
-    5, 7, 8, 0,
-    1, 1, 2, 3,
-    4, 5, 5, 6,
-    0, 0, 1, 2,
-    2, 2, 3, 4,
-    4, 0, 0, 1,
-    1, 1, 1, 1,
-    2, 2,
+s32 STFGTREP_statGains[][9] = {
+    { 2, 3, 4, 6, 8, 10, 12, 13, 14 },
+    { 1, 2, 3, 4, 6, 8, 9, 10, 11 },
+    { 0, 1, 3, 4, 4, 4, 5, 7, 8 },
+    { 0, 1, 1, 2, 3, 4, 5, 5, 6 },
+    { 0, 0, 1, 2, 2, 2, 3, 4, 4 },
+    { 0, 0, 1, 1, 1, 1, 1, 2, 2 },
 };
-s32 D_80088974[] = {
+s32 STFGTREP_resistGains[] = {
     0, 0, 0, 1,
     1, 1, 2, 2,
 };

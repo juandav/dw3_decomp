@@ -4,3 +4,6 @@ WFIGHTMN_createLoader = 0x800A529C; // type:func
 WFIGHTMN_checkEquip = 0x800A57A8; // type:func
 WFIGHTMN_checkParty = 0x800A5840; // type:func
 WFIGHTMN_start = 0x800A8E40; // type:func
+D_800A3308 = 0x800A3308; // FIGHTSTG's function table (BattleFuncs)
+WFIGHTMN_states = 0x800A9C58;
+WFIGHTMN_loadFiles = 0x800A4D90; // type:func

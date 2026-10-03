@@ -50,6 +50,8 @@ segments:
     subalign: 4
     subsegments:
       - [0x0, .rodata, wfightmn]
+      - [0x1C, .rodata, wfightmn_2]
       - [0xEC, c, wfightmn]
-      - [0x4EB4, .data, wfightmn]
+      - [0x624, c, wfightmn_2]
+      - [0x4EB4, .data, wfightmn_2]
   - [0x5078]

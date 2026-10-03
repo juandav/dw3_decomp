@@ -27,11 +27,11 @@ typedef struct GameFuncs {
     /* 0x30 */ void (*setStat)();
     /* 0x34 */ void (*addStat)();
     /* 0x38 */ void (*computeStats)(s32 partner, struct PartnerTotals *out);
-    /* 0x3C */ void (*getPartnerSlots)();
+    /* 0x3C */ s32 (*getPartnerSlots)(); /* (partner, s16 *out): the count */
     /* 0x40 */ void (*setPartnerSlots)();
-    /* 0x44 */ void (*listPartnerEntries)();
+    /* 0x44 */ s32 (*listPartnerEntries)(); /* (partner, s16 *out): the count */
     /* 0x48 */ void (*addPartnerEntry)();
-    /* 0x4C */ void (*getPartnerEntry)();
+    /* 0x4C */ s32 (*getPartnerEntry)(); /* -1 if it hasn't the Digimon */
     /* 0x50 */ void (*setPartnerEntry)();
     /* 0x54 */ struct PartnerVitals *(*getPartnerStats)(s32 partner);
     /* 0x58 */ void (*resetPlayTime)();
@@ -58,10 +58,18 @@ typedef struct DigimonData {
     /* 0x00 */ u16 id;
     /* 0x02 */ u16 battleStats[6];
     /* 0x0E */ u16 resistances[7];
-    /* 0x1C */ u8 unk1C[0x23];
+    /* 0x1C */ u16 skills[7]; /* [1]-[6] are learnt at skillLevels */
+    /* 0x2A */ u8 unk2A[7];
+    /* 0x31 */ u8 skillLevels[6];
+    /* 0x37 */ u8 knownLevels[5]; /* the levels that mark an entry's skills[0]-[4] known */
+    /* 0x3C */ u8 expLevel; /* the level after which its exp grows faster */
+    /* 0x3D */ u8 unk3D;
+    /* 0x3E */ u8 expRate; /* a partner's exp per level, in tenths */
     /* 0x3F */ u8 hp;
     /* 0x40 */ u8 mp;
-    /* 0x41 */ u8 unk41[8];
+    /* 0x41 */ u8 hpGrowth; /* what a partner's max HP grows by a level */
+    /* 0x42 */ u8 mpGrowth;
+    /* 0x43 */ u8 statGrowth[6]; /* columns of the growth tables */
     /* 0x49 */ u8 resistGrowth[7]; /* 1-5: how fast the gyms raise them */
     /* 0x50 */ u8 unk50[5];
     /* 0x55 */ u8 nameId; /* string in file 0x4F */
@@ -130,13 +138,36 @@ typedef struct Unk80042728 {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
     /* 0x08 */ s32 unk8;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ s32 unk14;
-    /* 0x18 */ u8 unk18[0x3C];
+    /* 0x0C */ s32 unkC; /* the battle's fight stage */
+    /* 0x10 */ s32 unk10; /* the battle (BattleResult.battle) */
+    /* 0x14 */ s32 unk14; /* the battle's music */
+    /* 0x18 */ struct {
+        s32 fighter; /* 0 for none */
+        s16 level;
+        s16 hp;
+        s16 mp;
+        s16 unkA;
+    } enemies[3];
+    /* 0x3C */ u8 unk3C; /* a chance that WFIGHTMN scales by level */
+    /* 0x3D */ u8 unk3D[6];
+    /* 0x43 */ u8 unk43; /* FIGHTSTG's func_800A0400 gives 0 for side 0 when set */
+    /* 0x44 */ u8 unk44[8];
+    /* 0x4C */ s32 unk4C; /* 1: the battle always gives unk50 */
+    /* 0x50 */ s32 unk50;
     /* 0x54 */ void (*clearUnk58)(void);
     /* 0x58 */ s16 unk58[8];
 } Unk80042728;
+
+/* What the battle left for the report (D_80042790, cleared by WFIGHTMN) */
+typedef struct BattleResult {
+    /* 0x00 */ s16 battle; /* row of STFGTREP_rewards */
+    /* 0x02 */ s16 item; /* the item won, 0 for none */
+    /* 0x04 */ s16 member; /* the party member whose accessory adds money */
+    /* 0x06 */ struct {
+        u8 fought;
+        u8 used[3]; /* the Digimon of each slot was used */
+    } partners[3];
+} BattleResult;
 
 /* computeStats' result: the stats with the equipment added */
 typedef struct PartnerTotals {
@@ -246,6 +277,7 @@ s32 testBit(u8 *bits, s32 index, s32 set);
 extern DigimonData DIGIMON_DATA[];
 extern GameFuncs GAME_FUNCS;
 extern Unk80042728 D_80042728;
+extern BattleResult D_80042790;
 extern ItemInfo ITEM_DATA[];
 extern struct ItemInfo *(*GET_ITEM[])(s32 item);
 /* GET_ITEM's entries, each with its own type */

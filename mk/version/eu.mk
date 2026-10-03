@@ -113,7 +113,7 @@ C_SRC += src/cardgame/cardgame_4.c
 C_SRC += $(addprefix src/fightstg/, fightstg_2.c fightstg_3.c fightstg_4.c fightstg_5.c fightstg_6.c fightstg_7.c)
 
 # small overlays
-C_SRC += src/stgmcard/stgmcard.c src/stfgtrep/stfgtrep.c src/wfightmn/wfightmn.c src/stcrdshp/stcrdshp.c src/stplnmet/stplnmet.c src/wfightts/wfightts.c
+C_SRC += src/stgmcard/stgmcard.c src/stfgtrep/stfgtrep.c src/wfightmn/wfightmn.c src/wfightmn/wfightmn_2.c src/stcrdshp/stcrdshp.c src/stplnmet/stplnmet.c src/wfightts/wfightts.c
 
 # overlays
 C_SRC += src/shocktst/shocktst.c src/cnty_sel/cnty_sel.c src/stcrdabm/stcrdabm.c
