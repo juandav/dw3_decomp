@@ -151,13 +151,13 @@ own.
 
 ## Overlays
 
-- [ ] 1,584 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,607 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`, `STCRDABM`. Mostly:
   `STCRDDEK` (54 / 55), `SHOCKTST` (16 / 17), `STAGSLCT` (7 / 8),
   `FIELDSTG` (211 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
   `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (88 / 94),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
-  `STSTATUS` (105 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
+  `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
   `WFIGHTMN` (41 / 42), `FIGHTSTG` (250 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_createScreenWindows` (3 diffs): the `unk5C` loop's counter
@@ -255,16 +255,21 @@ own.
   includes `fightstg.h` alone now and uses its names (`BattleFighter`,
   `QueuedEvent`, `EventQueue`, `BattleEvent`, `BattleTableEntry`...); the
   call that reads `D_800A3104` stays that.
-- [ ] The field menu's near misses. `STSTATUS`: `func_8008340C` and
-  `func_80084D14` (41 diffs each: `screen` takes `s6` where the original
-  gives it to `&GAME` and `&FILE_CACHE`, and three of the third loop's
-  `i * 46` sums swap `s0`, `s2` and `s4`; counters and `level`s of their
-  own per loop, a `PanelAnim` pointer, a `y` and a `void *` parameter
-  change nothing), `func_80097F2C` (the same `screen`/`&GFX` swap, `s0` and
-  `s1`; the permuter only finds a forced form) and `func_80092EEC`
-  (the draft is old, 182 diffs: the original spills the partner and the
-  target's id to the stack, which ours keeps in saved registers, and
-  indexes `D_800427E8` with `tech - 1`). The rest are large and untried. `STCRDSHP`: `func_800870F4` (1 diff: the original
+- [ ] The field menu's near misses. `STSTATUS`: `func_80095D6C` (21
+  diffs, registers only, in the third loop: the original gives its counter
+  `s1`, `&FILE_CACHE` `s2`, `i * 46 + 0x25` `s4`, `i * 46 + 0x13` `s5` and
+  the `PanelAnim` pointer `s6`; with a counter of its own for that loop
+  ours has `&FILE_CACHE` right but swaps the counter with the `0x25` sum and
+  the `0x13` sum with the pointer). What fixed the rest of `STSTATUS` and
+  might help here: drawing a frame's last part in each branch, separate
+  variables for each loop or case (`func_80097F2C` indexes its town list
+  with the loop's counter; `func_8008F7A0`, `func_8009440C` and
+  `func_8008927C` need a cursor variable or a counter per case), the order
+  of a sum's terms (`i * 0xE + 0x88 + scroll` gives the original's
+  `scroll + 0x88` first), and `substate++` written in both branches.
+  Counters per loop in other combinations, the `0x17` draw after the
+  branches and a 25-minute permuter run (only forced forms) change nothing.
+  `STCRDSHP`: `func_800870F4` (1 diff: the original
   copies the quotient of the count by 6 into another register for the
   `addu` of the pages count; computing the remainder first, as in
   `pages = buy->count % 6 != 0; buy->pages = pages + buy->count / 6;`,

@@ -126,7 +126,8 @@ typedef struct Partner {
 
 /* A Partner seen from its name (PARTNER_STATS = &GAME.partners[0].name) */
 typedef struct PartnerStats {
-    /* 0x000 */ char name[0x1C];
+    /* 0x000 */ char name[0x18];
+    /* 0x018 */ s32 unk18; /* shown by the fifth status screen */
     /* 0x01C */ s16 stats[19];
     /* 0x042 */ u8 unk42[0xE];
     /* 0x050 */ PartnerEntry entries[44];

@@ -62,7 +62,220 @@ void func_80095B30(StatusScreen *screen, StatusPagesB *windows, s32 member, s32 
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus_9", func_80095D6C);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus_9", func_80096830);
+/* The party order screen's steps: the pages fade in, two members are chosen
+   and swapped, then the pages fade out */
+void func_80096830(StatusScreen9 *screen, StatusWindows9 *windows) {
+    s32 old;
+    s32 member;
+
+    switch (screen->substate) {
+    case 0:
+    default:
+        if (screen->count == 1) {
+            STSTATUS_data.funcs.updateFade(&screen->fades[1]);
+        } else {
+            STSTATUS_data.funcs.updateFade(&screen->fades[0]);
+        }
+        if (STSTATUS_data.funcs.updateFade(&screen->pageFades[0])) {
+            func_80095B30((StatusScreen *)screen, (StatusPagesB *)windows, 0, 1);
+            if (screen->count == 1) {
+                screen->substate = 15;
+                windows->help->setString(windows->help, FILE_CACHE.load(TEXT_FILE(0xB1)), 0x10);
+            } else {
+                screen->substate++;
+                windows->title->setString(windows->title, FILE_CACHE.load(TEXT_FILE(0xB1)), 0x11);
+                STSTATUS_data.funcs.startFade(&screen->pageFades[1], 1);
+            }
+        }
+        break;
+    case 1:
+        if (screen->count == 2) {
+            STSTATUS_data.funcs.updateFade(&screen->fades[1]);
+        }
+        if (STSTATUS_data.funcs.updateFade(&screen->pageFades[1])) {
+            func_80095B30((StatusScreen *)screen, (StatusPagesB *)windows, 1, 1);
+            if (screen->count == 2) {
+                screen->substate = 5;
+                windows->help->setString(windows->help, FILE_CACHE.load(TEXT_FILE(0xB1)), 0xF);
+            } else {
+                screen->substate++;
+                STSTATUS_data.funcs.startFade(&screen->pageFades[2], 1);
+            }
+        }
+        break;
+    case 2:
+        STSTATUS_data.funcs.updateFade(&screen->pageFades[2]);
+        if (STSTATUS_data.funcs.updateFade(&screen->fades[1])) {
+            func_80095B30((StatusScreen *)screen, (StatusPagesB *)windows, 2, 1);
+            windows->help->setString(windows->help, FILE_CACHE.load(TEXT_FILE(0xB1)), 0xF);
+            screen->substate = 5;
+        }
+        break;
+    case 5:
+        screen->cursorShown = 1;
+        screen->substate++;
+        break;
+    case 6:
+        old = screen->cursor;
+        if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
+            screen->cursor--;
+            if (screen->cursor < 0) {
+                screen->cursor = screen->count - 1;
+            }
+        } else if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
+            screen->cursor++;
+            if (screen->cursor > screen->count - 1) {
+                screen->cursor = 0;
+            }
+        }
+        if (old != screen->cursor) {
+            SOUND.playSound(0x4001B);
+        }
+        if (PAD_PRESSED(PAD_CROSS)) {
+            SOUND.playSound(0x4001C);
+            screen->arrowShown = 1;
+            screen->substate++;
+            windows->title->setString(windows->title, FILE_CACHE.load(TEXT_FILE(0xB1)), 0x12);
+            screen->first = screen->second = screen->cursor;
+            do {
+                screen->second++;
+                if (screen->second > screen->count - 1) {
+                    screen->second = 0;
+                }
+            } while (screen->first == screen->second);
+        } else if (PAD_PRESSED(PAD_TRIANGLE)) {
+            SOUND.playSound(0x800450BD);
+            screen->cursorShown = 0;
+            screen->substate = 0x14;
+        }
+        break;
+    case 7:
+        old = screen->second;
+        if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
+            do {
+                screen->second--;
+                if (screen->second < 0) {
+                    screen->second = screen->count - 1;
+                }
+            } while (screen->first == screen->second);
+        } else if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
+            do {
+                screen->second++;
+                if (screen->second > screen->count - 1) {
+                    screen->second = 0;
+                }
+            } while (screen->first == screen->second);
+        }
+        if (old != screen->second) {
+            SOUND.playSound(0x4001B);
+        }
+        if (PAD_PRESSED(PAD_CROSS)) {
+            SOUND.playSound(0x4001C);
+            func_80095B30((StatusScreen *)screen, (StatusPagesB *)windows, screen->first, 0);
+            func_80095B30((StatusScreen *)screen, (StatusPagesB *)windows, screen->second, 0);
+            STSTATUS_data.funcs.startFade(&screen->fade, 0);
+            windows->title->setString(windows->title, FILE_CACHE.load(TEXT_FILE(0xB1)), 0x11);
+            screen->substate++;
+        } else if (PAD_PRESSED(PAD_TRIANGLE)) {
+            SOUND.playSound(0x800450BD);
+            screen->arrowShown = 0;
+            windows->title->setString(windows->title, FILE_CACHE.load(TEXT_FILE(0xB1)), 0x11);
+            screen->substate--;
+        }
+        break;
+    case 8:
+        if (STSTATUS_data.funcs.updateFade(&screen->fade)) {
+            STSTATUS_data.funcs.startFade(&screen->fade, 1);
+            screen->arrowShown = 0;
+            member = GAME.funcs.getPartyMember(screen->first);
+            GAME.party[screen->first] = GAME.funcs.getPartyMember(screen->second);
+            GAME.party[screen->second] = member;
+            screen->frames[screen->first] = 0;
+            screen->frames[screen->second] = 0;
+            screen->substate++;
+        }
+        break;
+    case 9:
+        if (STSTATUS_data.funcs.updateFade(&screen->fade)) {
+            func_80095B30((StatusScreen *)screen, (StatusPagesB *)windows, screen->first, 1);
+            func_80095B30((StatusScreen *)screen, (StatusPagesB *)windows, screen->second, 1);
+            screen->substate = 6;
+        }
+        break;
+    case 15:
+        screen->cursorShown = 1;
+        screen->substate++;
+        break;
+    case 16:
+        if (PAD_PRESSED(PAD_TRIANGLE)) {
+            screen->substate = 0x14;
+        }
+        break;
+    case 0x14:
+        switch (screen->count) {
+        case 1:
+        default:
+            windows->help->setVisible(windows->help, 0);
+            STSTATUS_data.funcs.startFade(&screen->pageFades[0], 0);
+            func_80095B30((StatusScreen *)screen, (StatusPagesB *)windows, 0, 0);
+            STSTATUS_data.funcs.startFade(&screen->fades[1], 0);
+            break;
+        case 2:
+            STSTATUS_data.funcs.startFade(&screen->pageFades[1], 0);
+            STSTATUS_data.funcs.startFade(&screen->fades[1], 0);
+            windows->help->setVisible(windows->help, 0);
+            func_80095B30((StatusScreen *)screen, (StatusPagesB *)windows, 1, 0);
+            break;
+        case 3:
+            STSTATUS_data.funcs.startFade(&screen->pageFades[2], 0);
+            STSTATUS_data.funcs.startFade(&screen->fades[1], 0);
+            windows->help->setVisible(windows->help, 0);
+            func_80095B30((StatusScreen *)screen, (StatusPagesB *)windows, 2, 0);
+            break;
+        }
+        screen->substate = screen->count + 0x14;
+        break;
+    case 0x15:
+        if (STSTATUS_data.funcs.updateFade(&screen->pageFades[0])) {
+            screen->state = 3;
+        }
+        STSTATUS_data.funcs.updateFade(&screen->fades[1]);
+        break;
+    case 0x16:
+        STSTATUS_data.funcs.updateFade(&screen->pageFades[1]);
+        if (STSTATUS_data.funcs.updateFade(&screen->fades[1])) {
+            STSTATUS_data.funcs.startFade(&screen->pageFades[0], 0);
+            STSTATUS_data.funcs.startFade(&screen->fades[0], 0);
+            windows->title->setVisible(windows->title, 0);
+            func_80095B30((StatusScreen *)screen, (StatusPagesB *)windows, 0, 0);
+            screen->substate = 0x18;
+        }
+        break;
+    case 0x18:
+        STSTATUS_data.funcs.updateFade(&screen->pageFades[0]);
+        if (STSTATUS_data.funcs.updateFade(&screen->fades[0])) {
+            screen->state = 3;
+        }
+        break;
+    case 0x17:
+        STSTATUS_data.funcs.updateFade(&screen->pageFades[2]);
+        if (STSTATUS_data.funcs.updateFade(&screen->fades[1])) {
+            STSTATUS_data.funcs.startFade(&screen->pageFades[1], 0);
+            func_80095B30((StatusScreen *)screen, (StatusPagesB *)windows, 1, 0);
+            screen->substate = 0x19;
+        }
+        break;
+    case 0x19:
+        if (STSTATUS_data.funcs.updateFade(&screen->pageFades[1])) {
+            STSTATUS_data.funcs.startFade(&screen->pageFades[0], 0);
+            STSTATUS_data.funcs.startFade(&screen->fades[0], 0);
+            windows->title->setVisible(windows->title, 0);
+            func_80095B30((StatusScreen *)screen, (StatusPagesB *)windows, 0, 0);
+            screen->substate = 0x18;
+        }
+        break;
+    }
+}
 
 void func_80097460(StatusScreen9 *screen, StatusWindows9 *windows) {
     s32 i;

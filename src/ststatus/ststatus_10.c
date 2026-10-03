@@ -179,7 +179,100 @@ void func_80097A68(StatusMapScreen *screen, TextWindow **windows) {
     }
 }
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus_10", func_80097F2C);
+/* Draws the map, the visited areas, the towns and the cursor */
+void func_80097F2C(StatusMapScreen *screen) {
+    SpriteDrawer sprite;
+    s32 *towns;
+    s32 x;
+    s32 frame;
+    s32 i;
+
+    if (screen->hovering) {
+        initSpriteDrawer(&sprite);
+        sprite.setLayerId(screen->layer, screen->depth - 2);
+        sprite.setTexture(0x280, 0x100);
+        if (screen->hoverY < screen->height / 2) {
+            sprite.draw(FILE_CACHE.getEntry(FILE_STATUS_SPRITES << 16), 0x3B, 0, 0xB4);
+        } else {
+            sprite.draw(FILE_CACHE.getEntry(FILE_STATUS_SPRITES << 16), 0x3B, 0, 0x14);
+        }
+    }
+    initSpriteDrawer(&sprite);
+    if (screen->ready) {
+        if (GFX.funcs.getTime() - screen->time >= 4) {
+            screen->time = GFX.funcs.getTime();
+            screen->cursorFrame++;
+            if (screen->cursorFrame >= 4) {
+                screen->cursorFrame = 0;
+            }
+            screen->homeFrame++;
+            if (screen->homeFrame >= 3) {
+                screen->homeFrame = 0;
+            }
+        }
+        sprite.setTexture(0x300, 0x100);
+        if (screen->hovering) {
+            sprite.setLayerId(screen->layer, screen->depth);
+            sprite.draw(FILE_CACHE.getEntry(screen->archive2), D_80099C8C[screen->cursorFrame] + 0x38,
+                        STSTATUS_data.spots[screen->spot].x + 0xC + screen->scrollX,
+                        STSTATUS_data.spots[screen->spot].y + 0xC + screen->scrollY + screen->top);
+        } else {
+            sprite.setLayerId(screen->layer, screen->depth - 1);
+            sprite.draw(FILE_CACHE.getEntry(screen->archive2), D_80099C8C[screen->cursorFrame] + 0x32,
+                        screen->cursorX, screen->cursorY + screen->top);
+        }
+        sprite.setLayerId(screen->layer, screen->depth - 2);
+#if VERSION_EU
+        if (screen->hovering) {
+            x = screen->hoverX;
+        } else {
+            x = screen->cursorX;
+        }
+        /* the home mark faces the cursor */
+        frame = 0x3B;
+        if (x < screen->homeX + screen->scrollX) {
+            frame = 0x35;
+        }
+#else
+        frame = 0x35;
+#endif
+        sprite.draw(FILE_CACHE.getEntry(screen->archive2), frame + screen->homeFrame, screen->homeX + screen->scrollX,
+                    screen->homeY + screen->scrollY + screen->top);
+    }
+    sprite.setLayerId(screen->layer, screen->depth - 1);
+    if (screen->ready) {
+        sprite.setTexture(0x300, 0x100);
+        for (i = 1; i < 47; i++) {
+            if (screen->visited[i - 1]) {
+                sprite.draw(FILE_CACHE.getEntry(screen->archive2), STSTATUS_data.spots[i].sprite,
+                            STSTATUS_data.spots[i].x + screen->scrollX,
+                            STSTATUS_data.spots[i].y + screen->scrollY + screen->top);
+            }
+        }
+    }
+    sprite.setLayerId(screen->layer, screen->depth + 1);
+    towns = STSTATUS_data.funcs.getList(screen->lateGame, screen->progress);
+    if (GAME_PROGRESS < 7) {
+        screen->progress = 0;
+    } else if (GAME_PROGRESS < 0xF) {
+        screen->progress = 1;
+    } else if (GAME_PROGRESS < 0x1B) {
+        screen->progress = 2;
+    } else if (GAME_PROGRESS < 0x1E) {
+        screen->progress = 3;
+    } else {
+        screen->progress = 4;
+    }
+    sprite.setTexture(0x380, 0x100);
+    /* the match depends on indexing the list rather than walking a pointer */
+    for (i = 0; towns[i] != 0; i++) {
+        sprite.draw(FILE_CACHE.getEntry(screen->archive1), towns[i] - 1, STSTATUS_data.towns[towns[i]].x + screen->scrollX,
+                    STSTATUS_data.towns[towns[i]].y + screen->scrollY + screen->top);
+    }
+    sprite.setTexture(0x280, 0);
+    sprite.setAltClut(0x140, 0x100);
+    sprite.draw(FILE_CACHE.getEntry(screen->archive), 0, screen->scrollX, screen->scrollY + screen->top);
+}
 
 /* The map screen's update */
 void func_800984A4(StatusMapScreen *screen, TextWindow **windows) {
@@ -554,22 +647,18 @@ s32 *func_80099270(s32 list, s32 index) {
     return D_8009A254[list][index];
 }
 
-void STSTATUS_listItems(s32 list, u16 *out) {
+s32 STSTATUS_listItems(s32 list, u16 *out) {
     if (list < 5) {
-        ITEM_FUNCS->list(list, out);
-        return;
+        return ITEM_FUNCS->list(list, out);
     }
     switch (list) {
     case 5:
     default:
-        func_8009930C(out);
-        break;
+        return func_8009930C(out);
     case 6:
-        func_800994D0(4, out);
-        break;
+        return func_800994D0(4, out);
     case 7:
-        func_800994D0(5, out);
-        break;
+        return func_800994D0(5, out);
     }
 }
 
