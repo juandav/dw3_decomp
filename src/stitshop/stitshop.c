@@ -97,7 +97,14 @@ void func_80082CA8(ScreenFade *task) {
     }
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082D5C);
+ScreenFade *func_80082D5C(void) {
+    ScreenFade *task = createTask(func_80082CA8, sizeof(ScreenFade), 0);
+
+    task->start = func_80082ADC;
+    task->layerId = 0x1000;
+    task->depth = 6;
+    return task;
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082DA4);
 
