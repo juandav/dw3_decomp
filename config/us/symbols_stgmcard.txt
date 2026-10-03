@@ -1,0 +1,34 @@
+// STGMCARD.PRO's own symbols
+
+STGMCARD_updateScene = 0x80082468; // type:func
+STGMCARD_start = 0x80082560; // type:func
+STGMCARD_startFader = 0x8008258C; // type:func
+STGMCARD_drawFader = 0x80082614; // type:func
+STGMCARD_updateFader = 0x80082758; // type:func
+STGMCARD_createFader = 0x8008280C; // type:func
+STGMCARD_startFade = 0x80087510; // type:func
+STGMCARD_updateFade = 0x800875A4; // type:func
+STGMCARD_startLerp = 0x80087610; // type:func
+STGMCARD_updateLerp = 0x80087650; // type:func
+STGMCARD_loadFiles = 0x80087284; // type:func
+STGMCARD_filesLoading = 0x8008743C; // type:func
+STGMCARD_freeBuffers = 0x800874AC; // type:func
+STGMCARD_funcs = 0x80087D9C; // size:0x38
+STGMCARD_iconClut = 0x80087DD4; // size:0x20
+STGMCARD_iconFrames = 0x80087DF4; // size:0x180
+STGMCARD_saveIcon = 0x80087F74; // size:0x10
+STGMCARD_showInfo = 0x80082850; // type:func
+STGMCARD_hideInfo = 0x80082878; // type:func
+STGMCARD_createInfo = 0x800832BC; // type:func
+STGMCARD_resetPanel = 0x80083328; // type:func
+STGMCARD_startPanel = 0x8008335C; // type:func
+STGMCARD_setPanelTopColor = 0x8008336C; // type:func
+STGMCARD_setPanelBottomColor = 0x80083380; // type:func
+STGMCARD_setPanelPos = 0x80083394; // type:func
+STGMCARD_createPanel = 0x800837A8; // type:func
+STGMCARD_resetMenu = 0x80083A60; // type:func
+STGMCARD_createMenu = 0x80084108; // type:func
+STGMCARD_showPort = 0x80084198; // type:func
+STGMCARD_refreshSaves = 0x80084380; // type:func
+STGMCARD_hideSaves = 0x800843B8; // type:func
+STGMCARD_createSaves = 0x80086E04; // type:func

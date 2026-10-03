@@ -83,7 +83,7 @@ above counts them: fake matches, then the other two kinds together.
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 3 | `/* unused, but it is in the original stack frame */` |
 | Form-dependent matches | 1 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 1,637 | `INCLUDE_ASM` |
+| Functions still in assembly | 1,538 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -120,7 +120,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 
 | Overlay | Loads at (us) | Functions in C (us) | What it runs |
 |---|---|---|---|
-| `CARDGAME` | `0x80082448` | 203 / 306 | the card battle (mode `0x700`): the decks, the cards in play and the battle screen; `WFIGHTMN` and `WFIGHTTS` load on top of it |
+| `CARDGAME` | `0x80082448` | 203 / 306 | the card battle (mode `0x700`): the decks, the cards in play and the battle screen |
 | `CNTY_SEL` | `0x80082448` | 26 / 26 | the country select screen |
 | `FIELDSTG` | `0x80082448` | 108 / 222 | the field mode, where the player walks around the map; the stages load on top of it |
 | `FIGHTSTG` | `0x80082448` | 2 / 310 | not identified yet |
@@ -129,18 +129,18 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `STAGSLCT` | `0x80082448` | 6 / 8 | the debug stage select, a menu of every scene of the game |
 | `STCRDABM` | `0x80082448` | 27 / 29 | the card album |
 | `STCRDDEK` | `0x80082448` | 6 / 55 | the decks, which it names with the on-screen keyboard (`include/name_entry.h`) |
-| `STCRDSHP` | `0x80082448` | 0 / 45 | not identified yet |
+| `STCRDSHP` | `0x80082448` | 16 / 45 | the card packs (mode 0x1300): opening a pack uses it up and draws six cards, one from each slot's list in `STCRDSHP_packs` |
 | `STDGNAME` | `0x80082448` | 29 / 32 | a name entry screen, a keyboard of character pages |
 | `STDWTITL` | `0x80082448` | 65 / 93 | the title screen, the opening movies and a notice screen |
-| `STFGTREP` | `0x80082448` | 0 / 36 | not identified yet |
+| `STFGTREP` | `0x80082448` | 13 / 36 | the report after a battle (mode 0x1400), which `WFIGHTMN` requests: the partners that went up a level |
 | `STGDGLAB` | `0x80082448` | 44 / 70 | the partners' digivolutions, it seems: a menu of three screens that checks the requirements of `STGDGLAB_tables` against a partner's entries and sets its three slots |
-| `STGMCARD` | `0x80082448` | 0 / 45 | not identified yet |
+| `STGMCARD` | `0x80082448` | 36 / 45 | the memory card screen (mode 0xC00): the saves of a card, their details, and saving and loading |
 | `STGTRAIN` | `0x80082448` | 3 / 94 | not identified yet |
 | `STITSHOP` | `0x80082448` | 50 / 69 | the item shop, where the player buys and sells items and equips what was bought on a partner |
-| `STPLNMET` | `0x80082448` | 0 / 53 | not identified yet |
+| `STPLNMET` | `0x80082448` | 24 / 53 | the player's name entry (mode 0x500), with a copy of `STDGNAME`'s keyboard |
 | `STSTATUS` | `0x80082448` | 42 / 123 | the screens the field menu opens (`STSTATUS_screens`), such as the item list and the equipment |
-| `WFIGHTMN` | `0x800A4CA4` | 0 / 42 | not identified yet |
-| `WFIGHTTS` | `0x800A4CA4` | 0 / 14 | not identified yet |
+| `WFIGHTMN` | `0x800A4CA4` | 4 / 42 | the battle's sub-overlay, which `FIGHTSTG` loads (file 0x1FA) for a normal battle: it checks the party and its equipment and ends the battle |
+| `WFIGHTTS` | `0x800A4CA4` | 6 / 14 | the debug battle test, which `FIGHTSTG` loads (file 0x1FB) in place of `WFIGHTMN`: lists of fighters, motions, effects and stages |
 | `WSTAG###` (238) | `0x800A4CA4` | 815 / 1,374 | the stages: small programs that load on top of `FIELDSTG` and call into it |
 
 `SMDLDATA`, `SDIGIEDT`, `SFSTDATA` and `WSTAG260` hold no code and aren't

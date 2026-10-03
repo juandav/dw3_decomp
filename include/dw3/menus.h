@@ -33,6 +33,18 @@ typedef struct ScreenFade {
     /* 0x64 */ void (*start)(); /* (fade, fadeIn, frames); state 2 when done */
 } ScreenFade;
 
+/* Moves a value towards a target in fixed point, as the menu overlays'
+   startLerp and updateLerp do */
+typedef struct MenuLerp {
+    /* 0x00 */ s32 duration;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 value;
+    /* 0x0C */ s32 fixed; /* value << 8 */
+    /* 0x10 */ s32 target;
+    /* 0x14 */ s32 step;
+    /* 0x18 */ s32 active;
+} MenuLerp;
+
 /* A vertical scroll bar, as the menu overlays (STSTATUS, STGDGLAB) draw one */
 typedef struct ScrollBar {
     TASK_HEADER(ScrollBar);

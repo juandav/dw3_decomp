@@ -26,6 +26,7 @@ options:
 
   symbol_addrs_path:
     - config/eu/symbols.txt
+    - config/eu/symbols_stplnmet.txt
 
   undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_stplnmet.txt
   undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_stplnmet.txt
@@ -49,7 +50,7 @@ segments:
     subalign: 4
     subsegments:
       # us's modules, each with its rodata, data and bss (tools/split_version.py)
-      - [0x0, rodata, stplnmet]
-      - [0x2A8, asm, stplnmet]
+      - [0x0, .rodata, stplnmet]
+      - [0x2A8, c, stplnmet]
       - [0x5934, data, stplnmet]
   - [0x6F0C]

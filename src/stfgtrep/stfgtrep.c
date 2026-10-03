@@ -1,16 +1,109 @@
-#include "common.h"
+#include "stfgtrep.h"
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80082608);
+void func_80084F0C();
+FightReport *STFGTREP_createScreen(void);
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80082704);
+void STFGTREP_updateScene(Task *task, Task **children) {
+    RECT rect;
+    Layer *layer;
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80082730);
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        GFX.funcs.reset();
+        GFX.funcs.allocPrimBuffers(0x14000);
+        GFX.funcs.setDisplayMode(0x140, 0xF0, 0, 0);
+        rect.x = 0;
+        rect.y = 0;
+        rect.w = 0x140;
+        rect.h = 0xF0;
+        layer = GFX.funcs.createLayer(&rect, 3, 0x1000);
+        layer->setBgColor(layer, 0, 0, 0);
+        children[0] = (Task *)STFGTREP_createScreen();
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_800827B8);
+Task *STFGTREP_start(void) {
+    return createTask(STFGTREP_updateScene, sizeof(Task), 4);
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_800828FC);
+void STFGTREP_startFader(ScreenFade *task, s32 fadeIn, s32 duration) {
+    task->setState(task, TASK_RUN);
+    task->substate = 1;
+    task->fadeIn = fadeIn;
+    if (fadeIn == 0) {
+        task->level = 0;
+        task->levelStep = 0xFF00 / duration;
+    } else {
+        task->level = 0xFF00;
+        task->levelStep = -(0xFF00 / duration);
+    }
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_800829B0);
+void STFGTREP_drawFader(ScreenFade *task) {
+    Layer *layer = GFX.funcs.getLayer(task->layerId);
+    u_long *ot = (u_long *)layer->getOtEntry(layer, task->depth);
+    POLY_F4 *poly = GFX.funcs.getPrim();
+    DR_TPAGE *mode;
+
+    setlen(poly, 5);
+    poly->code = 0x2A;
+    poly->r0 = poly->g0 = poly->b0 = task->level >> 8;
+    poly->x0 = poly->x2 = 0;
+    poly->x1 = poly->x3 = 320;
+    poly->y0 = poly->y1 = 0;
+    poly->y2 = poly->y3 = 256;
+    addPrim(ot, poly);
+    mode = (DR_TPAGE *)(poly + 1);
+    setlen(mode, 1);
+    mode->code[0] = 0xE1000245;
+    addPrim(ot, mode);
+    GFX.funcs.setPrim(mode + 1);
+}
+
+void STFGTREP_updateFader(ScreenFade *task) {
+    switch (task->state) {
+    case 0:
+    default:
+        task->nextState(task);
+        break;
+    case 1:
+        if (task->substate == 0) {
+            break;
+        }
+        task->level += task->levelStep;
+        if (task->fadeIn == 0) {
+            if (task->level > 0xFF00) {
+                task->level = 0xFF00;
+                task->state = 2;
+            }
+        } else if (task->level < 0) {
+            task->level = 0;
+            task->state = 2;
+        }
+        /* fallthrough */
+    case 2:
+        STFGTREP_drawFader(task);
+        break;
+    case 3:
+        break;
+    }
+}
+
+ScreenFade *STFGTREP_createFader(void) {
+    ScreenFade *task = createTask(STFGTREP_updateFader, sizeof(ScreenFade), 0);
+
+    task->start = STFGTREP_startFader;
+    task->layerId = 0x1000;
+    task->depth = 6;
+    return task;
+}
 
 INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_800829F8);
 
@@ -44,19 +137,97 @@ INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80084608);
 
 INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80084F0C);
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80085240);
+FightReport *STFGTREP_createScreen(void) {
+    FightReport *report = createTask(func_80084F0C, sizeof(FightReport), 0x1C);
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_8008527C);
+    report->layer = 0x1000;
+    report->depth = 7;
+    return report;
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_8008530C);
+void STFGTREP_loadFiles(void) {
+    TimLoader loader;
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_8008537C);
+    initTimLoader(&loader);
+    loader.setImagePos(0x280, 0);
+    loader.loadArchive(FILE_CACHE.getEntry(FILE_FGTREP_SPRITES << 16));
+    FILE_CACHE.request(TEXT_FILE(0x56));
+    FILE_CACHE.request(TEXT_FILE(0x4F));
+    FILE_CACHE.request(TEXT_FILE(0x6B));
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80085410);
+s32 STFGTREP_filesLoading(void) {
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x56)) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x4F)) != 0) {
+        return 1;
+    }
+    return FILE_CACHE.isLoading(TEXT_FILE(0x6B)) != 0;
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_8008547C);
+void STFGTREP_startFade(PanelAnim *fade, s32 fadeIn) {
+    fade->active = 1;
+    if (fadeIn != 0) {
+        SOUND.playSound(0x40019);
+        fade->level = 0;
+        fade->step = 0x1000 / fade->duration;
+    } else {
+        SOUND.playSound(0x4001A);
+        fade->level = 0x1000;
+        fade->step = -((0x1000 / fade->duration) * 2);
+    }
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_800854BC);
+s32 STFGTREP_updateFade(PanelAnim *fade) {
+    if (fade->active == 0) {
+        return 1;
+    }
+    fade->level += fade->step;
+    if (fade->step > 0) {
+        if (fade->level > 0x1000) {
+            fade->level = 0x1000;
+            fade->active = 0;
+            return 1;
+        }
+    } else if (fade->level < 0) {
+        fade->level = 0;
+        fade->active = 0;
+        return 1;
+    }
+    return 0;
+}
+
+void STFGTREP_startLerp(MenuLerp *lerp, s32 from, s32 to, s32 frames) {
+    if (from != to) {
+        lerp->duration = frames;
+        lerp->fixed = from << 8;
+        lerp->value = from;
+        lerp->target = to;
+        lerp->active = 1;
+        lerp->step = ((to - from) << 8) / lerp->duration;
+    }
+}
+
+s32 STFGTREP_updateLerp(MenuLerp *lerp) {
+    if (lerp->active == 0) {
+        return 1;
+    }
+    lerp->fixed += lerp->step;
+    lerp->value = lerp->fixed >> 8;
+    if (lerp->step > 0) {
+        if (lerp->target < lerp->value) {
+            lerp->value = lerp->target;
+            lerp->active = 0;
+            return 1;
+        }
+    } else if (lerp->value < lerp->target) {
+        lerp->value = lerp->target;
+        lerp->active = 0;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80085528);
 
@@ -80,12 +251,6 @@ extern s32 D_80087C28[];
 extern s32 D_80087EE8[];
 extern s32 D_800881A8[];
 extern s32 D_80088468[];
-void func_8008527C();
-void func_8008530C();
-void func_8008537C();
-void func_80085410();
-void func_8008547C();
-void func_800854BC();
 void func_80085870();
 void func_80085A38();
 void func_80085CAC();
@@ -93,6 +258,7 @@ void func_80085DF8();
 void func_80085F30();
 void func_80086010();
 
+#if VERSION_US
 s32 D_80086174[] = {
     0, 0, 0, 12,
     120, 240, 14, 140,
@@ -347,6 +513,262 @@ s32 D_80086174[] = {
     235, 470, 47, 235,
     470,
 };
+#elif VERSION_EU
+s32 D_80086174[] = {
+    0, 0, 0, 12,
+    120, 240, 14, 140,
+    280, 11, 176, 475,
+    14, 216, 675, 27,
+    268, 645, 29, 435,
+    870, 32, 325, 500,
+    32, 320, 740, 34,
+    340, 1000, 35, 718,
+    1490, 40, 380, 800,
+    43, 440, 800, 45,
+    450, 900, 41, 627,
+    1220, 46, 460, 930,
+    43, 649, 1335, 47,
+    470, 960, 46, 705,
+    1430, 46, 703, 1410,
+    47, 715, 1420, 48,
+    719, 1395, 49, 737,
+    1470, 55, 550, 1100,
+    57, 570, 1300, 50,
+    757, 1450, 52, 788,
+    1560, 52, 783, 1515,
+    53, 795, 1580, 56,
+    842, 1655, 99, 990,
+    1980, 53, 530, 1060,
+    57, 1224, 2515, 57,
+    1700, 3000, 1, 6,
+    10, 1, 5, 20,
+    3, 17, 30, 4,
+    19, 40, 8, 39,
+    80, 2, 10, 25,
+    4, 20, 40, 2,
+    11, 20, 3, 16,
+    30, 3, 15, 35,
+    4, 21, 40, 4,
+    22, 45, 16, 80,
+    160, 5, 27, 55,
+    13, 66, 130, 5,
+    25, 50, 6, 31,
+    60, 6, 30, 60,
+    6, 29, 70, 8,
+    41, 85, 8, 40,
+    80, 9, 46, 90,
+    31, 154, 310, 13,
+    96, 160, 10, 50,
+    190, 18, 91, 180,
+    29, 145, 290, 20,
+    98, 200, 27, 136,
+    240, 40, 200, 400,
+    24, 118, 200, 20,
+    101, 490, 12, 58,
+    120, 23, 116, 220,
+    20, 100, 205, 20,
+    102, 200, 22, 112,
+    200, 44, 220, 400,
+    45, 223, 440, 22,
+    109, 220, 22, 110,
+    225, 25, 125, 250,
+    29, 147, 290, 23,
+    115, 235, 23, 117,
+    230, 24, 123, 250,
+    24, 120, 200, 25,
+    124, 300, 26, 129,
+    190, 47, 235, 470,
+    47, 234, 100, 27,
+    135, 270, 27, 134,
+    270, 46, 233, 450,
+    29, 145, 320, 30,
+    152, 300, 29, 146,
+    280, 31, 155, 330,
+    36, 225, 770, 43,
+    215, 420, 34, 168,
+    340, 38, 189, 380,
+    35, 176, 350, 35,
+    175, 400, 45, 225,
+    450, 34, 172, 320,
+    36, 183, 400, 36,
+    179, 360, 45, 225,
+    420, 37, 185, 370,
+    44, 221, 440, 35,
+    174, 350, 34, 170,
+    340, 36, 180, 360,
+    39, 196, 390, 36,
+    180, 360, 41, 205,
+    450, 41, 204, 400,
+    41, 205, 410, 41,
+    205, 420, 41, 206,
+    420, 43, 215, 420,
+    46, 230, 460, 43,
+    218, 430, 49, 244,
+    490, 43, 217, 430,
+    43, 214, 390, 44,
+    223, 420, 44, 221,
+    470, 44, 223, 460,
+    43, 215, 430, 43,
+    216, 480, 44, 220,
+    450, 44, 222, 610,
+    54, 273, 520, 49,
+    247, 490, 45, 225,
+    460, 45, 224, 440,
+    44, 222, 460, 45,
+    226, 500, 45, 227,
+    440, 55, 276, 530,
+    47, 235, 440, 48,
+    243, 500, 56, 280,
+    560, 47, 235, 500,
+    55, 277, 530, 56,
+    282, 550, 49, 246,
+    490, 55, 277, 540,
+    56, 279, 600, 9,
+    45, 90, 30, 150,
+    290, 8, 40, 80,
+    21, 105, 210, 22,
+    112, 220, 33, 167,
+    350, 33, 165, 330,
+    19, 76, 190, 41,
+    205, 400, 21, 104,
+    215, 37, 186, 370,
+    22, 158, 300, 36,
+    180, 360, 37, 184,
+    370, 35, 175, 350,
+    47, 236, 460, 42,
+    210, 430, 46, 232,
+    460, 48, 242, 480,
+    46, 231, 460, 31,
+    222, 660, 39, 299,
+    770, 43, 344, 880,
+    43, 366, 990, 44,
+    399, 1110, 40, 201,
+    400, 43, 215, 430,
+    45, 227, 470, 32,
+    160, 330, 40, 250,
+    800, 48, 241, 480,
+    36, 179, 360, 41,
+    203, 410, 47, 235,
+    420, 44, 221, 450,
+    48, 240, 480, 48,
+    239, 480, 44, 220,
+    500, 48, 243, 480,
+    47, 236, 460, 54,
+    271, 550, 54, 272,
+    510, 49, 245, 490,
+    29, 291, 600, 29,
+    299, 590, 29, 451,
+    890, 32, 160, 325,
+    29, 289, 580, 44,
+    672, 1370, 55, 558,
+    1080, 49, 493, 990,
+    50, 503, 1000, 51,
+    770, 1500, 53, 530,
+    1060, 50, 508, 990,
+    1, 4, 50, 4,
+    65, 145, 41, 661,
+    1250, 7, 125, 220,
+    7, 79, 155, 6,
+    103, 200, 9, 45,
+    180, 43, 737, 1475,
+    6, 100, 225, 7,
+    109, 210, 10, 101,
+    190, 10, 105, 210,
+    10, 100, 200, 40,
+    700, 1305, 17, 269,
+    530, 9, 158, 290,
+    41, 205, 820, 38,
+    569, 1195, 38, 565,
+    1175, 38, 595, 1110,
+    40, 607, 1255, 40,
+    682, 1335, 41, 642,
+    1265, 42, 210, 840,
+    58, 904, 1730, 42,
+    641, 1220, 42, 638,
+    1145, 34, 342, 725,
+    35, 524, 990, 35,
+    533, 1110, 35, 357,
+    715, 35, 523, 1050,
+    36, 361, 680, 35,
+    544, 1110, 44, 665,
+    1330, 44, 664, 1510,
+    44, 656, 1375, 45,
+    454, 545, 44, 671,
+    1320, 44, 669, 1380,
+    45, 680, 1485, 45,
+    456, 910, 45, 458,
+    900, 52, 791, 1625,
+    52, 800, 1565, 52,
+    525, 1570, 52, 814,
+    1600, 52, 786, 1570,
+    52, 791, 1740, 53,
+    813, 1680, 57, 977,
+    1920, 53, 529, 1120,
+    53, 535, 1600, 1,
+    6, 10, 1, 6,
+    10, 1, 6, 10,
+    1, 6, 10, 1,
+    6, 10, 1, 6,
+    10, 1, 6, 10,
+    1, 6, 10, 1,
+    6, 10, 94, 2365,
+    5475, 10, 161, 300,
+    17, 160, 340, 26,
+    250, 520, 28, 280,
+    560, 29, 300, 580,
+    28, 280, 560, 28,
+    280, 560, 28, 280,
+    560, 19, 200, 380,
+    6, 63, 115, 43,
+    215, 430, 43, 216,
+    480, 44, 223, 460,
+    44, 221, 470, 45,
+    225, 420, 23, 240,
+    480, 36, 538, 1080,
+    33, 336, 640, 26,
+    394, 820, 34, 520,
+    1040, 13, 204, 420,
+    31, 468, 980, 34,
+    339, 310, 31, 475,
+    940, 29, 445, 925,
+    36, 544, 1220, 40,
+    406, 810, 44, 448,
+    880, 37, 566, 1165,
+    19, 297, 580, 23,
+    230, 470, 5, 77,
+    155, 41, 621, 1240,
+    42, 635, 1410, 30,
+    466, 980, 37, 601,
+    1190, 40, 399, 840,
+    23, 230, 470, 60,
+    565, 1200, 60, 577,
+    1200, 65, 684, 1300,
+    60, 621, 1200, 75,
+    1855, 3660, 75, 1857,
+    3875, 75, 1541, 2695,
+    75, 1503, 3180, 60,
+    600, 1200, 70, 700,
+    1400, 70, 700, 1400,
+    70, 320, 740, 34,
+    340, 1000, 40, 380,
+    800, 44, 450, 815,
+    65, 650, 1300, 65,
+    650, 1310, 70, 700,
+    1430, 70, 700, 1400,
+    75, 750, 1710, 75,
+    750, 1500, 28, 144,
+    0, 15, 153, 275,
+    68, 4, 0, 70,
+    4, 0, 70, 4,
+    0, 7, 35, 70,
+    12, 60, 120, 17,
+    85, 170, 27, 135,
+    270, 37, 185, 370,
+    42, 210, 420, 47,
+    235, 470, 47, 235,
+    470,
+};
+#endif
 s32 D_80087128[] = {
     9, 0x10000, 0x10000, 0x50007,
     10, 0x14000E, 0x10000, 0x10000,
@@ -735,11 +1157,11 @@ s32 D_80088748[] = {
     -1, 21, 22, 23,
     24, 23, 22, -1,
 };
-s32 D_80088828 = (s32)func_8008527C;
-s32 D_8008882C = (s32)func_8008530C;
-s32 D_80088830 = (s32)func_8008537C;
+s32 D_80088828 = (s32)STFGTREP_loadFiles;
+s32 D_8008882C = (s32)STFGTREP_filesLoading;
+s32 D_80088830 = (s32)STFGTREP_startFade;
 s32 D_80088834[] = {
-    (s32)func_80085410, (s32)func_8008547C, (s32)func_800854BC,
+    (s32)STFGTREP_updateFade, (s32)STFGTREP_startLerp, (s32)STFGTREP_updateLerp,
 };
 s32 D_80088840 = (s32)func_80085870;
 s32 D_80088844[] = {

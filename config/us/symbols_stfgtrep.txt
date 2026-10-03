@@ -1,0 +1,15 @@
+// STFGTREP.PRO's own symbols
+
+STFGTREP_updateScene = 0x80082608; // type:func
+STFGTREP_start = 0x80082704; // type:func
+STFGTREP_startFader = 0x80082730; // type:func
+STFGTREP_drawFader = 0x800827B8; // type:func
+STFGTREP_updateFader = 0x800828FC; // type:func
+STFGTREP_createFader = 0x800829B0; // type:func
+STFGTREP_createScreen = 0x80085240; // type:func
+STFGTREP_loadFiles = 0x8008527C; // type:func
+STFGTREP_filesLoading = 0x8008530C; // type:func
+STFGTREP_startFade = 0x8008537C; // type:func
+STFGTREP_updateFade = 0x80085410; // type:func
+STFGTREP_startLerp = 0x8008547C; // type:func
+STFGTREP_updateLerp = 0x800854BC; // type:func

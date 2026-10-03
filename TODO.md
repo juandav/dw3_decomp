@@ -92,21 +92,23 @@ segment each.
 
 ## Overlays
 
-- [ ] 634 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 733 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`. Mostly: `STCRDABM` (27 / 29), `STDGNAME` (29 / 32), `SHOCKTST`
   (15 / 17), `STAGSLCT` (6 / 8), `STDWTITL` (65 / 93), `STITSHOP` (50 / 69),
-  `CARDGAME` (203 / 306). Started: `FIELDSTG` (108 / 222), `STGDGLAB`
-  (44 / 70), `STSTATUS` (42 / 123), `STCRDDEK` (6 / 55), `STGTRAIN` (3 / 94),
-  `FIGHTSTG` (2 / 310). Not started: `STPLNMET` (53), `STCRDSHP` (45),
-  `STGMCARD` (45), `WFIGHTMN` (42), `STFGTREP` (36), `WFIGHTTS` (14).
-- [ ] Find out what `FIGHTSTG`, `STCRDSHP`, `STFGTREP`, `STGMCARD`,
-  `STGTRAIN`, `STPLNMET`, `WFIGHTMN` and `WFIGHTTS` run, and say it in their
-  header and the README. Check `STGDGLAB`'s guess (the partners'
+  `CARDGAME` (203 / 306), `STGMCARD` (36 / 45). Started: `FIELDSTG`
+  (108 / 222), `STGDGLAB` (44 / 70), `STSTATUS` (42 / 123), `STPLNMET`
+  (24 / 53), `STCRDSHP` (16 / 45), `STFGTREP` (13 / 36), `WFIGHTTS` (6 / 14),
+  `STCRDDEK` (6 / 55), `WFIGHTMN` (4 / 42), `STGTRAIN` (3 / 94), `FIGHTSTG`
+  (2 / 310).
+- [ ] Find out what `FIGHTSTG` and `STGTRAIN` run, and say it in their
+  header and the README. Check `STFGTREP`'s guess (the report after a
+  battle) against its texts. Check `STGDGLAB`'s guess (the partners'
   digivolutions) against its strings.
   `STAGSLCT`'s menu of every scene of the game may help.
 - [ ] Name the overlays' functions: only `CNTY_SEL`, `SHOCKTST`,
   `SOUNDTST`, `STAGSLCT`, `STCRDABM` and `STDWTITL` have names (and
-  `STITSHOP`, `STSTATUS` and `STGDGLAB` their helpers and tasks); the other
+  `STITSHOP`, `STSTATUS`, `STGDGLAB`, `STCRDSHP`, `STFGTREP`, `STGMCARD`,
+  `STPLNMET`, `WFIGHTMN` and `WFIGHTTS` their helpers and tasks); the other
   overlays' symbol files are empty or hold a few `D_` entries, so `FIELDSTG`
   and `STDGNAME`, much of which is C, are still `func_`.
 - [ ] Overlay data: 37 % of it is C. `INCLUDE_RODATA` is left in `SHOCKTST`

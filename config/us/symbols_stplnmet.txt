@@ -1,0 +1,23 @@
+// STPLNMET.PRO's own symbols
+
+STPLNMET_centerLayer = 0x800826F0; // type:func
+STPLNMET_updateScene = 0x80082764; // type:func
+STPLNMET_start = 0x800828B0; // type:func
+STPLNMET_loadScroll = 0x80082AA8; // type:func
+STPLNMET_setScrollLayer = 0x80082B30; // type:func
+STPLNMET_createScroll = 0x80082B3C; // type:func
+STPLNMET_startTween = 0x800834F8; // type:func
+STPLNMET_updateTween = 0x8008358C; // type:func
+STPLNMET_createNameWindows = 0x800835F8; // type:func
+STPLNMET_setNameVram = 0x8008512C; // type:func
+STPLNMET_setName = 0x80085138; // type:func
+STPLNMET_getName = 0x800851CC; // type:func
+STPLNMET_createNameEntry = 0x8008538C; // type:func
+STPLNMET_createScreen = 0x8008779C; // type:func
+STPLNMET_loadFiles = 0x800877D8; // type:func
+STPLNMET_filesLoading = 0x80087878; // type:func
+STPLNMET_startFade = 0x80087900; // type:func
+STPLNMET_updateFade = 0x80087994; // type:func
+STPLNMET_startLerp = 0x80087A00; // type:func
+STPLNMET_updateLerp = 0x80087A40; // type:func
+STPLNMET_nameStyle = 0x80088DE4;
