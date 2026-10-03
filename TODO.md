@@ -85,6 +85,35 @@ own.
   of the statements, `DEBUG_LOG` placement or replacement, local, inline
   function, loop, cast or compiler flag tried gives it (the closest is 33
   instructions off, in `WSTAG310`). Once found, it applies to all 293.
+  What a second attempt ruled out or learned (on `WSTAG310`):
+  - The dependencies needed are exactly those of GCC 2.8.1's
+    `flush_pending_lists` (`sched.c`) at the `0x44` store: after every
+    memory access before it, before every one after it, with registers
+    free. The scheduler only flushes at a call, a volatile `asm`, a loop
+    note (these two also tie the registers, as `DEBUG_LOG` does) or when
+    more than 32 memory accesses are pending in the block, and this
+    function has 6 before that store.
+  - The alias analysis only sees a conflict between two stores to
+    `D_800990B4` when their base registers are different pseudos, one of
+    them with no known value (set twice, or without a `REG_EQUAL` note).
+    The `LANGUAGE` load can't be the anchor either: its address is a
+    `lo_sum` of the symbol, which never conflicts with the stores.
+  - CSE folds into the one base every other way of reaching the struct:
+    a pointer local (for some of the stores or all of them, declared at
+    the top or in a block), a pointer set twice, a `static inline` setter
+    (with the struct, the value or the file as its argument) or getter.
+  - Without `DEBUG_LOG`, every statement order gives 36 instructions off,
+    with the language load after the last store. With `DEBUG_LOG`
+    anywhere (first, after `0x14`, `0x1C` or `0x44`, or twice) it is
+    41-50: the constants can't rise above it.
+  - `volatile` on every store but `0x20` is 42 off (`0x20` moves); on all
+    of them, the order and registers match but the delay slot stays
+    empty, since GCC wraps each volatile access in `.set volatile`.
+  - No flag changes it: `-fforce-addr`, `-fforce-mem`, `-fvolatile-global`,
+    `-fno-rerun-cse-after-loop`, `-fno-cse-follow-jumps`,
+    `-fno-strength-reduce`, `-fcaller-saves` and the rest give 36,
+    `-fvolatile` 43, and `-fno-schedule-insns` 65. Neither does GCC 2.8.0
+    or the SN 2.8.1.
 - [x] The 8 functions that read `GAME` fields 8 bytes later in the European
   version (`countdown`, `unk26DC`, `unk26E8`) are C in both: `WSTAG745`/
   `746` `func_800A4CA4`, `WSTAG795` `func_800A50F8`/`func_800A5240`,
