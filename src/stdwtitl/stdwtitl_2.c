@@ -310,20 +310,264 @@ BackgroundTask *STDWTITL_startBackgroundTask(s32 skip) {
     return task;
 }
 
-INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_leaveTitle);
+/* Once the fade out ends, starts the chosen mode; returns 1 then */
+s32 STDWTITL_leaveTitle(TitleTask *task, TitleChildren *children) {
+    s32 left = 0;
 
-INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_stepTitle);
+    if (children->fade->isDone(children->fade)) {
+        switch (task->choice) {
+        case 0:
+            break;
+        case 1:
+            left = 1;
+            GAME.funcs.newGame();
+            GAME.funcs.resetPlayTime();
+            D_80042728.clearUnk58();
+            MEMCARD_FUNCS.setFileName();
+            GAME.funcs.requestMode(0x2D7, 0);
+            break;
+        case 2:
+            left = 1;
+            GAME.funcs.newGame();
+            D_80042728.clearUnk58();
+            MEMCARD_FUNCS.setFileName();
+            GAME.funcs.requestMode(0xC00, 0);
+            break;
+        case 3:
+#if VERSION_US
+            GAME_FUNCS.requestMode(0xE01, 0);
+#elif VERSION_EU
+            if (LANGUAGE == 0) {
+                if (GAME.funcs.getPrevMode() == 0xE01) {
+                    GAME.funcs.requestMode(0xE02, 0);
+                } else {
+                    GAME.funcs.requestMode(0xE01, 0);
+                }
+            } else {
+                GAME_FUNCS.requestMode(0xE02, 0);
+            }
+#endif
+            left = 1;
+            break;
+        }
+    }
+    return left;
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_tickTitle);
+/* Brings in the titles, the glint, the logo and the menu, then waits for an
+   option; returns 1 once the chosen mode starts */
+s32 STDWTITL_stepTitle(TitleTask *task, TitleChildren *children) {
+    s32 left = 0;
 
-INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_startTitleTask);
+    switch (task->substate) {
+    case 0:
+    default:
+        children->title0->show(children->title0);
+        children->title1->show(children->title1);
+        task->timer = 0;
+        task->setSubstate(task, 2);
+        break;
+    case 1:
+        if (task->timer++ >= 0) {
+            task->timer = 0;
+            children->title1->show(children->title1);
+            task->nextSubstate(task);
+        }
+        break;
+    case 2:
+        if (task->timer >= 10) {
+            task->timer = 0;
+            SOUND.playSound(0x611C0000);
+            children->glint->show(children->glint);
+            task->nextSubstate(task);
+        }
+        task->timer += GFX_FUNCS.getFrameTime();
+        break;
+    case 3:
+        if (task->timer >= 12) {
+            task->timer = 0;
+            task->nextSubstate(task);
+        }
+        task->timer += GFX_FUNCS.getFrameTime();
+        break;
+    case 4:
+        if (task->timer >= 12) {
+            task->timer = 0;
+            children->logo->show(children->logo);
+            task->nextSubstate(task);
+        }
+        task->timer += GFX_FUNCS.getFrameTime();
+        break;
+    case 5:
+        if (task->timer >= 12) {
+            task->timer = 0;
+            children->menu->show(children->menu);
+            children->background->animate(children->background);
+            task->nextSubstate(task);
+        }
+        task->timer += GFX_FUNCS.getFrameTime();
+        break;
+    case 6:
+        task->choice = children->menu->getChoice(children->menu);
+        if (task->choice != 0) {
+            task->nextSubstate(task);
+            children->fade = STDWTITL_startEdgeFadeTask();
+            if (task->choice == 1) {
+#if VERSION_US
+                FILE_CACHE_REQUEST(0x158);
+#elif VERSION_EU
+                FILE_CACHE_REQUEST(0x166);
+#endif
+            }
+        }
+        break;
+    case 7:
+        children->fade->start(children->fade);
+        task->nextSubstate(task);
+        break;
+    case 8:
+        left = STDWTITL_leaveTitle(task, children);
+        break;
+    }
+    return left;
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_loadTitleImages);
+void STDWTITL_tickTitle(TitleTask *task, TitleChildren *children) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->nextState(task);
+        children->background = STDWTITL_startBackgroundTask(0);
+#if VERSION_US
+        children->title0 = STDWTITL_startTitle0Task(0);
+        children->title1 = STDWTITL_startTitle1Task(0);
+        children->glint = STDWTITL_startGlintTask(0);
+        children->logo = STDWTITL_startLogoTask(0);
+        children->menu = STDWTITL_startMenuTask(0);
+#elif VERSION_EU
+        if (LANGUAGE == 0) {
+            children->title0 = STDWTITL_startTitle0AltTask(0);
+            children->title1 = STDWTITL_startTitle1AltTask(0);
+            children->logo = STDWTITL_startLogoTask(0);
+            children->glint = STDWTITL_startGlintAltTask(0);
+            children->menu = STDWTITL_startMenuTask(0);
+        } else {
+            children->title0 = STDWTITL_startTitle0Task(0);
+            children->title1 = STDWTITL_startTitle1Task(0);
+            children->glint = STDWTITL_startGlintTask(0);
+            children->logo = STDWTITL_startLogoTask(0);
+            children->menu = STDWTITL_startMenuTask(0);
+        }
+#endif
+        task->timer = 0;
+        break;
+    case TASK_RUN:
+        if (STDWTITL_stepTitle(task, children)) {
+            task->setState(task, TASK_KILL);
+        }
+        break;
+    case TASK_DONE:
+        break;
+    case TASK_KILL:
+        SOUND_STATE.stopSound(0x611C0000);
+        break;
+    }
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_startFade);
+TitleTask *STDWTITL_startTitleTask(Task *parent) {
+    TitleTask *task = createTask(STDWTITL_tickTitle, sizeof(TitleTask), sizeof(TitleChildren));
 
-INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_stepFade);
+    task->layerId = 0x1000;
+    task->depth = 2;
+    task->parent = parent;
+    return task;
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_startTween);
+void STDWTITL_loadTitleImages(void) {
+    TimLoader loader;
 
-INCLUDE_ASM("stdwtitl/nonmatchings/stdwtitl_2", STDWTITL_stepTween);
+    initTimLoader(&loader);
+#if VERSION_US
+    loader.setImagePos(0x280, 0);
+    loader.setClutPos(0, 0x1F0);
+    loader.loadArchive(FILE_CACHE.getEntry(STDWTITL_titleImages[1].images));
+    STDWTITL_spriteBank = STDWTITL_titleImages[1].sprites;
+#elif VERSION_EU
+    loader.setImagePos(0x280, 0x100);
+    loader.setClutPos(0, 0x1F0);
+    loader.loadArchive(FILE_CACHE.getEntry(STDWTITL_titleImages[LANGUAGE].images));
+    STDWTITL_spriteBank = STDWTITL_titleImages[LANGUAGE].sprites;
+#endif
+    loader.setClutPos(0, 0x1F3);
+    loader.setImagePos(0x300, 0);
+    loader.loadArchive(FILE_CACHE.getEntry(STDWTITL_BACKGROUND(4)));
+    loader.setImagePos(0x340, 0);
+    loader.loadArchive(FILE_CACHE.getEntry(STDWTITL_BACKGROUND(5)));
+    loader.setImagePos(0x380, 0);
+    loader.loadArchive(FILE_CACHE.getEntry(STDWTITL_BACKGROUND(6)));
+    loader.setImagePos(0x3C0, 0);
+    loader.loadArchive(FILE_CACHE.getEntry(STDWTITL_BACKGROUND(7)));
+}
+
+void STDWTITL_startFade(Fade *fade, s32 fadeIn) {
+    fade->active = 1;
+    if (fadeIn) {
+        SOUND.playSound(0x40019);
+        fade->step = 0x1000 / fade->duration;
+        fade->level = 0;
+    } else {
+        SOUND.playSound(0x4001A);
+        fade->level = 0x1000;
+        fade->step = -(0x1000 / fade->duration * 2);
+    }
+}
+
+s32 STDWTITL_stepFade(Fade *fade) {
+    if (!fade->active) {
+        return 1;
+    }
+    fade->level += fade->step;
+    if (fade->step > 0) {
+        if (fade->level > 0x1000) {
+            fade->level = 0x1000;
+            fade->active = 0;
+            return 1;
+        }
+    } else if (fade->level < 0) {
+        fade->level = 0;
+        fade->active = 0;
+        return 1;
+    }
+    return 0;
+}
+
+void STDWTITL_startTween(Tween *tween, s32 from, s32 to, s32 duration) {
+    if (from != to) {
+        tween->duration = duration;
+        tween->fixed = from << 8;
+        tween->value = from;
+        tween->target = to;
+        tween->active = 1;
+        tween->step = ((to - from) << 8) / tween->duration;
+    }
+}
+
+s32 STDWTITL_stepTween(Tween *tween) {
+    if (!tween->active) {
+        return 1;
+    }
+    tween->fixed += tween->step;
+    tween->value = tween->fixed >> 8;
+    if (tween->step > 0) {
+        if (tween->target < tween->value) {
+            tween->value = tween->target;
+            tween->active = 0;
+            return 1;
+        }
+    } else if (tween->value < tween->target) {
+        tween->value = tween->target;
+        tween->active = 0;
+        return 1;
+    }
+    return 0;
+}

@@ -1,6 +1,10 @@
 #include "stdwtitl.h"
 
-/* libpress's data, as the words of tools/data_to_c.py */
+/* PsyQ's libpress, the movie decoder, built with the libraries' GCC 2.7.2
+   (see the Makefile) */
+
+/* libpress's data: the MDEC's commands with their tables (the default
+   quantization and IDCT ones), then the DMA and MDEC registers */
 s32 D_80087770 = 0x40000001;
 
 s32 D_80087774[] = {
@@ -31,27 +35,29 @@ s32 D_800877F8[] = {
     0xE7350, 0x470000,
 };
 
-s32 D_80087880 = 0x1F801080;
+volatile u_long *D_80087880 = (volatile u_long *)0x1F801080;
 
-s32 D_80087884 = 0x1F801084;
+volatile u_long *D_80087884 = (volatile u_long *)0x1F801084;
 
-s32 D_80087888 = 0x1F801088;
+volatile u_long *D_80087888 = (volatile u_long *)0x1F801088;
 
-s32 D_8008788C = 0x1F801090;
+volatile u_long *D_8008788C = (volatile u_long *)0x1F801090;
 
-s32 D_80087890 = 0x1F801094;
+volatile u_long *D_80087890 = (volatile u_long *)0x1F801094;
 
-s32 D_80087894[] = {
-    0x1F801098, 0x1F8010A0, 0x1F8010A4, 0x1F8010A8,
-    0x1F8010B0, 0x1F8010B4, 0x1F8010B8,
+volatile u_long *D_80087894[] = {
+    (volatile u_long *)0x1F801098, (volatile u_long *)0x1F8010A0,
+    (volatile u_long *)0x1F8010A4, (volatile u_long *)0x1F8010A8,
+    (volatile u_long *)0x1F8010B0, (volatile u_long *)0x1F8010B4,
+    (volatile u_long *)0x1F8010B8,
 };
 
-s32 D_800878B0 = 0x1F801820;
+volatile u_long *D_800878B0 = (volatile u_long *)0x1F801820;
 
-s32 D_800878B4 = 0x1F801824;
+volatile u_long *D_800878B4 = (volatile u_long *)0x1F801824;
 
-s32 D_800878B8[] = {
-    0x1F8010F0, 0,
+volatile u_long *D_800878B8[] = {
+    (volatile u_long *)0x1F8010F0, NULL,
 };
 
 s32 D_800878C0 = 0xFFFFFF;
@@ -531,40 +537,228 @@ s32 STDWTITL_movieEnded = 0;
 s32 STDWTITL_movieFile = 0;
 u32 STDWTITL_movieEndFrame = 0;
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", DecDCTReset);
+void MDEC_reset(int option);
+void MDEC_in(u_long *addr, int size);
+void MDEC_out(u_long *addr, int size);
+int MDEC_in_sync(void);
+int MDEC_out_sync(void);
+u_long MDEC_status(void);
+int timeout(char *name);
+int ResetCallback(void);
+void *DMACallback(int dma, void (*func)());
+int printf(char *fmt, ...);
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", DecDCTGetEnv);
+void DecDCTReset(int mode) {
+    if (mode == 0) {
+        ResetCallback();
+    }
+    MDEC_reset(mode);
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", DecDCTPutEnv);
+DECDCTENV *DecDCTGetEnv(DECDCTENV *env) {
+    u_long *src;
+    u_long *dst;
+    s32 i;
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", DecDCTin);
+    dst = (u_long *)env->iq_y;
+    src = (u_long *)D_80087774;
+    for (i = 15; i != -1; i--) {
+        *dst++ = *src++;
+    }
+    dst = (u_long *)env->iq_c;
+    src = (u_long *)D_800877B4;
+    for (i = 15; i != -1; i--) {
+        *dst++ = *src++;
+    }
+    dst = (u_long *)env->dct;
+    src = (u_long *)D_800877F8;
+    for (i = 31; i != -1; i--) {
+        *dst++ = *src++;
+    }
+    return env;
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", DecDCTout);
+DECDCTENV *DecDCTPutEnv(DECDCTENV *env) {
+    u_long *src;
+    u_long *dst;
+    s32 i;
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", DecDCTinSync);
+    dst = (u_long *)D_80087774;
+    src = (u_long *)env->iq_y;
+    for (i = 15; i != -1; i--) {
+        *dst++ = *src++;
+    }
+    dst = (u_long *)D_800877B4;
+    src = (u_long *)env->iq_c;
+    for (i = 15; i != -1; i--) {
+        *dst++ = *src++;
+    }
+    MDEC_in((u_long *)&D_80087770, 0x20);
+    MDEC_in((u_long *)&D_800877F4, 0x20);
+    return env;
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", DecDCToutSync);
+void DecDCTin(u_long *buf, int mode) {
+    if (mode & 1) {
+        *buf &= ~0x08000000;
+    } else {
+        *buf |= 0x08000000;
+    }
+    if (mode & 2) {
+        *buf |= 0x02000000;
+    } else {
+        *buf &= ~0x02000000;
+    }
+    MDEC_in(buf, *buf & 0xFFFF);
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", DecDCTinCallback);
+void DecDCTout(u_long *buf, int size) {
+    MDEC_out(buf, size);
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", DecDCToutCallback);
+int DecDCTinSync(int mode) {
+    if (mode != 0) {
+        return (MDEC_status() >> 29) & 1;
+    }
+    return MDEC_in_sync();
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", MDEC_reset);
+int DecDCToutSync(int mode) {
+    if (mode != 0) {
+        return (*D_80087894[0] >> 24) & 1;
+    }
+    return MDEC_out_sync();
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", MDEC_in);
+int DecDCTinCallback(void (*func)()) {
+    return (int)DMACallback(0, func);
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", MDEC_out);
+int DecDCToutCallback(void (*func)()) {
+    return (int)DMACallback(1, func);
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", MDEC_in_sync);
+void MDEC_reset(int option) {
+    switch (option) {
+    case 0:
+        *D_800878B4 = 0x80000000;
+        *D_80087888 = 0;
+        *D_80087894[0] = 0;
+        *D_800878B4 = 0x60000000;
+        MDEC_in((u_long *)&D_80087770, 0x20);
+        MDEC_in((u_long *)&D_800877F4, 0x20);
+        break;
+    case 1:
+        *D_800878B4 = 0x80000000;
+        *D_80087888 = 0;
+        *D_80087894[0] = 0;
+        *D_80087894[0];
+        *D_800878B4 = 0x60000000;
+        break;
+    default:
+        printf("MDEC_rest:bad option(%d)\n", option);
+        break;
+    }
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", MDEC_out_sync);
+void MDEC_in(u_long *addr, int size) {
+    MDEC_in_sync();
+    *D_800878B8[0] |= 0x88;
+    *D_80087880 = (u_long)(addr + 1);
+    *D_80087884 = ((u_long)size >> 5) << 16 | 0x20;
+    *D_800878B0 = *addr;
+    *D_80087888 = 0x01000201;
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", MDEC_status);
+void MDEC_out(u_long *addr, int size) {
+    MDEC_out_sync();
+    *D_800878B8[0] |= 0x88;
+    *D_80087894[0] = 0;
+    *D_8008788C = (u_long)addr;
+    *D_80087890 = ((u_long)size >> 5) << 16 | 0x20;
+    *D_80087894[0] = 0x01000200;
+}
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", timeout);
+int MDEC_in_sync(void) {
+    volatile s32 count = 0x100000;
+
+    while (*D_800878B4 & 0x20000000) {
+        if (--count == -1) {
+            timeout("MDEC_in_sync");
+            return -1;
+        }
+    }
+    return 0;
+}
+
+int MDEC_out_sync(void) {
+    volatile s32 count = 0x100000;
+
+    while (*D_80087894[0] & 0x01000000) {
+        if (--count == -1) {
+            timeout("MDEC_out_sync");
+            return -1;
+        }
+    }
+    return 0;
+}
+
+u_long MDEC_status(void) {
+    return *D_800878B4;
+}
+
+int timeout(char *s) {
+    printf("%s timeout:\n", s);
+    *D_800878B4 = 0x80000000;
+    *D_80087888 = 0;
+    *D_80087894[0] = 0;
+    *D_80087894[0];
+    *D_800878B4 = 0x60000000;
+    return 0;
+}
+
+/* ASPSX padded the string table as well */
+__asm__(".section .rodata\n\t.align 4\n");
+
+OBJECT_END();
 
 INCLUDE_ASM("stdwtitl/nonmatchings/libpress", DecDCTvlcSize2);
 
 INCLUDE_ASM("stdwtitl/nonmatchings/libpress", DecDCTvlc2);
 
-INCLUDE_ASM("stdwtitl/nonmatchings/libpress", DecDCTvlcBuild);
+void DecDCTvlcBuild(u_short *table) {
+    s32 distance;
+    u_char *src;
+    u_char *dst;
+    u_int c;
+    s32 n;
+    s32 i;
+
+    distance = 0;
+    src = D_800878F0;
+    dst = (u_char *)table;
+    do {
+        c = *src++;
+        n = c & 0xFF;
+        if (n < 0xF0U) {
+            if (distance != 0) {
+                for (; n >= 0; n--) {
+                    *dst = *(dst - distance);
+                    dst++;
+                }
+            } else {
+                for (; n >= 0; n--) {
+                    *dst++ = *src++;
+                }
+            }
+        } else {
+            distance = 0;
+            if (n != 0xF0) {
+                distance = (n << 8 | *src++) - 0xF0FF;
+            }
+        }
+    } while (distance != 0xF00);
+    for (i = 4; i < 0x8800; i++) {
+        table[i] ^= table[i - 4];
+    }
+}

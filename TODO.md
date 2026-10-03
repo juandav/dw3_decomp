@@ -169,18 +169,28 @@ own.
 
 ## Overlays
 
-- [ ] 1,003 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,100 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`. Mostly: `STCRDABM` (27 / 29), `STDGNAME` (29 / 32), `SHOCKTST`
   (15 / 17), `STAGSLCT` (6 / 8), `FIELDSTG` (190 / 222), `STDWTITL`
-  (65 / 93), `STITSHOP` (50 / 69), `CARDGAME` (303 / 306), `STGMCARD`
+  (91 / 93: `libpress`'s handwritten `DecDCTvlc2` and `DecDCTvlcSize2` stay
+  asm), `STGTRAIN` (74 / 94), `STITSHOP` (50 / 69), `CARDGAME` (303 / 306), `STGMCARD`
   (44 / 45). Started: `STGDGLAB` (44 / 70), `STSTATUS` (42 / 123),
   `STPLNMET` (24 / 53), `STCRDSHP` (16 / 45), `STFGTREP` (26 / 36),
-  `WFIGHTTS` (6 / 14), `STCRDDEK` (6 / 55), `WFIGHTMN` (4 / 42), `STGTRAIN`
-  (3 / 94), `FIGHTSTG` (69 / 310).
-- [ ] Find out what `STGTRAIN` runs, and say it in its header and the
-  README. Check `STFGTREP`'s guess (the report after a
-  battle) against its texts. Check `STGDGLAB`'s guess (the partners'
-  digivolutions) against its strings.
+  `WFIGHTTS` (6 / 14), `STCRDDEK` (6 / 55), `WFIGHTMN` (4 / 42), `FIGHTSTG`
+  (69 / 310).
+- [ ] `STGTRAIN`'s near misses: `func_80083ADC` (4 diffs, two registers
+  swapped), `func_800858E0` and `func_80085CC4` (3 each: the original
+  schedules the table's `lui` before the `sll`), `func_800874A0` (2: the
+  order of `li a0,4` and `li a1,-1`; the permuter only finds a variable for
+  the -1), `func_8008B35C` (the image load goes to another register),
+  `func_800859F4` (15, `s0`/`s2` swapped) and `func_80085AF8` (about 96,
+  scheduling). The rest are large: `func_800828E8`, `func_80085E30`,
+  `func_80086340`, `func_800867A0`, `func_8008778C`, `func_800878C0`,
+  `func_80087E34`, `func_80088CFC`, `func_80089898`, `func_80089924`,
+  `func_80089A54`, `func_8008A004` and `func_8008AA28`.
+- [ ] Check `STFGTREP`'s guess (the report after a battle) against its
+  texts, and `STGDGLAB`'s (the partners' digivolutions) against its
+  strings.
   `STAGSLCT`'s menu of every scene of the game may help.
 - [ ] Name the overlays' functions: only `CNTY_SEL`, `SHOCKTST`,
   `SOUNDTST`, `STAGSLCT`, `STCRDABM` and `STDWTITL` have names (and

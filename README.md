@@ -43,12 +43,12 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 346 / 346 | 100.00 % | 99.97 % |
 | | USA | 346 / 346 | 100.00 % | 99.97 % |
-| The 21 overlays | Europe | 1,004 / 1,702 | 35.35 % | 79.55 % |
-| | USA | 1,003 / 1,697 | 35.45 % | 79.21 % |
+| The 21 overlays | Europe | 1,101 / 1,702 | 37.66 % | 79.67 % |
+| | USA | 1,100 / 1,697 | 37.76 % | 79.31 % |
 | The stages (293 and 238) | Europe | 1,297 / 1,590 | 70.55 % | 99.27 % |
 | | USA | 1,231 / 1,369 | 82.83 % | 99.15 % |
-| **Total** | **Europe** | **2,647 / 3,638** | **48.21 %** | **97.03 %** |
-| | **USA** | **2,580 / 3,412** | **50.19 %** | **96.64 %** |
+| **Total** | **Europe** | **2,744 / 3,638** | **49.79 %** | **97.04 %** |
+| | **USA** | **2,677 / 3,412** | **51.83 %** | **96.65 %** |
 
 - The executable's game code is all C. Its data is C too, in
   `src/main/data/`, until it moves next to the code that uses it.
@@ -91,7 +91,7 @@ above counts them: fake matches, then the other two kinds together.
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 3 | `/* unused, but it is in the original stack frame */` |
 | Form-dependent matches | 14 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 1,004 | `INCLUDE_ASM` |
+| Functions still in assembly | 907 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -143,11 +143,11 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `STCRDDEK` | `0x80082448` | 6 / 55 | the decks, which it names with the on-screen keyboard (`include/name_entry.h`) |
 | `STCRDSHP` | `0x80082448` | 16 / 45 | the card packs (mode 0x1300): opening a pack uses it up and draws six cards, one from each slot's list in `STCRDSHP_packs` |
 | `STDGNAME` | `0x80082448` | 29 / 32 | a name entry screen, a keyboard of character pages |
-| `STDWTITL` | `0x80082448` | 65 / 93 | the title screen, the opening movies and a notice screen |
+| `STDWTITL` | `0x80082448` | 91 / 93 | the title screen, the opening movies and a notice screen |
 | `STFGTREP` | `0x80082448` | 26 / 36 | the report after a battle (mode 0x1400), which `WFIGHTMN` requests: the partners that went up a level |
 | `STGDGLAB` | `0x80082448` | 44 / 70 | the partners' digivolutions, it seems: a menu of three screens that checks the requirements of `STGDGLAB_tables` against a partner's entries and sets its three slots |
 | `STGMCARD` | `0x80082448` | 44 / 45 | the memory card screen (mode 0xC00): the saves of a card, their details, and saving and loading |
-| `STGTRAIN` | `0x80082448` | 3 / 94 | not identified yet |
+| `STGTRAIN` | `0x80082448` | 74 / 94 | the gyms: a partner trains a stat, gaining some and losing others, with its sprites and the result windows |
 | `STITSHOP` | `0x80082448` | 50 / 69 | the item shop, where the player buys and sells items and equips what was bought on a partner |
 | `STPLNMET` | `0x80082448` | 24 / 53 | the player's name entry (mode 0x500), with a copy of `STDGNAME`'s keyboard |
 | `STSTATUS` | `0x80082448` | 42 / 123 | the screens the field menu opens (`STSTATUS_screens`), such as the item list and the equipment |
@@ -269,6 +269,8 @@ One source tree builds every version, one at a time, picked with `VERSION`
   `tools/sn_cc1.py` patches a cc1 for them and `tools/unfill_epilogue.py`
   undoes its filled epilogue delay slot. `PSYQ_RERUN_CSE` lists the objects
   built with the second CSE pass.
+  `STDWTITL` links PsyQ's `libpress` (the movie decoder), so
+  `src/stdwtitl/libpress.c` gets the same rules (`PSYQ_OBJ`).
 - `src/main/psyq/` is cut at the object boundaries found from the signatures
   and from the padding between objects: ASPSX pads the `.text` of every
   object to a multiple of 16 bytes with `nop`s. Every C file ends with

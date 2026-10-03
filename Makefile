@@ -57,16 +57,18 @@ CC1 ?= $(BIN_DIR)/gcc-$(GCC_VERSION)-psx/cc1
 MASPSX_POST :=
 PSYQ_CSE :=
 FLOAT_ABI := -msoft-float
-$(BUILDDIR)/src/main/psyq/%.c.o: GCC_VERSION := 2.7.2
-$(BUILDDIR)/src/main/psyq/%.c.o: FLOAT_ABI := -mhard-float
-$(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_POST := | $(PYTHON) tools/aspsx_reorder.py
-$(BUILDDIR)/src/main/psyq/%.c.o: MASPSX_DIV := --expand-div
-$(BUILDDIR)/src/main/psyq/%.c.o: PSYQ_CSE := -fno-rerun-cse-after-loop
+# STDWTITL links libpress, the movie decoder, into the overlay
+PSYQ_OBJ := $(BUILDDIR)/src/main/psyq/%.c.o $(BUILDDIR)/src/stdwtitl/libpress.c.o
+$(PSYQ_OBJ): GCC_VERSION := 2.7.2
+$(PSYQ_OBJ): FLOAT_ABI := -mhard-float
+$(PSYQ_OBJ): MASPSX_POST := | $(PYTHON) tools/aspsx_reorder.py
+$(PSYQ_OBJ): MASPSX_DIV := --expand-div
+$(PSYQ_OBJ): PSYQ_CSE := -fno-rerun-cse-after-loop
 PSYQ_RERUN_CSE := libc2_puts libgpu_break libcd_bios_2 libcd_c_007 libsnd_midiread libspu_s_m_f libapi_first libsnd_ssclose libsnd_vm_pb libsnd_sscall libsnd_sstable libpad_pdresres libspu_s_m_int libc2_strcmp libc2_strcspn libsnd_vm_f libspu_s_sva libsnd_vm_stav libgpu_sys libmcrd_libmcrd libc2_prnt libetc_intr libsnd_vm_key libspu_s_sav
 $(PSYQ_RERUN_CSE:%=$(BUILDDIR)/src/main/psyq/%.c.o): PSYQ_CSE :=
 # Our GCC 2.7.2 binary-patched into the libraries' cc1 (see tools/patch_cc1.py)
 PSYQ_CC1 := $(TOOLS_BUILDDIR)/gcc-2.7.2-psx/cc1
-$(BUILDDIR)/src/main/psyq/%.c.o: CC1 := $(PSYQ_CC1)
+$(PSYQ_OBJ): CC1 := $(PSYQ_CC1)
 # Some objects come from a GCC 2.8.1 without split addresses (the same objects
 # are listed in dcb_decomp): it keeps the address of a global in a register
 # and reaches its fields from there, never used `return` insns (tools/sn_cc1.py)
@@ -243,7 +245,7 @@ $(SN_CC1): $(BIN_DIR)/gcc-2.8.1-psx/cc1 tools/sn_cc1.py
 	@mkdir -p $(dir $@)
 	$(PYTHON) tools/sn_cc1.py $< $@
 
-$(filter $(BUILDDIR)/src/main/psyq/%,$(C_OBJ)): $(PSYQ_CC1)
+$(filter $(BUILDDIR)/src/main/psyq/% $(BUILDDIR)/src/stdwtitl/libpress.c.o,$(C_OBJ)): $(PSYQ_CC1)
 
 # The executable's .bss in C: maspsx turns its commons into definitions in
 # order in .bss when they aren't kept as .comm
