@@ -8,7 +8,7 @@
 #include "cardgame.h"
 
 s32 func_800A2838(CardBattle *battle, s32 side, s32 mask);
-void func_800A30FC(CardBattle *battle, s32 arg1, s32 arg2, s32 arg3);
+s32 func_800A30FC(CardBattle *battle, s32 side, s32 value, s32 keep);
 s32 func_800A322C(CardBattle *battle);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800A25E8);
@@ -62,9 +62,47 @@ s32 func_800A2DA0(CardBattle *battle, s32 side) {
     return found;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800A2E4C);
+void func_800A2E4C(CardBattle *battle, s32 side) {
+    CardDrawer drawer;
+    s8 *flags;
+    s32 i;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800A2F7C);
+    initCardDrawer(&drawer);
+    flags = battle->unk446;
+    if (side == 1) {
+        flags = &battle->unk446[6];
+    }
+    for (i = 0; i < battle->players[side].slotCount; i++) {
+        if (flags[i] != 0) {
+            drawer.setCard(battle->cards[battle->players[side].slots[i].card] + 1);
+            if (drawer.card[0] != 3) {
+                flags[i] = 0;
+            }
+        }
+    }
+    func_800A2DA0(battle, side);
+}
+
+void func_800A2F7C(CardBattle *battle, s32 side) {
+    CardDrawer drawer;
+    s8 *flags;
+    s32 i;
+
+    initCardDrawer(&drawer);
+    flags = battle->unk446;
+    if (side == 1) {
+        flags = &battle->unk446[6];
+    }
+    for (i = 0; i < battle->players[side].slotCount; i++) {
+        if (flags[i] != 0) {
+            drawer.setCard(battle->cards[battle->players[side].slots[i].card] + 1);
+            if (drawer.card[0] != 4) {
+                flags[i] = 0;
+            }
+        }
+    }
+    func_800A2DA0(battle, side);
+}
 
 s32 func_800A30AC(CardBattle *battle, s32 side, s32 index, s32 value) {
     s32 result = 0;
@@ -75,7 +113,41 @@ s32 func_800A30AC(CardBattle *battle, s32 side, s32 index, s32 value) {
     return result;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800A30FC);
+s32 func_800A30FC(CardBattle *battle, s32 side, s32 value, s32 keep) {
+    s32 result = 0;
+    s32 last = 0;
+    s8 *flags;
+    s32 i;
+    s32 any;
+
+    if (side == 1) {
+        flags = &battle->unk446[6];
+    } else {
+        flags = battle->unk446;
+    }
+    for (i = 0; i < battle->players[side].slotCount; i++) {
+        if (flags[i] != 0) {
+            last = i;
+            if (value < battle->players[side].slots[i].unk8) {
+                flags[i] = 0;
+            }
+        }
+    }
+    any = 0;
+    for (i = 0; i < battle->players[side].slotCount; i++) {
+        if (flags[i] != 0) {
+            any = 1;
+            break;
+        }
+    }
+    if (!any) {
+        if (keep == 0) {
+            flags[last] = 1;
+        }
+        result = 1;
+    }
+    return result;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800A322C);
 

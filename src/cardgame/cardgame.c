@@ -796,7 +796,46 @@ s32 func_80090068(CardBattle *battle, CardScreen *screen, s32 side) {
     return 1;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80090178);
+void func_80090178(CardBattle *battle, CardScreen *screen, s32 side) {
+    s32 i;
+    s32 card;
+    s32 j;
+
+    battle->unk438 = battle->sides[side].pile.unkA;
+#if VERSION_EU
+    battle->unk42C = 0;
+#endif
+    for (i = battle->sides[side].pile.unk4; i < 40; i++) {
+        if (battle->unk46F[i] != 0) {
+            card = battle->sides[side].pile.unk14[i];
+            battle->sides[side].pile.unk64[battle->sides[side].pile.unkA] = card;
+            battle->sides[side].pile.unkA++;
+#if VERSION_EU
+            battle->unk42C = 1;
+#endif
+        }
+    }
+    for (j = 0; j < 40; j++) {
+        battle->unk498.unk6[j] = 0;
+    }
+    if (battle->unk438 != 0) {
+        if (side == 0) {
+            battle->unk498.unk1 = 5;
+        } else {
+            battle->unk498.unk1 = 11;
+            battle->unk498.unk4 = 1;
+        }
+    } else {
+        if (side == 0) {
+            battle->unk498.unk1 = 17;
+        } else {
+            battle->unk498.unk1 = 18;
+            battle->unk498.unk4 = 1;
+        }
+    }
+    screen->unkEC0(screen, side);
+    battle->stepState = 1;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800902A8);
 
