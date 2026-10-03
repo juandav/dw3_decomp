@@ -1,9 +1,9 @@
 #include "stagslct.h"
 
 #if VERSION_EU
-/* "＞", still asm: the European overlay has 0x39 in the byte that pads it,
-   where the build has 0 */
-extern char STAGSLCT_STR_CURSOR[];
+/* "＞": the European overlay has 0x39 in the byte that pads it, where GCC
+   would put 0, so it is an array with its padding (at the end of the file) */
+extern const char STAGSLCT_STR_CURSOR[];
 #define CURSOR STAGSLCT_STR_CURSOR
 #else
 #define CURSOR "\x81\x84" /* "＞" */
@@ -1002,5 +1002,5 @@ Task *STAGSLCT_createStageSelect(void) {
 }
 
 #if VERSION_EU
-INCLUDE_RODATA("stagslct/nonmatchings/stagslct", STAGSLCT_STR_CURSOR);
+const char STAGSLCT_STR_CURSOR[4] = "\x81\x84\0\x39"; /* "＞" and its padding */
 #endif

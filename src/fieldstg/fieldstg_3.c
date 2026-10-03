@@ -482,7 +482,48 @@ StreamTask *func_800855E0(StreamPool *pool) {
     return found;
 }
 
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg_3", func_80085650);
+/*
+ * Streams the map's tiles while the CD reader is free: a tile of unk108
+ * (0xFF for none) that a stream task has loaded is done, and each tile still
+ * waiting goes to the oldest task (func_800855E0), until the reader is busy.
+ * The match depends on each loop having a counter of its own.
+ */
+void func_80085650(Unk80086144 *map, StreamPool *pool) {
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 frame;
+    s32 tile;
+    StreamTask *task;
+
+    if (CD_READER.isBusy() == 0) {
+        for (i = 0; i < 30; i++) {
+            task = pool->tasks[i];
+            frame = task->getFrame(task);
+            for (j = 0; j < 30; j++) {
+                if (map->unk108[j] != 0xFF && map->unk108[j] == frame) {
+                    map->unk108[j] = 0xFF;
+                    task->updateTime(task);
+                    break;
+                }
+            }
+        }
+        for (k = 0; k < 30; k++) {
+            if (map->unk108[k] != 0xFF) {
+                tile = map->unk108[k];
+                if (map->unk104[tile].unk0 != 0) {
+                    task = func_800855E0(pool);
+                    if (task->isLoaded(task)) {
+                        task->seek(task, tile, map->unk104[tile].unk4);
+                    }
+                }
+                if (CD_READER.isBusy()) {
+                    break;
+                }
+            }
+        }
+    }
+}
 
 void func_800857DC(Layer *layer, s32 x, s32 y, s32 level) {
     Point scroll;

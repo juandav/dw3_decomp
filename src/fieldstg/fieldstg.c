@@ -188,544 +188,544 @@ void func_80083470(void) {
  * addresses). The versions differ where #if says.
  */
 
-extern s32 D_800920A8[];
-extern s32 D_800920B4[];
-extern s32 D_800920C0[];
-extern s32 D_800920CC[];
-extern s32 D_800920D8[];
-extern s32 D_800920E4[];
-extern s32 D_800920F0[];
-extern s32 D_800920FC[];
-extern s32 D_80092108[];
-extern s32 D_80092114[];
-extern s32 D_80092120[];
-extern s32 D_8009212C[];
-extern s32 D_80092138[];
-extern s32 D_80092144[];
-extern s32 D_80092150[];
-extern s32 D_8009215C[];
-extern s32 D_80092168[];
-extern s32 D_80092174[];
-extern s32 D_80092180[];
-extern s32 D_8009218C[];
-extern s32 D_80092198[];
-extern s32 D_800921A4[];
-extern s32 D_800921B0[];
-extern s32 D_800921BC[];
-extern s32 D_800921C8[];
-extern s32 D_800921D4[];
-extern s32 D_800921E0[];
-extern s32 D_800921EC[];
-extern s32 D_800921F8[];
-extern s32 D_80092204[];
-extern s32 D_80092210[];
-extern s32 D_8009221C[];
-extern s32 D_80092228[];
-extern s32 D_80092234[];
-extern s32 D_80092240[];
-extern s32 D_8009224C[];
-extern s32 D_80092258[];
-extern s32 D_80092264[];
-extern s32 D_80092270[];
-extern s32 D_8009227C[];
-extern s32 D_80092288[];
-extern s32 D_80092294[];
-extern s32 D_800922A0[];
-extern s32 D_800922AC[];
-extern s32 D_800922B8[];
-extern s32 D_800922C4[];
-extern s32 D_800922D0[];
-extern s32 D_800922DC[];
-extern s32 D_800922E8[];
-extern s32 D_800922F4[];
-extern s32 D_80092300[];
-extern s32 D_8009230C[];
-extern s32 D_80092318[];
-extern s32 D_80092324[];
-extern s32 D_80092330[];
-extern s32 D_8009233C[];
-extern s32 D_80092348[];
-extern s32 D_80092354[];
-extern s32 D_80092360[];
-extern s32 D_8009236C[];
-extern s32 D_80092378[];
-extern s32 D_80092384[];
-extern s32 D_80092390[];
-extern s32 D_8009239C[];
-extern s32 D_800923A8[];
-extern s32 D_800923B4[];
-extern s32 D_800923C0[];
-extern s32 D_800923CC[];
-extern s32 D_800923D8[];
-extern s32 D_800923E4[];
-extern s32 D_800923F0[];
-extern s32 D_800923FC[];
-extern s32 D_80092408[];
-extern s32 D_80092414[];
-extern s32 D_80092420[];
-extern s32 D_8009242C[];
-extern s32 D_80092438[];
-extern s32 D_80092444[];
-extern s32 D_80092450[];
-extern s32 D_8009245C[];
-extern s32 D_80092468[];
-extern s32 D_80092474[];
-extern s32 D_80092480[];
-extern s32 D_8009248C[];
-extern s32 D_80092498[];
-extern s32 D_800924A4[];
-extern s32 D_800924B0[];
-extern s32 D_800924BC[];
-extern s32 D_800924C8[];
-extern s32 D_800924D4[];
-extern s32 D_800924E0[];
-extern s32 D_800924EC[];
-extern s32 D_800924F8[];
-extern s32 D_80092504[];
-extern s32 D_80092510[];
-extern s32 D_8009251C[];
-extern s32 D_80092528[];
-extern s32 D_80092534[];
-extern s32 D_80092540[];
-extern s32 D_8009254C[];
-extern s32 D_80092558[];
-extern s32 D_80092564[];
-extern s32 D_80092570[];
-extern s32 D_8009257C[];
-extern s32 D_80092588[];
-extern s32 D_80092594[];
-extern s32 D_800925A0[];
-extern s32 D_800925AC[];
-extern s32 D_800925B8[];
-extern s32 D_800925C4[];
-extern s32 D_800925D0[];
-extern s32 D_800925DC[];
-extern s32 D_800925E8[];
-extern s32 D_800925F4[];
-extern s32 D_80092600[];
-extern s32 D_8009260C[];
-extern s32 D_80092618[];
-extern s32 D_80092624[];
-extern s32 D_80092630[];
-extern s32 D_8009263C[];
-extern s32 D_80092648[];
-extern s32 D_80092654[];
-extern s32 D_80092660[];
-extern s32 D_8009266C[];
-extern s32 D_80092678[];
-extern s32 D_80092684[];
-extern s32 D_80092690[];
-extern s32 D_8009269C[];
-extern s32 D_800926A8[];
-extern s32 D_800926B4[];
-extern s32 D_800926C0[];
-extern s32 D_800926CC[];
-extern s32 D_800926D8[];
-extern s32 D_800926E4[];
-extern s32 D_800926F0[];
-extern s32 D_800926FC[];
-extern s32 D_80092708[];
-extern s32 D_80092714[];
-extern s32 D_80092720[];
-extern s32 D_8009272C[];
-extern s32 D_80092738[];
-extern s32 D_80092744[];
-extern s32 D_80092750[];
-extern s32 D_8009275C[];
-extern s32 D_80092768[];
-extern s32 D_80092774[];
-extern s32 D_80092780[];
-extern s32 D_8009278C[];
-extern s32 D_80092798[];
-extern s32 D_800927A4[];
-extern s32 D_800927B0[];
-extern s32 D_800927BC[];
-extern s32 D_800927C8[];
-extern s32 D_800927D4[];
-extern s32 D_800927E0[];
-extern s32 D_800927EC[];
-extern s32 D_800927F8[];
-extern s32 D_80092804[];
-extern s32 D_80092810[];
-extern s32 D_8009281C[];
-extern s32 D_80092828[];
-extern s32 D_80092834[];
-extern s32 D_80092840[];
-extern s32 D_8009284C[];
-extern s32 D_80092858[];
-extern s32 D_80092864[];
-extern s32 D_80092870[];
-extern s32 D_8009287C[];
-extern s32 D_80092888[];
-extern s32 D_80092894[];
-extern s32 D_800928A0[];
-extern s32 D_800928AC[];
-extern s32 D_800928B8[];
-extern s32 D_800928C4[];
-extern s32 D_800928D0[];
-extern s32 D_800928DC[];
-extern s32 D_800928E8[];
-extern s32 D_800928F4[];
-extern s32 D_80092900[];
-extern s32 D_8009290C[];
-extern s32 D_80092918[];
-extern s32 D_80092924[];
-extern s32 D_80092930[];
-extern s32 D_8009293C[];
-extern s32 D_80092948[];
-extern s32 D_80092954[];
-extern s32 D_80092960[];
-extern s32 D_8009296C[];
-extern s32 D_80092978[];
-extern s32 D_80092984[];
-extern s32 D_80092990[];
-extern s32 D_8009299C[];
-extern s32 D_800929A8[];
-extern s32 D_800929B4[];
-extern s32 D_800929C0[];
-extern s32 D_800929CC[];
-extern s32 D_800929D8[];
-extern s32 D_800929E4[];
-extern s32 D_800929F0[];
-extern s32 D_800929FC[];
-extern s32 D_80092A08[];
-extern s32 D_80092A14[];
-extern s32 D_80092A20[];
-extern s32 D_80092A2C[];
-extern s32 D_80092A38[];
-extern s32 D_80092A44[];
-extern s32 D_80092A50[];
-extern s32 D_80092A5C[];
-extern s32 D_80092A68[];
-extern s32 D_80092A74[];
-extern s32 D_80092A80[];
-extern s32 D_80092A8C[];
-extern s32 D_80092A98[];
-extern s32 D_80092AA4[];
-extern s32 D_80092AB0[];
-extern s32 D_80092ABC[];
-extern s32 D_80092AC8[];
-extern s32 D_80092AD4[];
-extern s32 D_80092AE0[];
-extern s32 D_80092AEC[];
-extern s32 D_80092AF8[];
-extern s32 D_80092B04[];
-extern s32 D_80092B10[];
-extern s32 D_80092B1C[];
-extern s32 D_80092B28[];
-extern s32 D_80092B34[];
-extern s32 D_80092B40[];
-extern s32 D_80092B4C[];
-extern s32 D_80092B58[];
-extern s32 D_80092B64[];
-extern s32 D_80092B70[];
-extern s32 D_80092B7C[];
-extern s32 D_80092B88[];
-extern s32 D_80092B94[];
-extern s32 D_80092BA0[];
-extern s32 D_80092BAC[];
-extern s32 D_80092BB8[];
-extern s32 D_80092BC4[];
-extern s32 D_80092BD0[];
-extern s32 D_80092BDC[];
-extern s32 D_80092BE8[];
-extern s32 D_80092BF4[];
-extern s32 D_80092C00[];
-extern s32 D_80092C0C[];
-extern s32 D_80092C18[];
-extern s32 D_80092C24[];
-extern s32 D_80092C30[];
-extern s32 D_80092C3C[];
-extern s32 D_80092C48[];
-extern s32 D_80092C54[];
-extern s32 D_80092C60[];
-extern s32 D_80092C6C[];
-extern s32 D_80092C78[];
-extern s32 D_80092C84[];
-extern s32 D_80092C90[];
-extern s32 D_80092C9C[];
-extern s32 D_80092CA8[];
-extern s32 D_80092CB4[];
-extern s32 D_80092CC0[];
-extern s32 D_80092CCC[];
-extern s32 D_80092CD8[];
-extern s32 D_80092CE4[];
-extern s32 D_80092CF0[];
-extern s32 D_80092CFC[];
-extern s32 D_80092D08[];
-extern s32 D_80092D14[];
-extern s32 D_80092D20[];
-extern s32 D_80092D2C[];
-extern s32 D_80092D38[];
-extern s32 D_80092D44[];
-extern s32 D_80092D50[];
-extern s32 D_80092D5C[];
-extern s32 D_80092D68[];
-extern s32 D_80092D74[];
-extern s32 D_80092D80[];
-extern s32 D_80092D8C[];
-extern s32 D_80092D98[];
-extern s32 D_80092DA4[];
-extern s32 D_80092DB0[];
-extern s32 D_80092DBC[];
-extern s32 D_80092DC8[];
-extern s32 D_80092DD4[];
-extern s32 D_80092DE0[];
-extern s32 D_80092DEC[];
-extern s32 D_80092DF8[];
-extern s32 D_80092E04[];
-extern s32 D_80092E10[];
-extern s32 D_80092E1C[];
-extern s32 D_80092E28[];
-extern s32 D_80092E34[];
-extern s32 D_80092E40[];
-extern s32 D_80092E4C[];
-extern s32 D_80092E58[];
-extern s32 D_80092E64[];
-extern s32 D_80092E70[];
-extern s32 D_80092E7C[];
-extern s32 D_80092E88[];
-extern s32 D_80092E94[];
-extern s32 D_80092EA0[];
-extern s32 D_80092EAC[];
-extern s32 D_80092EB8[];
-extern s32 D_80092EC4[];
-extern s32 D_80092ED0[];
-extern s32 D_80092EDC[];
-extern s32 D_80092EE8[];
-extern s32 D_80092EF4[];
-extern s32 D_80092F00[];
-extern s32 D_80092F0C[];
-extern s32 D_80092F18[];
-extern s32 D_80092F24[];
-extern s32 D_80092F30[];
-extern s32 D_80092F3C[];
-extern s32 D_80092F48[];
-extern s32 D_80092F54[];
-extern s32 D_80092F60[];
-extern s32 D_80092F6C[];
-extern s32 D_80092F78[];
-extern s32 D_80092F84[];
-extern s32 D_80092F90[];
-extern s32 D_80092F9C[];
-extern s32 D_80092FA8[];
-extern s32 D_80092FB4[];
-extern s32 D_80092FC0[];
-extern s32 D_80092FCC[];
-extern s32 D_80092FD8[];
-extern s32 D_80092FE4[];
-extern s32 D_80092FF0[];
-extern s32 D_80092FFC[];
-extern s32 D_80093008[];
-extern s32 D_80093014[];
-extern s32 D_80093020[];
-extern s32 D_8009302C[];
-extern s32 D_80093038[];
-extern s32 D_80093044[];
-extern s32 D_80093050[];
-extern s32 D_8009305C[];
-extern s32 D_80093068[];
-extern s32 D_80093074[];
-extern s32 D_80093080[];
-extern s32 D_8009308C[];
-extern s32 D_80093098[];
-extern s32 D_800930A4[];
-extern s32 D_800930B0[];
-extern s32 D_800930BC[];
-extern s32 D_800930C8[];
-extern s32 D_800930D4[];
-extern s32 D_800930E0[];
-extern s32 D_800930EC[];
-extern s32 D_800930F8[];
-extern s32 D_80093104[];
-extern s32 D_80093110[];
-extern s32 D_8009311C[];
-extern s32 D_80093128[];
-extern s32 D_80093134[];
-extern s32 D_80093140[];
-extern s32 D_8009314C[];
-extern s32 D_80093158[];
-extern s32 D_80093164[];
-extern s32 D_80093170[];
-extern s32 D_8009317C[];
-extern s32 D_80093188[];
-extern s32 D_80093194[];
-extern s32 D_800931A0[];
-extern s32 D_800931AC[];
-extern s32 D_800931B8[];
-extern s32 D_800931C4[];
-extern s32 D_800931D0[];
-extern s32 D_800931DC[];
-extern s32 D_800931E8[];
-extern s32 D_800931F4[];
-extern s32 D_80093200[];
-extern s32 D_8009320C[];
-extern s32 D_80093218[];
-extern s32 D_80093224[];
-extern s32 D_80093230[];
-extern s32 D_8009323C[];
-extern s32 D_80093248[];
-extern s32 D_80093254[];
-extern s32 D_80093260[];
-extern s32 D_8009326C[];
-extern s32 D_80093278[];
-extern s32 D_80093284[];
-extern s32 D_80093290[];
-extern s32 D_8009329C[];
-extern s32 D_800932A8[];
-extern s32 D_800932B4[];
-extern s32 D_800932C0[];
-extern s32 D_800932CC[];
-extern s32 D_800932D8[];
-extern s32 D_800932E4[];
-extern s32 D_800932F0[];
-extern s32 D_800932FC[];
-extern s32 D_80093308[];
-extern s32 D_80093314[];
-extern s32 D_80093320[];
-extern s32 D_8009332C[];
-extern s32 D_80093338[];
-extern s32 D_80093344[];
-extern s32 D_80093350[];
-extern s32 D_8009335C[];
-extern s32 D_80093368[];
-extern s32 D_80093374[];
-extern s32 D_80093380[];
-extern s32 D_8009338C[];
-extern s32 D_80093398[];
-extern s32 D_800933A4[];
-extern s32 D_800933B0[];
-extern s32 D_800933BC[];
-extern s32 D_800933C8[];
-extern s32 D_800933D4[];
-extern s32 D_800933E0[];
-extern s32 D_800933EC[];
-extern s32 D_800933F8[];
-extern s32 D_80093404[];
-extern s32 D_80093410[];
-extern s32 D_8009341C[];
-extern s32 D_80093428[];
-extern s32 D_80093434[];
-extern s32 D_80093440[];
-extern s32 D_8009344C[];
-extern s32 D_80093458[];
-extern s32 D_80093464[];
-extern s32 D_80093470[];
-extern s32 D_8009347C[];
-extern s32 D_80093488[];
-extern s32 D_80093494[];
-extern s32 D_800934A0[];
-extern s32 D_800934AC[];
-extern s32 D_800934B8[];
-extern s32 D_800934C4[];
-extern s32 D_800934D0[];
-extern s32 D_800934DC[];
-extern s32 D_800934E8[];
-extern s32 D_800934F4[];
-extern s32 D_80093500[];
-extern s32 D_8009350C[];
-extern s32 D_80093518[];
-extern s32 D_80093524[];
-extern s32 D_80093530[];
-extern s32 D_8009353C[];
-extern s32 D_80093548[];
-extern s32 D_80093554[];
-extern s32 D_80093560[];
-extern s32 D_8009356C[];
-extern s32 D_80093578[];
-extern s32 D_80093584[];
-extern s32 D_80093590[];
-extern s32 D_8009359C[];
-extern s32 D_800935A8[];
-extern s32 D_800935B4[];
-extern s32 D_800935C0[];
-extern s32 D_800935CC[];
-extern s32 D_800935D8[];
-extern s32 D_800935E4[];
-extern s32 D_800935F0[];
-extern s32 D_800935FC[];
-extern s32 D_80093608[];
-extern s32 D_80093614[];
-extern s32 D_80093620[];
-extern s32 D_8009362C[];
-extern s32 D_80093638[];
-extern s32 D_80093644[];
-extern s32 D_80093650[];
-extern s32 D_8009365C[];
-extern s32 D_80093668[];
-extern s32 D_80093674[];
-extern s32 D_80093680[];
-extern s32 D_8009368C[];
-extern s32 D_80093698[];
-extern s32 D_800936A4[];
-extern s32 D_800936B0[];
-extern s32 D_800936BC[];
-extern s32 D_800936C8[];
-extern s32 D_800936D4[];
-extern s32 D_800936E0[];
-extern s32 D_800936EC[];
-extern s32 D_800936F8[];
-extern s32 D_80093704[];
-extern s32 D_80093710[];
-extern s32 D_8009371C[];
-extern s32 D_80093728[];
-extern s32 D_80093734[];
-extern s32 D_80093740[];
-extern s32 D_8009374C[];
-extern s32 D_80093758[];
-extern s32 D_80093764[];
-extern s32 D_80093770[];
-extern s32 D_8009377C[];
-extern s32 D_80093788[];
-extern s32 D_80093794[];
-extern s32 D_800937A0[];
-extern s32 D_800937AC[];
-extern s32 D_800937B8[];
-extern s32 D_800937C4[];
-extern s32 D_800937D0[];
-extern s32 D_800937DC[];
-extern s32 D_800937E8[];
-extern s32 D_800937F4[];
-extern s32 D_80093800[];
-extern s32 D_8009380C[];
-extern s32 D_80093818[];
-extern s32 D_80093824[];
-extern s32 D_80093830[];
-extern s32 D_8009383C[];
-extern s32 D_80093848[];
-extern s32 D_80093854[];
-extern s32 D_80093860[];
-extern s32 D_8009386C[];
-extern s32 D_80093878[];
-extern s32 D_80093884[];
-extern s32 D_80093890[];
-extern s32 D_8009389C[];
-extern s32 D_800938A8[];
-extern s32 D_800938B4[];
-extern s32 D_800938C0[];
-extern s32 D_800938CC[];
-extern s32 D_800938D8[];
-extern s32 D_800938E4[];
-extern s32 D_800938F0[];
-extern s32 D_800938FC[];
-extern s32 D_80093908[];
-extern s32 D_80093914[];
-extern s32 D_80093920[];
-extern s32 D_8009392C[];
-extern s32 D_80093938[];
-extern s32 D_80093944[];
-extern s32 D_80093950[];
-extern s32 D_8009395C[];
-extern s32 D_80093968[];
-extern s32 D_80093974[];
-extern s32 D_80093980[];
-extern s32 D_8009398C[];
-extern s32 D_80093998[];
-extern s32 D_800939A4[];
-extern s32 D_800939B0[];
-extern s32 D_800939BC[];
-extern s32 D_800939C8[];
-extern s32 D_800939D4[];
+extern BattleEnemy D_800920A8;
+extern BattleEnemy D_800920B4;
+extern BattleEnemy D_800920C0;
+extern BattleEnemy D_800920CC;
+extern BattleEnemy D_800920D8;
+extern BattleEnemy D_800920E4;
+extern BattleEnemy D_800920F0;
+extern BattleEnemy D_800920FC;
+extern BattleEnemy D_80092108;
+extern BattleEnemy D_80092114;
+extern BattleEnemy D_80092120;
+extern BattleEnemy D_8009212C;
+extern BattleEnemy D_80092138;
+extern BattleEnemy D_80092144;
+extern BattleEnemy D_80092150;
+extern BattleEnemy D_8009215C;
+extern BattleEnemy D_80092168;
+extern BattleEnemy D_80092174;
+extern BattleEnemy D_80092180;
+extern BattleEnemy D_8009218C;
+extern BattleEnemy D_80092198;
+extern BattleEnemy D_800921A4;
+extern BattleEnemy D_800921B0;
+extern BattleEnemy D_800921BC;
+extern BattleEnemy D_800921C8;
+extern BattleEnemy D_800921D4;
+extern BattleEnemy D_800921E0;
+extern BattleEnemy D_800921EC;
+extern BattleEnemy D_800921F8;
+extern BattleEnemy D_80092204;
+extern BattleEnemy D_80092210;
+extern BattleEnemy D_8009221C;
+extern BattleEnemy D_80092228;
+extern BattleEnemy D_80092234;
+extern BattleEnemy D_80092240;
+extern BattleEnemy D_8009224C;
+extern BattleEnemy D_80092258;
+extern BattleEnemy D_80092264;
+extern BattleEnemy D_80092270;
+extern BattleEnemy D_8009227C;
+extern BattleEnemy D_80092288;
+extern BattleEnemy D_80092294;
+extern BattleEnemy D_800922A0;
+extern BattleEnemy D_800922AC;
+extern BattleEnemy D_800922B8;
+extern BattleEnemy D_800922C4;
+extern BattleEnemy D_800922D0;
+extern BattleEnemy D_800922DC;
+extern BattleEnemy D_800922E8;
+extern BattleEnemy D_800922F4;
+extern BattleEnemy D_80092300;
+extern BattleEnemy D_8009230C;
+extern BattleEnemy D_80092318;
+extern BattleEnemy D_80092324;
+extern BattleEnemy D_80092330;
+extern BattleEnemy D_8009233C;
+extern BattleEnemy D_80092348;
+extern BattleEnemy D_80092354;
+extern BattleEnemy D_80092360;
+extern BattleEnemy D_8009236C;
+extern BattleEnemy D_80092378;
+extern BattleEnemy D_80092384;
+extern BattleEnemy D_80092390;
+extern BattleEnemy D_8009239C;
+extern BattleEnemy D_800923A8;
+extern BattleEnemy D_800923B4;
+extern BattleEnemy D_800923C0;
+extern BattleEnemy D_800923CC;
+extern BattleEnemy D_800923D8;
+extern BattleEnemy D_800923E4;
+extern BattleEnemy D_800923F0;
+extern BattleEnemy D_800923FC;
+extern BattleEnemy D_80092408;
+extern BattleEnemy D_80092414;
+extern BattleEnemy D_80092420;
+extern BattleEnemy D_8009242C;
+extern BattleEnemy D_80092438;
+extern BattleEnemy D_80092444;
+extern BattleEnemy D_80092450;
+extern BattleEnemy D_8009245C;
+extern BattleEnemy D_80092468;
+extern BattleEnemy D_80092474;
+extern BattleEnemy D_80092480;
+extern BattleEnemy D_8009248C;
+extern BattleEnemy D_80092498;
+extern BattleEnemy D_800924A4;
+extern BattleEnemy D_800924B0;
+extern BattleEnemy D_800924BC;
+extern BattleEnemy D_800924C8;
+extern BattleEnemy D_800924D4;
+extern BattleEnemy D_800924E0;
+extern BattleEnemy D_800924EC;
+extern BattleEnemy D_800924F8;
+extern BattleEnemy D_80092504;
+extern BattleEnemy D_80092510;
+extern BattleEnemy D_8009251C;
+extern BattleEnemy D_80092528;
+extern BattleEnemy D_80092534;
+extern BattleEnemy D_80092540;
+extern BattleEnemy D_8009254C;
+extern BattleEnemy D_80092558;
+extern BattleEnemy D_80092564;
+extern BattleEnemy D_80092570;
+extern BattleEnemy D_8009257C;
+extern BattleEnemy D_80092588;
+extern BattleEnemy D_80092594;
+extern BattleEnemy D_800925A0;
+extern BattleEnemy D_800925AC;
+extern BattleEnemy D_800925B8;
+extern BattleEnemy D_800925C4;
+extern BattleEnemy D_800925D0;
+extern BattleEnemy D_800925DC;
+extern BattleEnemy D_800925E8;
+extern BattleEnemy D_800925F4;
+extern BattleEnemy D_80092600;
+extern BattleEnemy D_8009260C;
+extern BattleEnemy D_80092618;
+extern BattleEnemy D_80092624;
+extern BattleEnemy D_80092630;
+extern BattleEnemy D_8009263C;
+extern BattleEnemy D_80092648;
+extern BattleEnemy D_80092654;
+extern BattleEnemy D_80092660;
+extern BattleEnemy D_8009266C;
+extern BattleEnemy D_80092678;
+extern BattleEnemy D_80092684;
+extern BattleEnemy D_80092690;
+extern BattleEnemy D_8009269C;
+extern BattleEnemy D_800926A8;
+extern BattleEnemy D_800926B4;
+extern BattleEnemy D_800926C0;
+extern BattleEnemy D_800926CC;
+extern BattleEnemy D_800926D8;
+extern BattleEnemy D_800926E4;
+extern BattleEnemy D_800926F0;
+extern BattleEnemy D_800926FC;
+extern BattleEnemy D_80092708;
+extern BattleEnemy D_80092714;
+extern BattleEnemy D_80092720;
+extern BattleEnemy D_8009272C;
+extern BattleEnemy D_80092738;
+extern BattleEnemy D_80092744;
+extern BattleEnemy D_80092750;
+extern BattleEnemy D_8009275C;
+extern BattleEnemy D_80092768;
+extern BattleEnemy D_80092774;
+extern BattleEnemy D_80092780;
+extern BattleEnemy D_8009278C;
+extern BattleEnemy D_80092798;
+extern BattleEnemy D_800927A4;
+extern BattleEnemy D_800927B0;
+extern BattleEnemy D_800927BC;
+extern BattleEnemy D_800927C8;
+extern BattleEnemy D_800927D4;
+extern BattleEnemy D_800927E0;
+extern BattleEnemy D_800927EC;
+extern BattleEnemy D_800927F8;
+extern BattleEnemy D_80092804;
+extern BattleEnemy D_80092810;
+extern BattleEnemy D_8009281C;
+extern BattleEnemy D_80092828;
+extern BattleEnemy D_80092834;
+extern BattleEnemy D_80092840;
+extern BattleEnemy D_8009284C;
+extern BattleEnemy D_80092858;
+extern BattleEnemy D_80092864;
+extern BattleEnemy D_80092870;
+extern BattleEnemy D_8009287C;
+extern BattleEnemy D_80092888;
+extern BattleEnemy D_80092894;
+extern BattleEnemy D_800928A0;
+extern BattleEnemy D_800928AC;
+extern BattleEnemy D_800928B8;
+extern BattleEnemy D_800928C4;
+extern BattleEnemy D_800928D0;
+extern BattleEnemy D_800928DC;
+extern BattleEnemy D_800928E8;
+extern BattleEnemy D_800928F4;
+extern BattleEnemy D_80092900;
+extern BattleEnemy D_8009290C;
+extern BattleEnemy D_80092918;
+extern BattleEnemy D_80092924;
+extern BattleEnemy D_80092930;
+extern BattleEnemy D_8009293C;
+extern BattleEnemy D_80092948;
+extern BattleEnemy D_80092954;
+extern BattleEnemy D_80092960;
+extern BattleEnemy D_8009296C;
+extern BattleEnemy D_80092978;
+extern BattleEnemy D_80092984;
+extern BattleEnemy D_80092990;
+extern BattleEnemy D_8009299C;
+extern BattleEnemy D_800929A8;
+extern BattleEnemy D_800929B4;
+extern BattleEnemy D_800929C0;
+extern BattleEnemy D_800929CC;
+extern BattleEnemy D_800929D8;
+extern BattleEnemy D_800929E4;
+extern BattleEnemy D_800929F0;
+extern BattleEnemy D_800929FC;
+extern BattleEnemy D_80092A08;
+extern BattleEnemy D_80092A14;
+extern BattleEnemy D_80092A20;
+extern BattleEnemy D_80092A2C;
+extern BattleEnemy D_80092A38;
+extern BattleEnemy D_80092A44;
+extern BattleEnemy D_80092A50;
+extern BattleEnemy D_80092A5C;
+extern BattleEnemy D_80092A68;
+extern BattleEnemy D_80092A74;
+extern BattleEnemy D_80092A80;
+extern BattleEnemy D_80092A8C;
+extern BattleEnemy D_80092A98;
+extern BattleEnemy D_80092AA4;
+extern BattleEnemy D_80092AB0;
+extern BattleEnemy D_80092ABC;
+extern BattleEnemy D_80092AC8;
+extern BattleEnemy D_80092AD4;
+extern BattleEnemy D_80092AE0;
+extern BattleEnemy D_80092AEC;
+extern BattleEnemy D_80092AF8;
+extern BattleEnemy D_80092B04;
+extern BattleEnemy D_80092B10;
+extern BattleEnemy D_80092B1C;
+extern BattleEnemy D_80092B28;
+extern BattleEnemy D_80092B34;
+extern BattleEnemy D_80092B40;
+extern BattleEnemy D_80092B4C;
+extern BattleEnemy D_80092B58;
+extern BattleEnemy D_80092B64;
+extern BattleEnemy D_80092B70;
+extern BattleEnemy D_80092B7C;
+extern BattleEnemy D_80092B88;
+extern BattleEnemy D_80092B94;
+extern BattleEnemy D_80092BA0;
+extern BattleEnemy D_80092BAC;
+extern BattleEnemy D_80092BB8;
+extern BattleEnemy D_80092BC4;
+extern BattleEnemy D_80092BD0;
+extern BattleEnemy D_80092BDC;
+extern BattleEnemy D_80092BE8;
+extern BattleEnemy D_80092BF4;
+extern BattleEnemy D_80092C00;
+extern BattleEnemy D_80092C0C;
+extern BattleEnemy D_80092C18;
+extern BattleEnemy D_80092C24;
+extern BattleEnemy D_80092C30;
+extern BattleEnemy D_80092C3C;
+extern BattleEnemy D_80092C48;
+extern BattleEnemy D_80092C54;
+extern BattleEnemy D_80092C60;
+extern BattleEnemy D_80092C6C;
+extern BattleEnemy D_80092C78;
+extern BattleEnemy D_80092C84;
+extern BattleEnemy D_80092C90;
+extern BattleEnemy D_80092C9C;
+extern BattleEnemy D_80092CA8;
+extern BattleEnemy D_80092CB4;
+extern BattleEnemy D_80092CC0;
+extern BattleEnemy D_80092CCC;
+extern BattleEnemy D_80092CD8;
+extern BattleEnemy D_80092CE4;
+extern BattleEnemy D_80092CF0;
+extern BattleEnemy D_80092CFC;
+extern BattleEnemy D_80092D08;
+extern BattleEnemy D_80092D14;
+extern BattleEnemy D_80092D20;
+extern BattleEnemy D_80092D2C;
+extern BattleEnemy D_80092D38;
+extern BattleEnemy D_80092D44;
+extern BattleEnemy D_80092D50;
+extern BattleEnemy D_80092D5C;
+extern BattleEnemy D_80092D68;
+extern BattleEnemy D_80092D74;
+extern BattleEnemy D_80092D80;
+extern BattleEnemy D_80092D8C;
+extern BattleEnemy D_80092D98;
+extern BattleEnemy D_80092DA4;
+extern BattleEnemy D_80092DB0;
+extern BattleEnemy D_80092DBC;
+extern BattleEnemy D_80092DC8;
+extern BattleEnemy D_80092DD4;
+extern BattleEnemy D_80092DE0;
+extern BattleEnemy D_80092DEC;
+extern BattleEnemy D_80092DF8;
+extern BattleEnemy D_80092E04;
+extern BattleEnemy D_80092E10;
+extern BattleEnemy D_80092E1C;
+extern BattleEnemy D_80092E28;
+extern BattleEnemy D_80092E34;
+extern BattleEnemy D_80092E40;
+extern BattleEnemy D_80092E4C;
+extern BattleEnemy D_80092E58;
+extern BattleEnemy D_80092E64;
+extern BattleEnemy D_80092E70;
+extern BattleEnemy D_80092E7C;
+extern BattleEnemy D_80092E88;
+extern BattleEnemy D_80092E94;
+extern BattleEnemy D_80092EA0;
+extern BattleEnemy D_80092EAC;
+extern BattleEnemy D_80092EB8;
+extern BattleEnemy D_80092EC4;
+extern BattleEnemy D_80092ED0;
+extern BattleEnemy D_80092EDC;
+extern BattleEnemy D_80092EE8;
+extern BattleEnemy D_80092EF4;
+extern BattleEnemy D_80092F00;
+extern BattleEnemy D_80092F0C;
+extern BattleEnemy D_80092F18;
+extern BattleEnemy D_80092F24;
+extern BattleEnemy D_80092F30;
+extern BattleEnemy D_80092F3C;
+extern BattleEnemy D_80092F48;
+extern BattleEnemy D_80092F54;
+extern BattleEnemy D_80092F60;
+extern BattleEnemy D_80092F6C;
+extern BattleEnemy D_80092F78;
+extern BattleEnemy D_80092F84;
+extern BattleEnemy D_80092F90;
+extern BattleEnemy D_80092F9C;
+extern BattleEnemy D_80092FA8;
+extern BattleEnemy D_80092FB4;
+extern BattleEnemy D_80092FC0;
+extern BattleEnemy D_80092FCC;
+extern BattleEnemy D_80092FD8;
+extern BattleEnemy D_80092FE4;
+extern BattleEnemy D_80092FF0;
+extern BattleEnemy D_80092FFC;
+extern BattleEnemy D_80093008;
+extern BattleEnemy D_80093014;
+extern BattleEnemy D_80093020;
+extern BattleEnemy D_8009302C;
+extern BattleEnemy D_80093038;
+extern BattleEnemy D_80093044;
+extern BattleEnemy D_80093050;
+extern BattleEnemy D_8009305C;
+extern BattleEnemy D_80093068;
+extern BattleEnemy D_80093074;
+extern BattleEnemy D_80093080;
+extern BattleEnemy D_8009308C;
+extern BattleEnemy D_80093098;
+extern BattleEnemy D_800930A4;
+extern BattleEnemy D_800930B0;
+extern BattleEnemy D_800930BC;
+extern BattleEnemy D_800930C8;
+extern BattleEnemy D_800930D4;
+extern BattleEnemy D_800930E0;
+extern BattleEnemy D_800930EC;
+extern BattleEnemy D_800930F8;
+extern BattleEnemy D_80093104;
+extern BattleEnemy D_80093110;
+extern BattleEnemy D_8009311C;
+extern BattleEnemy D_80093128;
+extern BattleEnemy D_80093134;
+extern BattleEnemy D_80093140;
+extern BattleEnemy D_8009314C;
+extern BattleEnemy D_80093158;
+extern BattleEnemy D_80093164;
+extern BattleEnemy D_80093170;
+extern BattleEnemy D_8009317C;
+extern BattleEnemy D_80093188;
+extern BattleEnemy D_80093194;
+extern BattleEnemy D_800931A0;
+extern BattleEnemy D_800931AC;
+extern BattleEnemy D_800931B8;
+extern BattleEnemy D_800931C4;
+extern BattleEnemy D_800931D0;
+extern BattleEnemy D_800931DC;
+extern BattleEnemy D_800931E8;
+extern BattleEnemy D_800931F4;
+extern BattleEnemy D_80093200;
+extern BattleEnemy D_8009320C;
+extern BattleEnemy D_80093218;
+extern BattleEnemy D_80093224;
+extern BattleEnemy D_80093230;
+extern BattleEnemy D_8009323C;
+extern BattleEnemy D_80093248;
+extern BattleEnemy D_80093254;
+extern BattleEnemy D_80093260;
+extern BattleEnemy D_8009326C;
+extern BattleEnemy D_80093278;
+extern BattleEnemy D_80093284;
+extern BattleEnemy D_80093290;
+extern BattleEnemy D_8009329C;
+extern BattleEnemy D_800932A8;
+extern BattleEnemy D_800932B4;
+extern BattleEnemy D_800932C0;
+extern BattleEnemy D_800932CC;
+extern BattleEnemy D_800932D8;
+extern BattleEnemy D_800932E4;
+extern BattleEnemy D_800932F0;
+extern BattleEnemy D_800932FC;
+extern BattleEnemy D_80093308;
+extern BattleEnemy D_80093314;
+extern BattleEnemy D_80093320;
+extern BattleEnemy D_8009332C;
+extern BattleEnemy D_80093338;
+extern BattleEnemy D_80093344;
+extern BattleEnemy D_80093350;
+extern BattleEnemy D_8009335C;
+extern BattleEnemy D_80093368;
+extern BattleEnemy D_80093374;
+extern BattleEnemy D_80093380;
+extern BattleEnemy D_8009338C;
+extern BattleEnemy D_80093398;
+extern BattleEnemy D_800933A4;
+extern BattleEnemy D_800933B0;
+extern BattleEnemy D_800933BC;
+extern BattleEnemy D_800933C8;
+extern BattleEnemy D_800933D4;
+extern BattleEnemy D_800933E0;
+extern BattleEnemy D_800933EC;
+extern BattleEnemy D_800933F8;
+extern BattleEnemy D_80093404;
+extern BattleEnemy D_80093410;
+extern BattleEnemy D_8009341C;
+extern BattleEnemy D_80093428;
+extern BattleEnemy D_80093434;
+extern BattleEnemy D_80093440;
+extern BattleEnemy D_8009344C;
+extern BattleEnemy D_80093458;
+extern BattleEnemy D_80093464;
+extern BattleEnemy D_80093470;
+extern BattleEnemy D_8009347C;
+extern BattleEnemy D_80093488;
+extern BattleEnemy D_80093494;
+extern BattleEnemy D_800934A0;
+extern BattleEnemy D_800934AC;
+extern BattleEnemy D_800934B8;
+extern BattleEnemy D_800934C4;
+extern BattleEnemy D_800934D0;
+extern BattleEnemy D_800934DC;
+extern BattleEnemy D_800934E8;
+extern BattleEnemy D_800934F4;
+extern BattleEnemy D_80093500;
+extern BattleEnemy D_8009350C;
+extern BattleEnemy D_80093518;
+extern BattleEnemy D_80093524;
+extern BattleEnemy D_80093530;
+extern BattleEnemy D_8009353C;
+extern BattleEnemy D_80093548;
+extern BattleEnemy D_80093554;
+extern BattleEnemy D_80093560;
+extern BattleEnemy D_8009356C;
+extern BattleEnemy D_80093578;
+extern BattleEnemy D_80093584;
+extern BattleEnemy D_80093590;
+extern BattleEnemy D_8009359C;
+extern BattleEnemy D_800935A8;
+extern BattleEnemy D_800935B4;
+extern BattleEnemy D_800935C0;
+extern BattleEnemy D_800935CC;
+extern BattleEnemy D_800935D8;
+extern BattleEnemy D_800935E4;
+extern BattleEnemy D_800935F0;
+extern BattleEnemy D_800935FC;
+extern BattleEnemy D_80093608;
+extern BattleEnemy D_80093614;
+extern BattleEnemy D_80093620;
+extern BattleEnemy D_8009362C;
+extern BattleEnemy D_80093638;
+extern BattleEnemy D_80093644;
+extern BattleEnemy D_80093650;
+extern BattleEnemy D_8009365C;
+extern BattleEnemy D_80093668;
+extern BattleEnemy D_80093674;
+extern BattleEnemy D_80093680;
+extern BattleEnemy D_8009368C;
+extern BattleEnemy D_80093698;
+extern BattleEnemy D_800936A4;
+extern BattleEnemy D_800936B0;
+extern BattleEnemy D_800936BC;
+extern BattleEnemy D_800936C8;
+extern BattleEnemy D_800936D4;
+extern BattleEnemy D_800936E0;
+extern BattleEnemy D_800936EC;
+extern BattleEnemy D_800936F8;
+extern BattleEnemy D_80093704;
+extern BattleEnemy D_80093710;
+extern BattleEnemy D_8009371C;
+extern BattleEnemy D_80093728;
+extern BattleEnemy D_80093734;
+extern BattleEnemy D_80093740;
+extern BattleEnemy D_8009374C;
+extern BattleEnemy D_80093758;
+extern BattleEnemy D_80093764;
+extern BattleEnemy D_80093770;
+extern BattleEnemy D_8009377C;
+extern BattleEnemy D_80093788;
+extern BattleEnemy D_80093794;
+extern BattleEnemy D_800937A0;
+extern BattleEnemy D_800937AC;
+extern BattleEnemy D_800937B8;
+extern BattleEnemy D_800937C4;
+extern BattleEnemy D_800937D0;
+extern BattleEnemy D_800937DC;
+extern BattleEnemy D_800937E8;
+extern BattleEnemy D_800937F4;
+extern BattleEnemy D_80093800;
+extern BattleEnemy D_8009380C;
+extern BattleEnemy D_80093818;
+extern BattleEnemy D_80093824;
+extern BattleEnemy D_80093830;
+extern BattleEnemy D_8009383C;
+extern BattleEnemy D_80093848;
+extern BattleEnemy D_80093854;
+extern BattleEnemy D_80093860;
+extern BattleEnemy D_8009386C;
+extern BattleEnemy D_80093878;
+extern BattleEnemy D_80093884;
+extern BattleEnemy D_80093890;
+extern BattleEnemy D_8009389C;
+extern BattleEnemy D_800938A8;
+extern BattleEnemy D_800938B4;
+extern BattleEnemy D_800938C0;
+extern BattleEnemy D_800938CC;
+extern BattleEnemy D_800938D8;
+extern BattleEnemy D_800938E4;
+extern BattleEnemy D_800938F0;
+extern BattleEnemy D_800938FC;
+extern BattleEnemy D_80093908;
+extern BattleEnemy D_80093914;
+extern BattleEnemy D_80093920;
+extern BattleEnemy D_8009392C;
+extern BattleEnemy D_80093938;
+extern BattleEnemy D_80093944;
+extern BattleEnemy D_80093950;
+extern BattleEnemy D_8009395C;
+extern BattleEnemy D_80093968;
+extern BattleEnemy D_80093974;
+extern BattleEnemy D_80093980;
+extern BattleEnemy D_8009398C;
+extern BattleEnemy D_80093998;
+extern BattleEnemy D_800939A4;
+extern BattleEnemy D_800939B0;
+extern BattleEnemy D_800939BC;
+extern BattleEnemy D_800939C8;
+extern BattleEnemy D_800939D4;
 extern AnimFrame D_800960C8[];
 extern AnimFrame D_8009614C[];
 extern AnimFrame D_80096174[];
@@ -1125,2917 +1125,1269 @@ void func_80091BB4(s32 arg0);
 void func_80091F4C(Point *pos, s32 scale, s32 index, Point *out);
 void func_8009204C(Point *pos, s32 scale, s32 index, Point *out);
 #if VERSION_EU
-extern s32 D_800940A4[];
-extern s32 D_800940B0[];
+extern BattleEnemy D_800940A4;
+extern BattleEnemy D_800940B0;
 #endif
 
-s32 D_800920A8[] = {
-    0, 0, 0,
-};
-s32 D_800920B4[] = {
-    358, 0x330000C, 0x10270F,
-};
-s32 D_800920C0[] = {
-    124, 0x390000E, 0x10270F,
-};
-s32 D_800920CC[] = {
-    172, 0x1F80009, 0x16270F,
-};
-s32 D_800920D8[] = {
-    8, 0x240000B, 0x17270F,
-};
-s32 D_800920E4[] = {
-    207, 0x2AC000E, 0x14270F,
-};
-s32 D_800920F0[] = {
-    222, 0x264000C, 0x1B270F,
-};
-s32 D_800920FC[] = {
-    77, 0x2AC000E, 0x16270F,
-};
-s32 D_80092108[] = {
-    119, 0x3180011, 0xE00C8,
-};
-s32 D_80092114[] = {
-    11, 0x300001B, 0x11270F,
-};
-s32 D_80092120[] = {
-    11, 0x300001B, 0x11270F,
-};
-s32 D_8009212C[] = {
-    400, 0x4C8001D, 0xE270F,
-};
-s32 D_80092138[] = {
-    208, 0x4C8001D, 0x10270F,
-};
-s32 D_80092144[] = {
-    13, 0x440001D, 0x12270F,
-};
-s32 D_80092150[] = {
-    356, 0x6F00020, 0x100118,
-};
-s32 D_8009215C[] = {
-    70, 0x6F00020, 0x10270F,
-};
-s32 D_80092168[] = {
-    141, 0x7500022, 0x10270F,
-};
-s32 D_80092174[] = {
-    399, 0x3900021, 0x10270F,
-};
-s32 D_80092180[] = {
-    302, 0x57C0022, 0x10270F,
-};
-s32 D_8009218C[] = {
-    437, 0xC180026, 0x100028,
-};
-s32 D_80092198[] = {
-    337, 0x8700028, 0x10270F,
-};
-s32 D_800921A4[] = {
-    436, 0x900002B, 0x1003C0,
-};
-s32 D_800921B0[] = {
-    443, 0x960002D, 0x10270F,
-};
-s32 D_800921BC[] = {
-    138, 0x6540028, 0x12270F,
-};
-s32 D_800921C8[] = {
-    402, 0x9B40029, 0x10270F,
-};
-s32 D_800921D4[] = {
-    237, 0x6E4002C, 0x10270F,
-};
-s32 D_800921E0[] = {
-    444, 0x990002E, 0x10270F,
-};
-s32 D_800921EC[] = {
-    425, 0x6780029, 0x10270F,
-};
-s32 D_800921F8[] = {
-    202, 0x6C0002B, 0x10270F,
-};
-s32 D_80092204[] = {
-    238, 0x72C002E, 0x11270F,
-};
-s32 D_80092210[] = {
-    447, 0x9C0002F, 0x10270F,
-};
-s32 D_8009221C[] = {
-    270, 0x708002D, 0x11270F,
-};
-s32 D_80092228[] = {
-    65, 0x72C002E, 0x110128,
-};
-s32 D_80092234[] = {
-    360, 0x7980031, 0x12270F,
-};
-s32 D_80092240[] = {
-    23, 0x4B0002D, 0x11270F,
-};
-s32 D_8009224C[] = {
-    427, 0x4C8002E, 0x11270F,
-};
-s32 D_80092258[] = {
-    409, 0x5100031, 0x11270F,
-};
-s32 D_80092264[] = {
-    9, 0x4B0002D, 0x11270F,
-};
-s32 D_80092270[] = {
-    189, 0x4E0002F, 0x11270F,
-};
-s32 D_8009227C[] = {
-    104, 0x5280032, 0x110708,
-};
-s32 D_80092288[] = {
-    244, 0x4C8002E, 0x13270F,
-};
-s32 D_80092294[] = {
-    135, 0x4F80030, 0x12270F,
-};
-s32 D_800922A0[] = {
-    429, 0x5280032, 0x11270F,
-};
-s32 D_800922AC[] = {
-    24, 0x750002F, 0x11270F,
-};
-s32 D_800922B8[] = {
-    410, 0x5100031, 0x110004,
-};
-s32 D_800922C4[] = {
-    115, 0x5400033, 0x11270F,
-};
-s32 D_800922D0[] = {
-    445, 0xB400037, 0x10270F,
-};
-s32 D_800922DC[] = {
-    446, 0xBA00039, 0x100008,
-};
-s32 D_800922E8[] = {
-    108, 0x7980031, 0x12270F,
-};
-s32 D_800922F4[] = {
-    193, 0x7BC0032, 0x12270F,
-};
-s32 D_80092300[] = {
-    428, 0x8040034, 0x11270F,
-};
-s32 D_8009230C[] = {
-    190, 0x7BC0032, 0x11270F,
-};
-s32 D_80092318[] = {
-    215, 0x8040034, 0x11270F,
-};
-s32 D_80092324[] = {
-    231, 0x84C0036, 0x10270F,
-};
-s32 D_80092330[] = {
-    431, 0x7BC0032, 0x11270F,
-};
-s32 D_8009233C[] = {
-    434, 0x5580034, 0x11270F,
-};
-s32 D_80092348[] = {
-    433, 0x5880036, 0x10270F,
-};
-s32 D_80092354[] = {
-    327, 0x5580034, 0x11270F,
-};
-s32 D_80092360[] = {
-    327, 0x5580034, 0x11270F,
-};
-s32 D_8009236C[] = {
-    247, 0x5A00037, 0x10270F,
-};
-s32 D_80092378[] = {
-    312, 0x46D0036, 0x11270F,
-};
-s32 D_80092384[] = {
-    228, 0x5B80038, 0x10270F,
-};
-s32 D_80092390[] = {
-    245, 0x5E8003A, 0x11270F,
-};
-s32 D_8009239C[] = {
-    178, 0x270F0063, 0x1D270F,
-};
-s32 D_800923A8[] = {
-    448, 0xAE00035, 0x10270F,
-};
-s32 D_800923B4[] = {
-    432, 0x5880036, 0x10270F,
-};
-s32 D_800923C0[] = {
-    236, 0x5D00039, 0x11270F,
-};
-s32 D_800923CC[] = {
-    438, 0xC30003C, 0x10270F,
-};
-s32 D_800923D8[] = {
-    439, 0x11700039, 0x10270F,
-};
-s32 D_800923E4[] = {
-    440, 0xBA00039, 0x10270F,
-};
-s32 D_800923F0[] = {
-    441, 0xBA00039, 0x10270F,
-};
-s32 D_800923FC[] = {
-    32, 0x780001, 0x10270F,
-};
-s32 D_80092408[] = {
-    206, 0x780001, 0x10270F,
-};
-s32 D_80092414[] = {
-    197, 0xA80003, 0x10270F,
-};
-s32 D_80092420[] = {
-    132, 0xC00004, 0x10270F,
-};
-s32 D_8009242C[] = {
-    217, 0x1380008, 0x10270F,
-};
-s32 D_80092438[] = {
-    4, 0x900002, 0x10270F,
-};
-s32 D_80092444[] = {
-    25, 0xC00004, 0x10270F,
-};
-s32 D_80092450[] = {
-    51, 0x900002, 0x10270F,
-};
-s32 D_8009245C[] = {
-    67, 0xA80003, 0x10270F,
-};
-s32 D_80092468[] = {
-    198, 0xA80003, 0x10270F,
-};
-s32 D_80092474[] = {
-    166, 0xC00004, 0x10270F,
-};
-s32 D_80092480[] = {
-    80, 0xC00004, 0x10270F,
-};
-s32 D_8009248C[] = {
-    277, 0x1F80010, 0x10270F,
-};
-s32 D_80092498[] = {
-    172, 0xF00005, 0x10270F,
-};
-s32 D_800924A4[] = {
-    137, 0x1B0000D, 0x10270F,
-};
-s32 D_800924B0[] = {
-    222, 0xF00005, 0x10270F,
-};
-s32 D_800924BC[] = {
-    8, 0x1080006, 0x10270F,
-};
-s32 D_800924C8[] = {
-    203, 0x18C0006, 0x10270F,
-};
-s32 D_800924D4[] = {
-    7, 0x1080006, 0x10270F,
-};
-s32 D_800924E0[] = {
-    110, 0x1380008, 0x10270F,
-};
-s32 D_800924EC[] = {
-    49, 0x1380008, 0x10270F,
-};
-s32 D_800924F8[] = {
-    37, 0x1500009, 0x10270F,
-};
-s32 D_80092504[] = {
-    223, 0x360001F, 0x10270F,
-};
-s32 D_80092510[] = {
-    50, 0x1B0000D, 0x10270F,
-};
-s32 D_8009251C[] = {
-    207, 0x168000A, 0x10270F,
-};
-s32 D_80092528[] = {
-    35, 0x2280012, 0x10270F,
-};
-s32 D_80092534[] = {
-    208, 0x330001D, 0x10270F,
-};
-s32 D_80092540[] = {
-    210, 0x2580014, 0x100078,
-};
-s32 D_8009254C[] = {
-    220, 0x300001B, 0x10270F,
-};
-s32 D_80092558[] = {
-    221, 0x4380028, 0x10270F,
-};
-s32 D_80092564[] = {
-    241, 0x2B80018, 0x10270F,
-};
-s32 D_80092570[] = {
-    119, 0x2580014, 0x1000C8,
-};
-s32 D_8009257C[] = {
-    10, 0x198000C, 0x10270F,
-};
-s32 D_80092588[] = {
-    212, 0x2A00017, 0x10270F,
-};
-s32 D_80092594[] = {
-    42, 0x2580014, 0x100040,
-};
-s32 D_800925A0[] = {
-    34, 0x2580014, 0x10270F,
-};
-s32 D_800925AC[] = {
-    136, 0x3CC0016, 0x10270F,
-};
-s32 D_800925B8[] = {
-    108, 0x498002C, 0x10270F,
-};
-s32 D_800925C4[] = {
-    273, 0x4B0002D, 0x10270F,
-};
-s32 D_800925D0[] = {
-    28, 0x2880016, 0x10270F,
-};
-s32 D_800925DC[] = {
-    334, 0x2880016, 0x10270F,
-};
-s32 D_800925E8[] = {
-    13, 0x1E00019, 0x10270F,
-};
-s32 D_800925F4[] = {
-    435, 0x330001D, 0x10270F,
-};
-s32 D_80092600[] = {
-    176, 0x2A00017, 0x100096,
-};
-s32 D_8009260C[] = {
-    122, 0x2A00017, 0x100150,
-};
-s32 D_80092618[] = {
-    143, 0x2B80018, 0x10270F,
-};
-s32 D_80092624[] = {
-    40, 0x2B80018, 0x10270F,
-};
-s32 D_80092630[] = {
-    11, 0x2D00019, 0x10270F,
-};
-s32 D_8009263C[] = {
-    39, 0x2E8001A, 0x10270F,
-};
-s32 D_80092648[] = {
-    227, 0x4E0002F, 0x10270F,
-};
-s32 D_80092654[] = {
-    171, 0x4E0002F, 0x10270F,
-};
-s32 D_80092660[] = {
-    139, 0x300001B, 0x10010E,
-};
-s32 D_8009266C[] = {
-    134, 0x300001B, 0x10270F,
-};
-s32 D_80092678[] = {
-    54, 0x4C8002E, 0x10270F,
-};
-s32 D_80092684[] = {
-    14, 0x330001D, 0x10270F,
-};
-s32 D_80092690[] = {
-    76, 0x348001E, 0x10270F,
-};
-s32 D_8009269C[] = {
-    53, 0x330001D, 0x10270F,
-};
-s32 D_800926A8[] = {
-    173, 0x360001F, 0x10270F,
-};
-s32 D_800926B4[] = {
-    175, 0x3D80024, 0x10270F,
-};
-s32 D_800926C0[] = {
-    238, 0x480002B, 0x10270F,
-};
-s32 D_800926CC[] = {
-    200, 0x3A80022, 0x10270F,
-};
-s32 D_800926D8[] = {
-    121, 0x4080026, 0x10270F,
-};
-s32 D_800926E4[] = {
-    302, 0x3C00023, 0x10270F,
-};
-s32 D_800926F0[] = {
-    364, 0x3C00023, 0x10270F,
-};
-s32 D_800926FC[] = {
-    365, 0x4B0002D, 0x10270F,
-};
-s32 D_80092708[] = {
-    226, 0x3A80022, 0x10270F,
-};
-s32 D_80092714[] = {
-    140, 0x3D80024, 0x10270F,
-};
-s32 D_80092720[] = {
-    138, 0x3D80024, 0x10270F,
-};
-s32 D_8009272C[] = {
-    24, 0x708002D, 0x10270F,
-};
-s32 D_80092738[] = {
-    224, 0x3F00025, 0x10270F,
-};
-s32 D_80092744[] = {
-    225, 0x498002C, 0x10270F,
-};
-s32 D_80092750[] = {
-    61, 0x3C00023, 0x10270F,
-};
-s32 D_8009275C[] = {
-    165, 0x3A80022, 0x10270F,
-};
-s32 D_80092768[] = {
-    170, 0x3D80024, 0x100060,
-};
-s32 D_80092774[] = {
-    244, 0x4200027, 0x10270F,
-};
-s32 D_80092780[] = {
-    126, 0x3D80024, 0x10270F,
-};
-s32 D_8009278C[] = {
-    38, 0x4500029, 0x10270F,
-};
-s32 D_80092798[] = {
-    69, 0x4500029, 0x10270F,
-};
-s32 D_800927A4[] = {
-    9, 0x4500029, 0x10270F,
-};
-s32 D_800927B0[] = {
-    52, 0x4500029, 0x10270F,
-};
-s32 D_800927BC[] = {
-    23, 0x4500029, 0x10270F,
-};
-s32 D_800927C8[] = {
-    94, 0x480002B, 0x10270F,
-};
-s32 D_800927D4[] = {
-    41, 0x4C8002E, 0x10270F,
-};
-s32 D_800927E0[] = {
-    270, 0x480002B, 0x10270F,
-};
-s32 D_800927EC[] = {
-    327, 0x5100031, 0x10270F,
-};
-s32 D_800927F8[] = {
-    189, 0x480002B, 0x10270F,
-};
-s32 D_80092804[] = {
-    135, 0x480002B, 0x10270F,
-};
-s32 D_80092810[] = {
-    237, 0x498002C, 0x10270F,
-};
-s32 D_8009281C[] = {
-    229, 0x498002C, 0x10270F,
-};
-s32 D_80092828[] = {
-    204, 0x498002C, 0x10270F,
-};
-s32 D_80092834[] = {
-    281, 0x480002B, 0x10270F,
-};
-s32 D_80092840[] = {
-    202, 0x480002B, 0x10270F,
-};
-s32 D_8009284C[] = {
-    360, 0x498002C, 0x10270F,
-};
-s32 D_80092858[] = {
-    60, 0x498002C, 0x10270F,
-};
-s32 D_80092864[] = {
-    231, 0x5880036, 0x10270F,
-};
-s32 D_80092870[] = {
-    215, 0x5100031, 0x10270F,
-};
-s32 D_8009287C[] = {
-    269, 0x4B0002D, 0x10270F,
-};
-s32 D_80092888[] = {
-    177, 0x4B0002D, 0x10270F,
-};
-s32 D_80092894[] = {
-    65, 0x498002C, 0x100128,
-};
-s32 D_800928A0[] = {
-    250, 0x4B0002D, 0x10270F,
-};
-s32 D_800928AC[] = {
-    193, 0x4B0002D, 0x10270F,
-};
-s32 D_800928B8[] = {
-    245, 0x5A00037, 0x10270F,
-};
-s32 D_800928C4[] = {
-    272, 0x4E0002F, 0x10270F,
-};
-s32 D_800928D0[] = {
-    190, 0x4F80030, 0x10270F,
-};
-s32 D_800928DC[] = {
-    228, 0x5B80038, 0x10270F,
-};
-s32 D_800928E8[] = {
-    115, 0x4E0002F, 0x10270F,
-};
-s32 D_800928F4[] = {
-    236, 0x5A00037, 0x10270F,
-};
-s32 D_80092900[] = {
-    251, 0x5B80038, 0x10270F,
-};
-s32 D_8009290C[] = {
-    312, 0x40D0031, 0x10270F,
-};
-s32 D_80092918[] = {
-    247, 0x5A00037, 0x10270F,
-};
-s32 D_80092924[] = {
-    382, 0x8940038, 0x10270F,
-};
-s32 D_80092930[] = {
-    77, 0x1500009, 0x10270F,
-};
-s32 D_8009293C[] = {
-    395, 0x348001E, 0x10270F,
-};
-s32 D_80092948[] = {
-    396, 0x1380008, 0x10270F,
-};
-s32 D_80092954[] = {
-    397, 0x2700015, 0x10270F,
-};
-s32 D_80092960[] = {
-    398, 0x2880016, 0x10270F,
-};
-s32 D_8009296C[] = {
-    399, 0x2600021, 0x10270F,
-};
-s32 D_80092978[] = {
-    400, 0x3900021, 0x10270F,
-};
-s32 D_80092984[] = {
-    401, 0x2400013, 0x10270F,
-};
-s32 D_80092990[] = {
-    402, 0x6780029, 0x10270F,
-};
-s32 D_8009299C[] = {
-    403, 0x2700015, 0x10270F,
-};
-s32 D_800929A8[] = {
-    404, 0x3F00025, 0x10270F,
-};
-s32 D_800929B4[] = {
-    405, 0x2880016, 0x10270F,
-};
-s32 D_800929C0[] = {
-    406, 0x3D80024, 0x10270F,
-};
-s32 D_800929CC[] = {
-    407, 0x3F00025, 0x100168,
-};
-s32 D_800929D8[] = {
-    408, 0x3C00023, 0x10270F,
-};
-s32 D_800929E4[] = {
-    409, 0x4E0002F, 0x10270F,
-};
-s32 D_800929F0[] = {
-    89, 0x468002A, 0x10270F,
-};
-s32 D_800929FC[] = {
-    410, 0x4C8002E, 0x100004,
-};
-s32 D_80092A08[] = {
-    411, 0x4F80030, 0x10270F,
-};
-s32 D_80092A14[] = {
-    412, 0x4C8002E, 0x10270F,
-};
-s32 D_80092A20[] = {
-    413, 0x360001F, 0x10270F,
-};
-s32 D_80092A2C[] = {
-    414, 0x4200027, 0x10270F,
-};
-s32 D_80092A38[] = {
-    415, 0x480002B, 0x10270F,
-};
-s32 D_80092A44[] = {
-    416, 0x480002B, 0x10270F,
-};
-s32 D_80092A50[] = {
-    417, 0x498002C, 0x10270F,
-};
-s32 D_80092A5C[] = {
-    418, 0x4380028, 0x10270F,
-};
-s32 D_80092A68[] = {
-    419, 0x480002B, 0x10270F,
-};
-s32 D_80092A74[] = {
-    420, 0x4B0002D, 0x10270F,
-};
-s32 D_80092A80[] = {
-    421, 0x3780020, 0x10270F,
-};
-s32 D_80092A8C[] = {
-    422, 0x4380028, 0x10270F,
-};
-s32 D_80092A98[] = {
-    423, 0x4F80030, 0x10270F,
-};
-s32 D_80092AA4[] = {
-    424, 0x3D80024, 0x10270F,
-};
-s32 D_80092AB0[] = {
-    425, 0x4500029, 0x10270F,
-};
-s32 D_80092ABC[] = {
-    426, 0x750002F, 0x10270F,
-};
-s32 D_80092AC8[] = {
-    427, 0x498002C, 0x10270F,
-};
-s32 D_80092AD4[] = {
-    428, 0x4F80030, 0x10270F,
-};
-s32 D_80092AE0[] = {
-    429, 0x4F80030, 0x10270F,
-};
-s32 D_80092AEC[] = {
-    430, 0x498002C, 0x10270F,
-};
-s32 D_80092AF8[] = {
-    104, 0x4F80030, 0x100708,
-};
-s32 D_80092B04[] = {
-    431, 0x750002F, 0x10270F,
-};
-s32 D_80092B10[] = {
-    432, 0x5880036, 0x10270F,
-};
-s32 D_80092B1C[] = {
-    433, 0x5880036, 0x10270F,
-};
-s32 D_80092B28[] = {
-    434, 0x5100031, 0x10270F,
-};
-s32 D_80092B34[] = {
-    14, 0x330001D, 0x10270F,
-};
-s32 D_80092B40[] = {
-    53, 0x330001D, 0x10270F,
-};
-s32 D_80092B4C[] = {
-    435, 0x330001D, 0x10270F,
-};
-s32 D_80092B58[] = {
-    76, 0x348001E, 0x10270F,
-};
-s32 D_80092B64[] = {
-    435, 0x330001D, 0x10270F,
-};
-s32 D_80092B70[] = {
-    76, 0x348001E, 0x10270F,
-};
-s32 D_80092B7C[] = {
-    76, 0x348001E, 0x10270F,
-};
-s32 D_80092B88[] = {
-    334, 0x3780020, 0x16270F,
-};
-s32 D_80092B94[] = {
-    139, 0x330001D, 0x11010E,
-};
-s32 D_80092BA0[] = {
-    134, 0x330001D, 0x11270F,
-};
-s32 D_80092BAC[] = {
-    225, 0x498002C, 0x10270F,
-};
-s32 D_80092BB8[] = {
-    229, 0x498002C, 0x10270F,
-};
-s32 D_80092BC4[] = {
-    41, 0x4C8002E, 0x10270F,
-};
-s32 D_80092BD0[] = {
-    245, 0x5A00037, 0x10270F,
-};
-s32 D_80092BDC[] = {
-    251, 0x5B80038, 0x10270F,
-};
-s32 D_80092BE8[] = {
-    427, 0x4F80030, 0x11270F,
-};
-s32 D_80092BF4[] = {
-    411, 0x5280032, 0x11270F,
-};
-s32 D_80092C00[] = {
-    411, 0x5280032, 0x11270F,
-};
-s32 D_80092C0C[] = {
-    412, 0x5280032, 0x11270F,
-};
-s32 D_80092C18[] = {
-    231, 0x5280032, 0xF270F,
-};
-s32 D_80092C24[] = {
-    228, 0x5400033, 0xF270F,
-};
-s32 D_80092C30[] = {
-    247, 0x5580034, 0xF270F,
-};
-s32 D_80092C3C[] = {
-    178, 0xAE00035, 0x10270F,
-};
-s32 D_80092C48[] = {
-    231, 0x5280032, 0xF270F,
-};
-s32 D_80092C54[] = {
-    228, 0x5400033, 0xF270F,
-};
-s32 D_80092C60[] = {
-    51, 0x640001, 0xC270F,
-};
-s32 D_80092C6C[] = {
-    4, 0xC00004, 0x15270F,
-};
-s32 D_80092C78[] = {
-    25, 0xC00004, 0x10270F,
-};
-s32 D_80092C84[] = {
-    198, 0xF00005, 0x17270F,
-};
-s32 D_80092C90[] = {
-    67, 0x4380028, 0x67270F,
-};
-s32 D_80092C9C[] = {
-    51, 0x4380028, 0x78270F,
-};
-s32 D_80092CA8[] = {
-    137, 0x4B0002D, 0x2C270F,
-};
-s32 D_80092CB4[] = {
-    32, 0x1080006, 0x23270F,
-};
-s32 D_80092CC0[] = {
-    32, 0x1200007, 0x26270F,
-};
-s32 D_80092CCC[] = {
-    166, 0x1500009, 0x1C270F,
-};
-s32 D_80092CD8[] = {
-    80, 0x1200007, 0x18270F,
-};
-s32 D_80092CE4[] = {
-    34, 0x1380008, 0x8270F,
-};
-s32 D_80092CF0[] = {
-    197, 0x1080006, 0x19270F,
-};
-s32 D_80092CFC[] = {
-    132, 0x1200007, 0x18270F,
-};
-s32 D_80092D08[] = {
-    110, 0x1200007, 0xF270F,
-};
-s32 D_80092D14[] = {
-    206, 0x1500009, 0x2D270F,
-};
-s32 D_80092D20[] = {
-    49, 0x4380028, 0x37270F,
-};
-s32 D_80092D2C[] = {
-    50, 0x4380028, 0x28270F,
-};
-s32 D_80092D38[] = {
-    7, 0x5280032, 0x50270F,
-};
-s32 D_80092D44[] = {
-    4, 0x1080006, 0x1D270F,
-};
-s32 D_80092D50[] = {
-    198, 0x1200007, 0x1B270F,
-};
-s32 D_80092D5C[] = {
-    77, 0x1200007, 0xE270F,
-};
-s32 D_80092D68[] = {
-    51, 0x1200007, 0x20270F,
-};
-s32 D_80092D74[] = {
-    137, 0x1200007, 0xB270F,
-};
-s32 D_80092D80[] = {
-    396, 0x1200007, 0xF270F,
-};
-s32 D_80092D8C[] = {
-    203, 0x21C000A, 0x16270F,
-};
-s32 D_80092D98[] = {
-    136, 0x21C000A, 0x9270F,
-};
-s32 D_80092DA4[] = {
-    28, 0x168000A, 0x9270F,
-};
-s32 D_80092DB0[] = {
-    176, 0x180000B, 0x90096,
-};
-s32 D_80092DBC[] = {
-    217, 0x168000A, 0x12270F,
-};
-s32 D_80092DC8[] = {
-    37, 0x168000A, 0x11270F,
-};
-s32 D_80092DD4[] = {
-    10, 0x4380028, 0x2A270F,
-};
-s32 D_80092DE0[] = {
-    50, 0x468002A, 0x2A270F,
-};
-s32 D_80092DEC[] = {
-    35, 0x4200027, 0x1F270F,
-};
-s32 D_80092DF8[] = {
-    197, 0x2100011, 0x32270F,
-};
-s32 D_80092E04[] = {
-    132, 0x2100011, 0x2C270F,
-};
-s32 D_80092E10[] = {
-    110, 0x2280012, 0x1C270F,
-};
-s32 D_80092E1C[] = {
-    32, 0x1500009, 0x2D270F,
-};
-s32 D_80092E28[] = {
-    166, 0x168000A, 0x1E270F,
-};
-s32 D_80092E34[] = {
-    166, 0x168000A, 0x1E270F,
-};
-s32 D_80092E40[] = {
-    206, 0x4500029, 0x93270F,
-};
-s32 D_80092E4C[] = {
-    170, 0x3F00025, 0x100060,
-};
-s32 D_80092E58[] = {
-    223, 0x4080026, 0x13270F,
-};
-s32 D_80092E64[] = {
-    364, 0x4200027, 0x12270F,
-};
-s32 D_80092E70[] = {
-    210, 0x3F00025, 0x1B0078,
-};
-s32 D_80092E7C[] = {
-    14, 0x4080026, 0x14270F,
-};
-s32 D_80092E88[] = {
-    407, 0x4200027, 0x110168,
-};
-s32 D_80092E94[] = {
-    51, 0x3D80024, 0x6D270F,
-};
-s32 D_80092EA0[] = {
-    395, 0x4200027, 0x14270F,
-};
-s32 D_80092EAC[] = {
-    226, 0x4380028, 0x12270F,
-};
-s32 D_80092EB8[] = {
-    126, 0x4380028, 0x12270F,
-};
-s32 D_80092EC4[] = {
-    138, 0x4380028, 0x12270F,
-};
-s32 D_80092ED0[] = {
-    140, 0x4500029, 0x12270F,
-};
-s32 D_80092EDC[] = {
-    405, 0x4080026, 0x19270F,
-};
-s32 D_80092EE8[] = {
-    408, 0x4500029, 0x12270F,
-};
-s32 D_80092EF4[] = {
-    121, 0x4500029, 0x11270F,
-};
-s32 D_80092F00[] = {
-    197, 0x4500029, 0x69270F,
-};
-s32 D_80092F0C[] = {
-    132, 0x4500029, 0x5C270F,
-};
-s32 D_80092F18[] = {
-    110, 0x468002A, 0x3A270F,
-};
-s32 D_80092F24[] = {
-    206, 0x468002A, 0x96270F,
-};
-s32 D_80092F30[] = {
-    51, 0x5D00039, 0xA5270F,
-};
-s32 D_80092F3C[] = {
-    396, 0x5E8003A, 0x4E270F,
-};
-s32 D_80092F48[] = {
-    395, 0x618003C, 0x1E270F,
-};
-s32 D_80092F54[] = {
-    203, 0x69C002A, 0x44270F,
-};
-s32 D_80092F60[] = {
-    136, 0x69C002A, 0x1C270F,
-};
-s32 D_80092F6C[] = {
-    8, 0x468002A, 0x44270F,
-};
-s32 D_80092F78[] = {
-    166, 0x4500029, 0x5C270F,
-};
-s32 D_80092F84[] = {
-    397, 0x480002B, 0x1E270F,
-};
-s32 D_80092F90[] = {
-    39, 0x468002A, 0x18270F,
-};
-s32 D_80092F9C[] = {
-    210, 0x3A80022, 0x190078,
-};
-s32 D_80092FA8[] = {
-    14, 0x3C00023, 0x13270F,
-};
-s32 D_80092FB4[] = {
-    35, 0x3C00023, 0x1C270F,
-};
-s32 D_80092FC0[] = {
-    241, 0x3A80022, 0x16270F,
-};
-s32 D_80092FCC[] = {
-    165, 0x3D80024, 0x11270F,
-};
-s32 D_80092FD8[] = {
-    37, 0x3C00023, 0x2E270F,
-};
-s32 D_80092FE4[] = {
-    223, 0x3C00023, 0x12270F,
-};
-s32 D_80092FF0[] = {
-    364, 0x3D80024, 0x10270F,
-};
-s32 D_80092FFC[] = {
-    122, 0x3C00023, 0x170150,
-};
-s32 D_80093008[] = {
-    143, 0x3C00023, 0x16270F,
-};
-s32 D_80093014[] = {
-    61, 0x3C00023, 0x10270F,
-};
-s32 D_80093020[] = {
-    408, 0x3C00023, 0x10270F,
-};
-s32 D_8009302C[] = {
-    121, 0x3C00023, 0xF270F,
-};
-s32 D_80093038[] = {
-    220, 0x3D80024, 0x14270F,
-};
-s32 D_80093044[] = {
-    221, 0x3D80024, 0xF270F,
-};
-s32 D_80093050[] = {
-    126, 0x3D80024, 0x10270F,
-};
-s32 D_8009305C[] = {
-    8, 0x3A80022, 0x39270F,
-};
-s32 D_80093068[] = {
-    140, 0x3F00025, 0x10270F,
-};
-s32 D_80093074[] = {
-    170, 0x498002C, 0x130060,
-};
-s32 D_80093080[] = {
-    223, 0x498002C, 0x16270F,
-};
-s32 D_8009308C[] = {
-    404, 0x4B0002D, 0x13270F,
-};
-s32 D_80093098[] = {
-    4, 0x498002C, 0x83270F,
-};
-s32 D_800930A4[] = {
-    198, 0x498002C, 0x70270F,
-};
-s32 D_800930B0[] = {
-    424, 0x4B0002D, 0x14270F,
-};
-s32 D_800930BC[] = {
-    210, 0x480002B, 0x1F0078,
-};
-s32 D_800930C8[] = {
-    14, 0x498002C, 0x17270F,
-};
-s32 D_800930D4[] = {
-    269, 0x4B0002D, 0x10270F,
-};
-s32 D_800930E0[] = {
-    397, 0x4B0002D, 0x1F270F,
-};
-s32 D_800930EC[] = {
-    171, 0x4C8002E, 0x10270F,
-};
-s32 D_800930F8[] = {
-    126, 0x498002C, 0x13270F,
-};
-s32 D_80093104[] = {
-    138, 0x4B0002D, 0x14270F,
-};
-s32 D_80093110[] = {
-    212, 0x4B0002D, 0x1D270F,
-};
-s32 D_8009311C[] = {
-    28, 0x498002C, 0x1D270F,
-};
-s32 D_80093128[] = {
-    176, 0x498002C, 0x1C0096,
-};
-s32 D_80093134[] = {
-    229, 0x4C8002E, 0x11270F,
-};
-s32 D_80093140[] = {
-    395, 0x498002C, 0x16270F,
-};
-s32 D_8009314C[] = {
-    226, 0x4B0002D, 0x15270F,
-};
-s32 D_80093158[] = {
-    60, 0x4C8002E, 0x11270F,
-};
-s32 D_80093164[] = {
-    224, 0x4B0002D, 0x13270F,
-};
-s32 D_80093170[] = {
-    225, 0x4C8002E, 0x11270F,
-};
-s32 D_8009317C[] = {
-    419, 0x4B0002D, 0x11270F,
-};
-s32 D_80093188[] = {
-    54, 0x4C8002E, 0x10270F,
-};
-s32 D_80093194[] = {
-    176, 0x5580034, 0x210096,
-};
-s32 D_800931A0[] = {
-    229, 0x5700035, 0x13270F,
-};
-s32 D_800931AC[] = {
-    41, 0x5700035, 0x12270F,
-};
-s32 D_800931B8[] = {
-    203, 0x8040034, 0x53270F,
-};
-s32 D_800931C4[] = {
-    8, 0x5580034, 0x53270F,
-};
-s32 D_800931D0[] = {
-    409, 0x5880036, 0x12270F,
-};
-s32 D_800931DC[] = {
-    206, 0x5580034, 0xB6270F,
-};
-s32 D_800931E8[] = {
-    365, 0x5700035, 0x13270F,
-};
-s32 D_800931F4[] = {
-    197, 0x5580034, 0x82270F,
-};
-s32 D_80093200[] = {
-    132, 0x5580034, 0x72270F,
-};
-s32 D_8009320C[] = {
-    110, 0x5700035, 0x47270F,
-};
-s32 D_80093218[] = {
-    224, 0x5580034, 0x16270F,
-};
-s32 D_80093224[] = {
-    225, 0x5580034, 0x13270F,
-};
-s32 D_80093230[] = {
-    281, 0x5700035, 0x13270F,
-};
-s32 D_8009323C[] = {
-    226, 0x5580034, 0x17270F,
-};
-s32 D_80093248[] = {
-    60, 0x5580034, 0x13270F,
-};
-s32 D_80093254[] = {
-    423, 0x5700035, 0x12270F,
-};
-s32 D_80093260[] = {
-    122, 0x5700035, 0x210150,
-};
-s32 D_8009326C[] = {
-    143, 0x5700035, 0x20270F,
-};
-s32 D_80093278[] = {
-    250, 0x5880036, 0x13270F,
-};
-s32 D_80093284[] = {
-    405, 0x5A00037, 0x24270F,
-};
-s32 D_80093290[] = {
-    425, 0x5D00039, 0x16270F,
-};
-s32 D_8009329C[] = {
-    428, 0x618003C, 0x14270F,
-};
-s32 D_800932A8[] = {
-    364, 0x5700035, 0x17270F,
-};
-s32 D_800932B4[] = {
-    177, 0x5700035, 0x13270F,
-};
-s32 D_800932C0[] = {
-    206, 0x5700035, 0xBA270F,
-};
-s32 D_800932CC[] = {
-    365, 0x5880036, 0x13270F,
-};
-s32 D_800932D8[] = {
-    32, 0x780001, 0x10270F,
-};
-s32 D_800932E4[] = {
-    32, 0x780001, 0x10270F,
-};
-s32 D_800932F0[] = {
-    32, 0x780001, 0x10270F,
-};
-s32 D_800932FC[] = {
-    32, 0x780001, 0x10270F,
-};
-s32 D_80093308[] = {
-    32, 0x780001, 0x10270F,
-};
-s32 D_80093314[] = {
-    32, 0x780001, 0x10270F,
-};
-s32 D_80093320[] = {
-    32, 0x780001, 0x10270F,
-};
-s32 D_8009332C[] = {
-    32, 0x780001, 0x10270F,
-};
-s32 D_80093338[] = {
-    32, 0x780001, 0x10270F,
-};
+BattleEnemy D_800920A8 = {0, 0, 0, 0, 0};
+BattleEnemy D_800920B4 = {358, 12, 816, 9999, 16};
+BattleEnemy D_800920C0 = {124, 14, 912, 9999, 16};
+BattleEnemy D_800920CC = {172, 9, 504, 9999, 22};
+BattleEnemy D_800920D8 = {8, 11, 576, 9999, 23};
+BattleEnemy D_800920E4 = {207, 14, 684, 9999, 20};
+BattleEnemy D_800920F0 = {222, 12, 612, 9999, 27};
+BattleEnemy D_800920FC = {77, 14, 684, 9999, 22};
+BattleEnemy D_80092108 = {119, 17, 792, 200, 14};
+BattleEnemy D_80092114 = {11, 27, 768, 9999, 17};
+BattleEnemy D_80092120 = {11, 27, 768, 9999, 17};
+BattleEnemy D_8009212C = {400, 29, 1224, 9999, 14};
+BattleEnemy D_80092138 = {208, 29, 1224, 9999, 16};
+BattleEnemy D_80092144 = {13, 29, 1088, 9999, 18};
+BattleEnemy D_80092150 = {356, 32, 1776, 280, 16};
+BattleEnemy D_8009215C = {70, 32, 1776, 9999, 16};
+BattleEnemy D_80092168 = {141, 34, 1872, 9999, 16};
+BattleEnemy D_80092174 = {399, 33, 912, 9999, 16};
+BattleEnemy D_80092180 = {302, 34, 1404, 9999, 16};
+BattleEnemy D_8009218C = {437, 38, 3096, 40, 16};
+BattleEnemy D_80092198 = {337, 40, 2160, 9999, 16};
+BattleEnemy D_800921A4 = {436, 43, 2304, 960, 16};
+BattleEnemy D_800921B0 = {443, 45, 2400, 9999, 16};
+BattleEnemy D_800921BC = {138, 40, 1620, 9999, 18};
+BattleEnemy D_800921C8 = {402, 41, 2484, 9999, 16};
+BattleEnemy D_800921D4 = {237, 44, 1764, 9999, 16};
+BattleEnemy D_800921E0 = {444, 46, 2448, 9999, 16};
+BattleEnemy D_800921EC = {425, 41, 1656, 9999, 16};
+BattleEnemy D_800921F8 = {202, 43, 1728, 9999, 16};
+BattleEnemy D_80092204 = {238, 46, 1836, 9999, 17};
+BattleEnemy D_80092210 = {447, 47, 2496, 9999, 16};
+BattleEnemy D_8009221C = {270, 45, 1800, 9999, 17};
+BattleEnemy D_80092228 = {65, 46, 1836, 296, 17};
+BattleEnemy D_80092234 = {360, 49, 1944, 9999, 18};
+BattleEnemy D_80092240 = {23, 45, 1200, 9999, 17};
+BattleEnemy D_8009224C = {427, 46, 1224, 9999, 17};
+BattleEnemy D_80092258 = {409, 49, 1296, 9999, 17};
+BattleEnemy D_80092264 = {9, 45, 1200, 9999, 17};
+BattleEnemy D_80092270 = {189, 47, 1248, 9999, 17};
+BattleEnemy D_8009227C = {104, 50, 1320, 1800, 17};
+BattleEnemy D_80092288 = {244, 46, 1224, 9999, 19};
+BattleEnemy D_80092294 = {135, 48, 1272, 9999, 18};
+BattleEnemy D_800922A0 = {429, 50, 1320, 9999, 17};
+BattleEnemy D_800922AC = {24, 47, 1872, 9999, 17};
+BattleEnemy D_800922B8 = {410, 49, 1296, 4, 17};
+BattleEnemy D_800922C4 = {115, 51, 1344, 9999, 17};
+BattleEnemy D_800922D0 = {445, 55, 2880, 9999, 16};
+BattleEnemy D_800922DC = {446, 57, 2976, 8, 16};
+BattleEnemy D_800922E8 = {108, 49, 1944, 9999, 18};
+BattleEnemy D_800922F4 = {193, 50, 1980, 9999, 18};
+BattleEnemy D_80092300 = {428, 52, 2052, 9999, 17};
+BattleEnemy D_8009230C = {190, 50, 1980, 9999, 17};
+BattleEnemy D_80092318 = {215, 52, 2052, 9999, 17};
+BattleEnemy D_80092324 = {231, 54, 2124, 9999, 16};
+BattleEnemy D_80092330 = {431, 50, 1980, 9999, 17};
+BattleEnemy D_8009233C = {434, 52, 1368, 9999, 17};
+BattleEnemy D_80092348 = {433, 54, 1416, 9999, 16};
+BattleEnemy D_80092354 = {327, 52, 1368, 9999, 17};
+BattleEnemy D_80092360 = {327, 52, 1368, 9999, 17};
+BattleEnemy D_8009236C = {247, 55, 1440, 9999, 16};
+BattleEnemy D_80092378 = {312, 54, 1133, 9999, 17};
+BattleEnemy D_80092384 = {228, 56, 1464, 9999, 16};
+BattleEnemy D_80092390 = {245, 58, 1512, 9999, 17};
+BattleEnemy D_8009239C = {178, 99, 9999, 9999, 29};
+BattleEnemy D_800923A8 = {448, 53, 2784, 9999, 16};
+BattleEnemy D_800923B4 = {432, 54, 1416, 9999, 16};
+BattleEnemy D_800923C0 = {236, 57, 1488, 9999, 17};
+BattleEnemy D_800923CC = {438, 60, 3120, 9999, 16};
+BattleEnemy D_800923D8 = {439, 57, 4464, 9999, 16};
+BattleEnemy D_800923E4 = {440, 57, 2976, 9999, 16};
+BattleEnemy D_800923F0 = {441, 57, 2976, 9999, 16};
+BattleEnemy D_800923FC = {32, 1, 120, 9999, 16};
+BattleEnemy D_80092408 = {206, 1, 120, 9999, 16};
+BattleEnemy D_80092414 = {197, 3, 168, 9999, 16};
+BattleEnemy D_80092420 = {132, 4, 192, 9999, 16};
+BattleEnemy D_8009242C = {217, 8, 312, 9999, 16};
+BattleEnemy D_80092438 = {4, 2, 144, 9999, 16};
+BattleEnemy D_80092444 = {25, 4, 192, 9999, 16};
+BattleEnemy D_80092450 = {51, 2, 144, 9999, 16};
+BattleEnemy D_8009245C = {67, 3, 168, 9999, 16};
+BattleEnemy D_80092468 = {198, 3, 168, 9999, 16};
+BattleEnemy D_80092474 = {166, 4, 192, 9999, 16};
+BattleEnemy D_80092480 = {80, 4, 192, 9999, 16};
+BattleEnemy D_8009248C = {277, 16, 504, 9999, 16};
+BattleEnemy D_80092498 = {172, 5, 240, 9999, 16};
+BattleEnemy D_800924A4 = {137, 13, 432, 9999, 16};
+BattleEnemy D_800924B0 = {222, 5, 240, 9999, 16};
+BattleEnemy D_800924BC = {8, 6, 264, 9999, 16};
+BattleEnemy D_800924C8 = {203, 6, 396, 9999, 16};
+BattleEnemy D_800924D4 = {7, 6, 264, 9999, 16};
+BattleEnemy D_800924E0 = {110, 8, 312, 9999, 16};
+BattleEnemy D_800924EC = {49, 8, 312, 9999, 16};
+BattleEnemy D_800924F8 = {37, 9, 336, 9999, 16};
+BattleEnemy D_80092504 = {223, 31, 864, 9999, 16};
+BattleEnemy D_80092510 = {50, 13, 432, 9999, 16};
+BattleEnemy D_8009251C = {207, 10, 360, 9999, 16};
+BattleEnemy D_80092528 = {35, 18, 552, 9999, 16};
+BattleEnemy D_80092534 = {208, 29, 816, 9999, 16};
+BattleEnemy D_80092540 = {210, 20, 600, 120, 16};
+BattleEnemy D_8009254C = {220, 27, 768, 9999, 16};
+BattleEnemy D_80092558 = {221, 40, 1080, 9999, 16};
+BattleEnemy D_80092564 = {241, 24, 696, 9999, 16};
+BattleEnemy D_80092570 = {119, 20, 600, 200, 16};
+BattleEnemy D_8009257C = {10, 12, 408, 9999, 16};
+BattleEnemy D_80092588 = {212, 23, 672, 9999, 16};
+BattleEnemy D_80092594 = {42, 20, 600, 64, 16};
+BattleEnemy D_800925A0 = {34, 20, 600, 9999, 16};
+BattleEnemy D_800925AC = {136, 22, 972, 9999, 16};
+BattleEnemy D_800925B8 = {108, 44, 1176, 9999, 16};
+BattleEnemy D_800925C4 = {273, 45, 1200, 9999, 16};
+BattleEnemy D_800925D0 = {28, 22, 648, 9999, 16};
+BattleEnemy D_800925DC = {334, 22, 648, 9999, 16};
+BattleEnemy D_800925E8 = {13, 25, 480, 9999, 16};
+BattleEnemy D_800925F4 = {435, 29, 816, 9999, 16};
+BattleEnemy D_80092600 = {176, 23, 672, 150, 16};
+BattleEnemy D_8009260C = {122, 23, 672, 336, 16};
+BattleEnemy D_80092618 = {143, 24, 696, 9999, 16};
+BattleEnemy D_80092624 = {40, 24, 696, 9999, 16};
+BattleEnemy D_80092630 = {11, 25, 720, 9999, 16};
+BattleEnemy D_8009263C = {39, 26, 744, 9999, 16};
+BattleEnemy D_80092648 = {227, 47, 1248, 9999, 16};
+BattleEnemy D_80092654 = {171, 47, 1248, 9999, 16};
+BattleEnemy D_80092660 = {139, 27, 768, 270, 16};
+BattleEnemy D_8009266C = {134, 27, 768, 9999, 16};
+BattleEnemy D_80092678 = {54, 46, 1224, 9999, 16};
+BattleEnemy D_80092684 = {14, 29, 816, 9999, 16};
+BattleEnemy D_80092690 = {76, 30, 840, 9999, 16};
+BattleEnemy D_8009269C = {53, 29, 816, 9999, 16};
+BattleEnemy D_800926A8 = {173, 31, 864, 9999, 16};
+BattleEnemy D_800926B4 = {175, 36, 984, 9999, 16};
+BattleEnemy D_800926C0 = {238, 43, 1152, 9999, 16};
+BattleEnemy D_800926CC = {200, 34, 936, 9999, 16};
+BattleEnemy D_800926D8 = {121, 38, 1032, 9999, 16};
+BattleEnemy D_800926E4 = {302, 35, 960, 9999, 16};
+BattleEnemy D_800926F0 = {364, 35, 960, 9999, 16};
+BattleEnemy D_800926FC = {365, 45, 1200, 9999, 16};
+BattleEnemy D_80092708 = {226, 34, 936, 9999, 16};
+BattleEnemy D_80092714 = {140, 36, 984, 9999, 16};
+BattleEnemy D_80092720 = {138, 36, 984, 9999, 16};
+BattleEnemy D_8009272C = {24, 45, 1800, 9999, 16};
+BattleEnemy D_80092738 = {224, 37, 1008, 9999, 16};
+BattleEnemy D_80092744 = {225, 44, 1176, 9999, 16};
+BattleEnemy D_80092750 = {61, 35, 960, 9999, 16};
+BattleEnemy D_8009275C = {165, 34, 936, 9999, 16};
+BattleEnemy D_80092768 = {170, 36, 984, 96, 16};
+BattleEnemy D_80092774 = {244, 39, 1056, 9999, 16};
+BattleEnemy D_80092780 = {126, 36, 984, 9999, 16};
+BattleEnemy D_8009278C = {38, 41, 1104, 9999, 16};
+BattleEnemy D_80092798 = {69, 41, 1104, 9999, 16};
+BattleEnemy D_800927A4 = {9, 41, 1104, 9999, 16};
+BattleEnemy D_800927B0 = {52, 41, 1104, 9999, 16};
+BattleEnemy D_800927BC = {23, 41, 1104, 9999, 16};
+BattleEnemy D_800927C8 = {94, 43, 1152, 9999, 16};
+BattleEnemy D_800927D4 = {41, 46, 1224, 9999, 16};
+BattleEnemy D_800927E0 = {270, 43, 1152, 9999, 16};
+BattleEnemy D_800927EC = {327, 49, 1296, 9999, 16};
+BattleEnemy D_800927F8 = {189, 43, 1152, 9999, 16};
+BattleEnemy D_80092804 = {135, 43, 1152, 9999, 16};
+BattleEnemy D_80092810 = {237, 44, 1176, 9999, 16};
+BattleEnemy D_8009281C = {229, 44, 1176, 9999, 16};
+BattleEnemy D_80092828 = {204, 44, 1176, 9999, 16};
+BattleEnemy D_80092834 = {281, 43, 1152, 9999, 16};
+BattleEnemy D_80092840 = {202, 43, 1152, 9999, 16};
+BattleEnemy D_8009284C = {360, 44, 1176, 9999, 16};
+BattleEnemy D_80092858 = {60, 44, 1176, 9999, 16};
+BattleEnemy D_80092864 = {231, 54, 1416, 9999, 16};
+BattleEnemy D_80092870 = {215, 49, 1296, 9999, 16};
+BattleEnemy D_8009287C = {269, 45, 1200, 9999, 16};
+BattleEnemy D_80092888 = {177, 45, 1200, 9999, 16};
+BattleEnemy D_80092894 = {65, 44, 1176, 296, 16};
+BattleEnemy D_800928A0 = {250, 45, 1200, 9999, 16};
+BattleEnemy D_800928AC = {193, 45, 1200, 9999, 16};
+BattleEnemy D_800928B8 = {245, 55, 1440, 9999, 16};
+BattleEnemy D_800928C4 = {272, 47, 1248, 9999, 16};
+BattleEnemy D_800928D0 = {190, 48, 1272, 9999, 16};
+BattleEnemy D_800928DC = {228, 56, 1464, 9999, 16};
+BattleEnemy D_800928E8 = {115, 47, 1248, 9999, 16};
+BattleEnemy D_800928F4 = {236, 55, 1440, 9999, 16};
+BattleEnemy D_80092900 = {251, 56, 1464, 9999, 16};
+BattleEnemy D_8009290C = {312, 49, 1037, 9999, 16};
+BattleEnemy D_80092918 = {247, 55, 1440, 9999, 16};
+BattleEnemy D_80092924 = {382, 56, 2196, 9999, 16};
+BattleEnemy D_80092930 = {77, 9, 336, 9999, 16};
+BattleEnemy D_8009293C = {395, 30, 840, 9999, 16};
+BattleEnemy D_80092948 = {396, 8, 312, 9999, 16};
+BattleEnemy D_80092954 = {397, 21, 624, 9999, 16};
+BattleEnemy D_80092960 = {398, 22, 648, 9999, 16};
+BattleEnemy D_8009296C = {399, 33, 608, 9999, 16};
+BattleEnemy D_80092978 = {400, 33, 912, 9999, 16};
+BattleEnemy D_80092984 = {401, 19, 576, 9999, 16};
+BattleEnemy D_80092990 = {402, 41, 1656, 9999, 16};
+BattleEnemy D_8009299C = {403, 21, 624, 9999, 16};
+BattleEnemy D_800929A8 = {404, 37, 1008, 9999, 16};
+BattleEnemy D_800929B4 = {405, 22, 648, 9999, 16};
+BattleEnemy D_800929C0 = {406, 36, 984, 9999, 16};
+BattleEnemy D_800929CC = {407, 37, 1008, 360, 16};
+BattleEnemy D_800929D8 = {408, 35, 960, 9999, 16};
+BattleEnemy D_800929E4 = {409, 47, 1248, 9999, 16};
+BattleEnemy D_800929F0 = {89, 42, 1128, 9999, 16};
+BattleEnemy D_800929FC = {410, 46, 1224, 4, 16};
+BattleEnemy D_80092A08 = {411, 48, 1272, 9999, 16};
+BattleEnemy D_80092A14 = {412, 46, 1224, 9999, 16};
+BattleEnemy D_80092A20 = {413, 31, 864, 9999, 16};
+BattleEnemy D_80092A2C = {414, 39, 1056, 9999, 16};
+BattleEnemy D_80092A38 = {415, 43, 1152, 9999, 16};
+BattleEnemy D_80092A44 = {416, 43, 1152, 9999, 16};
+BattleEnemy D_80092A50 = {417, 44, 1176, 9999, 16};
+BattleEnemy D_80092A5C = {418, 40, 1080, 9999, 16};
+BattleEnemy D_80092A68 = {419, 43, 1152, 9999, 16};
+BattleEnemy D_80092A74 = {420, 45, 1200, 9999, 16};
+BattleEnemy D_80092A80 = {421, 32, 888, 9999, 16};
+BattleEnemy D_80092A8C = {422, 40, 1080, 9999, 16};
+BattleEnemy D_80092A98 = {423, 48, 1272, 9999, 16};
+BattleEnemy D_80092AA4 = {424, 36, 984, 9999, 16};
+BattleEnemy D_80092AB0 = {425, 41, 1104, 9999, 16};
+BattleEnemy D_80092ABC = {426, 47, 1872, 9999, 16};
+BattleEnemy D_80092AC8 = {427, 44, 1176, 9999, 16};
+BattleEnemy D_80092AD4 = {428, 48, 1272, 9999, 16};
+BattleEnemy D_80092AE0 = {429, 48, 1272, 9999, 16};
+BattleEnemy D_80092AEC = {430, 44, 1176, 9999, 16};
+BattleEnemy D_80092AF8 = {104, 48, 1272, 1800, 16};
+BattleEnemy D_80092B04 = {431, 47, 1872, 9999, 16};
+BattleEnemy D_80092B10 = {432, 54, 1416, 9999, 16};
+BattleEnemy D_80092B1C = {433, 54, 1416, 9999, 16};
+BattleEnemy D_80092B28 = {434, 49, 1296, 9999, 16};
+BattleEnemy D_80092B34 = {14, 29, 816, 9999, 16};
+BattleEnemy D_80092B40 = {53, 29, 816, 9999, 16};
+BattleEnemy D_80092B4C = {435, 29, 816, 9999, 16};
+BattleEnemy D_80092B58 = {76, 30, 840, 9999, 16};
+BattleEnemy D_80092B64 = {435, 29, 816, 9999, 16};
+BattleEnemy D_80092B70 = {76, 30, 840, 9999, 16};
+BattleEnemy D_80092B7C = {76, 30, 840, 9999, 16};
+BattleEnemy D_80092B88 = {334, 32, 888, 9999, 22};
+BattleEnemy D_80092B94 = {139, 29, 816, 270, 17};
+BattleEnemy D_80092BA0 = {134, 29, 816, 9999, 17};
+BattleEnemy D_80092BAC = {225, 44, 1176, 9999, 16};
+BattleEnemy D_80092BB8 = {229, 44, 1176, 9999, 16};
+BattleEnemy D_80092BC4 = {41, 46, 1224, 9999, 16};
+BattleEnemy D_80092BD0 = {245, 55, 1440, 9999, 16};
+BattleEnemy D_80092BDC = {251, 56, 1464, 9999, 16};
+BattleEnemy D_80092BE8 = {427, 48, 1272, 9999, 17};
+BattleEnemy D_80092BF4 = {411, 50, 1320, 9999, 17};
+BattleEnemy D_80092C00 = {411, 50, 1320, 9999, 17};
+BattleEnemy D_80092C0C = {412, 50, 1320, 9999, 17};
+BattleEnemy D_80092C18 = {231, 50, 1320, 9999, 15};
+BattleEnemy D_80092C24 = {228, 51, 1344, 9999, 15};
+BattleEnemy D_80092C30 = {247, 52, 1368, 9999, 15};
+BattleEnemy D_80092C3C = {178, 53, 2784, 9999, 16};
+BattleEnemy D_80092C48 = {231, 50, 1320, 9999, 15};
+BattleEnemy D_80092C54 = {228, 51, 1344, 9999, 15};
+BattleEnemy D_80092C60 = {51, 1, 100, 9999, 12};
+BattleEnemy D_80092C6C = {4, 4, 192, 9999, 21};
+BattleEnemy D_80092C78 = {25, 4, 192, 9999, 16};
+BattleEnemy D_80092C84 = {198, 5, 240, 9999, 23};
+BattleEnemy D_80092C90 = {67, 40, 1080, 9999, 103};
+BattleEnemy D_80092C9C = {51, 40, 1080, 9999, 120};
+BattleEnemy D_80092CA8 = {137, 45, 1200, 9999, 44};
+BattleEnemy D_80092CB4 = {32, 6, 264, 9999, 35};
+BattleEnemy D_80092CC0 = {32, 7, 288, 9999, 38};
+BattleEnemy D_80092CCC = {166, 9, 336, 9999, 28};
+BattleEnemy D_80092CD8 = {80, 7, 288, 9999, 24};
+BattleEnemy D_80092CE4 = {34, 8, 312, 9999, 8};
+BattleEnemy D_80092CF0 = {197, 6, 264, 9999, 25};
+BattleEnemy D_80092CFC = {132, 7, 288, 9999, 24};
+BattleEnemy D_80092D08 = {110, 7, 288, 9999, 15};
+BattleEnemy D_80092D14 = {206, 9, 336, 9999, 45};
+BattleEnemy D_80092D20 = {49, 40, 1080, 9999, 55};
+BattleEnemy D_80092D2C = {50, 40, 1080, 9999, 40};
+BattleEnemy D_80092D38 = {7, 50, 1320, 9999, 80};
+BattleEnemy D_80092D44 = {4, 6, 264, 9999, 29};
+BattleEnemy D_80092D50 = {198, 7, 288, 9999, 27};
+BattleEnemy D_80092D5C = {77, 7, 288, 9999, 14};
+BattleEnemy D_80092D68 = {51, 7, 288, 9999, 32};
+BattleEnemy D_80092D74 = {137, 7, 288, 9999, 11};
+BattleEnemy D_80092D80 = {396, 7, 288, 9999, 15};
+BattleEnemy D_80092D8C = {203, 10, 540, 9999, 22};
+BattleEnemy D_80092D98 = {136, 10, 540, 9999, 9};
+BattleEnemy D_80092DA4 = {28, 10, 360, 9999, 9};
+BattleEnemy D_80092DB0 = {176, 11, 384, 150, 9};
+BattleEnemy D_80092DBC = {217, 10, 360, 9999, 18};
+BattleEnemy D_80092DC8 = {37, 10, 360, 9999, 17};
+BattleEnemy D_80092DD4 = {10, 40, 1080, 9999, 42};
+BattleEnemy D_80092DE0 = {50, 42, 1128, 9999, 42};
+BattleEnemy D_80092DEC = {35, 39, 1056, 9999, 31};
+BattleEnemy D_80092DF8 = {197, 17, 528, 9999, 50};
+BattleEnemy D_80092E04 = {132, 17, 528, 9999, 44};
+BattleEnemy D_80092E10 = {110, 18, 552, 9999, 28};
+BattleEnemy D_80092E1C = {32, 9, 336, 9999, 45};
+BattleEnemy D_80092E28 = {166, 10, 360, 9999, 30};
+BattleEnemy D_80092E34 = {166, 10, 360, 9999, 30};
+BattleEnemy D_80092E40 = {206, 41, 1104, 9999, 147};
+BattleEnemy D_80092E4C = {170, 37, 1008, 96, 16};
+BattleEnemy D_80092E58 = {223, 38, 1032, 9999, 19};
+BattleEnemy D_80092E64 = {364, 39, 1056, 9999, 18};
+BattleEnemy D_80092E70 = {210, 37, 1008, 120, 27};
+BattleEnemy D_80092E7C = {14, 38, 1032, 9999, 20};
+BattleEnemy D_80092E88 = {407, 39, 1056, 360, 17};
+BattleEnemy D_80092E94 = {51, 36, 984, 9999, 109};
+BattleEnemy D_80092EA0 = {395, 39, 1056, 9999, 20};
+BattleEnemy D_80092EAC = {226, 40, 1080, 9999, 18};
+BattleEnemy D_80092EB8 = {126, 40, 1080, 9999, 18};
+BattleEnemy D_80092EC4 = {138, 40, 1080, 9999, 18};
+BattleEnemy D_80092ED0 = {140, 41, 1104, 9999, 18};
+BattleEnemy D_80092EDC = {405, 38, 1032, 9999, 25};
+BattleEnemy D_80092EE8 = {408, 41, 1104, 9999, 18};
+BattleEnemy D_80092EF4 = {121, 41, 1104, 9999, 17};
+BattleEnemy D_80092F00 = {197, 41, 1104, 9999, 105};
+BattleEnemy D_80092F0C = {132, 41, 1104, 9999, 92};
+BattleEnemy D_80092F18 = {110, 42, 1128, 9999, 58};
+BattleEnemy D_80092F24 = {206, 42, 1128, 9999, 150};
+BattleEnemy D_80092F30 = {51, 57, 1488, 9999, 165};
+BattleEnemy D_80092F3C = {396, 58, 1512, 9999, 78};
+BattleEnemy D_80092F48 = {395, 60, 1560, 9999, 30};
+BattleEnemy D_80092F54 = {203, 42, 1692, 9999, 68};
+BattleEnemy D_80092F60 = {136, 42, 1692, 9999, 28};
+BattleEnemy D_80092F6C = {8, 42, 1128, 9999, 68};
+BattleEnemy D_80092F78 = {166, 41, 1104, 9999, 92};
+BattleEnemy D_80092F84 = {397, 43, 1152, 9999, 30};
+BattleEnemy D_80092F90 = {39, 42, 1128, 9999, 24};
+BattleEnemy D_80092F9C = {210, 34, 936, 120, 25};
+BattleEnemy D_80092FA8 = {14, 35, 960, 9999, 19};
+BattleEnemy D_80092FB4 = {35, 35, 960, 9999, 28};
+BattleEnemy D_80092FC0 = {241, 34, 936, 9999, 22};
+BattleEnemy D_80092FCC = {165, 36, 984, 9999, 17};
+BattleEnemy D_80092FD8 = {37, 35, 960, 9999, 46};
+BattleEnemy D_80092FE4 = {223, 35, 960, 9999, 18};
+BattleEnemy D_80092FF0 = {364, 36, 984, 9999, 16};
+BattleEnemy D_80092FFC = {122, 35, 960, 336, 23};
+BattleEnemy D_80093008 = {143, 35, 960, 9999, 22};
+BattleEnemy D_80093014 = {61, 35, 960, 9999, 16};
+BattleEnemy D_80093020 = {408, 35, 960, 9999, 16};
+BattleEnemy D_8009302C = {121, 35, 960, 9999, 15};
+BattleEnemy D_80093038 = {220, 36, 984, 9999, 20};
+BattleEnemy D_80093044 = {221, 36, 984, 9999, 15};
+BattleEnemy D_80093050 = {126, 36, 984, 9999, 16};
+BattleEnemy D_8009305C = {8, 34, 936, 9999, 57};
+BattleEnemy D_80093068 = {140, 37, 1008, 9999, 16};
+BattleEnemy D_80093074 = {170, 44, 1176, 96, 19};
+BattleEnemy D_80093080 = {223, 44, 1176, 9999, 22};
+BattleEnemy D_8009308C = {404, 45, 1200, 9999, 19};
+BattleEnemy D_80093098 = {4, 44, 1176, 9999, 131};
+BattleEnemy D_800930A4 = {198, 44, 1176, 9999, 112};
+BattleEnemy D_800930B0 = {424, 45, 1200, 9999, 20};
+BattleEnemy D_800930BC = {210, 43, 1152, 120, 31};
+BattleEnemy D_800930C8 = {14, 44, 1176, 9999, 23};
+BattleEnemy D_800930D4 = {269, 45, 1200, 9999, 16};
+BattleEnemy D_800930E0 = {397, 45, 1200, 9999, 31};
+BattleEnemy D_800930EC = {171, 46, 1224, 9999, 16};
+BattleEnemy D_800930F8 = {126, 44, 1176, 9999, 19};
+BattleEnemy D_80093104 = {138, 45, 1200, 9999, 20};
+BattleEnemy D_80093110 = {212, 45, 1200, 9999, 29};
+BattleEnemy D_8009311C = {28, 44, 1176, 9999, 29};
+BattleEnemy D_80093128 = {176, 44, 1176, 150, 28};
+BattleEnemy D_80093134 = {229, 46, 1224, 9999, 17};
+BattleEnemy D_80093140 = {395, 44, 1176, 9999, 22};
+BattleEnemy D_8009314C = {226, 45, 1200, 9999, 21};
+BattleEnemy D_80093158 = {60, 46, 1224, 9999, 17};
+BattleEnemy D_80093164 = {224, 45, 1200, 9999, 19};
+BattleEnemy D_80093170 = {225, 46, 1224, 9999, 17};
+BattleEnemy D_8009317C = {419, 45, 1200, 9999, 17};
+BattleEnemy D_80093188 = {54, 46, 1224, 9999, 16};
+BattleEnemy D_80093194 = {176, 52, 1368, 150, 33};
+BattleEnemy D_800931A0 = {229, 53, 1392, 9999, 19};
+BattleEnemy D_800931AC = {41, 53, 1392, 9999, 18};
+BattleEnemy D_800931B8 = {203, 52, 2052, 9999, 83};
+BattleEnemy D_800931C4 = {8, 52, 1368, 9999, 83};
+BattleEnemy D_800931D0 = {409, 54, 1416, 9999, 18};
+BattleEnemy D_800931DC = {206, 52, 1368, 9999, 182};
+BattleEnemy D_800931E8 = {365, 53, 1392, 9999, 19};
+BattleEnemy D_800931F4 = {197, 52, 1368, 9999, 130};
+BattleEnemy D_80093200 = {132, 52, 1368, 9999, 114};
+BattleEnemy D_8009320C = {110, 53, 1392, 9999, 71};
+BattleEnemy D_80093218 = {224, 52, 1368, 9999, 22};
+BattleEnemy D_80093224 = {225, 52, 1368, 9999, 19};
+BattleEnemy D_80093230 = {281, 53, 1392, 9999, 19};
+BattleEnemy D_8009323C = {226, 52, 1368, 9999, 23};
+BattleEnemy D_80093248 = {60, 52, 1368, 9999, 19};
+BattleEnemy D_80093254 = {423, 53, 1392, 9999, 18};
+BattleEnemy D_80093260 = {122, 53, 1392, 336, 33};
+BattleEnemy D_8009326C = {143, 53, 1392, 9999, 32};
+BattleEnemy D_80093278 = {250, 54, 1416, 9999, 19};
+BattleEnemy D_80093284 = {405, 55, 1440, 9999, 36};
+BattleEnemy D_80093290 = {425, 57, 1488, 9999, 22};
+BattleEnemy D_8009329C = {428, 60, 1560, 9999, 20};
+BattleEnemy D_800932A8 = {364, 53, 1392, 9999, 23};
+BattleEnemy D_800932B4 = {177, 53, 1392, 9999, 19};
+BattleEnemy D_800932C0 = {206, 53, 1392, 9999, 186};
+BattleEnemy D_800932CC = {365, 54, 1416, 9999, 19};
+BattleEnemy D_800932D8 = {32, 1, 120, 9999, 16};
+BattleEnemy D_800932E4 = {32, 1, 120, 9999, 16};
+BattleEnemy D_800932F0 = {32, 1, 120, 9999, 16};
+BattleEnemy D_800932FC = {32, 1, 120, 9999, 16};
+BattleEnemy D_80093308 = {32, 1, 120, 9999, 16};
+BattleEnemy D_80093314 = {32, 1, 120, 9999, 16};
+BattleEnemy D_80093320 = {32, 1, 120, 9999, 16};
+BattleEnemy D_8009332C = {32, 1, 120, 9999, 16};
+BattleEnemy D_80093338 = {32, 1, 120, 9999, 16};
 #if VERSION_US
-s32 D_80093344[] = {
-    32, 0x780001, 0x10270F,
-};
+BattleEnemy D_80093344 = {32, 1, 120, 9999, 16};
 #elif VERSION_EU
-s32 D_80093344[] = {
-    141, 0x11D0005A, 0x27270F,
-};
-s32 D_800940A4[] = {
-    436, 0x12C0005F, 0x2103C0,
-};
-s32 D_800940B0[] = {
-    382, 0x1D400063, 0x1B270F,
-};
+BattleEnemy D_80093344 = {141, 90, 4560, 9999, 39};
+BattleEnemy D_800940A4 = {436, 95, 4800, 960, 33};
+BattleEnemy D_800940B0 = {382, 99, 7488, 9999, 27};
 #endif
-s32 D_80093350[] = {
-    203, 0x2AC000E, 0x1C270F,
-};
-s32 D_8009335C[] = {
-    51, 0x168000A, 0x28270F,
-};
-s32 D_80093368[] = {
-    32, 0x1080006, 0x23270F,
-};
-s32 D_80093374[] = {
-    449, 0x4200011, 0x10270F,
-};
-s32 D_80093380[] = {
-    451, 0x5D0001A, 0x10270F,
-};
-s32 D_8009338C[] = {
-    452, 0x630001C, 0x10270F,
-};
-s32 D_80093398[] = {
-    453, 0x660001D, 0x10270F,
-};
-s32 D_800933A4[] = {
-    454, 0x630001C, 0x10270F,
-};
-s32 D_800933B0[] = {
-    456, 0x630001C, 0x10270F,
-};
-s32 D_800933BC[] = {
-    455, 0x630001C, 0x10270F,
-};
-s32 D_800933C8[] = {
-    450, 0x4800013, 0x10270F,
-};
-s32 D_800933D4[] = {
-    51, 0xF00005, 0x1B270F,
-};
-s32 D_800933E0[] = {
-    395, 0x1200007, 0x5270F,
-};
+BattleEnemy D_80093350 = {203, 14, 684, 9999, 28};
+BattleEnemy D_8009335C = {51, 10, 360, 9999, 40};
+BattleEnemy D_80093368 = {32, 6, 264, 9999, 35};
+BattleEnemy D_80093374 = {449, 17, 1056, 9999, 16};
+BattleEnemy D_80093380 = {451, 26, 1488, 9999, 16};
+BattleEnemy D_8009338C = {452, 28, 1584, 9999, 16};
+BattleEnemy D_80093398 = {453, 29, 1632, 9999, 16};
+BattleEnemy D_800933A4 = {454, 28, 1584, 9999, 16};
+BattleEnemy D_800933B0 = {456, 28, 1584, 9999, 16};
+BattleEnemy D_800933BC = {455, 28, 1584, 9999, 16};
+BattleEnemy D_800933C8 = {450, 19, 1152, 9999, 16};
+BattleEnemy D_800933D4 = {51, 5, 240, 9999, 27};
+BattleEnemy D_800933E0 = {395, 7, 288, 9999, 5};
 #if VERSION_US
-s32 D_800933EC[] = {
-    203, 0x18C0006, 0x10270F,
-};
-s32 D_800933F8[] = {
-    136, 0x3CC0016, 0x10270F,
-};
-s32 D_80093404[] = {
-    8, 0x1080006, 0x10270F,
-};
-s32 D_80093410[] = {
-    166, 0xC00004, 0x10270F,
-};
-s32 D_8009341C[] = {
-    397, 0x2700015, 0x10270F,
-};
-s32 D_80093428[] = {
-    39, 0x2E8001A, 0x10270F,
-};
-s32 D_80093434[] = {
-    210, 0x2580014, 0x100078,
-};
-s32 D_80093440[] = {
-    14, 0x330001D, 0x10270F,
-};
-s32 D_8009344C[] = {
-    35, 0x2280012, 0x10270F,
-};
-s32 D_80093458[] = {
-    241, 0x2B80018, 0x10270F,
-};
-s32 D_80093464[] = {
-    165, 0x3A80022, 0x10270F,
-};
-s32 D_80093470[] = {
-    37, 0x1500009, 0x10270F,
-};
-s32 D_8009347C[] = {
-    223, 0x360001F, 0x10270F,
-};
-s32 D_80093488[] = {
-    364, 0x3C00023, 0x10270F,
-};
+BattleEnemy D_800933EC = {203, 6, 396, 9999, 16};
+BattleEnemy D_800933F8 = {136, 22, 972, 9999, 16};
+BattleEnemy D_80093404 = {8, 6, 264, 9999, 16};
+BattleEnemy D_80093410 = {166, 4, 192, 9999, 16};
+BattleEnemy D_8009341C = {397, 21, 624, 9999, 16};
+BattleEnemy D_80093428 = {39, 26, 744, 9999, 16};
+BattleEnemy D_80093434 = {210, 20, 600, 120, 16};
+BattleEnemy D_80093440 = {14, 29, 816, 9999, 16};
+BattleEnemy D_8009344C = {35, 18, 552, 9999, 16};
+BattleEnemy D_80093458 = {241, 24, 696, 9999, 16};
+BattleEnemy D_80093464 = {165, 34, 936, 9999, 16};
+BattleEnemy D_80093470 = {37, 9, 336, 9999, 16};
+BattleEnemy D_8009347C = {223, 31, 864, 9999, 16};
+BattleEnemy D_80093488 = {364, 35, 960, 9999, 16};
 #elif VERSION_EU
-s32 D_800933EC[] = {
-    281, 0x480002B, 0x10270F,
-};
-s32 D_800933F8[] = {
-    202, 0x480002B, 0x10270F,
-};
-s32 D_80093404[] = {
-    204, 0x498002C, 0x10270F,
-};
-s32 D_80093410[] = {
-    229, 0x498002C, 0x10270F,
-};
-s32 D_8009341C[] = {
-    24, 0x708002D, 0x10270F,
-};
+BattleEnemy D_800933EC = {281, 43, 1152, 9999, 16};
+BattleEnemy D_800933F8 = {202, 43, 1152, 9999, 16};
+BattleEnemy D_80093404 = {204, 44, 1176, 9999, 16};
+BattleEnemy D_80093410 = {229, 44, 1176, 9999, 16};
+BattleEnemy D_8009341C = {24, 45, 1800, 9999, 16};
 #endif
-s32 D_80093494[] = {
-    122, 0x2A00017, 0x100150,
-};
-s32 D_800934A0[] = {
-    143, 0x2B80018, 0x10270F,
-};
-s32 D_800934AC[] = {
-    61, 0x3C00023, 0x10270F,
-};
-s32 D_800934B8[] = {
-    408, 0x3C00023, 0x10270F,
-};
-s32 D_800934C4[] = {
-    121, 0x4080026, 0x10270F,
-};
-s32 D_800934D0[] = {
-    220, 0x300001B, 0x10270F,
-};
-s32 D_800934DC[] = {
-    221, 0x4380028, 0x10270F,
-};
-s32 D_800934E8[] = {
-    126, 0x3D80024, 0x10270F,
-};
-s32 D_800934F4[] = {
-    8, 0x1080006, 0x10270F,
-};
-s32 D_80093500[] = {
-    140, 0x3D80024, 0x10270F,
-};
-s32 D_8009350C[] = {
-    170, 0x3D80024, 0x100060,
-};
-s32 D_80093518[] = {
-    223, 0x360001F, 0x10270F,
-};
-s32 D_80093524[] = {
-    404, 0x3F00025, 0x10270F,
-};
-s32 D_80093530[] = {
-    4, 0x900002, 0x10270F,
-};
-s32 D_8009353C[] = {
-    198, 0xA80003, 0x10270F,
-};
-s32 D_80093548[] = {
-    424, 0x3D80024, 0x10270F,
-};
-s32 D_80093554[] = {
-    210, 0x2580014, 0x100078,
-};
-s32 D_80093560[] = {
-    14, 0x330001D, 0x10270F,
-};
-s32 D_8009356C[] = {
-    269, 0x4B0002D, 0x10270F,
-};
-s32 D_80093578[] = {
-    397, 0x2700015, 0x10270F,
-};
-s32 D_80093584[] = {
-    171, 0x4E0002F, 0x10270F,
-};
-s32 D_80093590[] = {
-    126, 0x3D80024, 0x10270F,
-};
-s32 D_8009359C[] = {
-    138, 0x3D80024, 0x10270F,
-};
-s32 D_800935A8[] = {
-    212, 0x2A00017, 0x10270F,
-};
-s32 D_800935B4[] = {
-    28, 0x2880016, 0x10270F,
-};
-s32 D_800935C0[] = {
-    176, 0x2A00017, 0x100096,
-};
-s32 D_800935CC[] = {
-    229, 0x498002C, 0x10270F,
-};
-s32 D_800935D8[] = {
-    395, 0x348001E, 0x10270F,
-};
-s32 D_800935E4[] = {
-    226, 0x3A80022, 0x10270F,
-};
-s32 D_800935F0[] = {
-    60, 0x498002C, 0x10270F,
-};
-s32 D_800935FC[] = {
-    224, 0x3F00025, 0x10270F,
-};
-s32 D_80093608[] = {
-    225, 0x498002C, 0x10270F,
-};
-s32 D_80093614[] = {
-    419, 0x480002B, 0x10270F,
-};
-s32 D_80093620[] = {
-    54, 0x4C8002E, 0x10270F,
-};
-s32 D_8009362C[] = {
-    176, 0x2A00017, 0x100096,
-};
-s32 D_80093638[] = {
-    229, 0x498002C, 0x10270F,
-};
-s32 D_80093644[] = {
-    41, 0x4C8002E, 0x10270F,
-};
-s32 D_80093650[] = {
-    203, 0x18C0006, 0x10270F,
-};
-s32 D_8009365C[] = {
-    8, 0x1080006, 0x10270F,
-};
-s32 D_80093668[] = {
-    409, 0x4E0002F, 0x10270F,
-};
-s32 D_80093674[] = {
-    206, 0x780001, 0x10270F,
-};
-s32 D_80093680[] = {
-    365, 0x4B0002D, 0x10270F,
-};
-s32 D_8009368C[] = {
-    197, 0xA80003, 0x10270F,
-};
-s32 D_80093698[] = {
-    132, 0xC00004, 0x10270F,
-};
-s32 D_800936A4[] = {
-    110, 0x1380008, 0x10270F,
-};
-s32 D_800936B0[] = {
-    224, 0x3F00025, 0x10270F,
-};
-s32 D_800936BC[] = {
-    225, 0x498002C, 0x10270F,
-};
-s32 D_800936C8[] = {
-    281, 0x480002B, 0x10270F,
-};
-s32 D_800936D4[] = {
-    226, 0x3A80022, 0x10270F,
-};
-s32 D_800936E0[] = {
-    60, 0x498002C, 0x10270F,
-};
-s32 D_800936EC[] = {
-    423, 0x4F80030, 0x10270F,
-};
-s32 D_800936F8[] = {
-    122, 0x2A00017, 0x100150,
-};
-s32 D_80093704[] = {
-    143, 0x2B80018, 0x10270F,
-};
-s32 D_80093710[] = {
-    250, 0x4B0002D, 0x10270F,
-};
-s32 D_8009371C[] = {
-    405, 0x2880016, 0x10270F,
-};
-s32 D_80093728[] = {
-    425, 0x4500029, 0x10270F,
-};
-s32 D_80093734[] = {
-    428, 0x4F80030, 0x10270F,
-};
-s32 D_80093740[] = {
-    364, 0x3C00023, 0x10270F,
-};
-s32 D_8009374C[] = {
-    177, 0x4B0002D, 0x10270F,
-};
-s32 D_80093758[] = {
-    206, 0x780001, 0x10270F,
-};
-s32 D_80093764[] = {
-    365, 0x4B0002D, 0x10270F,
-};
+BattleEnemy D_80093494 = {122, 23, 672, 336, 16};
+BattleEnemy D_800934A0 = {143, 24, 696, 9999, 16};
+BattleEnemy D_800934AC = {61, 35, 960, 9999, 16};
+BattleEnemy D_800934B8 = {408, 35, 960, 9999, 16};
+BattleEnemy D_800934C4 = {121, 38, 1032, 9999, 16};
+BattleEnemy D_800934D0 = {220, 27, 768, 9999, 16};
+BattleEnemy D_800934DC = {221, 40, 1080, 9999, 16};
+BattleEnemy D_800934E8 = {126, 36, 984, 9999, 16};
+BattleEnemy D_800934F4 = {8, 6, 264, 9999, 16};
+BattleEnemy D_80093500 = {140, 36, 984, 9999, 16};
+BattleEnemy D_8009350C = {170, 36, 984, 96, 16};
+BattleEnemy D_80093518 = {223, 31, 864, 9999, 16};
+BattleEnemy D_80093524 = {404, 37, 1008, 9999, 16};
+BattleEnemy D_80093530 = {4, 2, 144, 9999, 16};
+BattleEnemy D_8009353C = {198, 3, 168, 9999, 16};
+BattleEnemy D_80093548 = {424, 36, 984, 9999, 16};
+BattleEnemy D_80093554 = {210, 20, 600, 120, 16};
+BattleEnemy D_80093560 = {14, 29, 816, 9999, 16};
+BattleEnemy D_8009356C = {269, 45, 1200, 9999, 16};
+BattleEnemy D_80093578 = {397, 21, 624, 9999, 16};
+BattleEnemy D_80093584 = {171, 47, 1248, 9999, 16};
+BattleEnemy D_80093590 = {126, 36, 984, 9999, 16};
+BattleEnemy D_8009359C = {138, 36, 984, 9999, 16};
+BattleEnemy D_800935A8 = {212, 23, 672, 9999, 16};
+BattleEnemy D_800935B4 = {28, 22, 648, 9999, 16};
+BattleEnemy D_800935C0 = {176, 23, 672, 150, 16};
+BattleEnemy D_800935CC = {229, 44, 1176, 9999, 16};
+BattleEnemy D_800935D8 = {395, 30, 840, 9999, 16};
+BattleEnemy D_800935E4 = {226, 34, 936, 9999, 16};
+BattleEnemy D_800935F0 = {60, 44, 1176, 9999, 16};
+BattleEnemy D_800935FC = {224, 37, 1008, 9999, 16};
+BattleEnemy D_80093608 = {225, 44, 1176, 9999, 16};
+BattleEnemy D_80093614 = {419, 43, 1152, 9999, 16};
+BattleEnemy D_80093620 = {54, 46, 1224, 9999, 16};
+BattleEnemy D_8009362C = {176, 23, 672, 150, 16};
+BattleEnemy D_80093638 = {229, 44, 1176, 9999, 16};
+BattleEnemy D_80093644 = {41, 46, 1224, 9999, 16};
+BattleEnemy D_80093650 = {203, 6, 396, 9999, 16};
+BattleEnemy D_8009365C = {8, 6, 264, 9999, 16};
+BattleEnemy D_80093668 = {409, 47, 1248, 9999, 16};
+BattleEnemy D_80093674 = {206, 1, 120, 9999, 16};
+BattleEnemy D_80093680 = {365, 45, 1200, 9999, 16};
+BattleEnemy D_8009368C = {197, 3, 168, 9999, 16};
+BattleEnemy D_80093698 = {132, 4, 192, 9999, 16};
+BattleEnemy D_800936A4 = {110, 8, 312, 9999, 16};
+BattleEnemy D_800936B0 = {224, 37, 1008, 9999, 16};
+BattleEnemy D_800936BC = {225, 44, 1176, 9999, 16};
+BattleEnemy D_800936C8 = {281, 43, 1152, 9999, 16};
+BattleEnemy D_800936D4 = {226, 34, 936, 9999, 16};
+BattleEnemy D_800936E0 = {60, 44, 1176, 9999, 16};
+BattleEnemy D_800936EC = {423, 48, 1272, 9999, 16};
+BattleEnemy D_800936F8 = {122, 23, 672, 336, 16};
+BattleEnemy D_80093704 = {143, 24, 696, 9999, 16};
+BattleEnemy D_80093710 = {250, 45, 1200, 9999, 16};
+BattleEnemy D_8009371C = {405, 22, 648, 9999, 16};
+BattleEnemy D_80093728 = {425, 41, 1104, 9999, 16};
+BattleEnemy D_80093734 = {428, 48, 1272, 9999, 16};
+BattleEnemy D_80093740 = {364, 35, 960, 9999, 16};
+BattleEnemy D_8009374C = {177, 45, 1200, 9999, 16};
+BattleEnemy D_80093758 = {206, 1, 120, 9999, 16};
+BattleEnemy D_80093764 = {365, 45, 1200, 9999, 16};
 #if VERSION_US
-s32 D_80093770[] = {
-    172, 0xF00005, 0x10270F,
-};
-s32 D_8009377C[] = {
-    8, 0x1080006, 0x10270F,
-};
-s32 D_80093788[] = {
-    207, 0x168000A, 0x10270F,
-};
-s32 D_80093794[] = {
-    222, 0xF00005, 0x10270F,
-};
-s32 D_800937A0[] = {
-    77, 0x1500009, 0x10270F,
-};
-s32 D_800937AC[] = {
-    119, 0x2580014, 0x1000C8,
-};
-s32 D_800937B8[] = {
-    400, 0x3900021, 0x10270F,
-};
-s32 D_800937C4[] = {
-    208, 0x330001D, 0x10270F,
-};
-s32 D_800937D0[] = {
-    13, 0x1E00019, 0x10270F,
-};
-s32 D_800937DC[] = {
-    270, 0x480002B, 0x10270F,
-};
-s32 D_800937E8[] = {
-    65, 0x498002C, 0x100128,
-};
-s32 D_800937F4[] = {
-    360, 0x498002C, 0x10270F,
-};
-s32 D_80093800[] = {
-    138, 0x3D80024, 0x10270F,
-};
-s32 D_8009380C[] = {
-    402, 0x6780029, 0x10270F,
-};
-s32 D_80093818[] = {
-    237, 0x498002C, 0x10270F,
-};
-s32 D_80093824[] = {
-    425, 0x4500029, 0x10270F,
-};
-s32 D_80093830[] = {
-    202, 0x480002B, 0x10270F,
-};
-s32 D_8009383C[] = {
-    238, 0x480002B, 0x10270F,
-};
-s32 D_80093848[] = {
-    108, 0x498002C, 0x10270F,
-};
-s32 D_80093854[] = {
-    193, 0x4B0002D, 0x10270F,
-};
-s32 D_80093860[] = {
-    428, 0x4F80030, 0x10270F,
-};
-s32 D_8009386C[] = {
-    190, 0x4F80030, 0x10270F,
-};
-s32 D_80093878[] = {
-    215, 0x5100031, 0x10270F,
-};
-s32 D_80093884[] = {
-    231, 0x5880036, 0x10270F,
-};
-s32 D_80093890[] = {
-    358, 0x330000C, 0x10270F,
-};
-s32 D_8009389C[] = {
-    124, 0x390000E, 0x10270F,
-};
-s32 D_800938A8[] = {
-    356, 0x6F00020, 0x100118,
-};
-s32 D_800938B4[] = {
-    70, 0x6F00020, 0x10270F,
-};
+BattleEnemy D_80093770 = {172, 5, 240, 9999, 16};
+BattleEnemy D_8009377C = {8, 6, 264, 9999, 16};
+BattleEnemy D_80093788 = {207, 10, 360, 9999, 16};
+BattleEnemy D_80093794 = {222, 5, 240, 9999, 16};
+BattleEnemy D_800937A0 = {77, 9, 336, 9999, 16};
+BattleEnemy D_800937AC = {119, 20, 600, 200, 16};
+BattleEnemy D_800937B8 = {400, 33, 912, 9999, 16};
+BattleEnemy D_800937C4 = {208, 29, 816, 9999, 16};
+BattleEnemy D_800937D0 = {13, 25, 480, 9999, 16};
+BattleEnemy D_800937DC = {270, 43, 1152, 9999, 16};
+BattleEnemy D_800937E8 = {65, 44, 1176, 296, 16};
+BattleEnemy D_800937F4 = {360, 44, 1176, 9999, 16};
+BattleEnemy D_80093800 = {138, 36, 984, 9999, 16};
+BattleEnemy D_8009380C = {402, 41, 1656, 9999, 16};
+BattleEnemy D_80093818 = {237, 44, 1176, 9999, 16};
+BattleEnemy D_80093824 = {425, 41, 1104, 9999, 16};
+BattleEnemy D_80093830 = {202, 43, 1152, 9999, 16};
+BattleEnemy D_8009383C = {238, 43, 1152, 9999, 16};
+BattleEnemy D_80093848 = {108, 44, 1176, 9999, 16};
+BattleEnemy D_80093854 = {193, 45, 1200, 9999, 16};
+BattleEnemy D_80093860 = {428, 48, 1272, 9999, 16};
+BattleEnemy D_8009386C = {190, 48, 1272, 9999, 16};
+BattleEnemy D_80093878 = {215, 49, 1296, 9999, 16};
+BattleEnemy D_80093884 = {231, 54, 1416, 9999, 16};
+BattleEnemy D_80093890 = {358, 12, 816, 9999, 16};
+BattleEnemy D_8009389C = {124, 14, 912, 9999, 16};
+BattleEnemy D_800938A8 = {356, 32, 1776, 280, 16};
+BattleEnemy D_800938B4 = {70, 32, 1776, 9999, 16};
 #elif VERSION_EU
-s32 D_80093770[] = {
-    449, 0xC30003C, 0x2F270F,
-};
-s32 D_8009377C[] = {
-    451, 0xC30003C, 0x22270F,
-};
-s32 D_80093788[] = {
-    450, 0xD200041, 0x2F270F,
-};
-s32 D_80093794[] = {
-    453, 0xC30003C, 0x1F270F,
-};
-s32 D_800937A0[] = {
-    358, 0xE100046, 0x47270F,
-};
-s32 D_800937AC[] = {
-    124, 0xF00004B, 0x43270F,
-};
-s32 D_800937B8[] = {
-    237, 0xFF00050, 0x1C270F,
-};
-s32 D_800937C4[] = {
-    425, 0xA8C0046, 0x1A270F,
-};
-s32 D_800937D0[] = {
-    437, 0x1680004B, 0x1E0028,
-};
-s32 D_800937DC[] = {
-    337, 0xFF00050, 0x1E270F,
-};
-s32 D_800937E8[] = {
-    193, 0xA8C0046, 0x18270F,
-};
-s32 D_800937F4[] = {
-    432, 0xB40004B, 0x16270F,
-};
-s32 D_80093800[] = {
-    356, 0xFF00050, 0x250118,
-};
-s32 D_8009380C[] = {
-    215, 0xA8C0046, 0x16270F,
-};
-s32 D_80093818[] = {
-    70, 0xF00004B, 0x23270F,
-};
-s32 D_80093824[] = {
-    24, 0x17E80050, 0x1B270F,
-};
-s32 D_80093830[] = {
-    452, 0xC30003C, 0x20270F,
-};
-s32 D_8009383C[] = {
-    454, 0xE100046, 0x24270F,
-};
-s32 D_80093848[] = {
-    455, 0xE100046, 0x24270F,
-};
-s32 D_80093854[] = {
-    456, 0x6F00046, 0x10270F,
-};
+BattleEnemy D_80093770 = {449, 60, 3120, 9999, 47};
+BattleEnemy D_8009377C = {451, 60, 3120, 9999, 34};
+BattleEnemy D_80093788 = {450, 65, 3360, 9999, 47};
+BattleEnemy D_80093794 = {453, 60, 3120, 9999, 31};
+BattleEnemy D_800937A0 = {358, 70, 3600, 9999, 71};
+BattleEnemy D_800937AC = {124, 75, 3840, 9999, 67};
+BattleEnemy D_800937B8 = {237, 80, 4080, 9999, 28};
+BattleEnemy D_800937C4 = {425, 70, 2700, 9999, 26};
+BattleEnemy D_800937D0 = {437, 75, 5760, 40, 30};
+BattleEnemy D_800937DC = {337, 80, 4080, 9999, 30};
+BattleEnemy D_800937E8 = {193, 70, 2700, 9999, 24};
+BattleEnemy D_800937F4 = {432, 75, 2880, 9999, 22};
+BattleEnemy D_80093800 = {356, 80, 4080, 280, 37};
+BattleEnemy D_8009380C = {215, 70, 2700, 9999, 22};
+BattleEnemy D_80093818 = {70, 75, 3840, 9999, 35};
+BattleEnemy D_80093824 = {24, 80, 6120, 9999, 27};
+BattleEnemy D_80093830 = {452, 60, 3120, 9999, 32};
+BattleEnemy D_8009383C = {454, 70, 3600, 9999, 36};
+BattleEnemy D_80093848 = {455, 70, 3600, 9999, 36};
+BattleEnemy D_80093854 = {456, 70, 1776, 9999, 16};
 #endif
-s32 D_800938C0[] = {
-    141, 0x7500022, 0x10270F,
-};
-s32 D_800938CC[] = {
-    337, 0x8700028, 0x10270F,
-};
-s32 D_800938D8[] = {
-    436, 0x930002C, 0x1003C0,
-};
+BattleEnemy D_800938C0 = {141, 34, 1872, 9999, 16};
+BattleEnemy D_800938CC = {337, 40, 2160, 9999, 16};
+BattleEnemy D_800938D8 = {436, 44, 2352, 960, 16};
 #if VERSION_US
-s32 D_800938E4[] = {
-    443, 0x960002D, 0x10270F,
-};
-s32 D_800938F0[] = {
-    444, 0x990002E, 0x10270F,
-};
-s32 D_800938FC[] = {
-    447, 0x9C0002F, 0x10270F,
-};
-s32 D_80093908[] = {
-    445, 0xB400037, 0x10270F,
-};
-s32 D_80093914[] = {
-    446, 0xBA00039, 0x100008,
-};
-s32 D_80093920[] = {
-    448, 0xAE00035, 0x10270F,
-};
+BattleEnemy D_800938E4 = {443, 45, 2400, 9999, 16};
+BattleEnemy D_800938F0 = {444, 46, 2448, 9999, 16};
+BattleEnemy D_800938FC = {447, 47, 2496, 9999, 16};
+BattleEnemy D_80093908 = {445, 55, 2880, 9999, 16};
+BattleEnemy D_80093914 = {446, 57, 2976, 8, 16};
+BattleEnemy D_80093920 = {448, 53, 2784, 9999, 16};
 #elif VERSION_EU
-s32 D_800938E4[] = {
-    443, 0xD200041, 0x16270F,
-};
-s32 D_800938F0[] = {
-    444, 0xD200041, 0x16270F,
-};
-s32 D_800938FC[] = {
-    447, 0xE100046, 0x17270F,
-};
-s32 D_80093908[] = {
-    445, 0xE100046, 0x14270F,
-};
-s32 D_80093914[] = {
-    446, 0xF00004B, 0x150008,
-};
-s32 D_80093920[] = {
-    448, 0xF00004B, 0x16270F,
-};
+BattleEnemy D_800938E4 = {443, 65, 3360, 9999, 22};
+BattleEnemy D_800938F0 = {444, 65, 3360, 9999, 22};
+BattleEnemy D_800938FC = {447, 70, 3600, 9999, 23};
+BattleEnemy D_80093908 = {445, 70, 3600, 9999, 20};
+BattleEnemy D_80093914 = {446, 75, 3840, 8, 21};
+BattleEnemy D_80093920 = {448, 75, 3840, 9999, 22};
 #endif
-s32 D_8009392C[] = {
-    465, 0x318001C, 0x10270F,
-};
-s32 D_80093938[] = {
-    436, 0x3C0000F, 0x703C0,
-};
-s32 D_80093944[] = {
-    442, 0x13B00041, 0x10270F,
-};
-s32 D_80093950[] = {
-    466, 0xE100046, 0x10270F,
-};
-s32 D_8009395C[] = {
-    467, 0x15180046, 0x10270F,
-};
-s32 D_80093968[] = {
-    466, 0xE100046, 0x10270F,
-};
-s32 D_80093974[] = {
-    467, 0x15180046, 0x10270F,
-};
-s32 D_80093980[] = {
-    457, 0x1200007, 0x10270F,
-};
-s32 D_8009398C[] = {
-    458, 0x198000C, 0x10270F,
-};
-s32 D_80093998[] = {
-    459, 0x2100011, 0x10270F,
-};
-s32 D_800939A4[] = {
-    460, 0x300001B, 0x10270F,
-};
-s32 D_800939B0[] = {
-    461, 0x3F00025, 0x10270F,
-};
-s32 D_800939BC[] = {
-    462, 0x468002A, 0x10270F,
-};
-s32 D_800939C8[] = {
-    463, 0x4E0002F, 0x10270F,
-};
-s32 D_800939D4[] = {
-    464, 0x4E0002F, 0x10270F,
-};
+BattleEnemy D_8009392C = {465, 28, 792, 9999, 16};
+BattleEnemy D_80093938 = {436, 15, 960, 960, 7};
+BattleEnemy D_80093944 = {442, 65, 5040, 9999, 16};
+BattleEnemy D_80093950 = {466, 70, 3600, 9999, 16};
+BattleEnemy D_8009395C = {467, 70, 5400, 9999, 16};
+BattleEnemy D_80093968 = {466, 70, 3600, 9999, 16};
+BattleEnemy D_80093974 = {467, 70, 5400, 9999, 16};
+BattleEnemy D_80093980 = {457, 7, 288, 9999, 16};
+BattleEnemy D_8009398C = {458, 12, 408, 9999, 16};
+BattleEnemy D_80093998 = {459, 17, 528, 9999, 16};
+BattleEnemy D_800939A4 = {460, 27, 768, 9999, 16};
+BattleEnemy D_800939B0 = {461, 37, 1008, 9999, 16};
+BattleEnemy D_800939BC = {462, 42, 1128, 9999, 16};
+BattleEnemy D_800939C8 = {463, 47, 1248, 9999, 16};
+BattleEnemy D_800939D4 = {464, 47, 1248, 9999, 16};
 #if VERSION_US
-s32 D_800939E0[] = {
-    (s32)D_800920A8, (s32)D_800920A8, (s32)D_800920A8, 0,
-    0, 0, 0, (s32)D_800920B4,
-    (s32)D_800920A8, (s32)D_800920A8, 512, 0x10101,
-    0, 256, (s32)D_800920C0, (s32)D_800920A8,
-    (s32)D_800920A8, 512, 0x10101, 0,
-    256, (s32)D_800920CC, (s32)D_800920D8, (s32)D_800920E4,
-    512, 0x10101, 0, 256,
-    (s32)D_800920F0, (s32)D_800920FC, (s32)D_80092108, 639,
-    0x10101, 0, 256, (s32)D_80092114,
-    (s32)D_80092120, (s32)D_800920A8, 512, 0x10100,
-    0, 256, (s32)D_8009212C, (s32)D_80092138,
-    (s32)D_80092144, 0x1000200, 0x10101, 0,
-    256, (s32)D_80092150, (s32)D_800920A8, (s32)D_800920A8,
-    0x1000200, 0x10101, 0, 256,
-    (s32)D_8009215C, (s32)D_800920A8, (s32)D_800920A8, 0x1000200,
-    0x10001, 0, 256, (s32)D_80092168,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1000200, 0x10101,
-    0x1010000, 257, (s32)D_80092174, (s32)D_80092180,
-    (s32)D_8009218C, 0x1010200, 0x10101, 0x1010100,
-    257, (s32)D_80092198, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x10101, 0, 256,
-    (s32)D_800921A4, (s32)D_800920A8, (s32)D_800920A8, 0x1000200,
-    0x10100, 0x1010000, 257, (s32)D_800921B0,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x10101,
-    0, 256, (s32)D_800921BC, (s32)D_800921C8,
-    (s32)D_800921D4, 0x1000200, 0x10101, 0,
-    256, (s32)D_800921E0, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x1010101, 0x1010001, 257,
-    (s32)D_800921EC, (s32)D_800921F8, (s32)D_80092204, 0x100027F,
-    0x10101, 0, 256, (s32)D_80092210,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x10101,
-    0, 256, (s32)D_8009221C, (s32)D_80092228,
-    (s32)D_80092234, 0x1000200, 0x10101, 0,
-    256, (s32)D_80092240, (s32)D_8009224C, (s32)D_80092258,
-    512, 0x10001, 0, 256,
-    (s32)D_80092264, (s32)D_80092270, (s32)D_8009227C, 512,
-    0x10001, 0, 256, (s32)D_80092288,
-    (s32)D_80092294, (s32)D_800922A0, 512, 0x10001,
-    0, 256, (s32)D_800922AC, (s32)D_800922B8,
-    (s32)D_800922C4, 0x10200, 0x10101, 0,
-    256, (s32)D_800922D0, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x1010101, 1, 256,
-    (s32)D_800922DC, (s32)D_800920A8, (s32)D_800920A8, 512,
-    0x10000, 0, 256, (s32)D_800922E8,
-    (s32)D_800922F4, (s32)D_80092300, 0x1010200, 0x10101,
-    0, 256, (s32)D_8009230C, (s32)D_80092318,
-    (s32)D_80092324, 0x1010200, 0x10101, 0x1010000,
-    257, (s32)D_80092330, (s32)D_8009233C, (s32)D_80092348,
-    512, 0x10001, 0, 256,
-    (s32)D_80092354, (s32)D_80092360, (s32)D_8009236C, 512,
-    0x10001, 0, 256, (s32)D_80092378,
-    (s32)D_80092384, (s32)D_80092390, 512, 0x10001,
-    0, 256, (s32)D_8009239C, (s32)D_800920A8,
-    (s32)D_800920A8, 0x101027F, 0x1010101, 0x1010101,
-    257, (s32)D_800923A8, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x10101, 0x1010000, 257,
-    (s32)D_800923B4, (s32)D_800923C0, (s32)D_800923CC, 0x1010200,
-    0x1010101, 0x1010001, 257, (s32)D_800923D8,
-    (s32)D_800923E4, (s32)D_800923F0, 0x1010200, 0x1010101,
-    0x1000101, 256, (s32)D_800923FC, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092408, (s32)D_800920A8, (s32)D_800920A8,
-    260, 0, 0, 0,
-    (s32)D_80092414, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092420,
-    (s32)D_800920A8, (s32)D_800920A8, 268, 0,
-    0, 0, (s32)D_8009242C, (s32)D_800920A8,
-    (s32)D_800920A8, 268, 0, 0,
-    0, (s32)D_80092438, (s32)D_800920A8, (s32)D_800920A8,
-    260, 0, 0, 0,
-    (s32)D_80092444, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092450,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009245C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092468, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092474, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092480,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009248C, (s32)D_800920A8,
-    (s32)D_800920A8, 260, 0, 0,
-    0, (s32)D_80092498, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800924A4, (s32)D_800920A8, (s32)D_800920A8, 272,
-    0, 0, 0, (s32)D_800924B0,
-    (s32)D_800920A8, (s32)D_800920A8, 288, 0,
-    0, 0, (s32)D_800924BC, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_800924C8, (s32)D_800920A8, (s32)D_800920A8,
-    260, 0, 0, 0,
-    (s32)D_800924D4, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_800924E0,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_800924EC, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_800924F8, (s32)D_800920A8, (s32)D_800920A8,
-    272, 0, 0, 0,
-    (s32)D_80092504, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092510,
-    (s32)D_800920A8, (s32)D_800920A8, 272, 0,
-    0, 0, (s32)D_8009251C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092528, (s32)D_800920A8, (s32)D_800920A8,
-    260, 0, 0, 0,
-    (s32)D_80092534, (s32)D_800920A8, (s32)D_800920A8, 260,
-    0, 0, 0, (s32)D_80092540,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009254C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092558, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092564, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092570,
-    (s32)D_800920A8, (s32)D_800920A8, 256, 0,
-    0, 0, (s32)D_8009257C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092588, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092594, (s32)D_800920A8, (s32)D_800920A8, 268,
-    0, 0, 0, (s32)D_800925A0,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_800925AC, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_800925B8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800925C4, (s32)D_800920A8, (s32)D_800920A8, 268,
-    0, 0, 0, (s32)D_800925D0,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_800925DC, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_800925E8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800925F4, (s32)D_800920A8, (s32)D_800920A8, 256,
-    0, 0, 0, (s32)D_80092600,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009260C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092618, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092624, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092630,
-    (s32)D_800920A8, (s32)D_800920A8, 268, 0,
-    0, 0, (s32)D_8009263C, (s32)D_800920A8,
-    (s32)D_800920A8, 268, 0, 0,
-    0, (s32)D_80092648, (s32)D_800920A8, (s32)D_800920A8,
-    288, 0, 0, 0,
-    (s32)D_80092654, (s32)D_800920A8, (s32)D_800920A8, 268,
-    0, 0, 0, (s32)D_80092660,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009266C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092678, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092684, (s32)D_800920A8, (s32)D_800920A8, 256,
-    0, 0, 0, (s32)D_80092690,
-    (s32)D_800920A8, (s32)D_800920A8, 256, 0,
-    0, 0, (s32)D_8009269C, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_800926A8, (s32)D_800920A8, (s32)D_800920A8,
-    272, 0, 0, 0,
-    (s32)D_800926B4, (s32)D_800920A8, (s32)D_800920A8, 256,
-    0, 0, 0, (s32)D_800926C0,
-    (s32)D_800920A8, (s32)D_800920A8, 272, 0,
-    0, 0, (s32)D_800926CC, (s32)D_800920A8,
-    (s32)D_800920A8, 260, 0, 0,
-    0, (s32)D_800926D8, (s32)D_800920A8, (s32)D_800920A8,
-    288, 0, 0, 0,
-    (s32)D_800926E4, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_800926F0,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_800926FC, (s32)D_800920A8,
-    (s32)D_800920A8, 268, 0, 256,
-    0, (s32)D_80092708, (s32)D_800920A8, (s32)D_800920A8,
-    272, 0, 0, 0,
-    (s32)D_80092714, (s32)D_800920A8, (s32)D_800920A8, 260,
-    0, 0, 0, (s32)D_80092720,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009272C, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_80092738, (s32)D_800920A8, (s32)D_800920A8,
-    268, 0, 0, 0,
-    (s32)D_80092744, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092750,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009275C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092768, (s32)D_800920A8, (s32)D_800920A8,
-    268, 0, 0, 0,
-    (s32)D_80092774, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092780,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009278C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092798, (s32)D_800920A8, (s32)D_800920A8,
-    268, 0, 0, 0,
-    (s32)D_800927A4, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_800927B0,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_800927BC, (s32)D_800920A8,
-    (s32)D_800920A8, 272, 0, 0,
-    0, (s32)D_800927C8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800927D4, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_800927E0,
-    (s32)D_800920A8, (s32)D_800920A8, 260, 0,
-    0, 0, (s32)D_800927EC, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_800927F8, (s32)D_800920A8, (s32)D_800920A8,
-    260, 0, 0, 0,
-    (s32)D_80092804, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092810,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009281C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092828, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092834, (s32)D_800920A8, (s32)D_800920A8, 268,
-    0, 0, 0, (s32)D_80092840,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009284C, (s32)D_800920A8,
-    (s32)D_800920A8, 260, 0, 0,
-    0, (s32)D_80092858, (s32)D_800920A8, (s32)D_800920A8,
-    272, 0, 0, 0,
-    (s32)D_80092864, (s32)D_800920A8, (s32)D_800920A8, 256,
-    0, 0, 0, (s32)D_80092870,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009287C, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_80092888, (s32)D_800920A8, (s32)D_800920A8,
-    268, 0, 256, 0,
-    (s32)D_80092894, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_800928A0,
-    (s32)D_800920A8, (s32)D_800920A8, 256, 0,
-    0, 0, (s32)D_800928AC, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_800928B8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800928C4, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_800928D0,
-    (s32)D_800920A8, (s32)D_800920A8, 260, 0,
-    0, 0, (s32)D_800928DC, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_800928E8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800928F4, (s32)D_800920A8, (s32)D_800920A8, 256,
-    0, 0, 0, (s32)D_80092900,
-    (s32)D_800920A8, (s32)D_800920A8, 256, 0,
-    0, 0, (s32)D_8009290C, (s32)D_800920A8,
-    (s32)D_800920A8, 268, 0, 0,
-    0, (s32)D_80092918, (s32)D_800920A8, (s32)D_800920A8,
-    256, 0, 0, 0,
-    (s32)D_80092924, (s32)D_800920A8, (s32)D_800920A8, 383,
-    0, 0, 0, (s32)D_80092930,
-    (s32)D_800920A8, (s32)D_800920A8, 272, 0,
-    0, 0, (s32)D_8009293C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092948, (s32)D_800920A8, (s32)D_800920A8,
-    272, 0, 0, 0,
-    (s32)D_80092954, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092960,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009296C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092978, (s32)D_800920A8, (s32)D_800920A8,
-    272, 0, 0, 0,
-    (s32)D_80092984, (s32)D_800920A8, (s32)D_800920A8, 288,
-    0, 0, 0, (s32)D_80092990,
-    (s32)D_800920A8, (s32)D_800920A8, 260, 0,
-    0, 0, (s32)D_8009299C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_800929A8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800929B4, (s32)D_800920A8, (s32)D_800920A8, 288,
-    0, 0, 0, (s32)D_800929C0,
-    (s32)D_800920A8, (s32)D_800920A8, 260, 0,
-    0, 0, (s32)D_800929CC, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_800929D8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800929E4, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_800929F0,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_800929FC, (s32)D_800920A8,
-    (s32)D_800920A8, 288, 0, 0,
-    0, (s32)D_80092A08, (s32)D_800920A8, (s32)D_800920A8,
-    256, 0, 0, 0,
-    (s32)D_80092A14, (s32)D_800920A8, (s32)D_800920A8, 256,
-    0, 0, 0, (s32)D_80092A20,
-    (s32)D_800920A8, (s32)D_800920A8, 272, 0,
-    0, 0, (s32)D_80092A2C, (s32)D_800920A8,
-    (s32)D_800920A8, 276, 0, 0,
-    0, (s32)D_80092A38, (s32)D_800920A8, (s32)D_800920A8,
-    280, 0, 0, 0,
-    (s32)D_80092A44, (s32)D_800920A8, (s32)D_800920A8, 284,
-    0, 0, 0, (s32)D_80092A50,
-    (s32)D_800920A8, (s32)D_800920A8, 288, 0,
-    0, 0, (s32)D_80092A5C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092A68, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092A74, (s32)D_800920A8, (s32)D_800920A8, 256,
-    0, 0, 0, (s32)D_80092A80,
-    (s32)D_800920A8, (s32)D_800920A8, 272, 0,
-    0, 0, (s32)D_80092A8C, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_80092A98, (s32)D_800920A8, (s32)D_800920A8,
-    272, 0, 256, 0,
-    (s32)D_80092AA4, (s32)D_800920A8, (s32)D_800920A8, 260,
-    0, 0, 0, (s32)D_80092AB0,
-    (s32)D_800920A8, (s32)D_800920A8, 288, 0,
-    256, 0, (s32)D_80092ABC, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_80092AC8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092AD4, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 256, 0, (s32)D_80092AE0,
-    (s32)D_800920A8, (s32)D_800920A8, 268, 0,
-    0, 0, (s32)D_80092AEC, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092AF8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092B04, (s32)D_800920A8, (s32)D_800920A8, 260,
-    0, 0, 0, (s32)D_80092B10,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_80092B1C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 256,
-    0, (s32)D_80092B28, (s32)D_800920A8, (s32)D_800920A8,
-    260, 0, 0, 0,
-    (s32)D_80092B34, (s32)D_80092B40, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80092B4C,
-    (s32)D_80092B58, (s32)D_800920A8, 768, 0,
-    0, 256, (s32)D_80092B64, (s32)D_80092B70,
-    (s32)D_80092B7C, 768, 0, 0,
-    256, (s32)D_80092B88, (s32)D_800920A8, (s32)D_800920A8,
-    0x1000300, 0x10101, 0, 256,
-    (s32)D_80092B94, (s32)D_80092BA0, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80092BAC,
-    (s32)D_80092BB8, (s32)D_80092BC4, 768, 0,
-    0, 256, (s32)D_80092BD0, (s32)D_80092BDC,
-    (s32)D_800920A8, 768, 0, 0,
-    256, (s32)D_80092BE8, (s32)D_80092BF4, (s32)D_800920A8,
-    768, 0, 0, 256,
-    (s32)D_80092C00, (s32)D_80092C0C, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80092C18,
-    (s32)D_80092C24, (s32)D_80092C30, 768, 0,
-    0, 256, (s32)D_80092C3C, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1000300, 0x10101, 0,
-    256, (s32)D_80092C48, (s32)D_80092C54, (s32)D_800920A8,
-    768, 0, 0, 256,
-    (s32)D_80092C60, (s32)D_800920A8, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80092C6C,
-    (s32)D_80092C78, (s32)D_80092C84, 768, 0,
-    0, 256, (s32)D_80092C90, (s32)D_80092C9C,
-    (s32)D_80092CA8, 768, 0, 0,
-    256, (s32)D_80092CB4, (s32)D_80092CC0, (s32)D_80092CCC,
-    768, 0, 0, 256,
-    (s32)D_80092CD8, (s32)D_80092CE4, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80092CF0,
-    (s32)D_80092CFC, (s32)D_80092D08, 768, 0,
-    0, 256, (s32)D_80092D14, (s32)D_800920A8,
-    (s32)D_800920A8, 768, 0, 0,
-    256, (s32)D_80092D20, (s32)D_80092D2C, (s32)D_80092D38,
-    768, 0, 0, 256,
-    (s32)D_80092D44, (s32)D_80092D50, (s32)D_80092D5C, 768,
-    0, 0, 256, (s32)D_80092D68,
-    (s32)D_80092D74, (s32)D_80092D80, 768, 0,
-    0, 256, (s32)D_80092D8C, (s32)D_80092D98,
-    (s32)D_800920A8, 768, 0, 0,
-    256, (s32)D_80092DA4, (s32)D_80092DB0, (s32)D_800920A8,
-    768, 0, 0, 256,
-    (s32)D_80092DBC, (s32)D_80092DC8, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80092DD4,
-    (s32)D_80092DE0, (s32)D_80092DEC, 768, 0,
-    0, 256, (s32)D_80092DF8, (s32)D_80092E04,
-    (s32)D_80092E10, 768, 0, 0,
-    256, (s32)D_80092E1C, (s32)D_80092E28, (s32)D_80092E34,
-    768, 0, 0, 256,
-    (s32)D_80092E40, (s32)D_800920A8, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80092E4C,
-    (s32)D_80092E58, (s32)D_80092E64, 768, 0,
-    0, 256, (s32)D_80092E70, (s32)D_80092E7C,
-    (s32)D_80092E88, 768, 0, 0,
-    256, (s32)D_80092E94, (s32)D_80092EA0, (s32)D_80092EAC,
-    768, 0, 0, 256,
-    (s32)D_80092EB8, (s32)D_80092EC4, (s32)D_80092ED0, 768,
-    0, 0, 256, (s32)D_80092EDC,
-    (s32)D_80092EE8, (s32)D_80092EF4, 768, 0,
-    0, 256, (s32)D_80092F00, (s32)D_80092F0C,
-    (s32)D_80092F18, 768, 0, 0,
-    256, (s32)D_80092F24, (s32)D_800920A8, (s32)D_800920A8,
-    768, 0, 0, 256,
-    (s32)D_80092F30, (s32)D_80092F3C, (s32)D_80092F48, 768,
-    0, 0, 256, (s32)D_80092F54,
-    (s32)D_80092F60, (s32)D_80092F6C, 768, 0,
-    0, 256, (s32)D_80092F78, (s32)D_80092F84,
-    (s32)D_80092F90, 768, 0, 0,
-    256, (s32)D_80092F9C, (s32)D_80092FA8, (s32)D_800920A8,
-    768, 0, 0, 256,
-    (s32)D_80092FB4, (s32)D_80092FC0, (s32)D_80092FCC, 768,
-    0, 0, 256, (s32)D_80092FD8,
-    (s32)D_80092FE4, (s32)D_80092FF0, 768, 0,
-    0, 256, (s32)D_80092FFC, (s32)D_80093008,
-    (s32)D_800920A8, 768, 0, 0,
-    256, (s32)D_80093014, (s32)D_80093020, (s32)D_8009302C,
-    768, 0, 0, 256,
-    (s32)D_80093038, (s32)D_80093044, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80093050,
-    (s32)D_8009305C, (s32)D_80093068, 768, 0,
-    0, 256, (s32)D_80093074, (s32)D_80093080,
-    (s32)D_8009308C, 768, 0, 0,
-    256, (s32)D_80093098, (s32)D_800930A4, (s32)D_800930B0,
-    768, 0, 0, 256,
-    (s32)D_800930BC, (s32)D_800930C8, (s32)D_800930D4, 768,
-    0, 0, 256, (s32)D_800930E0,
-    (s32)D_800930EC, (s32)D_800920A8, 768, 0,
-    0, 256, (s32)D_800930F8, (s32)D_80093104,
-    (s32)D_80093110, 768, 0, 0,
-    256, (s32)D_8009311C, (s32)D_80093128, (s32)D_80093134,
-    768, 0, 0, 256,
-    (s32)D_80093140, (s32)D_8009314C, (s32)D_80093158, 768,
-    0, 0, 256, (s32)D_80093164,
-    (s32)D_80093170, (s32)D_800920A8, 768, 0,
-    0, 256, (s32)D_8009317C, (s32)D_80093188,
-    (s32)D_800920A8, 768, 0, 0,
-    256, (s32)D_80093194, (s32)D_800931A0, (s32)D_800931AC,
-    768, 0, 0, 256,
-    (s32)D_800931B8, (s32)D_800931C4, (s32)D_800931D0, 768,
-    0, 0, 256, (s32)D_800931DC,
-    (s32)D_800931E8, (s32)D_800920A8, 768, 0,
-    256, 256, (s32)D_800931F4, (s32)D_80093200,
-    (s32)D_8009320C, 768, 0, 0,
-    256, (s32)D_80093218, (s32)D_80093224, (s32)D_80093230,
-    768, 0, 0, 256,
-    (s32)D_8009323C, (s32)D_80093248, (s32)D_80093254, 768,
-    0, 0, 256, (s32)D_80093260,
-    (s32)D_8009326C, (s32)D_80093278, 768, 0,
-    0, 256, (s32)D_80093284, (s32)D_80093290,
-    (s32)D_8009329C, 0x1010300, 0x1010101, 0x1010001,
-    257, (s32)D_800932A8, (s32)D_800932B4, (s32)D_800920A8,
-    768, 0, 256, 256,
-    (s32)D_800932C0, (s32)D_800932CC, (s32)D_800920A8, 768,
-    0, 256, 256, (s32)D_800932D8,
-    (s32)D_800920A8, (s32)D_800920A8, 1024, 0,
-    0, 256, (s32)D_800932E4, (s32)D_800920A8,
-    (s32)D_800920A8, 1024, 0, 0,
-    256, (s32)D_800932F0, (s32)D_800920A8, (s32)D_800920A8,
-    1024, 0, 0, 256,
-    (s32)D_800932FC, (s32)D_800920A8, (s32)D_800920A8, 1024,
-    0, 0, 256, (s32)D_80093308,
-    (s32)D_800920A8, (s32)D_800920A8, 1024, 0,
-    0, 256, (s32)D_80093314, (s32)D_800920A8,
-    (s32)D_800920A8, 1024, 0, 0,
-    256, (s32)D_80093320, (s32)D_800920A8, (s32)D_800920A8,
-    1024, 0, 0, 256,
-    (s32)D_8009332C, (s32)D_800920A8, (s32)D_800920A8, 1024,
-    0, 0, 256, (s32)D_80093338,
-    (s32)D_800920A8, (s32)D_800920A8, 1024, 0,
-    0, 256, (s32)D_80093344, (s32)D_800920A8,
-    (s32)D_800920A8, 1024, 0, 0,
-    256, (s32)D_80093350, (s32)D_8009335C, (s32)D_80093368,
-    512, 0x10000, 0, 256,
-    (s32)D_80093374, (s32)D_800920A8, (s32)D_800920A8, 512,
-    0, 0, 256, (s32)D_80093380,
-    (s32)D_800920A8, (s32)D_800920A8, 512, 0,
-    0, 256, (s32)D_8009338C, (s32)D_800920A8,
-    (s32)D_800920A8, 512, 0, 0,
-    256, (s32)D_80093398, (s32)D_800920A8, (s32)D_800920A8,
-    512, 0, 0, 256,
-    (s32)D_800933A4, (s32)D_800920A8, (s32)D_800920A8, 512,
-    0, 0, 256, (s32)D_800933B0,
-    (s32)D_800920A8, (s32)D_800920A8, 512, 0,
-    0, 256, (s32)D_800933BC, (s32)D_800920A8,
-    (s32)D_800920A8, 512, 0, 0,
-    256, (s32)D_800933C8, (s32)D_800920A8, (s32)D_800920A8,
-    512, 0, 0, 256,
-    (s32)D_800933D4, (s32)D_800933E0, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_800933EC,
-    (s32)D_800933F8, (s32)D_80093404, 768, 0,
-    0, 256, (s32)D_80093410, (s32)D_8009341C,
-    (s32)D_80093428, 768, 0, 0,
-    256, (s32)D_80093434, (s32)D_80093440, (s32)D_800920A8,
-    768, 0, 0, 256,
-    (s32)D_8009344C, (s32)D_80093458, (s32)D_80093464, 768,
-    0, 0, 256, (s32)D_80093470,
-    (s32)D_8009347C, (s32)D_80093488, 768, 0,
-    0, 256, (s32)D_80093494, (s32)D_800934A0,
-    (s32)D_800920A8, 768, 0, 0,
-    256, (s32)D_800934AC, (s32)D_800934B8, (s32)D_800934C4,
-    768, 0, 0, 256,
-    (s32)D_800934D0, (s32)D_800934DC, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_800934E8,
-    (s32)D_800934F4, (s32)D_80093500, 768, 0,
-    0, 256, (s32)D_8009350C, (s32)D_80093518,
-    (s32)D_80093524, 768, 0, 0,
-    256, (s32)D_80093530, (s32)D_8009353C, (s32)D_80093548,
-    768, 0, 0, 256,
-    (s32)D_80093554, (s32)D_80093560, (s32)D_8009356C, 768,
-    0, 0, 256, (s32)D_80093578,
-    (s32)D_80093584, (s32)D_800920A8, 768, 0,
-    0, 256, (s32)D_80093590, (s32)D_8009359C,
-    (s32)D_800935A8, 768, 0, 0,
-    256, (s32)D_800935B4, (s32)D_800935C0, (s32)D_800935CC,
-    768, 0, 0, 256,
-    (s32)D_800935D8, (s32)D_800935E4, (s32)D_800935F0, 768,
-    0, 0, 256, (s32)D_800935FC,
-    (s32)D_80093608, (s32)D_800920A8, 768, 0,
-    0, 256, (s32)D_80093614, (s32)D_80093620,
-    (s32)D_800920A8, 768, 0, 0,
-    256, (s32)D_8009362C, (s32)D_80093638, (s32)D_80093644,
-    768, 0, 0, 256,
-    (s32)D_80093650, (s32)D_8009365C, (s32)D_80093668, 768,
-    0, 0, 256, (s32)D_80093674,
-    (s32)D_80093680, (s32)D_800920A8, 768, 0,
-    0, 256, (s32)D_8009368C, (s32)D_80093698,
-    (s32)D_800936A4, 768, 0, 0,
-    256, (s32)D_800936B0, (s32)D_800936BC, (s32)D_800936C8,
-    768, 0, 0, 256,
-    (s32)D_800936D4, (s32)D_800936E0, (s32)D_800936EC, 768,
-    0, 0, 256, (s32)D_800936F8,
-    (s32)D_80093704, (s32)D_80093710, 768, 0,
-    0, 256, (s32)D_8009371C, (s32)D_80093728,
-    (s32)D_80093734, 768, 0, 0,
-    256, (s32)D_80093740, (s32)D_8009374C, (s32)D_800920A8,
-    768, 0, 0, 256,
-    (s32)D_80093758, (s32)D_80093764, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80093770,
-    (s32)D_8009377C, (s32)D_80093788, 0x1010200, 0x1010101,
-    0x1010101, 257, (s32)D_80093794, (s32)D_800937A0,
-    (s32)D_800937AC, 0x1010200, 0x1010101, 0x1010101,
-    257, (s32)D_800937B8, (s32)D_800937C4, (s32)D_800937D0,
-    0x1010200, 0x1010101, 0x1010101, 257,
-    (s32)D_800937DC, (s32)D_800937E8, (s32)D_800937F4, 0x1010200,
-    0x1010101, 0x1010101, 257, (s32)D_80093800,
-    (s32)D_8009380C, (s32)D_80093818, 0x1010200, 0x1010101,
-    0x1010101, 257, (s32)D_80093824, (s32)D_80093830,
-    (s32)D_8009383C, 0x1010200, 0x1010101, 0x1010101,
-    257, (s32)D_80093848, (s32)D_80093854, (s32)D_80093860,
-    0x1010200, 0x1010101, 0x1010101, 257,
-    (s32)D_8009386C, (s32)D_80093878, (s32)D_80093884, 0x1010200,
-    0x1010101, 0x1010101, 257, (s32)D_80093890,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x1010101,
-    0x1010101, 257, (s32)D_8009389C, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1010200, 0x1010101, 0x1010101,
-    257, (s32)D_800938A8, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x1010101, 0x1010101, 257,
-    (s32)D_800938B4, (s32)D_800920A8, (s32)D_800920A8, 0x1010200,
-    0x1010101, 0x1010101, 257, (s32)D_800938C0,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x1010101,
-    0x1010101, 257, (s32)D_800938CC, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1010200, 0x1010101, 0x1010101,
-    257, (s32)D_800938D8, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x1010101, 0x1010101, 257,
-    (s32)D_800938E4, (s32)D_800920A8, (s32)D_800920A8, 0x1010200,
-    0x1010101, 0x1010101, 257, (s32)D_800938F0,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x1010101,
-    0x1010101, 257, (s32)D_800938FC, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1010200, 0x1010101, 0x1010101,
-    257, (s32)D_80093908, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x1010101, 0x1010101, 257,
-    (s32)D_80093914, (s32)D_800920A8, (s32)D_800920A8, 0x1010200,
-    0x1010101, 0x1010101, 257, (s32)D_80093920,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x1010101,
-    0x1010101, 257, (s32)D_8009392C, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1010300, 0x1010101, 0x1010101,
-    257, (s32)D_80093938, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x1010101, 0x1010101, 257,
-    (s32)D_80093944, (s32)D_80093950, (s32)D_8009395C, 0x1010200,
-    0x1010101, 0x1010101, 257, (s32)D_80093968,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x1010101,
-    0x1010101, 257, (s32)D_80093974, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1010200, 0x1010101, 0x1010101,
-    257, (s32)D_80093980, (s32)D_800920A8, (s32)D_800920A8,
-    0x1000508, 257, 256, 0,
-    (s32)D_8009398C, (s32)D_800920A8, (s32)D_800920A8, 0x1000508,
-    257, 256, 0, (s32)D_80093998,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1000510, 257,
-    256, 0, (s32)D_800939A4, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1000510, 257, 256,
-    0, (s32)D_800939B0, (s32)D_800920A8, (s32)D_800920A8,
-    0x1000518, 257, 256, 0,
-    (s32)D_800939BC, (s32)D_800920A8, (s32)D_800920A8, 0x1000518,
-    257, 256, 0, (s32)D_800939C8,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1000520, 257,
-    256, 0, (s32)D_800939D4, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1000520, 257, 256,
-    0,
+Encounter D_800939E0[] = {
+    {{&D_800920A8, &D_800920A8, &D_800920A8}, 0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800920B4, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800920C0, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800920CC, &D_800920D8, &D_800920E4}, 0, 2, {0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800920F0, &D_800920FC, &D_80092108}, 127, 2, {0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092114, &D_80092120, &D_800920A8}, 0, 2, {0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009212C, &D_80092138, &D_80092144}, 0, 2, {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092150, &D_800920A8, &D_800920A8}, 0, 2, {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009215C, &D_800920A8, &D_800920A8}, 0, 2, {0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092168, &D_800920A8, &D_800920A8}, 0, 2, {0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1}},
+    {{&D_80092174, &D_80092180, &D_8009218C}, 0, 2, {1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1}},
+    {{&D_80092198, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800921A4, &D_800920A8, &D_800920A8}, 0, 2, {0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1}},
+    {{&D_800921B0, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800921BC, &D_800921C8, &D_800921D4}, 0, 2, {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800921E0, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1}},
+    {{&D_800921EC, &D_800921F8, &D_80092204}, 127, 2, {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092210, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009221C, &D_80092228, &D_80092234}, 0, 2, {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092240, &D_8009224C, &D_80092258}, 0, 2, {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092264, &D_80092270, &D_8009227C}, 0, 2, {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092288, &D_80092294, &D_800922A0}, 0, 2, {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800922AC, &D_800922B8, &D_800922C4}, 0, 2, {1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800922D0, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1}},
+    {{&D_800922DC, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800922E8, &D_800922F4, &D_80092300}, 0, 2, {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009230C, &D_80092318, &D_80092324}, 0, 2, {1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1}},
+    {{&D_80092330, &D_8009233C, &D_80092348}, 0, 2, {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092354, &D_80092360, &D_8009236C}, 0, 2, {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092378, &D_80092384, &D_80092390}, 0, 2, {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009239C, &D_800920A8, &D_800920A8}, 127, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800923A8, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1}},
+    {{&D_800923B4, &D_800923C0, &D_800923CC}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1}},
+    {{&D_800923D8, &D_800923E4, &D_800923F0}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1}},
+    {{&D_800923FC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092408, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092414, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092420, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009242C, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092438, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092444, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092450, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009245C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092468, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092474, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092480, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009248C, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092498, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924A4, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924B0, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924BC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924C8, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924D4, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924E0, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924EC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924F8, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092504, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092510, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009251C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092528, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092534, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092540, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009254C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092558, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092564, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092570, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009257C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092588, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092594, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925A0, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925AC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925B8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925C4, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925D0, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925DC, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925E8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925F4, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092600, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009260C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092618, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092624, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092630, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009263C, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092648, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092654, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092660, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009266C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092678, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092684, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092690, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009269C, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926A8, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926B4, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926C0, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926CC, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926D8, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926E4, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926F0, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926FC, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80092708, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092714, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092720, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009272C, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092738, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092744, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092750, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009275C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092768, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092774, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092780, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009278C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092798, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927A4, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927B0, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927BC, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927C8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927D4, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927E0, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927EC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927F8, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092804, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092810, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009281C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092828, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092834, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092840, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009284C, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092858, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092864, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092870, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009287C, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092888, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80092894, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928A0, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928AC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928B8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928C4, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928D0, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928DC, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928E8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928F4, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092900, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009290C, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092918, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092924, &D_800920A8, &D_800920A8}, 127, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092930, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009293C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092948, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092954, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092960, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009296C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092978, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092984, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092990, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009299C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929A8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929B4, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929C0, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929CC, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929D8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929E4, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929F0, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929FC, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A08, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A14, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A20, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A2C, &D_800920A8, &D_800920A8}, 20, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A38, &D_800920A8, &D_800920A8}, 24, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A44, &D_800920A8, &D_800920A8}, 28, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A50, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A5C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A68, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A74, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A80, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A8C, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A98, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80092AA4, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092AB0, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80092ABC, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092AC8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092AD4, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80092AE0, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092AEC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092AF8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092B04, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092B10, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092B1C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80092B28, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092B34, &D_80092B40, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092B4C, &D_80092B58, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092B64, &D_80092B70, &D_80092B7C}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092B88, &D_800920A8, &D_800920A8}, 0, 3, {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092B94, &D_80092BA0, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092BAC, &D_80092BB8, &D_80092BC4}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092BD0, &D_80092BDC, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092BE8, &D_80092BF4, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092C00, &D_80092C0C, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092C18, &D_80092C24, &D_80092C30}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092C3C, &D_800920A8, &D_800920A8}, 0, 3, {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092C48, &D_80092C54, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092C60, &D_800920A8, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092C6C, &D_80092C78, &D_80092C84}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092C90, &D_80092C9C, &D_80092CA8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092CB4, &D_80092CC0, &D_80092CCC}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092CD8, &D_80092CE4, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092CF0, &D_80092CFC, &D_80092D08}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092D14, &D_800920A8, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092D20, &D_80092D2C, &D_80092D38}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092D44, &D_80092D50, &D_80092D5C}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092D68, &D_80092D74, &D_80092D80}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092D8C, &D_80092D98, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092DA4, &D_80092DB0, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092DBC, &D_80092DC8, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092DD4, &D_80092DE0, &D_80092DEC}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092DF8, &D_80092E04, &D_80092E10}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092E1C, &D_80092E28, &D_80092E34}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092E40, &D_800920A8, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092E4C, &D_80092E58, &D_80092E64}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092E70, &D_80092E7C, &D_80092E88}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092E94, &D_80092EA0, &D_80092EAC}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092EB8, &D_80092EC4, &D_80092ED0}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092EDC, &D_80092EE8, &D_80092EF4}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092F00, &D_80092F0C, &D_80092F18}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092F24, &D_800920A8, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092F30, &D_80092F3C, &D_80092F48}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092F54, &D_80092F60, &D_80092F6C}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092F78, &D_80092F84, &D_80092F90}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092F9C, &D_80092FA8, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092FB4, &D_80092FC0, &D_80092FCC}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092FD8, &D_80092FE4, &D_80092FF0}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092FFC, &D_80093008, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093014, &D_80093020, &D_8009302C}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093038, &D_80093044, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093050, &D_8009305C, &D_80093068}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093074, &D_80093080, &D_8009308C}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093098, &D_800930A4, &D_800930B0}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800930BC, &D_800930C8, &D_800930D4}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800930E0, &D_800930EC, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800930F8, &D_80093104, &D_80093110}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009311C, &D_80093128, &D_80093134}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093140, &D_8009314C, &D_80093158}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093164, &D_80093170, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009317C, &D_80093188, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093194, &D_800931A0, &D_800931AC}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800931B8, &D_800931C4, &D_800931D0}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800931DC, &D_800931E8, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1}},
+    {{&D_800931F4, &D_80093200, &D_8009320C}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093218, &D_80093224, &D_80093230}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009323C, &D_80093248, &D_80093254}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093260, &D_8009326C, &D_80093278}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093284, &D_80093290, &D_8009329C}, 0, 3, {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1}},
+    {{&D_800932A8, &D_800932B4, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1}},
+    {{&D_800932C0, &D_800932CC, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1}},
+    {{&D_800932D8, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800932E4, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800932F0, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800932FC, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093308, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093314, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093320, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009332C, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093338, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093344, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093350, &D_8009335C, &D_80093368}, 0, 2, {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093374, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093380, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009338C, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093398, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800933A4, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800933B0, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800933BC, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800933C8, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800933D4, &D_800933E0, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800933EC, &D_800933F8, &D_80093404}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093410, &D_8009341C, &D_80093428}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093434, &D_80093440, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009344C, &D_80093458, &D_80093464}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093470, &D_8009347C, &D_80093488}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093494, &D_800934A0, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800934AC, &D_800934B8, &D_800934C4}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800934D0, &D_800934DC, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800934E8, &D_800934F4, &D_80093500}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009350C, &D_80093518, &D_80093524}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093530, &D_8009353C, &D_80093548}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093554, &D_80093560, &D_8009356C}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093578, &D_80093584, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093590, &D_8009359C, &D_800935A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800935B4, &D_800935C0, &D_800935CC}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800935D8, &D_800935E4, &D_800935F0}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800935FC, &D_80093608, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093614, &D_80093620, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009362C, &D_80093638, &D_80093644}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093650, &D_8009365C, &D_80093668}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093674, &D_80093680, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009368C, &D_80093698, &D_800936A4}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800936B0, &D_800936BC, &D_800936C8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800936D4, &D_800936E0, &D_800936EC}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800936F8, &D_80093704, &D_80093710}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009371C, &D_80093728, &D_80093734}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093740, &D_8009374C, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093758, &D_80093764, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093770, &D_8009377C, &D_80093788}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093794, &D_800937A0, &D_800937AC}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800937B8, &D_800937C4, &D_800937D0}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800937DC, &D_800937E8, &D_800937F4}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093800, &D_8009380C, &D_80093818}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093824, &D_80093830, &D_8009383C}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093848, &D_80093854, &D_80093860}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_8009386C, &D_80093878, &D_80093884}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093890, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_8009389C, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800938A8, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800938B4, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800938C0, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800938CC, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800938D8, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800938E4, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800938F0, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800938FC, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093908, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093914, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093920, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_8009392C, &D_800920A8, &D_800920A8}, 0, 3, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093938, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093944, &D_80093950, &D_8009395C}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093968, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093974, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093980, &D_800920A8, &D_800920A8}, 8, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_8009398C, &D_800920A8, &D_800920A8}, 8, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80093998, &D_800920A8, &D_800920A8}, 16, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_800939A4, &D_800920A8, &D_800920A8}, 16, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_800939B0, &D_800920A8, &D_800920A8}, 24, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_800939BC, &D_800920A8, &D_800920A8}, 24, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_800939C8, &D_800920A8, &D_800920A8}, 32, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_800939D4, &D_800920A8, &D_800920A8}, 32, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
 };
 #elif VERSION_EU
-s32 D_800939E0[] = {
-    (s32)D_800920A8, (s32)D_800920A8, (s32)D_800920A8, 0,
-    0, 0, 0, (s32)D_800920B4,
-    (s32)D_800920A8, (s32)D_800920A8, 512, 0x10101,
-    0, 256, (s32)D_800920C0, (s32)D_800920A8,
-    (s32)D_800920A8, 512, 0x10101, 0,
-    256, (s32)D_800920CC, (s32)D_800920D8, (s32)D_800920E4,
-    512, 0x10101, 0, 256,
-    (s32)D_800920F0, (s32)D_800920FC, (s32)D_80092108, 639,
-    0x10101, 0, 256, (s32)D_80092114,
-    (s32)D_80092120, (s32)D_800920A8, 512, 0x10100,
-    0, 256, (s32)D_8009212C, (s32)D_80092138,
-    (s32)D_80092144, 0x1000200, 0x10101, 0,
-    256, (s32)D_80092150, (s32)D_800920A8, (s32)D_800920A8,
-    0x1000200, 0x10101, 0, 256,
-    (s32)D_8009215C, (s32)D_800920A8, (s32)D_800920A8, 0x1000200,
-    0x10001, 0, 256, (s32)D_80092168,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1000200, 0x10101,
-    0x1010000, 257, (s32)D_80092174, (s32)D_80092180,
-    (s32)D_8009218C, 0x1010200, 0x10101, 0x1010100,
-    257, (s32)D_80092198, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x10101, 0, 256,
-    (s32)D_800921A4, (s32)D_800920A8, (s32)D_800920A8, 0x1000200,
-    0x10100, 0x1010000, 257, (s32)D_800921B0,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x10101,
-    0, 256, (s32)D_800921BC, (s32)D_800921C8,
-    (s32)D_800921D4, 0x1000200, 0x10101, 0,
-    256, (s32)D_800921E0, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x1010101, 0x1010001, 257,
-    (s32)D_800921EC, (s32)D_800921F8, (s32)D_80092204, 0x100027F,
-    0x10101, 0, 256, (s32)D_80092210,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x10101,
-    0, 256, (s32)D_8009221C, (s32)D_80092228,
-    (s32)D_80092234, 0x1000200, 0x10101, 0,
-    256, (s32)D_80092240, (s32)D_8009224C, (s32)D_80092258,
-    512, 0x10001, 0, 256,
-    (s32)D_80092264, (s32)D_80092270, (s32)D_8009227C, 512,
-    0x10001, 0, 256, (s32)D_80092288,
-    (s32)D_80092294, (s32)D_800922A0, 512, 0x10001,
-    0, 256, (s32)D_800922AC, (s32)D_800922B8,
-    (s32)D_800922C4, 0x10200, 0x10101, 0,
-    256, (s32)D_800922D0, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x1010101, 1, 256,
-    (s32)D_800922DC, (s32)D_800920A8, (s32)D_800920A8, 512,
-    0x10000, 0, 256, (s32)D_800922E8,
-    (s32)D_800922F4, (s32)D_80092300, 0x1010200, 0x10101,
-    0, 256, (s32)D_8009230C, (s32)D_80092318,
-    (s32)D_80092324, 0x1010200, 0x10101, 0x1010000,
-    257, (s32)D_80092330, (s32)D_8009233C, (s32)D_80092348,
-    512, 0x10001, 0, 256,
-    (s32)D_80092354, (s32)D_80092360, (s32)D_8009236C, 512,
-    0x10001, 0, 256, (s32)D_80092378,
-    (s32)D_80092384, (s32)D_80092390, 512, 0x10001,
-    0, 256, (s32)D_8009239C, (s32)D_800920A8,
-    (s32)D_800920A8, 0x101027F, 0x1010101, 0x1010101,
-    257, (s32)D_800923A8, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x10101, 0x1010000, 257,
-    (s32)D_800923B4, (s32)D_800923C0, (s32)D_800923CC, 0x1010200,
-    0x1010101, 0x1010001, 257, (s32)D_800923D8,
-    (s32)D_800923E4, (s32)D_800923F0, 0x1010200, 0x1010101,
-    0x1000101, 256, (s32)D_800923FC, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092408, (s32)D_800920A8, (s32)D_800920A8,
-    260, 0, 0, 0,
-    (s32)D_80092414, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092420,
-    (s32)D_800920A8, (s32)D_800920A8, 268, 0,
-    0, 0, (s32)D_8009242C, (s32)D_800920A8,
-    (s32)D_800920A8, 268, 0, 0,
-    0, (s32)D_80092438, (s32)D_800920A8, (s32)D_800920A8,
-    260, 0, 0, 0,
-    (s32)D_80092444, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092450,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009245C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092468, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092474, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092480,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009248C, (s32)D_800920A8,
-    (s32)D_800920A8, 260, 0, 0,
-    0, (s32)D_80092498, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800924A4, (s32)D_800920A8, (s32)D_800920A8, 272,
-    0, 0, 0, (s32)D_800924B0,
-    (s32)D_800920A8, (s32)D_800920A8, 288, 0,
-    0, 0, (s32)D_800924BC, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_800924C8, (s32)D_800920A8, (s32)D_800920A8,
-    260, 0, 0, 0,
-    (s32)D_800924D4, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_800924E0,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_800924EC, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_800924F8, (s32)D_800920A8, (s32)D_800920A8,
-    272, 0, 0, 0,
-    (s32)D_80092504, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092510,
-    (s32)D_800920A8, (s32)D_800920A8, 272, 0,
-    0, 0, (s32)D_8009251C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092528, (s32)D_800920A8, (s32)D_800920A8,
-    260, 0, 0, 0,
-    (s32)D_80092534, (s32)D_800920A8, (s32)D_800920A8, 260,
-    0, 0, 0, (s32)D_80092540,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009254C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092558, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092564, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092570,
-    (s32)D_800920A8, (s32)D_800920A8, 256, 0,
-    0, 0, (s32)D_8009257C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092588, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092594, (s32)D_800920A8, (s32)D_800920A8, 268,
-    0, 0, 0, (s32)D_800925A0,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_800925AC, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_800925B8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800925C4, (s32)D_800920A8, (s32)D_800920A8, 268,
-    0, 0, 0, (s32)D_800925D0,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_800925DC, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_800925E8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800925F4, (s32)D_800920A8, (s32)D_800920A8, 256,
-    0, 0, 0, (s32)D_80092600,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009260C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092618, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092624, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092630,
-    (s32)D_800920A8, (s32)D_800920A8, 268, 0,
-    0, 0, (s32)D_8009263C, (s32)D_800920A8,
-    (s32)D_800920A8, 268, 0, 0,
-    0, (s32)D_80092648, (s32)D_800920A8, (s32)D_800920A8,
-    288, 0, 0, 0,
-    (s32)D_80092654, (s32)D_800920A8, (s32)D_800920A8, 268,
-    0, 0, 0, (s32)D_80092660,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009266C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092678, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092684, (s32)D_800920A8, (s32)D_800920A8, 256,
-    0, 0, 0, (s32)D_80092690,
-    (s32)D_800920A8, (s32)D_800920A8, 256, 0,
-    0, 0, (s32)D_8009269C, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_800926A8, (s32)D_800920A8, (s32)D_800920A8,
-    272, 0, 0, 0,
-    (s32)D_800926B4, (s32)D_800920A8, (s32)D_800920A8, 256,
-    0, 0, 0, (s32)D_800926C0,
-    (s32)D_800920A8, (s32)D_800920A8, 272, 0,
-    0, 0, (s32)D_800926CC, (s32)D_800920A8,
-    (s32)D_800920A8, 260, 0, 0,
-    0, (s32)D_800926D8, (s32)D_800920A8, (s32)D_800920A8,
-    288, 0, 0, 0,
-    (s32)D_800926E4, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_800926F0,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_800926FC, (s32)D_800920A8,
-    (s32)D_800920A8, 268, 0, 256,
-    0, (s32)D_80092708, (s32)D_800920A8, (s32)D_800920A8,
-    272, 0, 0, 0,
-    (s32)D_80092714, (s32)D_800920A8, (s32)D_800920A8, 260,
-    0, 0, 0, (s32)D_80092720,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009272C, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_80092738, (s32)D_800920A8, (s32)D_800920A8,
-    268, 0, 0, 0,
-    (s32)D_80092744, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092750,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009275C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092768, (s32)D_800920A8, (s32)D_800920A8,
-    268, 0, 0, 0,
-    (s32)D_80092774, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092780,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009278C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092798, (s32)D_800920A8, (s32)D_800920A8,
-    268, 0, 0, 0,
-    (s32)D_800927A4, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_800927B0,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_800927BC, (s32)D_800920A8,
-    (s32)D_800920A8, 272, 0, 0,
-    0, (s32)D_800927C8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800927D4, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_800927E0,
-    (s32)D_800920A8, (s32)D_800920A8, 260, 0,
-    0, 0, (s32)D_800927EC, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_800927F8, (s32)D_800920A8, (s32)D_800920A8,
-    260, 0, 0, 0,
-    (s32)D_80092804, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092810,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009281C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092828, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092834, (s32)D_800920A8, (s32)D_800920A8, 268,
-    0, 0, 0, (s32)D_80092840,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009284C, (s32)D_800920A8,
-    (s32)D_800920A8, 260, 0, 0,
-    0, (s32)D_80092858, (s32)D_800920A8, (s32)D_800920A8,
-    272, 0, 0, 0,
-    (s32)D_80092864, (s32)D_800920A8, (s32)D_800920A8, 256,
-    0, 0, 0, (s32)D_80092870,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009287C, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_80092888, (s32)D_800920A8, (s32)D_800920A8,
-    268, 0, 256, 0,
-    (s32)D_80092894, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_800928A0,
-    (s32)D_800920A8, (s32)D_800920A8, 256, 0,
-    0, 0, (s32)D_800928AC, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_800928B8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800928C4, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_800928D0,
-    (s32)D_800920A8, (s32)D_800920A8, 260, 0,
-    0, 0, (s32)D_800928DC, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_800928E8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800928F4, (s32)D_800920A8, (s32)D_800920A8, 256,
-    0, 0, 0, (s32)D_80092900,
-    (s32)D_800920A8, (s32)D_800920A8, 256, 0,
-    0, 0, (s32)D_8009290C, (s32)D_800920A8,
-    (s32)D_800920A8, 268, 0, 0,
-    0, (s32)D_80092918, (s32)D_800920A8, (s32)D_800920A8,
-    256, 0, 0, 0,
-    (s32)D_80092924, (s32)D_800920A8, (s32)D_800920A8, 383,
-    0, 0, 0, (s32)D_80092930,
-    (s32)D_800920A8, (s32)D_800920A8, 272, 0,
-    0, 0, (s32)D_8009293C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092948, (s32)D_800920A8, (s32)D_800920A8,
-    272, 0, 0, 0,
-    (s32)D_80092954, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_80092960,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_8009296C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092978, (s32)D_800920A8, (s32)D_800920A8,
-    272, 0, 0, 0,
-    (s32)D_80092984, (s32)D_800920A8, (s32)D_800920A8, 288,
-    0, 0, 0, (s32)D_80092990,
-    (s32)D_800920A8, (s32)D_800920A8, 260, 0,
-    0, 0, (s32)D_8009299C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_800929A8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800929B4, (s32)D_800920A8, (s32)D_800920A8, 288,
-    0, 0, 0, (s32)D_800929C0,
-    (s32)D_800920A8, (s32)D_800920A8, 260, 0,
-    0, 0, (s32)D_800929CC, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_800929D8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_800929E4, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 0, 0, (s32)D_800929F0,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_800929FC, (s32)D_800920A8,
-    (s32)D_800920A8, 288, 0, 0,
-    0, (s32)D_80092A08, (s32)D_800920A8, (s32)D_800920A8,
-    256, 0, 0, 0,
-    (s32)D_80092A14, (s32)D_800920A8, (s32)D_800920A8, 256,
-    0, 0, 0, (s32)D_80092A20,
-    (s32)D_800920A8, (s32)D_800920A8, 272, 0,
-    0, 0, (s32)D_80092A2C, (s32)D_800920A8,
-    (s32)D_800920A8, 276, 0, 0,
-    0, (s32)D_80092A38, (s32)D_800920A8, (s32)D_800920A8,
-    280, 0, 0, 0,
-    (s32)D_80092A44, (s32)D_800920A8, (s32)D_800920A8, 284,
-    0, 0, 0, (s32)D_80092A50,
-    (s32)D_800920A8, (s32)D_800920A8, 288, 0,
-    0, 0, (s32)D_80092A5C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092A68, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092A74, (s32)D_800920A8, (s32)D_800920A8, 256,
-    0, 0, 0, (s32)D_80092A80,
-    (s32)D_800920A8, (s32)D_800920A8, 272, 0,
-    0, 0, (s32)D_80092A8C, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_80092A98, (s32)D_800920A8, (s32)D_800920A8,
-    272, 0, 256, 0,
-    (s32)D_80092AA4, (s32)D_800920A8, (s32)D_800920A8, 260,
-    0, 0, 0, (s32)D_80092AB0,
-    (s32)D_800920A8, (s32)D_800920A8, 288, 0,
-    256, 0, (s32)D_80092ABC, (s32)D_800920A8,
-    (s32)D_800920A8, 256, 0, 0,
-    0, (s32)D_80092AC8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092AD4, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 256, 0, (s32)D_80092AE0,
-    (s32)D_800920A8, (s32)D_800920A8, 268, 0,
-    0, 0, (s32)D_80092AEC, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 0,
-    0, (s32)D_80092AF8, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 0, 0,
-    (s32)D_80092B04, (s32)D_800920A8, (s32)D_800920A8, 260,
-    0, 0, 0, (s32)D_80092B10,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    0, 0, (s32)D_80092B1C, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 256,
-    0, (s32)D_80092B28, (s32)D_800920A8, (s32)D_800920A8,
-    260, 0, 0, 0,
-    (s32)D_80092B34, (s32)D_80092B40, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80092B4C,
-    (s32)D_80092B58, (s32)D_800920A8, 768, 0,
-    0, 256, (s32)D_80092B64, (s32)D_80092B70,
-    (s32)D_80092B7C, 768, 0, 0,
-    256, (s32)D_80092B88, (s32)D_800920A8, (s32)D_800920A8,
-    0x1000300, 0x10101, 0, 256,
-    (s32)D_80092B94, (s32)D_80092BA0, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80092BAC,
-    (s32)D_80092BB8, (s32)D_80092BC4, 768, 0,
-    0, 256, (s32)D_80092BD0, (s32)D_80092BDC,
-    (s32)D_800920A8, 768, 0, 0,
-    256, (s32)D_80092BE8, (s32)D_80092BF4, (s32)D_800920A8,
-    768, 0, 0, 256,
-    (s32)D_80092C00, (s32)D_80092C0C, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80092C18,
-    (s32)D_80092C24, (s32)D_80092C30, 768, 0,
-    0, 256, (s32)D_80092C3C, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1000300, 0x10101, 0,
-    256, (s32)D_80092C48, (s32)D_80092C54, (s32)D_800920A8,
-    768, 0, 0, 256,
-    (s32)D_80092C60, (s32)D_800920A8, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80092C6C,
-    (s32)D_80092C78, (s32)D_80092C84, 768, 0,
-    0, 256, (s32)D_80092C90, (s32)D_80092C9C,
-    (s32)D_80092CA8, 768, 0, 0,
-    256, (s32)D_80092CB4, (s32)D_80092CC0, (s32)D_80092CCC,
-    768, 0, 0, 256,
-    (s32)D_80092CD8, (s32)D_80092CE4, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80092CF0,
-    (s32)D_80092CFC, (s32)D_80092D08, 768, 0,
-    0, 256, (s32)D_80092D14, (s32)D_800920A8,
-    (s32)D_800920A8, 768, 0, 0,
-    256, (s32)D_80092D20, (s32)D_80092D2C, (s32)D_80092D38,
-    768, 0, 0, 256,
-    (s32)D_80092D44, (s32)D_80092D50, (s32)D_80092D5C, 768,
-    0, 0, 256, (s32)D_80092D68,
-    (s32)D_80092D74, (s32)D_80092D80, 768, 0,
-    0, 256, (s32)D_80092D8C, (s32)D_80092D98,
-    (s32)D_800920A8, 768, 0, 0,
-    256, (s32)D_80092DA4, (s32)D_80092DB0, (s32)D_800920A8,
-    768, 0, 0, 256,
-    (s32)D_80092DBC, (s32)D_80092DC8, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80092DD4,
-    (s32)D_80092DE0, (s32)D_80092DEC, 768, 0,
-    0, 256, (s32)D_80092DF8, (s32)D_80092E04,
-    (s32)D_80092E10, 768, 0, 0,
-    256, (s32)D_80092E1C, (s32)D_80092E28, (s32)D_80092E34,
-    768, 0, 0, 256,
-    (s32)D_80092E40, (s32)D_800920A8, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80092E4C,
-    (s32)D_80092E58, (s32)D_80092E64, 768, 0,
-    0, 256, (s32)D_80092E70, (s32)D_80092E7C,
-    (s32)D_80092E88, 768, 0, 0,
-    256, (s32)D_80092E94, (s32)D_80092EA0, (s32)D_80092EAC,
-    768, 0, 0, 256,
-    (s32)D_80092EB8, (s32)D_80092EC4, (s32)D_80092ED0, 768,
-    0, 0, 256, (s32)D_80092EDC,
-    (s32)D_80092EE8, (s32)D_80092EF4, 768, 0,
-    0, 256, (s32)D_80092F00, (s32)D_80092F0C,
-    (s32)D_80092F18, 768, 0, 0,
-    256, (s32)D_80092F24, (s32)D_800920A8, (s32)D_800920A8,
-    768, 0, 0, 256,
-    (s32)D_80092F30, (s32)D_80092F3C, (s32)D_80092F48, 768,
-    0, 0, 256, (s32)D_80092F54,
-    (s32)D_80092F60, (s32)D_80092F6C, 768, 0,
-    0, 256, (s32)D_80092F78, (s32)D_80092F84,
-    (s32)D_80092F90, 768, 0, 0,
-    256, (s32)D_80092F9C, (s32)D_80092FA8, (s32)D_800920A8,
-    768, 0, 0, 256,
-    (s32)D_80092FB4, (s32)D_80092FC0, (s32)D_80092FCC, 768,
-    0, 0, 256, (s32)D_80092FD8,
-    (s32)D_80092FE4, (s32)D_80092FF0, 768, 0,
-    0, 256, (s32)D_80092FFC, (s32)D_80093008,
-    (s32)D_800920A8, 768, 0, 0,
-    256, (s32)D_80093014, (s32)D_80093020, (s32)D_8009302C,
-    768, 0, 0, 256,
-    (s32)D_80093038, (s32)D_80093044, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80093050,
-    (s32)D_8009305C, (s32)D_80093068, 768, 0,
-    0, 256, (s32)D_80093074, (s32)D_80093080,
-    (s32)D_8009308C, 768, 0, 0,
-    256, (s32)D_80093098, (s32)D_800930A4, (s32)D_800930B0,
-    768, 0, 0, 256,
-    (s32)D_800930BC, (s32)D_800930C8, (s32)D_800930D4, 768,
-    0, 0, 256, (s32)D_800930E0,
-    (s32)D_800930EC, (s32)D_800920A8, 768, 0,
-    0, 256, (s32)D_800930F8, (s32)D_80093104,
-    (s32)D_80093110, 768, 0, 0,
-    256, (s32)D_8009311C, (s32)D_80093128, (s32)D_80093134,
-    768, 0, 0, 256,
-    (s32)D_80093140, (s32)D_8009314C, (s32)D_80093158, 768,
-    0, 0, 256, (s32)D_80093164,
-    (s32)D_80093170, (s32)D_800920A8, 768, 0,
-    0, 256, (s32)D_8009317C, (s32)D_80093188,
-    (s32)D_800920A8, 768, 0, 0,
-    256, (s32)D_80093194, (s32)D_800931A0, (s32)D_800931AC,
-    768, 0, 0, 256,
-    (s32)D_800931B8, (s32)D_800931C4, (s32)D_800931D0, 768,
-    0, 0, 256, (s32)D_800931DC,
-    (s32)D_800931E8, (s32)D_800920A8, 768, 0,
-    256, 256, (s32)D_800931F4, (s32)D_80093200,
-    (s32)D_8009320C, 768, 0, 0,
-    256, (s32)D_80093218, (s32)D_80093224, (s32)D_80093230,
-    768, 0, 0, 256,
-    (s32)D_8009323C, (s32)D_80093248, (s32)D_80093254, 768,
-    0, 0, 256, (s32)D_80093260,
-    (s32)D_8009326C, (s32)D_80093278, 768, 0,
-    0, 256, (s32)D_80093284, (s32)D_80093290,
-    (s32)D_8009329C, 0x1010300, 0x1010101, 0x1010001,
-    257, (s32)D_800932A8, (s32)D_800932B4, (s32)D_800920A8,
-    768, 0, 256, 256,
-    (s32)D_800932C0, (s32)D_800932CC, (s32)D_800920A8, 768,
-    0, 256, 256, (s32)D_800932D8,
-    (s32)D_800920A8, (s32)D_800920A8, 1024, 0,
-    0, 256, (s32)D_800932E4, (s32)D_800920A8,
-    (s32)D_800920A8, 1024, 0, 0,
-    256, (s32)D_800932F0, (s32)D_800920A8, (s32)D_800920A8,
-    1024, 0, 0, 256,
-    (s32)D_800932FC, (s32)D_800920A8, (s32)D_800920A8, 1024,
-    0, 0, 256, (s32)D_80093308,
-    (s32)D_800920A8, (s32)D_800920A8, 1024, 0,
-    0, 256, (s32)D_80093314, (s32)D_800920A8,
-    (s32)D_800920A8, 1024, 0, 0,
-    256, (s32)D_80093320, (s32)D_800920A8, (s32)D_800920A8,
-    1024, 0, 0, 256,
-    (s32)D_8009332C, (s32)D_800920A8, (s32)D_800920A8, 1024,
-    0, 0, 256, (s32)D_80093338,
-    (s32)D_800920A8, (s32)D_800920A8, 1024, 0,
-    0, 256, (s32)D_80093344, (s32)D_800940A4,
-    (s32)D_800940B0, 0x1010400, 0x1010101, 0x1010001,
-    257, (s32)D_80093350, (s32)D_8009335C, (s32)D_80093368,
-    512, 0x10000, 0, 256,
-    (s32)D_80093374, (s32)D_800920A8, (s32)D_800920A8, 512,
-    0, 0, 256, (s32)D_80093380,
-    (s32)D_800920A8, (s32)D_800920A8, 512, 0,
-    0, 256, (s32)D_8009338C, (s32)D_800920A8,
-    (s32)D_800920A8, 512, 0, 0,
-    256, (s32)D_80093398, (s32)D_800920A8, (s32)D_800920A8,
-    512, 0, 0, 256,
-    (s32)D_800933A4, (s32)D_800920A8, (s32)D_800920A8, 512,
-    0, 0, 256, (s32)D_800933B0,
-    (s32)D_800920A8, (s32)D_800920A8, 512, 0,
-    0, 256, (s32)D_800933BC, (s32)D_800920A8,
-    (s32)D_800920A8, 512, 0, 0,
-    256, (s32)D_800933C8, (s32)D_800920A8, (s32)D_800920A8,
-    512, 0, 0, 256,
-    (s32)D_800933D4, (s32)D_800933E0, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_800933EC,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    256, 0, (s32)D_800933F8, (s32)D_800920A8,
-    (s32)D_800920A8, 264, 0, 256,
-    0, (s32)D_80093404, (s32)D_800920A8, (s32)D_800920A8,
-    264, 0, 256, 0,
-    (s32)D_80093410, (s32)D_800920A8, (s32)D_800920A8, 264,
-    0, 256, 0, (s32)D_8009341C,
-    (s32)D_800920A8, (s32)D_800920A8, 264, 0,
-    256, 0, (s32)D_80093494, (s32)D_800934A0,
-    (s32)D_800920A8, 768, 0, 0,
-    256, (s32)D_800934AC, (s32)D_800934B8, (s32)D_800934C4,
-    768, 0, 0, 256,
-    (s32)D_800934D0, (s32)D_800934DC, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_800934E8,
-    (s32)D_800934F4, (s32)D_80093500, 768, 0,
-    0, 256, (s32)D_8009350C, (s32)D_80093518,
-    (s32)D_80093524, 768, 0, 0,
-    256, (s32)D_80093530, (s32)D_8009353C, (s32)D_80093548,
-    768, 0, 0, 256,
-    (s32)D_80093554, (s32)D_80093560, (s32)D_8009356C, 768,
-    0, 0, 256, (s32)D_80093578,
-    (s32)D_80093584, (s32)D_800920A8, 768, 0,
-    0, 256, (s32)D_80093590, (s32)D_8009359C,
-    (s32)D_800935A8, 768, 0, 0,
-    256, (s32)D_800935B4, (s32)D_800935C0, (s32)D_800935CC,
-    768, 0, 0, 256,
-    (s32)D_800935D8, (s32)D_800935E4, (s32)D_800935F0, 768,
-    0, 0, 256, (s32)D_800935FC,
-    (s32)D_80093608, (s32)D_800920A8, 768, 0,
-    0, 256, (s32)D_80093614, (s32)D_80093620,
-    (s32)D_800920A8, 768, 0, 0,
-    256, (s32)D_8009362C, (s32)D_80093638, (s32)D_80093644,
-    768, 0, 0, 256,
-    (s32)D_80093650, (s32)D_8009365C, (s32)D_80093668, 768,
-    0, 0, 256, (s32)D_80093674,
-    (s32)D_80093680, (s32)D_800920A8, 768, 0,
-    0, 256, (s32)D_8009368C, (s32)D_80093698,
-    (s32)D_800936A4, 768, 0, 0,
-    256, (s32)D_800936B0, (s32)D_800936BC, (s32)D_800936C8,
-    768, 0, 0, 256,
-    (s32)D_800936D4, (s32)D_800936E0, (s32)D_800936EC, 768,
-    0, 0, 256, (s32)D_800936F8,
-    (s32)D_80093704, (s32)D_80093710, 768, 0,
-    0, 256, (s32)D_8009371C, (s32)D_80093728,
-    (s32)D_80093734, 768, 0, 0,
-    256, (s32)D_80093740, (s32)D_8009374C, (s32)D_800920A8,
-    768, 0, 0, 256,
-    (s32)D_80093758, (s32)D_80093764, (s32)D_800920A8, 768,
-    0, 0, 256, (s32)D_80093770,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x1010101,
-    0x1010000, 257, (s32)D_8009377C, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1010200, 0x1010101, 0x1010000,
-    257, (s32)D_80093788, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x1010101, 0x1010000, 257,
-    (s32)D_80093794, (s32)D_800920A8, (s32)D_800920A8, 0x1010200,
-    0x1010101, 0x1010000, 257, (s32)D_800937A0,
-    (s32)D_800937AC, (s32)D_800937B8, 0x1010200, 0x1010101,
-    0x1010001, 257, (s32)D_800937C4, (s32)D_800937D0,
-    (s32)D_800937DC, 0x101027F, 0x1010101, 0x1010001,
-    257, (s32)D_800937E8, (s32)D_800937F4, (s32)D_80093800,
-    0x1010200, 0x1010101, 0x1010001, 257,
-    (s32)D_8009380C, (s32)D_80093818, (s32)D_80093824, 0x1010200,
-    0x1010101, 0x1010001, 257, (s32)D_80093830,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x1010101,
-    0x1010000, 257, (s32)D_8009383C, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1010200, 0x1010101, 0x1010000,
-    257, (s32)D_80093848, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x1010101, 0x1010000, 257,
-    (s32)D_80093854, (s32)D_800920A8, (s32)D_800920A8, 0x1010200,
-    0x1010101, 0x1010000, 257, (s32)D_800938C0,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x1010101,
-    0x1010101, 257, (s32)D_800938CC, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1010200, 0x1010101, 0x1010101,
-    257, (s32)D_800938D8, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x1010101, 0x1010101, 257,
-    (s32)D_800938E4, (s32)D_800920A8, (s32)D_800920A8, 0x1010200,
-    0x1010101, 0x1010000, 257, (s32)D_800938F0,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x1010101,
-    0x1010000, 257, (s32)D_800938FC, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1010200, 0x1010101, 0x1010000,
-    257, (s32)D_80093908, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x1010101, 0x1010000, 257,
-    (s32)D_80093914, (s32)D_800920A8, (s32)D_800920A8, 0x1010200,
-    0x1010101, 0x1010000, 257, (s32)D_80093920,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x1010101,
-    0x1010000, 257, (s32)D_8009392C, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1010300, 0x1010101, 0x1010101,
-    257, (s32)D_80093938, (s32)D_800920A8, (s32)D_800920A8,
-    0x1010200, 0x1010101, 0x1010101, 257,
-    (s32)D_80093944, (s32)D_80093950, (s32)D_8009395C, 0x1010200,
-    0x1010101, 0x1010101, 257, (s32)D_80093968,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1010200, 0x1010101,
-    0x1010101, 257, (s32)D_80093974, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1010200, 0x1010101, 0x1010101,
-    257, (s32)D_80093980, (s32)D_800920A8, (s32)D_800920A8,
-    0x1000508, 257, 256, 0,
-    (s32)D_8009398C, (s32)D_800920A8, (s32)D_800920A8, 0x1000508,
-    257, 256, 0, (s32)D_80093998,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1000510, 257,
-    256, 0, (s32)D_800939A4, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1000510, 257, 256,
-    0, (s32)D_800939B0, (s32)D_800920A8, (s32)D_800920A8,
-    0x1000518, 257, 256, 0,
-    (s32)D_800939BC, (s32)D_800920A8, (s32)D_800920A8, 0x1000518,
-    257, 256, 0, (s32)D_800939C8,
-    (s32)D_800920A8, (s32)D_800920A8, 0x1000520, 257,
-    256, 0, (s32)D_800939D4, (s32)D_800920A8,
-    (s32)D_800920A8, 0x1000520, 257, 256,
-    0,
+Encounter D_800939E0[] = {
+    {{&D_800920A8, &D_800920A8, &D_800920A8}, 0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800920B4, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800920C0, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800920CC, &D_800920D8, &D_800920E4}, 0, 2, {0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800920F0, &D_800920FC, &D_80092108}, 127, 2, {0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092114, &D_80092120, &D_800920A8}, 0, 2, {0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009212C, &D_80092138, &D_80092144}, 0, 2, {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092150, &D_800920A8, &D_800920A8}, 0, 2, {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009215C, &D_800920A8, &D_800920A8}, 0, 2, {0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092168, &D_800920A8, &D_800920A8}, 0, 2, {0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1}},
+    {{&D_80092174, &D_80092180, &D_8009218C}, 0, 2, {1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1}},
+    {{&D_80092198, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800921A4, &D_800920A8, &D_800920A8}, 0, 2, {0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1}},
+    {{&D_800921B0, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800921BC, &D_800921C8, &D_800921D4}, 0, 2, {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800921E0, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1}},
+    {{&D_800921EC, &D_800921F8, &D_80092204}, 127, 2, {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092210, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009221C, &D_80092228, &D_80092234}, 0, 2, {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092240, &D_8009224C, &D_80092258}, 0, 2, {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092264, &D_80092270, &D_8009227C}, 0, 2, {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092288, &D_80092294, &D_800922A0}, 0, 2, {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800922AC, &D_800922B8, &D_800922C4}, 0, 2, {1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800922D0, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1}},
+    {{&D_800922DC, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800922E8, &D_800922F4, &D_80092300}, 0, 2, {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009230C, &D_80092318, &D_80092324}, 0, 2, {1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1}},
+    {{&D_80092330, &D_8009233C, &D_80092348}, 0, 2, {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092354, &D_80092360, &D_8009236C}, 0, 2, {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092378, &D_80092384, &D_80092390}, 0, 2, {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009239C, &D_800920A8, &D_800920A8}, 127, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800923A8, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1}},
+    {{&D_800923B4, &D_800923C0, &D_800923CC}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1}},
+    {{&D_800923D8, &D_800923E4, &D_800923F0}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1}},
+    {{&D_800923FC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092408, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092414, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092420, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009242C, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092438, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092444, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092450, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009245C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092468, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092474, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092480, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009248C, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092498, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924A4, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924B0, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924BC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924C8, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924D4, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924E0, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924EC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800924F8, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092504, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092510, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009251C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092528, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092534, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092540, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009254C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092558, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092564, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092570, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009257C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092588, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092594, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925A0, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925AC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925B8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925C4, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925D0, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925DC, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925E8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800925F4, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092600, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009260C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092618, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092624, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092630, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009263C, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092648, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092654, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092660, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009266C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092678, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092684, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092690, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009269C, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926A8, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926B4, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926C0, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926CC, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926D8, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926E4, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926F0, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800926FC, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80092708, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092714, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092720, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009272C, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092738, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092744, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092750, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009275C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092768, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092774, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092780, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009278C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092798, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927A4, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927B0, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927BC, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927C8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927D4, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927E0, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927EC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800927F8, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092804, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092810, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009281C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092828, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092834, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092840, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009284C, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092858, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092864, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092870, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009287C, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092888, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80092894, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928A0, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928AC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928B8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928C4, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928D0, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928DC, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928E8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800928F4, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092900, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009290C, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092918, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092924, &D_800920A8, &D_800920A8}, 127, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092930, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009293C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092948, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092954, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092960, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009296C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092978, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092984, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092990, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_8009299C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929A8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929B4, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929C0, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929CC, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929D8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929E4, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929F0, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_800929FC, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A08, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A14, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A20, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A2C, &D_800920A8, &D_800920A8}, 20, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A38, &D_800920A8, &D_800920A8}, 24, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A44, &D_800920A8, &D_800920A8}, 28, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A50, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A5C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A68, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A74, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A80, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A8C, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092A98, &D_800920A8, &D_800920A8}, 16, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80092AA4, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092AB0, &D_800920A8, &D_800920A8}, 32, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80092ABC, &D_800920A8, &D_800920A8}, 0, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092AC8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092AD4, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80092AE0, &D_800920A8, &D_800920A8}, 12, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092AEC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092AF8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092B04, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092B10, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092B1C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80092B28, &D_800920A8, &D_800920A8}, 4, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {{&D_80092B34, &D_80092B40, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092B4C, &D_80092B58, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092B64, &D_80092B70, &D_80092B7C}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092B88, &D_800920A8, &D_800920A8}, 0, 3, {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092B94, &D_80092BA0, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092BAC, &D_80092BB8, &D_80092BC4}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092BD0, &D_80092BDC, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092BE8, &D_80092BF4, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092C00, &D_80092C0C, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092C18, &D_80092C24, &D_80092C30}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092C3C, &D_800920A8, &D_800920A8}, 0, 3, {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092C48, &D_80092C54, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092C60, &D_800920A8, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092C6C, &D_80092C78, &D_80092C84}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092C90, &D_80092C9C, &D_80092CA8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092CB4, &D_80092CC0, &D_80092CCC}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092CD8, &D_80092CE4, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092CF0, &D_80092CFC, &D_80092D08}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092D14, &D_800920A8, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092D20, &D_80092D2C, &D_80092D38}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092D44, &D_80092D50, &D_80092D5C}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092D68, &D_80092D74, &D_80092D80}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092D8C, &D_80092D98, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092DA4, &D_80092DB0, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092DBC, &D_80092DC8, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092DD4, &D_80092DE0, &D_80092DEC}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092DF8, &D_80092E04, &D_80092E10}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092E1C, &D_80092E28, &D_80092E34}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092E40, &D_800920A8, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092E4C, &D_80092E58, &D_80092E64}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092E70, &D_80092E7C, &D_80092E88}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092E94, &D_80092EA0, &D_80092EAC}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092EB8, &D_80092EC4, &D_80092ED0}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092EDC, &D_80092EE8, &D_80092EF4}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092F00, &D_80092F0C, &D_80092F18}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092F24, &D_800920A8, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092F30, &D_80092F3C, &D_80092F48}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092F54, &D_80092F60, &D_80092F6C}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092F78, &D_80092F84, &D_80092F90}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092F9C, &D_80092FA8, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092FB4, &D_80092FC0, &D_80092FCC}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092FD8, &D_80092FE4, &D_80092FF0}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80092FFC, &D_80093008, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093014, &D_80093020, &D_8009302C}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093038, &D_80093044, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093050, &D_8009305C, &D_80093068}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093074, &D_80093080, &D_8009308C}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093098, &D_800930A4, &D_800930B0}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800930BC, &D_800930C8, &D_800930D4}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800930E0, &D_800930EC, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800930F8, &D_80093104, &D_80093110}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009311C, &D_80093128, &D_80093134}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093140, &D_8009314C, &D_80093158}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093164, &D_80093170, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009317C, &D_80093188, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093194, &D_800931A0, &D_800931AC}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800931B8, &D_800931C4, &D_800931D0}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800931DC, &D_800931E8, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1}},
+    {{&D_800931F4, &D_80093200, &D_8009320C}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093218, &D_80093224, &D_80093230}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009323C, &D_80093248, &D_80093254}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093260, &D_8009326C, &D_80093278}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093284, &D_80093290, &D_8009329C}, 0, 3, {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1}},
+    {{&D_800932A8, &D_800932B4, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1}},
+    {{&D_800932C0, &D_800932CC, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1}},
+    {{&D_800932D8, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800932E4, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800932F0, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800932FC, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093308, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093314, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093320, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009332C, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093338, &D_800920A8, &D_800920A8}, 0, 4, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093344, &D_800940A4, &D_800940B0}, 0, 4, {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1}},
+    {{&D_80093350, &D_8009335C, &D_80093368}, 0, 2, {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093374, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093380, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009338C, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093398, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800933A4, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800933B0, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800933BC, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800933C8, &D_800920A8, &D_800920A8}, 0, 2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800933D4, &D_800933E0, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800933EC, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_800933F8, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80093404, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80093410, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_8009341C, &D_800920A8, &D_800920A8}, 8, 1, {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80093494, &D_800934A0, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800934AC, &D_800934B8, &D_800934C4}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800934D0, &D_800934DC, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800934E8, &D_800934F4, &D_80093500}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009350C, &D_80093518, &D_80093524}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093530, &D_8009353C, &D_80093548}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093554, &D_80093560, &D_8009356C}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093578, &D_80093584, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093590, &D_8009359C, &D_800935A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800935B4, &D_800935C0, &D_800935CC}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800935D8, &D_800935E4, &D_800935F0}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800935FC, &D_80093608, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093614, &D_80093620, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009362C, &D_80093638, &D_80093644}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093650, &D_8009365C, &D_80093668}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093674, &D_80093680, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009368C, &D_80093698, &D_800936A4}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800936B0, &D_800936BC, &D_800936C8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800936D4, &D_800936E0, &D_800936EC}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_800936F8, &D_80093704, &D_80093710}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_8009371C, &D_80093728, &D_80093734}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093740, &D_8009374C, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093758, &D_80093764, &D_800920A8}, 0, 3, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+    {{&D_80093770, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}},
+    {{&D_8009377C, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}},
+    {{&D_80093788, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}},
+    {{&D_80093794, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}},
+    {{&D_800937A0, &D_800937AC, &D_800937B8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1}},
+    {{&D_800937C4, &D_800937D0, &D_800937DC}, 127, 2, {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1}},
+    {{&D_800937E8, &D_800937F4, &D_80093800}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1}},
+    {{&D_8009380C, &D_80093818, &D_80093824}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1}},
+    {{&D_80093830, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}},
+    {{&D_8009383C, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}},
+    {{&D_80093848, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}},
+    {{&D_80093854, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}},
+    {{&D_800938C0, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800938CC, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800938D8, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_800938E4, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}},
+    {{&D_800938F0, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}},
+    {{&D_800938FC, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}},
+    {{&D_80093908, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}},
+    {{&D_80093914, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}},
+    {{&D_80093920, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}},
+    {{&D_8009392C, &D_800920A8, &D_800920A8}, 0, 3, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093938, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093944, &D_80093950, &D_8009395C}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093968, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093974, &D_800920A8, &D_800920A8}, 0, 2, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {{&D_80093980, &D_800920A8, &D_800920A8}, 8, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_8009398C, &D_800920A8, &D_800920A8}, 8, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_80093998, &D_800920A8, &D_800920A8}, 16, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_800939A4, &D_800920A8, &D_800920A8}, 16, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_800939B0, &D_800920A8, &D_800920A8}, 24, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_800939BC, &D_800920A8, &D_800920A8}, 24, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_800939C8, &D_800920A8, &D_800920A8}, 32, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
+    {{&D_800939D4, &D_800920A8, &D_800920A8}, 32, 5, {0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0}},
 };
 #endif
 s16 D_80095E84[] = {

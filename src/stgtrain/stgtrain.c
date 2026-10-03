@@ -1061,7 +1061,29 @@ s32 func_800858E0(TrainResult *result, s32 stat) {
     return gained;
 }
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_800859F4);
+/* Lowers a battle stat (1-5) by the training's loss, half of the time, down to 0 */
+s32 func_800859F4(TrainResult *result, s32 stat) {
+    PartnerStats *stats = (PartnerStats *)GAME.funcs.getPartnerStats(result->partner);
+    s16 *value;
+    s32 lost;
+    s32 column;
+
+    if ((u32)(stat - 1) >= 5 || (RANDOM.next() & 1)) {
+        return 0;
+    }
+    value = &stats->stats[stat + 5];
+    column = result->screen->unk7C;
+    if (D_8008B86C[column].range != 0) {
+        lost = D_8008B86C[column].base + RANDOM.next() % D_8008B86C[column].range;
+    } else {
+        lost = D_8008B86C[column].base;
+    }
+    *value -= lost;
+    if (*value < 0) {
+        *value = 0;
+    }
+    return lost;
+}
 
 INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_80085AF8);
 
