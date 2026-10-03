@@ -95,6 +95,12 @@ typedef struct CardDeckWindow {
     /* 0x70 */ void (*close)(struct CardDeckWindow *window);
 } CardDeckWindow;
 
+/* The battle screen's task items */
+typedef struct CardScreenItems {
+    /* 0x00 */ Cursor *cursor;
+    /* 0x04 */ TextWindow *texts[13];
+} CardScreenItems;
+
 /* One side's panel on the battle screen (CardScreen.panels): 0 is the
    player's, 1 the opponent's */
 typedef struct CardPanel {
@@ -231,9 +237,7 @@ typedef struct CardScreen {
     /* 0xE04 */ s16 unkE04;
     /* 0xE06 */ u8 unkE06[4];
     /* 0xE0A */ s16 unkE0A; /* state */
-    /* 0xE0C */ CardScreenE0C unkE0C[5];
-    /* 0xE84 */ u8 unkE84[0x17];
-    /* 0xE9B */ u8 unkE9B;
+    /* 0xE0C */ CardScreenE0C unkE0C[6];
     /* 0xE9C */ u8 unkE9C;
     /* 0xE9D */ u8 unkE9D;
     /* 0xE9E */ u8 unkE9E;

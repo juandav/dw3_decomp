@@ -9,7 +9,15 @@ void initCardDrawer(CardDrawer *obj);
 extern s16 D_800A49D8[];
 extern CardOffset CARDGAME_deckCountOffsets[];
 extern s16 D_800A4AA0[];
-void CARDGAME_updateScreen(CardScreen *screen);
+extern CardOffset D_800A485C[];
+Cursor *createCursor(s16 layerId, s32 depth, s16 x, s16 y);
+void func_80095B44(CardScreen *screen);
+void func_80096C78(CardScreen *screen, CardScreenItems *items);
+void func_800966FC(CardScreen *screen, CardScreenItems *items, CardScreenE0C *window, s32 index);
+void func_80097548(CardScreen *screen, CardScreenItems *items);
+void func_80098E28(CardScreen *screen, CardScreenItems *items);
+void func_80098EB4(CardScreen *screen, CardScreenItems *items);
+void func_8009AA1C(CardScreen *screen, CardScreenItems *items);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800835C4);
 
@@ -579,11 +587,50 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80095B44);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80095C88);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80095E14);
+void func_80095E14(CardScreen *screen, CardScreenItems *items, s32 index, CardScreenDC0 *p) {
+    SpriteDrawer drawer;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80095EE4);
+    initSpriteDrawer(&drawer);
+    drawer.setLayerId(0x100, 1);
+    drawer.setTexture(0x340, 0);
+    drawer.setPivot(D_800A485C[index].x + 4, D_800A485C[index].y + 23);
+    drawer.setScale(0x1000, p->to, 0x1000);
+    drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), p->value + 6, D_800A485C[index].x, D_800A485C[index].y);
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80096018);
+void func_80095EE4(CardScreen *screen, CardScreenItems *items, s32 index, CardScreenDC0 *p) {
+    if (p->state != 0) {
+        switch (p->state) {
+        case 1:
+        default:
+            p->to = 0x1000 - (p->time << 12) / p->duration;
+            p->time -= GFX.funcs.getFrameTime();
+            if (p->time <= 0) {
+                p->state = 2;
+            }
+            break;
+        case 2:
+            p->to = 0x1000;
+            break;
+        case 3:
+            p->time -= GFX.funcs.getFrameTime();
+            if (p->time <= 0) {
+                p->state = 0;
+            }
+            p->to = (p->time << 12) / p->duration;
+            break;
+        }
+        func_80095E14(screen, items, index, p);
+    }
+}
+
+void func_80096018(CardScreen *screen, CardScreenItems *items) {
+    s32 i;
+
+    for (i = 0; i < 3; i++) {
+        func_80095EE4(screen, items, i, &screen->unkDC0[i]);
+    }
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80096080);
 
@@ -595,15 +642,47 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800965D8);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800966FC);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80096A9C);
+void func_80096A9C(CardScreen *screen, CardScreenItems *items) {
+    s32 i;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80096B04);
+    for (i = 0; i < 6; i++) {
+        func_800966FC(screen, items, &screen->unkE0C[i], i);
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80096BD0);
+void func_80096B04(CardScreen *screen, CardScreenItems *items, s16 scale, s32 x, s32 y) {
+    SpriteDrawer drawer;
+
+    initSpriteDrawer(&drawer);
+    drawer.setLayerId(0x100, 1);
+    drawer.setTexture(0x280, 0);
+    drawer.setPivot(0, 0x78);
+    drawer.setScale(scale, 0x1000, 0x1000);
+    drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), 0x1A, x, y);
+}
+
+void func_80096BD0(CardScreen *screen, CardScreenItems *items, s32 x, s32 y) {
+    SpriteDrawer drawer;
+
+    initSpriteDrawer(&drawer);
+    drawer.setLayerId(0x100, 1);
+    drawer.setTexture(0x280, 0);
+    drawer.setScale(0x1000, 0x1000, 0x1000);
+    drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), 0x18, x, y);
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80096C78);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009747C);
+void func_8009747C(CardScreen *screen, CardScreenItems *items, s16 scale, s32 x, s32 y) {
+    SpriteDrawer drawer;
+
+    initSpriteDrawer(&drawer);
+    drawer.setLayerId(0x100, 1);
+    drawer.setTexture(0x340, 0);
+    drawer.setPivot(0, 0x86);
+    drawer.setScale(scale, 0x1000, 0x1000);
+    drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 1, x, y);
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80097548);
 
@@ -670,7 +749,47 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009A990);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009AA1C);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", CARDGAME_updateScreen);
+void CARDGAME_updateScreen(CardScreen *screen, CardScreenItems *items) {
+    switch (screen->state) {
+    case 0:
+    default:
+        screen->nextState(screen);
+        items->cursor = createCursor(0x100, 0, 0, 0);
+        items->cursor->setVisible(items->cursor, 0);
+        items->texts[0] = createTextWindow(0x100, 1, 0, 0);
+        items->texts[1] = createTextWindow(0x100, 1, 0, 0);
+        items->texts[2] = createTextWindow(0x100, 1, 0, 0);
+        items->texts[3] = createTextWindow(0x100, 1, 0, 0);
+        items->texts[4] = createTextWindow(0x100, 1, 0, 0);
+        items->texts[5] = createTextWindow(0x100, 1, 0, 0);
+        items->texts[6] = createTextWindow(0x100, 1, 0, 0);
+        items->texts[6]->setLines(items->texts[6], 3);
+        items->texts[7] = createTextWindow(0x100, 1, 0, 0);
+        items->texts[8] = createTextWindow(0x100, 1, 0, 0);
+        items->texts[9] = createTextWindow(0x100, 1, 0, 0);
+        items->texts[10] = createTextWindow(0x100, 1, 0, 0);
+        items->texts[10]->setLines(items->texts[10], 3);
+        items->texts[11] = createTextWindow(0x100, 1, 0, 0);
+        items->texts[11]->setLines(items->texts[11], 5);
+        items->texts[12] = createTextWindow(0x100, 1, 0, 0);
+        items->texts[12]->setLines(items->texts[12], 2);
+        break;
+    case 1:
+        screen->time += GFX.funcs.getFrameTime();
+        screen->unk54 = 0;
+        func_80098E28(screen, items);
+        func_80097548(screen, items);
+        func_80096C78(screen, items);
+        func_80096A9C(screen, items);
+        func_8009AA1C(screen, items);
+        func_80096018(screen, items);
+        func_80095B44(screen);
+        func_80098EB4(screen, items);
+        break;
+    case 3:
+        break;
+    }
+}
 
 void func_8009AD94(CardScreen *screen, s32 index, s16 value) {
     screen->unkDC0[index].from = 0x1000;
@@ -1957,8 +2076,9 @@ s32 D_800A5958[] = {
     0x1800, 0x9C00, 0x1800, 0x2600,
 };
 #endif
-u16 D_800A485C[] = {
-    0x0049, 0x0061, 0x007B, 0x0061, 0x00AD, 0x0061,
+/* where the three CardScreenDC0 gauges are */
+CardOffset D_800A485C[] = {
+    {0x49, 0x61}, {0x7B, 0x61}, {0xAD, 0x61},
 };
 s32 D_800A4868[] = {
     0xA0000, 0xBE0202, 0x203000A, 0x1800BE,
