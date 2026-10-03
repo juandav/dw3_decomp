@@ -7,7 +7,56 @@ void func_8008AB58(StatusScreen4 *screen, StatusScreen4Windows *windows);
 void func_8008BF2C(StatusScreen4 *screen);
 void func_8008D380(StatusScreen4 *screen, StatusScreen4Windows *windows);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus_5", func_8008AB58);
+/* Creates the windows of the fifth screen */
+void func_8008AB58(StatusScreen4 *screen, StatusScreen4Windows *windows) {
+    WindowPos *pos;
+    s32 i;
+    s32 j;
+
+    pos = &STSTATUS_data.layout[11];
+    windows->title = createTextWindow(screen->layer, 1, pos->x, pos->y);
+    for (j = 0; j < 3; j++) {
+        pos = &STSTATUS_data.layout[0];
+        windows->pages[j].name = createTextWindow(screen->layer, 1, pos->x, pos->y + j * 46);
+        pos = &STSTATUS_data.layout[1];
+        for (i = 0; i < 5; i++, pos++) {
+            windows->pages[j].labels[i] = createTextWindow(screen->layer, 3, pos->x, pos->y + j * 46);
+        }
+        pos = &STSTATUS_data.layout[6];
+        for (i = 0; i < 5; i++, pos++) {
+            windows->pages[j].values[i] = createTextWindow(screen->layer, 3, pos->x, pos->y + j * 46);
+        }
+    }
+    pos = &STSTATUS_data.layout[12];
+    windows->help = createTextWindow(screen->layer, 1, pos->x, pos->y);
+    windows->help->setLines(windows->help, 2);
+    windows->help2 = createTextWindow(screen->layer, 1, pos->x, pos->y + 14);
+    for (i = 0; i < 2; i++) {
+        windows->options[i] = createTextWindow(screen->layer, 1, 0xAC, 0x13 + i * 14);
+    }
+    windows->cursor = createCursor(screen->layer, screen->depth - 1, 0x98, screen->option * 14 + 0x13);
+    windows->cursor->setVisible(windows->cursor, 0);
+    windows->unk9C = createTextWindow(screen->layer, 3, 0x42, 0x45);
+    windows->unkA0 = createTextWindow(screen->layer, 3, 0x46, 0x45);
+    windows->slotTitle = createTextWindow(screen->layer, 1, 0xA7, 0x37);
+    for (i = 0; i < 3; i++) {
+        windows->slots[i] = createTextWindow(screen->layer, 1, 0xB2, 0x47 + i * 14);
+    }
+    windows->equipTitle = createTextWindow(screen->layer, 1, 0xA7, 0x79);
+    for (i = 0; i < 6; i++) {
+        windows->equip[i] = createTextWindow(screen->layer, 1, 0xC0, 0x89 + i * 14);
+    }
+    for (i = 0; i < 6; i++) {
+        windows->values[i] = createTextWindow(screen->layer, 1, 0x32, 0x5B + i * 14);
+    }
+    for (i = 0; i < 7; i++) {
+        windows->values[6 + i] = createTextWindow(screen->layer, 1, 0x5B, 0x5B + i * 14);
+    }
+    windows->unk108 = createTextWindow(screen->layer, 1, 0x10, 0xCB);
+    windows->unk108->setDepth(windows->unk108, screen->depth - 1);
+    windows->unk104 = createTextWindow(screen->layer, 1, 0x2D, 0xCB);
+    windows->unk104->setDepth(windows->unk104, screen->depth - 1);
+}
 
 /* As func_800830AC */
 void func_8008AF7C(StatusScreen *screen, StatusPagesB *windows, s32 member, s32 show) {
@@ -87,7 +136,40 @@ void func_8008B38C(StatusScreen4 *screen, StatusScreen4Windows *windows, s32 sho
     }
 }
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus_5", func_8008B440);
+/* The partner's slots: the entries in it (getPartnerSlots), the one it starts
+   battles as (unk8) in palette 1, or hides them */
+void func_8008B440(StatusScreen4 *screen, StatusScreen4Windows *windows, s32 show) {
+    s16 slots[4];
+    Partner *partner;
+    DigimonData *entry;
+    s32 id;
+    s32 i;
+
+    if (show) {
+        id = GAME.funcs.getPartyMember(screen->member);
+        GAME.funcs.getPartnerSlots(id, slots);
+        partner = &GAME.partners[id];
+        windows->slotTitle->setString(windows->slotTitle, FILE_CACHE.load(TEXT_FILE(0xB1)), 0x34);
+        for (i = 0; i < 3; i++) {
+            if (slots[i] >= 4) {
+                entry = ON_PARTNER_ENTRY_ADDED(slots[i]);
+                windows->slots[i]->setString(windows->slots[i], FILE_CACHE.load(TEXT_FILE(0x4F)), entry->nameId);
+                if (partner->unk8 == slots[i]) {
+                    windows->slots[i]->setPalette(windows->slots[i], 1);
+                } else {
+                    windows->slots[i]->setPalette(windows->slots[i], 0);
+                }
+            } else {
+                windows->slots[i]->setVisible(windows->slots[i], 0);
+            }
+        }
+    } else {
+        windows->slotTitle->setVisible(windows->slotTitle, 0);
+        for (i = 0; i < 3; i++) {
+            windows->slots[i]->setVisible(windows->slots[i], 0);
+        }
+    }
+}
 
 /* The party member's equipment, or the slots' names where it has none */
 void func_8008B628(StatusScreen4 *screen, StatusScreen4Windows *windows, s32 show) {
@@ -161,7 +243,125 @@ void func_8008B7A0(StatusScreen4 *screen, StatusScreen4Windows *windows, s32 sho
     }
 }
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus_5", func_8008BA38);
+/* Shows the party member's stats as they would be with the item in the
+   slot, in another palette the ones it changes (slot -1: as they are) */
+void func_8008BA38(StatusScreen4 *screen, s32 slot, s32 item) {
+    StatusScreen4Windows *windows = screen->children;
+    PartnerTotals now;
+    PartnerTotals then;
+    StatusEquip saved;
+    PartnerStats *stats;
+    s16 *equip;
+    s16 *hand;
+    u8 *data;
+    s32 id;
+    s32 kind;
+    s32 i;
+    s32 j;
+    s32 before;
+    s32 after;
+
+    if (slot == -1) {
+        func_8008B7A0(screen, windows, 1);
+        return;
+    }
+    id = GAME.funcs.getPartyMember(screen->member);
+    stats = (PartnerStats *)GAME.funcs.getPartnerStats(id);
+    GAME.funcs.computeStats(id, &now);
+    saved = *(StatusEquip *)stats->equip;
+    if (*(stats->equip + slot) != 0) {
+        data = GET_ITEM[0](*(stats->equip + slot))->data;
+        if (data[2] == 7) {
+            stats->equip[2] = 0;
+            stats->equip[3] = 0;
+        } else {
+            *(stats->equip + slot) = 0;
+        }
+    }
+    if (item > 0) {
+        data = GET_ITEM[0](item)->data;
+        if (data[2] == 7) {
+            hand = &stats->equip[2];
+            if (*hand == 0) {
+                hand = NULL;
+                if (stats->equip[3] != 0) {
+                    hand = &stats->equip[3];
+                }
+            }
+            if (hand != NULL) {
+                *hand = 0;
+            }
+        } else if (data[2] == 8) {
+            kind = data[3];
+            for (j = 0; j < 2; j++) {
+                equip = &stats->equip[j + 4];
+                if (*equip != 0) {
+                    data = GET_ITEM[0](*equip)->data;
+                    if (data[3] == kind) {
+                        *equip = 0;
+                    }
+                }
+            }
+        }
+        data = GET_ITEM[0](item)->data;
+        if (data[2] == 7) {
+            stats->equip[2] = item;
+            stats->equip[3] = item;
+        } else {
+            *(stats->equip + slot) = item;
+        }
+    }
+    GAME_FUNCS.computeStats(id, &then);
+    *(StatusEquip *)stats->equip = saved;
+    for (i = 0; i < 6; i++) {
+        /* sums and not then.stats[...]: the match depends on them, which put
+           the index first in the addu */
+        after = *(then.stats + D_80099B58[i]);
+        before = *(now.stats + D_80099B58[i]);
+        if (after >= 1000) {
+            windows->values[i]->setNumber(windows->values[i], 0, 999);
+        } else {
+            windows->values[i]->setNumber(windows->values[i], 0, after);
+        }
+        if (before < after) {
+            windows->values[i]->setPalette(windows->values[i], 1);
+        } else if (after < before) {
+            windows->values[i]->setPalette(windows->values[i], 5);
+        } else {
+            windows->values[i]->setPalette(windows->values[i], 0);
+            if (i == 0) {
+                if (now.stats[19]) {
+                    windows->values[0]->setPalette(windows->values[0], 6);
+                }
+            } else if (i == 1) {
+                if (now.stats[20]) {
+                    windows->values[1]->setPalette(windows->values[1], 6);
+                }
+            } else if (i == 4 && now.stats[21]) {
+                windows->values[4]->setPalette(windows->values[4], 6);
+            }
+        }
+    }
+    for (i = 0; i < 7; i++) {
+        after = *(then.stats + D_80099B58[i + 6]);
+        before = *(now.stats + D_80099B58[i + 6]);
+        if (after >= 1000) {
+            windows->values[i + 6]->setNumber(windows->values[i + 6], 0, 999);
+        } else {
+            windows->values[i + 6]->setNumber(windows->values[i + 6], 0, after);
+        }
+        if (before < after) {
+            windows->values[i + 6]->setPalette(windows->values[i + 6], 1);
+        } else if (after < before) {
+            windows->values[i + 6]->setPalette(windows->values[i + 6], 5);
+        } else {
+            windows->values[i + 6]->setPalette(windows->values[i + 6], 0);
+        }
+    }
+    for (i = 0; i < 13; i++) {
+        windows->values[i]->setRightAlign(windows->values[i], 1);
+    }
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus_5", func_8008BF2C);
 

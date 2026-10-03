@@ -20,7 +20,51 @@ void func_80092B80(StatusPanel0 *panel) {
     }
 }
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus_8", func_80092C38);
+/* Lists the techniques of a party member that can be used here (0xB8-0xBC),
+   each once, and returns how many */
+s32 func_80092C38(StatusScreen8 *screen, s32 member) {
+    StatusTechRow *row;
+    StatusPartnerEntry *entry;
+    s16 *techs;
+    s32 partner;
+    s32 count;
+    s32 found;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 tech;
+
+    partner = GAME.funcs.getPartyMember(member);
+    GAME.funcs.getPartnerSlots(partner, screen->rows[member].slots);
+    /* count set with i, row in the loop, techs and found set with k: the
+       match depends on them, which give the registers */
+    for (i = 0, count = 0; i < 3; i++) {
+        row = &screen->rows[member];
+        if (screen->rows[member].slots[i] >= 3) {
+            entry = &row->entries[i];
+            GAME_FUNCS.getPartnerEntry(partner, screen->rows[member].slots[i], entry);
+            for (j = 0; j < 6; j++) {
+                tech = entry->techs[j] & 0x1FFF;
+                if (tech >= 0xB8 && tech < 0xBD) {
+                    techs = row->techs;
+                    for (k = 0, found = 0; k < 5; k++) {
+                        if (tech == techs[k]) {
+                            found = 1;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        screen->rows[member].techs[count++] = tech;
+                        if (count >= 5) {
+                            return count;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return count;
+}
 
 /* The chosen technique, or 0 if its user hasn't the MP for it */
 s32 func_80092DC4(StatusScreen8 *screen) {

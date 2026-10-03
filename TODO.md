@@ -141,8 +141,8 @@ own.
   `FIELDSTG` (209 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
   `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (87 / 94),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
-  `STSTATUS` (101 / 123), `STCRDSHP` (43 / 45).
-  Started: `WFIGHTTS` (13 / 14), `WFIGHTMN` (39 / 42), `FIGHTSTG`
+  `STSTATUS` (105 / 123), `STCRDSHP` (43 / 45).
+  Started: `WFIGHTTS` (13 / 14), `WFIGHTMN` (41 / 42), `FIGHTSTG`
   (205 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_buildCardList` (2 diffs) and `STCRDDEK_createScreenWindows`
@@ -199,15 +199,20 @@ own.
   `j + D_800A8270[1] + 0x37`, the original's order, stops gcc hoisting the
   scroll's address (60 diffs); the steps (`a3`/`t0`) and `j` and
   `&D_800A32E0` (`s1`/`s2`) are swapped too, and a 12-minute permuter run
-  found nothing natural. `WFIGHTMN`: `func_800A5538` (the units' stats
-  from the party and the battle's enemies) gets to 37 diffs with a
-  `fighters = D_800A31E8.fighters[0]` pointer: `&GAME` (5 refs over 76
-  insns) then outranks `fighters` (4 over 68) for `s3`, and the original doesn't
-  schedule the enemies loop's load of `D_800A2584` above the `mp` stores,
-  as if they could alias (a 15-minute permuter run: nothing natural).
-  `func_800A7DB0` (21, case 1's registers) and `func_800A86E0` (85,
-  register allocation) were not retried. `CARDGAME`: `func_8009DE0C` (the
-  sort of a list of cards by `battle->cards[list[k]]`, swapping
+  found nothing natural; the variable reuse and statement order that matched
+  its neighbours change nothing. `WFIGHTMN`: `func_800A5538` (the units' stats
+  from the party and the battle's enemies) is at 29 diffs. A
+  `units = D_800A31E8.fighters[0]` pointer, set again to `fighters[1]` for
+  the enemies' loop, gives the party's loop its registers; the rest is the
+  enemies' loop: the original doesn't schedule its load of
+  `D_800A2584` above the `mp` stores, as if they could alias. GCC 2.8's
+  alias analysis separates them because the stores' base is
+  `D_800A31E8` and the load's another symbol; the original's stores must
+  have lost their base (a pointer stepped with `++` loses it, but then
+  gets the wrong registers). Declaring `D_800A2584` as a struct's only
+  member matches the size (8 diffs), but it is a scalar in `FIGHTSTG`;
+  the permuter's best (2 diffs) ends the stores' block with an empty
+  `do {} while (0)`. `CARDGAME`: `func_8009DE0C` (the sort of a list of cards by `battle->cards[list[k]]`, swapping
   `unk30A` and `unk446` with it by flag) stays at 22 diffs: `from` and
   `flags & 1` swap `a1` and `s0`, and the loop counter and the `unk446`
   pointer `t3` and `t4`. Our `from` has 7 refs over 59 insns, `flags & 1` 4
@@ -221,12 +226,15 @@ own.
   `QueuedEvent`, `EventQueue`, `BattleEvent`, `BattleTableEntry`...); the
   call that reads `D_800A3104` stays that.
 - [ ] The field menu's near misses. `STSTATUS`: `func_8008340C` and
-  `func_80084D14` (41 diffs each, register allocation), `func_80097F2C`
-  (`s0`/`s1` swapped; the permuter only finds a forced form),
-  `func_80092EEC` (a value the original keeps in a saved register, ours
-  spills), `func_8008BA38` (registers; the permuter got no closer than 820)
-  and `func_80092C38` (about 76 diffs); `func_8008AB58` and `func_8008B440`
-  are still split asm, and the rest are large. `STCRDSHP`: `func_800870F4` (1 diff: the original
+  `func_80084D14` (41 diffs each: `screen` takes `s6` where the original
+  gives it to `&GAME` and `&FILE_CACHE`, and three of the third loop's
+  `i * 46` sums swap `s0`, `s2` and `s4`; counters and `level`s of their
+  own per loop, a `PanelAnim` pointer, a `y` and a `void *` parameter
+  change nothing), `func_80097F2C` (the same `screen`/`&GFX` swap, `s0` and
+  `s1`; the permuter only finds a forced form) and `func_80092EEC`
+  (the draft is old, 182 diffs: the original spills the partner and the
+  target's id to the stack, which ours keeps in saved registers, and
+  indexes `D_800427E8` with `tech - 1`). The rest are large and untried. `STCRDSHP`: `func_800870F4` (1 diff: the original
   copies the quotient of the count by 6 into another register for the
   `addu` of the pages count; computing the remainder first, as in
   `pages = buy->count % 6 != 0; buy->pages = pages + buy->count / 6;`,
@@ -272,8 +280,9 @@ own.
   overlay is C. objdiff counts a section only when all of it
   matches, so the `.rodata` of the overlays with functions still in asm
   doesn't count yet. `INCLUDE_RODATA` is left in `SHOCKTST` (7),
-  `FIGHTSTG` (4), `SOUNDTST` (4), `STAGSLCT` (3), `FIELDSTG` and
-  `WFIGHTTS` (1 each). The European `CNTY_SEL` `.data`
+  `FIGHTSTG` (4), `SOUNDTST` (4), `STAGSLCT` (3) and `FIELDSTG` (1).
+  `WFIGHTTS`'s strings are a `const char` array whose padding after each
+  table's last string is what the assembler left there, in both versions. The European `CNTY_SEL` `.data`
   stays at 98.95 % in the report: the file ends 3 bytes into its last
   word, which splat's object leaves out.
 
