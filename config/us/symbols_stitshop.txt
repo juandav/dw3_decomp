@@ -2,3 +2,25 @@
 
 STITSHOP_shops = 0x8008C6E0; // size:0xF8
 STITSHOP_funcs = 0x8008C7D8; // size:0x2C
+STITSHOP_startFader = 0x80082ADC; // type:func
+STITSHOP_drawFader = 0x80082B64; // type:func
+STITSHOP_updateFader = 0x80082CA8; // type:func
+STITSHOP_createFader = 0x80082D5C; // type:func
+STITSHOP_updateBuy = 0x80084FCC; // type:func
+STITSHOP_createBuy = 0x800850A8; // type:func
+STITSHOP_updateSell = 0x800869F8; // type:func
+STITSHOP_createSell = 0x80086AD8; // type:func
+STITSHOP_getSelectedItem = 0x80087F1C; // type:func
+STITSHOP_listSellable = 0x80087FD0; // type:func
+STITSHOP_createItemList = 0x80088094; // type:func
+STITSHOP_createInfo = 0x8008AB04; // type:func
+STITSHOP_updateShop = 0x8008B614; // type:func
+STITSHOP_createShop = 0x8008B77C; // type:func
+STITSHOP_loadFiles = 0x8008B7E0; // type:func
+STITSHOP_filesLoading = 0x8008B880; // type:func
+STITSHOP_startFade = 0x8008B908; // type:func
+STITSHOP_updateFade = 0x8008B99C; // type:func
+STITSHOP_startLerp = 0x8008BA08; // type:func
+STITSHOP_updateLerp = 0x8008BA48; // type:func
+STITSHOP_getShopItems = 0x8008BAB4; // type:func
+STITSHOP_canEquip = 0x8008BAF8; // type:func

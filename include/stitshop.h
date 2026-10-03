@@ -60,7 +60,7 @@ typedef struct ShopStatRow {
     /* 0x10 */ s32 skip2; /* -1: none */
 } ShopStatRow;
 
-/* The panel with the selected item's details (func_8008AB04) */
+/* The panel with the selected item's details (STITSHOP_createInfo) */
 typedef struct ShopInfo {
     TASK_HEADER(ShopInfo);
     /* 0x050 */ s32 layer;
@@ -81,7 +81,7 @@ typedef struct ShopInfo {
     /* 0x244 */ void (*func_8008AAB0)(struct ShopInfo *info, s32 arg);
 } ShopInfo;
 
-/* The list of the items to buy or sell (func_80088094) */
+/* The list of the items to buy or sell (STITSHOP_createItemList) */
 typedef struct ShopItemList {
     TASK_HEADER(ShopItemList);
     /* 0x050 */ struct Task *dialog; /* ShopBuy or ShopSell */
@@ -117,7 +117,7 @@ typedef struct ShopItemListWindows {
     /* 0x4C */ Cursor *cursor;
 } ShopItemListWindows;
 
-/* The dialog to buy an item (func_800850A8) */
+/* The dialog to buy an item (STITSHOP_createBuy) */
 typedef struct ShopBuy {
     TASK_HEADER(ShopBuy);
     /* 0x50 */ void (*showItem)(struct ShopBuy *buy, s32 item, s32 arg);
@@ -146,7 +146,7 @@ typedef struct ShopBuyWindows {
     /* 0x20 */ Cursor *cursor;
 } ShopBuyWindows;
 
-/* The dialog to sell an item (func_80086AD8) */
+/* The dialog to sell an item (STITSHOP_createSell) */
 typedef struct ShopSell {
     TASK_HEADER(ShopSell);
     /* 0x50 */ void (*showItem)(struct ShopSell *sell, s32 item, s32 arg);

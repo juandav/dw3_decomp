@@ -2,8 +2,8 @@
 #define STGDGLAB_H
 
 /* STGDGLAB.PRO: a lab that manages the partners. Its main menu
-   (func_80089F20) opens one of three screens (D_8008ECDC); on the way in
-   and out it packs the party (func_8008E4B4) so that the members come
+   (STGDGLAB_createMenu) opens one of three screens (STGDGLAB_screens); on the way in
+   and out it packs the party (STGDGLAB_packParty) so that the members come
    first. Its strings are in files 0x3A, 0x4F, 0x48, 0xA3 and 0x9C. */
 
 #include "game.h"
@@ -15,14 +15,14 @@
 #define FILE_LAB_SPRITES 0x2C5
 #endif
 
-/* The lab's main menu (func_80089F20) */
+/* The lab's main menu (STGDGLAB_createMenu) */
 typedef struct LabMenu {
     TASK_HEADER(LabMenu);
     /* 0x050 */ struct Lab *lab;
     /* 0x054 */ s32 picked;
     /* 0x058 */ s32 layer;
     /* 0x05C */ s32 depth;
-    /* 0x060 */ s32 choice; /* into D_8008ECDC */
+    /* 0x060 */ s32 choice; /* into STGDGLAB_screens */
     /* 0x064 */ PanelAnim panels[9];
     /* 0x0F4 */ s32 unkF4;
     /* 0x0F8 */ s32 unkF8;
@@ -40,7 +40,7 @@ typedef struct LabMenuWindows {
     /* 0x40 */ Task *unk40[3];
 } LabMenuWindows;
 
-/* A recipe of D_8008F58C's tables: how many of the ids are needed, then up
+/* A recipe of STGDGLAB_tables's tables: how many of the ids are needed, then up
    to five ids (0: none) */
 typedef s16 LabRecipe[6];
 
@@ -78,7 +78,7 @@ typedef struct LabScreen3 {
     /* 0x05C */ s32 unk5C;
     /* 0x060 */ s16 owned[44];
     /* 0x0B8 */ s32 ownedCount;
-    /* 0x0BC */ s32 table; /* into D_8008F58C.recipes */
+    /* 0x0BC */ s32 table; /* into STGDGLAB_tables.recipes */
     /* 0x0C0 */ s32 row;
     /* 0x0C4 */ s32 unkC4[3];
     /* 0x0D0 */ s32 found[4][4][5]; /* the owned ids of each recipe */
@@ -131,7 +131,7 @@ typedef struct LabPanel3Windows {
     /* 0x6C */ Task *unk6C;
 } LabPanel3Windows;
 
-/* The mode's main task (func_8008E834) */
+/* The mode's main task (STGDGLAB_createLab) */
 typedef struct Lab {
     TASK_HEADER(Lab);
     /* 0x50 */ s32 layer;
@@ -184,6 +184,6 @@ typedef struct LabFuncs {
 } LabFuncs;
 
 extern LabFuncs STGDGLAB_funcs;
-extern LabTables D_8008F58C;
+extern LabTables STGDGLAB_tables;
 
 #endif /* STGDGLAB_H */

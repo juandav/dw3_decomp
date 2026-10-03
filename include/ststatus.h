@@ -38,7 +38,7 @@ typedef struct FieldMenuScreenChildren {
     /* 0x4 */ Task *screen;
 } FieldMenuScreenChildren;
 
-/* A screen of the field menu (D_80099C9C) */
+/* A screen of the field menu (STSTATUS_screens) */
 typedef struct StatusScreen {
     TASK_HEADER(StatusScreen);
     /* 0x50 */ FieldMenuScreen *menu;

@@ -3,10 +3,10 @@
 
 Task *func_80084CF4(Lab *lab);
 Task *func_80087FF0(Lab *lab);
-LabMenu *func_80089F20(Lab *lab);
+LabMenu *STGDGLAB_createMenu(Lab *lab);
 Task *func_8008BB30(Lab *lab);
-ScreenFade *func_80082A84(void);
-void func_8008288C(ScreenFade *task);
+ScreenFade *STGDGLAB_createFader(void);
+void STGDGLAB_drawFader(ScreenFade *task);
 void func_800869FC(LabScreen2 *screen, void *children);
 void func_80086F6C(LabScreen2 *screen, void *children);
 void func_80087B68(LabScreen2 *screen, void *children);
@@ -19,33 +19,33 @@ void func_8008B960(LabScreen1 *screen, void *children);
 void func_8008C234(LabPanel2 *panel, void *children);
 void func_8008E134(LabPanel3 *panel, void *children);
 void func_8008D25C(LabPanel3 *panel, LabPanel3Windows *windows, s32 arg);
-void func_80088038(LabMenu *menu);
-void func_80088074(LabMenu *menu);
-void func_80089E2C(LabMenu *menu, void *children);
+void STGDGLAB_openMenu(LabMenu *menu);
+void STGDGLAB_closeMenu(LabMenu *menu);
+void STGDGLAB_updateMenu(LabMenu *menu, void *children);
 void func_8008D80C(LabPanel3 *panel);
 void func_80087F48(LabScreen2 *screen, void *children);
 s32 func_80082C1C(LabScreen3 *screen, s32 row, u32 col);
-void func_80089F80(ScrollBar *bar, s32 x, s32 width);
-void func_80089F8C(ScrollBar *bar, s32 top, s32 bottom);
-void func_80089FA0(ScrollBar *bar, s32 pageSize, s32 count);
-void func_80089FB4(ScrollBar *bar, s32 pos);
+void STGDGLAB_setScrollBarX(ScrollBar *bar, s32 x, s32 width);
+void STGDGLAB_setScrollBarRange(ScrollBar *bar, s32 top, s32 bottom);
+void STGDGLAB_setScrollBarCount(ScrollBar *bar, s32 pageSize, s32 count);
+void STGDGLAB_setScrollBarPos(ScrollBar *bar, s32 pos);
 void func_8008E394(Lab *lab, LabChildren *children);
-void func_8008E4B4(Lab *lab);
+void STGDGLAB_packParty(Lab *lab);
 s32 func_8008E704(Lab *lab);
 s32 func_8008E760(Lab *lab);
 s32 func_8008E7BC(Lab *lab);
 void func_8008E7F0(Lab *lab);
-Lab *func_8008E834(void);
-void func_8008E8A4(void);
-s32 func_8008E9B0(void);
-void func_8008EA50(PanelAnim *fade, s32 fadeIn);
-s32 func_8008EAE4(PanelAnim *fade);
-void func_8008EB50(LabLerp *lerp, s32 from, s32 to, s32 frames);
-s32 func_8008EB90(LabLerp *lerp);
+Lab *STGDGLAB_createLab(void);
+void STGDGLAB_loadFiles(void);
+s32 STGDGLAB_filesLoading(void);
+void STGDGLAB_startFade(PanelAnim *fade, s32 fadeIn);
+s32 STGDGLAB_updateFade(PanelAnim *fade);
+void STGDGLAB_startLerp(LabLerp *lerp, s32 from, s32 to, s32 frames);
+s32 STGDGLAB_updateLerp(LabLerp *lerp);
 s16 func_8008EBFC(s32 id);
 s16 func_8008EC48(s32 id);
 
-extern Task *(*D_8008ECDC[])(Lab *lab);
+extern Task *(*STGDGLAB_screens[])(Lab *lab);
 extern LabEntry D_8008EE4C[];
 
 void func_800826E0(Task *task, Task **children) {
@@ -64,7 +64,7 @@ void func_800826E0(Task *task, Task **children) {
         rect.h = 0xF0;
         layer = GFX.funcs.createLayer(&rect, 3, 0x1000);
         layer->setBgColor(layer, 0, 0, 0);
-        children[0] = (Task *)func_8008E834();
+        children[0] = (Task *)STGDGLAB_createLab();
         task->nextState(task);
         break;
     case TASK_RUN:
@@ -78,7 +78,7 @@ Task *func_800827D8(void) {
     return createTask(func_800826E0, sizeof(Task), 4);
 }
 
-void func_80082804(ScreenFade *task, s32 fadeIn, s32 duration) {
+void STGDGLAB_startFader(ScreenFade *task, s32 fadeIn, s32 duration) {
     task->setState(task, TASK_RUN);
     task->substate = 1;
     task->fadeIn = fadeIn;
@@ -91,7 +91,7 @@ void func_80082804(ScreenFade *task, s32 fadeIn, s32 duration) {
     }
 }
 
-void func_8008288C(ScreenFade *task) {
+void STGDGLAB_drawFader(ScreenFade *task) {
     Layer *layer = GFX.funcs.getLayer(task->layerId);
     u_long *ot = (u_long *)layer->getOtEntry(layer, task->depth);
     POLY_F4 *poly = GFX.funcs.getPrim();
@@ -112,7 +112,7 @@ void func_8008288C(ScreenFade *task) {
     GFX.funcs.setPrim(mode + 1);
 }
 
-void func_800829D0(ScreenFade *task) {
+void STGDGLAB_updateFader(ScreenFade *task) {
     switch (task->state) {
     case 0:
     default:
@@ -134,17 +134,17 @@ void func_800829D0(ScreenFade *task) {
         }
         /* fallthrough */
     case 2:
-        func_8008288C(task);
+        STGDGLAB_drawFader(task);
         break;
     case 3:
         break;
     }
 }
 
-ScreenFade *func_80082A84(void) {
-    ScreenFade *task = createTask(func_800829D0, sizeof(ScreenFade), 0);
+ScreenFade *STGDGLAB_createFader(void) {
+    ScreenFade *task = createTask(STGDGLAB_updateFader, sizeof(ScreenFade), 0);
 
-    task->start = func_80082804;
+    task->start = STGDGLAB_startFader;
     task->layerId = 0x1000;
     task->depth = 6;
     return task;
@@ -162,7 +162,7 @@ s32 func_80082C1C(LabScreen3 *screen, s32 row, u32 col) {
         return 0;
     }
     id = 0;
-    ids = &D_8008F58C.recipes[screen->table][row * 4 + col][1];
+    ids = &STGDGLAB_tables.recipes[screen->table][row * 4 + col][1];
     for (i = 0; i < 5; i++) {
         if (*ids > 0) {
             id = *ids;
@@ -282,13 +282,13 @@ Task *func_80087FF0(Lab *lab) {
     return (Task *)screen;
 }
 
-void func_80088038(LabMenu *menu) {
+void STGDGLAB_openMenu(LabMenu *menu) {
     menu->state = TASK_DONE;
     menu->counter = 0;
     STGDGLAB_funcs.startFade(&menu->panels[3], 1);
 }
 
-void func_80088074(LabMenu *menu) {
+void STGDGLAB_closeMenu(LabMenu *menu) {
     LabMenuWindows *windows;
     s32 i;
 
@@ -318,7 +318,7 @@ INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_800884A0);
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_800893FC);
 
-void func_80089E2C(LabMenu *menu, void *children) {
+void STGDGLAB_updateMenu(LabMenu *menu, void *children) {
     switch (menu->state) {
     case TASK_INIT:
     default:
@@ -351,39 +351,39 @@ void func_80089E2C(LabMenu *menu, void *children) {
     }
 }
 
-LabMenu *func_80089F20(Lab *lab) {
-    LabMenu *menu = createTask(func_80089E2C, sizeof(LabMenu), sizeof(LabMenuWindows));
+LabMenu *STGDGLAB_createMenu(Lab *lab) {
+    LabMenu *menu = createTask(STGDGLAB_updateMenu, sizeof(LabMenu), sizeof(LabMenuWindows));
 
-    menu->open = func_80088038;
-    menu->close = func_80088074;
+    menu->open = STGDGLAB_openMenu;
+    menu->close = STGDGLAB_closeMenu;
     menu->layer = 0x1000;
     menu->depth = 2;
     menu->lab = lab;
     return menu;
 }
 
-void func_80089F80(ScrollBar *bar, s32 x, s32 width) {
+void STGDGLAB_setScrollBarX(ScrollBar *bar, s32 x, s32 width) {
     bar->x = x;
     bar->width = width;
 }
 
-void func_80089F8C(ScrollBar *bar, s32 top, s32 bottom) {
+void STGDGLAB_setScrollBarRange(ScrollBar *bar, s32 top, s32 bottom) {
     bar->top = top;
     bar->bottom = bottom;
     bar->hasRange = 1;
 }
 
-void func_80089FA0(ScrollBar *bar, s32 pageSize, s32 count) {
+void STGDGLAB_setScrollBarCount(ScrollBar *bar, s32 pageSize, s32 count) {
     bar->pageSize = pageSize;
     bar->count = count;
     bar->hasCount = 1;
 }
 
-void func_80089FB4(ScrollBar *bar, s32 pos) {
+void STGDGLAB_setScrollBarPos(ScrollBar *bar, s32 pos) {
     bar->pos = pos;
 }
 
-void func_80089FBC(ScrollBar *bar) {
+void STGDGLAB_updateScrollBar(ScrollBar *bar) {
     Layer *layer;
     u_long *ot;
     POLY_F4 *poly;
@@ -439,13 +439,13 @@ void func_80089FBC(ScrollBar *bar) {
     }
 }
 
-ScrollBar *func_8008A1E8(void) {
-    ScrollBar *bar = createTask(func_80089FBC, sizeof(ScrollBar), 0);
+ScrollBar *STGDGLAB_createScrollBar(void) {
+    ScrollBar *bar = createTask(STGDGLAB_updateScrollBar, sizeof(ScrollBar), 0);
 
-    bar->setX = func_80089F80;
-    bar->setRange = func_80089F8C;
-    bar->setCount = func_80089FA0;
-    bar->setPos = func_80089FB4;
+    bar->setX = STGDGLAB_setScrollBarX;
+    bar->setRange = STGDGLAB_setScrollBarRange;
+    bar->setCount = STGDGLAB_setScrollBarCount;
+    bar->setPos = STGDGLAB_setScrollBarPos;
     bar->layer = 0x1000;
     bar->depth = 0;
     return bar;
@@ -532,14 +532,14 @@ void func_8008E394(Lab *lab, LabChildren *children) {
     case 0:
     default:
         if (children->menu == NULL) {
-            children->menu = func_80089F20(lab);
+            children->menu = STGDGLAB_createMenu(lab);
         }
         lab->substate++;
         break;
     case 1:
         if (children->menu != NULL) {
             if (children->menu->picked != 0) {
-                children->screen = D_8008ECDC[children->menu->choice](lab);
+                children->screen = STGDGLAB_screens[children->menu->choice](lab);
                 lab->substate++;
             }
         } else {
@@ -560,7 +560,7 @@ void func_8008E394(Lab *lab, LabChildren *children) {
     }
 }
 
-void func_8008E4B4(Lab *lab) {
+void STGDGLAB_packParty(Lab *lab) {
     s32 i;
     s32 j;
 
@@ -583,7 +583,7 @@ void func_8008E4B4(Lab *lab) {
     }
 }
 
-void func_8008E570(Lab *lab, LabChildren *children) {
+void STGDGLAB_updateLab(Lab *lab, LabChildren *children) {
     SpriteDrawer sprite;
 
     switch (lab->state) {
@@ -599,7 +599,7 @@ void func_8008E570(Lab *lab, LabChildren *children) {
             if (STGDGLAB_funcs.filesLoading() == 0) {
                 lab->nextState(lab);
                 lab->unk5C = 3;
-                func_8008E4B4(lab);
+                STGDGLAB_packParty(lab);
             }
             break;
         }
@@ -658,23 +658,23 @@ s32 func_8008E7BC(Lab *lab) {
 void func_8008E7F0(Lab *lab) {
     LabChildren *children = lab->children;
 
-    children->fade = func_80082A84();
+    children->fade = STGDGLAB_createFader();
     children->fade->start(children->fade, 0, 0x1E);
 }
 
-Lab *func_8008E834(void) {
-    Lab *lab = createTask(func_8008E570, sizeof(Lab), sizeof(LabChildren));
+Lab *STGDGLAB_createLab(void) {
+    Lab *lab = createTask(STGDGLAB_updateLab, sizeof(Lab), sizeof(LabChildren));
 
     lab->openMenu = func_8008E704;
     lab->closeMenu = func_8008E760;
     lab->menuOpen = func_8008E7BC;
-    lab->packParty = func_8008E4B4;
+    lab->packParty = STGDGLAB_packParty;
     lab->fadeOut = func_8008E7F0;
     lab->layer = 0x1000;
     return lab;
 }
 
-void func_8008E8A4(void) {
+void STGDGLAB_loadFiles(void) {
     TimLoader loader;
 
     initTimLoader(&loader);
@@ -691,7 +691,7 @@ void func_8008E8A4(void) {
     FILE_CACHE.request(TEXT_FILE(0x9C));
 }
 
-s32 func_8008E9B0(void) {
+s32 STGDGLAB_filesLoading(void) {
     if (FILE_CACHE.isLoading(TEXT_FILE(0x3A)) != 0) {
         return 1;
     }
@@ -707,7 +707,7 @@ s32 func_8008E9B0(void) {
     return FILE_CACHE.isLoading(TEXT_FILE(0x9C)) != 0;
 }
 
-void func_8008EA50(PanelAnim *fade, s32 fadeIn) {
+void STGDGLAB_startFade(PanelAnim *fade, s32 fadeIn) {
     fade->active = 1;
     if (fadeIn != 0) {
         SOUND.playSound(0x40019);
@@ -720,7 +720,7 @@ void func_8008EA50(PanelAnim *fade, s32 fadeIn) {
     }
 }
 
-s32 func_8008EAE4(PanelAnim *fade) {
+s32 STGDGLAB_updateFade(PanelAnim *fade) {
     if (fade->active == 0) {
         return 1;
     }
@@ -739,7 +739,7 @@ s32 func_8008EAE4(PanelAnim *fade) {
     return 0;
 }
 
-void func_8008EB50(LabLerp *lerp, s32 from, s32 to, s32 frames) {
+void STGDGLAB_startLerp(LabLerp *lerp, s32 from, s32 to, s32 frames) {
     if (from != to) {
         lerp->duration = frames;
         lerp->fixed = from << 8;
@@ -750,7 +750,7 @@ void func_8008EB50(LabLerp *lerp, s32 from, s32 to, s32 frames) {
     }
 }
 
-s32 func_8008EB90(LabLerp *lerp) {
+s32 STGDGLAB_updateLerp(LabLerp *lerp) {
     if (lerp->active == 0) {
         return 1;
     }
@@ -816,7 +816,7 @@ s32 D_8008ECC8[] = {
     5,
 };
 /* the main menu's screens */
-Task *(*D_8008ECDC[])(Lab *lab) = {
+Task *(*STGDGLAB_screens[])(Lab *lab) = {
     func_8008BB30, func_80087FF0, func_80084CF4,
 };
 s32 D_8008ECE8[] = {
@@ -1192,7 +1192,7 @@ LabRecipe D_8008F4CC[] = {
     { 3, 0x184, 0x187, 0x18A, 0, 0 },
 };
 #endif
-LabTables D_8008F58C = {
+LabTables STGDGLAB_tables = {
     D_8008ECE8,
     D_8008EDC8,
     {
@@ -1201,6 +1201,6 @@ LabTables D_8008F58C = {
     },
 };
 LabFuncs STGDGLAB_funcs = {
-    func_8008E8A4, func_8008E9B0, func_8008EA50, func_8008EAE4,
-    func_8008EB50, func_8008EB90, func_8008EBFC, func_8008EC48,
+    STGDGLAB_loadFiles, STGDGLAB_filesLoading, STGDGLAB_startFade, STGDGLAB_updateFade,
+    STGDGLAB_startLerp, STGDGLAB_updateLerp, func_8008EBFC, func_8008EC48,
 };

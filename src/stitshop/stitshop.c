@@ -9,7 +9,7 @@ void func_80086CE4(ShopItemList *list, void *win, s32 arg);
 void func_800875AC();
 void func_80087D5C(ShopItemList *list, s32 frozen);
 void func_80087E00(ShopItemList *list, s32 visible);
-void func_80087FD0(ShopItemList *list);
+void STITSHOP_listSellable(ShopItemList *list);
 void func_80088960(ShopInfo *info, void *win, s32 arg);
 void func_800894EC(ShopInfo *info, void *win, s32 arg);
 void func_80089774(ShopInfo *info, void *win, s32 arg);
@@ -19,16 +19,16 @@ void func_800884A4(s16 *p, s32 stat, s32 delta);
 void func_8008AF88(ItemShop *shop, ItemShopWindows *win);
 extern s32 D_8008C114[];
 extern s32 D_8008C16C[];
-ItemShop *func_8008B77C(void);
-void func_8008B614();
-void func_8008B7E0(void);
-s32 func_8008B880(void);
-void func_8008B908(PanelAnim *fade, s32 fadeIn);
-s32 func_8008B99C(PanelAnim *fade);
-void func_8008BA08(ShopLerp *lerp, s32 from, s32 to, s32 frames);
-s32 func_8008BA48(ShopLerp *lerp);
-u16 *func_8008BAB4(s32 shop);
-s32 func_8008BAF8(s32 partner, s32 item);
+ItemShop *STITSHOP_createShop(void);
+void STITSHOP_updateShop();
+void STITSHOP_loadFiles(void);
+s32 STITSHOP_filesLoading(void);
+void STITSHOP_startFade(PanelAnim *fade, s32 fadeIn);
+s32 STITSHOP_updateFade(PanelAnim *fade);
+void STITSHOP_startLerp(ShopLerp *lerp, s32 from, s32 to, s32 frames);
+s32 STITSHOP_updateLerp(ShopLerp *lerp);
+u16 *STITSHOP_getShopItems(s32 shop);
+s32 STITSHOP_canEquip(s32 partner, s32 item);
 s32 func_8008BB3C(s32 partner, s32 item);
 void func_8008BE2C(s32 partner, s32 slot, s32 item, s32 fromBag);
 
@@ -48,7 +48,7 @@ void func_800829B4(Task *task, Task **children) {
         rect.h = 0xF0;
         layer = GFX.funcs.createLayer(&rect, 3, 0x1000);
         layer->setBgColor(layer, 0, 0, 0);
-        children[0] = (Task *)func_8008B77C();
+        children[0] = (Task *)STITSHOP_createShop();
         task->nextState(task);
         break;
     case TASK_RUN:
@@ -62,7 +62,7 @@ Task *func_80082AB0(void) {
     return createTask(func_800829B4, sizeof(Task), 4);
 }
 
-void func_80082ADC(ScreenFade *task, s32 fadeIn, s32 duration) {
+void STITSHOP_startFader(ScreenFade *task, s32 fadeIn, s32 duration) {
     task->setState(task, TASK_RUN);
     task->substate = 1;
     task->fadeIn = fadeIn;
@@ -75,7 +75,7 @@ void func_80082ADC(ScreenFade *task, s32 fadeIn, s32 duration) {
     }
 }
 
-void func_80082B64(ScreenFade *task) {
+void STITSHOP_drawFader(ScreenFade *task) {
     Layer *layer = GFX.funcs.getLayer(task->layerId);
     u_long *ot = (u_long *)layer->getOtEntry(layer, task->depth);
     POLY_F4 *poly = GFX.funcs.getPrim();
@@ -96,7 +96,7 @@ void func_80082B64(ScreenFade *task) {
     GFX.funcs.setPrim(mode + 1);
 }
 
-void func_80082CA8(ScreenFade *task) {
+void STITSHOP_updateFader(ScreenFade *task) {
     switch (task->state) {
     case 0:
     default:
@@ -118,17 +118,17 @@ void func_80082CA8(ScreenFade *task) {
         }
         /* fallthrough */
     case 2:
-        func_80082B64(task);
+        STITSHOP_drawFader(task);
         break;
     case 3:
         break;
     }
 }
 
-ScreenFade *func_80082D5C(void) {
-    ScreenFade *task = createTask(func_80082CA8, sizeof(ScreenFade), 0);
+ScreenFade *STITSHOP_createFader(void) {
+    ScreenFade *task = createTask(STITSHOP_updateFader, sizeof(ScreenFade), 0);
 
-    task->start = func_80082ADC;
+    task->start = STITSHOP_startFader;
     task->layerId = 0x1000;
     task->depth = 6;
     return task;
@@ -175,7 +175,7 @@ INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800830DC);
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008361C);
 
-void func_80084FCC(ShopBuy *buy, ShopBuyWindows *win) {
+void STITSHOP_updateBuy(ShopBuy *buy, ShopBuyWindows *win) {
     switch (buy->state) {
     case TASK_INIT:
     default:
@@ -203,8 +203,8 @@ void func_80085070(ShopBuy *buy, s32 item, s32 arg) {
     win->info->showItem(win->info, item, arg);
 }
 
-ShopBuy *func_800850A8(ItemShop *shop) {
-    ShopBuy *buy = createTask(func_80084FCC, sizeof(ShopBuy), sizeof(ShopBuyWindows));
+ShopBuy *STITSHOP_createBuy(ItemShop *shop) {
+    ShopBuy *buy = createTask(STITSHOP_updateBuy, sizeof(ShopBuy), sizeof(ShopBuyWindows));
 
     buy->showItem = func_80085070;
     buy->layer = 0x1000;
@@ -234,7 +234,7 @@ INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80085254);
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80085684);
 
-void func_800869F8(ShopSell *sell, ShopSellWindows *win) {
+void STITSHOP_updateSell(ShopSell *sell, ShopSellWindows *win) {
     switch (sell->state) {
     case TASK_INIT:
     default:
@@ -263,8 +263,8 @@ void func_80086AA0(ShopSell *sell, s32 item, s32 arg) {
     win->info->showItem(win->info, item, arg);
 }
 
-ShopSell *func_80086AD8(ItemShop *shop) {
-    ShopSell *sell = createTask(func_800869F8, sizeof(ShopSell), sizeof(ShopSellWindows));
+ShopSell *STITSHOP_createSell(ItemShop *shop) {
+    ShopSell *sell = createTask(STITSHOP_updateSell, sizeof(ShopSell), sizeof(ShopSellWindows));
 
     sell->showItem = func_80086AA0;
     sell->layer = 0x1000;
@@ -332,7 +332,7 @@ void func_80087ED8(ShopItemList *list) {
     func_80087E00(list, 0);
 }
 
-s16 func_80087F1C(ShopItemList *list) {
+s16 STITSHOP_getSelectedItem(ShopItemList *list) {
     if (!list->selling) {
         return list->shopItems[list->selection];
     }
@@ -342,12 +342,12 @@ s16 func_80087F1C(ShopItemList *list) {
 void func_80087F64(ShopItemList *list) {
     void *win = list->children;
 
-    func_80087FD0(list);
+    STITSHOP_listSellable(list);
     func_80086CE4(list, win, 1);
     ((ShopBuy *)list->dialog)->showItem((ShopBuy *)list->dialog, list->items[list->selection], 1);
 }
 
-void func_80087FD0(ShopItemList *list) {
+void STITSHOP_listSellable(ShopItemList *list) {
     s32 i;
     s32 n;
 
@@ -360,16 +360,16 @@ void func_80087FD0(ShopItemList *list) {
     }
 }
 
-ShopItemList *func_80088094(Task *dialog, s32 type, s32 selling) {
+ShopItemList *STITSHOP_createItemList(Task *dialog, s32 type, s32 selling) {
     ShopItemList *list = createTask(func_800875AC, sizeof(ShopItemList), 0x50);
 
     list->start = func_80087EB0;
     list->close = func_80087ED8;
-    list->getSelected = func_80087F1C;
+    list->getSelected = STITSHOP_getSelectedItem;
     list->showCursor = func_80087E00;
     list->freezeCursor = func_80087D5C;
     list->refresh = func_80087F64;
-    list->listBag = func_80087FD0;
+    list->listBag = STITSHOP_listSellable;
     list->layer = 0x1000;
     list->depth = 4;
     list->dialog = dialog;
@@ -621,7 +621,7 @@ void func_8008AAB0(ShopInfo *info, s32 arg) {
     func_80088960(info, win, arg);
 }
 
-ShopInfo *func_8008AB04(s32 selling, s32 item) {
+ShopInfo *STITSHOP_createInfo(s32 selling, s32 item) {
     ShopInfo *info = createTask(func_8008A5E8, sizeof(ShopInfo), 0xAC);
 
     info->showItem = func_8008A91C;
@@ -755,9 +755,9 @@ void func_8008AF88(ItemShop *shop, ItemShopWindows *win) {
         break;
     case 10:
         if (shop->unk64 == 0) {
-            win->dialog = (Task *)func_800850A8(shop);
+            win->dialog = (Task *)STITSHOP_createBuy(shop);
         } else {
-            win->dialog = (Task *)func_80086AD8(shop);
+            win->dialog = (Task *)STITSHOP_createSell(shop);
         }
         shop->substate++;
         break;
@@ -770,7 +770,7 @@ void func_8008AF88(ItemShop *shop, ItemShopWindows *win) {
         break;
     case 20:
         if (shop->step == 0) {
-            win->fade = func_80082D5C();
+            win->fade = STITSHOP_createFader();
             win->fade->start(win->fade, 0, 0x1E);
         }
         STITSHOP_funcs.startFade(&shop->panels[2], 0);
@@ -810,7 +810,7 @@ void func_8008AF88(ItemShop *shop, ItemShopWindows *win) {
     }
 }
 
-void func_8008B614(ItemShop *shop, ItemShopWindows *win) {
+void STITSHOP_updateShop(ItemShop *shop, ItemShopWindows *win) {
     switch (shop->state) {
     case TASK_INIT:
     default:
@@ -851,8 +851,8 @@ void func_8008B728(ItemShop *shop) {
     win->money->setRightAlign(win->money, 1);
 }
 
-ItemShop *func_8008B77C(void) {
-    ItemShop *shop = createTask(func_8008B614, sizeof(ItemShop), sizeof(ItemShopWindows));
+ItemShop *STITSHOP_createShop(void) {
+    ItemShop *shop = createTask(STITSHOP_updateShop, sizeof(ItemShop), sizeof(ItemShopWindows));
 
     shop->showMoney = func_8008B728;
     shop->layer = 0x1000;
@@ -860,7 +860,7 @@ ItemShop *func_8008B77C(void) {
     return shop;
 }
 
-void func_8008B7E0(void) {
+void STITSHOP_loadFiles(void) {
     TimLoader loader;
 
     initTimLoader(&loader);
@@ -872,7 +872,7 @@ void func_8008B7E0(void) {
     FILE_CACHE.request(TEXT_FILE(0x95));
 }
 
-s32 func_8008B880(void) {
+s32 STITSHOP_filesLoading(void) {
     if (FILE_CACHE.isLoading(TEXT_FILE(0x72)) != 0) {
         return 1;
     }
@@ -885,7 +885,7 @@ s32 func_8008B880(void) {
     return FILE_CACHE.isLoading(TEXT_FILE(0x95)) != 0;
 }
 
-void func_8008B908(PanelAnim *fade, s32 fadeIn) {
+void STITSHOP_startFade(PanelAnim *fade, s32 fadeIn) {
     fade->active = 1;
     if (fadeIn != 0) {
         SOUND.playSound(0x40019);
@@ -898,7 +898,7 @@ void func_8008B908(PanelAnim *fade, s32 fadeIn) {
     }
 }
 
-s32 func_8008B99C(PanelAnim *fade) {
+s32 STITSHOP_updateFade(PanelAnim *fade) {
     if (fade->active == 0) {
         return 1;
     }
@@ -917,7 +917,7 @@ s32 func_8008B99C(PanelAnim *fade) {
     return 0;
 }
 
-void func_8008BA08(ShopLerp *lerp, s32 from, s32 to, s32 frames) {
+void STITSHOP_startLerp(ShopLerp *lerp, s32 from, s32 to, s32 frames) {
     if (from != to) {
         lerp->duration = frames;
         lerp->fixed = from << 8;
@@ -928,7 +928,7 @@ void func_8008BA08(ShopLerp *lerp, s32 from, s32 to, s32 frames) {
     }
 }
 
-s32 func_8008BA48(ShopLerp *lerp) {
+s32 STITSHOP_updateLerp(ShopLerp *lerp) {
     if (lerp->active == 0) {
         return 1;
     }
@@ -948,7 +948,7 @@ s32 func_8008BA48(ShopLerp *lerp) {
     return 0;
 }
 
-u16 *func_8008BAB4(s32 shop) {
+u16 *STITSHOP_getShopItems(s32 shop) {
     if (shop < 0 || STITSHOP_shops[shop].items == NULL) {
         return NULL;
     }
@@ -956,7 +956,7 @@ u16 *func_8008BAB4(s32 shop) {
     return STITSHOP_shops[shop].items;
 }
 
-s32 func_8008BAF8(s32 partner, s32 item) {
+s32 STITSHOP_canEquip(s32 partner, s32 item) {
     return (GET_ITEM[0](item)->data[4] >> partner) & 1;
 }
 
@@ -1184,14 +1184,14 @@ ShopList STITSHOP_shops[31] = {
 };
 ItemShopFuncs STITSHOP_funcs = {
     0,
-    func_8008B7E0,
-    func_8008B880,
-    func_8008B908,
-    func_8008B99C,
-    func_8008BA08,
-    func_8008BA48,
-    func_8008BAB4,
-    func_8008BAF8,
+    STITSHOP_loadFiles,
+    STITSHOP_filesLoading,
+    STITSHOP_startFade,
+    STITSHOP_updateFade,
+    STITSHOP_startLerp,
+    STITSHOP_updateLerp,
+    STITSHOP_getShopItems,
+    STITSHOP_canEquip,
     func_8008BB3C,
     func_8008BE2C,
 };
