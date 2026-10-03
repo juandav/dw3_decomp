@@ -40,6 +40,12 @@ typedef struct CardSideEntry {
     /* 0x7 */ u8 unk7;
 } CardSideEntry;
 
+typedef struct CardBattle35C {
+    /* 0x0 */ u8 unk0;
+    /* 0x1 */ u8 unk1;
+    /* 0x2 */ s16 unk2;
+} CardBattle35C;
+
 /* A message of the card battle (D_800A4C20) */
 typedef struct CardBattleMessage {
     /* 0x0 */ u16 text; /* for CardBattle.unk421 */
@@ -128,7 +134,9 @@ typedef struct CardBattle {
     /* 0x308 */ u8 slotCount; /* the slots added so far */
     /* 0x309 */ u8 unk309;
     /* 0x30A */ CardBattle30A unk30A[40];
-    /* 0x35A */ u8 unk35A[0xC1];
+    /* 0x35A */ u8 unk35A[2];
+    /* 0x35C */ CardBattle35C unk35C[40]; /* one per card of side 1 (40-79) */
+    /* 0x3FC */ u8 unk3FC[0x1F];
     /* 0x41B */ u8 unk41B;
     /* 0x41C */ u8 unk41C;
     /* 0x41D */ u8 unk41D[4];

@@ -105,3 +105,4 @@ C_SRC += src/stitshop/stitshop.c src/stgdglab/stgdglab.c src/ststatus/ststatus.c
 
 # cardgame
 C_SRC += src/cardgame/cardgame.c
+C_SRC += src/cardgame/cardgame_2.c
