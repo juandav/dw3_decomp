@@ -5,13 +5,19 @@ The stage overlays all have the same layout, so instead of a config file
 each, config/<version>/stages.txt lists them with the offsets where their code starts
 and ends:
 
-    WSTAG200 0x4 0x2B8 [asm]
+    WSTAG200 0x4 0x2B8 [asm | asm-data | head-word | c-rodata]
 
 A stage loads at STAGE_VRAM (mk/version/<version>.mk; 0x800A4CA4 in us), after
 the largest main overlay (CARDGAME), on top of FIELDSTG, whose functions it calls. Most stages start right with code; the
 others with a word no function of the stage reads (a color such as 0x808080,
 or a pointer), which stays in asm, so there is no other .rodata to migrate to
-functions. From the end of the code on, the file is data.
+functions. From the end of the code on, the file is data: C, from the
+stage's C file, unless the stage is marked "asm" (its code and data are still
+splat's assembly in this version) or "asm-data" (only its data is).
+The bytes before the code of some stages are the jump tables of their switch
+statements instead; once all those functions are C, "c-rodata" takes them
+from the stage's C file too (it can follow "asm-data"). "head-word" before it
+keeps a first word that comes before the jump tables in asm.
 
 usage: stage_yaml.py wstag200 build/us/generated/stages/wstag200.yaml
 (VERSION, as for make, picks the version; eu by default)
@@ -76,7 +82,7 @@ segments:
     subalign: 4
     subsegments:
 {header}      - [0x{text_start:X}, {code}, {name}]
-      - [0x{text_end:X}, data, {name}]
+      - [0x{text_end:X}, {data}, {name}]
 {tail}  - [0x{size:X}]
 """
 
@@ -132,6 +138,8 @@ def main():
     root = str(version.ROOT)
     config = f"config/{version.VERSION}"
     found = blob = False
+    rodata_type = "rodata"
+    head_word = False
     for line in open(os.path.join(root, config, "stages.txt")):
         words = line.split("#", 1)[0].split()
         if words and words[0].lower() == name:
@@ -141,8 +149,17 @@ def main():
                 text_start = text_end = 0
             else:
                 text_start, text_end = int(words[1], 16), int(words[2], 16)
-            # "asm": the code is still splat's assembly in this version
-            code = "asm" if words[3:] == ["asm"] else "c"
+            # "asm": the code and data are still splat's assembly in this
+            # version; "asm-data": the data is; "c-rodata": the jump tables
+            # before the code are the C file's
+            marks = words[3:]
+            if marks != ["asm"] and [m for m in ("asm-data", "head-word", "c-rodata") if m in marks] != marks or (
+                    "head-word" in marks and "c-rodata" not in marks):
+                sys.exit(f"{config}/stages.txt: unknown mark in {line.strip()}")
+            code = "asm" if marks == ["asm"] else "c"
+            data_type = "data" if "asm" in marks or "asm-data" in marks else ".data"
+            rodata_type = ".rodata" if "c-rodata" in marks else "rodata"
+            head_word = "head-word" in marks
     if not found:
         sys.exit(f"{name} is not in {config}/stages.txt")
 
@@ -168,8 +185,10 @@ def main():
                 symbols="".join(f"    - {s}\n" for s in symbols),
                 vram=version.STAGE_VRAM,
                 gp=version.GP_VALUE,
-                header=f"      - [0x0, rodata, {name}]\n" if text_start else "",
+                header=(f"      - [0x0, rodata, {name}_head]\n" if head_word else "")
+                + (f"      - [0x{4 if head_word else 0:X}, {rodata_type}, {name}]\n" if text_start else ""),
                 code=code,
+                data=data_type,
                 # splat's data drops the bytes after the last word
                 tail=TAIL.format(name=name, start=len(data) & ~3, vram=version.STAGE_VRAM + (len(data) & ~3))
                 if len(data) % 4 else "",

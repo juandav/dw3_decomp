@@ -15,9 +15,10 @@ commit `45827a6`.
 stages. The executable and the overlays are split into the USA version's
 files (`tools/split_version.py`), so their asm lands at the USA paths, and
 their functions carry the USA names (`tools/match_versions.py --seed`). The
-European C is the PsyQ libraries, the executable's game code and data and two
-overlay files built from the USA version's C. The stages are still one asm
-segment each.
+European C is the PsyQ libraries, the executable's game code and data, the
+overlay functions the USA version has in C and every stage's C: the 238 USA
+stages are built from the USA version's C, the 55 European ones from their
+own.
 
 - [x] Pair the European functions with the USA ones
   (`tools/match_versions.py`, which writes `build/eu/version_pairs.txt`):
@@ -56,11 +57,38 @@ segment each.
   pair: 2 in `CARDGAME`, 6 in `FIGHTSTG`, 1 in `STGDGLAB`. The executable
   has them all but `FLAGS_40`, which the European `GAME.flags` has at an odd
   offset, inside `FLAGS_02` (`FLAGS_02 + 0x66`, in `game_state.h`).
-- [ ] The stages: 233 of the USA version's 238 are 8 bytes longer in the
-  European version, the other 5 more, and their functions only have
-  splat's names, so the European ones get none.
-  Give each stage the USA version has a C file in both versions, and write
-  C for the 55 European stages, `WSTAG920`-`974`.
+- [x] The stages: 233 of the USA version's 238 are 8 bytes longer in the
+  European version because each one's setup function adds the language
+  (`LANGUAGE`, which `CNTY_SEL` sets) to the text file it loads; the
+  other 5 also have longer functions (`WSTAG210`, `220`, `270`, `280`) or
+  one more (`WSTAG780`). Each USA stage builds from its C file in both
+  versions, its functions with the USA names
+  (`config/eu/stages/<stage>.txt`): 1,289 of the European stages' 1,590
+  functions are C, and 301 `INCLUDE_ASM` are left: every stage's setup
+  function (293) and 8 that read `GAME`.
+- [ ] The setup functions (the one that fills `D_800990B4` and loads the
+  stage's text file) don't match in the European version from the USA C:
+  the language load (`LANGUAGE`) sits after the store to `0x14`, before
+  the `0x1C` and `0x44` ones, while the two-instruction constants and the
+  call's arguments are loaded at the very top. No order of the statements,
+  `DEBUG_LOG` placement, local or inline function tried gives it (the
+  closest is 33 instructions off, in `WSTAG310`); find the source form,
+  then it applies to all 293.
+- [ ] 8 functions read `GAME` fields that sit 8 bytes later in the European
+  version (from `unk26DC`, `unk26E8`): `WSTAG745`/`746` `func_800A4CA4`,
+  `WSTAG795` `func_800A50F8`/`func_800A5240`, `WSTAG800`
+  `func_800A5404`/`func_800A554C`, `WSTAG810` `func_800A58F0`/
+  `func_800A5954`. They need the European `GAME` layout in
+  `include/dw3/game_state.h`, `GAME` `0x26CC` as a `u8 timer[4]` and the
+  `StageInfo` fields `0x50`-`0x60`.
+- [ ] The setup functions of 100 USA stages are C in the USA version only
+  (`#if VERSION_US`, `INCLUDE_ASM` in the European one).
+- [x] The 55 European stages, `WSTAG920`-`974`, have C files, their data
+  too: every function but their setup is C.
+- [x] Where the versions' code differs only in numbers, `include/stage.h`
+  and the stages' own defines give them: the file numbers (`SPRITES`,
+  `MENU_TEXT`...), `MENU_SPRITES` and `TEXT_ENTRY` (the European version
+  adds the language to the text file).
 - [x] `game3_2` is C in the European version, but its unit in the report is
   `game3`'s: it counts now that `game3.c` is built for `eu` too.
 
@@ -117,16 +145,30 @@ segment each.
 
 ## Stages
 
-- [ ] 815 of the 1,374 functions of the USA stages are C, and 64 of the 238
-  stages are all C; 559 `INCLUDE_ASM` are left.
-- [ ] None of the stages' data is C yet (0 of 815,984 bytes in the report).
+- [ ] 1,223 of the 1,369 functions of the USA stages are C, and 98 of the
+  238 stages are all C; 146 `INCLUDE_ASM` are left: 138 setup functions
+  (the form of the other 100 doesn't fit them) and the 8 that read `GAME`.
+- [x] A stage's jump tables come from its C (`c-rodata` in `stages.txt`);
+  `head-word` keeps a first word before them in asm, as GCC would align a
+  C constant there (`WSTAG924`).
+- [x] The stages' data is C, in both versions: 808,672 of the 815,984 bytes
+  of the USA stages in the report, as splat's words (`tools/data_to_c.py`)
+  at the end of each stage's C file, with `#if VERSION_US` / `VERSION_EU`
+  rows for the words that differ (file numbers, mostly) or that one version
+  hasn't.
+- [ ] `WSTAG331`'s data is still asm (`asm-data` in `stages.txt`): it differs
+  throughout between the versions.
+- [ ] Most of the stages' data is still splat's words: the point paths,
+  animations and tile tables the C reads have types (`include/stage.h`),
+  give the rest real ones (and names) as the code that reads it is
+  understood.
 - [ ] The stages share many functions, built from the same source, but each
-  stage's file has its own copy: the 815 C functions have 641 different
-  bodies (addresses included). A shared include for the common ones, and
+  stage's file has its own copy. A shared include for the common ones, and
   names for them, would say so.
 - [ ] Every stage function still has splat's name. A stage's own symbol file,
   `config/<version>/stages/<stage>.txt`, is read by the Makefile and
-  `tools/stage_yaml.py`, but none exists yet.
+  `tools/stage_yaml.py`; the European ones give the USA stages' functions
+  their USA names, the USA version has none yet.
 - [ ] Find what each stage is (the map or event it runs).
 
 ## Names and types

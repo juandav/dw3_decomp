@@ -1,0 +1,14 @@
+// names from the C of the modules this version builds (tools/version_symbols.py)
+func_800A4CA4 = 0x800A5DE0; // type:func
+func_800A4CEC = 0x800A5E28; // type:func
+func_800A4D48 = 0x800A5E84; // type:func
+func_800A4D94 = 0x800A5ED0; // type:func
+D_800A52CC = 0x800A6410;
+D_800A4E7C = 0x800A5FC0;
+D_800A50D8 = 0x800A621C;
+D_800A5148 = 0x800A628C;
+D_800A5154 = 0x800A6298;
+D_800A5168 = 0x800A62AC;
+D_800A5170 = 0x800A62B4;
+D_800A526C = 0x800A63B0;
+D_800A52D0 = 0x800A6414;

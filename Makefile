@@ -121,8 +121,13 @@ LDFLAGS := -nostdlib --no-check-sections -Map $(MAP) \
 	   -T $(GENDIR)/undefined_syms_auto_main.txt \
 	   -T $(GENDIR)/undefined_funcs_auto_main.txt
 
-# C_SRC, from mk/version/<version>.mk, has every binary's C files
-ALL_C_SRC := $(C_SRC)
+# The stage overlays the version has, from $(CONFIG_DIR)/stages.txt
+STAGES := $(shell awk '!/^\#/ && NF { print tolower($$1) }' $(CONFIG_DIR)/stages.txt)
+
+# C_SRC, from mk/version/<version>.mk, has every binary's C files, but of
+# src/stages/ only the version's stages' (the USA version hasn't the European
+# stages)
+ALL_C_SRC := $(filter-out $(filter-out $(STAGES:%=src/stages/%.c),$(filter src/stages/%,$(C_SRC))),$(C_SRC))
 MAIN_C_SRC := $(filter src/main/%,$(ALL_C_SRC))
 
 # Target objects for objdiff: splat's full disassembly of every C unit (the
@@ -155,14 +160,13 @@ OVL_PARENT_wfightts := cardgame
 # $(CONFIG_DIR)/stages.txt, load on top of FIELDSTG. Their splat configs are
 # made by tools/stage_yaml.py and their sources are src/stages/<name>.c and
 # $(ASM_DIR)/stages/.
-STAGES := $(shell awk '!/^\#/ && NF { print tolower($$1) }' $(CONFIG_DIR)/stages.txt)
 OVERLAYS += $(STAGES)
 $(foreach s,$(STAGES),\
 	$(eval OVL_FILE_$(s) := $(shell echo $(s) | tr a-z A-Z).PRO)\
 	$(eval OVL_PARENT_$(s) := fieldstg)\
 	$(eval OVL_YAML_$(s) := $(GENDIR)/stages/$(s).yaml)\
 	$(eval OVL_C_SRC_$(s) := src/stages/$(s).c)\
-	$(eval OVL_ASM_SRC_$(s) := $(wildcard $(ASM_DIR)/stages/data/$(s).*.s $(ASM_DIR)/stages/data/$(s).s $(ASM_DIR)/stages/data/$(s)_end.s $(ASM_DIR)/stages/$(s).s))\
+	$(eval OVL_ASM_SRC_$(s) := $(wildcard $(ASM_DIR)/stages/data/$(s).*.s $(ASM_DIR)/stages/data/$(s).s $(ASM_DIR)/stages/data/$(s)_head.rodata.s $(ASM_DIR)/stages/data/$(s)_end.s $(ASM_DIR)/stages/$(s).s))\
 	$(eval OVL_SYMBOLS_$(s) := $(wildcard $(CONFIG_DIR)/symbols_fieldstg.txt $(CONFIG_DIR)/stages/$(s).txt)))
 
 $(GENDIR)/stages/%.yaml: $(CONFIG_DIR)/stages.txt tools/stage_yaml.py tools/version.py mk/version/$(VERSION).mk
