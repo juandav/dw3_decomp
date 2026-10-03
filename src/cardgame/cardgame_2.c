@@ -26,7 +26,7 @@ s32 func_800A2DA0(CardBattle *battle, s32 side) {
     for (i = 0; i < battle->players[side].slotCount; i++) {
         if (flags[i] != 0) {
             found = 1;
-            battle->sides[0].unk20[battle->sides[0].unk15].unk6 = battle->players[side].slots[i].order;
+            battle->unk560.unk20[battle->unk560.unk15].unk6 = battle->players[side].slots[i].order;
             break;
         }
     }

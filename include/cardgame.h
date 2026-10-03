@@ -30,7 +30,7 @@ typedef struct CardPlayer {
     /* 0x02 */ CardSlot slots[8];
 } CardPlayer;
 
-/* An entry of CardSide.unk20 */
+/* An entry of CardBattle560.unk20 */
 typedef struct CardSideEntry {
     /* 0x0 */ s16 unk0;
     /* 0x2 */ s16 unk2;
@@ -75,8 +75,8 @@ typedef struct CardPile {
     /* 0x78 */ s16 unk78[10]; /* unk6 in use */
 } CardPile;
 
-/* Each player's side of a card battle (CardBattle.sides) */
-typedef struct CardSide {
+/* The card battle's record of the cards played (CardBattle.unk560) */
+typedef struct CardBattle560 {
     /* 0x00 */ u8 unk0[0x14];
     /* 0x14 */ u8 unk14;
     /* 0x15 */ s8 unk15; /* the entries of unk20 in use */
@@ -84,7 +84,12 @@ typedef struct CardSide {
     /* 0x1C */ s32 unk1C;
     /* 0x20 */ CardSideEntry unk20[3];
     /* 0x38 */ u8 unk38[4];
-    /* 0x3C */ CardPile pile;
+} CardBattle560;
+
+/* Each player's side of a card battle (CardBattle.sides) */
+typedef struct CardSide {
+    /* 0x00 */ CardPile pile;
+    /* 0x8C */ u8 unk8C[0x3C];
 } CardSide;
 
 /* CardBattle.unk498 */
@@ -166,8 +171,8 @@ typedef struct CardBattle {
     /* 0x4E8 */ s32 unk4E8;
     /* 0x4EC */ s32 unk4EC;
     /* 0x4F0 */ u8 unk4F0[0x70];
-    /* 0x560 */ CardSide sides[2];
-    /* 0x6F0 */ u8 unk6F0[0x3C];
+    /* 0x560 */ CardBattle560 unk560;
+    /* 0x59C */ CardSide sides[2];
     /* 0x72C */ CardPlayer players[2];
     /* 0x810 */ void (*unk810)();
     /* 0x814 */ void (*unk814)(struct CardBattle *battle, void *arg1, s32 arg2, s32 arg3);

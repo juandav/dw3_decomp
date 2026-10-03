@@ -59,14 +59,14 @@ s32 func_8009F754(CardBattle *battle, CardSlot *slot, s32 side, s32 pass);
 extern CardFadeColor D_800A4BD8[];
 void CARDGAME_setSlot(CardBattle *battle, s32 side, s32 card, s32 index);
 void CARDGAME_addCard(CardBattle *battle, s32 side, s32 card);
-void func_8009F664();
+void func_8009F664(CardBattle *battle, s32 side);
 void func_800A1E04();
 void func_800A2838();
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800835C4);
 
 void func_800836D8(CardBattle *battle, s32 side, s32 value, s32 score) {
-    if (battle->sides[0].unk20[battle->sides[0].unk15 - 1].unk4 == value) {
+    if (battle->unk560.unk20[battle->unk560.unk15 - 1].unk4 == value) {
         battle->unk4E0 += score;
     }
 }
@@ -109,7 +109,7 @@ void func_80083860(CardBattle *battle, s32 arg1, s32 which) {
 }
 
 void func_80083880(CardBattle *battle) {
-    s32 entry = battle->sides[0].unk15 - 1;
+    s32 entry = battle->unk560.unk15 - 1;
     CardSlot *slot;
     s32 i;
 
@@ -126,7 +126,7 @@ void func_80083880(CardBattle *battle) {
             }
             slot = &battle->players[1].slots[i - 6];
         }
-        if (slot->order == battle->sides[0].unk20[entry].unk6) {
+        if (slot->order == battle->unk560.unk20[entry].unk6) {
             battle->unk46F[i] = 1;
         }
     }
@@ -184,9 +184,9 @@ void func_800839CC(CardBattle *battle, s32 arg1) {
     state = battle->unk420;
     if (state >= 30) {
         if (state < 36) {
-            a = battle->sides[0].unk20[battle->sides[0].unk15 - 1].unk4;
+            a = battle->unk560.unk20[battle->unk560.unk15 - 1].unk4;
         } else if (state < 41) {
-            a = battle->sides[0].unk20[battle->sides[0].unk15 - 1].unk4 ^ 1;
+            a = battle->unk560.unk20[battle->unk560.unk15 - 1].unk4 ^ 1;
         }
     }
     func_8008E8C4(battle, arg1, a, b);
@@ -508,7 +508,29 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008CBAC);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008CE6C);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008CF50);
+s32 func_8008CF50(CardBattle *battle, CardScreen *screen, s32 index) {
+    s32 done = 0;
+
+    switch (battle->unk424) {
+    case 0:
+    default:
+        screen->unkF30(screen, index);
+        battle->unk424 = 1;
+        break;
+    case 1:
+        if (screen->sprites[index].state == 1) {
+            battle->unk424 = 2;
+            screen->scaleSprite(screen, index, 5, 0, 0x1000);
+        }
+        break;
+    case 2:
+        if (screen->sprites[index].state == 1) {
+            done = 1;
+        }
+        break;
+    }
+    return done;
+}
 
 void func_8008D044(CardBattle *battle, CardScreen *screen, s32 side, s32 index) {
     switch (battle->players[side].slots[index].side) {
@@ -535,7 +557,27 @@ s32 func_8008D10C(CardBattle *battle, CardScreen *screen, s32 side, s32 index) {
     return ok;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008D194);
+s32 func_8008D194(CardBattle *battle, CardScreen *screen, s32 index) {
+    s32 done = 0;
+
+    switch (battle->unk424) {
+    case 0:
+    default:
+        battle->unk424 = 1;
+        screen->sprites[index].moving = 1;
+        screen->unkF08(screen, index, 15, -0x5000, 0x6100);
+        screen->setSpriteScale(screen, index, 0x1200, 0x1200);
+        break;
+    case 1:
+        if (screen->sprites[index].state == 1) {
+            screen->sprites[index].moving = 0;
+            screen->sprites[index].scaleX = 0;
+            done = 1;
+        }
+        break;
+    }
+    return done;
+}
 
 void func_8008D288(CardBattle *battle, CardScreen *screen, s32 side, s32 index) {
     switch (battle->players[side].slots[index].side) {
@@ -615,13 +657,13 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008EB38);
 void func_8008ED28(CardBattle *battle, CardScreen *screen) {
     battle->unk424 = 0;
     battle->stepState = 1;
-    screen->unkEA8(screen, battle->sides[0].unk15 - 2);
+    screen->unkEA8(screen, battle->unk560.unk15 - 2);
 }
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008ED68);
 
 s32 func_8008EF20(CardBattle *battle) {
-    s32 card = battle->sides[0].unk20[battle->sides[0].unk15 - 1].unk0;
+    s32 card = battle->unk560.unk20[battle->unk560.unk15 - 1].unk0;
 
     battle->unk305++;
     battle->unk304 = card + 1;
@@ -814,8 +856,8 @@ void func_800941D0(CardBattle *battle, CardScreen *screen, s32 arg2) {
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80094224);
 
 void func_80094380(CardBattle *battle, CardScreen *screen, s32 force) {
-    if (battle->sides[0].unk20[battle->sides[0].unk15 - 1].unk4 == 0 || force) {
-        battle->sides[0].unk15--;
+    if (battle->unk560.unk20[battle->unk560.unk15 - 1].unk4 == 0 || force) {
+        battle->unk560.unk15--;
         screen->unkEC4(screen);
         battle->unk498.unk1 = 2;
         battle->stepState = 1;
@@ -831,7 +873,7 @@ s32 func_800943FC(CardBattle *battle, CardScreen *screen) {
     case 1:
         if (screen->panels[0].state == 0 && battle->unk498.unk0 == 0) {
             battle->stepState = 2;
-            battle->sides[0].unk15++;
+            battle->unk560.unk15++;
         }
         break;
     case 2:
@@ -842,12 +884,12 @@ s32 func_800943FC(CardBattle *battle, CardScreen *screen) {
 }
 
 void func_80094468(CardBattle *battle, CardScreen *screen, s32 force) {
-    if (battle->sides[0].unk20[battle->sides[0].unk15 - 1].unk4 == 0 || force) {
+    if (battle->unk560.unk20[battle->unk560.unk15 - 1].unk4 == 0 || force) {
         screen->unkEC8(screen);
         battle->unk498.unk5 = 1;
         battle->unk498.unk1 = 1;
         battle->stepState = 1;
-        battle->sides[0].unk15--;
+        battle->unk560.unk15--;
     } else {
         battle->stepState = 2;
     }
@@ -860,7 +902,7 @@ s32 func_800944E8(CardBattle *battle, CardScreen *screen) {
     case 1:
         if (battle->unk498.unk0 == 0 && screen->panels[0].state == 2) {
             battle->stepState = 2;
-            battle->sides[0].unk15++;
+            battle->unk560.unk15++;
         }
         break;
     case 2:
@@ -2605,7 +2647,7 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009EA28);
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009ECE8);
 
 void func_8009F458(CardBattle *battle) {
-    battle->sides[0].unk14 = 0;
+    battle->unk560.unk14 = 0;
     func_8009DCDC();
     battle->unk814(battle, battle->sides[0].pile.unk64, battle->sides[0].pile.unkA << 16, 0);
 }
@@ -2646,7 +2688,19 @@ void CARDGAME_addCard(CardBattle *battle, s32 side, s32 card) {
     CARDGAME_setSlot(battle, side, card, player->slotCount++);
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009F664);
+void func_8009F664(CardBattle *battle, s32 side) {
+    CardPlayer *player = &battle->players[side];
+    CardPile *pile = &battle->sides[side].pile;
+    s32 i;
+
+    player->slotCount = 0;
+    for (i = 0; i < pile->unkA; i++) {
+        if (player->slotCount < battle->unk444 && battle->unk46F[i] != 0) {
+            CARDGAME_addCard(battle, side, pile->unk64[i]);
+        }
+    }
+    func_8009F4A0(battle, pile);
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009F754);
 
