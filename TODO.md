@@ -169,15 +169,15 @@ own.
 
 ## Overlays
 
-- [ ] 1,474 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
-  `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`. Mostly: `STCRDABM` (28 / 29),
+- [ ] 1,479 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+  `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`. Mostly: `STCRDABM` (28 / 29),
   `STCRDDEK` (53 / 55), `SHOCKTST` (15 / 17), `STAGSLCT` (6 / 8),
   `FIELDSTG` (209 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
   `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (87 / 94),
-  `STITSHOP` (50 / 69), `CARDGAME` (303 / 306),
-  `STSTATUS` (101 / 123), `STFGTREP` (35 / 36). Started: `STGDGLAB`
+  `STITSHOP` (50 / 69), `CARDGAME` (305 / 306),
+  `STSTATUS` (101 / 123). Started: `STGDGLAB`
   (44 / 70), `STCRDSHP` (33 / 45), `WFIGHTTS` (13 / 14), `WFIGHTMN`
-  (37 / 42), `FIGHTSTG` (205 / 310).
+  (39 / 42), `FIGHTSTG` (205 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_buildCardList` (2 diffs) and `STCRDDEK_createScreenWindows`
     (3) differ in the order of two loads and a register.
@@ -225,37 +225,35 @@ own.
   `func_8009EBAC` (whose versions differ by six lines), `func_800967A4`,
   `func_800973D4`, `func_8008899C`, `func_80091788` and `func_80091950`
   (the battle camera's views), and the rest of `fightstg_6.c`.
-- [ ] The battle menus' near misses. `WFIGHTTS`: `func_800A6ECC` (the
-  battle test's list of 12 and 3 windows) puts the right and left handlers
-  before the pad code, which only gotos into a `do {} while (0)` around
-  the whole pad handling reproduce, a forced form; `func_800A6954` is the
-  same kind of list, down to 31 diffs (the steps in `a3`/`t0` and `s1`/`s2`
-  swapped, around `SCROLL[1] + 0x37 + j`). `WFIGHTMN`:
-  `func_800A6778` (11), `func_800A7DB0` (21, case 1's
-  registers), `func_800A86E0` (85, register allocation); `func_800A5538`
-  and `func_800A6E6C` only match with forced forms (a copy of a pointer
-  kept for nothing, the permuter's empty loops). `STFGTREP`:
-  `func_80085A38` (the Digimon a partner learns, 14 diffs: the id and the
-  counter of the needs loop swap `s1` and `s2`, whatever the declarations'
-  order).
-- [ ] `WFIGHTMN` keeps its own copies of `FIGHTSTG`'s types
-  (`include/wfightmn.h`, and `Unk800427D6` in `wfightmn_2.c`), and
-  `WFIGHTTS` the old names of the battle camera (`Unk800911C8`,
-  `Unk80091618`, which `include/fightstg.h` keeps for it). `fightstg.h`
-  now lays them out as WFIGHTMN reads them and takes its names, so both
-  can include it alone; `wfightmn_2.c` and `wfightmn.c` compile to the same
-  code with it. What WFIGHTMN renames: `BattleUnit` is `BattleFighter`
-  (`units`, `current`: `fighters`, `active`; `unk10`, `unk18`: `boosts`,
-  `item`), `BattleAction` is `QueuedEvent` (`kind`, `unk2`, `actor`,
-  `unit`, `unkC`: `type`, `time`, `args[0-2]`), `BattleActions` is
-  `EventQueue` (`entries`, `current`: `events`, `curIndex`; its functions
-  in `funcs`: `add` `pushFirst`, `unkB00` `pop`, `findKind` `first`,
-  `unkB14` `getDelay`), `BattleRequest` is `BattleEvent`, `ActionResult`
-  is `BattleAction`, `BattleFuncs` is `Battle800A3308` (`getStats`
-  `computeStats`, `unk90[1]` `unk94`), `BattleStats.unk8[1]` is
-  `stats[4]` and `EnemyInfo` is `BattleTableEntry`. The one call that
-  reads `D_800A25F0`'s `unkB14` stays `D_800A25F0.funcs.getDelay`; the
-  ones that read `D_800A3104` stay that.
+- [ ] The battle menus' near misses. `WFIGHTTS`: `func_800A6954` (the
+  Digimon list, 14 windows a side; its cursors and scrolls are
+  `D_800A8268[2]` and `D_800A8270[2]`, two scalars each in the C for now)
+  stays at 31 diffs with `D_800A8270[1] + 0x37 + j`: gcc then keeps
+  `j + 0x37` in a register where the original adds the scroll first, and
+  `j + D_800A8270[1] + 0x37`, the original's order, stops gcc hoisting the
+  scroll's address (60 diffs); the steps (`a3`/`t0`) and `j` and
+  `&D_800A32E0` (`s1`/`s2`) are swapped too, and a 12-minute permuter run
+  found nothing natural. `WFIGHTMN`: `func_800A5538` (the units' stats
+  from the party and the battle's enemies) gets to 37 diffs with a
+  `fighters = D_800A31E8.fighters[0]` pointer: `&GAME` (5 refs over 76
+  insns) then outranks `fighters` (4 over 68) for `s3`, and the original doesn't
+  schedule the enemies loop's load of `D_800A2584` above the `mp` stores,
+  as if they could alias (a 15-minute permuter run: nothing natural).
+  `func_800A7DB0` (21, case 1's registers) and `func_800A86E0` (85,
+  register allocation) were not retried. `CARDGAME`: `func_8009DE0C` (the
+  sort of a list of cards by `battle->cards[list[k]]`, swapping
+  `unk30A` and `unk446` with it by flag) stays at 22 diffs: `from` and
+  `flags & 1` swap `a1` and `s0`, and the loop counter and the `unk446`
+  pointer `t3` and `t4`. Our `from` has 7 refs over 59 insns, `flags & 1` 4
+  over 53, so ours allocates `from` first; the declarations' order,
+  `u16`/`u32` copies, flag variables, the swaps' order, pointer sums and
+  the compares' order change nothing, and a 25-minute permuter run found
+  nothing natural.
+- [ ] `WFIGHTTS` keeps the old names of the battle camera (`Unk800911C8`,
+  `Unk80091618`, which `include/fightstg.h` keeps for it). `WFIGHTMN`
+  includes `fightstg.h` alone now and uses its names (`BattleFighter`,
+  `QueuedEvent`, `EventQueue`, `BattleEvent`, `BattleTableEntry`...); the
+  call that reads `D_800A3104` stays that.
 - [ ] The field menu's near misses. `STSTATUS`: `func_8008340C` and
   `func_80084D14` (41 diffs each, register allocation), `func_80097F2C`
   (`s0`/`s1` swapped; the permuter only finds a forced form),

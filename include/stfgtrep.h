@@ -172,5 +172,6 @@ extern s32 STFGTREP_resistGains[8];
 
 extern BattleReward STFGTREP_rewards[];
 extern FightReportFuncs STFGTREP_funcs;
+extern Evolution *STFGTREP_evolutions[8]; /* each partner's (func_80085A38) */
 
 #endif /* STFGTREP_H */
