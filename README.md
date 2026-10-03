@@ -407,6 +407,17 @@ European stages) is one unit of splat's code and data
 (`stages/wstag920`...). `objdiff.json` is for the version it was last
 written for.
 
+objdiff counts a unit's `.rodata` or `.data` as matched only when all of the
+section is the original's, bytes and relocations. The report compares copies
+of the objects (`build/<version>/report/`, `expected/<version>/report/`) made
+to write the same data the same way: the base gets the target's names for the
+rodata GCC emits without one (string literals, jump tables), pointers are
+written as section plus offset on both sides, and the rodata still included
+from asm (`INCLUDE_RODATA`, the jump tables of functions behind `INCLUDE_ASM`)
+gets one byte changed, so its section only counts once all of it is C. Data
+that splat still has in its own segments (`data` in a config rather than
+`.data`) isn't in the C object, so it counts as still to do.
+
 The CI (`.github/workflows/build.yaml`) first runs `tools/check_names.py` and
 `tools/hacks.py`, which only read the source and the configs. It then builds
 both versions on every push, runs `make compare` and `make report`, and uploads
