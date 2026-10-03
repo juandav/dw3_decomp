@@ -2,6 +2,7 @@
 
 extern RECT CARDGAME_screenRect;
 extern RECT CARDGAME_fadeRect;
+extern CardFileEntry CARDGAME_preloadFiles[];
 
 CardBattle *CARDGAME_createBattle(s32 arg);
 
@@ -241,7 +242,25 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80092CE0);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80092D14);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80092DC8);
+/* The value going from FROM to TO in DURATION, at TIME, never past TO */
+s32 CARDGAME_interpolate(s32 to, s32 from, s32 duration, s32 time) {
+    s32 delta = to - from;
+    s32 inRange;
+
+    if (time == duration || from == to) {
+        return to;
+    }
+    from += delta * time / duration;
+    if (delta > 0) {
+        inRange = from < to;
+    } else {
+        inRange = from > to;
+    }
+    if (!inRange) {
+        from = to;
+    }
+    return from;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80092E1C);
 
@@ -529,9 +548,49 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009C0B0);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009C264);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009C494);
+/* Requests the files of CARDGAME_preloadFiles one after the other, and ends after the
+   last */
+void CARDGAME_tickPreloader(CardPreloader *task) {
+    switch (task->state) {
+    case 0:
+    default:
+        task->index = 0;
+        task->setState(task, 1);
+        task->ready = 0;
+        break;
+    case 1:
+        switch (task->substate) {
+        case 0:
+        default:
+            task->file = CARDGAME_preloadFiles[task->index].file;
+            if (CARDGAME_preloadFiles[task->index].isText != 0) {
+                task->file += TEXT_FILE(1);
+            }
+            FILE_CACHE.request(task->file);
+            task->substate++;
+        case 1:
+            break;
+        }
+        if (FILE_CACHE.isLoading(task->file) == 0) {
+            if (CARDGAME_preloadFiles[++task->index].file == -2) {
+                task->index++;
+                task->ready = 1;
+            }
+            if (CARDGAME_preloadFiles[task->index].file == -1) {
+                task->setState(task, 3);
+            }
+            task->substate = 0;
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009C5FC);
+CardPreloader *CARDGAME_startPreloader(void) {
+    return createTask(CARDGAME_tickPreloader, sizeof(CardPreloader), 0);
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009C628);
 
@@ -1245,15 +1304,27 @@ s32 D_800A4AA0[] = {
     0x0A0D013B,
 #endif
 };
-s32 D_800A4AB4[] = {
-    0x1002B, 0x1000F,
+CardFileEntry CARDGAME_preloadFiles[] = {
+    { 0x2B, 1 },
+    { 0x0F, 1 },
 #if VERSION_US
-    2023, 2024, 2025, 2026, 2027,
+    { 2023, 0 },
+    { 2024, 0 },
+    { 2025, 0 },
+    { 2026, 0 },
+    { 2027, 0 },
 #elif VERSION_EU
-    2038, 2039, 2040, 2041, 2042,
+    { 2038, 0 },
+    { 2039, 0 },
+    { 2040, 0 },
+    { 2041, 0 },
+    { 2042, 0 },
 #endif
-    65534,
-    0x1001D, 0x10016, 0x1006A, 65535,
+    { -2, 0 },
+    { 0x1D, 1 },
+    { 0x16, 1 },
+    { 0x6A, 1 },
+    { -1, 0 },
 };
 u16 D_800A4AE4[] = {
     0x0044, 0x006F, 0x009A, 0x00C5, 0x00F0, 0x0000,

@@ -19,6 +19,20 @@ typedef struct CardBattle {
     /* 0x303 */ u8 result; /* 2 once the battle is over */
 } CardBattle;
 
+/* A file CARDGAME_tickPreloader reads; a text file is in each language */
+typedef struct CardFileEntry {
+    /* 0x0 */ s16 file; /* -2: the files before are enough to start, -1: the end */
+    /* 0x2 */ s16 isText;
+} CardFileEntry;
+
+/* Reads CARDGAME's files into the file cache, one at a time */
+typedef struct CardPreloader {
+    TASK_HEADER(CardPreloader);
+    /* 0x50 */ s32 ready; /* the files before the first -2 are in */
+    /* 0x54 */ s16 index;
+    /* 0x56 */ s16 file;
+} CardPreloader;
+
 /* Fades the screen to a colour: a POLY_F4 over it, blended (blend is the
    semi-transparency rate) */
 typedef struct CardFader {

@@ -1,5 +1,8 @@
 D_800A494C = 0x800A494C; // size:0x18
 
+// helpers
+CARDGAME_interpolate = 0x80092DC8; // type:func
+
 // the mode's task
 CARDGAME_updateScene = 0x80094DF0; // type:func
 CARDGAME_start = 0x80095020; // type:func
@@ -16,3 +19,8 @@ CARDGAME_killFader = 0x800A24B4; // type:func
 CARDGAME_tickFader = 0x800A24C0; // type:func
 CARDGAME_createFader = 0x800A2580; // type:func
 CARDGAME_fadeRect = 0x800A4C58;
+
+// reads the files into the file cache (CardPreloader)
+CARDGAME_tickPreloader = 0x8009C494; // type:func
+CARDGAME_startPreloader = 0x8009C5FC; // type:func
+CARDGAME_preloadFiles = 0x800A4AB4;
