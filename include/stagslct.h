@@ -38,7 +38,7 @@ typedef struct StageSelectWindows {
     /* 0x84 */ TextWindow *unk84; /* GAME_PROGRESS */
     /* 0x88 */ TextWindow *unk88; /* D_80042728.unk0 */
     /* 0x8C */ TextWindow *unk8C; /* party member 0: unk32 */
-    /* 0x90 */ TextWindow *unk90; /* party member 0: unk1C */
+    /* 0x90 */ TextWindow *unk90; /* party member 0: level */
     /* 0x94 */ TextWindow *unk94; /* D_80042728.unk4 */
     /* 0x98 */ TextWindow *unk98; /* D_80042728.unk8 */
 } StageSelectWindows;

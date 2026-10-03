@@ -2605,7 +2605,7 @@ s32 func_8009FB10(u8 side, s32 id) {
     s32 base;
 
     if (side == 0) {
-        if (D_80042728.unk3D[1]) {
+        if (D_80042728.unk3E[0]) {
             return 0;
         }
         FIGHTSTG_computeStats(0, 1, D_800A31E8.active[0]);
@@ -2645,7 +2645,7 @@ s32 func_8009FC90(u8 side, s32 id) {
     s32 base;
 
     if (side == 0) {
-        if (D_80042728.unk3D[2]) {
+        if (D_80042728.unk3E[1]) {
             return 0;
         }
         FIGHTSTG_computeStats(0, 1, D_800A31E8.active[0]);
@@ -2680,7 +2680,7 @@ s32 func_8009FDF8(u8 side, s32 id) {
     s32 base;
 
     if (side == 0) {
-        if (D_80042728.unk3D[3]) {
+        if (D_80042728.unk3E[2]) {
             return 0;
         }
         FIGHTSTG_computeStats(0, 1, D_800A31E8.active[0]);
@@ -2714,7 +2714,7 @@ s32 func_8009FF60(u8 side, s32 id) {
     s32 chance;
 
     if (side == 0) {
-        if (D_80042728.unk3D[4]) {
+        if (D_80042728.unk3E[3]) {
             return 0;
         }
         FIGHTSTG_computeStats(0, 1, D_800A31E8.active[0]);
@@ -2744,7 +2744,7 @@ s32 func_800A00A4(u8 side, s32 id) {
     s32 base;
 
     if (side == 0) {
-        if (D_80042728.unk3D[5]) {
+        if (D_80042728.unk3E[4]) {
             return 0;
         }
         FIGHTSTG_computeStats(0, 1, D_800A31E8.active[0]);
@@ -2781,7 +2781,7 @@ s32 func_800A020C(u8 side, s32 id) {
     s32 roll;
 
     if (side == 0) {
-        if (D_80042728.unk44[1]) {
+        if (D_80042728.unk3E[7]) {
             return 0;
         }
         if (D_800A31E8.fighters[1][D_800A31E8.active[1]].item <= 0) {
@@ -2816,7 +2816,7 @@ s32 func_800A0400(u8 side, s32 id) {
     Unk800427D6 *entry;
     s32 chance;
 
-    if (side == 0 && D_80042728.unk43 != 0) {
+    if (side == 0 && D_80042728.unk3E[5] != 0) {
         return 0;
     }
 #if VERSION_US

@@ -226,10 +226,11 @@ void func_80087FDC(Unk80087FDC *task, Unk80087FDCChildren *children) {
     }
 }
 
-void func_800881A0(s32 arg0) {
+Unk80087FDC *func_800881A0(s32 arg0, void *entries) {
     Unk80087FDC *task = createTask(func_80087FDC, sizeof(Unk80087FDC), 8);
 
     task->unk50 = arg0;
+    return task;
 }
 
 void func_800881D8(Unk800882D8 *task, Point *out) {
@@ -489,11 +490,12 @@ void func_8008878C(Unk8008878C *task, Unk8008BFE8 **children) {
     }
 }
 
-void func_80088BE4(s32 arg0, MapObject *arg1) {
+Unk8008878C *func_80088BE4(s32 arg0, MapObject *arg1) {
     Unk8008878C *task = createTask(func_8008878C, sizeof(Unk8008878C), 4);
 
     task->unk54 = arg1;
     task->unk50 = arg0;
+    return task;
 }
 
 void *func_80088C2C(void) {
@@ -677,10 +679,11 @@ void func_8008926C(Task *task) {
     }
 }
 
-void func_800892E8(s32 arg0) {
+Task *func_800892E8(s32 arg0) {
     Task *task = createTask(func_8008926C, 0x54, 0);
 
     task->key2 = arg0;
+    return task;
 }
 
 void func_80089320(Unk80089320 *task) {
@@ -863,8 +866,8 @@ void func_80089D28(FieldTask *task, FieldChildren *children) {
         if (task->width > 0xA0) {
             GAME.funcs.requestMode(task->unk5C, task->unk60);
             GAME.fieldMode = GAME.funcs.getMode();
-            GAME.fieldPos = children->player->pos;
-            GAME.fieldDir = children->player->dir;
+            GAME.fieldPos = children->actors[0]->pos;
+            GAME.fieldDir = children->actors[0]->dir;
             task->nextSubstate(task);
         }
         func_80086460(0x1001, 0x8000);
@@ -905,7 +908,452 @@ void func_8008AEB4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     func_8008AE18(arg0, arg1, arg2, arg3, arg4, 0);
 }
 
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg_5", func_8008AEDC);
+extern Encounter D_800939E0[]; /* fieldstg.c's s32 words */
+
+/*
+ * Starts encounter D_800939E0[encounter]: the field task (id 7) goes to state 2
+ * with mode 0x600, or 0xE0A (USA 0xE09) at GAME_PROGRESS 0x2B, and
+ * D_80042728 takes the encounter's enemies and bytes. Enemies 0x1C9-0x1D0
+ * always give an item (unk50), which the field mode and a roll pick: odd
+ * ones (1 in 32 for the rarer item), even ones (1 in 16).
+ */
+void func_8008AEDC(s32 encounter) {
+    FieldTask *task = TASK_FUNCS.find(7, -1, -1);
+    s32 i;
+    s32 next;
+    s32 mode;
+    s32 roll;
+
+    if (task != NULL) {
+        D_800990B4.unk58 = 1;
+        D_800990B4.unk5C = 1;
+#if VERSION_EU
+        next = 0xE0A;
+#else
+        next = 0xE09;
+#endif
+        if (GAME_PROGRESS != 0x2B) {
+            next = 0x600;
+        }
+        task->unk5C = next;
+        task->unk60 = 0;
+        task->setState(task, 2);
+        D_80042728.unk10 = encounter;
+        D_80042728.unk3C = D_800939E0[encounter].unkC;
+        D_80042728.unk3D = D_800939E0[encounter].unkD;
+        for (i = 0; i < 12; i++) {
+            D_80042728.unk3E[i] = D_800939E0[encounter].unkE[i];
+        }
+        for (i = 0; i < 3; i++) {
+            D_80042728.enemies[i] = *D_800939E0[encounter].enemies[i];
+        }
+        D_80042728.unk4C = 0;
+        if ((u32)(D_80042728.enemies[0].fighter - 0x1C9) < 8) {
+            D_80042728.unk4C = 1;
+            mode = GAME.funcs.getMode();
+            if (D_80042728.enemies[0].fighter & 1) {
+                roll = RANDOM.next() & 0x1F;
+                switch (mode) {
+                case 0x21D:
+                default:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x177;
+                    } else {
+                        D_80042728.unk50 = 0x186;
+                    }
+                    break;
+                case 0x22A:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x179;
+                    } else {
+                        D_80042728.unk50 = 0x186;
+                    }
+                    break;
+                case 0x233:
+                case 0x235:
+                case 0x237:
+                case 0x23A:
+                case 0x23B:
+                case 0x23C:
+                case 0x24A:
+                case 0x24C:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x17A;
+                    } else {
+                        D_80042728.unk50 = 0x187;
+                    }
+                    break;
+#if VERSION_EU
+                case 0x28C:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17C;
+                        } else {
+                            D_80042728.unk50 = 0x187;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x17F;
+                    } else {
+                        D_80042728.unk50 = 0x188;
+                    }
+                    break;
+                case 0x28D:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17C;
+                        } else {
+                            D_80042728.unk50 = 0x187;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x179;
+                    } else {
+                        D_80042728.unk50 = 0x186;
+                    }
+                    break;
+                case 0x28E:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17C;
+                        } else {
+                            D_80042728.unk50 = 0x187;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x178;
+                    } else {
+                        D_80042728.unk50 = 0x186;
+                    }
+                    break;
+                case 0x28F:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17C;
+                        } else {
+                            D_80042728.unk50 = 0x187;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x17E;
+                    } else {
+                        D_80042728.unk50 = 0x188;
+                    }
+                    break;
+                case 0x290:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17C;
+                        } else {
+                            D_80042728.unk50 = 0x187;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x180;
+                    } else {
+                        D_80042728.unk50 = 0x189;
+                    }
+                    break;
+                case 0x291:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17C;
+                        } else {
+                            D_80042728.unk50 = 0x187;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x181;
+                    } else {
+                        D_80042728.unk50 = 0x189;
+                    }
+                    break;
+                case 0x296:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17C;
+                        } else {
+                            D_80042728.unk50 = 0x187;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x182;
+                    } else {
+                        D_80042728.unk50 = 0x189;
+                    }
+                    break;
+                case 0x298:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17C;
+                        } else {
+                            D_80042728.unk50 = 0x187;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x183;
+                    } else {
+                        D_80042728.unk50 = 0x18A;
+                    }
+                    break;
+                case 0x299:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17F;
+                        } else {
+                            D_80042728.unk50 = 0x188;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x185;
+                    } else {
+                        D_80042728.unk50 = 0x18A;
+                    }
+                    break;
+#else
+                case 0x28C:
+                case 0x28D:
+                case 0x28E:
+                case 0x28F:
+                case 0x290:
+                case 0x291:
+                case 0x296:
+                case 0x298:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x17C;
+                    } else {
+                        D_80042728.unk50 = 0x187;
+                    }
+                    break;
+                case 0x299:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x17F;
+                    } else {
+                        D_80042728.unk50 = 0x188;
+                    }
+                    break;
+#endif
+                case 0x2A1:
+                case 0x2A3:
+                case 0x2A4:
+                case 0x2A7:
+                case 0x2A8:
+                case 0x2A9:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x180;
+                    } else {
+                        D_80042728.unk50 = 0x189;
+                    }
+                    break;
+                case 0x261:
+                case 0x262:
+                case 0x265:
+                case 0x266:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x181;
+                    } else {
+                        D_80042728.unk50 = 0x189;
+                    }
+                    break;
+                case 0x2B4:
+                case 0x2B6:
+                case 0x2C9:
+                case 0x2CA:
+                case 0x2CD:
+                case 0x2CE:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x184;
+                    } else {
+                        D_80042728.unk50 = 0x18A;
+                    }
+                    break;
+                }
+            } else {
+                roll = RANDOM.next() & 0xF;
+                switch (mode) {
+                case 0x201:
+                default:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x177;
+                    } else {
+                        D_80042728.unk50 = 0x186;
+                    }
+                    break;
+                case 0x234:
+                case 0x235:
+                case 0x237:
+                case 0x23A:
+                case 0x23B:
+                case 0x23C:
+                case 0x23D:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x178;
+                    } else {
+                        D_80042728.unk50 = 0x186;
+                    }
+                    break;
+                case 0x247:
+                case 0x249:
+                case 0x24B:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x17B;
+                    } else {
+                        D_80042728.unk50 = 0x187;
+                    }
+                    break;
+#if VERSION_EU
+                case 0x271:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17D;
+                        } else {
+                            D_80042728.unk50 = 0x188;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x177;
+                    } else {
+                        D_80042728.unk50 = 0x186;
+                    }
+                    break;
+                case 0x28C:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17D;
+                        } else {
+                            D_80042728.unk50 = 0x188;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x17A;
+                    } else {
+                        D_80042728.unk50 = 0x187;
+                    }
+                    break;
+                case 0x28D:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17D;
+                        } else {
+                            D_80042728.unk50 = 0x188;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x179;
+                    } else {
+                        D_80042728.unk50 = 0x186;
+                    }
+                    break;
+                case 0x28E:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17D;
+                        } else {
+                            D_80042728.unk50 = 0x188;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x178;
+                    } else {
+                        D_80042728.unk50 = 0x186;
+                    }
+                    break;
+                case 0x28F:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17D;
+                        } else {
+                            D_80042728.unk50 = 0x188;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x17B;
+                    } else {
+                        D_80042728.unk50 = 0x187;
+                    }
+                    break;
+                case 0x290:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17D;
+                        } else {
+                            D_80042728.unk50 = 0x188;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x184;
+                    } else {
+                        D_80042728.unk50 = 0x18A;
+                    }
+                    break;
+                case 0x296:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17D;
+                        } else {
+                            D_80042728.unk50 = 0x188;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x17C;
+                    } else {
+                        D_80042728.unk50 = 0x187;
+                    }
+                    break;
+                case 0x299:
+                    if (GAME_PROGRESS != 0x2D) {
+                        if (roll != 0) {
+                            D_80042728.unk50 = 0x17D;
+                        } else {
+                            D_80042728.unk50 = 0x188;
+                        }
+                    } else if (roll != 0) {
+                        D_80042728.unk50 = 0x17D;
+                    } else {
+                        D_80042728.unk50 = 0x188;
+                    }
+                    break;
+#else
+                case 0x271:
+                case 0x28C:
+                case 0x28D:
+                case 0x28E:
+                case 0x28F:
+                case 0x290:
+                case 0x296:
+                case 0x299:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x17D;
+                    } else {
+                        D_80042728.unk50 = 0x188;
+                    }
+                    break;
+#endif
+                case 0x2A2:
+                case 0x2A3:
+                case 0x2A4:
+                case 0x2A7:
+                case 0x2A8:
+                case 0x2A9:
+                case 0x2AA:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x17E;
+                    } else {
+                        D_80042728.unk50 = 0x188;
+                    }
+                    break;
+                case 0x266:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x182;
+                    } else {
+                        D_80042728.unk50 = 0x189;
+                    }
+                    break;
+                case 0x2B1:
+                case 0x2B3:
+                case 0x2B5:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x183;
+                    } else {
+                        D_80042728.unk50 = 0x18A;
+                    }
+                    break;
+                case 0x2CE:
+                    if (roll != 0) {
+                        D_80042728.unk50 = 0x185;
+                    } else {
+                        D_80042728.unk50 = 0x18A;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+}
 
 s32 func_8008B258(void) {
     Battle *battle = D_800990B4.unk20->battles[3]->battles[5];
@@ -933,7 +1381,7 @@ void func_8008B320(void) {
     task->setSubstate(task, 2);
 }
 
-void func_8008B398(s32 arg0, Point *pos, s32 arg2) {
+void func_8008B398(s32 arg0, Point *pos, FieldWarp *arg2) {
     FieldTask *task = TASK_FUNCS.find(7, -1, -1);
 
     task->unk70 = arg0;
@@ -1656,10 +2104,11 @@ void func_8008CC4C(Unk8008CC4C *task) {
     }
 }
 
-void func_8008CF0C(void) {
+Unk8008CC4C *func_8008CF0C(void) {
     Unk8008CC4C *task = createTaskWithId(func_8008CC4C, sizeof(Unk8008CC4C), 0, 0x10);
 
     task->voice = -1;
+    return task;
 }
 
 void func_8008CF44(s32 arg0, s32 arg1) {
@@ -1844,14 +2293,14 @@ s32 func_8008D580(Actor *actor, Point *pos) {
                             if (target->substate != 0x4E) {
                                 target->setSubstate(target, 0x4E);
                                 result = 1;
-                                target->unk88 = (s32)actor;
+                                target->unk88 = actor;
                                 actor->setSubstate(actor, 0x4D);
                                 actor->unk108 = NULL;
                             }
                             break;
                         default:
                             target->setSubstate(target, 0x4A);
-                            target->unk88 = (s32)actor;
+                            target->unk88 = actor;
                             actor->setSubstate(actor, actor->unk84 != 0 ? 0x4C : 1);
                             actor->unk108 = NULL;
                             result = D_800990B4.unk60 = 1;
@@ -2247,7 +2696,7 @@ void func_8008E5B8(Actor *actor, s32 dir, Point offset) {
     children[2] = func_8008C9F8(pos);
 }
 
-void func_8008E698(Actor *actor, s32 arg1, s32 arg2) {
+void func_8008E698(Actor *actor, FieldWarp *arg1, s32 arg2) {
     actor->unk108 = NULL;
     actor->setSubstate(actor, 1);
     actor->dir = 0;
@@ -2407,7 +2856,530 @@ void func_8008F11C(Task *task) {
     }
 }
 
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg_5", func_8008F184);
+/* The voice of the sound 0xA064683C (s16; its unit defines it as halfwords,
+   for the European padding after it) */
+extern s16 D_8009AA48;
+
+/*
+ * Runs an actor's action, its substate: the walks, the moves of 0x44 to 0x47
+ * (which shift it by a tile, left or right by unk8C), the talk of 0x4A (the
+ * first of the character's talks whose conditions hold) and the events up to
+ * 0x50. The
+ * match depends on the talks' loop testing both of its ends with a break at
+ * its top, and on the moves of a tile adding a choice of two steps.
+ */
+void func_8008F184(Actor *actor, ActorChildren *children) {
+    Point move2;
+    Point move3;
+    Point move4;
+    Point move5;
+    Point move6;
+    FieldTalk *talk;
+    Actor *other;
+    s32 isX;
+
+    switch (actor->substate) {
+    case 1:
+        switch (actor->step) {
+        case 0:
+        default:
+            actor->unk74 = 1;
+            func_8008E768(actor, 1);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        break;
+    case 2:
+        switch (actor->step) {
+        case 0:
+        default:
+            actor->unk74 = 1;
+            func_8008E768(actor, 4);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        if (!(actor->key2 & 0xE)) {
+            D_8009A70C.unk48(&actor->tile, actor->unk68 >> 2, actor->dir, &move2);
+            actor->pos.x += move2.x;
+            actor->pos.y += move2.y;
+        }
+        func_8008F028((Task *)actor, 0, 0);
+        break;
+    case 3:
+        switch (actor->step) {
+        case 0:
+        default:
+            actor->unk74 = 1;
+            func_8008E768(actor, 5);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        if (!(actor->key2 & 0xE)) {
+            D_8009A70C.unk48(&actor->tile, actor->unk68, actor->dir, &move3);
+            actor->pos.x += move3.x;
+            actor->pos.y += move3.y;
+        }
+        func_8008F028((Task *)actor, 1, 1);
+        if (GAME.funcs.getMode() != 0x22D && actor->key2 == 0) {
+            func_8008D2A0(actor);
+        }
+        break;
+    case 0x4C:
+        switch (actor->step) {
+        case 0:
+        default:
+            actor->unk74 = 1;
+            func_8008E768(actor, 1);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        if (actor->unk68 != 0) {
+            actor->unk68 -= 8;
+            if (actor->unk68 < 0) {
+                actor->unk68 = 0;
+            }
+            D_8009A70C.unk4C(&actor->tile, actor->unk68, actor->dir, &move4);
+            actor->pos.x += move4.x;
+            actor->pos.y += move4.y;
+            func_8008D2A0(actor);
+        }
+        break;
+    case 0x4B:
+        switch (actor->step) {
+        case 0:
+        default:
+            actor->unk74 = 1;
+            func_8008E768(actor, 4);
+            actor->unk68 = 0;
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        actor->unk68 += 8;
+#if VERSION_EU
+        if (NTSC_MODE != 0) {
+            if (actor->unk68 > 0x200) {
+                actor->unk68 = 0x200;
+            }
+        } else if (actor->unk68 > 0x266) {
+            actor->unk68 = 0x266;
+        }
+#else
+        if (actor->unk68 > 0x200) {
+            actor->unk68 = 0x200;
+        }
+#endif
+        D_8009A70C.unk4C(&actor->tile, actor->unk68, actor->dir, &move4);
+        actor->pos.x += move4.x;
+        actor->pos.y += move4.y;
+        func_8008F028((Task *)actor, 1, 1);
+        func_8008D2A0(actor);
+        break;
+    case 4:
+        switch (actor->step) {
+        case 0:
+        default:
+            func_8008E768(actor, 6);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        if (actor->unkE8 != 0) {
+            actor->setSubstate(actor, 1);
+        }
+        break;
+    case 5:
+        switch (actor->step) {
+        case 0:
+        default:
+            D_800990B4.unk60 = 1;
+            if (actor->unk84 == 0) {
+                func_8008E768(actor, 5);
+            }
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        D_8009A70C.unk48(&actor->tile, actor->unk68, actor->dir, &move5);
+        actor->pos.x += move5.x;
+        actor->pos.y += move5.y;
+        if (actor->unk84 == 0) {
+            func_8008F028((Task *)actor, 1, 0);
+        }
+        break;
+    case 0x4F:
+        switch (actor->step) {
+        case 0:
+        default:
+            D_800990B4.unk60 = 1;
+            func_8008E768(actor, 1);
+            D_8009AA48 = SOUND.playSound(0xA064683C);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        D_8009A70C.unk48(&actor->tile, actor->unk68, actor->dir, &move6);
+        actor->pos.x += move6.x;
+        actor->pos.y += move6.y;
+        break;
+    case 0x50:
+        if (actor->step == 0) {
+            SOUND.keyOff(0xA064683C, D_8009AA48);
+        }
+        actor->step += GFX.funcs.getFrameTime();
+        if (actor->step >= 0x1E) {
+            D_800990B4.unk60 = 0;
+            actor->setSubstate(actor, 1);
+            func_8008F014(actor);
+        }
+        break;
+    case 0x40:
+        switch (actor->step) {
+        case 0:
+        default:
+            func_8008E768(actor, 0x20);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        break;
+    case 0x41:
+        switch (actor->step) {
+        case 0:
+        default:
+            func_8008E768(actor, 0x1A);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        actor->unk90 += 0x100;
+        if (actor->unk90 >= actor->unk94) {
+            actor->unk90 = actor->unk94;
+            actor->setSubstate(actor, 0x45);
+            actor->unk108 = NULL;
+        }
+        func_8008F11C((Task *)actor);
+        break;
+    case 0x42:
+        switch (actor->step) {
+        case 0:
+        default:
+            func_8008E768(actor, 0x1B);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        actor->unk90 -= 0x100;
+        if (actor->unk90 <= 0) {
+            actor->unk90 = 0;
+            actor->setSubstate(actor, 0x46);
+            actor->unk108 = NULL;
+        }
+        func_8008F11C((Task *)actor);
+        break;
+    case 0x43:
+        switch (actor->step) {
+        case 0:
+        default:
+            func_8008E768(actor, 0x1C);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        if (actor->unkE8 != 0) {
+            actor->setSubstate(actor, 0x40);
+            actor->unk108 = func_8008DCF8;
+        }
+        break;
+    case 0x44:
+        switch (actor->step) {
+        case 0:
+        default:
+            actor->unk74 = 0;
+            func_8008E768(actor, 0x1E);
+            actor->pos.x += actor->unk8C != 0 ? 0x1000 : -0x1000;
+            actor->pos.y += 0x1800 + actor->unk94;
+            func_8008CF44(0, 2);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        if (actor->unkE8 == 0) {
+            break;
+        }
+        actor->setSubstate(actor, 0x40);
+        actor->unk108 = func_8008DCF8;
+    case 0:
+    default:
+        actor->unk74 = 1;
+        break;
+    case 0x46:
+        switch (actor->step) {
+        case 0:
+        default:
+            func_8008E768(actor, 0x1F);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        if (actor->unkE8 != 0) {
+            actor->setSubstate(actor, 1);
+            func_8008F014(actor);
+            func_800901D4();
+            actor->dir = 0;
+            D_800990B4.unk60 = 0;
+        }
+        break;
+    case 0x45:
+        switch (actor->step) {
+        case 0:
+        default:
+            actor->unk74 = 0;
+            func_8008E768(actor, 0x1D);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        if (actor->unkE8 != 0) {
+            actor->setSubstate(actor, 1);
+            actor->unk74 = 1;
+            func_8008E768(actor, 1);
+            func_800901D4();
+            func_8008F014(actor);
+            actor->pos.x += actor->unk8C != 0 ? -0x1000 : 0x1000;
+            actor->pos.y -= 0x1800 + actor->unk94;
+            func_8008CF44(0, 2);
+            D_800990B4.unk60 = 0;
+        }
+        break;
+    case 0x47:
+        switch (actor->step) {
+        case 0:
+        default:
+            actor->unk74 = 0;
+            func_8008E768(actor, 0x16);
+            actor->pos.y += actor->unk94;
+            actor->pos.x += actor->unk8C != 0 ? 0x1000 : -0x1000;
+            actor->nextStep(actor);
+        case 1:
+            if (actor->unkE8 == 0) {
+                break;
+            }
+            func_8008E768(actor, 0x17);
+            actor->nextStep(actor);
+        case 2:
+            actor->unk74 = 1;
+            actor->unk90 -= 0x300;
+            if (actor->unkA0 == 0x17 && actor->unk94 - actor->unk90 > 0x1800) {
+                func_8008E768(actor, 0x18);
+            }
+            if (actor->unk90 <= 0) {
+                actor->unk90 = 0;
+                func_8008E768(actor, 0x19);
+                SOUND.playSound(0x8004593E);
+                actor->nextStep(actor);
+            }
+            break;
+        case 3:
+            if (actor->unkE8 != 0) {
+                actor->setSubstate(actor, 1);
+                func_8008E768(actor, 1);
+                func_8008F014(actor);
+                func_800901D4();
+                D_800990B4.unk60 = 0;
+            }
+            break;
+        }
+        break;
+    case 0x48:
+        switch (actor->step) {
+        case 0:
+        default:
+            func_8008E768(actor, 0x11);
+            actor->nextStep(actor);
+        case 1:
+            if (actor->unkE8 == 0) {
+                break;
+            }
+            func_8008E768(actor, 0x13);
+            SOUND.playSound(0x80045CC5);
+            actor->nextStep(actor);
+        case 2:
+            if (actor->unkE8 == 0) {
+                break;
+            }
+            func_8008E768(actor, 0x14);
+            SOUND.playSound(0x80045D46);
+            actor->nextStep(actor);
+        case 3:
+            if (children->unk8 != NULL) {
+                break;
+            }
+            children->unk4 = func_800878A4(0, 1, 6);
+            func_8008E768(actor, 0x12);
+            actor->nextStep(actor);
+        case 4:
+            actor->counter += GFX.funcs.getFrameTime();
+            if (actor->counter < 0x3C) {
+                break;
+            }
+            children->unk4->setState(children->unk4, 2);
+            func_8008E768(actor, 0x15);
+            actor->nextStep(actor);
+        case 5:
+            if (actor->unkE8 != 0) {
+                actor->setSubstate(actor, 1);
+                func_8008E768(actor, 1);
+                func_8008F014(actor);
+                D_800990B4.unk58 = 0;
+            }
+            break;
+        }
+        break;
+    case 0x49:
+        switch (actor->step) {
+        case 0:
+        default:
+            actor->unk108 = NULL;
+            func_8008E768(actor, 8);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        if (actor->unkE8 != 0) {
+            actor->setSubstate(actor, 1);
+            func_8008E768(actor, 1);
+            func_8008F014(actor);
+            D_800990B4.unk60 = 0;
+        }
+        break;
+    case 0x4A:
+        isX = 0;
+        if (actor->key1 == 0x21 || (actor->key1 >= 0x4D && actor->key1 < 0x58) ||
+            (actor->key1 >= 0x154 && actor->key1 < 0x159) || actor->key1 == 0x15B) {
+            isX = 1;
+        }
+        switch (actor->step) {
+        case 0:
+        default:
+            talk = actor->entry->talks;
+            while (1) {
+                if (talk->conditions == NULL) {
+                    break;
+                }
+                if (FLAGS_00.checkConditions(talk->conditions) == 1) {
+                    break;
+                }
+                talk++;
+            }
+            actor->unkFC = (s32)talk->actions;
+            if (!isX && actor->unk100 == 0) {
+                actor->dir = (actor->unk88->dir + 4) & 7;
+            }
+            if (actor->unk9C != 0 && !isX) {
+                children->unkC = func_8008848C(actor, talk->unk8);
+            } else {
+                children->unkC = func_8008848C(actor->unk88, talk->unk8);
+            }
+            if (isX) {
+                func_8008E768(actor, 0x41);
+                SOUND.playSound(0x80045DC7);
+            }
+            actor->nextStep(actor);
+            break;
+        case 1:
+            if (children->unkC == NULL) {
+                if (!isX) {
+                    actor->setSubstate(actor, 1);
+                } else {
+                    actor->setState(actor, 3);
+                }
+                other = actor->unk88;
+                if (other->unk84 == 0) {
+                    func_8008F014(other);
+                } else {
+                    other->unk108 = func_8008D710;
+                }
+                if (actor->unkFC != 0) {
+                    FLAGS_00.applyActions((u16 *)actor->unkFC);
+                }
+                D_800990B4.unk60 = 0;
+            }
+            break;
+        }
+        break;
+    case 0x4D:
+        switch (actor->step) {
+        case 0:
+        default:
+#if VERSION_EU
+            D_800990B4.unk60 = 1;
+#endif
+            actor->unk108 = NULL;
+            func_8008E768(actor, 0x45);
+            actor->nextStep(actor);
+        case 1:
+            break;
+        }
+        if (actor->unkE8 != 0) {
+            actor->setSubstate(actor, 1);
+            func_8008E768(actor, 1);
+            func_8008F014(actor);
+#if VERSION_EU
+            D_800990B4.unk60 = 0;
+#endif
+        }
+        break;
+    case 0x4E:
+        switch (actor->step) {
+        case 0:
+        default:
+            if (actor->counter < 0x14) {
+                actor->counter += GFX.funcs.getFrameTime();
+                break;
+            }
+            func_8008E768(actor, 0x54);
+            SOUND.playSound(0x800446C9);
+#if VERSION_EU
+            switch (actor->key1) {
+            case 0x148:
+                FLAGS_00.applyAction(8, 1);
+                break;
+            case 0x15F:
+                FLAGS_00.applyAction(9, 1);
+                break;
+            case 0x160:
+                FLAGS_00.applyAction(0xA, 1);
+                break;
+            }
+#endif
+            actor->nextStep(actor);
+        case 1:
+            if (actor->unkE8 != 0) {
+#if VERSION_US
+                switch (actor->key1) {
+                case 0x148:
+                    FLAGS_00.applyAction(8, 1);
+                    break;
+                case 0x15F:
+                    FLAGS_00.applyAction(9, 1);
+                    break;
+                case 0x160:
+                    FLAGS_00.applyAction(0xA, 1);
+                    break;
+                }
+#endif
+                actor->setState(actor, 3);
+            }
+            break;
+        }
+        break;
+    }
+}
 
 void func_80090154(void) {
     s32 i;
@@ -2440,7 +3412,7 @@ void func_80090254(Actor *actor, Point *out) {
     out->y = actor->tile.y + delta->y;
 }
 
-void func_80090294(Actor *actor, Unk80089320 **children) {
+void func_80090294(Actor *actor, ActorChildren *children) {
     Layer *layer;
 
     switch (actor->state) {
@@ -2448,7 +3420,7 @@ void func_80090294(Actor *actor, Unk80089320 **children) {
         case 0:
             if (actor->unk9C == 0 || FILE_CACHE.isLoading(actor->unk9C >> 16) == 0) {
                 if (actor->key2 == 0) {
-                    *children = func_80089668(actor);
+                    children->anim = func_80089668(actor);
                 }
                 actor->nextState(actor);
             }
@@ -2991,7 +3963,7 @@ void func_80091F4C(Point *pos, s32 scale, s32 index, Point *out) {
     out->y = D_8009A76C[row][dir].y * scale / 4096;
 }
 
-void func_8009204C(s32 arg0, s32 scale, s32 index, Point *out) {
+void func_8009204C(Point *pos, s32 scale, s32 index, Point *out) {
     out->x = D_8009A76C[0][index].x * scale / 4096;
     out->y = D_8009A76C[0][index].y * scale / 4096;
 }

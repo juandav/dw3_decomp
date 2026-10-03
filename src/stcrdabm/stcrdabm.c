@@ -418,7 +418,65 @@ void STCRDABM_showPageInfo(CardAlbum *album, CardAlbumWindows *win, s32 show) {
     }
 }
 
-INCLUDE_ASM("stcrdabm/nonmatchings/stcrdabm", STCRDABM_showCardInfo);
+/*
+ * Shows the card under the cursor (album->card = page * 12 + slot + 1) once
+ * the player has seen it: its name, the copies owned and, for a card of kind
+ * 0, its level and its two stats, or its text for cards 0x45, 0x70, 0x9B,
+ * 0xC6 and 0xF1; the other kinds show their text. Hides it all otherwise.
+ */
+void STCRDABM_showCardInfo(CardAlbum *album, CardAlbumWindows *win, s32 show) {
+    CardDrawer icon;
+
+    album->card = album->page * 12 + album->slot + 1;
+    if (GAME.cardsSeen[album->card] != 0 && show != 0) {
+        initCardDrawer(&icon);
+        icon.setCard(album->card);
+        win->name->setString(win->name, FILE_CACHE.load(TEXT_FILE(0x17)), album->card);
+        win->countLabel->setString(win->countLabel, FILE_CACHE.load(TEXT_FILE(0x25)), 8);
+        win->count->setNumber(win->count, 0, GAME.cards[album->card]);
+        win->count->setRightAlign(win->count, 1);
+        if (icon.getKind() != 0) {
+            win->levelLabel->setVisible(win->levelLabel, 0);
+            win->level->setVisible(win->level, 0);
+            win->text->setString(win->text, FILE_CACHE.load(TEXT_FILE(0x1E)), album->card);
+            win->stat1Label->setVisible(win->stat1Label, 0);
+            win->stat1->setVisible(win->stat1, 0);
+            win->stat2Label->setVisible(win->stat2Label, 0);
+            win->stat2->setVisible(win->stat2, 0);
+        } else {
+            win->levelLabel->setString(win->levelLabel, FILE_CACHE.load(TEXT_FILE(0x25)), 8);
+            win->level->setNumber(win->level, 0, icon.card[5]);
+            win->level->setRightAlign(win->level, 1);
+            if (album->card == 0x45 || album->card == 0x70 || album->card == 0x9B ||
+                album->card == 0xC6 || album->card == 0xF1) {
+                win->text->setString(win->text, FILE_CACHE_LOAD[0](TEXT_FILE(0x1E)), album->card);
+                win->stat1Label->setVisible(win->stat1Label, 0);
+                win->stat1->setVisible(win->stat1, 0);
+                win->stat2Label->setVisible(win->stat2Label, 0);
+                win->stat2->setVisible(win->stat2, 0);
+            } else {
+                win->text->setVisible(win->text, 0);
+                win->stat1Label->setString(win->stat1Label, FILE_CACHE.load(TEXT_FILE(0x25)), 6);
+                win->stat1->setNumber(win->stat1, 0, icon.card[1]);
+                win->stat1->setRightAlign(win->stat1, 1);
+                win->stat2Label->setString(win->stat2Label, FILE_CACHE.load(TEXT_FILE(0x25)), 7);
+                win->stat2->setNumber(win->stat2, 0, icon.card[2]);
+                win->stat2->setRightAlign(win->stat2, 1);
+            }
+        }
+    } else {
+        win->name->setVisible(win->name, 0);
+        win->countLabel->setVisible(win->countLabel, 0);
+        win->count->setVisible(win->count, 0);
+        win->levelLabel->setVisible(win->levelLabel, 0);
+        win->level->setVisible(win->level, 0);
+        win->text->setVisible(win->text, 0);
+        win->stat1Label->setVisible(win->stat1Label, 0);
+        win->stat1->setVisible(win->stat1, 0);
+        win->stat2Label->setVisible(win->stat2Label, 0);
+        win->stat2->setVisible(win->stat2, 0);
+    }
+}
 
 void STCRDABM_drawAlbum(CardAlbum *album) {
     SpriteDrawer sprite;

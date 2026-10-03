@@ -40,10 +40,10 @@ typedef struct Actor {
     /* 0x070 */ struct FieldImage *unk70;
     /* 0x074 */ s32 unk74;
     /* 0x078 */ s32 unk78;
-    /* 0x07C */ s32 unk7C;
+    /* 0x07C */ struct FieldActorEntry *entry; /* what created it, or NULL */
     /* 0x080 */ s32 unk80; /* width, in tiles */
     /* 0x084 */ s32 unk84;
-    /* 0x088 */ s32 unk88;
+    /* 0x088 */ struct Actor *unk88; /* the actor it talks to */
     /* 0x08C */ s32 unk8C;
     /* 0x090 */ s32 unk90;
     /* 0x094 */ s32 unk94;
@@ -190,13 +190,44 @@ typedef struct Unk80084B80Entry {
     /* 0x10 */ void (*end)(void); /* or NULL */
 } Unk80084B80Entry;
 
+/* What a character says (func_8008F184): the first whose conditions hold,
+   or the last, which has none */
+typedef struct FieldTalk {
+    /* 0x0 */ u16 *conditions; /* FLAGS_00.checkConditions's */
+    /* 0x4 */ u16 *actions; /* FLAGS_00.applyActions's when it ends, or NULL */
+    /* 0x8 */ s32 unk8; /* func_8008848C's */
+} FieldTalk;
+
+/* A character of the field (FieldState.unk4C), which func_8008A154 creates
+   unless its conditions fail. Ids 1, 0x6A, 0x146 and 0x147 are the player's. */
+typedef struct FieldActorEntry {
+    /* 0x00 */ u16 *conditions; /* FLAGS_00.checkConditions's, or NULL */
+    /* 0x04 */ struct FieldTalk *talks; /* up to the first without conditions */
+    /* 0x08 */ s16 id;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 x; /* in pixels */
+    /* 0x0E */ s16 y;
+    /* 0x10 */ s16 dir;
+} FieldActorEntry;
+
+/* Where a warp leads (FieldTask.unk7C, func_8008B398) */
+typedef struct FieldWarp {
+    /* 0x0 */ s16 mode;
+    /* 0x2 */ s16 x; /* in pixels */
+    /* 0x4 */ s16 y;
+    /* 0x6 */ s16 dir;
+    /* 0x8 */ u8 unk8[2];
+    /* 0xA */ u16 unkA; /* copied to GAME.unk44 and unk46 */
+    /* 0xC */ u16 unkC;
+} FieldWarp;
+
 /*
  * The field's state (D_800990B4). The first 0x64 bytes are cleared by
  * func_800913CC, which also picks the stage overlay for the current mode.
  */
 typedef struct FieldState {
     /* 0x00 */ s32 stageFile; /* the stage overlay's file */
-    /* 0x04 */ void (*stageInit)(void);
+    /* 0x04 */ struct Task *(*stageInit)(void *owner); /* starts the stage's task */
     /* 0x08 */ s32 unk8;
     /* 0x0C */ s32 unkC;
     /* 0x10 */ u8 *unk10;
@@ -213,7 +244,7 @@ typedef struct FieldState {
     /* 0x40 */ s32 unk40;
     /* 0x44 */ s32 unk44;
     /* 0x48 */ s32 unk48;
-    /* 0x4C */ void *unk4C;
+    /* 0x4C */ void *unk4C; /* the characters (FieldActorEntry *), up to the first NULL */
     /* 0x50 */ s32 unk50;
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
@@ -235,12 +266,12 @@ typedef struct FieldTask {
     /* 0x58 */ s32 height;
     /* 0x5C */ s32 unk5C;
     /* 0x60 */ s32 unk60;
-    /* 0x64 */ s32 unk64;
+    /* 0x64 */ void *unk64; /* a buffer at the end of the heap */
     /* 0x68 */ s32 unk68;
     /* 0x6C */ s32 unk6C;
     /* 0x70 */ s32 unk70;
     /* 0x74 */ Point unk74;
-    /* 0x7C */ s32 unk7C;
+    /* 0x7C */ FieldWarp *unk7C;
 } FieldTask;
 
 /* An entry of the script command table D_8009A448 (ids from 0x320) */
@@ -269,7 +300,7 @@ typedef struct AreaNameWindows {
 typedef struct StageEntry {
     /* 0x0 */ s32 mode;
     /* 0x4 */ s32 file;
-    /* 0x8 */ void (*init)(void);
+    /* 0x8 */ struct Task *(*init)(void *owner);
 } StageEntry;
 
 /* A linear 0-0x1000 tween (func_80091298, func_8009132C) */
@@ -294,6 +325,16 @@ typedef struct Battle {
     /* 0x4 */ s32 unk4;
     /* 0x8 */ s32 unk8;
 } Battle;
+
+/* An encounter of D_800939E0, which func_8008AEDC starts: its enemies and
+   the bytes it copies to D_80042728.unk3C on */
+typedef struct Encounter {
+    /* 0x00 */ BattleEnemy *enemies[3];
+    /* 0x0C */ u8 unkC;
+    /* 0x0D */ u8 unkD;
+    /* 0x0E */ u8 unkE[12];
+    /* 0x1A */ u8 unk1A[2];
+} Encounter;
 
 typedef struct BattleList {
     /* 0x0 */ s32 count;
@@ -333,12 +374,20 @@ typedef struct Unk80084654Children {
 
 /* The children of the field's main task (FieldTask, func_8008A154) */
 typedef struct FieldChildren {
-    /* 0x00 */ u8 unk0[0xC];
+    /* 0x00 */ struct Unk80085350 *unk0; /* func_80085588's */
+    /* 0x04 */ ScreenFade *fade;
+    /* 0x08 */ struct Unk80084D0C *unk8; /* func_80085240's */
     /* 0x0C */ Unk80084654 *unkC;
-    /* 0x10 */ Task *unk10; /* the inn (createInn) */
-    /* 0x14 */ u8 unk14[4];
-    /* 0x18 */ struct Actor *player;
-    /* 0x1C */ u8 unk1C[0x60];
+    /* 0x10 */ Task *unk10; /* the inn (createInn), or func_800892E8's */
+    /* 0x14 */ Task *unk14; /* func_800874C8's */
+    /* 0x18 */ struct Actor *actors[4]; /* the player and the partners */
+    /* 0x28 */ struct Unk8008CC4C *unk28; /* func_8008CF0C's */
+    /* 0x2C */ struct Actor *npcs[15]; /* FieldState.unk4C's other characters */
+    /* 0x68 */ struct Unk80087FDC *unk68; /* func_800881A0's */
+    /* 0x6C */ Task *stage; /* FieldState.stageInit's */
+    /* 0x70 */ struct Unk80086144 *unk70; /* func_80086418's */
+    /* 0x74 */ Task *menu; /* createFieldMenu's */
+    /* 0x78 */ struct Unk8008878C *unk78; /* func_80088BE4's */
 } FieldChildren;
 
 /* The task of func_80086144 (id 4, see func_80086418) */
@@ -516,6 +565,14 @@ typedef struct Unk800882D8 {
     /* 0x5C */ s32 unk5C; /* nonzero: a message box */
     /* 0x60 */ s32 text; /* FILE_CACHE_GET_ENTRY */
 } Unk800882D8;
+
+/* The children of an actor (func_80090294) */
+typedef struct ActorChildren {
+    /* 0x0 */ Unk80089320 *anim; /* func_80089668's */
+    /* 0x4 */ Unk800876E4 *unk4; /* func_800878A4's */
+    /* 0x8 */ void *unk8;
+    /* 0xC */ Unk800882D8 *unkC; /* func_8008848C's */
+} ActorChildren;
 
 /* The task of func_8008B450 (func_8008B930) */
 typedef struct Unk8008B450 {
@@ -705,9 +762,21 @@ Unk80084654 *func_80084B80(s32 id);
 void func_8008DFE0(Actor *);
 s32 func_80088E4C(Task *);
 Unk8008B450 *func_8008B930(Actor *actor, s32 arg1);
-void func_8008B398(s32 arg0, Point *pos, s32 arg2);
+void func_8008B398(s32 arg0, Point *pos, FieldWarp *arg2);
 ScriptCommand *func_800916E8(s32 id);
 Task *createInn(s32);
+Task *func_800892E8(s32 arg0);
+Task *func_800874C8(s32 arg0);
+Task *createFieldMenu(s32 layerId, s32 cursor);
+ScreenFade *createScreenFade(s32 layerId);
+struct Actor *func_80090450(s32 id, s32 arg1, s32 arg2, FieldActorEntry *entry);
+void func_800896C0(FieldTask *task, FieldChildren *children);
+Unk8008878C *func_80088BE4(s32 arg0, MapObject *arg1);
+Unk80087FDC *func_800881A0(s32 arg0, void *entries);
+Unk80086144 *func_80086418(s32 arg0);
+Unk80085350 *func_80085588(s32 arg0, s32 arg1, s32 arg2);
+Unk80084D0C *func_80085240(s32 arg0);
+Unk8008CC4C *func_8008CF0C(void);
 Point *func_800863F4(Unk80086144 *);
 void func_800868AC(StreamTask *task);
 /* text_window.c's, which leaves the task it creates in $v0 */
@@ -736,7 +805,7 @@ void func_8008E7E0(void *arg, void *arg2);
 void func_8008EC74(Actor *actor);
 void func_8008D710(Actor *actor);
 struct Unk8008BFE8 *func_8008BFE8(s32 count);
-void func_8008F184(Actor *actor, Unk80089320 **children);
+void func_8008F184(Actor *actor, struct ActorChildren *children);
 void func_8008BC30(Unk8008BFE8 *task);
 s32 func_8008D0C0(Actor *actor, s32 x, s32 y, Point offset);
 s32 func_80091730(s32 id);
