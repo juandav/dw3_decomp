@@ -52,5 +52,5 @@ segments:
       # us's modules, each with its rodata, data and bss (tools/split_version.py)
       - [0x0, .rodata, stplnmet]
       - [0x2A8, c, stplnmet]
-      - [0x5934, data, stplnmet]
+      - [0x5934, .data, stplnmet]
   - [0x6F0C]

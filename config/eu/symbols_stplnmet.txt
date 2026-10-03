@@ -1,5 +1,17 @@
 // STPLNMET.PRO's own symbols, which only its splat config reads
 
+// the executable's Shift-JIS maps of its fonts, which the name font uses
+D_8004D7B8 = 0x8004E010;
+D_8004DB64 = 0x8004E3BC;
+
+// the name font and the keyboard
+STPLNMET_nameGlyphs = 0x800886D4; // size:0x9E2
+STPLNMET_nameIcons = 0x800890B8; // size:0x4E6
+STPLNMET_keyPagesJp = 0x800895A0; // size:0x24
+STPLNMET_keyCharsJp = 0x800895C4; // size:0x278
+STPLNMET_keyPages = 0x8008983C; // size:0xC
+STPLNMET_keyChars = 0x80089848; // size:0xD4
+
 // names from the C of the modules this version builds (tools/version_symbols.py)
 STPLNMET_centerLayer = 0x80082F58; // type:func
 STPLNMET_updateScene = 0x80082FCC; // type:func
@@ -55,3 +67,23 @@ STPLNMET_updateFade = 0x800884CC; // type:func
 STPLNMET_startLerp = 0x80088538; // type:func
 STPLNMET_updateLerp = 0x80088578; // type:func
 STPLNMET_nameStyle = 0x8008991C;
+D_80087AAC = 0x800885E4;
+D_80087AB4 = 0x800885EC;
+D_80088DFC = 0x80089934;
+D_80088EDC = 0x80089A14;
+D_80088EF4 = 0x80089A2C;
+D_80088F00 = 0x80089A38;
+D_80088F0C = 0x80089A44;
+D_80088F18 = 0x80089A50;
+D_80088F30 = 0x80089A68;
+D_80088F48 = 0x80089A80;
+D_80088F54 = 0x80089A8C;
+D_80089034 = 0x80089B6C;
+D_80089058 = 0x80089B90;
+D_8008905C = 0x80089B94;
+D_80089060 = 0x80089B98;
+D_80089064 = 0x80089B9C;
+D_80089068 = 0x80089BA0;
+D_8008906C = 0x80089BA4;
+D_80089078 = 0x80089BB0;
+D_80089080 = 0x80089BB8;

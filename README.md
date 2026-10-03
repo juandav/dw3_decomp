@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%2015-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%2016-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -43,12 +43,12 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 344 / 346 | 95.67 % | 99.86 % |
 | | USA | 344 / 346 | 95.60 % | 99.86 % |
-| The 21 overlays | Europe | 915 / 1,702 | 32.72 % | 75.12 % |
-| | USA | 915 / 1,697 | 32.79 % | 74.80 % |
+| The 21 overlays | Europe | 936 / 1,702 | 34.18 % | 78.62 % |
+| | USA | 936 / 1,697 | 34.26 % | 78.28 % |
 | The stages (293 and 238) | Europe | 1,289 / 1,590 | 69.55 % | 99.27 % |
 | | USA | 1,223 / 1,369 | 81.64 % | 99.15 % |
-| **Total** | **Europe** | **2,548 / 3,638** | **45.90 %** | **96.48 %** |
-| | **USA** | **2,482 / 3,412** | **47.76 %** | **96.03 %** |
+| **Total** | **Europe** | **2,569 / 3,638** | **46.90 %** | **96.90 %** |
+| | **USA** | **2,503 / 3,412** | **48.80 %** | **96.50 %** |
 
 - The executable's game code is all C but two functions,
   `spriteDrawerDraw` and `convertText` (`graphics.c`). Its data is C too, in `src/main/data/`, until it moves
@@ -91,8 +91,8 @@ above counts them: fake matches, then the other two kinds together.
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 3 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 12 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 1,104 | `INCLUDE_ASM` |
+| Form-dependent matches | 13 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 1,083 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -103,9 +103,10 @@ above counts them: fake matches, then the other two kinds together.
   `libgs_gs_131`), one in the game's `drawTalkBoxArrow`.
 - A form-dependent match is C that matches in one of several equivalent
   forms only: an extra block, an `if` without braces, a copy of a variable, a
-  type, or one version's own form of a loop. The twelve so far are a copy of
-  a variable in `drawTalkBoxArrow` and eleven spots in CARDGAME: a loop or
-  state variable of its own, an empty case, or a statement written twice.
+  type, or one version's own form of a loop. The thirteen so far are a copy
+  of a variable in `drawTalkBoxArrow`, an unsigned compare in STGMCARD's
+  `func_80082E28`, and eleven spots in CARDGAME: a loop or state variable of
+  its own, an empty case, or a statement written twice.
 - The functions still in assembly are not in the badge: they are the work
   left, in the game and in PsyQ.
 
@@ -142,9 +143,9 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `STCRDSHP` | `0x80082448` | 16 / 45 | the card packs (mode 0x1300): opening a pack uses it up and draws six cards, one from each slot's list in `STCRDSHP_packs` |
 | `STDGNAME` | `0x80082448` | 29 / 32 | a name entry screen, a keyboard of character pages |
 | `STDWTITL` | `0x80082448` | 65 / 93 | the title screen, the opening movies and a notice screen |
-| `STFGTREP` | `0x80082448` | 13 / 36 | the report after a battle (mode 0x1400), which `WFIGHTMN` requests: the partners that went up a level |
+| `STFGTREP` | `0x80082448` | 26 / 36 | the report after a battle (mode 0x1400), which `WFIGHTMN` requests: the partners that went up a level |
 | `STGDGLAB` | `0x80082448` | 44 / 70 | the partners' digivolutions, it seems: a menu of three screens that checks the requirements of `STGDGLAB_tables` against a partner's entries and sets its three slots |
-| `STGMCARD` | `0x80082448` | 36 / 45 | the memory card screen (mode 0xC00): the saves of a card, their details, and saving and loading |
+| `STGMCARD` | `0x80082448` | 44 / 45 | the memory card screen (mode 0xC00): the saves of a card, their details, and saving and loading |
 | `STGTRAIN` | `0x80082448` | 3 / 94 | not identified yet |
 | `STITSHOP` | `0x80082448` | 50 / 69 | the item shop, where the player buys and sells items and equips what was bought on a partner |
 | `STPLNMET` | `0x80082448` | 24 / 53 | the player's name entry (mode 0x500), with a copy of `STDGNAME`'s keyboard |

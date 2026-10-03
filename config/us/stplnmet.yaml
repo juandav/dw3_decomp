@@ -51,5 +51,5 @@ segments:
     subsegments:
       - [0x0, .rodata, stplnmet]
       - [0x2A8, c, stplnmet]
-      - [0x5664, data, stplnmet]
+      - [0x5664, .data, stplnmet]
   - [0x6C3C]
