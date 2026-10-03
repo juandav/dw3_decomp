@@ -61,7 +61,9 @@ typedef struct DigimonData {
     /* 0x1C */ u8 unk1C[0x23];
     /* 0x3F */ u8 hp;
     /* 0x40 */ u8 mp;
-    /* 0x41 */ u8 unk41[0x14];
+    /* 0x41 */ u8 unk41[8];
+    /* 0x49 */ u8 resistGrowth[7]; /* 1-5: how fast the gyms raise them */
+    /* 0x50 */ u8 unk50[5];
     /* 0x55 */ u8 nameId; /* string in file 0x4F */
     /* 0x56 */ u8 unk56[2];
 } DigimonData;
@@ -131,7 +133,8 @@ typedef struct Unk80042728 {
     /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ s32 unk14;
-    /* 0x18 */ u8 unk18[0x40];
+    /* 0x18 */ u8 unk18[0x3C];
+    /* 0x54 */ void (*clearUnk58)(void);
     /* 0x58 */ s16 unk58[8];
 } Unk80042728;
 

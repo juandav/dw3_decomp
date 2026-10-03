@@ -230,9 +230,15 @@ typedef struct BackgroundTask {
 
 typedef struct TitleChildren {
     /* 0x00 */ EdgeFadeTask *fade;
+#if VERSION_US
     /* 0x04 */ SlideTask *title0;
     /* 0x08 */ SlideTask *title1;
     /* 0x0C */ GlintTask *glint;
+#elif VERSION_EU
+    /* 0x04 */ GlintTask *glint;
+    /* 0x08 */ SlideTask *title1;
+    /* 0x0C */ SlideTask *title0;
+#endif
     /* 0x10 */ LogoTask *logo;
     /* 0x14 */ MenuTask *menu;
     /* 0x18 */ BackgroundTask *background;

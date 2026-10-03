@@ -1,0 +1,4 @@
+// STGTRAIN.PRO's own symbols, which only its splat config reads
+
+// The overlay's helpers and the file they load (TrainState)
+D_8008C4D4 = 0x8008C4D4; // size:0x32C
