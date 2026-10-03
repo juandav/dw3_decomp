@@ -1,4 +1,11 @@
-#include "common.h"
+#include "wfightts.h"
+
+void func_800A5A54();
+void func_800A6954();
+void func_800A6ECC();
+void func_800A7338();
+void func_800A764C();
+void func_800A7BE8();
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A567C);
 
@@ -6,27 +13,58 @@ INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A58EC);
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A5A54);
 
-INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A6924);
+Task *WFIGHTTS_start(void) {
+    return createTaskWithId(func_800A5A54, 0, 0, 0);
+}
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A6954);
 
-INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A6E80);
+void func_800A6E80(s32 arg, s32 *done) {
+    BattleTestList *task = createTask(func_800A6954, sizeof(BattleTestList), 0x70);
+
+    task->unk50 = arg;
+    task->done = done;
+    *done = 0;
+}
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A6ECC);
 
-INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A72EC);
+void func_800A72EC(s32 arg, s32 *done) {
+    BattleTestList *task = createTask(func_800A6ECC, sizeof(BattleTestList), 0x3C);
+
+    task->unk50 = arg;
+    task->done = done;
+    *done = 0;
+}
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A7338);
 
-INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A7614);
+BattleTestPanel *func_800A7614(s32 arg) {
+    BattleTestPanel *task = createTask(func_800A7338, sizeof(BattleTestPanel), 0x38);
+
+    task->unk50 = arg;
+    return task;
+}
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A764C);
 
-INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A7B9C);
+BattleTestMotions *func_800A7B9C(s32 a, s32 b) {
+    BattleTestMotions *task = createTaskWithId(func_800A764C, sizeof(BattleTestMotions), 0x70, 0xFFFF);
+
+    task->unk250 = a;
+    task->unk254 = b;
+    return task;
+}
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A7BE8);
 
-INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A81D0);
+BattleTestEffects *func_800A81D0(s32 a, s32 b) {
+    BattleTestEffects *task = createTaskWithId(func_800A7BE8, sizeof(BattleTestEffects), 0x70, 0xFFFF);
+
+    task->unkF8 = a;
+    task->unkFC = b;
+    return task;
+}
 
 INCLUDE_RODATA("wfightts/nonmatchings/wfightts", WFIGHTTS_strings);
 
