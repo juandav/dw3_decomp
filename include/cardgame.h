@@ -302,6 +302,17 @@ typedef struct CardScreenItems {
     /* 0x04 */ TextWindow *texts[13];
 } CardScreenItems;
 
+/* A panel's open (state 1) or close (state 3) scale, which goes over
+   `duration` frames */
+typedef struct CardPanelScale {
+    /* 0x00 */ s16 value;
+    /* 0x02 */ u8 unk2[2];
+    /* 0x04 */ s16 time;
+    /* 0x06 */ s16 duration;
+    /* 0x08 */ u8 state;
+    /* 0x09 */ u8 unk9[3];
+} CardPanelScale;
+
 /* One side's panel on the battle screen (CardScreen.panels): 0 is the
    player's, 1 the opponent's */
 typedef struct CardPanel {
@@ -326,12 +337,7 @@ typedef struct CardPanel {
     /* 0x3C */ s16 unk3C;
     /* 0x3E */ s16 unk3E;
     /* 0x40 */ u8 unk40[8];
-    /* 0x48 */ s16 scale;
-    /* 0x4A */ u8 unk4A[2];
-    /* 0x4C */ s16 scaleTime;
-    /* 0x4E */ s16 scaleDuration;
-    /* 0x50 */ u8 scaleState;
-    /* 0x51 */ u8 unk51[3];
+    /* 0x48 */ CardPanelScale scale;
 } CardPanel;
 
 /* A card on the battle screen (CardScreen.sprites) */

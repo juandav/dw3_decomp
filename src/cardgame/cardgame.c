@@ -23,7 +23,8 @@ void func_80098EB4(CardScreen *screen, CardScreenItems *items);
 void func_8009AA1C(CardScreen *screen, CardScreenItems *items);
 void func_80098C6C(CardScreenCE8 *window);
 void func_80098D3C(CardScreenCE8 *window);
-void func_80098B38(CardScreen *screen, CardScreenItems *items, s32 side, s16 *scale);
+void func_80098930(CardScreen *screen, CardScreenItems *items, s32 side, CardPanelScale *scale);
+void func_80098B38(CardScreen *screen, CardScreenItems *items, s32 side, CardPanelScale *scale);
 void func_800983D0(CardPanel *panel, CardScreenItems *items, s32 side);
 void func_80097880(CardPanel *panel, CardScreenItems *items, s32 side);
 void func_80099C00(CardScreen *screen, CardSprite *sprite);
@@ -49,6 +50,7 @@ s32 func_80085760(CardBattle *battle, u8 *arg1, s32 card);
 void func_80086A10(CardBattle *battle, CardScreen *screen, CardPile *pile, s32 arg3, s32 card);
 void func_8008E8C4(CardBattle *battle, s32 arg1, u8 arg2, u8 arg3);
 extern s16 D_800A498C[];
+extern s16 D_800A4994[];
 s32 func_8008CF50(CardBattle *battle, CardScreen *screen, s32 index);
 void func_8008D044(CardBattle *battle, CardScreen *screen, s32 side, s32 index);
 s32 func_8008D10C(CardBattle *battle, CardScreen *screen, s32 side, s32 index);
@@ -1689,7 +1691,29 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800983D0);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80098930);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80098B38);
+void func_80098B38(CardScreen *screen, CardScreenItems *items, s32 side, CardPanelScale *scale) {
+    switch (scale->state) {
+    case 1:
+        scale->value = 0x1000 - (scale->time << 12) / scale->duration;
+        scale->time -= GFX.funcs.getFrameTime();
+        if (scale->time <= 0) {
+            scale->state = 2;
+        }
+        break;
+    case 3:
+        scale->value = (scale->time << 12) / scale->duration;
+        scale->time -= GFX.funcs.getFrameTime();
+        if (scale->time <= 0) {
+            scale->state = 0;
+        }
+        break;
+    case 0:
+        break;
+    case 2:
+        break;
+    }
+    func_80098930(screen, items, side, scale);
+}
 
 void func_80098C6C(CardScreenCE8 *window) {
     window->unkE -= GFX.funcs.getFrameTime();
@@ -1806,7 +1830,25 @@ s32 func_80099504(CardScreen *screen, CardSprite *sprite, s32 duration) {
     return done;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80099580);
+s32 func_80099580(CardScreen *screen, CardSprite *sprite) {
+    s32 done;
+
+    sprite->x = sprite->startX + D_800A4994[sprite->time & 7];
+    sprite->y = sprite->startY + D_800A4994[RANDOM.next() & 7];
+    done = 0;
+    sprite->scaleY = 0x1000 - rsin((sprite->time << 12) / 24) / 8;
+    sprite->time += GFX.funcs.getFrameTime();
+    if (sprite->time >= 12) {
+        sprite->state = 1;
+        sprite->moving = 0;
+        sprite->scaleY = 0x1000;
+        sprite->unk47 = 0;
+        sprite->x = sprite->startX;
+        sprite->y = sprite->startY;
+        done = 1;
+    }
+    return done;
+}
 
 /* The end of a sprite's flip (func_800996B0) */
 static inline void endSpriteFlip(CardSprite *sprite, s32 state) {
@@ -1845,7 +1887,19 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009A0BC);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009A5CC);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009A6C0);
+void func_8009A6C0(CardScreen *screen, CardSprite *sprite) {
+    SpriteDrawer drawer;
+
+    if (sprite->visible != 0 && sprite->state == 11) {
+        initSpriteDrawer(&drawer);
+        drawer.setClutRow((sprite->duration / 2) % 5);
+        drawer.setPivot((sprite->x >> 8) + 0x14, (sprite->y >> 8) + 0x17);
+        drawer.setScale(sprite->scaleX, sprite->scaleY, 0x1000);
+        drawer.setLayerId(0x100, 1);
+        drawer.setTexture(0x340, 0);
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 9, sprite->x >> 8, sprite->y >> 8);
+    }
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009A7E4);
 
@@ -2132,17 +2186,17 @@ void func_8009B38C(CardScreen *screen, s32 side) {
 }
 
 void func_8009B3F8(CardScreen *screen, s32 side) {
-    screen->panels[side].scaleState = 1;
-    screen->panels[side].scaleDuration = 12;
-    screen->panels[side].scaleTime = 12;
-    screen->panels[side].scale = 0;
+    screen->panels[side].scale.state = 1;
+    screen->panels[side].scale.duration = 12;
+    screen->panels[side].scale.time = 12;
+    screen->panels[side].scale.value = 0;
 }
 
 void func_8009B42C(CardScreen *screen, s32 side) {
-    screen->panels[side].scaleState = 3;
-    screen->panels[side].scaleDuration = 6;
-    screen->panels[side].scaleTime = 6;
-    screen->panels[side].scale = 0x1000;
+    screen->panels[side].scale.state = 3;
+    screen->panels[side].scale.duration = 6;
+    screen->panels[side].scale.time = 6;
+    screen->panels[side].scale.value = 0x1000;
 }
 
 s32 CARDGAME_addSprite(CardScreen *screen, s32 index, s32 x, s32 y) {
