@@ -16,6 +16,7 @@ void func_80089774(ShopInfo *info, void *win, s32 arg);
 void func_8008988C(ShopInfo *info, void *win, s32 arg);
 void func_8008A5E8();
 void func_8008AF88(ItemShop *shop, ItemShopWindows *win);
+extern s32 D_8008C16C[];
 ItemShop *func_8008B77C(void);
 void func_8008B614();
 void func_8008B7E0(void);
@@ -493,7 +494,114 @@ void func_8008AC8C(ItemShop *shop, ItemShopWindows *win) {
     sprite.draw(FILE_CACHE.getEntry(FILE_SHOP_SPRITES << 16), 0x14, shop->unk58, shop->unk58);
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008AF88);
+void func_8008AF88(ItemShop *shop, ItemShopWindows *win) {
+    s32 choice;
+
+    switch (shop->substate) {
+    case 0:
+    default:
+        STITSHOP_funcs.startFade(&shop->panels[0], 1);
+        STITSHOP_funcs.startFade(&shop->panels[1], 1);
+        shop->substate++;
+        break;
+    case 1:
+        STITSHOP_funcs.updateFade(&shop->panels[0]);
+        if (STITSHOP_funcs.updateFade(&shop->panels[1]) != 0) {
+            STITSHOP_funcs.startFade(&shop->panels[2], 1);
+            STITSHOP_funcs.startFade(&shop->panels[3], 1);
+            win->title->setString(win->title, FILE_CACHE.load(TEXT_FILE(0x95)), D_8008C16C[shop->shop]);
+            win->moneyLabel->setString(win->moneyLabel, FILE_CACHE.load(TEXT_FILE(0x72)), 2);
+            win->money->setNumber(win->money, 0, GAME.money);
+            win->money->setRightAlign(win->money, 1);
+            shop->substate++;
+        }
+        break;
+    case 2:
+        STITSHOP_funcs.updateFade(&shop->panels[2]);
+        if (STITSHOP_funcs.updateFade(&shop->panels[3]) != 0) {
+            win->buy->setString(win->buy, FILE_CACHE.load(TEXT_FILE(0x72)), 3);
+            win->sell->setString(win->sell, FILE_CACHE.load(TEXT_FILE(0x72)), 4);
+            win->cursor->setVisible(win->cursor, 1);
+            win->help->setString(win->help, FILE_CACHE.load(TEXT_FILE(0x72)), 5);
+            shop->substate++;
+        }
+        break;
+    case 3:
+        choice = shop->unk64;
+        if (PAD_PRESSED(PAD_UP)) {
+            shop->unk64 = 0;
+        } else if (PAD_PRESSED(PAD_DOWN)) {
+            shop->unk64 = 1;
+        }
+        if (choice != shop->unk64) {
+            SOUND.playSound(0x8004513E);
+            win->cursor->setPos(win->cursor, 0xB0, shop->unk64 * 0xE + 0x2F);
+        }
+        if (PAD_PRESSED(PAD_CROSS)) {
+            SOUND.playSound(0x8004503C);
+            shop->substate = 20;
+            shop->step = 1;
+        } else if (PAD_PRESSED(PAD_TRIANGLE)) {
+            SOUND.playSound(0x800450BD);
+            shop->setSubstate(shop, 20);
+        }
+        break;
+    case 10:
+        if (shop->unk64 == 0) {
+            win->dialog = (Task *)func_800850A8(shop);
+        } else {
+            win->dialog = (Task *)func_80086AD8(shop);
+        }
+        shop->substate++;
+        break;
+    case 11:
+        if (win->dialog == NULL) {
+            STITSHOP_funcs.startFade(&shop->panels[2], 1);
+            STITSHOP_funcs.startFade(&shop->panels[3], 1);
+            shop->substate = 2;
+        }
+        break;
+    case 20:
+        if (shop->step == 0) {
+            win->fade = func_80082D5C();
+            win->fade->start(win->fade, 0, 0x1E);
+        }
+        STITSHOP_funcs.startFade(&shop->panels[2], 0);
+        STITSHOP_funcs.startFade(&shop->panels[3], 0);
+        win->help->setVisible(win->help, 0);
+        win->buy->setVisible(win->buy, 0);
+        win->sell->setVisible(win->sell, 0);
+        win->cursor->setVisible(win->cursor, 0);
+        shop->substate++;
+        break;
+    case 21:
+        STITSHOP_funcs.updateFade(&shop->panels[2]);
+        if (STITSHOP_funcs.updateFade(&shop->panels[3]) != 0) {
+            if (shop->step != 0) {
+                shop->setSubstate(shop, 10);
+            } else {
+                STITSHOP_funcs.startFade(&shop->panels[0], 0);
+                STITSHOP_funcs.startFade(&shop->panels[1], 0);
+                win->title->setVisible(win->title, 0);
+                win->moneyLabel->setVisible(win->moneyLabel, 0);
+                win->money->setVisible(win->money, 0);
+                shop->substate++;
+            }
+        }
+        break;
+    case 22:
+        STITSHOP_funcs.updateFade(&shop->panels[0]);
+        if (STITSHOP_funcs.updateFade(&shop->panels[1]) != 0) {
+            shop->substate++;
+        }
+        break;
+    case 23:
+        if (win->fade->state == 2) {
+            shop->state = TASK_KILL;
+        }
+        break;
+    }
+}
 
 void func_8008B614(ItemShop *shop, ItemShopWindows *win) {
     switch (shop->state) {
