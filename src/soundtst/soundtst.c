@@ -1,13 +1,6 @@
 #include "soundtst.h"
 
-#if VERSION_US
-#define STR_CURSOR "\x81\x84" /* "＞" */
-#elif VERSION_EU
-/* The same "＞", but the European file pads it with 0x2D, not 0: it stays
-   asm, at the end of the file */
-extern char SOUNDTST_STR_CURSOR[];
-#define STR_CURSOR SOUNDTST_STR_CURSOR
-#endif
+extern const char SOUNDTST_STR_CURSOR[];
 
 /* Each bank's sound list, then the bank list */
 SoundTestEntry D_8008450C[] = {
@@ -772,7 +765,7 @@ void SOUNDTST_updateSoundTest(SoundTest *task, SoundTestWindows *win) {
             win->lines[i] = createTextWindow(0x1000, 1, 0x30, i * 16 + 0x46);
         }
         win->cursor = createTextWindow(0x1000, 1, 0x20, 0x46);
-        win->cursor->setText(win->cursor, STR_CURSOR);
+        win->cursor->setText(win->cursor, SOUNDTST_STR_CURSOR);
         task->nextState(task);
         break;
     case 1:
@@ -801,6 +794,12 @@ Task *SOUNDTST_createSoundTest(void) {
     return createTask(SOUNDTST_updateSoundTest, sizeof(SoundTest), sizeof(SoundTestWindows));
 }
 
-#if VERSION_EU
-INCLUDE_RODATA("soundtst/nonmatchings/soundtst", SOUNDTST_STR_CURSOR);
+/* "＞", padded to a word: the padding isn't zeros but what the assembler
+   left there, which differs between the versions; the size leaves out the
+   closing NUL */
+const char SOUNDTST_STR_CURSOR[4] =
+#if VERSION_US
+    "\x81\x84\0\0";
+#elif VERSION_EU
+    "\x81\x84\0\x2D";
 #endif

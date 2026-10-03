@@ -4,9 +4,6 @@ typedef struct CardName {
     char s[6];
 } CardName;
 
-/* "Access Denied. : event multiple open\n" */
-extern char D_80010C9C[];
-extern char D_80010D98[];
 
 long func_8003BAEC(UserFuncArg *arg);
 long func_8003BE70(UserFuncArg *arg);
@@ -62,7 +59,7 @@ void MemCardStop(void) {
 
 long MemCardExist(long chan) {
     if (D_80082068.unk0 > 0) {
-        printf(D_80010C9C);
+        printf("Access Denied. : event multiple open\n");
         return 0;
     }
     D_80082068.unk0 = 1;
@@ -73,13 +70,11 @@ long MemCardExist(long chan) {
     return 1;
 }
 
-INCLUDE_RODATA("main/nonmatchings/psyq/libmcrd_libmcrd", D_80010C9C);
-
 INCLUDE_ASM("main/nonmatchings/psyq/libmcrd_libmcrd", func_8003BAEC);
 
 inline long MemCardAccept(long chan) {
     if (D_80082068.unk0 > 0) {
-        printf(D_80010C9C);
+        printf("Access Denied. : event multiple open\n");
         return 0;
     }
     D_80082068.unk0 = 2;
@@ -92,9 +87,54 @@ inline long MemCardAccept(long chan) {
 
 INCLUDE_ASM("main/nonmatchings/psyq/libmcrd_libmcrd", func_8003BE70);
 
-INCLUDE_ASM("main/nonmatchings/psyq/libmcrd_libmcrd", MemCardOpen);
+long func_80024CB8(char *name, long mode);
+extern long D_80082078;
 
-INCLUDE_RODATA("main/nonmatchings/psyq/libmcrd_libmcrd", D_80010D98);
+long MemCardOpen(long chan, char *file, long flag) {
+    long ret;
+    long retry = 0;
+    long fd;
+
+    if (D_80082068.fd >= 0) {
+        printf("Access Denied. : file already open.\n");
+        return -1;
+    }
+    func_8003D1EC(chan, (char *)D_80082068.unk24);
+    strcat((char *)D_80082068.unk24, file);
+    D_80082068.unk10 = chan;
+    for (;;) {
+        fd = func_80024CB8((char *)D_80082068.unk24, 1);
+        if (fd < 0) {
+            PushCallbackFunc();
+            if (D_80082068.unk0 > 0) {
+                printf("Access Denied. : event multiple open\n");
+            } else {
+                D_80082068.unk0 = 2;
+                D_80082068.unk4 = 0;
+                D_80082068.unk8 = 0;
+                D_80082078 = chan;
+                UserFuncOpen(func_8003BE70);
+            }
+            MemCardSync(0, 0, &ret);
+            PullCallbackFunc();
+            if (ret == 3) {
+                continue;
+            }
+            if (ret == 2 && ++retry < 5) {
+                continue;
+            }
+            if (ret == 0) {
+                ret = 5;
+            }
+            return ret;
+        }
+        func_80024CE8(fd);
+        _clr_card_event();
+        D_80082068.fd = func_80024CB8((char *)D_80082068.unk24, flag | 0x8000);
+        break;
+    }
+    return 0;
+}
 
 void MemCardClose(void) {
     if (D_80082068.fd >= 0) {
@@ -109,7 +149,7 @@ long MemCardReadData(u_long *adrs, long ofs, long bytes) {
         return 0;
     }
     if (D_80082068.unk0 > 0) {
-        printf(D_80010C9C);
+        printf("Access Denied. : event multiple open\n");
         return 0;
     }
     if (bytes & 0x7F) {
@@ -195,7 +235,7 @@ long MemCardWriteData(u_long *adrs, long ofs, long bytes) {
         return 0;
     }
     if (D_80082068.unk0 > 0) {
-        printf(D_80010C9C);
+        printf("Access Denied. : event multiple open\n");
         return 0;
     }
     if (bytes & 0x7F) {
@@ -276,7 +316,7 @@ long MemCardReadFile(long chan, char *file, u_long *adrs, long ofs, long bytes) 
         return 0;
     }
     if (D_80082068.fd >= 0) {
-        printf(D_80010D98);
+        printf("Access Denied. : file already open.\n");
         return 0;
     }
     if (bytes & 0x7F) {
@@ -301,7 +341,6 @@ long MemCardReadFile(long chan, char *file, u_long *adrs, long ofs, long bytes) 
 }
 
 extern long MCRD_READ_FILE_RETRIES;
-long func_80024CB8(char *name, long mode);
 
 long func_8003C8C8(UserFuncArg *arg) {
     switch (arg->data[0]) {
@@ -339,7 +378,7 @@ long MemCardWriteFile(long chan, char *file, u_long *adrs, long ofs, long bytes)
         return 0;
     }
     if (D_80082068.fd >= 0) {
-        printf(D_80010D98);
+        printf("Access Denied. : file already open.\n");
         return 0;
     }
     if (bytes & 0x7F) {
@@ -393,7 +432,6 @@ long func_8003CAE8(UserFuncArg *arg) {
     return 0;
 }
 
-extern long D_80082078;
 struct DIRENTRY *firstfile(char *name, struct DIRENTRY *dir);
 struct DIRENTRY *func_8003D258(struct DIRENTRY *dir); /* nextfile */
 
@@ -432,7 +470,7 @@ long MemCardGetDirentry(long chan, char *name, struct DIRENTRY *dir, long *files
                 if (++retry >= 4) {
                     PushCallbackFunc();
                     if (D_80082068.unk0 > 0) {
-                        printf(D_80010C9C);
+                        printf("Access Denied. : event multiple open\n");
                     } else {
                         D_80082068.unk0 = 2;
                         D_80082068.unk4 = 0;

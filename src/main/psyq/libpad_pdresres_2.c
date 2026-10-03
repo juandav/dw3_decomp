@@ -571,4 +571,143 @@ int func_80024570(PadPort *p) {
     return -4;
 }
 
-INCLUDE_ASM("main/nonmatchings/psyq/libpad_pdresres_2", func_8002468C);
+
+extern long D_80055558;
+extern long D_80055570[];
+extern PadPort *D_8005554C;
+extern void (*D_80055538)(PadPort *p);
+extern void (*D_8005553C)(PadPort *p);
+
+/* inline copies of _padSetRC2wait and _padClrIntSio0 (a non-static inline
+   function would be emitted at the end of the object). The match depends on
+   reaching the interrupt status register as a structure member: it lets the
+   scheduler move the timer stores past the store to it */
+static inline void padSetRC2wait(int wait) {
+    D_8007F138 = wait;
+    D_8007F134 = *(volatile u_short *)0x1F801120;
+}
+
+static inline int padClrIntSio0(void) {
+    volatile struct {
+        u_long stat;
+        u_long mask;
+    } *irq = (void *)D_8005558C;
+    volatile SioRegs *sio = D_80055590;
+
+    irq->stat = ~0x80;
+    if (sio->stat & 0x80) {
+        do {
+            if (_padChkRC2wait() != 0) {
+                return 0;
+            }
+        } while (D_80055590->stat & 0x80);
+    }
+    D_80055590->ctrl |= 0x10;
+    return 1;
+}
+
+/* The match depends on the copy of port, and on the last loop's
+   `ret = -3; return ret;`, which keeps -0x81 out of a saved register */
+int func_8002468C(PadPort *port) {
+    PadPort *p = port;
+    int ret;
+    int i;
+    long flag;
+    long *st;
+    long *tbl;
+    PadPort *q;
+    int other;
+    volatile SioRegs *sio;
+    u_short n;
+
+    if (D_8005559C != 0 && p->cmd == 0 && p->prevCmd == 0 && (p == p->unk10 || p->unk39 == 0) &&
+        *p->unk30 == 0) {
+        D_80055524(p);
+    }
+    flag = D_8005559C;
+    if (flag != 0) {
+        for (i = -1; i < 4 && --D_80055594 > 0; i++) {
+            if (i >= 0) {
+                PadPort *sub = &p->unkC[i];
+
+                if (sub->cmd == 0 && sub->prevCmd == 0 && (sub == sub->unk10 || sub->unk39 == 0) &&
+                    *sub->unk30 == 0) {
+                    D_80055524(sub);
+                }
+            }
+            ret = _padSioRW2(p, D_80055520(p, 1));
+            if (ret < 0) {
+                return ret;
+            }
+            padSetRC2wait(60);
+            if (padClrIntSio0() == 0) {
+                return -3;
+            }
+        }
+    }
+    q = NULL;
+    other = D_80055558 == 0;
+    if (D_80055594 >= 2) {
+        tbl = D_80055570;
+        st = &tbl[other];
+        while (D_80055594 >= 2) {
+            if (*st < 0) {
+                break;
+            }
+            if (*st > 0) {
+                q = D_8005554C[other].unkC + *st - 1;
+                D_80055538(q);
+            }
+            switch (*st) {
+            case 4:
+                *st = 3;
+                break;
+            case 3:
+                D_80055538(q - 1);
+                *st = 1;
+                break;
+            case 0:
+            case 1:
+                q = &D_8005554C[other];
+                D_80055538(q);
+                D_8005553C(q);
+                *st = -1;
+                break;
+            }
+            ret = _padSioRW(p, D_80055520(p, flag));
+            if (ret < 0) {
+                return ret;
+            }
+            padSetRC2wait(60);
+            if (padClrIntSio0() == 0) {
+                return -3;
+            }
+            D_80055594--;
+        }
+    }
+    while (--D_80055594 > 0) {
+        ret = _padSioRW(p, D_80055520(p, flag));
+        if (ret < 0) {
+            return ret;
+        }
+        if (D_80055590->baud != 0x22) {
+            padSetRC2wait(60);
+            if (padClrIntSio0() == 0) {
+                ret = -3;
+                return ret;
+            }
+        }
+    }
+    sio = D_80055590;
+    do {
+    } while (!(sio->stat & 2));
+    n = p->unk44;
+    p->unk44 = n + 1;
+    p->unk3C[n] = D_80055590->data;
+    D_80055518(0);
+    return 0;
+}
+
+/* The end of the object libpad_pdresres.c starts: ASPSX padded its .text to
+   a multiple of 16 bytes, which from here is two nops */
+__asm__(".section .text\n\t.space 8\n");
