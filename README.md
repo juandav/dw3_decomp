@@ -120,7 +120,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 
 | Overlay | Loads at (us) | Functions in C (us) | What it runs |
 |---|---|---|---|
-| `CARDGAME` | `0x80082448` | 203 / 306 | the card battle (mode `0x700`): the decks, the cards in play and the battle screen; `WFIGHTMN` and `WFIGHTTS` load on top of it |
+| `CARDGAME` | `0x80082448` | 203 / 306 | the card battle (mode `0x700`): the decks, the cards in play and the battle screen |
 | `CNTY_SEL` | `0x80082448` | 26 / 26 | the country select screen |
 | `FIELDSTG` | `0x80082448` | 108 / 222 | the field mode, where the player walks around the map; the stages load on top of it |
 | `FIGHTSTG` | `0x80082448` | 2 / 310 | not identified yet |
