@@ -1402,3 +1402,8 @@ SOUND_SPU_ADDRS = 0x800519E0;
 // them would not land on their addresses
 D_80048D78 = 0x80048D78; // size:0x10
 D_80048DA0 = 0x80048DA0; // size:0x6FC
+
+// The glyph maps STDGNAME's and STCRDDEK's data point at: named so that
+// splat writes those pointers as relocations, as GCC does
+D_8004E010 = 0x8004E010;
+D_8004E3BC = 0x8004E3BC;

@@ -51,5 +51,5 @@ segments:
     subsegments:
       - [0x0, .rodata, stagslct]
       - [0x20B8, c, stagslct]
-      - [0x3558, data, stagslct]
+      - [0x3558, .data, stagslct]
   - [0x4AF4]

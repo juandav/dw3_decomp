@@ -53,5 +53,5 @@ segments:
       - [0x2C4, .rodata, stdgname_2]
       - [0x2DC, c, stdgname]
       - [0x32AC, c, stdgname_2]
-      - [0x3930, data, stdgname]
+      - [0x3930, .data, stdgname]
   - [0x5F40]

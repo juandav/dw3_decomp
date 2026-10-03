@@ -10,10 +10,12 @@
  *   two options (new game, continue); Circle picks one, the screen fades out
  *   from its edges and the game goes on to mode 0x2D7 or 0xC00. Ten seconds
  *   without Start go to mode 0xE01 instead.
- * - 1-11: plays movie n-1 of STDWTITL_movies (PsyQ's streaming sample player
- *   with libpress), then goes on to that movie's next mode.
- * - 12: a still screen (file 0x895) that fades in, waits for Start or five
- *   minutes, fades out and goes on to mode 0xE01.
+ * - 1-11 (1-12 in the European version): plays movie n-1 of STDWTITL_movies
+ *   (PsyQ's streaming sample player with libpress), then goes on to that
+ *   movie's next mode. The European version picks its last movie by the
+ *   language.
+ * - 12 (13 in the European version): a still screen (SPLASH_FILE) that fades
+ *   in, waits for Start or five minutes, fades out and goes on to mode 0xE01.
  */
 
 #include "game.h"
@@ -23,9 +25,25 @@
 #define STDWTITL_SPLASH_LAYER 0x100
 #define STDWTITL_TITLE_LAYER 0x1000
 
-/* Entries of the files, read with FILE_CACHE_GET_ENTRY[0] */
-#define SPLASH_SPRITES 0x08950000
-#define SPLASH_IMAGES 0x08950001
+/* Entries of the files, read with FILE_CACHE_GET_ENTRY[0]: the discs number
+   their files differently */
+#if VERSION_US
+#define SPLASH_FILE 0x895
+#define STDWTITL_FILE_BACKGROUND 0x876
+#elif VERSION_EU
+#define SPLASH_FILE 0x8A6
+#define STDWTITL_FILE_BACKGROUND 0x887
+#endif
+#define SPLASH_SPRITES (SPLASH_FILE << 16)
+#define SPLASH_IMAGES (SPLASH_FILE << 16 | 1)
+#define STDWTITL_BACKGROUND(entry) (STDWTITL_FILE_BACKGROUND << 16 | (entry))
+
+/* The VRAM row of the title's sprites (SpriteDrawer.setTexture) */
+#if VERSION_US
+#define STDWTITL_TEXTURE_Y 0
+#elif VERSION_EU
+#define STDWTITL_TEXTURE_Y 0x100
+#endif
 
 /* Sounds (SOUND_STATE.playSound) */
 #define STDWTITL_TITLE_SOUND_BANK 0x47
@@ -38,6 +56,14 @@
 #define MODE_NEW_GAME 0x2D7
 #define MODE_CONTINUE 0xC00
 #define MODE_OPENING 0xE01
+
+/* The low byte of the game mode that shows the still screen, after the
+   movies' */
+#if VERSION_US
+#define STDWTITL_SPLASH_MODE 12
+#elif VERSION_EU
+#define STDWTITL_SPLASH_MODE 13
+#endif
 
 /* STDWTITL_tickScreen's children */
 typedef struct ScreenChildren {
@@ -267,6 +293,10 @@ extern MovieInfo STDWTITL_movies[];
 extern s16 STDWTITL_glintAltFrames[];
 extern s16 STDWTITL_glintFrames[];
 extern Point STDWTITL_menuCursorPositions[];
+#if VERSION_EU
+/* The menu's sprites (press start, new game, continue) for each language */
+extern u8 STDWTITL_menuSprites[][4];
+#endif
 
 extern EdgeLine STDWTITL_edgeFadeLines[];
 extern AnimFrame STDWTITL_backgroundAnim0[];

@@ -1,5 +1,35 @@
 // STDWTITL.PRO's own symbols, which only its splat config reads
 
+// us's data, with one more movie first and two more last
+STDWTITL_movies = 0x80087C98; // size:0xA8
+
+// the menu's sprites for each language
+STDWTITL_menuSprites = 0x80087DA0; // size:0x1C version-only
+
+// us's data, with other files: the title's images by the language
+STDWTITL_titleImages = 0x8008824C; // size:0x38
+
+// us's data, the same
+D_80087154 = 0x80087C40; // size:0xC
+D_80087770 = 0x80088284; // size:0x4
+D_80087774 = 0x80088288; // size:0x40
+D_800877B4 = 0x800882C8; // size:0x40
+D_800877F4 = 0x80088308; // size:0x4
+D_800877F8 = 0x8008830C; // size:0x88
+D_80087880 = 0x80088394; // size:0x4
+D_80087884 = 0x80088398; // size:0x4
+D_80087888 = 0x8008839C; // size:0x4
+D_8008788C = 0x800883A0; // size:0x4
+D_80087890 = 0x800883A4; // size:0x4
+D_80087894 = 0x800883A8; // size:0x1C
+D_800878B0 = 0x800883C4; // size:0x4
+D_800878B4 = 0x800883C8; // size:0x4
+D_800878B8 = 0x800883CC; // size:0x8
+D_800878C0 = 0x800883D4; // size:0x4
+D_800878C4 = 0x800883D8; // size:0x24
+D_800878E8 = 0x800883FC; // size:0x8
+D_800878F0 = 0x80088404; // size:0xE10
+
 // names from us (tools/match_versions.py --seed): the same function or datum
 STDWTITL_tickSplashLoader = 0x80082D70; // type:func
 STDWTITL_startSplashLoaderTask = 0x80082E9C; // type:func
@@ -94,34 +124,37 @@ timeout = 0x80087758; // type:func
 DecDCTvlcSize2 = 0x800877DC; // type:func
 DecDCTvlc2 = 0x8008780C; // type:func
 DecDCTvlcBuild = 0x80087B5C; // type:func
-STDWTITL_screenRect = 0x80087C4C;
-STDWTITL_logoFrames = 0x80087C54;
-STDWTITL_movieWidth = 0x80087C88;
-STDWTITL_movieHeight = 0x80087C8C;
-STDWTITL_vramRect = 0x80087C90;
-STDWTITL_glintAltFrames = 0x80087D40;
-STDWTITL_glintFrames = 0x80087D58;
-STDWTITL_menuCursorPositions = 0x80087D88;
-STDWTITL_edgeFadeLines = 0x80087DBC;
-STDWTITL_backgroundAnim0 = 0x80087DDC;
-STDWTITL_backgroundAnim1 = 0x80087E20;
-STDWTITL_backgroundAnim2 = 0x80087E74;
-STDWTITL_backgroundAnim3 = 0x80087F2C;
-STDWTITL_backgroundAnim4 = 0x80087FF8;
-STDWTITL_backgroundAnim5 = 0x800880F4;
-STDWTITL_backgroundAnim6 = 0x8008816C;
-STDWTITL_backgroundAnim7 = 0x800881BC;
-STDWTITL_background6Positions = 0x80088214;
-STDWTITL_background7Positions = 0x80088220;
-STDWTITL_titleFuncs = 0x80088238;
-STDWTITL_decEnv = 0x80089214;
-STDWTITL_ringBuffer = 0x8008924C;
-STDWTITL_vlcTable = 0x80089250;
-STDWTITL_vlcBuffer0 = 0x80089254;
-STDWTITL_vlcBuffer1 = 0x80089258;
-STDWTITL_imageBuffer0 = 0x8008925C;
-STDWTITL_imageBuffer1 = 0x80089260;
-STDWTITL_movieEnded = 0x80089264;
-STDWTITL_movieFile = 0x80089268;
-STDWTITL_movieEndFrame = 0x8008926C;
+STDWTITL_screenRect = 0x80087C4C; // size:0x8
+STDWTITL_logoFrames = 0x80087C54; // size:0x34
+STDWTITL_movieWidth = 0x80087C88; // size:0x4
+STDWTITL_movieHeight = 0x80087C8C; // size:0x4
+STDWTITL_vramRect = 0x80087C90; // size:0x8
+STDWTITL_glintAltFrames = 0x80087D40; // size:0x18
+STDWTITL_glintFrames = 0x80087D58; // size:0x30
+STDWTITL_menuCursorPositions = 0x80087D88; // size:0x18
+STDWTITL_edgeFadeLines = 0x80087DBC; // size:0x20
+STDWTITL_backgroundAnim0 = 0x80087DDC; // size:0x44
+STDWTITL_backgroundAnim1 = 0x80087E20; // size:0x54
+STDWTITL_backgroundAnim2 = 0x80087E74; // size:0xB8
+STDWTITL_backgroundAnim3 = 0x80087F2C; // size:0xCC
+STDWTITL_backgroundAnim4 = 0x80087FF8; // size:0xFC
+STDWTITL_backgroundAnim5 = 0x800880F4; // size:0x78
+STDWTITL_backgroundAnim6 = 0x8008816C; // size:0x50
+STDWTITL_backgroundAnim7 = 0x800881BC; // size:0x58
+STDWTITL_background6Positions = 0x80088214; // size:0xC
+STDWTITL_background7Positions = 0x80088220; // size:0x14
+STDWTITL_titleFuncs = 0x80088238; // size:0x14
+STDWTITL_decEnv = 0x80089214; // size:0x38
+STDWTITL_ringBuffer = 0x8008924C; // size:0x4
+STDWTITL_vlcTable = 0x80089250; // size:0x4
+STDWTITL_vlcBuffer0 = 0x80089254; // size:0x4
+STDWTITL_vlcBuffer1 = 0x80089258; // size:0x4
+STDWTITL_imageBuffer0 = 0x8008925C; // size:0x4
+STDWTITL_imageBuffer1 = 0x80089260; // size:0x4
+STDWTITL_movieEnded = 0x80089264; // size:0x4
+STDWTITL_movieFile = 0x80089268; // size:0x4
+STDWTITL_movieEndFrame = 0x8008926C; // size:0x4
 // end of the names from us
+
+// names from the C of the modules this version builds (tools/version_symbols.py)
+STDWTITL_spriteBank = 0x80088234; // size:0x4

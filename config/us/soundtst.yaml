@@ -51,5 +51,5 @@ segments:
     subsegments:
       - [0x0, .rodata, soundtst]
       - [0x16C0, c, soundtst]
-      - [0x20C4, data, soundtst]
+      - [0x20C4, .data, soundtst]
   - [0x2D98]

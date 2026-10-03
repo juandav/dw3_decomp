@@ -26,7 +26,7 @@ typedef struct GfxFuncs {
     /* 0x28 */ void (*setDisplayArea)();
     /* 0x2C */ struct Layer *(*getLayer)(s32 id);
     /* 0x30 */ void (*moveLayer)();
-    /* 0x34 */ void (*getFrameCount)();
+    /* 0x34 */ s32 (*getFrameCount)(void);
     /* 0x38 */ s32 (*getTime)(void);
     /* 0x3C */ s32 (*getFrameTime)(void);
 } GfxFuncs;

@@ -30,6 +30,6 @@ STCRDABM_startFade = 0x800858A0; // type:func
 STCRDABM_updateFade = 0x80085934; // type:func
 STCRDABM_startLerp = 0x800859A0; // type:func
 STCRDABM_updateLerp = 0x800859E0; // type:func
-STCRDABM_cursorBlink = 0x80085A4C;
-STCRDABM_funcs = 0x80085A64;
+STCRDABM_cursorBlink = 0x80085A4C; // size:0x18
+STCRDABM_funcs = 0x80085A64; // size:0x18
 // end of the names from us

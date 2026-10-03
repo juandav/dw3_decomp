@@ -1,0 +1,5 @@
+// STCRDDEK.PRO's own symbols, which only its splat config reads
+
+// Two tables inside the data, which only the European version's code reads
+D_8008A828 = 0x8008A828; // size:0x24
+D_8008A84C = 0x8008A84C; // size:0x278

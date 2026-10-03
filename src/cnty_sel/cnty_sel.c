@@ -24,6 +24,11 @@ LeftPanelTween CNTY_SEL_leftPanelTweens[] = {
     {5, 0, 0x1000, 0},
 };
 
+#if VERSION_EU
+/* The language of each option */
+u8 CNTY_SEL_languages[] = {2, 3, 5, 4, 6, 1, 0};
+#endif
+
 void CNTY_SEL_tickScreen(Task *task, MenuTask **menu) {
     TimLoader loader;
     Layer *layer;
@@ -474,6 +479,9 @@ void CNTY_SEL_tickMenu(MenuTask *task, MenuChildren *children) {
                 children->cursor->setState(children->cursor, TASK_DONE);
                 task->nextSubstate(task);
                 task->timer = 0;
+#if VERSION_EU
+                LANGUAGE = CNTY_SEL_languages[task->selection];
+#endif
             } else {
                 /* Options 0-4 are a column moved through with Up and Down. Options 5
                    and 6 are a second one reached with step 1, which nothing sets */
@@ -542,8 +550,17 @@ void CNTY_SEL_tickMenu(MenuTask *task, MenuChildren *children) {
             }
             break;
         case MENU_EXIT:
+#if VERSION_US
             /* switch to game mode 0xE01 */
             GAME_FUNCS.requestMode(0xE01, 0);
+#elif VERSION_EU
+            /* switch to game mode 0xE01, or 0xE02 for a language but 0 */
+            if (LANGUAGE == 0) {
+                GAME_FUNCS.requestMode(0xE01, 0);
+            } else {
+                GAME_FUNCS.requestMode(0xE02, 0);
+            }
+#endif
             task->setState(task, TASK_KILL);
             break;
         }

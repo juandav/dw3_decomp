@@ -7,7 +7,9 @@
  * A background scrolls diagonally, three panels open one after the other and
  * a highlighted option blinks until Start is pressed. Then the option flashes,
  * the panels close, the screen fades to black and the game moves on to mode
- * 0xE01. The choice itself is not stored anywhere.
+ * 0xE01. The USA version doesn't store the choice; the European one sets the
+ * language from it (LANGUAGE), and moves on to mode 0xE02 for any language
+ * but 0.
  */
 
 #include "game.h"
@@ -17,9 +19,15 @@
  * to make a task fade out, flash, or open/close its panel.
  */
 
-/* Entries of file 0x892, read with FILE_CACHE_GET_ENTRY[0] */
-#define CNTY_SEL_SPRITES 0x08920000 /* sprite bank */
-#define CNTY_SEL_IMAGES 0x08920001  /* TIM archive for VRAM */
+/* The screen's file, read with FILE_CACHE_GET_ENTRY[0]: the discs number
+   their files differently */
+#if VERSION_US
+#define CNTY_SEL_FILE 0x892
+#elif VERSION_EU
+#define CNTY_SEL_FILE 0x8A3
+#endif
+#define CNTY_SEL_SPRITES (CNTY_SEL_FILE << 16)      /* sprite bank */
+#define CNTY_SEL_IMAGES (CNTY_SEL_FILE << 16 | 1)   /* TIM archive for VRAM */
 
 /* Sprites in the sprite bank */
 #define SPRITE_BACKGROUND 0
@@ -117,6 +125,9 @@ extern AnimFrame CNTY_SEL_cursorFlash[];
 extern PanelTween CNTY_SEL_topPanelTweens[];
 extern PanelTween CNTY_SEL_rightPanelTweens[];
 extern LeftPanelTween CNTY_SEL_leftPanelTweens[];
+#if VERSION_EU
+extern u8 CNTY_SEL_languages[];
+#endif
 
 void CNTY_SEL_tickScreen(Task *task, MenuTask **menu);
 Task *CNTY_SEL_start(void);

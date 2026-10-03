@@ -49,14 +49,19 @@ own.
   differently (`FILE_MENU_SPRITES`, `FILE_FONT`); `GAME` has 8 more bytes of
   flags. Its data is `data_to_c.py`'s output for `asm/eu/` where it differs.
   The European executable's game code is the USA one's 344 of 346 functions.
-- [ ] The overlays' files need `#if VERSION_EU` blocks or a copy of their
-  own: `SHOCKTST` loads `0xBE` for `0xC5`.
+- [x] Build every overlay's USA C for the European version too, functions
+  and data, with `#if VERSION_US`/`#elif VERSION_EU` where the discs
+  differ: file numbers (`SHOCKTST` loads `0xBE` for `0xC5`), the language
+  tables of `STDWTITL`, `STCRDDEK` and `CNTY_SEL`, data of other lengths,
+  and `FIGHTSTG`'s 4 functions of its own.
 - [ ] 12 USA names are still missing in the European overlays' files, data
   that code which differs reads (`STDWTITL_movies`, `STAGSLCT_entryNames`,
   `SHOCKTST_menuRows`...), and a few European functions have no confident
-  pair: 2 in `CARDGAME`, 6 in `FIGHTSTG`, 1 in `STGDGLAB`. The executable
-  has them all but `FLAGS_40`, which the European `GAME.flags` has at an odd
-  offset, inside `FLAGS_02` (`FLAGS_02 + 0x66`, in `game_state.h`).
+  pair: 2 in `CARDGAME`, 1 in `STGDGLAB`; `FIGHTSTG`'s other 4
+  (`func_8008F5D4`, `func_800A15A8`, `func_800A1FE0`, `func_800A246C`) are
+  European only. The executable has them all but `FLAGS_40`, which the
+  European `GAME.flags` has at an odd offset, inside `FLAGS_02`
+  (`FLAGS_02 + 0x66`, in `game_state.h`).
 - [x] The stages: 233 of the USA version's 238 are 8 bytes longer in the
   European version because each one's setup function adds the language
   (`LANGUAGE`, which `CNTY_SEL` sets) to the text file it loads; the
@@ -120,14 +125,14 @@ own.
 
 ## Overlays
 
-- [ ] 833 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 915 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`. Mostly: `STCRDABM` (27 / 29), `STDGNAME` (29 / 32), `SHOCKTST`
-  (15 / 17), `STAGSLCT` (6 / 8), `STDWTITL` (65 / 93), `STITSHOP` (50 / 69),
-  `CARDGAME` (303 / 306), `STGMCARD` (36 / 45). Started: `FIELDSTG`
-  (108 / 222), `STGDGLAB` (44 / 70), `STSTATUS` (42 / 123), `STPLNMET`
-  (24 / 53), `STCRDSHP` (16 / 45), `STFGTREP` (13 / 36), `WFIGHTTS` (6 / 14),
-  `STCRDDEK` (6 / 55), `WFIGHTMN` (4 / 42), `STGTRAIN` (3 / 94), `FIGHTSTG`
-  (2 / 310).
+  (15 / 17), `STAGSLCT` (6 / 8), `FIELDSTG` (190 / 222), `STDWTITL`
+  (65 / 93), `STITSHOP` (50 / 69), `CARDGAME` (303 / 306), `STGMCARD`
+  (36 / 45). Started: `STGDGLAB` (44 / 70), `STSTATUS` (42 / 123),
+  `STPLNMET` (24 / 53), `STCRDSHP` (16 / 45), `STFGTREP` (13 / 36),
+  `WFIGHTTS` (6 / 14), `STCRDDEK` (6 / 55), `WFIGHTMN` (4 / 42), `STGTRAIN`
+  (3 / 94), `FIGHTSTG` (2 / 310).
 - [ ] Find out what `FIGHTSTG` and `STGTRAIN` run, and say it in their
   header and the README. Check `STFGTREP`'s guess (the report after a
   battle) against its texts. Check `STGDGLAB`'s guess (the partners'
@@ -139,9 +144,14 @@ own.
   `STPLNMET`, `WFIGHTMN` and `WFIGHTTS` their helpers and tasks); the other
   overlays' symbol files are empty or hold a few `D_` entries, so `FIELDSTG`
   and `STDGNAME`, much of which is C, are still `func_`.
-- [ ] Overlay data: 38 % of it is C. `INCLUDE_RODATA` is left in `SHOCKTST`
-  (7), `FIGHTSTG` (5), `SOUNDTST` (4), `STAGSLCT` (3), `FIELDSTG` (2)
-  and `WFIGHTTS` (1).
+- [ ] Overlay data: 75 % of it is C in both versions; the `.data` of every
+  overlay but `STPLNMET` is C. objdiff counts a section only when all of it
+  matches, so the `.rodata` of the overlays with functions still in asm
+  doesn't count yet. `INCLUDE_RODATA` is left in `SHOCKTST` (7),
+  `FIGHTSTG` (5), `SOUNDTST` (4), `STAGSLCT` (3), `FIELDSTG` and
+  `WFIGHTTS` (1 each). The European `CNTY_SEL` `.data`
+  stays at 98.95 % in the report: the file ends 3 bytes into its last
+  word, which splat's object leaves out.
 
 ## Stages
 

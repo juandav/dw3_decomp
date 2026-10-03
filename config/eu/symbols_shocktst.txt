@@ -25,3 +25,10 @@ SHOCKTST_createLoader = 0x8008499C; // type:func
 SHOCKTST_numberFormats = 0x80084A28;
 SHOCKTST_motorNames = 0x80084AE8;
 // end of the names from us
+
+// names from the C of the modules this version builds (tools/version_symbols.py)
+SHOCKTST_STR_SLOW = 0x80082CE0;
+SHOCKTST_STR_FAST = 0x80082CEC;
+SHOCKTST_PATH_DLSKDATA_TXT = 0x80082D24;
+SHOCKTST_menuRows = 0x800849C8;
+SHOCKTST_textPath = 0x80084AF0;

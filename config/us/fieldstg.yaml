@@ -51,5 +51,5 @@ segments:
     subsegments:
       - [0x0, .rodata, fieldstg]
       - [0xAD4, c, fieldstg]
-      - [0xFC60, data, fieldstg]
+      - [0xFC60, .data, fieldstg]
   - [0x18748]

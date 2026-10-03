@@ -61,6 +61,8 @@ typedef struct FileCache {
     /* 0x41C */ u8 unk41C[8];
     /* 0x424 */ s32 (*getEntry)(s32 fileAndIndex);
     /* 0x428 */ u8 *(*getArchiveEntry)(s32 index, s32 archive);
+    /* 0x42C */ void (*markCached)(void);
+    /* 0x430 */ void (*touchMarked)(void);
 } FileCache;
 
 s32 isFileLoading(s32);

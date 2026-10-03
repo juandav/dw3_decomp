@@ -8,11 +8,11 @@ STAGSLCT_zoomTitle = 0x800847C8; // type:func
 STAGSLCT_updateStageSelect = 0x800848D0; // type:func
 STAGSLCT_createStageSelect = 0x80085974; // type:func
 
-STAGSLCT_entryNames = 0x80082448;
-STAGSLCT_STR_STAGE_SELECT = 0x800844D8;
+STAGSLCT_entryNames = 0x80082448; // size:0x2090
+STAGSLCT_STR_STAGE_SELECT = 0x800844D8; // size:0x24
 STAGSLCT_STR_CURSOR = 0x800844FC;
-STAGSLCT_regionNames = 0x800859A4;
+STAGSLCT_regionNames = 0x800859A0; // size:0x1C
 STAGSLCT_entries = 0x800859BC;
 STAGSLCT_screenRect = 0x80086F1C;
 STAGSLCT_biosVersion = 0x80086F24;
-STAGSLCT_biosVersionEnd = 0x80086F38;
+STAGSLCT_biosVersionEnd = 0x80086F38; // size:0x2

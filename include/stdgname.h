@@ -3,6 +3,18 @@
 
 #include "game.h"
 
+/* The screen's files: the discs number them differently */
+#if VERSION_US
+#define STDGNAME_FILE_SPRITES 0x279
+#define STDGNAME_FILE_IMAGES 0x27A
+#define STDGNAME_FILE_KEYBOARD 0x762
+#elif VERSION_EU
+#define STDGNAME_FILE_SPRITES 0x288
+#define STDGNAME_FILE_IMAGES 0x289
+#define STDGNAME_FILE_KEYBOARD 0x771
+#endif
+#define STDGNAME_SPRITES (STDGNAME_FILE_SPRITES << 16) /* sprite bank */
+
 /* A full-screen fade */
 typedef struct FadeTask {
     TASK_HEADER(FadeTask);
@@ -151,6 +163,11 @@ extern Keyboard D_8008837C;
 extern TextStyle D_80086FC0;
 extern s32 D_80086EE0[][3];
 extern s8 D_80086EEC[][7][15][2];
+#if VERSION_EU
+/* the keyboard of language 0, three pages */
+extern s32 D_800876FC[][3];
+extern s8 D_80087720[][7][15][2];
+#endif
 extern MenuSprite D_8008710C[];
 extern MenuSlot D_800872B0[];
 extern MenuWindow D_800872E0[];

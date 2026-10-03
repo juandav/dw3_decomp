@@ -10,6 +10,19 @@
 #define CARD_COUNT 315
 #define ALBUM_PAGE_CARDS 12
 
+/* The album's files: the discs number them differently */
+#if VERSION_US
+#define STCRDABM_FILE_SPRITES 0x5F5
+#define STCRDABM_FILE_IMAGES 0x5F6
+#define STCRDABM_FILE_DATA 0x7E7 /* the first of five */
+#elif VERSION_EU
+#define STCRDABM_FILE_SPRITES 0x605
+#define STCRDABM_FILE_IMAGES 0x606
+#define STCRDABM_FILE_DATA 0x7F6
+#endif
+#define STCRDABM_SPRITES (STCRDABM_FILE_SPRITES << 16) /* sprite bank */
+#define STCRDABM_IMAGES (STCRDABM_FILE_IMAGES << 16)   /* TIM archive */
+
 /* Fades the screen to or from black with a subtractive rectangle */
 typedef struct CardAlbumFader {
     TASK_HEADER(CardAlbumFader);

@@ -172,7 +172,8 @@ typedef struct GameState {
     /* 0x002C */ s32 stageSelectCursor;
     /* 0x0030 */ s32 unk30;
     /* 0x0034 */ s32 fieldMode; /* where the menu returns to */
-    /* 0x0038 */ u8 unk38[0xC];
+    /* 0x0038 */ Vec2 fieldPos; /* the player's, there */
+    /* 0x0040 */ s32 fieldDir;
     /* 0x0044 */ u16 unk44;
     /* 0x0046 */ u16 unk46;
     /* 0x0048 */ s32 playFrames; /* 8.8, counted by the vsync callback */

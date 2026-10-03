@@ -751,11 +751,7 @@ s32 D_800A60F4[] = {
     (s32)func_800A56C8, 9015, 0, 0,
     (s32)func_800A4F30, (s32)func_800A56F4, 9016, 0,
     0,
-#if VERSION_US
-    0x8008B258,
-#elif VERSION_EU
-    0x8008BF38,
-#endif
+    (s32)func_8008B258,
     0, -1, 0, 0,
     0, 0,
 };
