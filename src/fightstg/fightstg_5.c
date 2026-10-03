@@ -3,19 +3,25 @@
 
 #include "fightstg.h"
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008ADB0);
-
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008ADEC);
-
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008ADF4);
-
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008ADFC);
-
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008AE04);
-
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008AE0C);
-
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008AE14);
+s32 func_8008ADB0(BattleScript *script, s32 type) {
+    switch (type) {
+    case 0:
+    default:
+        return script->unk50 != 0 ? 0x10 : 0;
+    case 1:
+        return 0;
+    case 2:
+        return 1;
+    case 3:
+        return 2;
+    case 4:
+        return 0x10;
+    case 5:
+        return 0x11;
+    case 6:
+        return 0x12;
+    }
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008AE1C);
 
@@ -33,7 +39,21 @@ INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008BA4C);
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008BBD4);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008BC94);
+void func_8008BC94(BattleScript *script, Unk80092350 **fade) {
+    s32 op = *script->pc++;
+    s32 frames = *script->pc++;
+
+    switch (op) {
+    case 0:
+        *fade = func_80092494(frames);
+        break;
+    case 1:
+        if (*fade != NULL) {
+            func_8009245C(*fade, frames);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008BD10);
 

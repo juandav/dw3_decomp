@@ -5,7 +5,18 @@
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_80086180);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_80086780);
+Unk80086180 *func_80086780(s32 id, s32 side, s32 arg2) {
+    Unk80086180 *task = createTask(func_80086180, sizeof(Unk80086180), 0xC);
+
+    task->key1 = id;
+    if (side) {
+        task->key2 = 0x10;
+    } else {
+        task->key2 = 0;
+    }
+    task->unk64 = arg2;
+    return task;
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_800867F0);
 
@@ -75,7 +86,7 @@ void func_80087480(Models *task, s32 id, s32 fighter, s32 arg3) {
     func_800873F0(task, id);
     i = func_800873BC(task);
     if (i != -1) {
-        info = D_800A32F8.getInfo(fighter);
+        info = D_800A32E0.funcs.getInfo(fighter);
         control = &task->controls[i];
         children->models[i] = func_80083F10(info->model, info->motions, D_800A12D0[i], control);
         HEAP.zero(control, sizeof(ModelControl));
@@ -118,7 +129,7 @@ void func_800876B8(Models *task, s32 id) {
     s16 z;
 
     if (control != NULL) {
-        info = D_800A32F8.getInfo(control->fighter);
+        info = D_800A32E0.funcs.getInfo(control->fighter);
         if (id < 0x10) {
             control->pos.x = 0;
             control->pos.y = -info->height;
