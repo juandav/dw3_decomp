@@ -298,9 +298,29 @@ INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800873E8);
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800875AC);
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087D5C);
+void func_80087D5C(ShopItemList *list, s32 frozen) {
+    ShopItemListWindows *win = list->children;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087E00);
+    if (frozen) {
+        win->cursor->setPalette(win->cursor, 7);
+        win->cursor->setStill(win->cursor, 1);
+        list->active = 0;
+    } else {
+        win->cursor->setPalette(win->cursor, 0);
+        win->cursor->setStill(win->cursor, 0);
+        list->active = 1;
+    }
+}
+
+void func_80087E00(ShopItemList *list, s32 visible) {
+    ShopItemListWindows *win = list->children;
+    s32 row;
+
+    list->active = visible;
+    row = (list->selection % list->pageSize) / 2;
+    win->cursor->setPos(win->cursor, (list->selection % 2) * 0x83 + 0x1D, row * 0xE + 0x24);
+    win->cursor->setVisible(win->cursor, visible);
+}
 
 void func_80087EB0(ShopItemList *list) {
     list->setState(list, TASK_RUN);
