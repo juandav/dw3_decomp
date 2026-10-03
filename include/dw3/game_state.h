@@ -84,7 +84,7 @@ typedef struct PartnerEntry {
 /* A card deck */
 typedef struct Deck {
     /* 0x00 */ char name[0x16];
-    /* 0x16 */ u16 cards[40];
+    /* 0x16 */ s16 cards[40];
 } Deck;
 
 /*
