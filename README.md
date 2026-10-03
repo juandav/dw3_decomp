@@ -401,11 +401,23 @@ with `X.c`. The units go into the category `game` (the executable), one
 category per overlay, and `stages` for all the stages. The executable's data
 is one unit, `main/game_data`. `src/main/psyq/` gets no unit. A file the
 version being reported doesn't build from C yet, but has split at the same
-path (the European `asm/eu/main/system.s`), is its unit with no base object,
-so the report counts it as still to do; a binary with no such file (the
-European stages) is one unit of splat's code and data
+path (the European `asm/eu/cnty_sel/cnty_sel.s`), is its unit with no base
+object, from that code and the module's rodata, data and bss segments, so the
+report counts all of it as still to do; a binary with no such file (the
+European stages only it has) is one unit of splat's code and data
 (`stages/wstag920`...). `objdiff.json` is for the version it was last
 written for.
+
+objdiff counts a unit's `.rodata` or `.data` as matched only when all of the
+section is the original's, bytes and relocations. The report compares copies
+of the objects (`build/<version>/report/`, `expected/<version>/report/`) made
+to write the same data the same way: the base gets the target's names for the
+rodata GCC emits without one (string literals, jump tables), pointers are
+written as section plus offset on both sides, and the rodata still included
+from asm (`INCLUDE_RODATA`, the jump tables of functions behind `INCLUDE_ASM`)
+gets one byte changed, so its section only counts once all of it is C. Data
+that splat still has in its own segments (`data` in a config rather than
+`.data`) isn't in the C object, so it counts as still to do.
 
 The CI (`.github/workflows/build.yaml`) first runs `tools/check_names.py` and
 `tools/hacks.py`, which only read the source and the configs. It then builds
