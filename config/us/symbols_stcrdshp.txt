@@ -1,0 +1,6 @@
+// STCRDSHP.PRO: the card packs
+
+STCRDSHP_slotCards = 0x800888C8; // size:0x1EC0
+STCRDSHP_slotCards123 = 0x8008A788; // size:0x4C
+STCRDSHP_slotCards124 = 0x8008A7D4; // size:0x1580
+STCRDSHP_packs = 0x8008BD54; // size:0x3F0

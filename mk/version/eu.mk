@@ -110,4 +110,4 @@ C_SRC += src/cardgame/cardgame_3.c
 C_SRC += src/cardgame/cardgame_4.c
 
 # small overlays
-C_SRC += src/stgmcard/stgmcard.c src/stfgtrep/stfgtrep.c src/wfightmn/wfightmn.c
+C_SRC += src/stgmcard/stgmcard.c src/stfgtrep/stfgtrep.c src/wfightmn/wfightmn.c src/stcrdshp/stcrdshp.c
