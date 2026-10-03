@@ -84,19 +84,7 @@ INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008A624);
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008A6A4);
 
-#if VERSION_EU
-/* The European splat cuts func_8008A6A4 and func_8008B0A4 where the names
- * config/eu/symbols.txt gives three FIELDSTG functions for the executable
- * fall */
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008AEB4);
-#endif
-
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008B0A4);
-
-#if VERSION_EU
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008B2C4);
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008B320);
-#endif
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008B960);
 

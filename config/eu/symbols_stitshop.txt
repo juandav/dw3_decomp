@@ -1,6 +1,11 @@
 // STITSHOP.PRO's own symbols, which only its splat config reads
 
 func_8008B614 = 0x8008BFB0; // type:func
+// config/eu/symbols.txt names three FIELDSTG functions at addresses that fall
+// inside this overlay's func_8008AC8C, func_8008AF88 and func_8008B614
+func_8008AC8C_part = 0x8008B770; // type:label segment:stitshop version-only
+func_8008AF88_part = 0x8008BFA4; // type:label segment:stitshop version-only
+func_8008B614_part = 0x8008C000; // type:label segment:stitshop version-only
 
 STITSHOP_shops = 0x8008D0B4; // size:0xF8
 STITSHOP_funcs = 0x8008D1AC; // size:0x2C

@@ -442,24 +442,9 @@ void func_8008ABA4(ItemShop *shop, ItemShopWindows *win) {
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008AC8C);
 
-#if VERSION_EU
-/* The European splat cuts func_8008AC8C, func_8008AF88 and func_8008B614
- * where the names config/eu/symbols.txt gives three FIELDSTG functions for
- * the executable fall */
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008AEB4);
-#endif
-
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008AF88);
 
-#if VERSION_EU
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B2C4);
-#endif
-
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B614);
-
-#if VERSION_EU
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B320);
-#endif
 
 void func_8008B728(ItemShop *shop) {
     ItemShopWindows *win = shop->children;
