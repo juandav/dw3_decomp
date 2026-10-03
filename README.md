@@ -43,12 +43,12 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 346 / 346 | 100.00 % | 99.97 % |
 | | USA | 346 / 346 | 100.00 % | 99.97 % |
-| The 21 overlays | Europe | 1,413 / 1,702 | 59.90 % | 82.35 % |
-| | USA | 1,412 / 1,697 | 59.94 % | 81.98 % |
+| The 21 overlays | Europe | 1,459 / 1,702 | 62.82 % | 82.35 % |
+| | USA | 1,458 / 1,697 | 62.84 % | 81.98 % |
 | The stages (293 and 238) | Europe | 1,297 / 1,590 | 70.55 % | 99.27 % |
 | | USA | 1,231 / 1,369 | 82.83 % | 99.15 % |
-| **Total** | **Europe** | **3,056 / 3,638** | **65.00 %** | **97.36 %** |
-| | **USA** | **2,989 / 3,412** | **67.60 %** | **97.01 %** |
+| **Total** | **Europe** | **3,102 / 3,638** | **66.99 %** | **97.36 %** |
+| | **USA** | **3,035 / 3,412** | **69.66 %** | **97.01 %** |
 
 - The executable's game code is all C. Its data is C too, in
   `src/main/data/`, until it moves next to the code that uses it.
@@ -91,7 +91,7 @@ above counts them: fake matches, then the other two kinds together.
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 6 | `/* unused, but it is in the original stack frame */` |
 | Form-dependent matches | 43 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 580 | `INCLUDE_ASM` |
+| Functions still in assembly | 534 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -148,7 +148,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `CARDGAME` | `0x80082448` | 303 / 306 | the card battle (mode `0x700`): the decks, the cards in play and the battle screen |
 | `CNTY_SEL` | `0x80082448` | 26 / 26 | the country select screen |
 | `FIELDSTG` | `0x80082448` | 195 / 222 | the field mode, where the player walks around the map; the stages load on top of it |
-| `FIGHTSTG` | `0x80082448` | 159 / 310 | the battle: the fight stage and its lights, the fighters' models, faces and cameras, and the queue of battle events |
+| `FIGHTSTG` | `0x80082448` | 205 / 310 | the battle: the fight stage and its lights, the fighters' models, faces and cameras, the battle camera and windows, the queue of battle events and the stat, hit and status checks |
 | `SHOCKTST` | `0x80082448` | 15 / 17 | the debug vibration test |
 | `SOUNDTST` | `0x80082448` | 8 / 8 | the debug sound test |
 | `STAGSLCT` | `0x80082448` | 6 / 8 | the debug stage select, a menu of every scene of the game |

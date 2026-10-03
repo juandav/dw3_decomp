@@ -128,7 +128,7 @@ struct Layer {
     /* 0x134 */ void (*clearOt)(struct Layer *);
     /* 0x138 */ s32 (*getOtEntry)(struct Layer *, s32 depth);
     /* 0x13C */ void (*getOtEntryZ)();
-    /* 0x140 */ void (*getOt)();
+    /* 0x140 */ u_long *(*getOt)(struct Layer *);
     /* 0x144 */ s32 (*getOtShift)();
     /* 0x148 */ void (*allocCallbacks)();
     /* 0x14C */ void (*addSortedCallback)();
