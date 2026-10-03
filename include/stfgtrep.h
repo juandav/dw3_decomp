@@ -1,7 +1,10 @@
 #ifndef STFGTREP_H
 #define STFGTREP_H
 
-/* STFGTREP.PRO: mode 0x1400. Not identified yet. */
+/* STFGTREP.PRO: mode 0x1400, the report after a battle. WFIGHTMN requests
+   it when a battle ends; it goes through the party (getPartyMember) and
+   shows the partners that went up a level, with their name and new level,
+   from text file 0x56. */
 
 #include "game.h"
 
