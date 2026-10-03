@@ -401,9 +401,10 @@ with `X.c`. The units go into the category `game` (the executable), one
 category per overlay, and `stages` for all the stages. The executable's data
 is one unit, `main/game_data`. `src/main/psyq/` gets no unit. A file the
 version being reported doesn't build from C yet, but has split at the same
-path (the European `asm/eu/main/system.s`), is its unit with no base object,
-so the report counts it as still to do; a binary with no such file (the
-European stages) is one unit of splat's code and data
+path (the European `asm/eu/cnty_sel/cnty_sel.s`), is its unit with no base
+object, from that code and the module's rodata, data and bss segments, so the
+report counts all of it as still to do; a binary with no such file (the
+European stages only it has) is one unit of splat's code and data
 (`stages/wstag920`...). `objdiff.json` is for the version it was last
 written for.
 

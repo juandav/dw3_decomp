@@ -49,9 +49,12 @@ next to the code that uses it.
 A version that doesn't build a C file yet still has its unit, with no base
 object, when splat writes the module's code at the same path as in the USA
 version (the European one is split into the USA modules,
-tools/split_version.py): asm/<version>/main/system.s is main/system's code,
-not yet C. A binary with neither (not split, or a stage only that version
-has) is one unit of its own, from all its code and data (asm_units).
+tools/split_version.py): asm/eu/cnty_sel/cnty_sel.s is cnty_sel/cnty_sel's
+code, not yet C. Its target is that code with the module's rodata, data and
+bss segments (asm/<version>/<binary>/data/<module>.rodata.s...), so the report
+counts all of it as still to do. A binary with neither (not split, or a
+stage only that version has) is one unit of its own, from all its code and
+data (asm_units).
 """
 
 import json
@@ -106,6 +109,15 @@ def combine(out: str, parts: list) -> None:
         shutil.copyfile(ROOT / parts[0], ROOT / out)
     else:
         link(out, parts)
+
+
+def data_segments(name: str) -> list:
+    """splat's objects of the rodata, data and bss segments of the module
+    NAME (binary/module), which a version that doesn't build it from C yet
+    has apart from its code."""
+    binary, module = name.split("/", 1)
+    paths = [f"{binary}/data/{module}.{kind}.s" for kind in ("rodata", "data", "bss")]
+    return [f"expected/{V}/asm/{p}.o" for p in paths if (ASM / p).exists()]
 
 
 class Elf:
@@ -427,7 +439,14 @@ def main() -> None:
             prepare(base, target)
             unit["base_path"] = base
         else:
-            combine(target, [f"expected/{V}/asm/{n}.s.o" for n in parts])
+            # not C yet (all or part of it): the code with the data segments
+            # of what is still asm, all of it to do
+            objs = []
+            for n in parts:
+                objs.append(f"expected/{V}/asm/{n}.s.o")
+                if n not in built:
+                    objs += data_segments(n)
+            combine(target, objs)
         unit["metadata"] = {"progress_categories": [category_for(name)]}
         units.append(unit)
 
