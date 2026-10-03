@@ -169,7 +169,7 @@ own.
 
 ## Overlays
 
-- [ ] 1,100 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,164 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`. Mostly: `STCRDABM` (27 / 29), `STDGNAME` (29 / 32), `SHOCKTST`
   (15 / 17), `STAGSLCT` (6 / 8), `FIELDSTG` (190 / 222), `STDWTITL`
   (91 / 93: `libpress`'s handwritten `DecDCTvlc2` and `DecDCTvlcSize2` stay
@@ -177,7 +177,20 @@ own.
   (44 / 45). Started: `STGDGLAB` (44 / 70), `STSTATUS` (42 / 123),
   `STPLNMET` (24 / 53), `STCRDSHP` (16 / 45), `STFGTREP` (26 / 36),
   `WFIGHTTS` (6 / 14), `STCRDDEK` (6 / 55), `WFIGHTMN` (4 / 42), `FIGHTSTG`
-  (69 / 310).
+  (133 / 310).
+- [ ] `FIGHTSTG`'s blocked functions: `func_8009C764`, `func_8009C8EC` and
+  `func_8009C998` differ only in registers and the order of a few loads (the
+  permuter finds nothing natural); `func_800877D4` and `func_800A0FDC` are
+  near misses too. `func_80088F78` needs `D_800A12F0` as an array of 12-byte
+  structs, whose data differs between the versions. The GTE functions
+  (`func_80082A50`, `func_80082D74`, `func_80082FD4`, `func_8008358C`,
+  `func_80083F74`, `func_800841D4`, `func_80084780`, `func_80084890`,
+  `func_800850D8`, `func_8009D674`) need more of `include/gte.h`: `rtps`,
+  `mvmva`, `SetRotMatrix`'s `ctc2`, the `lwc2`/`swc2` loads and stores and
+  the `cfc2` of the flags. Many others are tasks whose structs aren't known
+  yet (`func_80083140`, `func_80083BE4`, `func_80088DEC`, `func_80089FBC`,
+  `func_8008A898`, `func_8008A8E0`, `func_80090F60`, `func_80091950`,
+  `func_8009A5AC`, `func_8009A830`).
 - [ ] `STGTRAIN`'s near misses: `func_80083ADC` (4 diffs, two registers
   swapped), `func_800858E0` and `func_80085CC4` (3 each: the original
   schedules the table's `lui` before the `sll`), `func_800874A0` (2: the
@@ -194,6 +207,7 @@ own.
   `STAGSLCT`'s menu of every scene of the game may help.
 - [ ] Name the overlays' functions: only `CNTY_SEL`, `SHOCKTST`,
   `SOUNDTST`, `STAGSLCT`, `STCRDABM` and `STDWTITL` have names (and
+  `FIGHTSTG` its event queue, fighters' file and battle table, and
   `STITSHOP`, `STSTATUS`, `STGDGLAB`, `STCRDSHP`, `STFGTREP`, `STGMCARD`,
   `STPLNMET`, `WFIGHTMN` and `WFIGHTTS` their helpers and tasks); the other
   overlays' symbol files are empty or hold a few `D_` entries, so `FIELDSTG`

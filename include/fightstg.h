@@ -113,6 +113,29 @@ typedef struct Model {
 #define FILE_FIGHT_STAGES 0x1CB
 #endif
 
+/* A table of 0x46-byte entries that start with an s16 id, 0 after the
+   last (FIGHTSTG_findBattleTableIndex) */
+#if VERSION_US
+#define FILE_BATTLE_TABLE 0xBE
+#elif VERSION_EU
+#define FILE_BATTLE_TABLE 0x1CF
+#endif
+
+typedef struct BattleTableEntry {
+    /* 0x00 */ s16 id;
+    /* 0x02 */ s16 unk2[7];
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ u8 unk14[0x32];
+} BattleTableEntry;
+
+/* The fighters' file, which D_800A32E0.funcs reads */
+#if VERSION_US
+#define FILE_FIGHTERS 0x1BE
+#elif VERSION_EU
+#define FILE_FIGHTERS 0x1CC
+#endif
+
 /* A fight stage's lights: three flat lights and the ambient colour */
 typedef struct LightSet {
     /* 0x00 */ GsF_LIGHT lights[3];
@@ -184,22 +207,51 @@ typedef struct MoveTask {
     /* 0x64 */ s32 tStep;
 } MoveTask;
 
-/* A fighter's entry in its file, from D_800A32F8.getInfo */
+/* An entry of the fighters' file's list */
+typedef struct FighterEntry {
+    /* 0x0 */ s16 id;
+    /* 0x2 */ u8 index; /* in the partners' or the enemies' table */
+    /* 0x3 */ u8 kind; /* 0x3A and up: an enemy */
+} FighterEntry;
+
+/* The fighters' file: offsets from its start */
+typedef struct FightersFile {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ s32 entries; /* FighterEntry, up to an id 0 */
+    /* 0x8 */ s32 partners; /* 0xC4 bytes each */
+    /* 0xC */ s32 enemies; /* 0x48 bytes each */
+} FightersFile;
+
+/* A fighter's entry in its file, from D_800A32E0.funcs.getInfo */
 typedef struct FighterInfo {
     /* 0x00 */ s32 model;
     /* 0x04 */ s32 motions;
-    /* 0x08 */ u8 unk8[8];
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC; /* an offset in the fighters' file */
     /* 0x10 */ s16 unk10; /* its distance from the middle, past 0x1400 */
     /* 0x12 */ u8 unk12[6];
     /* 0x18 */ s16 height;
 } FighterInfo;
 
-/* The fighters' file (D_800A32F8) */
+/* The fighters' file (D_800A32E0.funcs) */
 typedef struct FighterInfoFuncs {
     /* 0x0 */ FighterInfo *(*getInfo)(s32 id);
     /* 0x4 */ void (*unk4)(s32 index);
-    /* 0x8 */ void (*unk8)(s32 kind, s32 *min, s32 *max);
+    /* 0x8 */ void (*unk8)(u32 enemy, s32 *min, s32 *max); /* the indices of the partners or the enemies */
 } FighterInfoFuncs;
+
+/* D_800A32E0: the last fighter getInfo found, and the fighters' file's
+   functions */
+typedef struct FighterCache {
+    /* 0x00 */ s32 id;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ FighterInfo *unk10;
+    /* 0x14 */ FighterInfo *info;
+    /* 0x18 */ FighterInfoFuncs funcs;
+    /* 0x24 */ void (*unk24)();
+} FighterCache;
 
 /* The Models task's children: a removed model stays until it is gone */
 typedef struct ModelsChildren {
@@ -303,7 +355,122 @@ typedef struct Unk800973D4 {
     /* 0x80 */ s32 unk80;
 } Unk800973D4;
 
-/* An event of the battle, as it is queued (func_8009AA7C) */
+/* func_80093324's task */
+typedef struct Unk800931CC {
+    TASK_HEADER(Unk800931CC);
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s32 *unk54; /* -1 until it is done */
+} Unk800931CC;
+
+/* func_8008EAA0's task */
+typedef struct Unk8008E3C8 {
+    TASK_HEADER(Unk8008E3C8);
+    /* 0x50 */ u8 unk50[0x20];
+    /* 0x70 */ s8 unk70;
+    /* 0x74 */ s32 unk74;
+    /* 0x78 */ u8 unk78[0xC];
+    /* 0x84 */ s32 unk84;
+    /* 0x88 */ s32 unk88;
+} Unk8008E3C8;
+
+/* func_80099400's task */
+typedef struct Unk80097F8C {
+    TASK_HEADER(Unk80097F8C);
+    /* 0x50 */ u8 unk50[0x48];
+    /* 0x98 */ s32 unk98;
+    /* 0x9C */ s32 found[3]; /* the fighters FIGHTSTG_findFighters found */
+    /* 0xA8 */ s32 foundCount;
+    /* 0xAC */ void (*unkAC)();
+    /* 0xB0 */ void (*unkB0)(struct Unk80097F8C *task);
+} Unk80097F8C;
+
+typedef struct Unk80086180 {
+    TASK_HEADER(Unk80086180);
+    /* 0x50 */ u8 unk50[0x14];
+    /* 0x64 */ s32 unk64;
+} Unk80086180;
+
+typedef struct Unk80094278 {
+    TASK_HEADER(Unk80094278);
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s32 unk58;
+    /* 0x5C */ s32 unk5C;
+    /* 0x60 */ u8 unk60[0x8C];
+} Unk80094278;
+
+typedef struct Unk800967A4 {
+    TASK_HEADER(Unk800967A4);
+    /* 0x50 */ s32 *unk50; /* -1 until it is done */
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s32 unk58;
+    /* 0x5C */ u8 unk5C[0x2C];
+} Unk800967A4;
+
+typedef struct Unk800999E4 {
+    TASK_HEADER(Unk800999E4);
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s32 *unk58; /* -1 until it is done */
+    /* 0x5C */ s32 unk5C;
+    /* 0x60 */ s32 unk60;
+    /* 0x64 */ u8 unk64[0x60];
+} Unk800999E4;
+
+/* 0x34 bytes that func_80091618 copies */
+typedef struct Unk80091618 {
+    /* 0x00 */ s32 unk0[13];
+} Unk80091618;
+
+/* func_800919EC's task, registered with id 0x12 */
+typedef struct Unk800911C8 {
+    TASK_HEADER(Unk800911C8);
+    /* 0x050 */ s32 unk50;
+    /* 0x054 */ Unk80091618 unk54;
+    /* 0x088 */ u8 unk88[0x68];
+    /* 0x0F0 */ s32 unkF0;
+    /* 0x0F4 */ s32 unkF4;
+    /* 0x0F8 */ void (*unkF8)(struct Unk800911C8 *task, Unk80091618 *arg1);
+    /* 0x0FC */ void (*unkFC)();
+    /* 0x100 */ void (*unk100)();
+    /* 0x104 */ void (*unk104)();
+} Unk800911C8;
+
+/* 32 bytes that func_8009A214 copies into func_8009A098's task */
+typedef struct Unk8009A214 {
+    /* 0x00 */ s32 unk0[8];
+} Unk8009A214;
+
+typedef struct Unk8009A098 {
+    TASK_HEADER(Unk8009A098);
+    /* 0x50 */ s32 unk50[2];
+    /* 0x58 */ Unk8009A214 unk58;
+    /* 0x78 */ u8 unk78[0x30];
+} Unk8009A098;
+
+/* Which fighters FIGHTSTG_findFighters looks for */
+typedef struct FighterFilter {
+    /* 0x0 */ s32 side;
+    /* 0x4 */ s32 type;
+} FighterFilter;
+
+/* The battle script's task (func_8008BD10) */
+typedef struct BattleScript {
+    TASK_HEADER(BattleScript);
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ u8 unk54[0x38];
+    /* 0x8C */ s16 *pc;
+    /* 0x90 */ u8 unk90[0x24];
+} BattleScript;
+
+/* The two text windows of func_80099894's task (its children) */
+typedef struct Unk80099894 {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ struct TextWindow *unk4;
+    /* 0x8 */ struct TextWindow *unk8;
+} Unk80099894;
+
+/* An event of the battle, as it is queued (FIGHTSTG_pushEvent) */
 typedef struct BattleEvent {
     /* 0x00 */ s32 type;
     /* 0x04 */ s32 delay;
@@ -317,35 +484,160 @@ typedef struct QueuedEvent {
     /* 0x04 */ s32 args[6];
 } QueuedEvent;
 
+/* What FIGHTSTG_removeEvents removes the events of */
+typedef struct EventKey {
+    /* 0x0 */ u8 unk0;
+    /* 0x4 */ s32 unk4;
+} EventKey;
+
+/* The event queue's functions (D_800A25F0.funcs) */
+typedef struct EventQueueFuncs {
+    /* 0x00 */ s8 unk0;
+    /* 0x04 */ void (*push)(BattleEvent *event);
+    /* 0x08 */ void (*pushFirst)(BattleEvent *event); /* before all the others */
+    /* 0x0C */ s16 (*unkC)(void);
+    /* 0x10 */ s32 (*first)(s32 type);
+    /* 0x14 */ s32 (*next)(void);
+    /* 0x18 */ s32 (*find)(s32 type, u8 side, s32 fighter);
+    /* 0x1C */ void (*remove)(EventKey *key); /* the events whose first two args are its */
+} EventQueueFuncs;
+
 /* The battle's events (D_800A25F0) */
 typedef struct EventQueue {
     /* 0x000 */ QueuedEvent events[99];
     /* 0xAD4 */ u8 unkAD4[0x1E];
     /* 0xAF2 */ s8 findType; /* what first and next look for, 1-24 */
     /* 0xAF3 */ s8 found; /* the event they found, or -1 */
+    /* 0xAF4 */ EventQueueFuncs funcs;
 } EventQueue;
 
-/* What func_8009AE44 removes the events of */
-typedef struct EventKey {
-    /* 0x0 */ u8 unk0;
-    /* 0x4 */ s32 unk4;
-} EventKey;
+/* One of the battle's fighters, three on each side */
+typedef struct BattleFighter {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ s16 unk18;
+    /* 0x1A */ u8 unk1A;
+    /* 0x1B */ u8 unk1B;
+    /* 0x1C */ u8 unk1C;
+    /* 0x1D */ u8 unk1D;
+    /* 0x1E */ u8 unk1E;
+    /* 0x1F */ u8 unk1F;
+} BattleFighter;
 
-/* The event queue's functions (D_800A30E4) */
-typedef struct EventQueueFuncs {
-    /* 0x00 */ s8 unk0;
-    /* 0x04 */ void (*push)(BattleEvent *event);
-    /* 0x08 */ void (*pushFirst)(BattleEvent *event); /* before all the others */
-    /* 0x0C */ s16 (*unkC)(void);
-    /* 0x10 */ s8 (*first)(s32 type);
-    /* 0x14 */ s8 (*next)(void);
-    /* 0x18 */ s8 (*find)(s32 type, s32 arg0, s32 arg1);
-    /* 0x1C */ void (*remove)(EventKey *key); /* the events whose first two args are its */
-} EventQueueFuncs;
+/* How the battle's frames go by (func_8009D648 sets it) */
+typedef struct BattleSpeed {
+    /* 0x0 */ s32 mode; /* 1: stopped, 2: slowed (a frame per 4 of time), 3: double */
+    /* 0x4 */ s32 rest; /* the time mode 2 hasn't counted yet */
+} BattleSpeed;
+
+/* D_800A31E8: the battle */
+typedef struct Battle {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 frames; /* since the last update */
+    /* 0x08 */ s32 active[2]; /* each side's fighter */
+    /* 0x10 */ BattleFighter fighters[2][3];
+    /* 0xD0 */ s16 unkD0[4];
+    /* 0xD8 */ u8 unkD8[4];
+    /* 0xDC */ BattleSpeed speed;
+    /* 0xE4 */ s32 (*unkE4)();
+    /* 0xE8 */ s32 (*unkE8)();
+    /* 0xEC */ s32 (*unkEC)();
+    /* 0xF0 */ s32 (*unkF0)();
+    /* 0xF4 */ s32 (*unkF4)();
+} Battle;
+
+/* An entry of the executable's table at D_800427D6 (0x12 bytes) */
+typedef struct Unk800427D6 {
+    /* 0x00 */ u8 unk0[2];
+    /* 0x02 */ u16 unk2;
+    /* 0x04 */ u8 unk4;
+    /* 0x05 */ u8 unk5[5];
+    /* 0x0A */ u8 unkA;
+    /* 0x0B */ u8 unkB;
+    /* 0x0C */ u8 unkC;
+    /* 0x0D */ u8 unkD[3];
+    /* 0x10 */ u8 unk10;
+    /* 0x11 */ u8 unk11;
+} Unk800427D6;
+
+extern Unk800427D6 D_800427D6[];
+
+/* D_800A317C: the command being carried out (?) */
+typedef struct BattleAction {
+    /* 0x00 */ s16 unk0[0xE];
+    /* 0x1C */ u8 unk1C;
+    /* 0x1D */ u8 unk1D[3];
+    /* 0x20 */ u8 unk20;
+    /* 0x24 */ s32 unk24; /* an entry of D_800427D6 */
+    /* 0x28 */ s32 unk28;
+    /* 0x2C */ s32 unk2C;
+    /* 0x30 */ u8 unk30[4];
+    /* 0x34 */ s16 unk34;
+    /* 0x36 */ s16 unk36;
+    /* 0x38 */ u8 unk38[0x28]; /* by D_800427D6's unkA */
+    /* 0x60 */ s32 unk60[2];
+    /* 0x68 */ void (*unk68)();
+} BattleAction;
+
+/* A side's stats as FIGHTSTG_computeStats works them out */
+typedef struct BattleStats {
+    /* 0x00 */ s32 unk0[2];
+    /* 0x08 */ s16 unk8[0x14];
+    /* 0x30 */ u8 unk30[0x10];
+} BattleStats;
+
+/* D_800A3308 */
+typedef struct Battle800A3308 {
+    /* 0x00 */ BattleStats stats[2]; /* the player's, then the enemy's */
+    /* 0x80 */ BattleStats *(*unk80)();
+    /* 0x84 */ s32 (*unk84)();
+    /* 0x88 */ s32 (*unk88)();
+    /* 0x8C */ s32 (*unk8C)();
+    /* 0x90 */ s32 (*unk90)();
+    /* 0x94 */ s32 (*unk94)();
+    /* 0x98 */ s32 (*unk98)();
+    /* 0x9C */ s32 (*unk9C)();
+    /* 0xA0 */ s32 (*unkA0)();
+    /* 0xA4 */ s32 (*unkA4)();
+    /* 0xA8 */ s32 (*unkA8)();
+    /* 0xAC */ s32 (*unkAC)();
+    /* 0xB0 */ s32 (*unkB0)();
+    /* 0xB4 */ s32 (*unkB4)();
+    /* 0xB8 */ s32 (*unkB8)();
+    /* 0xBC */ s32 (*unkBC)();
+    /* 0xC0 */ s32 (*unkC0)();
+    /* 0xC4 */ s32 (*unkC4)();
+    /* 0xC8 */ s32 (*unkC8)();
+    /* 0xCC */ s32 (*unkCC)();
+#if VERSION_EU
+    /* 0xD0 */ s32 (*unkEU)(); /* func_800A15A8 */
+#endif
+    /* the European version's offsets are 4 more from here */
+    /* 0xD0 */ s32 (*unkD0)();
+    /* 0xD4 */ s32 (*unkD4)();
+    /* 0xD8 */ s32 (*unkD8)();
+    /* 0xDC */ s32 (*unkDC)();
+    /* 0xE0 */ s32 (*unkE0)();
+    /* 0xE4 */ s32 (*unkE4)();
+    /* 0xE8 */ s32 (*unkE8)();
+} Battle800A3308;
 
 /* Shared between the overlay's objects */
+extern Battle D_800A31E8;
+extern BattleAction D_800A317C;
+extern FighterCache D_800A32E0;
+extern Battle800A3308 D_800A3308;
 extern s32 D_800A1238[];
-extern s32 D_800A31EC;
 extern Methods800A3420 D_800A3420;
 void func_800831D4(Model *model, s32 motion, s32 restart);
 void func_8008358C(Model *model, Task **children);
@@ -361,22 +653,21 @@ void func_8008A61C(Lights *task, LightSet *set);
 void func_8008A690(Lights *task, LightSet *from, LightSet *to, s32 time);
 LightSet *func_8008A7EC(Lights *task, s32 stage);
 void func_8009A638(MoveTask *task);
-FighterInfo *func_8009DACC(s32 id);
-void func_8009DC14(s32 index);
-void func_8009DD18(s32 kind, s32 *min, s32 *max);
-extern FighterInfoFuncs D_800A32F8;
+FighterInfo *FIGHTSTG_getFighterInfo(s32 id);
+void FIGHTSTG_cacheFighter(s32 index);
+void FIGHTSTG_getFighterRange(u32 enemy, s32 *min, s32 *max);
 extern Vec2 D_800A12D0[];
 extern EventQueue D_800A25F0;
-extern EventQueueFuncs D_800A30E4;
 extern BattleEvent D_800A34E0;
-void func_8009AA7C(BattleEvent *event);
-void func_8009AB1C(BattleEvent *event);
+extern BattleTableEntry *(*D_800A2584)(s32 id);
+void FIGHTSTG_pushEvent(BattleEvent *event);
+void FIGHTSTG_pushEventFirst(BattleEvent *event);
 s16 func_8009AB90(void);
-s32 func_8009ACA8(s32 start);
-s8 func_8009AD14(s32 type);
-s8 func_8009AD54(void);
-s8 func_8009AD94(s32 type, s32 arg0, s32 arg1);
-void func_8009AE44(EventKey *key);
+s32 FIGHTSTG_findEventFrom(s32 start);
+s32 FIGHTSTG_findFirstEvent(s32 type);
+s32 FIGHTSTG_findNextEvent(void);
+s32 FIGHTSTG_findEvent(s32 type, u8 side, s32 fighter);
+void FIGHTSTG_removeEvents(EventKey *key);
 
 void func_80087330(Models *task);
 s32 func_80087378(Models *task, s32 id);
@@ -416,4 +707,39 @@ void func_80090908();
 Unk800973D4 *func_80097B74(s32 *arg0);
 void func_80094D04();
 void func_80095AC0();
+void func_8009C294();
+void func_8009C330();
+void func_8009C418();
+void func_8009C500();
+void func_8009C764();
+void func_8009C998();
+void func_8009CA84();
+void func_8009CB4C();
+void func_8009CBEC();
+void func_8009CCD4();
+void func_8009CDCC();
+void func_8009C8EC();
+extern u8 D_8004276E;
+void func_8009BD20();
+void func_80097C14();
+void func_80097D74();
+void func_80098808();
+void func_800931CC();
+void func_8008E3C8();
+s32 func_8009AEA4();
+s32 FIGHTSTG_findBattleTableIndex(s32 id);
+BattleTableEntry *FIGHTSTG_getBattleTableEntry(s32 id);
+void func_80094278();
+void func_800967A4();
+void func_800999E4();
+void func_800911C8();
+void func_80091688();
+void func_80091788();
+void func_80091950();
+void func_80086180();
+void func_8009245C(Unk80092350 *task, s32 frames);
+Unk80092350 *func_80092494(s32 frames);
+void func_8009A098();
+BattleStats *FIGHTSTG_computeStats();
+extern s32 D_800A33F4[];
 #endif /* FIGHTSTG_H */

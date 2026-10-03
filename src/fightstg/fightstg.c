@@ -146,48 +146,46 @@ Mesh *func_8008588C(s32 archive, Vec2 texPos) {
     return mesh;
 }
 
-void func_8009AA1C();
-void func_8009AEA4();
+s32 func_8009AEA4();
 void func_8009B430();
 void func_8009D204();
-void func_8009D560();
-void func_8009D648();
-void func_8009D674();
-void func_8009DA88();
-void func_8009DAA8();
+s32 func_8009D560();
+s32 func_8009D648();
+s32 func_8009D674();
+s32 func_8009DA88();
+s32 func_8009DAA8();
 void func_8009DCCC();
-void func_8009DDCC();
-void func_8009EA74();
-void func_8009EBAC();
-void func_8009EF04();
-void func_8009F028();
-void func_8009F1F0();
-void func_8009F280();
-void func_8009F7A4();
-void func_8009F9C0();
-void func_8009FB10();
-void func_8009FC90();
-void func_8009FDF8();
-void func_8009FF60();
-void func_800A00A4();
-void func_800A020C();
-void func_800A0400();
-void func_800A0494();
-void func_800A052C();
-void func_800A05DC();
-void func_800A062C();
-void func_800A067C();
+s32 func_8009EA74();
+s32 func_8009EBAC();
+s32 func_8009EF04();
+s32 func_8009F028();
+s32 func_8009F1F0();
+s32 func_8009F280();
+s32 func_8009F7A4();
+s32 func_8009F9C0();
+s32 func_8009FB10();
+s32 func_8009FC90();
+s32 func_8009FDF8();
+s32 func_8009FF60();
+s32 func_800A00A4();
+s32 func_800A020C();
+s32 func_800A0400();
+s32 func_800A0494();
+s32 func_800A052C();
+s32 func_800A05DC();
+s32 func_800A062C();
+s32 func_800A067C();
 #if VERSION_EU
-void func_800A15A8();
+s32 func_800A15A8();
 #endif
-void func_800A0830();
-void func_800A0978();
-void func_800A0A40();
-void func_800A0B10();
-void func_800A0C80();
-void func_800A0DA4();
+s32 func_800A0830();
+s32 func_800A0978();
+s32 func_800A0A40();
+s32 func_800A0B10();
+s32 func_800A0C80();
+s32 func_800A0DA4();
 void func_800A0EEC();
-void func_800A0EF4();
+void FIGHTSTG_lerpVector();
 void func_800A0FDC();
 
 s32 D_800A1238[] = {
@@ -837,7 +835,7 @@ s32 D_800A2414[] = {
     0x80045D46, 0x80045DC7, 0x8004603C, 0x800460BD,
     0x8004613E, 0x20040006, 0, 0,
 };
-s32 D_800A2584 = (s32)func_8009AA1C;
+BattleTableEntry *(*D_800A2584)(s32 id) = FIGHTSTG_getBattleTableEntry;
 s32 D_800A2588[] = {
     0, 1, 1, 1,
     -1, 1, -1, 1,
@@ -847,10 +845,12 @@ s32 D_800A2588[] = {
     1, 1, 1, 1,
     1, 0,
 };
-EventQueue D_800A25F0 = { { { 0 } } };
-EventQueueFuncs D_800A30E4 = {
-    0, func_8009AA7C, func_8009AB1C, func_8009AB90,
-    func_8009AD14, func_8009AD54, func_8009AD94, func_8009AE44,
+EventQueue D_800A25F0 = {
+    { { 0 } }, { 0 }, 0, 0,
+    {
+        0, FIGHTSTG_pushEvent, FIGHTSTG_pushEventFirst, func_8009AB90,
+        FIGHTSTG_findFirstEvent, FIGHTSTG_findNextEvent, FIGHTSTG_findEvent, FIGHTSTG_removeEvents,
+    },
 };
 s32 D_800A3104 = (s32)func_8009AEA4;
 s32 D_800A3108 = (s32)func_8009B430;
@@ -873,115 +873,29 @@ s32 D_800A3168[] = {
 s32 D_800A3174[] = {
     16, 17,
 };
-s32 D_800A317C[] = {
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0,
+BattleAction D_800A317C = {
+    { 0 }, 0, { 0 }, 0, 0, 0, 0, { 0 }, 0, 0, { 0 }, { 0 }, func_8009D204,
 };
-s32 D_800A31A0 = 0;
-s32 D_800A31A4[] = {
-    0, 0, 0, 0,
-    0,
+Battle D_800A31E8 = {
+    0, 0, { 0 }, { { { 0 } } }, { 0 }, { 0 }, { 0, 0 },
+    func_8009D560, func_8009D648, func_8009D674, func_8009DA88, func_8009DAA8,
 };
-u8 D_800A31B8[] = {
-    0x00, 0x00, 0x00, 0x00,
+FighterCache D_800A32E0 = {
+    0, 0, 0, 0, NULL, NULL, { FIGHTSTG_getFighterInfo, FIGHTSTG_cacheFighter, FIGHTSTG_getFighterRange }, func_8009DCCC,
 };
-u8 D_800A31BC[] = {
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-};
-s32 D_800A31E4 = (s32)func_8009D204;
-s32 D_800A31E8 = 0;
-s32 D_800A31EC = 0;
-s32 D_800A31F0 = 0;
-s32 D_800A31F4 = 0;
-u16 D_800A31F8[] = {
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-};
-u16 D_800A3258[] = {
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-};
-u16 D_800A32B8[] = {
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-};
-s32 D_800A32C4[] = {
-    0, 0,
-};
-s32 D_800A32CC = (s32)func_8009D560;
-s32 D_800A32D0 = (s32)func_8009D648;
-s32 D_800A32D4[] = {
-    (s32)func_8009D674, (s32)func_8009DA88, (s32)func_8009DAA8,
-};
-s32 D_800A32E0[] = {
-    0, 0, 0, 0,
-    0, 0,
-};
-FighterInfoFuncs D_800A32F8 = { func_8009DACC, func_8009DC14, func_8009DD18 };
-s32 D_800A3304 = (s32)func_8009DCCC;
-s32 D_800A3308[] = {
-    0, 0,
-};
-u16 D_800A3310[] = {
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000,
-};
-u16 D_800A3348[] = {
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-};
-s32 D_800A3388[] = {
-    (s32)func_8009DDCC, (s32)func_8009EA74,
-};
-s32 D_800A3390[] = {
-    (s32)func_8009EBAC, (s32)func_8009EF04, (s32)func_8009F028,
-};
-s32 D_800A339C[] = {
-    (s32)func_8009F1F0, (s32)func_8009F280, (s32)func_8009F7A4, (s32)func_8009F9C0,
-};
-s32 D_800A33AC[] = {
-    (s32)func_8009FB10, (s32)func_8009FC90, (s32)func_8009FDF8,
-};
-s32 D_800A33B8 = (s32)func_8009FF60;
-s32 D_800A33BC[] = {
-    (s32)func_800A00A4, (s32)func_800A020C, (s32)func_800A0400,
-};
-s32 D_800A33C8 = (s32)func_800A0494;
-s32 D_800A33CC = (s32)func_800A052C;
-s32 D_800A33D0 = (s32)func_800A05DC;
-/* the European version has func_800A15A8 too */
-#if VERSION_US
-s32 D_800A33D4[] = {
-    (s32)func_800A062C, (s32)func_800A067C,
-};
-#elif VERSION_EU
-s32 D_800A33D4[] = {
-    (s32)func_800A062C, (s32)func_800A15A8, (s32)func_800A067C,
-};
+Battle800A3308 D_800A3308 = {
+    { { { 0 }, { 0 }, { 0 } }, { { 0 }, { 0 }, { 0 } } },
+    FIGHTSTG_computeStats, func_8009EA74, func_8009EBAC, func_8009EF04,
+    func_8009F028, func_8009F1F0, func_8009F280, func_8009F7A4,
+    func_8009F9C0, func_8009FB10, func_8009FC90, func_8009FDF8,
+    func_8009FF60, func_800A00A4, func_800A020C, func_800A0400,
+    func_800A0494, func_800A052C, func_800A05DC, func_800A062C,
+#if VERSION_EU
+    func_800A15A8,
 #endif
-s32 D_800A33DC = (s32)func_800A0830;
-s32 D_800A33E0 = (s32)func_800A0978;
-s32 D_800A33E4 = (s32)func_800A0A40;
-s32 D_800A33E8[] = {
-    (s32)func_800A0B10, (s32)func_800A0C80,
+    func_800A067C, func_800A0830, func_800A0978, func_800A0A40,
+    func_800A0B10, func_800A0C80, func_800A0DA4,
 };
-s32 D_800A33F0 = (s32)func_800A0DA4;
 s32 D_800A33F4[] = {
     0, 0, 4, 2,
     5, 3, 7, 8,
@@ -990,7 +904,7 @@ s32 D_800A33F4[] = {
 u16 D_800A3418[] = {
     0x0000, 0x0001, 0x0004, 0x0000,
 };
-Methods800A3420 D_800A3420 = { func_800A0EEC, func_800A0EF4 };
+Methods800A3420 D_800A3420 = { func_800A0EEC, FIGHTSTG_lerpVector };
 /* the European version has a table of its own after it */
 #if VERSION_US
 s32 D_800A3428[] = {

@@ -1,6 +1,22 @@
+FIGHTSTG_findFighters = 0x800980C8; // type:func
+FIGHTSTG_findBattleTableIndex = 0x8009A9B0; // type:func
+FIGHTSTG_getBattleTableEntry = 0x8009AA1C; // type:func
+FIGHTSTG_pushEvent = 0x8009AA7C; // type:func
+FIGHTSTG_pushEventFirst = 0x8009AB1C; // type:func
+FIGHTSTG_findEventFrom = 0x8009ACA8; // type:func
+FIGHTSTG_findFirstEvent = 0x8009AD14; // type:func
+FIGHTSTG_findNextEvent = 0x8009AD54; // type:func
+FIGHTSTG_findEvent = 0x8009AD94; // type:func
+FIGHTSTG_removeEvents = 0x8009AE44; // type:func
+FIGHTSTG_getFighterInfo = 0x8009DACC; // type:func
+FIGHTSTG_cacheFighter = 0x8009DC14; // type:func
+FIGHTSTG_getFighterRange = 0x8009DD18; // type:func
+FIGHTSTG_computeStats = 0x8009DDCC; // type:func
+FIGHTSTG_lerpVector = 0x800A0EF4; // type:func
+
 D_800A2414 = 0x800A2414; // size:0x170 can_reference:False
-D_800A25F0 = 0x800A25F0; // size:0xAF4
-D_800A30E4 = 0x800A30E4; // size:0x20 type:s32
-D_800A31A4 = 0x800A31A4; // size:0x14
-D_800A31BC = 0x800A31BC; // size:0x28
-D_800A32B8 = 0x800A32B8; // size:0xC
+D_800A25F0 = 0x800A25F0; // size:0xB14 type:s32
+D_800A317C = 0x800A317C; // size:0x6C
+D_800A31E8 = 0x800A31E8; // size:0xF8
+D_800A32E0 = 0x800A32E0; // size:0x28
+D_800A3308 = 0x800A3308; // size:0xEC
