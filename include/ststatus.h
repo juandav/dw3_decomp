@@ -57,13 +57,22 @@ typedef struct StatusScreen0 {
     /* 0x44C */ u8 unk44C[0x45C - 0x44C];
 } StatusScreen0;
 
+typedef struct StatusScreen0Windows {
+    /* 0x00 */ u8 unk0[0x9C];
+    /* 0x9C */ TextWindow *money;
+    /* 0xA0 */ TextWindow *moneyLabel;
+    /* 0xA4 */ u8 unkA4[0xD4 - 0xA4];
+} StatusScreen0Windows;
+
 /* The field menu's fifth screen (func_8008DEA4) */
 typedef struct StatusScreen4 {
     TASK_HEADER(StatusScreen4);
     /* 0x050 */ FieldMenuScreen *menu;
     /* 0x054 */ s32 layer;
     /* 0x058 */ s32 depth;
-    /* 0x05C */ u8 unk5C[0x7C - 0x5C];
+    /* 0x05C */ u8 unk5C[0x70 - 0x5C];
+    /* 0x070 */ s32 unk70;
+    /* 0x074 */ u8 unk74[0x7C - 0x74];
     /* 0x07C */ s32 member; /* in the party */
     /* 0x080 */ u8 unk80[0x148 - 0x80];
     /* 0x148 */ void (*func_8008BA38)(struct StatusScreen4 *screen);
@@ -80,6 +89,11 @@ typedef struct StatusPanel4A {
     /* 0x74 */ u8 unk74[0xFC - 0x74];
 } StatusPanel4A;
 
+typedef struct StatusPanel4AWindows {
+    /* 0x00 */ u8 unk0[0x90];
+    /* 0x90 */ TextWindow *labels[2];
+} StatusPanel4AWindows;
+
 /* A list of the fifth screen (func_800879C8) */
 typedef struct StatusPanel4B {
     TASK_HEADER(StatusPanel4B);
@@ -87,7 +101,10 @@ typedef struct StatusPanel4B {
     /* 0x054 */ s32 layer;
     /* 0x058 */ s32 depth;
     /* 0x05C */ s32 partner;
-    /* 0x060 */ u8 unk60[0x70C - 0x60];
+    /* 0x060 */ u8 unk60[0x6C - 0x60];
+    /* 0x06C */ s32 unk6C;
+    /* 0x070 */ u8 unk70[0x6CC - 0x70];
+    /* 0x6CC */ PanelAnim panels[4];
 } StatusPanel4B;
 
 /* A list of the first screen (func_80092B0C) */
@@ -96,19 +113,14 @@ typedef struct StatusPanel0 {
     /* 0x050 */ StatusScreen0 *screen;
     /* 0x054 */ s32 layer;
     /* 0x058 */ s32 depth;
-    /* 0x05C */ s32 unk5C;
+    /* 0x05C */ s32 list; /* into D_80099BA4 */
     /* 0x060 */ s32 unk60;
-    /* 0x064 */ u8 unk64[0x70C - 0x64];
+    /* 0x064 */ s32 unk64;
+    /* 0x068 */ s32 count;
+    /* 0x06C */ s16 items[0x194];
+    /* 0x394 */ s16 bag[0x194];
+    /* 0x6BC */ u8 unk6BC[0x70C - 0x6BC];
 } StatusPanel0;
-
-/* A small task of func_800839B0 (func_8008467C) */
-typedef struct StatusWidget {
-    TASK_HEADER(StatusWidget);
-    /* 0x50 */ s32 layer;
-    /* 0x54 */ s32 depth;
-    /* 0x58 */ u8 unk58[0x64 - 0x58];
-    /* 0x64 */ void (*func_800843FC)(struct StatusWidget *widget);
-} StatusWidget;
 
 /* Moves a value towards a target in fixed point */
 typedef struct StatusLerp {
@@ -130,7 +142,7 @@ typedef struct StatusFuncs {
     /* 0x10 */ void (*startLerp)(StatusLerp *lerp, s32 from, s32 to, s32 frames);
     /* 0x14 */ s32 (*updateLerp)(StatusLerp *lerp);
     /* 0x18 */ s32 *(*getList)(s32 list, s32 index);
-    /* 0x1C */ void (*func_80099298)(s32 arg0, s32 arg1);
+    /* 0x1C */ void (*listItems)(s32 list, u16 *out); /* 6, 7: special lists */
     /* 0x20 */ s32 (*canEquip)(s32 partner, s32 slot, s32 item);
     /* 0x24 */ void (*equip)(s32 partner, s32 slot, s32 item);
 } StatusFuncs;

@@ -11,7 +11,7 @@ s32 func_80099104(PanelAnim *fade);
 void func_80099170(StatusLerp *lerp, s32 from, s32 to, s32 frames);
 s32 func_80099204(StatusLerp *lerp);
 s32 *func_80099270(s32 list, s32 index);
-void func_80099298(s32 arg0, s32 arg1);
+void func_80099298(s32 list, u16 *out);
 s32 func_80099658(s32 partner, s32 slot, s32 item);
 void func_800996FC(s32 partner, s32 slot, s32 item);
 s32 func_80099984(void);
@@ -27,16 +27,23 @@ void func_8008DCF0(StatusScreen4 *screen, void *children);
 void func_8008AA00(StatusPanel4A *panel, void *children);
 void func_80087914(StatusPanel4B *panel, void *children);
 void func_80092974(StatusPanel0 *panel, void *children);
-void func_800845C8(StatusWidget *widget, void *children);
-void func_800843FC(StatusWidget *widget);
+void func_800843FC(ScreenFade *task, s32 fadeIn, s32 duration);
+void func_800845C8(ScreenFade *task);
 void func_8008BA38(StatusScreen4 *screen);
 void func_8008E668(StatusScreen0 *screen, s32 arg);
 void func_8008E828(StatusScreen0 *screen, s32 arg);
-StatusWidget *func_8008467C(void);
+ScreenFade *func_8008467C(void);
 StatusPanel4B *func_800879C8(StatusScreen4 *screen);
 StatusPanel4A *func_8008AB04(StatusScreen4 *screen);
-StatusPanel0 *func_80092B0C(StatusScreen0 *screen, s32 arg1, s32 arg2);
+StatusPanel0 *func_80092B0C(StatusScreen0 *screen, s32 list, s32 arg2);
+void func_80084484(ScreenFade *task);
+void func_80085BD8(StatusPanel4B *panel, void *children);
+void func_80086B28(StatusPanel4B *panel, void *children);
+void func_800864B0(StatusPanel4B *panel);
+s32 func_8009930C(u16 *out);
+s32 func_800994D0(s32 list, u16 *out);
 extern s32 FIELD_MENU_CHOICE[2];
+extern s32 D_80099BA4[];
 extern Task *(*D_80099C9C[2][7])(FieldMenuScreen *menu, s32 extra);
 extern s32 *D_8009A254[][5];
 extern u8 D_8009A910[];
@@ -93,19 +100,76 @@ Task *func_800843B4(FieldMenuScreen *menu, s32 extra) {
     return (Task *)screen;
 }
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800843FC);
+void func_800843FC(ScreenFade *task, s32 fadeIn, s32 duration) {
+    task->setState(task, TASK_RUN);
+    task->substate = 1;
+    task->fadeIn = fadeIn;
+    if (fadeIn == 0) {
+        task->level = 0;
+        task->levelStep = 0xFF00 / duration;
+    } else {
+        task->level = 0xFF00;
+        task->levelStep = -(0xFF00 / duration);
+    }
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80084484);
+void func_80084484(ScreenFade *task) {
+    Layer *layer = GFX.funcs.getLayer(task->layerId);
+    u_long *ot = (u_long *)layer->getOtEntry(layer, task->depth);
+    POLY_F4 *poly = GFX.funcs.getPrim();
+    DR_TPAGE *mode;
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800845C8);
+    setlen(poly, 5);
+    poly->code = 0x2A;
+    poly->r0 = poly->g0 = poly->b0 = task->level >> 8;
+    poly->x0 = poly->x2 = 0;
+    poly->x1 = poly->x3 = 320;
+    poly->y0 = poly->y1 = 0;
+    poly->y2 = poly->y3 = 256;
+    addPrim(ot, poly);
+    mode = (DR_TPAGE *)(poly + 1);
+    setlen(mode, 1);
+    mode->code[0] = 0xE1000245;
+    addPrim(ot, mode);
+    GFX.funcs.setPrim(mode + 1);
+}
 
-StatusWidget *func_8008467C(void) {
-    StatusWidget *widget = createTask(func_800845C8, sizeof(StatusWidget), 0);
+void func_800845C8(ScreenFade *task) {
+    switch (task->state) {
+    case 0:
+    default:
+        task->nextState(task);
+        break;
+    case 1:
+        if (task->substate == 0) {
+            break;
+        }
+        task->level += task->levelStep;
+        if (task->fadeIn == 0) {
+            if (task->level > 0xFF00) {
+                task->level = 0xFF00;
+                task->state = 2;
+            }
+        } else if (task->level < 0) {
+            task->level = 0;
+            task->state = 2;
+        }
+        /* fallthrough */
+    case 2:
+        func_80084484(task);
+        break;
+    case 3:
+        break;
+    }
+}
 
-    widget->func_800843FC = func_800843FC;
-    widget->layer = 0x1000;
-    widget->depth = 0;
-    return widget;
+ScreenFade *func_8008467C(void) {
+    ScreenFade *task = createTask(func_800845C8, sizeof(ScreenFade), 0);
+
+    task->start = func_800843FC;
+    task->layerId = 0x1000;
+    task->depth = 0;
+    return task;
 }
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800846C0);
@@ -143,7 +207,29 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800864B0);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80086B28);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80087914);
+void func_80087914(StatusPanel4B *panel, void *children) {
+    switch (panel->state) {
+    case TASK_INIT:
+    default:
+        panel->nextState(panel);
+        panel->unk6C = 0;
+        func_80085BD8(panel, children);
+        panel->panels[3].duration = 10;
+        panel->panels[1].duration = 10;
+        panel->panels[2].duration = 10;
+        panel->panels[0].duration = 10;
+        break;
+    case TASK_RUN:
+        func_80086B28(panel, children);
+        func_800864B0(panel);
+        break;
+    case TASK_KILL:
+        panel->screen->unk70 = 0;
+        /* fallthrough */
+    case TASK_DONE:
+        break;
+    }
+}
 
 StatusPanel4B *func_800879C8(StatusScreen4 *screen) {
     StatusPanel4B *panel = createTask(func_80087914, sizeof(StatusPanel4B), 0xA4);
@@ -189,7 +275,19 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AF7C);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B1B8);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B38C);
+void func_8008B38C(StatusPanel4A *panel, StatusPanel4AWindows *windows, s32 show) {
+    s32 i;
+
+    if (show != 0) {
+        for (i = 0; i < 2; i++) {
+            windows->labels[i]->setString(windows->labels[i], FILE_CACHE.load(TEXT_FILE(0xB1)), i + 0x2D);
+        }
+    } else {
+        for (i = 0; i < 2; i++) {
+            windows->labels[i]->setVisible(windows->labels[i], 0);
+        }
+    }
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B440);
 
@@ -221,7 +319,16 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008DEF8);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008E2B0);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008E4EC);
+void func_8008E4EC(StatusScreen0 *screen, StatusScreen0Windows *windows, s32 show) {
+    if (show != 0) {
+        windows->moneyLabel->setString(windows->moneyLabel, FILE_CACHE.load(TEXT_FILE(0xB1)), 5);
+        windows->money->setNumber(windows->money, 0, GAME.money);
+        windows->money->setRightAlign(windows->money, 1);
+    } else {
+        windows->moneyLabel->setVisible(windows->moneyLabel, 0);
+        windows->money->setVisible(windows->money, 0);
+    }
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008E59C);
 
@@ -274,7 +381,7 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092440);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092974);
 
-StatusPanel0 *func_80092B0C(StatusScreen0 *screen, s32 arg1, s32 arg2) {
+StatusPanel0 *func_80092B0C(StatusScreen0 *screen, s32 list, s32 arg2) {
     StatusPanel0 *panel = createTask(func_80092974, sizeof(StatusPanel0), 0x6C);
 
     panel->layer = 0x1000;
@@ -283,11 +390,22 @@ StatusPanel0 *func_80092B0C(StatusScreen0 *screen, s32 arg1, s32 arg2) {
     if (arg2 != 0) {
         panel->unk60 = arg2;
     }
-    panel->unk5C = arg1;
+    panel->list = list;
     return panel;
 }
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092B80);
+void func_80092B80(StatusPanel0 *panel) {
+    s32 i;
+
+    if (panel->list == 0) {
+        panel->count = ITEM_FUNCS->list(D_80099BA4[0], panel->bag);
+        for (i = 0; i < panel->count; i++) {
+            panel->items[i] = panel->bag[i];
+        }
+    } else {
+        panel->count = ITEM_FUNCS->list(D_80099BA4[panel->list], panel->items);
+    }
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092C38);
 
@@ -650,7 +768,24 @@ s32 *func_80099270(s32 list, s32 index) {
     return D_8009A254[list][index];
 }
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80099298);
+void func_80099298(s32 list, u16 *out) {
+    if (list < 5) {
+        ITEM_FUNCS->list(list, out);
+        return;
+    }
+    switch (list) {
+    case 5:
+    default:
+        func_8009930C(out);
+        break;
+    case 6:
+        func_800994D0(4, out);
+        break;
+    case 7:
+        func_800994D0(5, out);
+        break;
+    }
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009930C);
 
