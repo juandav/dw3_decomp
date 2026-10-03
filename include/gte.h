@@ -212,6 +212,63 @@
     : "r"(r0)                                                               \
     : "memory")
 
+/* three screen points (SXY0-SXY2) */
+#define gte_ldsxy3(r0, r1, r2) __asm__ volatile(                            \
+    "mtc2 %0, $12;"                                                         \
+    "mtc2 %2, $14;"                                                         \
+    "mtc2 %1, $13"                                                          \
+    :                                                                       \
+    : "r"(r0), "r"(r1), "r"(r2))
+
+/* MAC0 = the winding of SXY0-SXY2, which side of a polygon faces us */
+#define gte_nclip() __asm__ volatile(                                       \
+    "nop;"                                                                  \
+    "nop;"                                                                  \
+    ".word 0x4B400006")
+
+/* MAC0 into a word */
+#define gte_stopz(r0) __asm__ volatile(                                     \
+    "swc2 $24, 0(%0)"                                                       \
+    :                                                                       \
+    : "r"(r0)                                                               \
+    : "memory")
+
+/* three depths (SZ1-SZ3) */
+#define gte_ldsz3(r0, r1, r2) __asm__ volatile(                             \
+    "mtc2 %0, $17;"                                                         \
+    "mtc2 %1, $18;"                                                         \
+    "mtc2 %2, $19"                                                          \
+    :                                                                       \
+    : "r"(r0), "r"(r1), "r"(r2))
+
+/* four depths (SZ0-SZ3) */
+#define gte_ldsz4(r0, r1, r2, r3) __asm__ volatile(                         \
+    "mtc2 %0, $16;"                                                         \
+    "mtc2 %1, $17;"                                                         \
+    "mtc2 %2, $18;"                                                         \
+    "mtc2 %3, $19"                                                          \
+    :                                                                       \
+    : "r"(r0), "r"(r1), "r"(r2), "r"(r3))
+
+/* OTZ = the average of SZ1-SZ3 */
+#define gte_avsz3() __asm__ volatile(                                       \
+    "nop;"                                                                  \
+    "nop;"                                                                  \
+    ".word 0x4B58002D")
+
+/* OTZ = the average of SZ0-SZ3 */
+#define gte_avsz4() __asm__ volatile(                                       \
+    "nop;"                                                                  \
+    "nop;"                                                                  \
+    ".word 0x4B68002E")
+
+/* OTZ into a word */
+#define gte_stotz(r0) __asm__ volatile(                                     \
+    "swc2 $7, 0(%0)"                                                        \
+    :                                                                       \
+    : "r"(r0)                                                               \
+    : "memory")
+
 #include <gtemac.h>
 
 #endif /* GTE_H */

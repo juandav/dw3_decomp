@@ -189,9 +189,79 @@ void func_80088994(void) {
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_8008899C);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_80088B5C);
+void FIGHTSTG_updateSpriteAnim(SpriteAnim *task) {
+    s16 *data;
+    s16 *values;
+    s32 i;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_80088DEC);
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->flags = *task->data++;
+        task->stride = *task->data++;
+        task->duration = *task->data++;
+        for (i = 0; i < 9; i++) {
+            (&task->frame)[i] = *task->data++;
+        }
+        task->nextState(task);
+        /* fallthrough */
+    case TASK_RUN:
+        data = task->data + task->time * task->stride;
+        if (task->flags & 1) {
+            task->frame = *data++;
+        }
+        if (task->flags & 2) {
+            task->clutRow = *data++;
+        }
+        if (task->flags & 4) {
+            task->x = *data++;
+        }
+        if (task->flags & 8) {
+            task->y = *data++;
+        }
+        if (task->flags & 0x10) {
+            task->scaleX = *data++;
+        }
+        if (task->flags & 0x20) {
+            task->scaleY = *data++;
+        }
+        if (task->flags & 0x40) {
+            task->rotX = *data++;
+        }
+        if (task->flags & 0x80) {
+            task->rotY = *data++;
+        }
+        if (task->flags & 0x100) {
+            task->rotZ = *data;
+        }
+        if (task->scaleX != 0 && task->scaleY != 0) {
+            Layer *layer = GFX_FUNCS.getLayer(task->layerId);
+
+            layer->addCallback(layer, func_8008899C, task);
+        }
+        task->time += D_800A31E8.frames;
+        if (task->time >= task->duration) {
+            task->setState(task, TASK_DONE);
+        }
+        break;
+    case TASK_DONE:
+        task->nextState(task);
+        break;
+    case TASK_KILL:
+        break;
+    }
+}
+
+SpriteAnim *FIGHTSTG_createSpriteAnim(s16 *data, SVECTOR *pos, s32 sheet, Vec2 *texPos, s32 layerId) {
+    SpriteAnim *task = createTask(FIGHTSTG_updateSpriteAnim, sizeof(SpriteAnim), 0);
+
+    task->data = data;
+    task->pos = *pos;
+    task->sheet = sheet;
+    task->texPos = *texPos;
+    task->layerId = layerId;
+    return task;
+}
 
 void FIGHTSTG_updateEffectModel(EffectModel *task, Model **children) {
     switch (task->state) {
@@ -234,11 +304,87 @@ s32 FIGHTSTG_getEffectModelFile(s32 id) {
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_80088FC4);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_800890F8);
+s32 FIGHTSTG_findEffectSheet(s32 effect, s32 *unk0, s32 *sheet, Vec2 *texPos) {
+    SpriteEffectEntry *entry;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_800891A4);
+    for (entry = D_800A1C44; entry->id != -1; entry++) {
+        if (entry->id == effect) {
+            *unk0 = D_800A1914[entry->sheet].unk0;
+            *sheet = D_800A1914[entry->sheet].sheet;
+            *texPos = D_800A1914[entry->sheet].texPos;
+            return 1;
+        }
+    }
+    return 0;
+}
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_80089364);
+void FIGHTSTG_updateSpriteEffect(SpriteEffect *task, SpriteAnim **children) {
+    s32 *archive;
+    s32 layerId;
+    s32 count;
+    s32 i;
+    s32 j;
+    s32 done;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        archive = (s32 *)FILE_CACHE.getEntry(task->file);
+        layerId = 0x1004;
+        if (task->effect >= 1000 && task->effect < 1003) {
+            layerId = 0x1006;
+        }
+        if (task->effect == 1007) {
+            layerId = 0x1006;
+        }
+        for (count = 0; count < 30; count++) {
+            if (archive[count] == 0) {
+                break;
+            }
+        }
+        for (i = 0; i < count; i++) {
+            children[i] = FIGHTSTG_createSpriteAnim((s16 *)FILE_CACHE.getArchiveEntry(i, (s32)archive), &task->pos,
+                                        D_800A1914[task->sheet].sheet, &D_800A1914[task->sheet].texPos, layerId);
+        }
+        task->count = count;
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+        done = 1;
+        for (j = 0; j < task->count; j++) {
+            if (children[j] != NULL) {
+                done = 0;
+                break;
+            }
+        }
+        if (done) {
+            task->setState(task, TASK_KILL);
+        }
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
+
+SpriteEffect *FIGHTSTG_startSpriteEffect(s32 effect, SVECTOR *pos) {
+    SpriteEffect *task = createTask(FIGHTSTG_updateSpriteEffect, sizeof(SpriteEffect), 30 * sizeof(Task *));
+    SpriteEffectEntry *entry;
+
+    task->effect = -1;
+    for (entry = D_800A1C44; entry->id != -1; entry++) {
+        if (entry->id == effect) {
+            task->effect = effect;
+            task->sheet = entry->sheet;
+            task->file = entry->file;
+            task->pos = *pos;
+        }
+    }
+    if (task->effect == -1) {
+        task->setState(task, TASK_KILL);
+    }
+    return task;
+}
 
 INCLUDE_RODATA("fightstg/nonmatchings/fightstg_3", D_80082560);
 

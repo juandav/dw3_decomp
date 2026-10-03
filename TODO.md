@@ -169,15 +169,15 @@ own.
 
 ## Overlays
 
-- [ ] 1,412 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,458 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`. Mostly: `STCRDABM` (28 / 29),
   `STCRDDEK` (53 / 55), `SHOCKTST` (15 / 17), `STAGSLCT` (6 / 8),
   `FIELDSTG` (195 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
   `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (85 / 94),
   `STITSHOP` (50 / 69), `CARDGAME` (303 / 306),
   `STSTATUS` (101 / 123), `STFGTREP` (35 / 36). Started: `STGDGLAB`
-  (44 / 70), `STCRDSHP` (33 / 45), `WFIGHTTS` (12 / 14), `WFIGHTMN`
-  (37 / 42), `FIGHTSTG` (159 / 310).
+  (44 / 70), `STCRDSHP` (33 / 45), `WFIGHTTS` (13 / 14), `WFIGHTMN`
+  (37 / 42), `FIGHTSTG` (205 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_buildCardList` (2 diffs) and `STCRDDEK_createScreenWindows`
     (3) differ in the order of two loads and a register.
@@ -199,10 +199,20 @@ own.
   `addu` of `children` and the bone). `func_80088FC4` (the effect models'
   creator) only stores `texPos` before `file`. Of the GTE functions,
   `func_80084780` (the mesh's bounds check) keeps 26 diffs because gcc folds
-  its -64 and +128 into one constant (the permuter gets no closer), and
-  `func_80084890` and `func_800850D8`, the large mesh drawers, haven't been
-  tried: they need `nclip`, `avsz3` and `avsz4` in `include/gte.h`. Tasks
-  whose structs aren't known yet: `func_80088DEC`, `func_80091950`.
+  its -64 and +128 into one constant (the permuter gets no closer); the
+  large mesh drawers `func_80084890` (48 diffs) and `func_800850D8` (26)
+  differ in how they keep the state's fields in registers. `func_80099D24`
+  only matches with an empty `do {} while (0)`, a fake match. The battle
+  checks: `func_8009EF04` (`getDamage`) only matches with a copy of `side`
+  kept for nothing, a forced form; `func_8009EA74` keeps 2 diffs (`v1` and
+  `a2` swapped for the value); `FIGHTSTG_computeStats` (26 diffs: the
+  equipment loops share a base register the original doesn't), and
+  `func_800A0830` (43) and `func_800A067C` (27: the original keeps
+  `&D_800A31E8 + 8` in a register to read `unkD0`) got no closer with the
+  permuter (best scores 490, 270 and 145). Still to try: `func_8009E7E4`,
+  `func_8009EBAC` (whose versions differ by six lines), `func_800967A4`,
+  `func_800973D4`, `func_8008899C`, `func_80091788` and `func_80091950`
+  (the battle camera's views), and the rest of `fightstg_6.c`.
 - [ ] The battle menus' near misses. `WFIGHTTS`: `func_800A6ECC` (the
   battle test's list of 12 and 3 windows) puts the right and left handlers
   before the pad code, which only gotos into a `do {} while (0)` around
@@ -217,16 +227,23 @@ own.
   counter of the needs loop swap `s1` and `s2`, whatever the declarations'
   order).
 - [ ] `WFIGHTMN` keeps its own copies of `FIGHTSTG`'s types
-  (`include/wfightmn.h`, and `Unk800427D6` in `wfightmn_2.c`). Sharing
-  `include/fightstg.h`'s takes more than adding to it: its `Battle`
-  (`unkD8` is `u8[4]` where WFIGHTMN reads an `s16` and an `s8`),
-  `BattleStats` (`s16`s where WFIGHTMN reads bytes at 0x24-0x2D) and
-  `Unk800427D6` lay the same bytes out differently, `BattleFighter`,
-  `BattleAction` (WFIGHTMN's `ActionResult`) and `Battle800A3308`
-  (`BattleFuncs`) have unnamed fields WFIGHTMN names (`hp`, `damage`,
-  `getStats`, ...), and the `D_800A25F0` that FIGHTSTG sees as an
-  `EventQueue` WFIGHTMN reads as `BattleActions`, with one more function
-  after the queue's.
+  (`include/wfightmn.h`, and `Unk800427D6` in `wfightmn_2.c`), and
+  `WFIGHTTS` the old names of the battle camera (`Unk800911C8`,
+  `Unk80091618`, which `include/fightstg.h` keeps for it). `fightstg.h`
+  now lays them out as WFIGHTMN reads them and takes its names, so both
+  can include it alone; `wfightmn_2.c` and `wfightmn.c` compile to the same
+  code with it. What WFIGHTMN renames: `BattleUnit` is `BattleFighter`
+  (`units`, `current`: `fighters`, `active`; `unk10`, `unk18`: `boosts`,
+  `item`), `BattleAction` is `QueuedEvent` (`kind`, `unk2`, `actor`,
+  `unit`, `unkC`: `type`, `time`, `args[0-2]`), `BattleActions` is
+  `EventQueue` (`entries`, `current`: `events`, `curIndex`; its functions
+  in `funcs`: `add` `pushFirst`, `unkB00` `pop`, `findKind` `first`,
+  `unkB14` `getDelay`), `BattleRequest` is `BattleEvent`, `ActionResult`
+  is `BattleAction`, `BattleFuncs` is `Battle800A3308` (`getStats`
+  `computeStats`, `unk90[1]` `unk94`), `BattleStats.unk8[1]` is
+  `stats[4]` and `EnemyInfo` is `BattleTableEntry`. The one call that
+  reads `D_800A25F0`'s `unkB14` stays `D_800A25F0.funcs.getDelay`; the
+  ones that read `D_800A3104` stay that.
 - [ ] The field menu's near misses. `STSTATUS`: `func_8008340C` and
   `func_80084D14` (41 diffs each, register allocation), `func_80097F2C`
   (`s0`/`s1` swapped; the permuter only finds a forced form),
