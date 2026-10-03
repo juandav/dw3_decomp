@@ -89,7 +89,12 @@ typedef struct CardBattle498 {
     /* 0x3 */ u8 unk3;
     /* 0x4 */ u8 unk4;
     /* 0x5 */ u8 unk5; /* 1 or 2: set unk6 to 0 or 1 */
-    /* 0x6 */ u8 unk6[40];
+    /* 0x06 */ u8 unk6[40];
+    /* 0x30 */ s32 unk30;
+    /* 0x34 */ s32 unk34;
+    /* 0x38 */ s32 unk38;
+    /* 0x3C */ s32 unk3C;
+    /* 0x40 */ s32 unk40;
 } CardBattle498;
 
 /* The card battle (CARDGAME_createBattle). Its seven task items: the battle
@@ -143,7 +148,9 @@ typedef struct CardBattle {
     /* 0x46F */ s8 unk46F[40];
     /* 0x497 */ u8 unk497;
     /* 0x498 */ CardBattle498 unk498;
-    /* 0x4C6 */ u8 unk4C6[0x1A];
+    /* 0x4DC */ u8 unk4DC;
+    /* 0x4DD */ u8 unk4DD;
+    /* 0x4DE */ u8 unk4DE;
     /* 0x4E0 */ s16 unk4E0; /* a score the computer player adds up */
     /* 0x4E2 */ s16 unk4E2;
     /* 0x4E4 */ s16 unk4E4;
@@ -157,7 +164,7 @@ typedef struct CardBattle {
     /* 0x814 */ void (*unk814)(struct CardBattle *battle, void *arg1, s32 arg2, s32 arg3);
     /* 0x818 */ void (*unk818)();
     /* 0x81C */ void (*addCard)(struct CardBattle *battle, s32 side, s32 card);
-    /* 0x820 */ void (*unk820)();
+    /* 0x820 */ s32 (*unk820)();
 } CardBattle;
 
 /* A file CARDGAME_tickPreloader reads; a text file is in each language */
