@@ -92,7 +92,7 @@ typedef struct ShopItemList {
     /* 0x064 */ s16 items[0x194]; /* the bag's items that can be sold */
     /* 0x38C */ s16 bag[0x194];
     /* 0x6B4 */ u16 *shopItems;
-    /* 0x6B8 */ s32 cursorStill;
+    /* 0x6B8 */ s32 active;
     /* 0x6BC */ s32 selection;
     /* 0x6C0 */ s32 count;
     /* 0x6C4 */ s32 unk6C4[4];
@@ -106,6 +106,16 @@ typedef struct ShopItemList {
     /* 0x6FC */ void (*refresh)(struct ShopItemList *list);
     /* 0x700 */ void (*listBag)(struct ShopItemList *list);
 } ShopItemList;
+
+typedef struct ShopItemListWindows {
+    /* 0x00 */ TextWindow *items[14];
+    /* 0x38 */ TextWindow *unk38;
+    /* 0x3C */ TextWindow *unk3C;
+    /* 0x40 */ TextWindow *unk40;
+    /* 0x44 */ TextWindow *unk44;
+    /* 0x48 */ TextWindow *unk48;
+    /* 0x4C */ Cursor *cursor;
+} ShopItemListWindows;
 
 /* The dialog to buy an item (func_800850A8) */
 typedef struct ShopBuy {

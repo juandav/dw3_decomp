@@ -273,7 +273,22 @@ ShopSell *func_80086AD8(ItemShop *shop) {
     return sell;
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80086B2C);
+void func_80086B2C(ShopItemList *list, ShopItemListWindows *win) {
+    s32 i;
+    s32 y = list->selling * 0x28;
+
+    for (i = 0; i < 14; i++) {
+        win->items[i] = createTextWindow(list->layer, 1, (i % 2) * 0x83 + 0x37, (i / 2) * 0xE + 0x24);
+        win->items[i]->setDepth(win->items[i], list->depth - 1);
+    }
+    win->unk38 = createTextWindow(list->layer, 1, 0x9B, y + 0x60);
+    win->unk3C = createTextWindow(list->layer, 1, 0x9C, y + 0x60);
+    win->unk40 = createTextWindow(list->layer, 1, 0xB0, y + 0x60);
+    win->unk44 = createTextWindow(list->layer, 1, 0x2D, y + 0x5C + list->selling * 2);
+    win->unk48 = createTextWindow(list->layer, 1, 0x102, y + 0x5C + list->selling * 2);
+    win->cursor = createCursor(list->layer, list->depth - 1, 0x1D, 0x24);
+    win->cursor->setVisible(win->cursor, 0);
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80086CE4);
 
