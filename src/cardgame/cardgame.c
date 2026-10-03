@@ -31,13 +31,15 @@ extern u8 D_800A47C8[][2];
 void func_8009C9B0(CardBattle *battle, CardScreen *screen);
 void func_800860E4(CardBattle *battle, CardScreen *screen, s32 offset);
 s32 func_80085760(CardBattle *battle, u8 *arg1, s32 card);
-s32 func_8008CF50(CardBattle *battle, s32 arg1, s32 index);
-void func_8008D044(CardBattle *battle, s32 arg1, s32 arg2, s32 index);
-s32 func_8008D10C(CardBattle *battle, s32 arg1, s32 arg2, s32 index);
-s32 func_8008D194(CardBattle *battle, s32 arg1, s32 index);
-void func_8008D288(CardBattle *battle, s32 arg1, s32 arg2, s32 index);
+s32 func_8008CF50(CardBattle *battle, CardScreen *screen, s32 index);
+void func_8008D044(CardBattle *battle, CardScreen *screen, s32 side, s32 index);
+s32 func_8008D10C(CardBattle *battle, CardScreen *screen, s32 side, s32 index);
+s32 func_8008D194(CardBattle *battle, CardScreen *screen, s32 index);
+void func_8008D288(CardBattle *battle, CardScreen *screen, s32 side, s32 index);
 void func_8009DE0C(CardBattle *battle, void *arg1, s32 arg2, s32 arg3);
-void func_8009DF5C();
+void func_8009DF5C(CardBattle *battle, s32 base, s32 n);
+s32 func_8009F754(CardBattle *battle, CardSlot *slot, s32 side, s32 pass);
+extern CardFadeColor D_800A4BD8[];
 void CARDGAME_setSlot(CardBattle *battle, s32 side, s32 card, s32 index);
 void CARDGAME_addCard(CardBattle *battle, s32 side, s32 card);
 void func_8009F664();
@@ -270,7 +272,23 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800865D8);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80086758);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800868E0);
+void func_800868E0(CardBattle *battle, CardScreen *screen, CardPile *pile) {
+    s32 i;
+
+    for (i = 0; i < pile->unkA; i++) {
+        if (func_80085760(battle, &pile->unkC, pile->unk64[i]) && battle->unk46F[i] == 0) {
+            battle->unk446[i] = 1;
+            screen->sprites[i].unk49 = 0;
+        } else {
+            battle->unk446[i] = 0;
+            if (battle->unk46F[i] == 0) {
+                screen->sprites[i].unk49 = 1;
+            } else {
+                screen->sprites[i].unk49 = 0;
+            }
+        }
+    }
+}
 
 s32 func_800869BC(CardBattle *battle, s32 arg1, CardPile *pile) {
     s32 ok = 1;
@@ -402,13 +420,26 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008CE6C);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008CF50);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008D044);
+void func_8008D044(CardBattle *battle, CardScreen *screen, s32 side, s32 index) {
+    switch (battle->players[side].slots[index].side) {
+    case 0:
+        battle->sides[0].pile.unk78[battle->sides[0].pile.unk6] = battle->players[side].slots[index].card;
+        battle->sides[0].pile.unk6++;
+        screen->setPanelValue(screen, 0, 7, battle->sides[0].pile.unk6);
+        break;
+    case 1:
+        battle->sides[1].pile.unk78[battle->sides[1].pile.unk6] = battle->players[side].slots[index].card;
+        battle->sides[1].pile.unk6++;
+        screen->setPanelValue(screen, 1, 7, battle->sides[1].pile.unk6);
+        break;
+    }
+}
 
-s32 func_8008D10C(CardBattle *battle, s32 arg1, s32 arg2, s32 index) {
+s32 func_8008D10C(CardBattle *battle, CardScreen *screen, s32 side, s32 index) {
     s32 ok = 0;
 
-    if (func_8008CF50(battle, arg1, arg2 != 0 ? index + 6 : index)) {
-        func_8008D044(battle, arg1, arg2, index);
+    if (func_8008CF50(battle, screen, side != 0 ? index + 6 : index)) {
+        func_8008D044(battle, screen, side, index);
         ok = 1;
     }
     return ok;
@@ -416,13 +447,26 @@ s32 func_8008D10C(CardBattle *battle, s32 arg1, s32 arg2, s32 index) {
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008D194);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008D288);
+void func_8008D288(CardBattle *battle, CardScreen *screen, s32 side, s32 index) {
+    switch (battle->players[side].slots[index].side) {
+    case 0:
+        battle->sides[0].pile.unk64[battle->sides[0].pile.unkA] = battle->players[side].slots[index].card;
+        battle->sides[0].pile.unkA++;
+        screen->setPanelValue(screen, 0, 6, battle->sides[0].pile.unkA);
+        break;
+    case 1:
+        battle->sides[1].pile.unk64[battle->sides[1].pile.unkA] = battle->players[side].slots[index].card;
+        battle->sides[1].pile.unkA++;
+        screen->setPanelValue(screen, 1, 6, battle->sides[1].pile.unkA);
+        break;
+    }
+}
 
-s32 func_8008D350(CardBattle *battle, s32 arg1, s32 arg2, s32 index) {
+s32 func_8008D350(CardBattle *battle, CardScreen *screen, s32 side, s32 index) {
     s32 ok = 0;
 
-    if (func_8008D194(battle, arg1, arg2 != 0 ? index + 6 : index)) {
-        func_8008D288(battle, arg1, arg2, index);
+    if (func_8008D194(battle, screen, side != 0 ? index + 6 : index)) {
+        func_8008D288(battle, screen, side, index);
         ok = 1;
     }
     return ok;
@@ -2205,7 +2249,24 @@ void func_8009CEB0(CardBattle *battle, s32 arg1, s32 side, s32 which) {
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009CF6C);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009D470);
+void func_8009D470(CardBattle *battle, CardBattleItems *items) {
+    s32 frames;
+    CardFader *fader;
+    s32 i;
+
+    if (battle->unk306 != 0) {
+        i = battle->unk306 - 1;
+        frames = 10;
+        fader = CARDGAME_createFader(D_800A4BD8[i].blend);
+        items->unk0[1] = fader;
+        fader->setColor(fader, D_800A4BD8[i].r, D_800A4BD8[i].g, D_800A4BD8[i].b);
+        if (D_800A4BD8[i].blend == 2) {
+            frames = 15;
+        }
+        ((CardFader *)items->unk0[1])->start(items->unk0[1], 0, 0, 0, frames, 1);
+        battle->unk306 = 0;
+    }
+}
 
 void func_8009D53C(CardBattle *battle) {
     CardBattle498 *p = &battle->unk498;
@@ -2226,7 +2287,23 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009DCDC);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009DE0C);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009DF5C);
+void func_8009DF5C(CardBattle *battle, s32 base, s32 n) {
+    CardPile *pile = &battle->sides[0].pile;
+    s32 i;
+    s32 a;
+    s32 b;
+    s32 tmp;
+
+    if (n >= 2) {
+        for (i = 0; i < 40; i++) {
+            a = RANDOM.next() % n + base;
+            b = RANDOM.next() % n + base;
+            tmp = pile->unk14[a];
+            pile->unk14[a] = pile->unk14[b];
+            pile->unk14[b] = tmp;
+        }
+    }
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009E020);
 
@@ -2323,7 +2400,24 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009F664);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009F754);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009F90C);
+s32 func_8009F90C(CardBattle *battle) {
+    s32 found = 0;
+    s32 pass;
+    s32 side;
+    s32 i;
+    CardPlayer *player;
+
+    for (pass = 0; pass < 5; pass++) {
+        for (side = 0; side < 2; side++) {
+            player = &battle->players[side];
+            for (i = 0; i < player->slotCount; i++) {
+                found = 1;
+                func_8009F754(battle, &player->slots[i], side, pass);
+            }
+        }
+    }
+    return found;
+}
 
 void func_8009F9DC(CardBattle *battle, s32 side) {
     s32 i;
@@ -3102,10 +3196,9 @@ u16 D_800A4B38[] = {
     0x0050, 0x0028, 0x0014, 0x0050, 0x0050, 0x0050, 0x0050, 0x0001,
     0x0001, 0x0139, 0x0023, 0x0018, 0x0018, 0x0050, 0x003B, 0x003A,
 };
-u8 D_800A4BD8[] = {
-    0x80, 0x80, 0x80, 0x01, 0x00, 0x00, 0x80, 0x01,
-    0x00, 0x80, 0x00, 0x01, 0x80, 0x00, 0x00, 0x01,
-    0x80, 0x80, 0x80, 0x02, 0x80, 0x80, 0x00, 0x01,
+CardFadeColor D_800A4BD8[] = {
+    { 0x80, 0x80, 0x80, 1 }, { 0x00, 0x00, 0x80, 1 }, { 0x00, 0x80, 0x00, 1 },
+    { 0x80, 0x00, 0x00, 1 }, { 0x80, 0x80, 0x80, 2 }, { 0x80, 0x80, 0x00, 1 },
 };
 u16 D_800A4BF0[] = {
     0x0000, 0x0000, 0x0001, 0x0001, 0x0001, 0x0002, 0x0001, 0x0000,

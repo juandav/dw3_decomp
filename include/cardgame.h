@@ -66,7 +66,8 @@ typedef struct CardPile {
     /* 0x12 */ u8 unk12;
     /* 0x13 */ u8 unk13;
     /* 0x14 */ s16 unk14[40];
-    /* 0x64 */ s16 unk64[20];
+    /* 0x64 */ s16 unk64[10]; /* unkA in use */
+    /* 0x78 */ s16 unk78[10]; /* unk6 in use */
 } CardPile;
 
 /* Each player's side of a card battle (CardBattle.sides) */
@@ -198,6 +199,14 @@ typedef struct CardFader {
     /* 0x70 */ s32 (*isDone)(struct CardFader *fader);
     /* 0x74 */ void (*kill)(struct CardFader *fader);
 } CardFader;
+
+/* A fade colour and blend mode (CardBattle.unk306 - 1 picks one) */
+typedef struct CardFadeColor {
+    /* 0x0 */ u8 r;
+    /* 0x1 */ u8 g;
+    /* 0x2 */ u8 b;
+    /* 0x3 */ u8 blend;
+} CardFadeColor;
 
 /* A blinking marker that opens and closes by scaling (CARDGAME_createMarker):
    frame 0x47 of the TIM archive's sprite sheet */
