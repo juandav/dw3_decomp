@@ -270,7 +270,18 @@ s32 func_8008B880(void) {
     return FILE_CACHE.isLoading(TEXT_FILE(0x95)) != 0;
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B908);
+void func_8008B908(PanelAnim *fade, s32 fadeIn) {
+    fade->active = 1;
+    if (fadeIn != 0) {
+        SOUND.playSound(0x40019);
+        fade->level = 0;
+        fade->step = 0x1000 / fade->duration;
+    } else {
+        SOUND.playSound(0x4001A);
+        fade->level = 0x1000;
+        fade->step = -((0x1000 / fade->duration) * 2);
+    }
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B99C);
 
