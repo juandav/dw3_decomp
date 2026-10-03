@@ -223,7 +223,12 @@ INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B614);
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B320);
 #endif
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B728);
+void func_8008B728(ItemShop *shop) {
+    ItemShopWindows *win = shop->children;
+
+    win->money->setNumber(win->money, 0, GAME.money);
+    win->money->setRightAlign(win->money, 1);
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B77C);
 
