@@ -102,6 +102,8 @@ C_SRC += src/main/data/game.c src/main/data/game_2.c src/main/data/game_3.c src/
 
 # menus
 C_SRC += src/stitshop/stitshop.c src/stgdglab/stgdglab.c src/ststatus/ststatus.c
+# ststatus's other objects
+C_SRC += $(addprefix src/ststatus/, ststatus_2.c ststatus_3.c ststatus_4.c ststatus_5.c ststatus_6.c ststatus_7.c ststatus_8.c ststatus_9.c ststatus_10.c)
 
 # cardgame
 C_SRC += src/cardgame/cardgame.c
@@ -114,6 +116,8 @@ C_SRC += $(addprefix src/fightstg/, fightstg_2.c fightstg_3.c fightstg_4.c fight
 
 # small overlays
 C_SRC += src/stgmcard/stgmcard.c src/stfgtrep/stfgtrep.c src/wfightmn/wfightmn.c src/wfightmn/wfightmn_2.c src/stcrdshp/stcrdshp.c src/stplnmet/stplnmet.c src/wfightts/wfightts.c
+# stcrdshp's other objects
+C_SRC += src/stcrdshp/stcrdshp_2.c src/stcrdshp/stcrdshp_3.c
 
 # overlays
 C_SRC += src/shocktst/shocktst.c src/cnty_sel/cnty_sel.c src/stcrdabm/stcrdabm.c

@@ -6,7 +6,6 @@ func_8008AB58_part = 0x8008B770; // type:label segment:ststatus version-only
 func_8008B440_part = 0x8008BFA4; // type:label segment:ststatus version-only
 func_8008B440_part2 = 0x8008C000; // type:label segment:ststatus version-only
 
-STSTATUS_funcs = 0x8009B5D0; // size:0x28
 
 // names from the C of the modules this version builds (tools/version_symbols.py)
 func_80082CF0 = 0x80083558; // type:func
@@ -160,10 +159,8 @@ D_8009A1AC = 0x8009AE98;
 D_8009A1F4 = 0x8009AEE0;
 D_8009A250 = 0x8009AF3C;
 D_8009A254 = 0x8009AF40;
-D_8009A27C = 0x8009AF68;
-D_8009A280 = 0x8009AF6C;
-D_8009A284 = 0x8009AF70;
-D_8009A28C = 0x8009AF78;
+STSTATUS_data = 0x8009AF68; // size:0x690
 D_8009A90C = 0x8009B5F8;
 D_8009A910 = 0x8009B5FC;
 D_8009AA00 = 0x8009B6EC;
+D_800427E8 = 0x80042BDC;

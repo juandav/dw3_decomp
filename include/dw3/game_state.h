@@ -108,7 +108,7 @@ typedef struct Deck {
 typedef struct Partner {
     /* 0x000 */ u8 unk0[4];
     /* 0x004 */ s32 unlocked; /* partner id + 3, 0 while locked */
-    /* 0x008 */ u8 unk8[4];
+    /* 0x008 */ s32 unk8; /* an entry id, compared with the slots' */
     /* 0x00C */ char name[0x1C];
     /* 0x028 */ s16 level;
     /* 0x02A */ s16 unk2A;
@@ -283,7 +283,7 @@ extern struct ItemInfo *(*GET_ITEM[])(s32 item);
 /* GET_ITEM's entries, each with its own type */
 typedef struct ItemFuncs {
     /* 0x0 */ struct ItemInfo *(*get)(s32 item); /* getItem */
-    /* 0x4 */ u8 (*getCategory)(s32 item); /* getItemCategory */
+    /* 0x4 */ s32 (*getCategory)(s32 item); /* getItemCategory (u8, but the menus read an int) */
     /* 0x8 */ s32 (*isKind)(s32 item, s32 kind); /* ItemInfo.unk8 == kind */
     /* 0xC */ s32 (*list)(s32 type, u16 *out); /* listItems */
 } ItemFuncs;
