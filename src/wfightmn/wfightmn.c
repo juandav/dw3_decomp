@@ -1,196 +1,120 @@
 #include "wfightmn.h"
 
-/* FIGHTSTG's */
-extern u8 D_80042790[0x12];
-extern u8 D_800A31F0[0xD4];
-void func_8009B7A4(s32 arg0, s32 member, s32 arg2);
+/* Loads the battle menu's images into VRAM, one file a frame, then its
+   other files, and ends */
+void WFIGHTMN_loadFiles(Task *task) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->nextState(task);
+    case TASK_RUN:
+        switch (task->substate) {
+        case 0:
+        default:
+            switch (task->step) {
+            case 0:
+            default:
+                FILE_CACHE.request(FILE_BATTLE_IMAGES);
+                FILE_CACHE.request(FILE_BATTLE_IMAGES_1);
+                FILE_CACHE.request(FILE_BATTLE_IMAGES_2);
+                FILE_CACHE.request(FILE_BATTLE_IMAGES_3);
+                FILE_CACHE.request(FILE_BATTLE_IMAGES_4);
+                task->nextStep(task);
+                break;
+            case 1:
+                if (FILE_CACHE.isLoading(FILE_BATTLE_IMAGES) == 0) {
+                    TimLoader loader;
 
-void func_800A4D90();
-void func_800A5ACC();
+                    initTimLoader(&loader);
+                    loader.setImagePos(0x200, 0);
+                    loader.loadArchive(FILE_CACHE.getEntry(FILE_BATTLE_IMAGES << 16 | 1));
+                    loader.setImagePos(0, 0xF4);
+                    loader.load(FILE_CACHE.getEntry(FILE_BATTLE_IMAGES << 16));
+                    task->nextStep(task);
+                }
+                break;
+            case 2:
+                if (FILE_CACHE.isLoading(FILE_BATTLE_IMAGES_1) == 0) {
+                    TimLoader loader;
 
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A4D90);
+                    initTimLoader(&loader);
+                    loader.setImagePos(0x140, 0x100);
+                    loader.loadArchive(FILE_CACHE.load(FILE_BATTLE_IMAGES_1));
+                    task->nextStep(task);
+                }
+                break;
+            case 3:
+                if (FILE_CACHE.isLoading(FILE_BATTLE_IMAGES_2) == 0) {
+                    TimLoader loader;
+
+                    initTimLoader(&loader);
+                    loader.setImagePos(0x1C0, 0x100);
+                    loader.loadArchive(FILE_CACHE.load(FILE_BATTLE_IMAGES_2));
+                    task->nextStep(task);
+                }
+                break;
+            case 4:
+                if (FILE_CACHE.isLoading(FILE_BATTLE_IMAGES_3) == 0) {
+                    TimLoader loader;
+
+                    initTimLoader(&loader);
+                    loader.setImagePos(0x200, 0x100);
+                    loader.loadArchive(FILE_CACHE.load(FILE_BATTLE_IMAGES_3));
+                    task->nextStep(task);
+                }
+                break;
+            case 5:
+                if (FILE_CACHE.isLoading(FILE_BATTLE_IMAGES_4) == 0) {
+                    TimLoader loader;
+
+                    initTimLoader(&loader);
+                    loader.setImagePos(0x240, 0x100);
+                    loader.loadArchive(FILE_CACHE.load(FILE_BATTLE_IMAGES_4));
+                    task->nextStep(task);
+                }
+                break;
+            case 6:
+                FILE_CACHE.free(FILE_BATTLE_IMAGES);
+                FILE_CACHE.free(FILE_BATTLE_IMAGES_1);
+                FILE_CACHE.free(FILE_BATTLE_IMAGES_2);
+                FILE_CACHE.free(FILE_BATTLE_IMAGES_3);
+                FILE_CACHE.free(FILE_BATTLE_IMAGES_4);
+                task->nextSubstate(task);
+                break;
+            }
+            break;
+        case 1:
+            switch (task->step) {
+            case 0:
+            default:
+                FILE_CACHE.request(FILE_MENU_SPRITES);
+                FILE_CACHE.request(FILE_BATTLE_MENU);
+                FILE_CACHE.request(TEXT_FILE(0x80));
+                FILE_CACHE.request(TEXT_FILE(0x4F));
+                FILE_CACHE.request(TEXT_FILE(0xA3));
+                FILE_CACHE.request(TEXT_FILE(0x9C));
+                FILE_CACHE.request(TEXT_FILE(0x6B));
+                FILE_CACHE.request(TEXT_FILE(0x64));
+                task->nextStep(task);
+                break;
+            case 1:
+                if (FILE_CACHE.isLoading(FILE_MENU_SPRITES) == 0 && FILE_CACHE.isLoading(FILE_BATTLE_MENU) == 0 &&
+                    FILE_CACHE.isLoading(TEXT_FILE(0x80)) == 0 && FILE_CACHE.isLoading(TEXT_FILE(0x4F)) == 0 &&
+                    FILE_CACHE.isLoading(TEXT_FILE(0xA3)) == 0 && FILE_CACHE.isLoading(TEXT_FILE(0x9C)) == 0 &&
+                    FILE_CACHE.isLoading(TEXT_FILE(0x6B)) == 0 && FILE_CACHE.isLoading(TEXT_FILE(0x64)) == 0) {
+                    task->setState(task, TASK_KILL);
+                }
+                break;
+            }
+            break;
+        }
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 Task *WFIGHTMN_createLoader(void) {
-    return createTask(func_800A4D90, 0x54, 0);
+    return createTask(WFIGHTMN_loadFiles, 0x54, 0);
 }
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A52C8);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A5538);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A56D4);
-
-void WFIGHTMN_checkEquip(s32 member) {
-    s32 partner = GAME.funcs.getPartyMember(member);
-    s16 *equip;
-    s32 i;
-
-    if (partner >= 0) {
-        equip = &((PartnerStats *)GAME.funcs.getPartnerStats(partner))->equip[4];
-        for (i = 0; i < 2; i++) {
-            if (equip[i] == WFIGHTMN_ITEM) {
-                func_8009B7A4(0, member, 0);
-                return;
-            }
-        }
-    }
-}
-
-void WFIGHTMN_checkParty(void) {
-    s32 i;
-
-    for (i = 0; i < 3; i++) {
-        WFIGHTMN_checkEquip(i);
-    }
-}
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A5878);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A59A0);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A5ACC);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A61C8);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A62B8);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A6654);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A6778);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A69D0);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A6AC8);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A6E6C);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A6FA0);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A70E8);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A72E0);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A7358);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A75F8);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A7754);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A7878);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A7950);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A7A7C);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A7CB8);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A7DB0);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A83D8);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A8494);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A8610);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A86E0);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A8A64);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A8B08);
-
-Task *WFIGHTMN_start(void) {
-    Task *task = createTaskWithId(func_800A5ACC, 0x74, 0x20, 0xC);
-
-    HEAP.zero(D_800A31F0, sizeof(D_800A31F0));
-    HEAP.zero(D_80042790, sizeof(D_80042790));
-    return task;
-}
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A8EBC);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A8F60);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A9040);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A9840);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A9960);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A99F0);
-
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A9A40);
-
-void func_800A62B8();
-void func_800A6654();
-void func_800A6778();
-void func_800A69D0();
-void func_800A6AC8();
-void func_800A6E6C();
-void func_800A6FA0();
-void func_800A70E8();
-void func_800A72E0();
-void func_800A7358();
-void func_800A75F8();
-void func_800A7754();
-void func_800A7878();
-void func_800A7950();
-void func_800A7A7C();
-void func_800A7CB8();
-void func_800A7DB0();
-void func_800A83D8();
-void func_800A8494();
-void func_800A8610();
-void func_800A86E0();
-void func_800A8A64();
-
-u16 D_800A9B58[] = {
-    0x0000, 0x0000, 0x0140, 0x00F0,
-};
-#if VERSION_US
-s32 D_800A9B60[] = {
-    2, 19, 26, 3,
-    20, 26, 4, 21,
-    27, 5, 22, 50,
-    6, 26, 50, 8,
-    28, 39, -1, 37,
-    49, 27, 39, 49,
-    28, 41, 49, -1,
-    0, 0,
-};
-#elif VERSION_EU
-s32 D_800A9B60[] = {
-    2, 19, 26, 3,
-    20, 26, 4, 21,
-    27, 5, 22, 50,
-    6, 26, 50, 8,
-    28, 39, -1, 37,
-    49,
-};
-#endif
-s32 D_800A9BD8[] = {
-    2, 5, 64, 34,
-    3, 9, 45, 37,
-    4, 11, 44, 40,
-    5, 14, 29, 43,
-    6, 16, 44, 46,
-    7, 65, 64, 49,
-    8, 7, 64, 52,
-    -1, 0, 0, 0,
-};
-s32 D_800A9C58[] = {
-    0, 0, 0, (s32)func_800A62B8,
-    (s32)func_800A6654, (s32)func_800A6778, (s32)func_800A69D0, (s32)func_800A6AC8,
-    (s32)func_800A6E6C, (s32)func_800A6FA0, (s32)func_800A70E8, (s32)func_800A72E0,
-    (s32)func_800A7358, (s32)func_800A75F8, (s32)func_800A75F8, (s32)func_800A75F8,
-    (s32)func_800A7754, (s32)func_800A7878, (s32)func_800A7950, (s32)func_800A7A7C,
-    (s32)func_800A7CB8, (s32)func_800A7DB0, (s32)func_800A83D8, (s32)func_800A8494,
-    (s32)func_800A8610, (s32)func_800A86E0, (s32)func_800A8A64,
-};
-s32 D_800A9CC4[] = {
-    19, 26, 20, 26,
-    21, 27, 22, 50,
-    26, 50, 0, 0,
-    28, 39, 0, 0,
-    46, 30, 0, 59,
-    31, 58,
-};

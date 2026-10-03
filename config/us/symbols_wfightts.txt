@@ -2,3 +2,11 @@
 
 WFIGHTTS_strings = 0x800A4CBC; // size:0x9C0
 WFIGHTTS_start = 0x800A6924; // type:func
+WFIGHTTS_stageCursor = 0x800A82C0;
+WFIGHTTS_stageScroll = 0x800A82C4;
+WFIGHTTS_stageNames = 0x800A82C8;
+WFIGHTTS_stageList = 0x800A7338; // type:func
+WFIGHTTS_createStageList = 0x800A7614; // type:func
+WFIGHTTS_loadImages = 0x800A58EC; // type:func
+WFIGHTTS_initLayers = 0x800A567C; // type:func
+WFIGHTTS_screen = 0x800A821C;

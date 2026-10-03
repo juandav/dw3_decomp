@@ -1286,7 +1286,7 @@ s32 func_800A0400(u8 side, s32 id) {
     Unk800427D6 *entry;
     s32 chance;
 
-    if (side == 0 && D_80042728.unk18[0x2B] != 0) {
+    if (side == 0 && D_80042728.unk43 != 0) {
         return 0;
     }
 #if VERSION_US

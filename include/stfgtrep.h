@@ -15,17 +15,6 @@
 #define FILE_FGTREP_SPRITES 0x7A0
 #endif
 
-/* What the battle left for the report (D_80042790, cleared by WFIGHTMN) */
-typedef struct BattleResult {
-    /* 0x00 */ s16 battle; /* row of STFGTREP_rewards */
-    /* 0x02 */ s16 item; /* the item won, 0 for none */
-    /* 0x04 */ s16 member; /* the party member whose accessory adds money */
-    /* 0x06 */ struct {
-        u8 fought;
-        u8 used[3]; /* the Digimon of each slot was used */
-    } partners[3];
-} BattleResult;
-
 /* What a battle gives (STFGTREP_rewards) */
 typedef struct BattleReward {
     /* 0x0 */ s32 digimonExp; /* shared by the Digimon used */
@@ -57,14 +46,7 @@ typedef struct ReportEntry {
 typedef struct ReportPartnerStats {
     /* 0x000 */ char name[0x18];
     /* 0x018 */ s32 exp;
-    /* 0x01C */ s16 level;
-    /* 0x01E */ s16 unk1E;
-    /* 0x020 */ s16 hp;
-    /* 0x022 */ s16 maxHp;
-    /* 0x024 */ s16 mp;
-    /* 0x026 */ s16 maxMp;
-    /* 0x028 */ s16 battleStats[6];
-    /* 0x034 */ s16 resistances[7];
+    /* 0x01C */ s16 stats[19]; /* PartnerStats' order: 0 level, 3 max HP... */
     /* 0x042 */ u8 unk42[0xE];
     /* 0x050 */ ReportEntry entries[44];
     /* 0x3C0 */ s16 equip[6]; /* [4] and [5] are the accessories */
@@ -170,15 +152,24 @@ typedef struct FightReportFuncs {
     /* 0x18 */ s32 (*addExp)(s32 partner, s32 exp);
     /* 0x1C */ s32 (*learnDigimon)(s32 partner);
     /* 0x20 */ s32 (*addDigimonExp)(s32 partner, s32 id, s32 exp);
-    /* 0x24 */ s32 (*learnSkill)(s32 partner, s32 id);
-    /* 0x28 */ s32 (*learnSkill2)(s32 partner, s32 id);
-    /* 0x2C */ s32 (*digimonExp)(s32 partner, s32 id, s32 exp, s32 used);
+    /* 0x24 */ s32 (*addSkill)(s32 partner, s32 id);
+    /* 0x28 */ s32 (*learnSkill)(s32 partner, s32 id);
+    /* 0x2C */ s32 (*getDigimonExp)(s32 partner, s32 id, s32 exp, s32 used);
 } FightReportFuncs;
 
 /* Points to getDigimon, whatever its name says */
 extern DigimonData *(*ON_PARTNER_ENTRY_ADDED)(s32 id);
 
-extern BattleResult D_80042790;
+/* What a level adds to the exp the next one needs, by tier */
+extern s32 STFGTREP_levelExp[4];
+/* What is taken from the HP and MP growth, by tier, and added at random */
+extern s32 STFGTREP_vitalCuts[4];
+extern s32 STFGTREP_vitalRandom[9];
+/* A battle stat's gain by tier, from its growth plus 0-4 at random */
+extern s32 STFGTREP_statGains[6][9];
+/* A resistance's gain, from its growth plus 0-3 at random */
+extern s32 STFGTREP_resistGains[8];
+
 extern BattleReward STFGTREP_rewards[];
 extern FightReportFuncs STFGTREP_funcs;
 

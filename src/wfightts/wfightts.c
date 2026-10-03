@@ -1,15 +1,63 @@
 #include "wfightts.h"
 
+extern RECT WFIGHTTS_screen;
+extern s32 WFIGHTTS_stageCursor;
+extern s32 WFIGHTTS_stageScroll;
+extern char *WFIGHTTS_stageNames[];
+
 void func_800A5A54();
 void func_800A6954();
 void func_800A6ECC();
-void func_800A7338();
+void WFIGHTTS_stageList();
 void func_800A764C();
 void func_800A7BE8();
 
-INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A567C);
+/* Sets up the display and the battle test's layers */
+void WFIGHTTS_initLayers(void) {
+    Layer *layer;
 
-INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A58EC);
+    GFX.funcs.reset();
+    GFX.funcs.allocPrimBuffers(0x19000);
+    GFX.funcs.setDisplayMode(0x140, 0xF0, 0, 0);
+    layer = GFX.funcs.createLayer(&WFIGHTTS_screen, 1, 0x1000);
+    layer->setOffset(layer, 0xA0, 0x78);
+    layer = GFX.funcs.createLayer(&WFIGHTTS_screen, 1, 0x1001);
+    layer->setOffset(layer, 0xA0, 0x78);
+    layer->allocCallbacks(layer, 100);
+    layer = GFX.funcs.createLayer(&WFIGHTTS_screen, 8, 0x1002);
+    layer->setOffset(layer, WFIGHTTS_screen.w / 2, WFIGHTTS_screen.h / 2);
+    layer->allocCallbacks(layer, 40);
+    layer = GFX.funcs.createLayer(&WFIGHTTS_screen, 1, 0x1003);
+    layer->setOffset(layer, 0xA0, 0x78);
+    layer->allocCallbacks(layer, 100);
+    layer = GFX.funcs.createLayer(&WFIGHTTS_screen, 12, 0x1004);
+    layer->setOffset(layer, 0xA0, 0x78);
+    layer->allocCallbacks(layer, 100);
+    layer = GFX.funcs.createLayer(&WFIGHTTS_screen, 1, 0x1005);
+    layer->setOffset(layer, 0, 0);
+    layer = GFX.funcs.createLayer(&WFIGHTTS_screen, 1, 0x1006);
+    layer->setOffset(layer, 0, 0);
+    layer->allocCallbacks(layer, 5);
+}
+
+/* Loads the battle test's images into VRAM */
+void WFIGHTTS_loadImages(void) {
+    TimLoader loader;
+
+    initTimLoader(&loader);
+    loader.setImagePos(0x200, 0);
+    loader.loadArchive(FILE_CACHE.getEntry(FILE_BATTLE_IMAGES << 16 | 1));
+    loader.setImagePos(0, 0xF4);
+    loader.load(FILE_CACHE.getEntry(FILE_BATTLE_IMAGES << 16));
+    loader.setImagePos(0x140, 0x100);
+    loader.loadArchive(FILE_CACHE.load(FILE_BATTLE_IMAGES_1));
+    loader.setImagePos(0x1C0, 0x100);
+    loader.loadArchive(FILE_CACHE.load(FILE_BATTLE_IMAGES_2));
+    loader.setImagePos(0x200, 0x100);
+    loader.loadArchive(FILE_CACHE.load(FILE_BATTLE_IMAGES_3));
+    loader.setImagePos(0x240, 0x100);
+    loader.loadArchive(FILE_CACHE.load(FILE_BATTLE_IMAGES_4));
+}
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A5A54);
 
@@ -19,7 +67,7 @@ Task *WFIGHTTS_start(void) {
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A6954);
 
-void func_800A6E80(s32 arg, s32 *done) {
+void func_800A6E80(s32 *arg, s32 *done) {
     BattleTestList *task = createTask(func_800A6954, sizeof(BattleTestList), 0x70);
 
     task->unk50 = arg;
@@ -29,7 +77,7 @@ void func_800A6E80(s32 arg, s32 *done) {
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A6ECC);
 
-void func_800A72EC(s32 arg, s32 *done) {
+void func_800A72EC(s32 *arg, s32 *done) {
     BattleTestList *task = createTask(func_800A6ECC, sizeof(BattleTestList), 0x3C);
 
     task->unk50 = arg;
@@ -37,12 +85,75 @@ void func_800A72EC(s32 arg, s32 *done) {
     *done = 0;
 }
 
-INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A7338);
+/* The fight stage list: 14 of the 55 stages at a time (UP and DOWN, ten at a
+   time with R1 held); it sets *result to the stage, 1-55, or to -1 */
+void WFIGHTTS_stageList(BattleTestStageList *task, TextWindow **windows) {
+    s32 pressed;
+    s32 steps;
+    s32 i;
+    s32 j;
+    s32 n;
 
-BattleTestPanel *func_800A7614(s32 arg) {
-    BattleTestPanel *task = createTask(func_800A7338, sizeof(BattleTestPanel), 0x38);
+    switch (task->state) {
+    case 0:
+    default:
+        for (n = 0; n < 14; n++) {
+            windows[n] = createTextWindow(0x1005, 1, 0xB4, 0x28 + n * 12);
+        }
+        task->nextState(task);
+        break;
+    case 1:
+        pressed = PAD.getPressed(0) | PAD.getRepeated(0);
+        if (PAD.getHeld(0) & 0x8000) {
+            steps = 10;
+        } else {
+            steps = 1;
+        }
+        if (pressed & 0x10) {
+            for (j = 0; j < steps; j++) {
+                if (WFIGHTTS_stageCursor != 0) {
+                    WFIGHTTS_stageCursor--;
+                } else if (WFIGHTTS_stageScroll != 0) {
+                    WFIGHTTS_stageScroll--;
+                }
+            }
+        } else if (pressed & 0x40) {
+            for (j = 0; j < steps; j++) {
+                if (WFIGHTTS_stageCursor != 13) {
+                    WFIGHTTS_stageCursor++;
+                } else if (WFIGHTTS_stageScroll != 41) {
+                    WFIGHTTS_stageScroll++;
+                }
+            }
+        } else {
+            if (pressed & 0x2000) {
+                *task->result = WFIGHTTS_stageScroll + WFIGHTTS_stageCursor + 1;
+                task->setState(task, TASK_KILL);
+            }
+            if (pressed & 0x4000) {
+                *task->result = -1;
+                task->setState(task, TASK_KILL);
+            }
+        }
+        for (i = 0; i < 14; i++) {
+            if (WFIGHTTS_stageCursor == i && (GFX.funcs.getTime() & 8)) {
+                windows[i]->setVisible(windows[i], 0);
+            } else {
+                windows[i]->setVisible(windows[i], 1);
+                windows[i]->setText(windows[i], WFIGHTTS_stageNames[i + WFIGHTTS_stageScroll]);
+            }
+        }
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
-    task->unk50 = arg;
+BattleTestStageList *WFIGHTTS_createStageList(s32 *result) {
+    BattleTestStageList *task = createTask(WFIGHTTS_stageList, sizeof(BattleTestStageList), 0x38);
+
+    task->result = result;
     return task;
 }
 
@@ -73,9 +184,8 @@ INCLUDE_RODATA("wfightts/nonmatchings/wfightts", WFIGHTTS_strings);
 extern char WFIGHTTS_strings[];
 #define WFIGHTTS_STR(offset) (WFIGHTTS_strings + (offset))
 
-u16 D_800A821C[] = {
-    0x0000, 0x0000, 0x0140, 0x00F0,
-};
+/* The screen, for the layers */
+RECT WFIGHTTS_screen = { 0, 0, 0x140, 0xF0 };
 u16 D_800A8224[] = {
     0x017A, 0x01B9, 0x016E, 0x0073, 0x0103, 0x00CA, 0x016E, 0x01B4,
     0x0091, 0x00C5, 0x001F, 0x0089, 0x0097, 0x006C,
@@ -104,9 +214,9 @@ char *D_800A8284[] = {
 char *D_800A82B4[] = {
     WFIGHTTS_STR(0x020), WFIGHTTS_STR(0x014), WFIGHTTS_STR(0x008),
 };
-s32 D_800A82C0 = 0;
-s32 D_800A82C4 = 0;
-char *D_800A82C8[] = {
+s32 WFIGHTTS_stageCursor = 0;
+s32 WFIGHTTS_stageScroll = 0;
+char *WFIGHTTS_stageNames[] = {
     WFIGHTTS_STR(0x4E8), WFIGHTTS_STR(0x4D4), WFIGHTTS_STR(0x4C0), WFIGHTTS_STR(0x4AC),
     WFIGHTTS_STR(0x498), WFIGHTTS_STR(0x484), WFIGHTTS_STR(0x470), WFIGHTTS_STR(0x45C),
     WFIGHTTS_STR(0x448), WFIGHTTS_STR(0x434), WFIGHTTS_STR(0x420), WFIGHTTS_STR(0x40C),

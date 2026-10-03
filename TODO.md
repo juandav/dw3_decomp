@@ -169,14 +169,14 @@ own.
 
 ## Overlays
 
-- [ ] 1,164 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,205 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`. Mostly: `STCRDABM` (27 / 29), `STDGNAME` (29 / 32), `SHOCKTST`
   (15 / 17), `STAGSLCT` (6 / 8), `FIELDSTG` (190 / 222), `STDWTITL`
   (91 / 93: `libpress`'s handwritten `DecDCTvlc2` and `DecDCTvlcSize2` stay
   asm), `STGTRAIN` (74 / 94), `STITSHOP` (50 / 69), `CARDGAME` (303 / 306), `STGMCARD`
   (44 / 45). Started: `STGDGLAB` (44 / 70), `STSTATUS` (42 / 123),
-  `STPLNMET` (24 / 53), `STCRDSHP` (16 / 45), `STFGTREP` (26 / 36),
-  `WFIGHTTS` (6 / 14), `STCRDDEK` (6 / 55), `WFIGHTMN` (4 / 42), `FIGHTSTG`
+  `STPLNMET` (24 / 53), `STCRDSHP` (16 / 45), `STFGTREP` (35 / 36),
+  `WFIGHTTS` (9 / 14), `STCRDDEK` (6 / 55), `WFIGHTMN` (33 / 42), `FIGHTSTG`
   (133 / 310).
 - [ ] `FIGHTSTG`'s blocked functions: `func_8009C764`, `func_8009C8EC` and
   `func_8009C998` differ only in registers and the order of a few loads (the
@@ -191,6 +191,21 @@ own.
   yet (`func_80083140`, `func_80083BE4`, `func_80088DEC`, `func_80089FBC`,
   `func_8008A898`, `func_8008A8E0`, `func_80090F60`, `func_80091950`,
   `func_8009A5AC`, `func_8009A830`).
+- [ ] The battle menus' near misses. `WFIGHTTS`: `func_800A6ECC` (the
+  battle test's list of 12 and 3 windows) puts the right and left handlers
+  before the pad code, which only gotos into a `do {} while (0)` around
+  the whole pad handling reproduce, a forced form; `func_800A6954` is the
+  same kind of list (about 200 diffs), and `func_800A764C`,
+  `func_800A7BE8` and `func_800A5A54` haven't been tried. `WFIGHTMN`:
+  `func_800A6AC8` (1 diff, the operands of an `addu`), `func_800A83D8`
+  (`v0`/`v1` swapped), `func_800A6778` (11), `func_800A7DB0` (21, case 1's
+  registers), `func_800A86E0` (145); `func_800A5538` and `func_800A6E6C`
+  only match with forced forms (a copy of a pointer kept for nothing, the
+  permuter's empty loops); the main task `func_800A5ACC` and
+  `func_800A9040` haven't been tried. `STFGTREP`: `func_80085A38` (the
+  Digimon a partner learns, 14 diffs: the id and the counter of the needs
+  loop swap `s1` and `s2`, whatever the declarations' order). `STGMCARD`:
+  `func_800844DC` (2,366 instructions) hasn't been tried.
 - [ ] `STGTRAIN`'s near misses: `func_80083ADC` (4 diffs, two registers
   swapped), `func_800858E0` and `func_80085CC4` (3 each: the original
   schedules the table's `lui` before the `sll`), `func_800874A0` (2: the
