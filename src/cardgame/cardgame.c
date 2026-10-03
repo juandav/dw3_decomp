@@ -7,6 +7,8 @@ extern CardFileEntry CARDGAME_preloadFiles[];
 CardBattle *CARDGAME_createBattle(s32 arg);
 void initCardDrawer(CardDrawer *obj);
 extern s16 D_800A49D8[];
+extern s16 D_800A4AA0[];
+void CARDGAME_updateScreen(CardScreen *screen);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800835C4);
 
@@ -465,7 +467,7 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009A990);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009AA1C);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009AAFC);
+INCLUDE_ASM("cardgame/nonmatchings/cardgame", CARDGAME_updateScreen);
 
 void func_8009AD94(CardScreen *screen, s32 index, s16 value) {
     screen->unkDC0[index].from = 0x1000;
@@ -841,9 +843,103 @@ s32 func_8009B9D4(CardScreen *screen, s32 index, s32 duration, s32 x, s32 y) {
     return 0;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009BA34);
+void CARDGAME_setPanelValue(CardScreen *screen, s32 side, u32 which, s32 value) {
+    switch (which) {
+    case 0:
+        screen->panels[side].unk18[0] = value;
+        break;
+    case 1:
+        screen->panels[side].unk18[1] = value;
+        break;
+    case 2:
+        screen->panels[side].unk18[2] = value;
+        break;
+    case 3:
+        screen->panels[side].unk18[3] = value;
+        break;
+    case 4:
+        screen->panels[side].unk18[4] = value;
+        break;
+    case 5:
+        screen->panels[side].unk18[5] = value;
+        break;
+    case 6:
+        screen->panels[side].unk18[6] = value;
+        break;
+    case 7:
+        screen->panels[side].unk28 = value;
+        break;
+    case 8:
+        screen->panels[side].unk10 = value;
+        break;
+    case 9:
+        screen->panels[side].unk12 = value;
+        break;
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009BBA0);
+void CARDGAME_setPanelFlags(CardScreen *screen, s32 bits) {
+    if (bits & 1) {
+        screen->panels[0].flags[0] = 1;
+    }
+    if (bits & 4) {
+        screen->panels[0].flags[1] = 1;
+    }
+    if (bits & 0x10) {
+        screen->panels[0].flags[2] = 1;
+    }
+    if (bits & 0x40) {
+        screen->panels[0].flags[3] = 1;
+    }
+    if (bits & 0x100) {
+        screen->panels[0].flags[4] = 1;
+    }
+    if (bits & 0x400) {
+        screen->panels[0].flags[5] = 1;
+    }
+    if (bits & 0x1000) {
+        screen->panels[0].flags[6] = 1;
+    }
+    if (bits & 0x4000) {
+        screen->panels[0].flags[7] = 1;
+    }
+    if (bits & 0x10000) {
+        screen->panels[0].flags[8] = 1;
+    }
+    if (bits & 0x40000) {
+        screen->panels[0].flags[9] = 1;
+    }
+    if (bits & 2) {
+        screen->panels[1].flags[0] = 1;
+    }
+    if (bits & 8) {
+        screen->panels[1].flags[1] = 1;
+    }
+    if (bits & 0x20) {
+        screen->panels[1].flags[2] = 1;
+    }
+    if (bits & 0x80) {
+        screen->panels[1].flags[3] = 1;
+    }
+    if (bits & 0x200) {
+        screen->panels[1].flags[4] = 1;
+    }
+    if (bits & 0x800) {
+        screen->panels[1].flags[5] = 1;
+    }
+    if (bits & 0x2000) {
+        screen->panels[1].flags[6] = 1;
+    }
+    if (bits & 0x8000) {
+        screen->panels[1].flags[7] = 1;
+    }
+    if (bits & 0x20000) {
+        screen->panels[1].flags[8] = 1;
+    }
+    if (bits & 0x80000) {
+        screen->panels[1].flags[9] = 1;
+    }
+}
 
 void CARDGAME_clearPanelFlags(CardScreen *screen) {
     HEAP.zero(screen->panels[0].flags, sizeof(screen->panels[0].flags));
@@ -865,7 +961,19 @@ s32 func_8009BD7C(CardScreen *screen, s32 index) {
     return 0;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009BDE8);
+void CARDGAME_dealSprites(CardScreen *screen, s16 duration, s16 count, s32 x, s32 y) {
+    s32 i;
+    s32 sx;
+
+    for (i = 0; i < count; i++) {
+        sx = x + CARDGAME_getHandOffset(count, i);
+        if (duration == 0) {
+            CARDGAME_addSprite(screen, i, sx, y);
+        } else {
+            func_8009B8F4(screen, i, duration, sx, y);
+        }
+    }
+}
 
 u8 CARDGAME_getCardNumber(CardScreen *screen, s32 index) {
     CardDrawer drawer;
@@ -892,15 +1000,99 @@ void CARDGAME_setSpriteCard(CardScreen *screen, s32 sprite, s32 index) {
     }
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009C004);
+void CARDGAME_loadCardImage(TimLoader *loader, u8 *image, s32 slot) {
+    loader->setImagePos(0x140 + slot / 8 * 16, 0x100 + slot % 8 * 32);
+    loader->setClutPos(0x300, 0x100 + slot);
+    loader->load(image);
+}
 
-s16 func_8009C094(s32 index) {
+s32 func_8009C094(s32 index) {
     return D_800A49D8[index];
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009C0B0);
+s32 CARDGAME_loadCardImages(s16 *dst, s16 *player, s16 *opponent) {
+    TimLoader loader;
+    CardDrawer drawer;
+    s32 i;
+    s32 count = 0;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009C264);
+    initCardDrawer(&drawer);
+    initTimLoader(&loader);
+    for (i = 0; i < 40; i++) {
+        count++;
+        drawer.setCard(player[i] + 1);
+        CARDGAME_loadCardImage(&loader, drawer.card + 12, i);
+        dst[i] = player[i];
+    }
+    for (i = 0; i < 40; i++) {
+        count++;
+        drawer.setCard(opponent[i] + 1);
+        CARDGAME_loadCardImage(&loader, drawer.card + 12, i + 40);
+        dst[i + 40] = opponent[i];
+    }
+    for (i = 0; i < 9; i++) {
+        count++;
+        drawer.setCard(D_800A4AA0[i] + 1);
+        CARDGAME_loadCardImage(&loader, drawer.card + 12, i + 80);
+        dst[i + 80] = D_800A4AA0[i];
+    }
+    for (i = 0; i < 100; i++) {
+        drawer.setCard(func_8009C094(i) + 1);
+        count++;
+        CARDGAME_loadCardImage(&loader, drawer.card + 12, i + 89);
+        dst[i + 89] = func_8009C094(i);
+    }
+    return count;
+}
+
+CardScreen *CARDGAME_createScreen(s16 *cards) {
+    CardScreen *screen = createTask(CARDGAME_updateScreen, sizeof(CardScreen), 14 * 4);
+
+    screen->setPanelValue = CARDGAME_setPanelValue;
+    screen->unkEA4 = func_8009AD94;
+    screen->unkEA8 = func_8009ADCC;
+    screen->unkEAC = func_8009AE00;
+    screen->unkEB0 = func_8009AEB0;
+    screen->setPanelFlags = CARDGAME_setPanelFlags;
+    screen->clearPanelFlags = CARDGAME_clearPanelFlags;
+    screen->unkEE4 = func_8009AFA8;
+    screen->unkEE8 = func_8009B030;
+    screen->unkEF0 = func_8009B0C0;
+    screen->unkEEC = func_8009B078;
+    screen->unkEF4 = func_8009B0C8;
+    screen->unkEF8 = func_8009B120;
+    screen->unkEFC = func_8009B168;
+    screen->unkF00 = func_8009B1B0;
+    screen->getHandOffset = CARDGAME_getHandOffset;
+    screen->unkEDC = func_8009AF20;
+    screen->unkEE0 = func_8009AF64;
+    screen->unkF08 = func_8009B8F4;
+    screen->unkF0C = func_8009B990;
+    screen->unkF10 = func_8009B9D4;
+    screen->unkF2C = func_8009B5A8;
+    screen->unkF30 = func_8009B63C;
+    screen->unkF34 = func_8009B6C4;
+    screen->unkF38 = func_8009B74C;
+    screen->unkF28 = func_8009B52C;
+    screen->addSprite = CARDGAME_addSprite;
+    screen->removeSprite = CARDGAME_removeSprite;
+    screen->unkF1C = func_8009BD7C;
+    screen->setSpriteScale = CARDGAME_setSpriteScale;
+    screen->scaleSprite = CARDGAME_scaleSprite;
+    screen->dealSprites = CARDGAME_dealSprites;
+    screen->cards = cards;
+    screen->unkEC4 = func_8009B2A4;
+    screen->unkEC8 = func_8009B224;
+    screen->unkEBC = func_8009B38C;
+    screen->unkED0 = func_8009B3F8;
+    screen->unkED4 = func_8009B42C;
+    screen->unkEC0 = func_8009B314;
+    screen->unkECC = func_8009B1B8;
+    screen->setSpriteCard = CARDGAME_setSpriteCard;
+    screen->getCardNumber = CARDGAME_getCardNumber;
+    screen->loadCardImages = CARDGAME_loadCardImages;
+    return screen;
+}
 
 /* Requests the files of CARDGAME_preloadFiles one after the other, and ends after the
    last */
@@ -1650,12 +1842,13 @@ s16 D_800A49D8[] = {
     0x011A, 0x011B, 0x011C, 0x011D, 0x011E, 0x011F, 0x0120, 0x0121,
     0x0122, 0x0124, 0x0125, 0x013A,
 };
-s32 D_800A4AA0[] = {
-    0x630050, 0xB8008C, 0xFB00E5, 0x13A0139,
+/* the cards everyone has, after the two decks in the card list */
+s16 D_800A4AA0[] = {
+    0x050, 0x063, 0x08C, 0x0B8, 0x0E5, 0x0FB, 0x139, 0x13A, 0x13B,
 #if VERSION_US
-    0x2D2D013B,
+    0x2D2D,
 #elif VERSION_EU
-    0x0A0D013B,
+    0x0A0D,
 #endif
 };
 CardFileEntry CARDGAME_preloadFiles[] = {

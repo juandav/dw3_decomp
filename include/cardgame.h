@@ -158,7 +158,7 @@ typedef struct CardScreenE0C {
     /* 0x17 */ u8 state;
 } CardScreenE0C;
 
-/* The battle screen (created by func_8009C264): the two panels, the cards on
+/* The battle screen (created by CARDGAME_createScreen): the two panels, the cards on
    the table and the windows. Its 14 task items are a cursor and 13 text
    windows. */
 typedef struct CardScreen {
@@ -194,13 +194,13 @@ typedef struct CardScreen {
     /* 0xE9D */ u8 unkE9D;
     /* 0xE9E */ u8 unkE9E;
     /* 0xE9F */ u8 unkE9F;
-    /* 0xEA0 */ void (*unkEA0)();
+    /* 0xEA0 */ void (*setPanelValue)(struct CardScreen *screen, s32 side, u32 which, s32 value);
     /* 0xEA4 */ void (*unkEA4)(struct CardScreen *screen, s32 index, s16 value);
     /* 0xEA8 */ void (*unkEA8)(struct CardScreen *screen, s32 index);
     /* 0xEAC */ void (*unkEAC)(struct CardScreen *screen, s32 index, s16 arg2, s32 arg3, s32 x, s32 y);
     /* 0xEB0 */ void (*unkEB0)(struct CardScreen *screen, s32 index);
     /* 0xEB4 */ void (*clearPanelFlags)(struct CardScreen *screen);
-    /* 0xEB8 */ void (*unkEB8)();
+    /* 0xEB8 */ void (*setPanelFlags)(struct CardScreen *screen, s32 bits);
     /* 0xEBC */ void (*unkEBC)(struct CardScreen *screen, s32 side);
     /* 0xEC0 */ void (*unkEC0)(struct CardScreen *screen, s32 side);
     /* 0xEC4 */ void (*unkEC4)(struct CardScreen *screen);
@@ -219,7 +219,7 @@ typedef struct CardScreen {
     /* 0xEF8 */ void (*unkEF8)(struct CardScreen *screen);
     /* 0xEFC */ void (*unkEFC)(struct CardScreen *screen);
     /* 0xF00 */ void (*unkF00)(struct CardScreen *screen, s16 value);
-    /* 0xF04 */ void (*unkF04)();
+    /* 0xF04 */ void (*dealSprites)(struct CardScreen *screen, s16 duration, s16 count, s32 x, s32 y);
     /* 0xF08 */ void (*unkF08)(struct CardScreen *screen, s32 index, s32 duration, s32 x, s32 y);
     /* 0xF0C */ void (*unkF0C)(struct CardScreen *screen, s32 index, s32 duration, s32 x, s32 y);
     /* 0xF10 */ s32 (*unkF10)(struct CardScreen *screen, s32 index, s32 duration, s32 x, s32 y);
@@ -234,8 +234,8 @@ typedef struct CardScreen {
     /* 0xF34 */ s32 (*unkF34)(struct CardScreen *screen, s32 index);
     /* 0xF38 */ s32 (*unkF38)(struct CardScreen *screen, s32 index, s32 arg2);
     /* 0xF3C */ void (*setSpriteCard)(struct CardScreen *screen, s32 sprite, s32 index);
-    /* 0xF40 */ u8 (*getCardNumber)(struct CardScreen *screen, s32 cardIndex);
-    /* 0xF44 */ void (*unkF44)();
+    /* 0xF40 */ u8 (*getCardNumber)(struct CardScreen *screen, s32 index);
+    /* 0xF44 */ s32 (*loadCardImages)(s16 *dst, s16 *player, s16 *opponent);
 } CardScreen;
 
 #endif /* CARDGAME_H */
