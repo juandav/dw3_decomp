@@ -1,13 +1,13 @@
 #include "stdgname.h"
 
-void func_800856F4(ScreenTask *task, ScreenChildren *children) {
+void STDGNAME_stepScreen(ScreenTask *task, ScreenChildren *children) {
     s32 partner;
 
     switch (task->substate) {
     case 0:
     default:
         if (children->menu == NULL) {
-            children->menu = func_800856B4(task);
+            children->menu = STDGNAME_createMenu(task);
         }
         task->substate++;
         break;
@@ -22,15 +22,15 @@ void func_800856F4(ScreenTask *task, ScreenChildren *children) {
         break;
     case 2:
         if (children->name == NULL) {
-            partner = GAME.funcs.getPartyMember(D_80087480.partner);
-            children->name = func_800848F0(GAME.funcs.getPartnerStats(partner)->name, partner);
+            partner = GAME.funcs.getPartyMember(STDGNAME_funcs.partner);
+            children->name = STDGNAME_createNameEntry(GAME.funcs.getPartnerStats(partner)->name, partner);
         }
         task->substate++;
         break;
     case 3:
         if (children->name->substate == 100) {
             children->name->getName(children->name,
-                                    GAME.funcs.getPartnerStats(GAME.funcs.getPartyMember(D_80087480.partner))->name);
+                                    GAME.funcs.getPartnerStats(GAME.funcs.getPartyMember(STDGNAME_funcs.partner))->name);
             children->name->unkF4(children->name);
             task->substate++;
         }
@@ -49,7 +49,7 @@ void func_800856F4(ScreenTask *task, ScreenChildren *children) {
     }
 }
 
-void func_800858D8(ScreenTask *task) {
+void STDGNAME_drawBackground(ScreenTask *task) {
     SpriteDrawer sprite;
 
     initSpriteDrawer(&sprite);
@@ -66,32 +66,32 @@ void func_800858D8(ScreenTask *task) {
     sprite.draw(FILE_CACHE_GET_ENTRY[0](STDGNAME_SPRITES), 0x24, task->scroll, task->scroll);
 }
 
-void func_800859CC(ScreenTask *task, ScreenChildren *children) {
+void STDGNAME_updateScreen(ScreenTask *task, ScreenChildren *children) {
     switch (task->state) {
     case TASK_INIT:
     default:
         switch (task->substate) {
         case 0:
         default:
-            D_80087480.loadFiles();
+            STDGNAME_funcs.loadFiles();
             task->substate++;
             break;
         case 1:
-            if (D_80087480.isLoading() == 0) {
+            if (STDGNAME_funcs.isLoading() == 0) {
                 task->nextState(task);
             }
             break;
         }
         break;
     case TASK_RUN:
-        func_800856F4(task, children);
-        func_800858D8(task);
+        STDGNAME_stepScreen(task, children);
+        STDGNAME_drawBackground(task);
         break;
     case TASK_DONE:
         if (children->unkC == NULL) {
             task->setState(task, TASK_RUN);
         }
-        func_800858D8(task);
+        STDGNAME_drawBackground(task);
         break;
     case TASK_KILL:
         GAME.funcs.requestMode(GAME.fieldMode, 0);
@@ -99,26 +99,26 @@ void func_800859CC(ScreenTask *task, ScreenChildren *children) {
     }
 }
 
-void func_80085ADC(ScreenTask *task) {
+void STDGNAME_fadeOutScreen(ScreenTask *task) {
     ScreenChildren *children = task->children;
     FadeTask *fade;
 
-    children->fade = fade = func_80082AC8();
+    children->fade = fade = STDGNAME_createFader();
     fade->start(fade, 0, 30);
 }
 
-ScreenTask *func_80085B20(void) {
-    ScreenTask *task = createTask(func_800859CC, sizeof(ScreenTask), sizeof(ScreenChildren));
+ScreenTask *STDGNAME_createScreen(void) {
+    ScreenTask *task = createTask(STDGNAME_updateScreen, sizeof(ScreenTask), sizeof(ScreenChildren));
 
-    task->fadeOut = func_80085ADC;
+    task->fadeOut = STDGNAME_fadeOutScreen;
     task->layer = 0x1000;
     return task;
 }
 
-void func_80085B60(void) {
+void STDGNAME_loadFiles(void) {
     TimLoader loader;
 
-    HEAP.zero(&D_80087480.partner, sizeof(D_80087480.partner));
+    HEAP.zero(&STDGNAME_funcs.partner, sizeof(STDGNAME_funcs.partner));
     initTimLoader(&loader);
     loader.setImagePos(0x280, 0);
     loader.loadArchive(FILE_CACHE.getEntry(STDGNAME_FILE_IMAGES << 16));
@@ -127,7 +127,7 @@ void func_80085B60(void) {
     FILE_CACHE.request(TEXT_FILE(0x87));
 }
 
-s32 func_80085C08(void) {
+s32 STDGNAME_filesLoading(void) {
     if (FILE_CACHE.isLoading(STDGNAME_FILE_KEYBOARD)) {
         return 1;
     }
@@ -137,7 +137,7 @@ s32 func_80085C08(void) {
     return FILE_CACHE.isLoading(TEXT_FILE(0x87)) != 0;
 }
 
-void func_80085C78(Tween *tween, s32 open) {
+void STDGNAME_startFade(Tween *tween, s32 open) {
     tween->active = 1;
     if (open) {
         SOUND.playSound(0x40019);
@@ -150,7 +150,7 @@ void func_80085C78(Tween *tween, s32 open) {
     }
 }
 
-s32 func_80085D0C(Tween *tween) {
+s32 STDGNAME_updateFade(Tween *tween) {
     if (tween->active == 0) {
         return 1;
     }

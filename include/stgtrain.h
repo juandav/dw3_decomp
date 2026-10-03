@@ -146,7 +146,19 @@ typedef struct TrainMenu {
     /* 0x050 */ TrainScreen *screen;
     /* 0x054 */ s32 layerId;
     /* 0x058 */ s32 depth;
-    /* 0x05C */ u8 unk5C[0xAC];
+    /* 0x05C */ s32 cursorShown;
+    /* 0x060 */ s32 cursorClut;
+    /* 0x064 */ s32 cursorTime;
+    /* 0x068 */ s32 col; /* the cursor's */
+    /* 0x06C */ s32 row;
+    /* 0x070 */ s32 page;
+    /* 0x074 */ s32 arrowShown; /* to the other page */
+    /* 0x078 */ s32 arrowClut;
+    /* 0x07C */ s32 arrowTime;
+    /* 0x080 */ s32 iconFrame; /* the selected training's icon */
+    /* 0x084 */ s32 iconTime;
+    /* 0x088 */ s32 trainings[2][8]; /* [page][row * 4 + col], -1: none */
+    /* 0x0C8 */ PanelAnim panels[4];
     /* 0x108 */ void (*open)(struct TrainMenu *menu);
     /* 0x10C */ void (*close)(struct TrainMenu *menu);
     /* 0x110 */ void (*unk110)(struct TrainMenu *menu);
@@ -166,7 +178,8 @@ typedef struct TrainSession {
 
 /* The children of a training session */
 typedef struct TrainSessionWindows {
-    /* 0x00 */ u8 unk0[0x28];
+    /* 0x00 */ TextWindow *text[9];
+    /* 0x24 */ Cursor *cursor;
 } TrainSessionWindows;
 
 /* A task the overlay creates (func_80087744) that does nothing */
@@ -294,13 +307,27 @@ typedef union TrainCursor {
     TrainSetHeader *set;
 } TrainCursor;
 
+/* An entry of a gym level's trainings (D_8008B9EC) */
+typedef struct TrainEntry {
+    /* 0x0 */ s32 id;
+    /* 0x4 */ s16 stat; /* 1-5 battle stats, 8-14 resistances */
+    /* 0x6 */ s16 other; /* 1-5: lowered, 15 or 16: max HP or MP raised */
+} TrainEntry;
+
+/* A training (D_8008C0EC) */
+typedef struct TrainInfo {
+    /* 0x00 */ s32 name; /* strings of the text file */
+    /* 0x04 */ s32 desc;
+    /* 0x08 */ s32 icons[4]; /* frames of STGTRAIN_FILE_SPRITES */
+} TrainInfo;
+
 /* The overlay's helpers and the file they load (D_8008C4D4) */
 typedef struct TrainState {
     /* 0x000 */ s32 tableCount; /* the entries of the last getTable */
     /* 0x004 */ u8 *data; /* the loaded file of D_8008C344 */
     /* 0x008 */ s32 fileIndex;
     /* 0x00C */ TrainImageSet sets[9];
-    /* 0x2DC */ s32 *unk2DC;
+    /* 0x2DC */ TrainInfo *trainings; /* D_8008C0EC */
     /* 0x2E0 */ void (*loadFiles)(void);
     /* 0x2E4 */ void (*startFade)(PanelAnim *fade, s32 fadeIn);
     /* 0x2E8 */ s32 (*updateFade)(PanelAnim *fade);

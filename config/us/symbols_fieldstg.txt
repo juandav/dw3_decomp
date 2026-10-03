@@ -8,6 +8,9 @@ FIELDSTG_initFuncs = 0x80098B6C; // size:0x4
 FIELDSTG_fileEntries = 0x80099134;
 // The field's state, one struct that the data splits in pieces
 D_800990B4 = 0x800990B4; // size:0x80
+// The field's map and the functions that read it, one struct that the data
+// splits in pieces (the stages see it as FieldFuncs)
+D_8009A70C = 0x8009A70C; // size:0x5C
 // The handler of the stages' events 9000, which starts a battle: named so
 // that splat writes the stages' pointers to it as relocations, as GCC does
 func_8008B258 = 0x8008B258; // type:func

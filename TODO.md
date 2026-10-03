@@ -169,15 +169,29 @@ own.
 
 ## Overlays
 
-- [ ] 1,310 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
-  `SOUNDTST`, `STPLNMET`. Mostly: `STCRDABM` (27 / 29), `STDGNAME` (29 / 32), `SHOCKTST`
-  (15 / 17), `STAGSLCT` (6 / 8), `FIELDSTG` (190 / 222), `STDWTITL`
-  (91 / 93: `libpress`'s handwritten `DecDCTvlc2` and `DecDCTvlcSize2` stay
-  asm), `STGTRAIN` (74 / 94), `STITSHOP` (50 / 69), `CARDGAME` (303 / 306), `STGMCARD`
-  (44 / 45), `STSTATUS` (101 / 123). Started: `STGDGLAB` (44 / 70),
-  `STCRDSHP` (33 / 45), `STFGTREP` (35 / 36),
-  `WFIGHTTS` (9 / 14), `STCRDDEK` (6 / 55), `WFIGHTMN` (33 / 42), `FIGHTSTG`
-  (133 / 310).
+- [ ] 1,377 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+  `SOUNDTST`, `STPLNMET`, `STDGNAME`. Mostly: `STCRDABM` (28 / 29),
+  `STCRDDEK` (53 / 55), `SHOCKTST` (15 / 17), `STAGSLCT` (6 / 8),
+  `FIELDSTG` (195 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
+  `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (85 / 94),
+  `STITSHOP` (50 / 69), `CARDGAME` (303 / 306), `STGMCARD` (44 / 45),
+  `STSTATUS` (101 / 123), `STFGTREP` (35 / 36). Started: `STGDGLAB`
+  (44 / 70), `STCRDSHP` (33 / 45), `WFIGHTTS` (9 / 14), `WFIGHTMN`
+  (33 / 42), `FIGHTSTG` (133 / 310).
+- [ ] The small overlays' last functions:
+  - `STCRDDEK_buildCardList` (2 diffs) and `STCRDDEK_createScreenWindows`
+    (3) differ in the order of two loads and a register.
+  - `STAGSLCT_showBiosVersion` matches only with an empty `do {} while (0)`
+    that ends a CSE block, a fake match; `STAGSLCT_updateStageSelect`
+    (0x10A4 bytes) is still to try.
+  - `SHOCKTST_playAllPatterns`: the original reloads `task->playing` where
+    ours keeps it in a register. `SHOCKTST_convertText` (173 diffs): the
+    original keeps both `times + 2` and `powers + 2` as induction variables
+    and doesn't hoist the parser's constants.
+  - `STCRDABM_showCardInfo` (0x42C bytes) is still to try.
+  - `FIELDSTG`: `func_80091124`, `func_80091AA8`, `func_8008D4C4` and
+    `func_80085650` are close but the permuter found no match; the other 23
+    (0x198 to 0xFD0 bytes) are still to try.
 - [ ] `FIGHTSTG`'s blocked functions: `func_8009C764`, `func_8009C8EC` and
   `func_8009C998` differ only in registers and the order of a few loads (the
   permuter finds nothing natural); `func_800877D4` and `func_800A0FDC` are
@@ -218,28 +232,26 @@ own.
   `func_80083BEC` (a jump table) and eight others are still asm. `STCRDSHP` is three objects, like
   `STSTATUS`'s ten: GCC aligns a jump table to 8 bytes, and the original's
   tables only line up at its object boundaries.
-- [ ] `STGTRAIN`'s near misses: `func_80083ADC` (4 diffs, two registers
-  swapped), `func_800858E0` and `func_80085CC4` (3 each: the original
-  schedules the table's `lui` before the `sll`), `func_800874A0` (2: the
-  order of `li a0,4` and `li a1,-1`; the permuter only finds a variable for
-  the -1), `func_8008B35C` (the image load goes to another register),
-  `func_800859F4` (15, `s0`/`s2` swapped) and `func_80085AF8` (about 96,
-  scheduling). The rest are large: `func_800828E8`, `func_80085E30`,
-  `func_80086340`, `func_800867A0`, `func_8008778C`, `func_800878C0`,
-  `func_80087E34`, `func_80088CFC`, `func_80089898`, `func_80089924`,
-  `func_80089A54`, `func_8008A004` and `func_8008AA28`.
+- [ ] `STGTRAIN`'s near misses: `func_80085AF8` (3 diffs: the original
+  schedules the table's `lui` later in two of the three branches; the
+  permuter's best reuses a variable), `func_800859F4` (15, `s0`/`s2`
+  swapped) and `func_8008B35C` (the RLEN loader: the original reloads
+  `D_8008C4D4` in the loop and spills `clutX`; ours keeps both in
+  registers). The rest are large: `func_800828E8`, `func_80086340`,
+  `func_800867A0`, `func_800878C0`, `func_80087E34` and `func_80088CFC`.
 - [ ] Check `STFGTREP`'s guess (the report after a battle) against its
   texts, and `STGDGLAB`'s (the partners' digivolutions) against its
   strings.
   `STAGSLCT`'s menu of every scene of the game may help.
 - [ ] Name the overlays' functions: only `CNTY_SEL`, `SHOCKTST`,
-  `SOUNDTST`, `STAGSLCT`, `STCRDABM` and `STDWTITL` have names (and
+  `SOUNDTST`, `STAGSLCT`, `STCRDABM`, `STCRDDEK` and `STDWTITL` have names
+  (`STDGNAME` all but four of its own; and
   `FIGHTSTG` its event queue, fighters' file and battle table, and
   `STITSHOP`, `STSTATUS`, `STGDGLAB`, `STCRDSHP`, `STFGTREP`, `STGMCARD`,
   `STPLNMET`, `WFIGHTMN` and `WFIGHTTS` their helpers and tasks); the other
   overlays' symbol files are empty or hold a few `D_` entries, so `FIELDSTG`
-  and `STDGNAME`, much of which is C, are still `func_`.
-- [ ] Overlay data: 78 % of it is C in both versions; the `.data` of every
+  and `STGTRAIN`, much of which is C, are still `func_`.
+- [ ] Overlay data: 82 % of it is C in both versions; the `.data` of every
   overlay is C. objdiff counts a section only when all of it
   matches, so the `.rodata` of the overlays with functions still in asm
   doesn't count yet. `INCLUDE_RODATA` is left in `SHOCKTST` (7),
