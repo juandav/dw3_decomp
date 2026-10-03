@@ -8,10 +8,18 @@ extern s16 D_800A8224[][2];
 extern s32 D_800A8240[];
 extern s32 D_800A8250[];
 extern s32 D_800A8260;
+extern s32 D_800A8278;
+extern s32 D_800A827C[];
+extern char *D_800A8284[];
+extern char *D_800A82B4[];
 extern s32 D_800A84EC[];
 extern s32 D_800A852C[];
 extern s32 D_800A8560;
 extern s32 D_800A8564;
+extern BattleTestCursors WFIGHTTS_motionCursors;
+extern BattleTestCursors WFIGHTTS_effectCursors;
+extern char *D_800A83A4[];
+extern char *D_800A849C[];
 
 /* FIGHTSTG's */
 Task *func_80092124(void);
@@ -27,8 +35,8 @@ BattleTestMove *func_8008C090(void);
 void *func_80087ACC(s32 arg0, s32 arg1);
 
 void func_800A5A54(BattleTest *task, BattleTestChildren *children);
-BattleTestList *func_800A6E80(s32 *arg, s32 *done);
-BattleTestList *func_800A72EC(s32 *arg, s32 *done);
+BattleTestList *func_800A6E80(s32 *side, s32 *pick);
+BattleTestList *func_800A72EC(s32 *side, s32 *pick);
 BattleTestStageList *WFIGHTTS_createStageList(s32 *result);
 BattleTestMotions *func_800A7B9C(s32 *side, s32 *motion);
 BattleTestEffects *func_800A81D0(s32 *side, s32 *effect);
@@ -395,28 +403,115 @@ Task *WFIGHTTS_start(void) {
 
 INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A6954);
 
-BattleTestList *func_800A6E80(s32 *arg, s32 *done) {
+BattleTestList *func_800A6E80(s32 *side, s32 *pick) {
     BattleTestList *task = createTask(func_800A6954, sizeof(BattleTestList), 0x70);
 
-    task->unk50 = arg;
-    task->done = done;
-    *done = 0;
+    task->side = side;
+    task->pick = pick;
+    *pick = 0;
     return task;
 }
 
-INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A6ECC);
+/* The camera list: the partner's 12 cameras on the right and the enemy's 3
+   on the left (RIGHT and LEFT pick the list, UP and DOWN the camera, ten at
+   a time with R1 held); CROSS sets the side to 0 or 1 and the camera,
+   TRIANGLE the side to -1. Match depends on the loop around the pad
+   handling, whose breaks leave it early */
+void func_800A6ECC(BattleTestList *task, TextWindow **windows) {
+    s32 pressed;
+    s32 steps;
+    s32 i;
+    s32 j;
+    s32 k;
 
-BattleTestList *func_800A72EC(s32 *arg, s32 *done) {
+    switch (task->state) {
+    case 0:
+    default:
+        for (i = 0; i < 12; i++) {
+            windows[i] = createTextWindow(0x1005, 1, 0xB4, 0x28 + i * 12);
+        }
+        for (i = 0; i < 3; i++) {
+            windows[12 + i] = createTextWindow(0x1005, 1, 0x14, 0x28 + i * 12);
+        }
+        task->nextState(task);
+        break;
+    case 1:
+        pressed = PAD.getPressed(0) | PAD.getRepeated(0);
+        if (PAD.getHeld(0) & 0x800) {
+            steps = 10;
+        } else {
+            steps = 1;
+        }
+        while (1) {
+            if (pressed & 0x20) {
+                D_800A8278 = 0;
+                break;
+            }
+            if (pressed & 0x80) {
+                D_800A8278 = 1;
+                break;
+            }
+            if (pressed & 0x10) {
+                for (k = 0; k < steps; k++) {
+                    if (D_800A827C[D_800A8278] != 0) {
+                        D_800A827C[D_800A8278]--;
+                    }
+                }
+                break;
+            }
+            if (pressed & 0x40) {
+                for (k = 0; k < steps; k++) {
+                    if (D_800A827C[D_800A8278] != (D_800A8278 != 0 ? 2 : 11)) {
+                        D_800A827C[D_800A8278]++;
+                    }
+                }
+                break;
+            }
+            if (pressed & 0x2000) {
+                *task->side = D_800A8278;
+                *task->pick = D_800A827C[D_800A8278];
+                task->setState(task, TASK_KILL);
+            }
+            if (pressed & 0x4000) {
+                *task->side = -1;
+                task->setState(task, TASK_KILL);
+            }
+            break;
+        }
+        for (j = 0; j < 12; j++) {
+            if (D_800A8278 == 0 && D_800A827C[0] == j && (GFX.funcs.getTime() & 8)) {
+                windows[j]->setVisible(windows[j], 0);
+            } else {
+                windows[j]->setVisible(windows[j], 1);
+                windows[j]->setText(windows[j], D_800A8284[j]);
+            }
+        }
+        for (j = 0; j < 3; j++) {
+            if (D_800A8278 == 1 && D_800A827C[1] == j && (GFX.funcs.getTime() & 8)) {
+                windows[12 + j]->setVisible(windows[12 + j], 0);
+            } else {
+                windows[12 + j]->setVisible(windows[12 + j], 1);
+                windows[12 + j]->setText(windows[12 + j], D_800A82B4[j]);
+            }
+        }
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
+
+BattleTestList *func_800A72EC(s32 *side, s32 *pick) {
     BattleTestList *task = createTask(func_800A6ECC, sizeof(BattleTestList), 0x3C);
 
-    task->unk50 = arg;
-    task->done = done;
-    *done = 0;
+    task->side = side;
+    task->pick = pick;
+    *pick = 0;
     return task;
 }
 
 /* The fight stage list: 14 of the 55 stages at a time (UP and DOWN, ten at a
-   time with R1 held); it sets *result to the stage, 1-55, or to -1 */
+   time with SQUARE held); it sets *result to the stage, 1-55, or to -1 */
 void WFIGHTTS_stageList(BattleTestStageList *task, TextWindow **windows) {
     s32 pressed;
     s32 steps;
@@ -487,7 +582,123 @@ BattleTestStageList *WFIGHTTS_createStageList(s32 *result) {
     return task;
 }
 
-INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A764C);
+/* The motion list: the partner's motions on the right and the enemy's on the
+   left, fourteen shown at a time (RIGHT and LEFT pick the list, UP and DOWN
+   the motion, ten at a time with SQUARE held); CROSS sets the side and the
+   motion plus 1, TRIANGLE the side to -1. The cursors stay while the
+   fighters do. Match depends on the loop around the pad handling, whose
+   breaks leave it early */
+void func_800A764C(BattleTestMotions *task, BattleTestWindows *windows) {
+    Models *models;
+    BattleTestMotionList *list;
+    s32 *motions;
+    s32 pressed;
+    s32 steps;
+    s32 fighter;
+    s32 x; /* unused, but it is in the original stack frame */
+    s32 n;
+    s32 i;
+    s32 side;
+    s32 j;
+    s32 k;
+    s32 m;
+
+    switch (task->state) {
+    case 0:
+    default:
+        models = TASK_FUNCS.find(0x14, -1, -1);
+        for (i = 0; i < 2; i++) {
+            list = &task->lists[i];
+            fighter = models->getFighter(models, i * 16);
+            if (WFIGHTTS_motionCursors.fighter[i] != fighter) {
+                WFIGHTTS_motionCursors.fighter[i] = fighter;
+                WFIGHTTS_motionCursors.cursor[i] = 0;
+                WFIGHTTS_motionCursors.scroll[i] = 0;
+            }
+            D_800A32E0.funcs.getInfo(fighter);
+            motions = (s32 *)FILE_CACHE.getEntry(D_800A32E0.unk10->motions);
+            list->count = 0;
+            for (j = 0; j < 0x3E; j++) {
+                if (motions[j] != 0) {
+                    list->motions[list->count] = j;
+                    list->count++;
+                }
+            }
+            n = list->count;
+            if (n >= 15) {
+                n = 14;
+            }
+            list->shown = n;
+            for (j = 0; j < list->shown; j++) {
+                windows->windows[i][j] = createTextWindow(0x1005, 1, 0xB4 - i * 0xA0, 0x28 + j * 12);
+            }
+        }
+        task->nextState(task);
+        break;
+    case 1:
+        pressed = PAD.getPressed(0) | PAD.getRepeated(0);
+        if (PAD.getHeld(0) & 0x8000) {
+            steps = 10;
+        } else {
+            steps = 1;
+        }
+        while (1) {
+            if (pressed & 0x20) {
+                WFIGHTTS_motionCursors.side = 0;
+                break;
+            }
+            if (pressed & 0x80) {
+                WFIGHTTS_motionCursors.side = 1;
+                break;
+            }
+            if (pressed & 0x10) {
+                for (k = 0; k < steps; k++) {
+                    if (WFIGHTTS_motionCursors.cursor[WFIGHTTS_motionCursors.side] != 0) {
+                        WFIGHTTS_motionCursors.cursor[WFIGHTTS_motionCursors.side]--;
+                    } else if (WFIGHTTS_motionCursors.scroll[WFIGHTTS_motionCursors.side] != 0) {
+                        WFIGHTTS_motionCursors.scroll[WFIGHTTS_motionCursors.side]--;
+                    }
+                }
+                break;
+            }
+            if (pressed & 0x40) {
+                for (k = 0; k < steps; k++) {
+                    if (WFIGHTTS_motionCursors.cursor[WFIGHTTS_motionCursors.side] != task->lists[WFIGHTTS_motionCursors.side].shown - 1) {
+                        WFIGHTTS_motionCursors.cursor[WFIGHTTS_motionCursors.side]++;
+                    } else if (WFIGHTTS_motionCursors.scroll[WFIGHTTS_motionCursors.side] != task->lists[WFIGHTTS_motionCursors.side].count - task->lists[WFIGHTTS_motionCursors.side].shown) {
+                        WFIGHTTS_motionCursors.scroll[WFIGHTTS_motionCursors.side]++;
+                    }
+                }
+                break;
+            }
+            if (pressed & 0x4000) {
+                *task->side = -1;
+                task->setState(task, TASK_KILL);
+                break;
+            }
+            if (pressed & 0x2000) {
+                *task->side = WFIGHTTS_motionCursors.side;
+                *task->motion = task->lists[WFIGHTTS_motionCursors.side].motions[WFIGHTTS_motionCursors.scroll[WFIGHTTS_motionCursors.side] + WFIGHTTS_motionCursors.cursor[WFIGHTTS_motionCursors.side]] + 1;
+                task->setState(task, TASK_KILL);
+            }
+            break;
+        }
+        for (side = 0; side < 2; side++) {
+            for (m = 0; m < task->lists[side].shown; m++) {
+                if (WFIGHTTS_motionCursors.side == side && WFIGHTTS_motionCursors.cursor[side] == m && (GFX.funcs.getTime() & 8)) {
+                    windows->windows[side][m]->setVisible(windows->windows[side][m], 0);
+                } else {
+                    windows->windows[side][m]->setVisible(windows->windows[side][m], 1);
+                    windows->windows[side][m]->setText(windows->windows[side][m], D_800A83A4[task->lists[side].motions[m + WFIGHTTS_motionCursors.scroll[side]]]);
+                }
+            }
+        }
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 BattleTestMotions *func_800A7B9C(s32 *side, s32 *motion) {
     BattleTestMotions *task = createTaskWithId(func_800A764C, sizeof(BattleTestMotions), 0x70, 0xFFFF);
@@ -497,7 +708,134 @@ BattleTestMotions *func_800A7B9C(s32 *side, s32 *motion) {
     return task;
 }
 
-INCLUDE_ASM("wfightts/nonmatchings/wfightts", func_800A7BE8);
+/* The effect list, like the motion list (func_800A764C): CROSS sets the side
+   and the effect, on any but a fighter's "none". Match depends on the loop
+   around the pad handling, whose breaks leave it early */
+void func_800A7BE8(BattleTestEffects *task, BattleTestWindows *windows) {
+    Models *models;
+    BattleTestEffectList *list;
+    s32 *effects;
+    s32 pressed;
+    s32 steps;
+    s32 fighter;
+    s32 x; /* unused, but it is in the original stack frame */
+    s32 n;
+    s32 i;
+    s32 side;
+    s32 j;
+    s32 k;
+    s32 m;
+
+    switch (task->state) {
+    case 0:
+    default:
+        models = TASK_FUNCS.find(0x14, -1, -1);
+        for (i = 0; i < 2; i++) {
+            list = &task->lists[i];
+            fighter = models->getFighter(models, i * 16);
+            if (WFIGHTTS_effectCursors.fighter[i] != fighter) {
+                WFIGHTTS_effectCursors.fighter[i] = fighter;
+                WFIGHTTS_effectCursors.cursor[i] = 0;
+                WFIGHTTS_effectCursors.scroll[i] = 0;
+            }
+            D_800A32E0.funcs.getInfo(fighter);
+            if (D_800A32E0.unk10->unk8 != 0) {
+                effects = (s32 *)FILE_CACHE_GET_ENTRY[0](D_800A32E0.unk10->unk8);
+                if (effects[0] == 0) {
+                    list->effects[0] = 0;
+                    list->count = 1;
+                    list->shown = 1;
+                } else {
+                    list->count = 0;
+                    for (j = 0; j < 0x13; j++) {
+                        if (effects[j] != 0) {
+                            list->effects[list->count] = j + 1;
+                            list->count++;
+                        }
+                    }
+                }
+                n = list->count;
+                if (n >= 15) {
+                    n = 14;
+                }
+                list->shown = n;
+            } else {
+                list->effects[0] = 0;
+                list->count = 1;
+                list->shown = 1;
+            }
+            for (j = 0; j < list->shown; j++) {
+                windows->windows[i][j] = createTextWindow(0x1005, 1, 0xB4 - i * 0xA0, 0x28 + j * 12);
+            }
+        }
+        task->nextState(task);
+        break;
+    case 1:
+        pressed = PAD.getPressed(0) | PAD.getRepeated(0);
+        if (PAD.getHeld(0) & 0x8000) {
+            steps = 10;
+        } else {
+            steps = 1;
+        }
+        while (1) {
+            if (pressed & 0x20) {
+                WFIGHTTS_effectCursors.side = 0;
+                break;
+            }
+            if (pressed & 0x80) {
+                WFIGHTTS_effectCursors.side = 1;
+                break;
+            }
+            if (pressed & 0x10) {
+                for (k = 0; k < steps; k++) {
+                    if (WFIGHTTS_effectCursors.cursor[WFIGHTTS_effectCursors.side] != 0) {
+                        WFIGHTTS_effectCursors.cursor[WFIGHTTS_effectCursors.side]--;
+                    } else if (WFIGHTTS_effectCursors.scroll[WFIGHTTS_effectCursors.side] != 0) {
+                        WFIGHTTS_effectCursors.scroll[WFIGHTTS_effectCursors.side]--;
+                    }
+                }
+                break;
+            }
+            if (pressed & 0x40) {
+                for (k = 0; k < steps; k++) {
+                    if (WFIGHTTS_effectCursors.cursor[WFIGHTTS_effectCursors.side] != task->lists[WFIGHTTS_effectCursors.side].shown - 1) {
+                        WFIGHTTS_effectCursors.cursor[WFIGHTTS_effectCursors.side]++;
+                    } else if (WFIGHTTS_effectCursors.scroll[WFIGHTTS_effectCursors.side] != task->lists[WFIGHTTS_effectCursors.side].count - task->lists[WFIGHTTS_effectCursors.side].shown) {
+                        WFIGHTTS_effectCursors.scroll[WFIGHTTS_effectCursors.side]++;
+                    }
+                }
+                break;
+            }
+            if (pressed & 0x4000) {
+                *task->side = -1;
+                task->setState(task, TASK_KILL);
+                break;
+            }
+            if (pressed & 0x2000) {
+                if (task->lists[WFIGHTTS_effectCursors.side].effects[WFIGHTTS_effectCursors.scroll[WFIGHTTS_effectCursors.side] + WFIGHTTS_effectCursors.cursor[WFIGHTTS_effectCursors.side]] != 0) {
+                    *task->side = WFIGHTTS_effectCursors.side;
+                    *task->effect = task->lists[WFIGHTTS_effectCursors.side].effects[WFIGHTTS_effectCursors.scroll[WFIGHTTS_effectCursors.side] + WFIGHTTS_effectCursors.cursor[WFIGHTTS_effectCursors.side]] - 1;
+                    task->setState(task, TASK_KILL);
+                }
+            }
+            break;
+        }
+        for (side = 0; side < 2; side++) {
+            for (m = 0; m < task->lists[side].shown; m++) {
+                if (WFIGHTTS_effectCursors.side == side && WFIGHTTS_effectCursors.cursor[side] == m && (GFX.funcs.getTime() & 8)) {
+                    windows->windows[side][m]->setVisible(windows->windows[side][m], 0);
+                } else {
+                    windows->windows[side][m]->setVisible(windows->windows[side][m], 1);
+                    windows->windows[side][m]->setText(windows->windows[side][m], D_800A849C[task->lists[side].effects[m + WFIGHTTS_effectCursors.scroll[side]]]);
+                }
+            }
+        }
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 BattleTestEffects *func_800A81D0(s32 *side, s32 *effect) {
     BattleTestEffects *task = createTaskWithId(func_800A7BE8, sizeof(BattleTestEffects), 0x70, 0xFFFF);
@@ -603,17 +941,5 @@ s32 D_800A852C[] = {
 };
 s32 D_800A8560 = 0;
 s32 D_800A8564 = 0;
-s32 D_800A8568[] = {
-    0, 0,
-};
-s32 D_800A8570[] = {
-    0, 0, 0, 0,
-    0,
-};
-s32 D_800A8584[] = {
-    0, 0,
-};
-s32 D_800A858C[] = {
-    0, 0, 0, 0,
-    0,
-};
+BattleTestCursors WFIGHTTS_motionCursors = { { 0, 0 }, 0, { 0, 0 }, { 0, 0 } };
+BattleTestCursors WFIGHTTS_effectCursors = { { 0, 0 }, 0, { 0, 0 }, { 0, 0 } };

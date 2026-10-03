@@ -13,6 +13,7 @@ STGMCARD_updateLerp = 0x80087650; // type:func
 STGMCARD_loadFiles = 0x80087284; // type:func
 STGMCARD_filesLoading = 0x8008743C; // type:func
 STGMCARD_freeBuffers = 0x800874AC; // type:func
+STGMCARD_errorTexts = 0x80087944; // size:0x2C
 STGMCARD_funcs = 0x80087D9C; // size:0x38
 STGMCARD_iconClut = 0x80087DD4; // size:0x20
 STGMCARD_iconFrames = 0x80087DF4; // size:0x180

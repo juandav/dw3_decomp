@@ -17,6 +17,7 @@ extern MemCardWindowSpec D_800876BC[];
 extern s32 D_80087838[][7];
 extern s32 D_80087918[];
 extern s32 D_80087938[];
+extern s32 STGMCARD_errorTexts[]; /* the texts of the results, by count */
 extern s32 D_80087970[];
 extern MemCardModeEntry D_800879D8[];
 
@@ -147,7 +148,7 @@ void func_80082904(MemCardInfo *info) {
     s32 *partners;
     s32 i;
 
-    save = &info->saves->saves[STGMCARD_funcs.unk4];
+    save = &info->saves->file.saves[STGMCARD_funcs.slot];
     windows = info->children;
     if (info->shown == 0) {
         for (i = 0, w = windows; i < info->childCount; i++, w++) {
@@ -169,22 +170,22 @@ void func_80082904(MemCardInfo *info) {
         for (i = 0; i < 2; i++) {
             windows[i + 3]->setString(windows[i + 3], FILE_CACHE.load(TEXT_FILE(0x79)), 0x15);
         }
-        windows[5]->setNumber(windows[5], 0, save->unk20);
+        windows[5]->setNumber(windows[5], 0, save->money);
         windows[5]->setRightAlign(windows[5], 1);
-        windows[12]->setNumber(windows[12], 0, save->time[0]);
-        windows[13]->setNumber(windows[13], 0, save->time[1]);
-        windows[14]->setNumber(windows[14], 0, save->time[2]);
+        windows[12]->setNumber(windows[12], 0, save->time.hours);
+        windows[13]->setNumber(windows[13], 0, save->time.minutes);
+        windows[14]->setNumber(windows[14], 0, save->time.seconds);
         for (i = 0, w = &windows[12]; i < 3; i++, w++) {
             (*w)->setRightAlign(*w, 1);
         }
-        if (save->time[1] < 10) {
+        if (save->time.minutes < 10) {
             windows[17]->setNumber(windows[17], 0, 0);
             windows[17]->setRightAlign(windows[17], 1);
             windows[17]->setPos(windows[17], 0x111, 0xB2);
         } else {
             windows[17]->setVisible(windows[17], 0);
         }
-        if (save->time[2] < 10) {
+        if (save->time.seconds < 10) {
             windows[18]->setNumber(windows[18], 0, 0);
             windows[18]->setRightAlign(windows[18], 1);
             windows[18]->setPos(windows[18], 0x124, 0xB2);
@@ -194,7 +195,7 @@ void func_80082904(MemCardInfo *info) {
         for (i = 0; i < 2; i++) {
             windows[i + 15]->setString(windows[i + 15], FILE_CACHE.load(TEXT_FILE(0x79)), 0x13);
         }
-        partners = info->saves->saves[STGMCARD_funcs.unk4].partners;
+        partners = info->saves->file.saves[STGMCARD_funcs.slot].partners;
         for (i = 0; i < 3; i++) {
             windows[i + 6]->setString(windows[i + 6], FILE_CACHE.load(TEXT_FILE(0x79)), 0x14);
             if (partners[i] - 3 < 0) {
@@ -286,7 +287,7 @@ void func_80082E28(MemCardInfo *info) {
             sprite.setScale(0x1000, info->fade.level, 0x1000);
             sprite.setPivot(160, 148);
         }
-        partners = info->saves->saves[STGMCARD_funcs.unk4].partners;
+        partners = info->saves->file.saves[STGMCARD_funcs.slot].partners;
         if (GFX.funcs.getTime() - info->time >= 13) {
             info->time = GFX.funcs.getTime();
             for (j = 0; j < 3; j++) {
@@ -494,7 +495,7 @@ void func_8008385C(MemCardMenu *menu) {
 void func_800838CC(MemCardMenu *menu, s32 arg) {
     STGMCARD_funcs.startLerp(&menu->lerps[2], 0, 0x2F, 8);
     menu->substate = 5;
-    STGMCARD_funcs.unk4 = arg;
+    STGMCARD_funcs.slot = arg;
     STGMCARD_funcs.unk8 = 0;
 }
 
@@ -504,7 +505,7 @@ void func_80083934(MemCardMenu *menu) {
 }
 
 void func_80083978(MemCardMenu *menu) {
-    STGMCARD_funcs.startLerp(&menu->lerps[3], STGMCARD_funcs.unk8 * 0x44, STGMCARD_funcs.unk4 * 0x44, 5);
+    STGMCARD_funcs.startLerp(&menu->lerps[3], STGMCARD_funcs.unk8 * 0x44, STGMCARD_funcs.slot * 0x44, 5);
     menu->substate = 7;
 }
 
@@ -521,7 +522,7 @@ void func_80083A1C(MemCardMenu *menu) {
 void STGMCARD_resetMenu(MemCardMenu *menu) {
     menu->substate = 0;
     menu->unkCC = 0;
-    STGMCARD_funcs.unk4 = 0;
+    STGMCARD_funcs.slot = 0;
     STGMCARD_funcs.unk8 = 0;
     STGMCARD_funcs.startLerp(&menu->lerps[0], 0xDE, 0, 10);
     STGMCARD_funcs.startLerp(&menu->lerps[1], -0x55, 0, 10);
@@ -588,25 +589,25 @@ void func_80083B10(MemCardMenu *menu, TextWindow **windows) {
             break;
         case 6:
             if (PAD_PRESSED(PAD_LEFT) || PAD_REPEATED(PAD_LEFT)) {
-                prev = STGMCARD_funcs.unk4;
+                prev = STGMCARD_funcs.slot;
                 STGMCARD_funcs.unk8 = prev;
-                STGMCARD_funcs.unk4 = prev - 1;
-                if (STGMCARD_funcs.unk4 < 0) {
-                    STGMCARD_funcs.unk4 = 0;
+                STGMCARD_funcs.slot = prev - 1;
+                if (STGMCARD_funcs.slot < 0) {
+                    STGMCARD_funcs.slot = 0;
                 }
-                if (STGMCARD_funcs.unk4 != prev) {
+                if (STGMCARD_funcs.slot != prev) {
                     menu->saves->refresh(menu->saves);
                     func_80083978(menu);
                     SOUND.playSound(0x4001B);
                 }
             } else if (PAD_PRESSED(PAD_RIGHT) || PAD_REPEATED(PAD_RIGHT)) {
-                prev = STGMCARD_funcs.unk4;
-                STGMCARD_funcs.unk4 = prev + 1;
+                prev = STGMCARD_funcs.slot;
+                STGMCARD_funcs.slot = prev + 1;
                 STGMCARD_funcs.unk8 = prev;
-                if (STGMCARD_funcs.unk4 >= 3) {
-                    STGMCARD_funcs.unk4 = 2;
+                if (STGMCARD_funcs.slot >= 3) {
+                    STGMCARD_funcs.slot = 2;
                 }
-                if (STGMCARD_funcs.unk4 != prev) {
+                if (STGMCARD_funcs.slot != prev) {
                     menu->saves->refresh(menu->saves);
                     func_80083978(menu);
                     SOUND.playSound(0x4001B);
@@ -643,8 +644,8 @@ void func_80083B10(MemCardMenu *menu, TextWindow **windows) {
         sprite.draw(FILE_CACHE.getEntry(FILE_GMCARD_SHEET << 16), 0x20, 0, menu->lerps[1].value + 0x10);
         (*windows)->setPos(*windows, 0x15, menu->lerps[1].value + 0x18);
         for (i = 0; i < 3; i++) {
-            if (menu->saves->saves[i].name[0] != 0) {
-                sprite.draw(FILE_CACHE.getEntry(FILE_GMCARD_SHEET << 16), D_80087918[menu->saves->saves[i].partners[0] - 3], D_80087938[i] + menu->lerps[0].value, 0x23);
+            if (menu->saves->file.saves[i].name[0] != 0) {
+                sprite.draw(FILE_CACHE.getEntry(FILE_GMCARD_SHEET << 16), D_80087918[menu->saves->file.saves[i].partners[0] - 3], D_80087938[i] + menu->lerps[0].value, 0x23);
             }
         }
         sprite.draw(FILE_CACHE_GET_ENTRY[0](FILE_GMCARD_SHEET << 16), 0x22, menu->lerps[0].value + 0x62, 0x20);
@@ -678,7 +679,7 @@ void STGMCARD_showPort(MemCardSaves *saves, MemCardSavesWindows *win, s32 show) 
 
 void func_80084230(MemCardSaves *saves, MemCardSavesWindows *win) {
     saves->substate = 100;
-    saves->unk27FC = 0;
+    saves->choice = 0;
     saves->count--;
     if (win->windows[1] != NULL) {
         win->windows[1]->setVisible(win->windows[1], 0);
@@ -738,7 +739,669 @@ void STGMCARD_hideSaves(MemCardSaves *saves) {
     saves->setState(saves, 2);
 }
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_800844DC);
+/*
+ * The save list's states (saves->substate): picks the port, reads the card's
+ * info section, lets the menu pick a slot, then loads or saves it. A failed
+ * operation leaves its result in count and goes to 100, which shows
+ * STGMCARD_errorTexts[count] and can format the card (110) or create the save
+ * file (120). 400 waits for the card and goes on to step.
+ * Match depends on the separate variables: result lives across calls, status,
+ * check, member and j each keep their own register.
+ */
+void func_800844DC(MemCardSaves *saves, MemCardSavesWindows *win) {
+    MemCardSave *save;
+    s32 prev;
+    s32 result;
+    s32 j;
+    s32 blocks;
+    s32 ask;
+    s32 i;
+    s32 status;
+    s32 member;
+    s32 check;
+
+    switch (saves->substate) {
+    case 0:
+    default:
+        win->unk0->setDepth(win->unk0, 1);
+        if (saves->screen->saving == 0) {
+            win->unk0->setString(win->unk0, FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 1);
+        } else {
+            win->unk0->setString(win->unk0, FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 0xE);
+        }
+        if (win->info == NULL) {
+            win->info = STGMCARD_createInfo(saves);
+        }
+        saves->substate++;
+    case 1:
+        if (STGMCARD_funcs.updateLerp(&saves->slide[1]) != 0) {
+            win->windows[0]->setVisible(win->windows[0], 0);
+            if (saves->screen->saving == 0) {
+                win->windows[4]->setString(win->windows[4], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 2);
+            } else {
+                win->windows[4]->setString(win->windows[4], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 0xF);
+            }
+            win->windows[1]->setDepth(win->windows[1], 1);
+            win->windows[1]->setString(win->windows[1], FILE_CACHE.load(TEXT_FILE(0x79)), 0x1D);
+            win->windows[2]->setString(win->windows[2], FILE_CACHE.load(TEXT_FILE(0x79)), 3);
+            win->windows[2]->setNumber(win->windows[2], 1, 1);
+            win->windows[3]->setString(win->windows[3], FILE_CACHE.load(TEXT_FILE(0x79)), 3);
+            win->windows[3]->setNumber(win->windows[3], 1, 2);
+            win->cursor->setVisible(win->cursor, 1);
+            win->cursor->setPos(win->cursor, 0xC2, saves->port * 14 + 0xBD);
+            saves->unk2844 = 1;
+            saves->substate++;
+        }
+        win->unk0->setPos(win->unk0, saves->unk58[0] + (s16)(saves->slide[0].value + 200), saves->unk58[1] + (s16)(saves->slide[1].value + 9));
+        break;
+    case 2:
+        prev = saves->port;
+        if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
+            saves->port = 0;
+        } else if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
+            saves->port = 1;
+        }
+        if (prev != saves->port) {
+            win->cursor->setPos(win->cursor, 0xC2, saves->port * 14 + 0xBD);
+            SOUND.playSound(0x8004513E);
+        }
+        if (PAD_PRESSED(PAD_CROSS)) {
+            win->windows[0]->setString(win->windows[0], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 4);
+            STGMCARD_showPort(saves, win, 1);
+            win->windows[1]->setVisible(win->windows[1], 0);
+            win->windows[2]->setVisible(win->windows[2], 0);
+            win->windows[3]->setVisible(win->windows[3], 0);
+            win->cursor->setVisible(win->cursor, 0);
+            if (win->panel == NULL) {
+                win->panel = STGMCARD_createPanel(0xCD, 0xC1, 0x62, 0xA);
+            }
+            win->panel->setTopColor(win->panel, 0x7F, 0x32, 0xF2);
+            win->panel->setBottomColor(win->panel, 0xD1, 0x2F, 0xDE);
+            saves->substate = 10;
+            SOUND.playSound(0x8004503C);
+            saves->unk2844 = 0;
+        } else if (PAD_PRESSED(PAD_TRIANGLE)) {
+            SOUND.playSound(0x800450BD);
+            saves->hide(saves);
+            saves->unk2844 = 0;
+            saves->screen->step = 1;
+        }
+        break;
+    case 10:
+        if (win->panel->substate == 0) {
+            win->panel->start(win->panel, 1, 0x4C);
+        }
+        status = saves->count = MEMCARD_SYSTEM.funcs.accept(saves->port);
+        if (status != 0) {
+            if (status == 1 || status - 1 == 3) {
+                saves->substate++;
+            } else {
+                win->panel->start(win->panel, 2, 0x14);
+                saves->substate += 2;
+            }
+        }
+        break;
+    case 11:
+        status = saves->count = MEMCARD_SYSTEM.funcs.list(saves->port);
+        if (status != 0) {
+            win->panel->start(win->panel, 2, 0x14);
+            saves->substate++;
+        }
+        break;
+    case 12:
+        if (win->panel->done != 0) {
+            if (saves->count == 1) {
+                saves->substate = 20;
+            } else {
+                func_80084230(saves, win);
+            }
+        }
+        break;
+    case 20:
+        if (win->panel->done != 0) {
+            win->windows[0]->setString(win->windows[0], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 5);
+            STGMCARD_showPort(saves, win, 1);
+            win->panel->reset(win->panel);
+            win->panel->start(win->panel, 1, 0x4C);
+            saves->substate++;
+        }
+    case 21:
+        status = saves->count = MEMCARD_SYSTEM.funcs.read(saves->port, (u8 *)STGMCARD_funcs.infoBuf, sizeof(MemCardFile), 1);
+        if (status != 0) {
+            win->panel->start(win->panel, 2, 0x14);
+            saves->substate++;
+        }
+        break;
+    case 22:
+        if (win->panel->done != 0) {
+            if (saves->count == 1) {
+                if (STGMCARD_funcs.infoBuf->magic != MEMCARD_FILE_MAGIC) {
+                    HEAP.zero(STGMCARD_funcs.infoBuf, 0x44);
+                    STGMCARD_funcs.infoBuf->magic = MEMCARD_FILE_MAGIC;
+                    STGMCARD_funcs.infoBuf->version = MEMCARD_SAVE_VERSION;
+                } else if (MEMCARD_SYSTEM.funcs.computeChecksum((u8 *)&STGMCARD_funcs.infoBuf->magic, sizeof(MemCardFile) - 4) & ~STGMCARD_funcs.infoBuf->checksum) {
+                    saves->count = 9;
+                    func_80084230(saves, win);
+                    break;
+                } else {
+                    saves->file = *STGMCARD_funcs.infoBuf;
+                    STGMCARD_funcs.unk0 = STGMCARD_funcs.infoBuf->last;
+                }
+                win->windows[0]->setVisible(win->windows[0], 0);
+                win->windows[4]->setVisible(win->windows[4], 0);
+                win->panel->reset(win->panel);
+                saves->substate = 30;
+            } else {
+                func_80084230(saves, win);
+            }
+        }
+        break;
+    case 30:
+        win->windows[0]->setVisible(win->windows[0], 0);
+        win->windows[4]->setVisible(win->windows[4], 0);
+        if (win->menu->unkCC != 5) {
+            win->menu->reset(win->menu);
+        }
+        if (win->info != NULL) {
+            win->info->show(win->info);
+        }
+        saves->substate++;
+        break;
+    case 31:
+        if (win->menu->substate == 0) {
+            if (win->menu->unkCC == 0) {
+                win->menu->unkE0(win->menu);
+            } else if (win->menu->unkCC == 1) {
+                win->menu->unkEC(win->menu);
+            } else if (win->menu->unkCC == 2) {
+                win->menu->unkE4(win->menu, STGMCARD_funcs.unk0);
+                saves->substate++;
+            }
+        }
+        break;
+    case 32:
+        if (win->menu->substate == 6) {
+            if (saves->screen->saving == 0) {
+                win->windows[1]->setString(win->windows[1], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 6);
+            } else {
+                win->windows[1]->setString(win->windows[1], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 0x10);
+            }
+            win->info->unk5C = 1;
+            win->info->shown = 1;
+            win->info->refresh(win->info);
+            saves->nextSubstate(saves);
+            win->menu->substate = 6;
+        }
+        break;
+    case 33:
+        if (win->menu->substate == 6) {
+            if (PAD_PRESSED(PAD_CROSS)) {
+                SOUND.playSound(0x4001C);
+                saves->substate = 400;
+                win->menu->substate = 0;
+                if (saves->screen->saving == 0) {
+                    if (STGMCARD_funcs.infoBuf->saves[STGMCARD_funcs.slot].name[0] != 0) {
+                        saves->step = 40;
+                        saves->choice = 0;
+                        win->windows[1]->setString(win->windows[1], FILE_CACHE.load(TEXT_FILE(0x79)), 7);
+                        win->windows[2]->setString(win->windows[2], FILE_CACHE.load(TEXT_FILE(0x79)), 0x16);
+                        win->windows[3]->setString(win->windows[3], FILE_CACHE.load(TEXT_FILE(0x79)), 0x17);
+                        win->cursor->setVisible(win->cursor, 1);
+                        saves->unk2844 = 1;
+                        win->cursor->setPos(win->cursor, 0xC2, saves->choice * 14 + 0xBD);
+                    } else {
+                        saves->step = 50;
+                    }
+                } else {
+                    saves->step = 70;
+                }
+            } else if (PAD_PRESSED(PAD_TRIANGLE)) {
+                SOUND.playSound(0x800450BD);
+                win->menu->substate = 0;
+                saves->substate = 90;
+                saves->step = 1;
+            } else {
+                status = MEMCARD_SYSTEM.funcs.check(saves->port);
+                if (status != 0) {
+                    if (status != 1) {
+                        saves->count = status - 1;
+                        func_80084308(saves, win);
+                    }
+                }
+            }
+        }
+        break;
+    case 90:
+        if (win->menu->substate == 0) {
+            switch (win->menu->unkCC) {
+            case 3:
+                win->menu->unkE8(win->menu);
+                saves->substate = saves->step;
+                saves->step = saves->counter;
+                saves->counter = 0;
+                break;
+            case 2:
+                win->info->hide(win->info);
+                win->menu->unkF0(win->menu);
+                break;
+            }
+        }
+        break;
+    case 600:
+        if (win->menu->substate == 0) {
+            if (win->menu->unkCC == 2) {
+                win->info->hide(win->info);
+                win->menu->unkF0(win->menu);
+            } else if (win->menu->unkCC == 3) {
+                win->menu->unkE8(win->menu);
+                saves->substate++;
+            }
+        }
+        break;
+    case 601:
+        saves->hide(saves);
+        break;
+    case 70:
+        if (STGMCARD_funcs.infoBuf->saves[STGMCARD_funcs.slot].name[0] == 0) {
+            win->windows[1]->setString(win->windows[1], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 0x18);
+            saves->unk2838 = 1;
+            saves->substate = 501;
+            saves->step = 32;
+            saves->unk2848 = 1;
+        } else {
+            win->windows[1]->setString(win->windows[1], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 0x11);
+            win->panel->start(win->panel, 1, MEMCARD_LOAD_FRAMES);
+            saves->substate++;
+        }
+        break;
+    case 71:
+        status = saves->count = MEMCARD_SYSTEM.funcs.read(saves->port, (u8 *)STGMCARD_funcs.dataBuf, sizeof(GameSave), STGMCARD_funcs.slot + 2);
+        if (status != 0) {
+            if (status == 1) {
+                if (MEMCARD_SYSTEM.funcs.computeChecksum(&STGMCARD_funcs.dataBuf->unk0[4], sizeof(GameSave) - 4) & ~STGMCARD_funcs.dataBuf->unk0[0]) {
+                    saves->count = 8;
+                    func_80084308(saves, win);
+                } else if (STGMCARD_funcs.dataBuf->unk0[2] != MEMCARD_SAVE_VERSION && saves->screen->saving != 0) {
+                    saves->count = 8;
+                    func_80084308(saves, win);
+                } else {
+                    *(GameSave *)&GAME = *(GameSave *)STGMCARD_funcs.dataBuf;
+                    win->panel->start(win->panel, 2, 0x14);
+                    saves->substate = 500;
+                    win->menu->substate = 0;
+                    saves->unk2848 = 0;
+                }
+            } else {
+                saves->count = status - 1;
+                func_80084308(saves, win);
+            }
+        }
+        break;
+    case 40:
+        prev = saves->choice;
+        if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
+            saves->choice = 0;
+        } else if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
+            saves->choice = 1;
+        }
+        if (prev != saves->choice) {
+            win->cursor->setPos(win->cursor, 0xC2, saves->choice * 14 + 0xBD);
+            SOUND.playSound(0x8004513E);
+        }
+        if (PAD_PRESSED(PAD_CROSS)) {
+            win->windows[2]->setVisible(win->windows[2], 0);
+            win->windows[3]->setVisible(win->windows[3], 0);
+            win->cursor->setVisible(win->cursor, 0);
+            SOUND.playSound(0x8004503C);
+            /* match depends on the 400 going through status */
+            status = 400;
+            saves->unk2844 = 0;
+            saves->substate = status;
+            if (saves->choice == 0) {
+                saves->step = 50;
+            } else {
+                saves->step = 32;
+                win->menu->substate = 6;
+            }
+        } else if (PAD_PRESSED(PAD_TRIANGLE)) {
+            win->windows[2]->setVisible(win->windows[2], 0);
+            win->windows[3]->setVisible(win->windows[3], 0);
+            win->cursor->setVisible(win->cursor, 0);
+            SOUND.playSound(0x800450BD);
+            saves->substate = 400;
+            saves->unk2844 = 0;
+            saves->step = 32;
+            win->menu->substate = 6;
+        } else {
+            result = MEMCARD_SYSTEM.funcs.check(saves->port);
+            if (result != 0) {
+                if (result != 1) {
+                    win->windows[2]->setVisible(win->windows[2], 0);
+                    win->windows[3]->setVisible(win->windows[3], 0);
+                    win->cursor->setVisible(win->cursor, 0);
+                    saves->unk2844 = 0;
+                    saves->count = result - 1;
+                    func_80084308(saves, win);
+                }
+            }
+        }
+        break;
+    case 50:
+        win->windows[1]->setString(win->windows[1], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 8);
+        win->panel->start(win->panel, 1, MEMCARD_SAVE_FRAMES);
+        saves->substate++;
+        break;
+    case 51:
+        save = &STGMCARD_funcs.infoBuf->saves[STGMCARD_funcs.slot];
+        *(GameSave *)STGMCARD_funcs.dataBuf = *(GameSave *)&GAME;
+        STGMCARD_funcs.dataBuf->unk0[0] = MEMCARD_SYSTEM.funcs.computeChecksum(&STGMCARD_funcs.dataBuf->unk0[4], sizeof(GameSave) - 4);
+        STGMCARD_funcs.dataBuf->unk0[2] = MEMCARD_SAVE_VERSION;
+        strcpy(save->name, STGMCARD_funcs.dataBuf->name);
+        save->unk18 = saves->screen->unk68;
+        save->unk1C = saves->screen->unk6C;
+        save->money = STGMCARD_funcs.dataBuf->money;
+        save->time = *(PlayTime *)&STGMCARD_funcs.dataBuf->playFrames;
+        for (i = 0; i < 3; i++) {
+            member = GAME.funcs.getPartyMember(i);
+            save->levels[i] = STGMCARD_funcs.dataBuf->partners[member].level;
+            save->partners[i] = STGMCARD_funcs.dataBuf->partners[member].unlocked;
+        }
+        STGMCARD_funcs.infoBuf->last = STGMCARD_funcs.slot;
+        STGMCARD_funcs.infoBuf->checksum = MEMCARD_SYSTEM.funcs.computeChecksum((u8 *)&STGMCARD_funcs.infoBuf->magic, sizeof(MemCardFile) - 4);
+        saves->substate++;
+        break;
+    case 52:
+        status = saves->count = MEMCARD_SYSTEM.funcs.write(saves->port, (u8 *)STGMCARD_funcs.infoBuf, sizeof(MemCardFile), 1);
+        if (status != 0) {
+            if (status == 1) {
+                saves->substate++;
+            } else {
+                saves->count = status - 1;
+                func_80084308(saves, win);
+            }
+        }
+        break;
+    case 53:
+        status = saves->count = MEMCARD_SYSTEM.funcs.write(saves->port, (u8 *)STGMCARD_funcs.dataBuf, sizeof(GameSave), STGMCARD_funcs.slot + 2);
+        if (status != 0) {
+            if (status == 1) {
+                win->panel->start(win->panel, 2, 0x14);
+                saves->substate = 500;
+            } else {
+                saves->count = status - 1;
+                func_80084308(saves, win);
+            }
+        }
+        break;
+    case 500:
+        if (win->panel->done != 0) {
+            if (saves->screen->saving == 0) {
+                saves->file = *STGMCARD_funcs.infoBuf;
+                saves->refresh(saves);
+                win->windows[1]->setString(win->windows[1], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 9);
+                saves->step = 32;
+            } else {
+                win->windows[1]->setString(win->windows[1], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 0x12);
+                saves->step = 400;
+                saves->substate++;
+            }
+            saves->substate++;
+            win->panel->reset(win->panel);
+            saves->unk2838 = 1;
+        }
+        break;
+    case 501:
+        if (PAD_PRESSED(PAD_CROSS)) {
+            SOUND.playSound(0x4001C);
+            saves->unk2838 = 0;
+            saves->substate = saves->step;
+            if (saves->screen->saving == 0) {
+                saves->setStep(saves, 0);
+                win->menu->substate = 6;
+            } else {
+                win->windows[1]->setVisible(win->windows[1], 0);
+                saves->step = 600;
+                if (saves->unk2848 != 0) {
+                    win->menu->substate = 6;
+                } else {
+                    win->menu->substate = 0;
+                }
+            }
+        } else {
+            check = MEMCARD_SYSTEM.funcs.check(saves->port);
+            if (check != 0) {
+                if (check != 1) {
+                    saves->unk2838 = 0;
+                    saves->count = 1;
+                    func_80084308(saves, win);
+                }
+            }
+        }
+        break;
+    case 502:
+        if (PAD_PRESSED(PAD_CROSS)) {
+            SOUND.playSound(0x4001C);
+            saves->unk2838 = 0;
+            saves->substate = saves->step;
+            win->windows[1]->setVisible(win->windows[1], 0);
+            saves->step = 600;
+            win->menu->substate = 0;
+        }
+        break;
+    case 100:
+        win->windows[0]->setString(win->windows[0], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), STGMCARD_errorTexts[saves->count]);
+        STGMCARD_showPort(saves, win, 1);
+        if (saves->screen->saving == 0) {
+            if (saves->count == 4) {
+                saves->choice = 1;
+                ask = 1;
+            } else if (saves->count == 5) {
+                if (MEMCARD.fileCount != 0) {
+                    blocks = 0;
+                    for (j = 0; j < MEMCARD.fileCount; j++) {
+                        blocks += MEMCARD.files[j].size / 0x2000;
+                    }
+                    if (blocks + 4 >= 16) {
+                        win->windows[0]->setVisible(win->windows[0], 0);
+                        saves->count = 7;
+                        saves->substate = 100;
+                        break;
+                    }
+                }
+                ask = 1;
+            } else {
+                saves->unk2838 = 1;
+                ask = 0;
+                if (saves->count == 7) {
+                    win->windows[0]->setNumber(win->windows[0], 1, 4);
+                }
+            }
+            if (ask) {
+                if (saves->count == 4) {
+                    win->windows[1]->setString(win->windows[1], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 0x19);
+                } else {
+                    win->windows[1]->setString(win->windows[1], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 0x1A);
+                }
+                win->windows[2]->setString(win->windows[2], FILE_CACHE.load(TEXT_FILE(0x79)), 0x16);
+                win->windows[3]->setString(win->windows[3], FILE_CACHE.load(TEXT_FILE(0x79)), 0x17);
+                win->cursor->setVisible(win->cursor, 1);
+                saves->unk2844 = 1;
+                win->cursor->setPos(win->cursor, 0xC2, saves->choice * 14 + 0xBD);
+            }
+        } else {
+            saves->unk2838 = 1;
+        }
+        saves->substate++;
+        break;
+    case 101:
+        if (saves->screen->saving == 0 && (u32)(saves->count - 4) < 2) {
+            prev = saves->choice;
+            if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
+                saves->choice = 0;
+            } else if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
+                saves->choice = 1;
+            }
+            if (prev != saves->choice) {
+                SOUND.playSound(0x8004513E);
+                win->cursor->setPos(win->cursor, 0xC2, saves->choice * 14 + 0xBD);
+            }
+            if (PAD_PRESSED(PAD_CROSS)) {
+                SOUND.playSound(0x8004503C);
+                win->windows[0]->setVisible(win->windows[0], 0);
+                win->windows[4]->setVisible(win->windows[4], 0);
+                win->windows[1]->setVisible(win->windows[1], 0);
+                win->windows[2]->setVisible(win->windows[2], 0);
+                win->windows[3]->setVisible(win->windows[3], 0);
+                win->cursor->setVisible(win->cursor, 0);
+                saves->substate = 400;
+                saves->unk2844 = 0;
+                if (saves->count == 4) {
+                    if (saves->choice == 0) {
+                        saves->step = 110;
+                        win->windows[0]->setString(win->windows[0], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 0x1E);
+                        STGMCARD_showPort(saves, win, 1);
+                        win->panel->start(win->panel, 1, 0x90);
+                    } else {
+                        saves->step = 1;
+                        win->panel->reset(win->panel);
+                    }
+                } else if (saves->choice == 0) {
+                    saves->step = 120;
+                    win->windows[0]->setString(win->windows[0], FILE_CACHE_LOAD[0](TEXT_FILE(0x79)), 0x1F);
+                    STGMCARD_showPort(saves, win, 1);
+                    win->panel->start(win->panel, 1, 0x90);
+                } else {
+                    saves->step = 1;
+                    win->panel->reset(win->panel);
+                }
+            } else if (PAD_PRESSED(PAD_TRIANGLE)) {
+                SOUND.playSound(0x800450BD);
+                win->windows[0]->setVisible(win->windows[0], 0);
+                win->windows[4]->setVisible(win->windows[4], 0);
+                win->windows[1]->setVisible(win->windows[1], 0);
+                win->windows[2]->setVisible(win->windows[2], 0);
+                win->windows[3]->setVisible(win->windows[3], 0);
+                win->cursor->setVisible(win->cursor, 0);
+                saves->substate = 400;
+                saves->unk2844 = 0;
+                saves->step = 1;
+                win->panel->reset(win->panel);
+            }
+            status = MEMCARD_SYSTEM.funcs.check(saves->port);
+            if (status != 0) {
+                if (status != 1) {
+                    saves->count = status;
+                    saves->unk2844 = 0;
+                    func_80084230(saves, win);
+                }
+            }
+        } else if (PAD_PRESSED(PAD_CROSS)) {
+            SOUND.playSound(0x4001C);
+            saves->substate = 400;
+            saves->unk2838 = 0;
+            saves->step = 1;
+        }
+        break;
+    case 400:
+        status = saves->count = MEMCARD_SYSTEM.funcs.check(saves->port);
+        if (status != 0) {
+            saves->substate++;
+        }
+        break;
+    case 401:
+        if (saves->count != 1) {
+            func_80084230(saves, win);
+        }
+        saves->substate = saves->step;
+        saves->step = saves->counter;
+        saves->counter = 0;
+        break;
+    case 110:
+        status = saves->count = MEMCARD_SYSTEM.funcs.format(saves->port);
+        if (status != 0) {
+            if (status == 1) {
+                win->panel->start(win->panel, 2, 0x14);
+                saves->substate++;
+            } else {
+                func_80084230(saves, win);
+            }
+        }
+        break;
+    case 111:
+        if (win->panel->done != 0) {
+            func_80084230(saves, win);
+            saves->count = 5;
+        }
+        break;
+    case 120:
+        saves->substate = 121;
+        break;
+    case 121:
+        status = saves->count = MEMCARD_SYSTEM.funcs.create(saves->port);
+        if (status != 0) {
+            if (status == 1) {
+                saves->substate++;
+            } else {
+                func_80084230(saves, win);
+            }
+        }
+        break;
+    case 122:
+        status = saves->count = MEMCARD_SYSTEM.funcs.write(saves->port, (u8 *)&MEMCARD.header, sizeof(CardHeader), 0);
+        if (status != 0) {
+            if (status == 1) {
+                if ((u32)(MEMCARD.iconCount - 1) >= 3) {
+                    saves->count = 3;
+                    func_80084230(saves, win);
+                } else {
+                    MEMCARD.unk324 = 0;
+                    saves->substate++;
+                }
+            } else {
+                saves->count = 10;
+                func_80084230(saves, win);
+            }
+        }
+        break;
+    case 123:
+        status = saves->count = MEMCARD_SYSTEM.funcs.write(saves->port, (u8 *)MEMCARD.icons[MEMCARD.unk324], 0x80, (MEMCARD.unk324 * 0x80 + 0x80) << 8);
+        if (status != 0) {
+            if (status == 1) {
+                MEMCARD.unk324++;
+                if (MEMCARD.unk324 > MEMCARD.iconCount - 1) {
+                    HEAP.zero(STGMCARD_funcs.infoBuf, sizeof(MemCardFile));
+                    STGMCARD_funcs.infoBuf->magic = MEMCARD_FILE_MAGIC;
+                    STGMCARD_funcs.infoBuf->version = MEMCARD_SAVE_VERSION;
+                    STGMCARD_funcs.infoBuf->checksum = MEMCARD_SYSTEM.funcs.computeChecksum((u8 *)&STGMCARD_funcs.infoBuf->magic, sizeof(MemCardFile) - 4);
+                    saves->file = *STGMCARD_funcs.infoBuf;
+                    STGMCARD_funcs.unk0 = STGMCARD_funcs.infoBuf->last;
+                    saves->substate++;
+                }
+            } else {
+                saves->count = 11;
+                func_80084230(saves, win);
+            }
+        }
+        break;
+    case 124:
+        status = saves->count = MEMCARD_SYSTEM.funcs.write(saves->port, (u8 *)STGMCARD_funcs.infoBuf, sizeof(MemCardFile), 1);
+        if (status != 0) {
+            win->panel->start(win->panel, 2, 0x14);
+            saves->substate++;
+        }
+        break;
+    case 125:
+        if (win->panel->done != 0) {
+            win->panel->reset(win->panel);
+            if (saves->count == 1) {
+                saves->substate = 30;
+            } else {
+                func_80084230(saves, win);
+            }
+        }
+        break;
+    }
+}
 
 /* Draws the save list's sprites: a menu sprite whose palette cycles while
    unk2838 is set, the list's own sprite and, while unk2844 is set, one more */
@@ -811,12 +1474,12 @@ void func_80086BA0(MemCardSaves *saves, MemCardSavesWindows *win) {
     }
 }
 
-MemCardSaves *STGMCARD_createSaves(s32 arg) {
+MemCardSaves *STGMCARD_createSaves(MemCardScreen *screen) {
     MemCardSaves *saves = createTask(func_80086BA0, sizeof(MemCardSaves), sizeof(MemCardSavesWindows));
 
     saves->refresh = STGMCARD_refreshSaves;
     saves->hide = STGMCARD_hideSaves;
-    saves->unk50 = arg;
+    saves->screen = screen;
     saves->layer = 0x1000;
     return saves;
 }
@@ -848,7 +1511,7 @@ void func_80086E5C(MemCardScreen *screen, MemCardScreenTasks *tasks) {
         case 0:
         default:
             if (tasks->saves == NULL) {
-                tasks->saves = STGMCARD_createSaves((s32)screen);
+                tasks->saves = STGMCARD_createSaves(screen);
             }
             screen->nextSubstate(screen);
             break;
@@ -1072,7 +1735,7 @@ s32 D_80087918[] = {
 s32 D_80087938[] = {
     109, 177, 245,
 };
-s32 D_80087944[] = {
+s32 STGMCARD_errorTexts[] = {
     1, 10, 27, 10,
     11, 12, 28, 13,
     38, 36, 37,
