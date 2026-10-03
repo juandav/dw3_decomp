@@ -34,7 +34,7 @@ CARDGAME_scaleSprite = 0x8009B88C; // type:func
 CARDGAME_setSpriteMove = 0x8009B8B4; // type:func
 CARDGAME_clearPanelFlags = 0x8009BCF8; // type:func
 CARDGAME_removeSprite = 0x8009BD50; // type:func
-CARDGAME_getCardNumber = 0x8009BEB4; // type:func
+CARDGAME_getCardColor = 0x8009BEB4; // type:func
 CARDGAME_setSpriteCard = 0x8009BF10; // type:func
 CARDGAME_setPanelValue = 0x8009BA34; // type:func
 CARDGAME_setPanelFlags = 0x8009BBA0; // type:func
@@ -43,3 +43,17 @@ CARDGAME_loadCardImage = 0x8009C004; // type:func
 CARDGAME_loadCardImages = 0x8009C0B0; // type:func
 CARDGAME_createScreen = 0x8009C264; // type:func
 CARDGAME_updateScreen = 0x8009AAFC; // type:func
+
+// the marker and the deck window
+CARDGAME_drawMarker = 0x8009504C; // type:func
+CARDGAME_updateMarker = 0x800951A8; // type:func
+CARDGAME_setMarkerPos = 0x80095338; // type:func
+CARDGAME_setMarkerFast = 0x80095344; // type:func
+CARDGAME_closeMarker = 0x80095354; // type:func
+CARDGAME_createMarker = 0x80095374; // type:func
+CARDGAME_drawDeckWindow = 0x800953E4; // type:func
+CARDGAME_updateDeckWindow = 0x8009560C; // type:func
+CARDGAME_setDeckWindowBlink = 0x800959EC; // type:func
+CARDGAME_closeDeckWindow = 0x800959FC; // type:func
+CARDGAME_createDeckWindow = 0x80095A1C; // type:func
+CARDGAME_deckCountOffsets = 0x800A4844;

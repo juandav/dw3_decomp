@@ -7,6 +7,7 @@ extern CardFileEntry CARDGAME_preloadFiles[];
 CardBattle *CARDGAME_createBattle(s32 arg);
 void initCardDrawer(CardDrawer *obj);
 extern s16 D_800A49D8[];
+extern CardOffset CARDGAME_deckCountOffsets[];
 extern s16 D_800A4AA0[];
 void CARDGAME_updateScreen(CardScreen *screen);
 
@@ -348,27 +349,231 @@ Task *CARDGAME_start(void) {
     return createTask(CARDGAME_updateScene, sizeof(Task), 4);
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009504C);
+void CARDGAME_drawMarker(CardMarker *marker) {
+    SpriteDrawer drawer;
+    s32 row;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800951A8);
+    if (marker->scaleX != 0 && marker->scaleY != 0) {
+        initSpriteDrawer(&drawer);
+        drawer.setPivot(marker->x, marker->y + 19);
+        drawer.setScale(marker->scaleX, marker->scaleY, 0x1000);
+        if (marker->fast == 0) {
+            drawer.setClutRow((marker->time >> 2) % 16);
+        } else {
+            row = marker->time >> 1;
+            if (row >= 7) {
+                row = 7;
+            }
+            drawer.setClutRow(row);
+        }
+        drawer.setLayerId(0x100, 1);
+        drawer.setTexture(0x280, 0);
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), 0x47, marker->x, marker->y);
+        marker->time += GFX.funcs.getFrameTime();
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80095338);
+void CARDGAME_updateMarker(CardMarker *marker) {
+    switch (marker->state) {
+    case 0:
+    default:
+        marker->nextState(marker);
+        marker->scaleDuration = 10;
+        marker->scaleTime = 10;
+        marker->phase = 0;
+        marker->scaleX = 0x1000;
+        marker->scaleY = 0;
+        break;
+    case 1:
+        switch (marker->phase) {
+        case 0:
+            marker->scaleY = 0x1000 - (marker->scaleTime << 12) / marker->scaleDuration;
+            marker->scaleTime -= GFX.funcs.getFrameTime();
+            if (marker->scaleTime <= 0) {
+                marker->scaleY = 0x1000;
+                marker->phase = 1;
+            }
+            break;
+        case 1:
+            break;
+        case 2:
+            marker->setState(marker, 2);
+            break;
+        }
+        break;
+    case 2:
+        marker->scaleY = (marker->scaleTime << 12) / marker->scaleDuration;
+        marker->scaleTime -= GFX.funcs.getFrameTime();
+        if (marker->scaleTime <= 0) {
+            marker->scaleY = 0;
+            marker->setState(marker, 3);
+        }
+        break;
+    case 3:
+        break;
+    }
+    CARDGAME_drawMarker(marker);
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80095344);
+void CARDGAME_setMarkerPos(CardMarker *marker, s16 x, s16 y) {
+    marker->x = x;
+    marker->y = y;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80095354);
+void CARDGAME_setMarkerFast(CardMarker *marker) {
+    marker->fast = 1;
+    marker->time = 0;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80095374);
+void CARDGAME_closeMarker(CardMarker *marker) {
+    marker->scaleDuration = 5;
+    marker->scaleTime = 5;
+    marker->phase = 2;
+    marker->scaleY = 0x1000;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800953E4);
+CardMarker *CARDGAME_createMarker(s16 x, s16 y) {
+    CardMarker *marker = createTask(CARDGAME_updateMarker, sizeof(CardMarker), 0);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009560C);
+    marker->setPos = CARDGAME_setMarkerPos;
+    marker->close = CARDGAME_closeMarker;
+    marker->setFast = CARDGAME_setMarkerFast;
+    marker->x = x;
+    marker->y = y;
+    marker->fast = 0;
+    return marker;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800959EC);
+void CARDGAME_drawDeckWindow(CardDeckWindow *window) {
+    s16 rows[8] = {0, 1, 2, 3, 2, 1, 0, 0};
+    SpriteDrawer frame;
+    SpriteDrawer icon;
+    s32 i;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800959FC);
+    if (window->scaleX != 0 && window->scaleY != 0) {
+        initSpriteDrawer(&frame);
+        frame.setPivot(window->x, window->y);
+        frame.setScale(window->scaleX, window->scaleY, 0x1000);
+        frame.setLayerId(0x100, 1);
+        frame.setTexture(0x280, 0);
+        frame.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), 0x45, window->x, window->y);
+        initSpriteDrawer(&icon);
+        icon.setPivot(window->x, window->y);
+        if (window->blink != 0) {
+            i = window->time >> 1;
+            if (i >= 7) {
+                i = 7;
+            }
+            icon.setClutRow(rows[i]);
+            window->time += GFX.funcs.getFrameTime();
+        }
+        icon.setScale(window->scaleX, window->scaleY, 0x1000);
+        icon.setLayerId(0x100, 1);
+        icon.setTexture(0x280, 0);
+        icon.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), 0x46, window->x, window->y);
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80095A1C);
+void CARDGAME_updateDeckWindow(CardDeckWindow *window, TextWindow **texts) {
+    s32 i;
+
+    switch (window->state) {
+    case 0:
+    default:
+        window->nextState(window);
+        window->scaleDuration = 12;
+        window->scaleTime = 12;
+        window->phase = 0;
+        window->scaleY = 0x1000;
+        window->scaleX = 0;
+        texts[0] = createTextWindow(0x100, 1, 0, 0);
+        texts[0]->setString(texts[0], GAME.decks[window->deck].name, -1);
+        texts[0]->setPos(texts[0], window->x + 5, window->y + 3);
+        for (i = 0; i < 6; i++) {
+            texts[i + 1] = createTextWindow(0x100, 1, 0, 0);
+            texts[i + 1]->setPos(texts[i + 1], window->x + CARDGAME_deckCountOffsets[i].x, window->y + CARDGAME_deckCountOffsets[i].y);
+            texts[i + 1]->setNumber(texts[i + 1], 0, window->counts[i]);
+            texts[i + 1]->setRightAlign(texts[i + 1], 1);
+        }
+        break;
+    case 1:
+        switch (window->phase) {
+        case 0:
+            window->scaleX = 0x1000 - (window->scaleTime << 12) / window->scaleDuration;
+            window->scaleTime -= GFX.funcs.getFrameTime();
+            if (window->scaleTime <= 0) {
+                window->scaleX = 0x1000;
+                window->phase = 1;
+            }
+            break;
+        case 1:
+            break;
+        case 2:
+            window->setState(window, 2);
+            break;
+        }
+        break;
+    case 2:
+        window->scaleX = (window->scaleTime << 12) / window->scaleDuration;
+        window->scaleTime -= GFX.funcs.getFrameTime();
+        if (window->scaleTime <= 0) {
+            window->scaleX = 0;
+            window->setState(window, 3);
+        }
+        break;
+    case 3:
+        break;
+    }
+    if (window->phase == 1) {
+        texts[0]->setPos(texts[0], window->x + 5, window->y + 3);
+        texts[0]->setVisible(texts[0], 1);
+        for (i = 0; i < 6; i++) {
+            texts[i + 1]->setVisible(texts[i + 1], 1);
+            texts[i + 1]->setPos(texts[i + 1], window->x + CARDGAME_deckCountOffsets[i].x, window->y + CARDGAME_deckCountOffsets[i].y);
+        }
+    } else {
+        texts[0]->setVisible(texts[0], 0);
+        for (i = 0; i < 6; i++) {
+            texts[i + 1]->setVisible(texts[i + 1], 0);
+        }
+    }
+    CARDGAME_drawDeckWindow(window);
+}
+
+void CARDGAME_setDeckWindowBlink(CardDeckWindow *window) {
+    window->blink = 1;
+    window->time = 0;
+}
+
+void CARDGAME_closeDeckWindow(CardDeckWindow *window) {
+    window->scaleDuration = 6;
+    window->scaleTime = 6;
+    window->phase = 2;
+    window->scaleX = 0x1000;
+}
+
+CardDeckWindow *CARDGAME_createDeckWindow(s32 deck, s32 x, s32 y) {
+    CardDrawer drawer;
+    CardDeckWindow *window;
+    s32 i;
+
+    initCardDrawer(&drawer);
+    window = createTask(CARDGAME_updateDeckWindow, sizeof(CardDeckWindow), 7 * 4);
+    for (i = 0; i < 6; i++) {
+        window->counts[i] = 0;
+    }
+    for (i = 0; i < 40; i++) {
+        drawer.setCard(GAME.decks[deck].cards[i]);
+        window->counts[drawer.card[0] - 1]++;
+    }
+    window->setBlink = CARDGAME_setDeckWindowBlink;
+    window->deck = deck;
+    window->x = x;
+    window->y = y;
+    window->blink = 0;
+    window->close = CARDGAME_closeDeckWindow;
+    return window;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80095B44);
 
@@ -387,8 +592,6 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009642C);
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80096504);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800965D8);
-
-INCLUDE_RODATA("cardgame/nonmatchings/cardgame", D_80082E80);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800966FC);
 
@@ -706,7 +909,7 @@ s32 CARDGAME_addSprite(CardScreen *screen, s32 index, s32 x, s32 y) {
     screen->sprites[index].targetScaleY = 0x1000;
     screen->sprites[index].scaleY = 0x1000;
     screen->sprites[index].index = 0;
-    screen->sprites[index].card = 0;
+    screen->sprites[index].color = 0;
     screen->sprites[index].slot = index;
     screen->sprites[index].unk43 = 0;
     screen->sprites[index].unk44 = 0;
@@ -975,7 +1178,7 @@ void CARDGAME_dealSprites(CardScreen *screen, s16 duration, s16 count, s32 x, s3
     }
 }
 
-u8 CARDGAME_getCardNumber(CardScreen *screen, s32 index) {
+u8 CARDGAME_getCardColor(CardScreen *screen, s32 index) {
     CardDrawer drawer;
 
     initCardDrawer(&drawer);
@@ -992,7 +1195,7 @@ void CARDGAME_setSpriteCard(CardScreen *screen, s32 sprite, s32 index) {
     screen->sprites[sprite].unk43 = drawer.card[1];
     screen->sprites[sprite].unk44 = drawer.card[2];
     screen->sprites[sprite].unk41 = drawer.card[5];
-    screen->sprites[sprite].card = drawer.card[0] - 1;
+    screen->sprites[sprite].color = drawer.card[0] - 1;
     if (drawer.card[3] == 0x10) {
         screen->sprites[sprite].isKind16 = 1;
     } else {
@@ -1089,7 +1292,7 @@ CardScreen *CARDGAME_createScreen(s16 *cards) {
     screen->unkEC0 = func_8009B314;
     screen->unkECC = func_8009B1B8;
     screen->setSpriteCard = CARDGAME_setSpriteCard;
-    screen->getCardNumber = CARDGAME_getCardNumber;
+    screen->getCardColor = CARDGAME_getCardColor;
     screen->loadCardImages = CARDGAME_loadCardImages;
     return screen;
 }
@@ -1744,9 +1947,9 @@ u16 D_800A482C[] = {
     0x0082, 0x00BF, 0x0082, 0x001D, 0x0082, 0x00CB, 0x0082, 0x0011,
 };
 RECT CARDGAME_screenRect = {0, 0, 320, 240};
-u16 D_800A4844[] = {
-    0x0024, 0x0014, 0x0047, 0x0014, 0x006A, 0x0014, 0x008D, 0x0014,
-    0x00B0, 0x0014, 0x00D3, 0x0014,
+/* where the deck window's six counts are */
+CardOffset CARDGAME_deckCountOffsets[] = {
+    {0x24, 0x14}, {0x47, 0x14}, {0x6A, 0x14}, {0x8D, 0x14}, {0xB0, 0x14}, {0xD3, 0x14},
 };
 #if VERSION_EU
 s32 D_800A5958[] = {

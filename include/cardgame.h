@@ -51,6 +51,50 @@ typedef struct CardFader {
     /* 0x74 */ void (*kill)(struct CardFader *fader);
 } CardFader;
 
+/* A blinking marker that opens and closes by scaling (CARDGAME_createMarker):
+   frame 0x47 of the TIM archive's sprite sheet */
+typedef struct CardMarker {
+    TASK_HEADER(CardMarker);
+    /* 0x50 */ s32 time; /* the blink */
+    /* 0x54 */ s16 x;
+    /* 0x56 */ s16 y;
+    /* 0x58 */ s16 scaleX;
+    /* 0x5A */ s16 scaleY;
+    /* 0x5C */ u8 unk5C[6];
+    /* 0x62 */ u8 phase; /* 0 opening, 1 open, 2 closing */
+    /* 0x63 */ u8 fast; /* the blink's palette cycle */
+    /* 0x64 */ s16 scaleTime;
+    /* 0x66 */ s16 scaleDuration;
+    /* 0x68 */ void (*setPos)(struct CardMarker *marker, s16 x, s16 y);
+    /* 0x6C */ void (*close)(struct CardMarker *marker);
+    /* 0x70 */ void (*setFast)(struct CardMarker *marker);
+} CardMarker;
+
+/* An offset from a window's corner */
+typedef struct CardOffset {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+} CardOffset;
+
+/* A deck's window (CARDGAME_createDeckWindow): its name and how many cards
+   of each of the six colours it has. It opens and closes by scaling. */
+typedef struct CardDeckWindow {
+    TASK_HEADER(CardDeckWindow);
+    /* 0x50 */ s32 deck; /* in GAME.decks */
+    /* 0x54 */ s32 time; /* the blink */
+    /* 0x58 */ s16 x;
+    /* 0x5A */ s16 y;
+    /* 0x5C */ s16 scaleX;
+    /* 0x5E */ s16 scaleY;
+    /* 0x60 */ u8 counts[6];
+    /* 0x66 */ u8 phase; /* 0 opening, 1 open, 2 closing */
+    /* 0x67 */ u8 blink;
+    /* 0x68 */ s16 scaleTime;
+    /* 0x6A */ s16 scaleDuration;
+    /* 0x6C */ void (*setBlink)(struct CardDeckWindow *window);
+    /* 0x70 */ void (*close)(struct CardDeckWindow *window);
+} CardDeckWindow;
+
 /* One side's panel on the battle screen (CardScreen.panels): 0 is the
    player's, 1 the opponent's */
 typedef struct CardPanel {
@@ -103,7 +147,7 @@ typedef struct CardSprite {
     /* 0x2C */ s32 duration;
     /* 0x30 */ s32 unk30;
     /* 0x34 */ u8 unk34[4];
-    /* 0x38 */ s16 card; /* the card's number, from 0 */
+    /* 0x38 */ s16 color; /* the card's colour, from 0 */
     /* 0x3A */ s16 index; /* in the battle's card list */
     /* 0x3C */ s16 isKind16;
     /* 0x3E */ u8 unk3E[3];
@@ -234,7 +278,7 @@ typedef struct CardScreen {
     /* 0xF34 */ s32 (*unkF34)(struct CardScreen *screen, s32 index);
     /* 0xF38 */ s32 (*unkF38)(struct CardScreen *screen, s32 index, s32 arg2);
     /* 0xF3C */ void (*setSpriteCard)(struct CardScreen *screen, s32 sprite, s32 index);
-    /* 0xF40 */ u8 (*getCardNumber)(struct CardScreen *screen, s32 index);
+    /* 0xF40 */ u8 (*getCardColor)(struct CardScreen *screen, s32 index);
     /* 0xF44 */ s32 (*loadCardImages)(s16 *dst, s16 *player, s16 *opponent);
 } CardScreen;
 
