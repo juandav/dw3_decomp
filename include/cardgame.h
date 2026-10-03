@@ -66,8 +66,7 @@ typedef struct CardPile {
     /* 0x06 */ s16 unk6;
     /* 0x08 */ s16 unk8;
     /* 0x0A */ s16 unkA; /* the cards in unk64 */
-    /* 0x0C */ u8 unkC;
-    /* 0x0D */ u8 unkD[4];
+    /* 0x0C */ u8 unkC[5]; /* one per card colour */
     /* 0x11 */ u8 unk11;
     /* 0x12 */ u8 unk12;
     /* 0x13 */ u8 unk13;
@@ -139,7 +138,8 @@ typedef struct CardBattle {
     /* 0x3FC */ u8 unk3FC[0x1F];
     /* 0x41B */ u8 unk41B;
     /* 0x41C */ u8 unk41C;
-    /* 0x41D */ u8 unk41D[4];
+    /* 0x41D */ u8 unk41D[3];
+    /* 0x420 */ u8 unk420;
     /* 0x421 */ u8 unk421;
     /* 0x422 */ u8 stepState; /* 1 when a step starts */
     /* 0x423 */ u8 unk423;
