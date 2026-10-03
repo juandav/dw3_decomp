@@ -283,17 +283,61 @@ INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087D5C);
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087E00);
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087EB0);
+void func_80087EB0(ShopItemList *list) {
+    list->setState(list, TASK_RUN);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087ED8);
+void func_80087ED8(ShopItemList *list) {
+    list->setState(list, TASK_RUN);
+    list->substate = 0x32;
+    func_80087E00(list, 0);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087F1C);
+s16 func_80087F1C(ShopItemList *list) {
+    if (!list->selling) {
+        return list->shopItems[list->selection];
+    }
+    return list->items[list->selection];
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087F64);
+void func_80087F64(ShopItemList *list) {
+    void *win = list->children;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087FD0);
+    func_80087FD0(list);
+    func_80086CE4(list, win, 1);
+    ((ShopBuy *)list->dialog)->showItem((ShopBuy *)list->dialog, list->items[list->selection], 1);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80088094);
+void func_80087FD0(ShopItemList *list) {
+    s32 i;
+    s32 n;
+
+    list->count = 0;
+    n = ITEM_FUNCS->list(list->type, list->bag);
+    for (i = 0; i < n; i++) {
+        if (ITEM_FUNCS->get(list->bag[i])->sellPrice != 0) {
+            list->items[list->count++] = list->bag[i];
+        }
+    }
+}
+
+ShopItemList *func_80088094(Task *dialog, s32 type, s32 selling) {
+    ShopItemList *list = createTask(func_800875AC, sizeof(ShopItemList), 0x50);
+
+    list->start = func_80087EB0;
+    list->close = func_80087ED8;
+    list->getSelected = func_80087F1C;
+    list->showCursor = func_80087E00;
+    list->freezeCursor = func_80087D5C;
+    list->refresh = func_80087F64;
+    list->listBag = func_80087FD0;
+    list->layer = 0x1000;
+    list->depth = 4;
+    list->dialog = dialog;
+    list->selling = selling;
+    list->type = type;
+    return list;
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80088150);
 
