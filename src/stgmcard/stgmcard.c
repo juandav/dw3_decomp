@@ -3,6 +3,12 @@
 extern MemCardScreenFuncs STGMCARD_funcs;
 extern SaveIcon STGMCARD_saveIcon;
 
+void func_800833A0();
+void func_80082E28();
+void func_80082904();
+void func_80086BA0();
+void func_80083B10();
+
 Task *func_80087174(void);
 
 void STGMCARD_updateScene(MemCardScene *task, Task **children) {
@@ -107,59 +113,232 @@ ScreenFade *STGMCARD_createFader(void) {
     return task;
 }
 
-void func_80082850(Task *task) {
-    task->setSubstate(task, 1);
+void STGMCARD_showInfo(MemCardInfo *info) {
+    info->setSubstate(info, 1);
 }
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80082878);
+void STGMCARD_hideInfo(MemCardInfo *info) {
+    TextWindow **windows;
+    s32 i;
+
+    info->setSubstate(info, 2);
+    windows = info->children;
+    for (i = 0; i < info->childCount; i++, windows++) {
+        if (*windows != NULL) {
+            (*windows)->setVisible(*windows, 0);
+        }
+    }
+}
 
 INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80082904);
 
 INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80082E28);
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_800832BC);
+MemCardInfo *STGMCARD_createInfo(MemCardSaves *saves) {
+    MemCardInfo *info = createTask(func_80082E28, sizeof(MemCardInfo), 0x4C);
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80083328);
+    info->show = STGMCARD_showInfo;
+    info->hide = STGMCARD_hideInfo;
+    info->refresh = func_80082904;
+    info->layer = 0x1000;
+    info->saves = saves;
+    info->depth = 1;
+    return info;
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_8008335C);
+void STGMCARD_resetPanel(MemCardPanel *panel) {
+    panel->substate = 0;
+    panel->duration = 0;
+    panel->rate = 0;
+    panel->done = 0;
+    panel->scale.vx = 0;
+    panel->scale.vz = 0x1000;
+    panel->scale.vy = 0x1000;
+    panel->pivotX = panel->x;
+    panel->pivotY = panel->y;
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_8008336C);
+void STGMCARD_startPanel(MemCardPanel *panel, s32 substate, s32 duration) {
+    panel->substate = substate;
+    panel->duration = duration;
+    panel->rate = 0;
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80083380);
+void STGMCARD_setPanelTopColor(MemCardPanel *panel, u8 r, u8 g, u8 b) {
+    panel->top.r = r;
+    panel->top.g = g;
+    panel->top.b = b;
+    panel->top.cd = 0;
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80083394);
+void STGMCARD_setPanelBottomColor(MemCardPanel *panel, u8 r, u8 g, u8 b) {
+    panel->bottom.r = r;
+    panel->bottom.g = g;
+    panel->bottom.b = b;
+    panel->bottom.cd = 0;
+}
+
+void STGMCARD_setPanelPos(MemCardPanel *panel, s32 x, s32 y) {
+    panel->x = x;
+    panel->y = y;
+}
 
 INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_800833A0);
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_800837A8);
+MemCardPanel *STGMCARD_createPanel(s32 x, s32 y, s32 w, s32 h) {
+    MemCardPanel *panel = createTask(func_800833A0, sizeof(MemCardPanel), 0);
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_8008385C);
+    panel->reset = STGMCARD_resetPanel;
+    panel->start = STGMCARD_startPanel;
+    panel->setTopColor = STGMCARD_setPanelTopColor;
+    panel->setBottomColor = STGMCARD_setPanelBottomColor;
+    panel->setPos = STGMCARD_setPanelPos;
+    panel->layer = 0x1000;
+    panel->depth = 1;
+    panel->x = x;
+    panel->y = y;
+    panel->w = w;
+    panel->h = h;
+    return panel;
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_800838CC);
+void func_8008385C(MemCardMenu *menu) {
+    TextWindow **windows = menu->children;
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80083934);
+    STGMCARD_funcs.startLerp(&menu->lerps[1], -0x55, 0, 10);
+    windows[0]->setNumber(windows[0], 1, menu->saves->port + 1);
+#if VERSION_EU
+    windows[0]->setVisible(windows[0], 0);
+#endif
+    menu->substate = 1;
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80083978);
+void func_800838CC(MemCardMenu *menu, s32 arg) {
+    STGMCARD_funcs.startLerp(&menu->lerps[2], 0, 0x2F, 8);
+    menu->substate = 5;
+    STGMCARD_funcs.unk4 = arg;
+    STGMCARD_funcs.unk8 = 0;
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_800839D8);
+void func_80083934(MemCardMenu *menu) {
+    STGMCARD_funcs.startLerp(&menu->lerps[1], 0, -0x55, 5);
+    menu->substate = 4;
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80083A1C);
+void func_80083978(MemCardMenu *menu) {
+    STGMCARD_funcs.startLerp(&menu->lerps[3], STGMCARD_funcs.unk8 * 0x44, STGMCARD_funcs.unk4 * 0x44, 5);
+    menu->substate = 7;
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80083A60);
+void func_800839D8(MemCardMenu *menu) {
+    STGMCARD_funcs.startLerp(&menu->lerps[0], 0xDE, 0, 10);
+    menu->substate = 2;
+}
+
+void func_80083A1C(MemCardMenu *menu) {
+    STGMCARD_funcs.startLerp(&menu->lerps[0], 0, 0xDE, 5);
+    menu->substate = 3;
+}
+
+void STGMCARD_resetMenu(MemCardMenu *menu) {
+    menu->substate = 0;
+    menu->unkCC = 0;
+    STGMCARD_funcs.unk4 = 0;
+    STGMCARD_funcs.unk8 = 0;
+    STGMCARD_funcs.startLerp(&menu->lerps[0], 0xDE, 0, 10);
+    STGMCARD_funcs.startLerp(&menu->lerps[1], -0x55, 0, 10);
+    STGMCARD_funcs.startLerp(&menu->lerps[2], 0, 0x2F, 8);
+    STGMCARD_funcs.startLerp(&menu->lerps[3], -1, 0, 1);
+    menu->lerps[3].value = 0;
+}
 
 INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80083B10);
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80084108);
+MemCardMenu *STGMCARD_createMenu(MemCardSaves *saves) {
+    MemCardMenu *menu = createTask(func_80083B10, sizeof(MemCardMenu), 4);
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80084198);
+    menu->reset = STGMCARD_resetMenu;
+    menu->unkE0 = func_8008385C;
+    menu->unkE4 = func_800838CC;
+    menu->unkE8 = func_80083934;
+    menu->unkEC = func_800839D8;
+    menu->unkF0 = func_80083A1C;
+    menu->layer = 0x1000;
+    menu->depth = 2;
+    menu->saves = saves;
+    return menu;
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80084230);
+void STGMCARD_showPort(MemCardSaves *saves, MemCardSavesWindows *win, s32 show) {
+    if (show) {
+        win->windows[4]->setString(win->windows[4], FILE_CACHE.load(TEXT_FILE(0x79)), 0x28);
+        win->windows[4]->setNumber(win->windows[4], 1, saves->port + 1);
+    } else {
+        win->windows[4]->setVisible(win->windows[4], 0);
+    }
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80084308);
+void func_80084230(MemCardSaves *saves, MemCardSavesWindows *win) {
+    saves->substate = 100;
+    saves->unk27FC = 0;
+    saves->count--;
+    if (win->windows[1] != NULL) {
+        win->windows[1]->setVisible(win->windows[1], 0);
+    }
+    if (win->windows[2] != NULL) {
+        win->windows[2]->setVisible(win->windows[2], 0);
+    }
+    if (win->windows[3] != NULL) {
+        win->windows[3]->setVisible(win->windows[3], 0);
+    }
+    if (win->cursor != NULL) {
+        win->cursor->setVisible(win->cursor, 0);
+    }
+    if (win->panel != NULL) {
+        win->panel->reset(win->panel);
+    }
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80084380);
+void func_80084308(MemCardSaves *saves, MemCardSavesWindows *win) {
+    win->windows[1]->setVisible(win->windows[1], 0);
+    win->panel->reset(win->panel);
+    saves->substate = 90;
+    saves->step = 100;
+    win->menu->substate = 0;
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_800843B8);
+void STGMCARD_refreshSaves(MemCardSaves *saves) {
+    MemCardSavesWindows *win = saves->children;
+
+    win->info->refresh(win->info);
+}
+
+void STGMCARD_hideSaves(MemCardSaves *saves) {
+    MemCardSavesWindows *win = saves->children;
+
+    if (win->windows[0] != NULL) {
+        win->windows[0]->setVisible(win->windows[0], 0);
+    }
+    if (win->windows[4] != NULL) {
+        win->windows[4]->setVisible(win->windows[4], 0);
+    }
+    if (win->windows[1] != NULL) {
+        win->windows[1]->setVisible(win->windows[1], 0);
+    }
+    if (win->windows[2] != NULL) {
+        win->windows[2]->setVisible(win->windows[2], 0);
+    }
+    if (win->windows[3] != NULL) {
+        win->windows[3]->setVisible(win->windows[3], 0);
+    }
+    if (win->cursor != NULL) {
+        win->cursor->setVisible(win->cursor, 0);
+    }
+    if (win->panel != NULL) {
+        win->panel->reset(win->panel);
+    }
+    saves->setState(saves, 2);
+}
 
 INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_800844DC);
 
@@ -167,7 +346,15 @@ INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_800869D4);
 
 INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80086BA0);
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80086E04);
+MemCardSaves *STGMCARD_createSaves(s32 arg) {
+    MemCardSaves *saves = createTask(func_80086BA0, sizeof(MemCardSaves), sizeof(MemCardSavesWindows));
+
+    saves->refresh = STGMCARD_refreshSaves;
+    saves->hide = STGMCARD_hideSaves;
+    saves->unk50 = arg;
+    saves->layer = 0x1000;
+    return saves;
+}
 
 INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80086E5C);
 
