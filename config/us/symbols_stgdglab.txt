@@ -1,3 +1,4 @@
 // STGDGLAB.PRO: the partner lab
 
 STGDGLAB_funcs = 0x8008F5B4; // size:0x20
+D_8008F58C = 0x8008F58C; // size:0x28

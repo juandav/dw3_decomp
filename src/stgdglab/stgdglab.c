@@ -7,6 +7,24 @@ LabMenu *func_80089F20(Lab *lab);
 Task *func_8008BB30(Lab *lab);
 ScreenFade *func_80082A84(void);
 void func_8008288C(ScreenFade *task);
+void func_800869FC(LabScreen2 *screen, void *children);
+void func_80086F6C(LabScreen2 *screen, void *children);
+void func_80087B68(LabScreen2 *screen, void *children);
+void func_80088164(LabMenu *menu, void *children);
+void func_800884A0(LabMenu *menu, void *children);
+void func_800893FC(LabMenu *menu, void *children);
+void func_8008397C(LabScreen3 *screen, void *children);
+void func_8008568C(LabPanel1 *panel, void *children);
+void func_8008B960(LabScreen1 *screen, void *children);
+void func_8008C234(LabPanel2 *panel, void *children);
+void func_8008E134(LabPanel3 *panel, void *children);
+void func_8008D25C(LabPanel3 *panel, LabPanel3Windows *windows, s32 arg);
+void func_80088038(LabMenu *menu);
+void func_80088074(LabMenu *menu);
+void func_80089E2C(LabMenu *menu, void *children);
+void func_8008D80C(LabPanel3 *panel);
+void func_80087F48(LabScreen2 *screen, void *children);
+s32 func_80082C1C(LabScreen3 *screen, s32 row, u32 col);
 void func_80089F80(ScrollBar *bar, s32 x, s32 width);
 void func_80089F8C(ScrollBar *bar, s32 top, s32 bottom);
 void func_80089FA0(ScrollBar *bar, s32 pageSize, s32 count);
@@ -134,11 +152,59 @@ ScreenFade *func_80082A84(void) {
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80082ACC);
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80082C1C);
+s32 func_80082C1C(LabScreen3 *screen, s32 row, u32 col) {
+    s16 id;
+    s32 i;
+    s32 j;
+    s16 *ids;
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80082CE8);
+    if (col >= 5) {
+        return 0;
+    }
+    id = 0;
+    ids = &D_8008F58C.recipes[screen->table][row * 4 + col][1];
+    for (i = 0; i < 5; i++) {
+        if (*ids > 0) {
+            id = *ids;
+            break;
+        }
+        ids++;
+    }
+    if (id != 0) {
+        for (j = 0; j < screen->ownedCount; j++) {
+            if (screen->owned[j] == id) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80082D64);
+s32 func_80082CE8(LabScreen3 *screen, u32 row) {
+    s32 i;
+    s32 count;
+
+    if (row >= 4) {
+        return 0;
+    }
+    i = 0;
+    count = 0;
+    for (; i < 4; i++) {
+        count += func_80082C1C(screen, row, i);
+    }
+    return count;
+}
+
+void func_80082D64(LabScreen3 *screen) {
+    screen->slot = 0;
+    screen->col = 0;
+    while (screen->found[screen->row][screen->slot][screen->col] == 0) {
+        if (++screen->col >= 5) {
+            screen->col = 4;
+            break;
+        }
+    }
+}
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80082DF4);
 
@@ -148,7 +214,15 @@ INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_800841E4);
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008397C);
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80084CF4);
+Task *func_80084CF4(Lab *lab) {
+    LabScreen3 *screen = createTask(func_8008397C, sizeof(LabScreen3), 0x1C);
+
+    screen->layer = 0x1000;
+    screen->depth = 2;
+    screen->lab = lab;
+    lab->closeMenu(lab);
+    return (Task *)screen;
+}
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80084D5C);
 
@@ -158,7 +232,15 @@ INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80085524);
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008568C);
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_800869A4);
+LabPanel1 *func_800869A4(s32 arg0, s32 arg1) {
+    LabPanel1 *panel = createTask(func_8008568C, sizeof(LabPanel1), 0xA0);
+
+    panel->layer = 0x1000;
+    panel->depth = 6;
+    panel->unk58 = arg0;
+    panel->unk5C = arg1;
+    return panel;
+}
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_800869FC);
 
@@ -168,13 +250,67 @@ INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80086F6C);
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80087B68);
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80087F48);
+void func_80087F48(LabScreen2 *screen, void *children) {
+    switch (screen->state) {
+    case TASK_INIT:
+    default:
+        screen->nextState(screen);
+        screen->panels[0].duration = 8;
+        screen->panels[1].duration = 10;
+        screen->panels[2].duration = 10;
+        screen->panels[3].duration = 10;
+        screen->panels[4].duration = 10;
+        screen->panels[5].duration = 8;
+        func_800869FC(screen, children);
+        break;
+    case TASK_RUN:
+        func_80086F6C(screen, children);
+        func_80087B68(screen, children);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80087FF0);
+Task *func_80087FF0(Lab *lab) {
+    LabScreen2 *screen = createTask(func_80087F48, sizeof(LabScreen2), 0x60);
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80088038);
+    screen->layer = 0x1000;
+    screen->depth = 6;
+    screen->lab = lab;
+    return (Task *)screen;
+}
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80088074);
+void func_80088038(LabMenu *menu) {
+    menu->state = TASK_DONE;
+    menu->counter = 0;
+    STGDGLAB_funcs.startFade(&menu->panels[3], 1);
+}
+
+void func_80088074(LabMenu *menu) {
+    LabMenuWindows *windows;
+    s32 i;
+
+    menu->state = TASK_DONE;
+    menu->counter = 1;
+    windows = menu->children;
+    STGDGLAB_funcs.startFade(&menu->panels[3], 0);
+    for (i = 0; i < 5; i++) {
+        if (windows->unk14[i] != NULL) {
+            windows->unk14[i]->setVisible(windows->unk14[i], 0);
+        }
+        if (windows->unk28[i] != NULL) {
+            windows->unk28[i]->setVisible(windows->unk28[i], 0);
+        }
+    }
+    if (windows->unk3C != NULL) {
+        windows->unk3C->setVisible(windows->unk3C, 0);
+    }
+    for (i = 4; i >= 0; i--) {
+        menu->unkFC[i] = 0;
+    }
+}
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80088164);
 
@@ -182,9 +318,49 @@ INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_800884A0);
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_800893FC);
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80089E2C);
+void func_80089E2C(LabMenu *menu, void *children) {
+    switch (menu->state) {
+    case TASK_INIT:
+    default:
+        menu->nextState(menu);
+        menu->panels[0].duration = 10;
+        menu->panels[1].duration = 10;
+        menu->panels[2].duration = 8;
+        menu->panels[3].duration = 10;
+        menu->panels[4].duration = 10;
+        menu->panels[5].duration = 10;
+        menu->panels[6].duration = 10;
+        menu->panels[7].duration = 8;
+        menu->panels[8].duration = 8;
+        break;
+    case TASK_RUN:
+        func_800884A0(menu, children);
+        func_800893FC(menu, children);
+        break;
+    case TASK_DONE:
+        if (STGDGLAB_funcs.updateFade(&menu->panels[3]) != 0) {
+            menu->state = TASK_RUN;
+            if (menu->counter == 0) {
+                func_80088164(menu, children);
+            }
+        }
+        func_800893FC(menu, children);
+        break;
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_80089F20);
+LabMenu *func_80089F20(Lab *lab) {
+    LabMenu *menu = createTask(func_80089E2C, sizeof(LabMenu), sizeof(LabMenuWindows));
+
+    menu->open = func_80088038;
+    menu->close = func_80088074;
+    menu->layer = 0x1000;
+    menu->depth = 2;
+    menu->lab = lab;
+    return menu;
+}
 
 void func_80089F80(ScrollBar *bar, s32 x, s32 width) {
     bar->x = x;
@@ -277,7 +453,17 @@ ScrollBar *func_8008A1E8(void) {
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008A250);
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008A624);
+void func_8008A624(Task *task) {
+    s32 i;
+    TextWindow **windows = task->children;
+
+    for (i = 0; i < task->childCount - 1; i++, windows++) {
+        TextWindow *w = *windows;
+        if (w != NULL) {
+            w->setVisible(w, 0);
+        }
+    }
+}
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008A6A4);
 
@@ -285,7 +471,14 @@ INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008B0A4);
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008B960);
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008BB30);
+Task *func_8008BB30(Lab *lab) {
+    LabScreen1 *screen = createTask(func_8008B960, sizeof(LabScreen1), 0x38);
+
+    screen->layer = 0x1000;
+    screen->depth = 2;
+    screen->lab = lab;
+    return (Task *)screen;
+}
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008BB78);
 
@@ -293,13 +486,28 @@ INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008BDEC);
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008C234);
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008D014);
+LabPanel2 *func_8008D014(s32 arg0, s32 arg1) {
+    LabPanel2 *panel = createTask(func_8008C234, sizeof(LabPanel2), 0x5C);
+
+    panel->layer = 0x1000;
+    panel->depth = 2;
+    panel->unk78 = arg0;
+    panel->unk7C = arg1;
+    return panel;
+}
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008D06C);
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008D25C);
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008D80C);
+void func_8008D80C(LabPanel3 *panel) {
+    LabPanel3Windows *windows = panel->children;
+
+    STGDGLAB_funcs.startFade(&panel->fade, 0);
+    func_8008D25C(panel, windows, 0);
+    windows->cursor->setVisible(windows->cursor, 0);
+    panel->substate++;
+}
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008D884);
 
@@ -307,7 +515,17 @@ INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008DD30);
 
 INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008E134);
 
-INCLUDE_ASM("stgdglab/nonmatchings/stgdglab", func_8008E320);
+LabPanel3 *func_8008E320(s32 arg0, s32 arg1, s32 arg2) {
+    LabPanel3 *panel = createTask(func_8008E134, sizeof(LabPanel3), 0x70);
+
+    panel->close = func_8008D80C;
+    panel->layer = 0x1000;
+    panel->depth = 2;
+    panel->unk50 = arg1;
+    panel->unk54 = arg0;
+    panel->unk16C = arg2;
+    return panel;
+}
 
 void func_8008E394(Lab *lab, LabChildren *children) {
     switch (lab->substate) {
@@ -576,14 +794,14 @@ s16 func_8008EC48(s32 id) {
 
 extern s32 D_8008ECE8[];
 extern s32 D_8008EDC8[];
-extern s32 D_8008EF8C[];
-extern s32 D_8008F04C[];
-extern s32 D_8008F10C[];
-extern s32 D_8008F1CC[];
-extern s32 D_8008F28C[];
-extern s32 D_8008F34C[];
-extern s32 D_8008F40C[];
-extern s32 D_8008F4CC[];
+extern LabRecipe D_8008EF8C[];
+extern LabRecipe D_8008F04C[];
+extern LabRecipe D_8008F10C[];
+extern LabRecipe D_8008F1CC[];
+extern LabRecipe D_8008F28C[];
+extern LabRecipe D_8008F34C[];
+extern LabRecipe D_8008F40C[];
+extern LabRecipe D_8008F4CC[];
 
 s32 D_8008EC94[] = {
     383, 385, 384, 3,
@@ -684,237 +902,303 @@ LabEntry D_8008EE4C[] = {
     { 0x0000, 0x0000, 0x0000 },
 };
 #if VERSION_US
-s32 D_8008EF8C[] = {
-    0x1820003, 0x1880185, 0, 0x50003,
-    0xD5000C, 0, 3, 0x10B001A,
-    150, 0, 0, 0,
-    0x1030005, 0x9400FE, 0x17D0167, 0x1B0003,
-    0x17400C4, 0, 0x1040004, 19,
-    0x9700E6, 0x1760003, 0x1780177, 0,
-    0xEA0003, 0x3B0090, 0, 0x140003,
-    0xD600D3, 0, 0x380001, 0,
-    0, 0x60004, 0x17A0042, 377,
-    0x16F0003, 0x1710170, 0, 0x1830003,
-    0x1890186, 0, 0x1840003, 0x18A0187,
-    0, 0, 0, 0,
+LabRecipe D_8008EF8C[] = {
+    { 3, 0x182, 0x185, 0x188, 0, 0 },
+    { 3, 0x005, 0x00C, 0x0D5, 0, 0 },
+    { 3, 0, 0x01A, 0x10B, 0x096, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 3, 0x01B, 0x0C4, 0x174, 0, 0 },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 3, 0x176, 0x177, 0x178, 0, 0 },
+    { 3, 0x0EA, 0x090, 0x03B, 0, 0 },
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 1, 0x038, 0, 0, 0, 0 },
+    { 4, 0x006, 0x042, 0x17A, 0x179, 0 },
+    { 3, 0x16F, 0x170, 0x171, 0, 0 },
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 3, 0x184, 0x187, 0x18A, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
 };
-s32 D_8008F04C[] = {
-    0x1840003, 0x18A0187, 0, 0x1760003,
-    0x1780177, 0, 0x380001, 0,
-    0, 0x1030005, 0x9400FE, 0x17D0167,
-    0x1B0003, 0x17400C4, 0, 0x60004,
-    0x17A0042, 377, 0x16F0003, 0x1710170,
-    0, 0x1040004, 19, 0x9700E6,
-    0x140003, 0xD600D3, 0, 0xEA0003,
-    0x3B0090, 0, 0x1830003, 0x1890186,
-    0, 0, 0, 0,
-    0x50003, 0xD5000C, 0, 3,
-    0x10B001A, 150, 3, 0x1850182,
-    392, 0, 0, 0,
+LabRecipe D_8008F04C[] = {
+    { 3, 0x184, 0x187, 0x18A, 0, 0 },
+    { 3, 0x176, 0x177, 0x178, 0, 0 },
+    { 1, 0x038, 0, 0, 0, 0 },
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 3, 0x01B, 0x0C4, 0x174, 0, 0 },
+    { 4, 0x006, 0x042, 0x17A, 0x179, 0 },
+    { 3, 0x16F, 0x170, 0x171, 0, 0 },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 3, 0x0EA, 0x090, 0x03B, 0, 0 },
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x005, 0x00C, 0x0D5, 0, 0 },
+    { 3, 0, 0x01A, 0x10B, 0x096, 0 },
+    { 3, 0, 0x182, 0x185, 0x188, 0 },
+    { 0, 0, 0, 0, 0, 0 },
 };
-s32 D_8008F10C[] = {
-    0x1830003, 0x1890186, 0, 0x1030005,
-    0x9400FE, 0x17D0167, 3, 0xC4001B,
-    372, 1, 56, 0,
-    0x140003, 0xD600D3, 0, 3,
-    0x9000EA, 59, 3, 0x1770176,
-    376, 0, 0, 0,
-    0x50003, 0xD5000C, 0, 3,
-    0x10B001A, 150, 4, 0x420006,
-    0x179017A, 0, 0, 0,
-    0x1820003, 0x1880185, 0, 0x1040004,
-    19, 0x9700E6, 3, 0x170016F,
-    369, 3, 0x1870184, 394,
+LabRecipe D_8008F10C[] = {
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 3, 0, 0x01B, 0x0C4, 0x174, 0 },
+    { 1, 0, 0x038, 0, 0, 0 },
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 3, 0, 0x0EA, 0x090, 0x03B, 0 },
+    { 3, 0, 0x176, 0x177, 0x178, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x005, 0x00C, 0x0D5, 0, 0 },
+    { 3, 0, 0x01A, 0x10B, 0x096, 0 },
+    { 4, 0, 0x006, 0x042, 0x17A, 0x179 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x182, 0x185, 0x188, 0, 0 },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 3, 0, 0x16F, 0x170, 0x171, 0 },
+    { 3, 0, 0x184, 0x187, 0x18A, 0 },
 };
-s32 D_8008F1CC[] = {
-    0x50003, 0xD5000C, 0, 3,
-    0x10B001A, 150, 0x16F0003, 0x1710170,
-    0, 0, 0, 0,
-    0x1830003, 0x1890186, 0, 0x1760003,
-    0x1780177, 0, 0x1030005, 0x9400FE,
-    0x17D0167, 0, 0, 0,
-    0x1B0003, 0x17400C4, 0, 0x1820003,
-    0x1880185, 0, 0x1040004, 19,
-    0x9700E6, 1, 56, 0,
-    0x1840003, 0x18A0187, 0, 0x140003,
-    0xD600D3, 0, 3, 0x9000EA,
-    59, 4, 0x420006, 0x179017A,
+LabRecipe D_8008F1CC[] = {
+    { 3, 0x005, 0x00C, 0x0D5, 0, 0 },
+    { 3, 0, 0x01A, 0x10B, 0x096, 0 },
+    { 3, 0x16F, 0x170, 0x171, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 3, 0x176, 0x177, 0x178, 0, 0 },
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x01B, 0x0C4, 0x174, 0, 0 },
+    { 3, 0x182, 0x185, 0x188, 0, 0 },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 1, 0, 0x038, 0, 0, 0 },
+    { 3, 0x184, 0x187, 0x18A, 0, 0 },
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 3, 0, 0x0EA, 0x090, 0x03B, 0 },
+    { 4, 0, 0x006, 0x042, 0x17A, 0x179 },
 };
-s32 D_8008F28C[] = {
-    0x1030005, 0x9400FE, 0x17D0167, 0x1040004,
-    19, 0x9700E6, 3, 0xC4001B,
-    372, 4, 0x420006, 0x179017A,
-    0x16F0003, 0x1710170, 0, 0x50003,
-    0xD5000C, 0, 3, 0x10B001A,
-    150, 0, 0, 0,
-    0x1760003, 0x1780177, 0, 0x140003,
-    0xD600D3, 0, 3, 0x9000EA,
-    59, 0, 0, 0,
-    0x380001, 0, 0, 0x1820003,
-    0x1880185, 0, 0x1830003, 0x1890186,
-    0, 0x1840003, 0x18A0187, 0,
+LabRecipe D_8008F28C[] = {
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 3, 0, 0x01B, 0x0C4, 0x174, 0 },
+    { 4, 0, 0x006, 0x042, 0x17A, 0x179 },
+    { 3, 0x16F, 0x170, 0x171, 0, 0 },
+    { 3, 0x005, 0x00C, 0x0D5, 0, 0 },
+    { 3, 0, 0x01A, 0x10B, 0x096, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x176, 0x177, 0x178, 0, 0 },
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 3, 0, 0x0EA, 0x090, 0x03B, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 1, 0x038, 0, 0, 0, 0 },
+    { 3, 0x182, 0x185, 0x188, 0, 0 },
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 3, 0x184, 0x187, 0x18A, 0, 0 },
 };
-s32 D_8008F34C[] = {
-    0x16F0003, 0x1710170, 0, 0x1B0003,
-    0x17400C4, 0, 0x1040004, 19,
-    0x9700E6, 0, 0, 0,
-    0x140003, 0xD600D3, 0, 0x380001,
-    0, 0, 0xEA0003, 0x3B0090,
-    0, 0x1760003, 0x1780177, 0,
-    0x1840003, 0x18A0187, 0, 0x1030005,
-    0x9400FE, 0x17D0167, 0x50003, 0xD5000C,
-    0, 3, 0x10B001A, 150,
-    0x60004, 0x17A0042, 377, 0x1820003,
-    0x1880185, 0, 0x1830003, 0x1890186,
-    0, 0, 0, 0,
+LabRecipe D_8008F34C[] = {
+    { 3, 0x16F, 0x170, 0x171, 0, 0 },
+    { 3, 0x01B, 0x0C4, 0x174, 0, 0 },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 1, 0x038, 0, 0, 0, 0 },
+    { 3, 0x0EA, 0x090, 0x03B, 0, 0 },
+    { 3, 0x176, 0x177, 0x178, 0, 0 },
+    { 3, 0x184, 0x187, 0x18A, 0, 0 },
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 3, 0x005, 0x00C, 0x0D5, 0, 0 },
+    { 3, 0, 0x01A, 0x10B, 0x096, 0 },
+    { 4, 0x006, 0x042, 0x17A, 0x179, 0 },
+    { 3, 0x182, 0x185, 0x188, 0, 0 },
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
 };
-s32 D_8008F40C[] = {
-    0x1760003, 0x1780177, 0, 0x1040004,
-    19, 0x9700E6, 0xEA0003, 0x3B0090,
-    0, 0x16F0003, 0x1710170, 0,
-    0x1030005, 0x9400FE, 0x17D0167, 0x1B0003,
-    0x17400C4, 0, 0x60004, 0x17A0042,
-    377, 0x380001, 0, 0,
-    0x140003, 0xD600D3, 0, 0x1840003,
-    0x18A0187, 0, 0x1820003, 0x1880185,
-    0, 0, 0, 0,
-    0x50003, 0xD5000C, 0, 3,
-    0x10B001A, 150, 0x1830003, 0x1890186,
-    0, 0, 0, 0,
+LabRecipe D_8008F40C[] = {
+    { 3, 0x176, 0x177, 0x178, 0, 0 },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 3, 0x0EA, 0x090, 0x03B, 0, 0 },
+    { 3, 0x16F, 0x170, 0x171, 0, 0 },
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 3, 0x01B, 0x0C4, 0x174, 0, 0 },
+    { 4, 0x006, 0x042, 0x17A, 0x179, 0 },
+    { 1, 0x038, 0, 0, 0, 0 },
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 3, 0x184, 0x187, 0x18A, 0, 0 },
+    { 3, 0x182, 0x185, 0x188, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x005, 0x00C, 0x0D5, 0, 0 },
+    { 3, 0, 0x01A, 0x10B, 0x096, 0 },
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
 };
-s32 D_8008F4CC[] = {
-    0x140003, 0xD600D3, 0, 0x380001,
-    0, 0, 0xEA0003, 0x3B0090,
-    0, 0, 0, 0,
-    0x1040004, 19, 0x9700E6, 0x50003,
-    0xD5000C, 0, 3, 0x10B001A,
-    150, 0, 0, 0,
-    0x1830003, 0x1890186, 0, 3,
-    0xC4001B, 372, 3, 0x170016F,
-    369, 4, 0x420006, 0x179017A,
-    0x1760003, 0x1780177, 0, 0x1820003,
-    0x1880185, 0, 0x1030005, 0x9400FE,
-    0x17D0167, 0x1840003, 0x18A0187, 0,
+LabRecipe D_8008F4CC[] = {
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 1, 0x038, 0, 0, 0, 0 },
+    { 3, 0x0EA, 0x090, 0x03B, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 3, 0x005, 0x00C, 0x0D5, 0, 0 },
+    { 3, 0, 0x01A, 0x10B, 0x096, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 3, 0, 0x01B, 0x0C4, 0x174, 0 },
+    { 3, 0, 0x16F, 0x170, 0x171, 0 },
+    { 4, 0, 0x006, 0x042, 0x17A, 0x179 },
+    { 3, 0x176, 0x177, 0x178, 0, 0 },
+    { 3, 0x182, 0x185, 0x188, 0, 0 },
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 3, 0x184, 0x187, 0x18A, 0, 0 },
 };
 #elif VERSION_EU
-s32 D_8008EF8C[] = {
-    0x1820003, 0x1880185, 0, 0x50004,
-    0xD5000C, 150, 2, 0x10B001A,
-    0, 0, 0, 0,
-    0x1030005, 0x9400FE, 0x17D0167, 0x1B0003,
-    0x17400C4, 0, 0x1040004, 19,
-    0x9700E6, 0x1760003, 0x1780177, 0,
-    0xEA0003, 0x3B0090, 0, 0x140003,
-    0xD600D3, 0, 0x380001, 0,
-    0, 0x60004, 0x17A0042, 377,
-    0x16F0003, 0x1710170, 0, 0x1830003,
-    0x1890186, 0, 0x1840003, 0x18A0187,
-    0, 0, 0, 0,
+LabRecipe D_8008EF8C[] = {
+    { 3, 0x182, 0x185, 0x188, 0, 0 },
+    { 4, 0x005, 0x00C, 0x0D5, 0x096, 0 },
+    { 2, 0, 0x01A, 0x10B, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 3, 0x01B, 0x0C4, 0x174, 0, 0 },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 3, 0x176, 0x177, 0x178, 0, 0 },
+    { 3, 0x0EA, 0x090, 0x03B, 0, 0 },
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 1, 0x038, 0, 0, 0, 0 },
+    { 4, 0x006, 0x042, 0x17A, 0x179, 0 },
+    { 3, 0x16F, 0x170, 0x171, 0, 0 },
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 3, 0x184, 0x187, 0x18A, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
 };
-s32 D_8008F04C[] = {
-    0x1840003, 0x18A0187, 0, 0x1760003,
-    0x1780177, 0, 0x380001, 0,
-    0, 0x1030005, 0x9400FE, 0x17D0167,
-    0x1B0003, 0x17400C4, 0, 0x60004,
-    0x17A0042, 377, 0x16F0003, 0x1710170,
-    0, 0x1040004, 19, 0x9700E6,
-    0x140003, 0xD600D3, 0, 0xEA0003,
-    0x3B0090, 0, 0x1830003, 0x1890186,
-    0, 0, 0, 0,
-    0x50004, 0xD5000C, 150, 2,
-    0x10B001A, 0, 3, 0x1850182,
-    392, 0, 0, 0,
+LabRecipe D_8008F04C[] = {
+    { 3, 0x184, 0x187, 0x18A, 0, 0 },
+    { 3, 0x176, 0x177, 0x178, 0, 0 },
+    { 1, 0x038, 0, 0, 0, 0 },
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 3, 0x01B, 0x0C4, 0x174, 0, 0 },
+    { 4, 0x006, 0x042, 0x17A, 0x179, 0 },
+    { 3, 0x16F, 0x170, 0x171, 0, 0 },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 3, 0x0EA, 0x090, 0x03B, 0, 0 },
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 4, 0x005, 0x00C, 0x0D5, 0x096, 0 },
+    { 2, 0, 0x01A, 0x10B, 0, 0 },
+    { 3, 0, 0x182, 0x185, 0x188, 0 },
+    { 0, 0, 0, 0, 0, 0 },
 };
-s32 D_8008F10C[] = {
-    0x1830003, 0x1890186, 0, 0x1030005,
-    0x9400FE, 0x17D0167, 3, 0xC4001B,
-    372, 1, 56, 0,
-    0x140003, 0xD600D3, 0, 3,
-    0x9000EA, 59, 3, 0x1770176,
-    376, 0, 0, 0,
-    0x50004, 0xD5000C, 150, 2,
-    0x10B001A, 0, 4, 0x420006,
-    0x179017A, 0, 0, 0,
-    0x1820003, 0x1880185, 0, 0x1040004,
-    19, 0x9700E6, 3, 0x170016F,
-    369, 3, 0x1870184, 394,
+LabRecipe D_8008F10C[] = {
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 3, 0, 0x01B, 0x0C4, 0x174, 0 },
+    { 1, 0, 0x038, 0, 0, 0 },
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 3, 0, 0x0EA, 0x090, 0x03B, 0 },
+    { 3, 0, 0x176, 0x177, 0x178, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 4, 0x005, 0x00C, 0x0D5, 0x096, 0 },
+    { 2, 0, 0x01A, 0x10B, 0, 0 },
+    { 4, 0, 0x006, 0x042, 0x17A, 0x179 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x182, 0x185, 0x188, 0, 0 },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 3, 0, 0x16F, 0x170, 0x171, 0 },
+    { 3, 0, 0x184, 0x187, 0x18A, 0 },
 };
-s32 D_8008F1CC[] = {
-    0x50004, 0xD5000C, 150, 2,
-    0x10B001A, 0, 0x16F0003, 0x1710170,
-    0, 0, 0, 0,
-    0x1830003, 0x1890186, 0, 0x1760003,
-    0x1780177, 0, 0x1030005, 0x9400FE,
-    0x17D0167, 0, 0, 0,
-    0x1B0003, 0x17400C4, 0, 0x1820003,
-    0x1880185, 0, 0x1040004, 19,
-    0x9700E6, 1, 56, 0,
-    0x1840003, 0x18A0187, 0, 0x140003,
-    0xD600D3, 0, 3, 0x9000EA,
-    59, 4, 0x420006, 0x179017A,
+LabRecipe D_8008F1CC[] = {
+    { 4, 0x005, 0x00C, 0x0D5, 0x096, 0 },
+    { 2, 0, 0x01A, 0x10B, 0, 0 },
+    { 3, 0x16F, 0x170, 0x171, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 3, 0x176, 0x177, 0x178, 0, 0 },
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x01B, 0x0C4, 0x174, 0, 0 },
+    { 3, 0x182, 0x185, 0x188, 0, 0 },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 1, 0, 0x038, 0, 0, 0 },
+    { 3, 0x184, 0x187, 0x18A, 0, 0 },
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 3, 0, 0x0EA, 0x090, 0x03B, 0 },
+    { 4, 0, 0x006, 0x042, 0x17A, 0x179 },
 };
-s32 D_8008F28C[] = {
-    0x1030005, 0x9400FE, 0x17D0167, 0x1040004,
-    19, 0x9700E6, 3, 0xC4001B,
-    372, 4, 0x420006, 0x179017A,
-    0x16F0003, 0x1710170, 0, 0x50004,
-    0xD5000C, 150, 2, 0x10B001A,
-    0, 0, 0, 0,
-    0x1760003, 0x1780177, 0, 0x140003,
-    0xD600D3, 0, 3, 0x9000EA,
-    59, 0, 0, 0,
-    0x380001, 0, 0, 0x1820003,
-    0x1880185, 0, 0x1830003, 0x1890186,
-    0, 0x1840003, 0x18A0187, 0,
+LabRecipe D_8008F28C[] = {
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 3, 0, 0x01B, 0x0C4, 0x174, 0 },
+    { 4, 0, 0x006, 0x042, 0x17A, 0x179 },
+    { 3, 0x16F, 0x170, 0x171, 0, 0 },
+    { 4, 0x005, 0x00C, 0x0D5, 0x096, 0 },
+    { 2, 0, 0x01A, 0x10B, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x176, 0x177, 0x178, 0, 0 },
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 3, 0, 0x0EA, 0x090, 0x03B, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 1, 0x038, 0, 0, 0, 0 },
+    { 3, 0x182, 0x185, 0x188, 0, 0 },
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 3, 0x184, 0x187, 0x18A, 0, 0 },
 };
-s32 D_8008F34C[] = {
-    0x16F0003, 0x1710170, 0, 0x1B0003,
-    0x17400C4, 0, 0x1040004, 19,
-    0x9700E6, 0, 0, 0,
-    0x140003, 0xD600D3, 0, 0x380001,
-    0, 0, 0xEA0003, 0x3B0090,
-    0, 0x1760003, 0x1780177, 0,
-    0x1840003, 0x18A0187, 0, 0x1030005,
-    0x9400FE, 0x17D0167, 0x50004, 0xD5000C,
-    150, 2, 0x10B001A, 0,
-    0x60004, 0x17A0042, 377, 0x1820003,
-    0x1880185, 0, 0x1830003, 0x1890186,
-    0, 0, 0, 0,
+LabRecipe D_8008F34C[] = {
+    { 3, 0x16F, 0x170, 0x171, 0, 0 },
+    { 3, 0x01B, 0x0C4, 0x174, 0, 0 },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 1, 0x038, 0, 0, 0, 0 },
+    { 3, 0x0EA, 0x090, 0x03B, 0, 0 },
+    { 3, 0x176, 0x177, 0x178, 0, 0 },
+    { 3, 0x184, 0x187, 0x18A, 0, 0 },
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 4, 0x005, 0x00C, 0x0D5, 0x096, 0 },
+    { 2, 0, 0x01A, 0x10B, 0, 0 },
+    { 4, 0x006, 0x042, 0x17A, 0x179, 0 },
+    { 3, 0x182, 0x185, 0x188, 0, 0 },
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
 };
-s32 D_8008F40C[] = {
-    0x1760003, 0x1780177, 0, 0x1040004,
-    19, 0x9700E6, 0xEA0003, 0x3B0090,
-    0, 0x16F0003, 0x1710170, 0,
-    0x1030005, 0x9400FE, 0x17D0167, 0x1B0003,
-    0x17400C4, 0, 0x60004, 0x17A0042,
-    377, 0x380001, 0, 0,
-    0x140003, 0xD600D3, 0, 0x1840003,
-    0x18A0187, 0, 0x1820003, 0x1880185,
-    0, 0, 0, 0,
-    0x50004, 0xD5000C, 150, 2,
-    0x10B001A, 0, 0x1830003, 0x1890186,
-    0, 0, 0, 0,
+LabRecipe D_8008F40C[] = {
+    { 3, 0x176, 0x177, 0x178, 0, 0 },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 3, 0x0EA, 0x090, 0x03B, 0, 0 },
+    { 3, 0x16F, 0x170, 0x171, 0, 0 },
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 3, 0x01B, 0x0C4, 0x174, 0, 0 },
+    { 4, 0x006, 0x042, 0x17A, 0x179, 0 },
+    { 1, 0x038, 0, 0, 0, 0 },
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 3, 0x184, 0x187, 0x18A, 0, 0 },
+    { 3, 0x182, 0x185, 0x188, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 4, 0x005, 0x00C, 0x0D5, 0x096, 0 },
+    { 2, 0, 0x01A, 0x10B, 0, 0 },
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
 };
-s32 D_8008F4CC[] = {
-    0x140003, 0xD600D3, 0, 0x380001,
-    0, 0, 0xEA0003, 0x3B0090,
-    0, 0, 0, 0,
-    0x1040004, 19, 0x9700E6, 0x50004,
-    0xD5000C, 150, 2, 0x10B001A,
-    0, 0, 0, 0,
-    0x1830003, 0x1890186, 0, 3,
-    0xC4001B, 372, 3, 0x170016F,
-    369, 4, 0x420006, 0x179017A,
-    0x1760003, 0x1780177, 0, 0x1820003,
-    0x1880185, 0, 0x1030005, 0x9400FE,
-    0x17D0167, 0x1840003, 0x18A0187, 0,
+LabRecipe D_8008F4CC[] = {
+    { 3, 0x014, 0x0D3, 0x0D6, 0, 0 },
+    { 1, 0x038, 0, 0, 0, 0 },
+    { 3, 0x0EA, 0x090, 0x03B, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 4, 0x104, 0x013, 0, 0x0E6, 0x097 },
+    { 4, 0x005, 0x00C, 0x0D5, 0x096, 0 },
+    { 2, 0, 0x01A, 0x10B, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 3, 0x183, 0x186, 0x189, 0, 0 },
+    { 3, 0, 0x01B, 0x0C4, 0x174, 0 },
+    { 3, 0, 0x16F, 0x170, 0x171, 0 },
+    { 4, 0, 0x006, 0x042, 0x17A, 0x179 },
+    { 3, 0x176, 0x177, 0x178, 0, 0 },
+    { 3, 0x182, 0x185, 0x188, 0, 0 },
+    { 5, 0x103, 0x0FE, 0x094, 0x167, 0x17D },
+    { 3, 0x184, 0x187, 0x18A, 0, 0 },
 };
 #endif
-s32 D_8008F58C = (s32)D_8008ECE8;
-s32 D_8008F590[] = {
-    (s32)D_8008EDC8, (s32)D_8008EF8C, (s32)D_8008F04C, (s32)D_8008F10C,
-    (s32)D_8008F1CC, (s32)D_8008F28C, (s32)D_8008F34C, (s32)D_8008F40C,
-    (s32)D_8008F4CC,
+LabTables D_8008F58C = {
+    D_8008ECE8,
+    D_8008EDC8,
+    {
+        D_8008EF8C, D_8008F04C, D_8008F10C, D_8008F1CC,
+        D_8008F28C, D_8008F34C, D_8008F40C, D_8008F4CC,
+    },
 };
 LabFuncs STGDGLAB_funcs = {
     func_8008E8A4, func_8008E9B0, func_8008EA50, func_8008EAE4,

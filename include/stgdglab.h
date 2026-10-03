@@ -15,7 +15,7 @@
 #define FILE_LAB_SPRITES 0x2C5
 #endif
 
-/* The lab's main menu (func_80089F20), as the lab sees it */
+/* The lab's main menu (func_80089F20) */
 typedef struct LabMenu {
     TASK_HEADER(LabMenu);
     /* 0x050 */ struct Lab *lab;
@@ -23,10 +23,113 @@ typedef struct LabMenu {
     /* 0x058 */ s32 layer;
     /* 0x05C */ s32 depth;
     /* 0x060 */ s32 choice; /* into D_8008ECDC */
-    /* 0x064 */ u8 unk64[0x114 - 0x64];
+    /* 0x064 */ PanelAnim panels[9];
+    /* 0x0F4 */ s32 unkF4;
+    /* 0x0F8 */ s32 unkF8;
+    /* 0x0FC */ s32 unkFC[5];
+    /* 0x110 */ s32 unk110;
     /* 0x114 */ void (*open)(struct LabMenu *menu);
     /* 0x118 */ void (*close)(struct LabMenu *menu);
 } LabMenu;
+
+typedef struct LabMenuWindows {
+    /* 0x00 */ TextWindow *unk0[5];
+    /* 0x14 */ TextWindow *unk14[5];
+    /* 0x28 */ TextWindow *unk28[5];
+    /* 0x3C */ TextWindow *unk3C;
+    /* 0x40 */ Task *unk40[3];
+} LabMenuWindows;
+
+/* A recipe of D_8008F58C's tables: how many of the ids are needed, then up
+   to five ids (0: none) */
+typedef s16 LabRecipe[6];
+
+typedef struct LabTables {
+    /* 0x00 */ s32 *anim; /* D_8008ECE8 */
+    /* 0x04 */ s32 *pos; /* D_8008EDC8 */
+    /* 0x08 */ LabRecipe *recipes[8]; /* [row * 4 + col] */
+} LabTables;
+
+/* The main menu's first screen (func_8008BB30) */
+typedef struct LabScreen1 {
+    TASK_HEADER(LabScreen1);
+    /* 0x050 */ struct Lab *lab;
+    /* 0x054 */ s32 layer;
+    /* 0x058 */ s32 depth;
+    /* 0x05C */ u8 unk5C[0x108 - 0x5C];
+} LabScreen1;
+
+/* The main menu's second screen (func_80087FF0) */
+typedef struct LabScreen2 {
+    TASK_HEADER(LabScreen2);
+    /* 0x050 */ struct Lab *lab;
+    /* 0x054 */ PanelAnim panels[6];
+    /* 0x0B4 */ s32 layer;
+    /* 0x0B8 */ s32 depth;
+    /* 0x0BC */ u8 unkBC[0x130 - 0xBC];
+} LabScreen2;
+
+/* The main menu's third screen (func_80084CF4) */
+typedef struct LabScreen3 {
+    TASK_HEADER(LabScreen3);
+    /* 0x050 */ struct Lab *lab;
+    /* 0x054 */ s32 layer;
+    /* 0x058 */ s32 depth;
+    /* 0x05C */ s32 unk5C;
+    /* 0x060 */ s16 owned[44];
+    /* 0x0B8 */ s32 ownedCount;
+    /* 0x0BC */ s32 table; /* into D_8008F58C.recipes */
+    /* 0x0C0 */ s32 row;
+    /* 0x0C4 */ s32 unkC4[3];
+    /* 0x0D0 */ s32 found[4][4][5]; /* the owned ids of each recipe */
+    /* 0x210 */ s32 complete[4]; /* 0: a recipe of the row lacks ids */
+    /* 0x220 */ s32 foundCount[4];
+    /* 0x230 */ u8 unk230[0x290 - 0x230];
+    /* 0x290 */ s32 col;
+    /* 0x294 */ s32 slot;
+    /* 0x298 */ s32 unk298;
+} LabScreen3;
+
+/* A panel of the second screen (func_800869A4) */
+typedef struct LabPanel1 {
+    TASK_HEADER(LabPanel1);
+    /* 0x50 */ s32 layer;
+    /* 0x54 */ s32 depth;
+    /* 0x58 */ s32 unk58;
+    /* 0x5C */ s32 unk5C;
+    /* 0x60 */ u8 unk60[0x100 - 0x60];
+} LabPanel1;
+
+/* A panel of the second screen (func_8008D014) */
+typedef struct LabPanel2 {
+    TASK_HEADER(LabPanel2);
+    /* 0x50 */ u8 unk50[0x70 - 0x50];
+    /* 0x70 */ s32 layer;
+    /* 0x74 */ s32 depth;
+    /* 0x78 */ s32 unk78;
+    /* 0x7C */ s32 unk7C;
+    /* 0x80 */ u8 unk80[0xAC - 0x80];
+} LabPanel2;
+
+/* A panel of the main menu (func_8008E320) */
+typedef struct LabPanel3 {
+    TASK_HEADER(LabPanel3);
+    /* 0x050 */ s32 unk50;
+    /* 0x054 */ s32 unk54;
+    /* 0x058 */ s32 layer;
+    /* 0x05C */ s32 depth;
+    /* 0x060 */ u8 unk60[0x80 - 0x60];
+    /* 0x080 */ PanelAnim fade;
+    /* 0x090 */ u8 unk90[0x16C - 0x90];
+    /* 0x16C */ s32 unk16C;
+    /* 0x170 */ void (*close)(struct LabPanel3 *panel);
+} LabPanel3;
+
+typedef struct LabPanel3Windows {
+    /* 0x00 */ u8 unk0[0x68];
+    /* 0x68 */ Cursor *cursor;
+    /* 0x6C */ Task *unk6C;
+} LabPanel3Windows;
 
 /* The mode's main task (func_8008E834) */
 typedef struct Lab {
@@ -81,5 +184,6 @@ typedef struct LabFuncs {
 } LabFuncs;
 
 extern LabFuncs STGDGLAB_funcs;
+extern LabTables D_8008F58C;
 
 #endif /* STGDGLAB_H */
