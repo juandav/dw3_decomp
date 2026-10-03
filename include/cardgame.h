@@ -49,8 +49,25 @@ typedef struct CardBattleMessage {
 /* An entry of CardBattle.unk30A */
 typedef struct CardBattle30A {
     /* 0x0 */ s8 unk0;
-    /* 0x1 */ s8 unk1;
+    /* 0x1 */ u8 unk1;
 } CardBattle30A;
+
+/* A player's cards in a card battle (CardSide.pile) */
+typedef struct CardPile {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA; /* the cards in unk64 */
+    /* 0x0C */ u8 unkC;
+    /* 0x0D */ u8 unkD[4];
+    /* 0x11 */ u8 unk11;
+    /* 0x12 */ u8 unk12;
+    /* 0x13 */ u8 unk13;
+    /* 0x14 */ s16 unk14[40];
+    /* 0x64 */ s16 unk64[20];
+} CardPile;
 
 /* Each player's side of a card battle (CardBattle.sides) */
 typedef struct CardSide {
@@ -61,29 +78,18 @@ typedef struct CardSide {
     /* 0x1C */ s32 unk1C;
     /* 0x20 */ CardSideEntry unk20[3];
     /* 0x38 */ u8 unk38[4];
-    /* 0x3C */ s16 unk3C;
-    /* 0x3E */ s16 unk3E;
-    /* 0x40 */ s16 unk40;
-    /* 0x42 */ s16 unk42;
-    /* 0x44 */ s16 unk44;
-    /* 0x46 */ s16 unk46;
-    /* 0x48 */ u8 unk48;
-    /* 0x49 */ u8 unk49[4];
-    /* 0x4D */ u8 unk4D;
-    /* 0x4E */ u8 unk4E;
-    /* 0x4F */ u8 unk4F;
-    /* 0x50 */ s16 unk50;
-    /* 0x52 */ u8 unk52[0x4E];
-    /* 0xA0 */ u8 unkA0[0x28];
+    /* 0x3C */ CardPile pile;
 } CardSide;
 
 /* CardBattle.unk498 */
 typedef struct CardBattle498 {
     /* 0x0 */ u8 unk0;
     /* 0x1 */ u8 unk1;
-    /* 0x2 */ u8 unk2[3];
+    /* 0x2 */ u8 unk2;
+    /* 0x3 */ u8 unk3;
+    /* 0x4 */ u8 unk4;
     /* 0x5 */ u8 unk5; /* 1 or 2: set unk6 to 0 or 1 */
-    /* 0x6 */ u8 unk6[15];
+    /* 0x6 */ u8 unk6[40];
 } CardBattle498;
 
 /* The card battle (CARDGAME_createBattle). Its seven task items: the battle
@@ -137,7 +143,7 @@ typedef struct CardBattle {
     /* 0x46F */ s8 unk46F[40];
     /* 0x497 */ u8 unk497;
     /* 0x498 */ CardBattle498 unk498;
-    /* 0x4AD */ u8 unk4AD[0x33];
+    /* 0x4C6 */ u8 unk4C6[0x1A];
     /* 0x4E0 */ s16 unk4E0; /* a score the computer player adds up */
     /* 0x4E2 */ s16 unk4E2;
     /* 0x4E4 */ s16 unk4E4;
