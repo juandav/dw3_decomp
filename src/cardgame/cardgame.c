@@ -414,7 +414,27 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008BC08);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008BCF8);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008BEF0);
+void func_8008BEF0(CardBattle *battle) {
+    s32 i;
+    s32 found = 0;
+
+    for (i = battle->sides[1].pile.unk4; i < battle->unk41B; i++) {
+        if (battle->unk446[i - battle->sides[1].pile.unk4] != 0) {
+            battle->unk440 = i;
+            found = 1;
+            break;
+        }
+    }
+    if (!found) {
+        for (i = 39; battle->sides[1].pile.unk4 < i; i--) {
+            if (battle->unk446[i - battle->sides[1].pile.unk4] != 0) {
+                break;
+            }
+        }
+        battle->unk440 = i;
+    }
+    battle->unk46F[battle->unk440] = 1;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008BFA0);
 
@@ -1420,7 +1440,19 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80098930);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80098B38);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80098C6C);
+void func_80098C6C(CardScreenCE8 *window) {
+    window->unkE -= GFX.funcs.getFrameTime();
+    if (window->unkE != 0) {
+        window->x = window->unk8 - (window->unk8 - window->startX) * window->unkE / window->unkF;
+        window->y = window->unkA - (window->unkA - window->startY) * window->unkE / window->unkF;
+    } else {
+        window->state = 1;
+        window->unkF = 0;
+        window->unkE = 0;
+        window->x = window->unk8;
+        window->y = window->unkA;
+    }
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80098D3C);
 
@@ -1488,7 +1520,28 @@ s32 func_80099504(CardScreen *screen, CardSprite *sprite, s32 duration) {
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80099580);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800996B0);
+/* The end of a sprite's flip (func_800996B0) */
+static inline void endSpriteFlip(CardSprite *sprite, s32 state) {
+    sprite->state = state;
+    sprite->moving = 0;
+    sprite->scaleX = 0x1000;
+}
+
+s32 func_800996B0(CardScreen *screen, CardSprite *sprite) {
+    s32 done = 0;
+
+    sprite->scaleX = 0x1000 - rsin((sprite->time << 12) / 24);
+    sprite->time += GFX.funcs.getFrameTime();
+    if (sprite->duration == 0 && sprite->time >= 7) {
+        sprite->duration = 1;
+        sprite->visible ^= 3;
+    }
+    if (sprite->time >= 12) {
+        endSpriteFlip(sprite, 1);
+        done = 1;
+    }
+    return done;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80099780);
 
@@ -2549,7 +2602,20 @@ void func_800A0A40(CardBattle *battle) {
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A0A5C);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A0CCC);
+s32 func_800A0CCC(CardBattle *battle, CardBattleItems *items) {
+    s32 done = 0;
+
+    if (battle->unk4E8 == 0) {
+        battle->unk498.unk5 = 1;
+        battle->unk498.unk1 = 1;
+        items->screen->unkEC8(items->screen);
+        battle->unk4E8++;
+    }
+    if (items->screen->panels[0].state == 2 && battle->unk498.unk0 == 0) {
+        done = 1;
+    }
+    return done;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A0D74);
 

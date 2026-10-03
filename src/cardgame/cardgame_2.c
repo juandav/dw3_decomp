@@ -13,7 +13,25 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800A2838);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800A2C94);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800A2DA0);
+s32 func_800A2DA0(CardBattle *battle, s32 side) {
+    s32 found = 0;
+    s8 *flags;
+    s32 i;
+
+    if (side == 1) {
+        flags = &battle->unk446[6];
+    } else {
+        flags = battle->unk446;
+    }
+    for (i = 0; i < battle->players[side].slotCount; i++) {
+        if (flags[i] != 0) {
+            found = 1;
+            battle->sides[0].unk20[battle->sides[0].unk15].unk6 = battle->players[side].slots[i].order;
+            break;
+        }
+    }
+    return found;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800A2E4C);
 
