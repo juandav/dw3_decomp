@@ -495,7 +495,39 @@ void func_8008AC8C(ItemShop *shop, ItemShopWindows *win) {
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008AF88);
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B614);
+void func_8008B614(ItemShop *shop, ItemShopWindows *win) {
+    switch (shop->state) {
+    case TASK_INIT:
+    default:
+        switch (shop->substate) {
+        case 0:
+        default:
+            STITSHOP_funcs.loadFiles();
+            shop->substate++;
+            break;
+        case 1:
+            if (STITSHOP_funcs.filesLoading() == 0) {
+                func_8008ABA4(shop, win);
+                shop->panels[0].duration = 10;
+                shop->panels[1].duration = 10;
+                shop->panels[2].duration = 10;
+                shop->panels[3].duration = 10;
+                shop->nextState(shop);
+            }
+            break;
+        }
+        break;
+    case TASK_RUN:
+        func_8008AF88(shop, win);
+        func_8008AC8C(shop, win);
+        break;
+    case TASK_DONE:
+        break;
+    case TASK_KILL:
+        GAME.funcs.requestMode(GAME.fieldMode, 0);
+        break;
+    }
+}
 
 void func_8008B728(ItemShop *shop) {
     ItemShopWindows *win = shop->children;
