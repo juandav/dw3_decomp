@@ -9,7 +9,33 @@ void func_800941D0(CardBattle *battle, CardScreen *screen, s32 arg2) {
     battle->stepState = 1;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_80094224);
+/* Waits for the message window to open, for cross or triangle, then for the window to close; 1 once it has */
+s32 CARDGAME_waitMessage(CardBattle *battle, CardScreen *screen) {
+    s32 done = 0;
+
+    switch (battle->stepState) {
+    case 1:
+        if (screen->unkDFA == 2) {
+            battle->stepState = 2;
+        }
+        break;
+    case 2:
+        if (PAD_PRESSED(PAD_CROSS) || PAD_PRESSED(PAD_TRIANGLE)) {
+            battle->stepState = 3;
+            screen->unkEE8(screen);
+        }
+        break;
+    case 3:
+        if (screen->unkDFA == 0) {
+            battle->stepState = 4;
+        }
+        break;
+    case 4:
+        done = 1;
+        break;
+    }
+    return done;
+}
 
 void func_80094380(CardBattle *battle, CardScreen *screen, s32 force) {
     if (battle->unk560.unk20[battle->unk560.unk15 - 1].unk4 == 0 || force) {
@@ -68,9 +94,248 @@ s32 func_800944E8(CardBattle *battle, CardScreen *screen) {
     return done;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_80094550);
+/* Steps each slot's shown values (its sprite's unk43 and unk44) one unit toward the slot's unk6 and unk8, with a sound; 1 once all are there, 2 if a slot's unk8 reached 0 (marked in unk46F) */
+s32 func_80094550(CardBattle *battle, CardScreen *screen) {
+    s32 done = 0;
+    s32 changed = 0;
+    s32 side;
+    s32 i;
+    CardSprite *sprites;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_800946EC);
+    switch (battle->stepState) {
+    case 1:
+    default:
+        for (i = 0; i < 12; i++) {
+            battle->unk46F[i] = 0;
+        }
+        battle->stepState = 2;
+        battle->unk438 = 0;
+        break;
+    case 2:
+        done = 1;
+        for (side = 0; side < 2; side++) {
+            if (side == 0) {
+                sprites = &screen->sprites[0];
+            } else {
+                sprites = &screen->sprites[6];
+            }
+            for (i = 0; i < battle->players[side].slotCount; i++) {
+                if (sprites[i].unk43 != battle->players[side].slots[i].unk6) {
+                    if (sprites[i].unk43 > battle->players[side].slots[i].unk6) {
+                        sprites[i].unk43--;
+                    } else {
+                        sprites[i].unk43++;
+                    }
+                    done = 0;
+                    changed = 1;
+                }
+                if (sprites[i].unk44 != battle->players[side].slots[i].unk8) {
+                    if (sprites[i].unk44 > battle->players[side].slots[i].unk8) {
+                        sprites[i].unk44--;
+                    } else {
+                        sprites[i].unk44++;
+                    }
+                    done = 0;
+                    if (battle->players[side].slots[i].unk8 == 0) {
+                        battle->unk46F[i + side * 6] = 1;
+                        battle->unk438 = 1;
+                    }
+                    changed = 1;
+                }
+            }
+        }
+        if (done && battle->unk438) {
+            done = 2;
+        }
+        if (changed) {
+            SOUND.playSound(0x800452C6);
+        }
+        break;
+    }
+    return done;
+}
+
+/* Whether the condition kind (1-11) of the card being played holds for its side: 1 if it does */
+s32 CARDGAME_checkPlayCondition(CardBattle *battle, CardScreen *screen, s32 kind) {
+    CardDrawer drawer;
+    CardDrawer drawer2;
+    CardDrawer drawer3;
+    CardDrawer drawer4;
+    s32 ok = 0;
+    s32 side = battle->unk560.unk20[battle->unk560.unk15 - 1].unk4;
+    s32 other = side ^ 1;
+    s32 i;
+    s32 slot;
+    s32 j;
+    CardSlot *p;
+    s32 n;
+    s32 k;
+    s32 valid;
+
+    switch (kind) {
+    case 1:
+        if (battle->sides[other].pile.unkA == 0) {
+            ok = 1;
+        }
+        break;
+    case 2:
+        initCardDrawer(&drawer);
+        ok = 1;
+        for (i = 0; i < battle->sides[other].pile.unkA; i++) {
+            drawer.setCard(battle->cards[battle->sides[other].pile.unk64[i]] + 1);
+            if (drawer.card[0] == 6 && drawer.card[3] == 0x10) {
+                ok = 0;
+                break;
+            }
+        }
+        break;
+    case 3:
+        initCardDrawer(&drawer2);
+        ok = 1;
+        for (i = 0; i < battle->sides[other].pile.unkA; i++) {
+            drawer2.setCard(battle->cards[battle->sides[other].pile.unk64[i]] + 1);
+            if (drawer2.card[0] != 5) {
+                ok = 0;
+                break;
+            }
+        }
+        break;
+    case 4:
+        if (battle->sides[side].pile.unk6 == 0) {
+            ok = 1;
+        }
+        break;
+    case 5:
+        if (battle->sides[side].pile.unk8 == 0) {
+            ok = 1;
+        }
+        break;
+    case 6:
+        if (battle->sides[other].pile.unk8 == 0) {
+            ok = 1;
+        }
+        break;
+    case 7:
+        initCardDrawer(&drawer3);
+        ok = 1;
+        for (i = battle->sides[side].pile.unk4; i < 40; i++) {
+            drawer3.setCard(battle->cards[battle->sides[side].pile.unk14[i]] + 1);
+            if (drawer3.card[3] == 0x10) {
+                ok = 0;
+                break;
+            }
+        }
+        break;
+    case 8:
+        initCardDrawer(&drawer4);
+        ok = 1;
+        for (i = battle->sides[side].pile.unk4; i < 40; i++) {
+            drawer4.setCard(battle->cards[battle->sides[side].pile.unk14[i]] + 1);
+            if (drawer4.card[3] != 0x10) {
+                ok = 0;
+                break;
+            }
+        }
+        break;
+    case 9:
+        ok = 1;
+        n = battle->unk560.unk15 - 1;
+        for (slot = 0; slot < 12; slot++) {
+            battle->unk46F[slot] = 0;
+            if (slot < 6) {
+                if (slot >= battle->players[0].slotCount) {
+                    continue;
+                }
+                p = &battle->players[0].slots[slot];
+            } else {
+                if (slot - 6 >= battle->players[1].slotCount) {
+                    continue;
+                }
+                p = &battle->players[1].slots[slot - 6];
+            }
+            if (p->order == battle->unk560.unk20[n].unk6) {
+                ok = 0;
+                break;
+            }
+        }
+        break;
+    case 10:
+        ok = 1;
+        for (i = 0; i < 12 && ok == 1; i++) {
+            k = i - 6;
+            if (i < 6) {
+                valid = i < battle->players[0].slotCount;
+            } else {
+                valid = k < battle->players[1].slotCount;
+            }
+            if (valid) {
+                switch (battle->unk560.unk20[battle->unk560.unk15 - 1].unk5) {
+                case 1:
+                    if (side == 0) {
+                        if (i < 6) {
+                            ok = 0;
+                        }
+                    } else {
+                        if (i >= 6) {
+                            ok = 0;
+                        }
+                    }
+                    break;
+                case 2:
+                    if (side == 0) {
+                        if (i >= 6) {
+                            ok = 0;
+                        }
+                    } else {
+                        if (i < 6) {
+                            ok = 0;
+                        }
+                    }
+                    break;
+                case 3:
+                    ok = 0;
+                    break;
+                case 4:
+                    if (screen->getCardColor(screen, i < 6 ? battle->players[0].slots[i].card : battle->players[1].slots[i - 6].card) != 1) {
+                        ok = 0;
+                    }
+                    break;
+                case 5:
+                    if (screen->getCardColor(screen, i < 6 ? battle->players[0].slots[i].card : battle->players[1].slots[i - 6].card) != 2) {
+                        ok = 0;
+                    }
+                    break;
+                case 6:
+                    if (screen->getCardColor(screen, i < 6 ? battle->players[0].slots[i].card : battle->players[1].slots[i - 6].card) == 3) {
+                        ok = 0;
+                    }
+                    break;
+                case 7:
+                    if (screen->getCardColor(screen, i < 6 ? battle->players[0].slots[i].card : battle->players[1].slots[i - 6].card) != 4) {
+                        ok = 0;
+                    }
+                    break;
+                case 8:
+                    if (screen->getCardColor(screen, i < 6 ? battle->players[0].slots[i].card : battle->players[1].slots[i - 6].card) == 6) {
+                        ok = 0;
+                    }
+                    break;
+                }
+            }
+        }
+        break;
+    case 11:
+        ok = 1;
+        for (j = 0; j < battle->sides[side].pile.unkA; j++) {
+            if (battle->unk560.unk20[battle->unk560.unk15 - 1].unk6 == battle->sides[side].pile.unk64[j]) {
+                ok = 0;
+                break;
+            }
+        }
+        break;
+    }
+    return ok;
+}
 
 /* The mode's task: sets up the display and starts the battle, then returns
    to the field once it is over (or to mode 0x1500 when the mode's low
@@ -678,7 +943,132 @@ void func_80096BD0(CardScreen *screen, CardScreenItems *items, s32 x, s32 y) {
     drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), 0x18, x, y);
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_80096C78);
+/* The message window: it opens at place unkDE4, shows message unkDE8 with the cursor, then closes */
+void CARDGAME_updateMessageWindow(CardScreen *screen, CardScreenItems *items) {
+    TextTools tools;
+    s16 scale;
+    s32 t;
+    s32 i;
+    s32 x;
+
+    if (screen->unkDFA == 0) {
+        return;
+    }
+    switch (screen->unkDFA) {
+    case 1:
+    default:
+        t = screen->unkDF0 << 12;
+        scale = 0x1000 - (screen->unkDF2 != 0 ? t / screen->unkDF2 : t);
+        screen->unkDF0 -= GFX.funcs.getFrameTime();
+        if (screen->unkDF0 <= 0) {
+            screen->unkDFA = 2;
+#if VERSION_US
+            if (screen->unkDFB != 0) {
+                items->cursor->setVisible(items->cursor, 1);
+                items->cursor->setPos(items->cursor, 0x14, D_800A4894[screen->unkDE4][1] + 0x11 + screen->unkDF4 * 14);
+                items->texts[12]->setString(items->texts[12], FILE_CACHE_LOAD[0](TEXT_FILE(0x10)), 0x18);
+                items->texts[12]->setPos(items->texts[12], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x12);
+            } else {
+                items->texts[12]->setVisible(items->texts[12], 0);
+                items->cursor->setVisible(items->cursor, 0);
+            }
+#elif VERSION_EU
+            switch (screen->unkDFB) {
+            case 0:
+            default:
+                items->texts[12]->setVisible(items->texts[12], 0);
+                items->cursor->setVisible(items->cursor, 0);
+                break;
+            case 1:
+                items->cursor->setVisible(items->cursor, 1);
+                items->cursor->setPos(items->cursor, 0x14, D_800A4894[screen->unkDE4][1] + 0x11 + screen->unkDF4 * 14);
+                items->texts[12]->setString(items->texts[12], FILE_CACHE_LOAD[0](TEXT_FILE(0x10)), 0x18);
+                items->texts[12]->setPos(items->texts[12], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x12);
+                break;
+            case 2:
+            case 3:
+                items->cursor->setVisible(items->cursor, 1);
+                items->cursor->setPos(items->cursor, 0x14, D_800A4894[screen->unkDE4][1] + 0x11 + screen->unkDF4 * 14);
+                items->texts[12]->setString(items->texts[12], FILE_CACHE.load(TEXT_FILE(0x10)), 0x45);
+                if (screen->unkDFB == 3) {
+                    items->texts[12]->setPalette(items->texts[12], 7);
+                }
+                items->texts[12]->setPos(items->texts[12], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x12);
+                items->texts[0]->setString(items->texts[0], FILE_CACHE.load(TEXT_FILE(0x10)), 0x46);
+                items->texts[0]->setRightAlign(items->texts[0], 0);
+                items->texts[0]->setPos(items->texts[0], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x20);
+                break;
+            }
+#endif
+            if (screen->unkDE4 == 3) {
+                items->texts[6]->setPos(items->texts[6], D_800A4894[3][0] + 0x40, D_800A4894[3][1] + 4);
+                items->texts[6]->setString(items->texts[6], FILE_CACHE.load(TEXT_FILE(0x10)), 0x42);
+                items->texts[12]->setString(items->texts[12], FILE_CACHE.load(TEXT_FILE(0x6B)), screen->unkDE8);
+                items->texts[12]->setPos(items->texts[12], D_800A4894[screen->unkDE4][0] + 0x40, D_800A4894[screen->unkDE4][1] + 0x12);
+            } else if (screen->unkDE8 != 0) {
+                items->texts[6]->setPos(items->texts[6], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 4);
+                items->texts[6]->setString(items->texts[6], FILE_CACHE.load(TEXT_FILE(0x10)), screen->unkDE8);
+                if (screen->unkDE8 == 0x13) {
+                    items->texts[12]->setString(items->texts[12], FILE_CACHE.load(TEXT_FILE(0x10)), 0x2B);
+                    items->texts[12]->setPos(items->texts[12], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x12);
+                    initTextTools(&tools);
+                    x = tools.measure(items->texts[12]->text, items->texts[12]->style, items->texts[12]->spacingX) + 0x1B;
+                    for (i = 0; i < 2; i++) {
+                        items->texts[i]->setPos(items->texts[i], D_800A4894[screen->unkDE4][0] + x + 0xE, D_800A4894[screen->unkDE4][1] + 0x12 + i * 14);
+                        items->texts[i]->setNumber(items->texts[i], 0, screen->panels[i].unk44);
+                        items->texts[i]->setRightAlign(items->texts[i], 0);
+                    }
+                } else if (screen->unkDE8 == 0x3E) {
+                    items->texts[0]->setPos(items->texts[0], D_800A4894[screen->unkDE4][0] + 0x3E, D_800A4894[screen->unkDE4][1] + 4);
+                    items->texts[0]->setNumber(items->texts[0], 0, screen->unk5E);
+                    items->texts[0]->setRightAlign(items->texts[0], 1);
+                    items->texts[1]->setString(items->texts[1], FILE_CACHE.load(TEXT_FILE(0x2C)), (screen->unk5C + 1) / 2);
+                    items->texts[1]->setPos(items->texts[1], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x12);
+                }
+            } else {
+                items->texts[6]->setVisible(items->texts[6], 0);
+            }
+        }
+        break;
+    case 2:
+        scale = 0x1000;
+        if (screen->unkDE4 == 3) {
+            func_80096BD0(screen, items, 0x1C, 0x64);
+        }
+        if (screen->unkDFB != 0) {
+            items->cursor->setPos(items->cursor, 0x14, D_800A4894[screen->unkDE4][1] + 0x11 + screen->unkDF4 * 14);
+        }
+        break;
+    case 4:
+        scale = 0x1000;
+        items->cursor->setPos(items->cursor, 0x14 - rsin((screen->unkDF0 << 12) / 20) / 512, D_800A4894[screen->unkDE4][1] + 0x11 + screen->unkDF4 * 14);
+        screen->unkDF0 -= GFX.funcs.getFrameTime();
+        if (screen->unkDF0 <= 0) {
+            items->cursor->setVisible(items->cursor, 0);
+            screen->unkEE8(screen);
+            items->cursor->setIdleDelay(items->cursor, 0x20);
+            screen->unkDFA = 5;
+        }
+        break;
+    case 5:
+        items->cursor->setVisible(items->cursor, 0);
+        items->texts[6]->setVisible(items->texts[6], 0);
+#if VERSION_EU
+        items->texts[12]->setPalette(items->texts[12], 0);
+#endif
+        items->texts[12]->setVisible(items->texts[12], 0);
+        items->texts[0]->setVisible(items->texts[0], 0);
+        items->texts[1]->setVisible(items->texts[1], 0);
+        items->texts[2]->setVisible(items->texts[2], 0);
+        screen->unkDF0 -= GFX.funcs.getFrameTime();
+        if (screen->unkDF0 <= 0) {
+            screen->unkDFA = 0;
+        }
+        scale = (screen->unkDF0 << 12) / screen->unkDF2;
+        break;
+    }
+    func_80096B04(screen, items, scale, D_800A4894[screen->unkDE4][0], D_800A4894[screen->unkDE4][1]);
+}
 
 void func_8009747C(CardScreen *screen, CardScreenItems *items, s16 scale, s32 x, s32 y) {
     SpriteDrawer drawer;
@@ -691,7 +1081,56 @@ void func_8009747C(CardScreen *screen, CardScreenItems *items, s16 scale, s32 x,
     drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 1, x, y);
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_80097548);
+/* A menu window (CardScreen.unkE00): it opens, shows text file 0x10 with the
+   cursor on row unkE04, then closes */
+void func_80097548(CardScreen *screen, CardScreenItems *items) {
+    s16 scale;
+    s32 t;
+
+    if (screen->unkE0A == 0) {
+        return;
+    }
+    switch (screen->unkE0A) {
+    case 1:
+    default:
+        t = screen->unkE00 << 12;
+        scale = 0x1000 - (screen->unkE02 != 0 ? t / screen->unkE02 : t);
+        screen->unkE00 -= GFX.funcs.getFrameTime();
+        if (screen->unkE00 <= 0) {
+            screen->unkE0A = 2;
+            items->cursor->setVisible(items->cursor, 1);
+            items->cursor->setPos(items->cursor, 10, screen->unkE04 * 14 + 0x65);
+            items->texts[11]->setString(items->texts[11], FILE_CACHE_LOAD[0](TEXT_FILE(0x10)), 0x20);
+            items->texts[11]->setPos(items->texts[11], 0x18, 0x65);
+        }
+        break;
+    case 2:
+        scale = 0x1000;
+        items->cursor->setPos(items->cursor, 10, screen->unkE04 * 14 + 0x65);
+        break;
+    case 4:
+        scale = 0x1000;
+        items->cursor->setPos(items->cursor, 10 - rsin((screen->unkE00 << 12) / 20) / 512, screen->unkE04 * 14 + 0x65);
+        screen->unkE00 -= GFX.funcs.getFrameTime();
+        if (screen->unkE00 <= 0) {
+            items->cursor->setVisible(items->cursor, 0);
+            screen->unkEF8(screen);
+            items->cursor->setIdleDelay(items->cursor, 0x20);
+            screen->unkE0A = 5;
+        }
+        break;
+    case 5:
+        items->cursor->setVisible(items->cursor, 0);
+        items->texts[11]->setVisible(items->texts[11], 0);
+        screen->unkE00 -= GFX.funcs.getFrameTime();
+        if (screen->unkE00 <= 0) {
+            screen->unkE0A = 0;
+        }
+        scale = (screen->unkE00 << 12) / screen->unkE02;
+        break;
+    }
+    func_8009747C(screen, items, scale, 0, 0x60);
+}
 
 s32 CARDGAME_getHandOffset(s32 count, s32 index) {
     s32 step;
@@ -704,9 +1143,312 @@ s32 CARDGAME_getHandOffset(s32 count, s32 index) {
     return step * index;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_80097880);
+/* Draws a side's panel (CardScreen.panels): its lights, bars, numbers and parts, which blink by its flags */
+void CARDGAME_drawPanel(CardPanel *panel, CardScreenItems *items, s32 side) {
+    s32 y;
+    s32 imageY;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_800983D0);
+    y = panel->y;
+    imageY = panel->unk3E;
+#if VERSION_EU
+    if (SHIFT_PAL_SCREEN) {
+        if (side == 0) {
+            y += 12;
+            imageY += 12;
+        } else {
+            y -= 12;
+            imageY -= 12;
+        }
+    }
+#endif
+    /* the lights */
+    {
+        SpriteDrawer drawer;
+        s32 t;
+        s32 i;
+
+        t = panel->unk8 % 36;
+        initSpriteDrawer(&drawer);
+        drawer.setLayerId(0x100, 1);
+        drawer.setTexture(0x340, 0);
+        drawer.setClutRow(D_800A494C[t / 6]);
+        for (i = 0; i < 5; i++) {
+            if (panel->flags[i] != 0) {
+                drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 0xD, panel->x + D_800A48B4[side].flagLights.x + i * 0x2A, y + D_800A48B4[side].flagLights.y);
+            }
+        }
+        if (panel->flags[8] != 0) {
+            drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 0xC, panel->x + D_800A48B4[side].unk44.x, y + D_800A48B4[side].unk44.y);
+        }
+        if (panel->flags[9] != 0) {
+            drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 0xC, panel->x + D_800A48B4[side].unk48.x, y + D_800A48B4[side].unk48.y);
+        }
+        if (panel->flags[6] != 0) {
+            drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 0xE, panel->x + D_800A48B4[side].unk38.x, y + D_800A48B4[side].unk38.y);
+        }
+        if (panel->flags[7] != 0) {
+            drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 0xE, panel->x + D_800A48B4[side].unk3C.x, y + D_800A48B4[side].unk3C.y);
+        }
+        if (panel->flags[5] != 0) {
+            drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 0xF, panel->unk20 + D_800A48B4[side].unk40.x, panel->unk22 + D_800A48B4[side].unk40.y);
+        }
+    }
+    /* the bars and the numbers */
+    {
+        SpriteDrawer drawer;
+        CardNumber number;
+        s32 t;
+        s32 i;
+
+        t = panel->unk8 % 24;
+        initSpriteDrawer(&drawer);
+        drawer.setLayerId(0x100, 1);
+        drawer.setTexture(0x340, 0);
+        if (panel->flags[8] != 0) {
+            drawer.setClutRow(t / 6 + 1);
+        } else {
+            drawer.setClutRow(0);
+        }
+#if VERSION_US
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), D_800A4954[1][0], panel->x + D_800A48B4[side].unk18.x, y + D_800A48B4[side].unk18.y);
+#elif VERSION_EU
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), D_800A4954[LANGUAGE][0], panel->x + D_800A48B4[side].unk18.x, y + D_800A48B4[side].unk18.y);
+#endif
+        if (panel->flags[9] != 0) {
+            drawer.setClutRow(t / 6 + 1);
+        } else {
+            drawer.setClutRow(0);
+        }
+#if VERSION_US
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), D_800A4954[1][1], panel->x + D_800A48B4[side].unk20.x, y + D_800A48B4[side].unk20.y);
+#elif VERSION_EU
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), D_800A4954[LANGUAGE][1], panel->x + D_800A48B4[side].unk20.x, y + D_800A48B4[side].unk20.y);
+#endif
+
+        number.depth = 1;
+        number.x = panel->x + D_800A48B4[side].unkC.x;
+        number.y = D_800A48B4[side].unkC.y + y;
+        number.digits = 2;
+        number.leadingZeros = 1;
+        number.value = panel->unk18[5];
+        CARDGAME_drawNumber(&number, 0);
+        number.x = panel->x + D_800A48B4[side].unk10.x;
+        number.y = D_800A48B4[side].unk10.y + y;
+        number.digits = 2;
+        number.leadingZeros = 1;
+        number.value = panel->unk18[6];
+        CARDGAME_drawNumber(&number, 0);
+        number.x = panel->x + D_800A48B4[side].unk1C.x;
+        number.y = D_800A48B4[side].unk1C.y + y;
+        number.digits = 3;
+        number.leadingZeros = 0;
+        number.value = panel->unk10;
+        CARDGAME_drawNumber(&number, 0);
+        number.x = panel->x + D_800A48B4[side].unk24.x;
+        number.y = D_800A48B4[side].unk24.y + y;
+        number.digits = 3;
+        number.leadingZeros = 0;
+        number.value = panel->unk12;
+        CARDGAME_drawNumber(&number, 0);
+        for (i = 0; i < 5; i++) {
+            number.x = panel->x + D_800A48B4[side].flagNumbers.x + i * 0x2A;
+            number.y = D_800A48B4[side].flagNumbers.y + y;
+            number.digits = 2;
+            number.leadingZeros = 1;
+            number.value = panel->unk18[i];
+            CARDGAME_drawNumber(&number, 0);
+        }
+        number.x = panel->unk20 + D_800A48B4[side].unk14.x;
+        number.y = panel->unk22 + D_800A48B4[side].unk14.y;
+        number.digits = 2;
+        number.leadingZeros = 1;
+        number.value = panel->unk28;
+        CARDGAME_drawNumber(&number, 0);
+    }
+    /* the image, the blinking parts and the frame */
+    {
+        SpriteDrawer drawer;
+        s32 t;
+        s32 frame;
+        s32 boxFrame;
+        s32 iconT;
+        s32 iconFrame;
+        s32 i;
+
+        initSpriteDrawer(&drawer);
+        drawer.setLayerId(0x100, 1);
+        drawer.setTexture(0x280, 0);
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), D_800A48B4[side].unk2 + panel->unk44, panel->unk3C, imageY);
+        t = panel->unk8 % 30;
+        if (panel->flags[7] != 0) {
+            frame = t / 6;
+        } else {
+            frame = 0;
+        }
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), D_800A4964[frame] + 9, panel->x + D_800A48B4[side].unk2C.x, y + D_800A48B4[side].unk2C.y);
+        t = panel->unk8 % 30;
+        if (panel->flags[6] != 0) {
+            frame = t / 6;
+        } else {
+            frame = 0;
+        }
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), D_800A496C[frame] + 6, panel->x + D_800A48B4[side].unk28.x, y + D_800A48B4[side].unk28.y);
+        t = panel->unk8 % 30;
+        if (panel->flags[5] != 0) {
+            boxFrame = t / 6;
+        } else {
+            boxFrame = 0;
+        }
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), D_800A4974[boxFrame] + 0x31, panel->unk20, panel->unk22);
+        iconT = panel->unk8 % 30;
+        for (i = 0; i < 5; i++) {
+            if (panel->flags[i] != 0) {
+                iconFrame = iconT / 6;
+            } else {
+                iconFrame = 0;
+            }
+            drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), D_800A497C[i] + D_800A4984[iconFrame], panel->x + D_800A48B4[side].flagIcons.x + i * 0x2A, y + D_800A48B4[side].flagIcons.y);
+        }
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), D_800A48B4[side].unk3, panel->unk20 + D_800A48B4[side].unk30.x, panel->unk22 + D_800A48B4[side].unk30.y);
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), D_800A48B4[side].frame, panel->x, y);
+    }
+    panel->unk8 = (panel->unk8 + GFX.funcs.getFrameTime()) & 0xFFFF;
+}
+
+/* Moves a side's panel between its shown and hidden places: in (state 1), out (3), or only x/y in or out (4, 5) */
+void CARDGAME_slidePanel(CardPanel *panel, CardScreenItems *items, s32 side) {
+    s32 shownX;
+    s32 shownY;
+    s32 hiddenX;
+    s32 hiddenY;
+    s32 shown20;
+    s32 hidden20;
+    s32 shown22;
+    s32 hidden22;
+    s32 shown3C;
+    s32 hidden3C;
+    s32 shown3E;
+    s32 hidden3E;
+
+    if (side == 0) {
+        shownX = 0;
+        shownY = 0x8D;
+        hiddenX = 0;
+        hiddenY = 0xF1;
+        shown20 = 0x120;
+        shown22 = 0x8F;
+        hidden20 = 0x147;
+        hidden22 = 0x8F;
+        shown3C = 0x113;
+        shown3E = 0xBD;
+        hidden3E = 0xBD;
+        /* the match depends on setting it in both branches, not once after them */
+        hidden3C = 0x13A;
+    } else {
+        shownX = 0;
+        shownY = 0;
+        hiddenX = 0;
+        hiddenY = -100;
+        shown20 = 0x120;
+        shown22 = 0x50;
+        hidden20 = 0x147;
+        hidden22 = 0x50;
+        shown3C = 0x113;
+        shown3E = 0x26;
+        hidden3E = 0x26;
+        hidden3C = 0x13A;
+    }
+    /* the match depends on the empty case 0 */
+    switch (panel->unk6) {
+    case 1:
+        panel->unk6 = 0;
+        break;
+    case 2:
+        panel->unk6 = 0;
+        break;
+    case 0:
+        break;
+    }
+    switch (panel->state) {
+    case 1:
+        if ((panel->time -= GFX.funcs.getFrameTime()) > 0) {
+            panel->x = shownX - (shownX - hiddenX) * panel->time / panel->duration;
+            panel->y = shownY - (shownY - hiddenY) * panel->time / panel->duration;
+            panel->unk20 = shown20 - (shown20 - hidden20) * panel->time / panel->duration;
+            panel->unk22 = shown22 - (shown22 - hidden22) * panel->time / panel->duration;
+            panel->unk3C = shown3C - (shown3C - hidden3C) * panel->time / panel->duration;
+            panel->unk3E = shown3E - (shown3E - hidden3E) * panel->time / panel->duration;
+        } else {
+            panel->state = 2;
+            panel->time = 0;
+            panel->duration = 0;
+            panel->x = shownX;
+            panel->y = shownY;
+            panel->unk20 = shown20;
+            panel->unk22 = shown22;
+            panel->unk3C = shown3C;
+            panel->unk3E = shown3E;
+        }
+        break;
+    case 3:
+        if ((panel->time -= GFX.funcs.getFrameTime()) > 0) {
+            panel->x = hiddenX - (hiddenX - shownX) * panel->time / panel->duration;
+            panel->y = hiddenY - (hiddenY - shownY) * panel->time / panel->duration;
+            panel->unk20 = hidden20 - (hidden20 - shown20) * panel->time / panel->duration;
+            panel->unk22 = hidden22 - (hidden22 - shown22) * panel->time / panel->duration;
+            panel->unk3C = hidden3C - (hidden3C - shown3C) * panel->time / panel->duration;
+            panel->unk3E = hidden3E - (hidden3E - shown3E) * panel->time / panel->duration;
+        } else {
+            panel->state = 0;
+            panel->unk6 = 1;
+            panel->time = 0;
+            panel->duration = 0;
+            panel->x = hiddenX;
+            panel->y = hiddenY;
+            panel->unk20 = hidden20;
+            panel->unk22 = hidden22;
+            panel->unk3C = hidden3C;
+            panel->unk3E = hidden3C; /* not hidden3E */
+        }
+        break;
+    case 4:
+        panel->unk20 = hidden20;
+        panel->unk22 = hidden22;
+        panel->unk3C = hidden3C;
+        panel->unk3E = hidden3C;
+        if ((panel->time -= GFX.funcs.getFrameTime()) > 0) {
+            panel->x = shownX - (shownX - hiddenX) * panel->time / panel->duration;
+            panel->y = shownY - (shownY - hiddenY) * panel->time / panel->duration;
+        } else {
+            panel->state = 2;
+            panel->time = 0;
+            panel->duration = 0;
+            panel->x = shownX;
+            panel->y = shownY;
+        }
+        break;
+    case 5:
+        panel->unk20 = hidden20;
+        panel->unk22 = hidden22;
+        panel->unk3C = hidden3C;
+        panel->unk3E = hidden3C;
+        if ((panel->time -= GFX.funcs.getFrameTime()) > 0) {
+            panel->x = hiddenX - (hiddenX - shownX) * panel->time / panel->duration;
+            panel->y = hiddenY - (hiddenY - shownY) * panel->time / panel->duration;
+        } else {
+            panel->state = 0;
+            panel->unk6 = 1;
+            panel->time = 0;
+            panel->duration = 0;
+            panel->x = hiddenX;
+            panel->y = hiddenY;
+        }
+        break;
+    case 0:
+    case 2:
+        break;
+    }
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_80098930);
 
@@ -791,15 +1533,100 @@ void func_80098E28(CardScreen *screen, CardScreenItems *items) {
 void func_80098EB4(CardScreen *screen, CardScreenItems *items) {
     func_80098B38(screen, items, 0, &screen->panels[0].scale);
     func_80098B38(screen, items, 1, &screen->panels[1].scale);
-    func_800983D0(&screen->panels[0], items, 0);
-    func_800983D0(&screen->panels[1], items, 1);
-    func_80097880(&screen->panels[0], items, 0);
-    func_80097880(&screen->panels[1], items, 1);
+    CARDGAME_slidePanel(&screen->panels[0], items, 0);
+    CARDGAME_slidePanel(&screen->panels[1], items, 1);
+    CARDGAME_drawPanel(&screen->panels[0], items, 0);
+    CARDGAME_drawPanel(&screen->panels[1], items, 1);
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_80098F50);
+/* Moves and scales a sprite towards its targets; at the end it plays a sound (unless in state 3) and goes to state 1 */
+void CARDGAME_moveSprite(CardScreen *screen, CardSprite *sprite) {
+    sprite->time -= GFX.funcs.getFrameTime();
+    if (sprite->time > 0) {
+        if (sprite->x != sprite->targetX || sprite->y != sprite->targetY) {
+            sprite->x = sprite->targetX - (sprite->targetX - sprite->startX) * sprite->time / sprite->duration;
+            sprite->y = sprite->targetY - (sprite->targetY - sprite->startY) * sprite->time / sprite->duration;
+        }
+        /* both scales, read as one word */
+        if (*(s32 *)&sprite->scaleX != *(s32 *)&sprite->targetScaleX) {
+            sprite->scaleX = sprite->targetScaleX - (sprite->targetScaleX - sprite->startScaleX) * sprite->time / sprite->duration;
+            sprite->scaleY = sprite->targetScaleY - (sprite->targetScaleY - sprite->startScaleY) * sprite->time / sprite->duration;
+        }
+    } else {
+        if (sprite->state != 3) {
+            SOUND.playSound(0x800460BD);
+        }
+        sprite->state = 1;
+        sprite->time = 0;
+        sprite->duration = 0;
+        sprite->x = sprite->targetX;
+        sprite->y = sprite->targetY;
+        sprite->scaleX = sprite->targetScaleX;
+        sprite->scaleY = sprite->targetScaleY;
+        if (sprite->unk48 == 0) {
+            sprite->moving = 0;
+        }
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_800990F4);
+/* Flies a sprite from start to target along an arc while scaling it; at the end it swaps start and target, goes to state 2 with 2.5 times the time, and returns 1 */
+s32 CARDGAME_flySprite(CardScreen *screen, CardSprite *sprite) {
+    s32 done = 0;
+    s32 dy;
+    s32 offset;
+    s32 startX;
+    s32 startY;
+    s32 scaledDy;
+    s16 scaleX;
+    s16 scaleY;
+
+    if (sprite->unk30 > 0) {
+        sprite->unk30 -= GFX.funcs.getFrameTime();
+        sprite->scaleX = 0x1C00 - sprite->unk30 * 0xC0;
+        sprite->scaleY = 0x1C00 - sprite->unk30 * 0xC0;
+        if (sprite->unk30 <= 0) {
+            sprite->unk48 |= 5;
+            SOUND.playSound(0x8004603C);
+            sprite->targetScaleX = 0x1200;
+            sprite->targetScaleY = 0x1200;
+            sprite->startScaleX = sprite->scaleX = 0x1C00;
+            sprite->startScaleY = sprite->scaleY = 0x1C00;
+            sprite->unk30 = 0;
+        }
+        return 0;
+    }
+    sprite->time -= GFX.funcs.getFrameTime();
+    if (sprite->time > 0) {
+        dy = sprite->targetY - sprite->startY;
+        scaledDy = dy * sprite->time;
+        sprite->x = sprite->targetX - (sprite->targetX - sprite->startX) * sprite->time / sprite->duration;
+        sprite->y = sprite->targetY - scaledDy / sprite->duration;
+        offset = rsin((sprite->time << 12) / (sprite->duration * 2)) * 0x1C00;
+        sprite->y += (dy > 0 ? -offset : offset) / 0x1000;
+        sprite->scaleX = sprite->targetScaleX - (sprite->targetScaleX - sprite->startScaleX) * sprite->time / sprite->duration;
+        sprite->scaleY = sprite->targetScaleY - (sprite->targetScaleY - sprite->startScaleY) * sprite->time / sprite->duration;
+    } else {
+        startX = sprite->startX;
+        startY = sprite->startY;
+        sprite->x = sprite->startX = sprite->targetX;
+        sprite->y = sprite->startY = sprite->targetY;
+        sprite->targetX = startX;
+        sprite->targetY = startY;
+        scaleX = sprite->targetScaleX;
+        scaleY = sprite->targetScaleY;
+        sprite->state = 2;
+        sprite->targetScaleX = 0x1000;
+        sprite->targetScaleY = 0x1000;
+        sprite->scaleX = scaleX;
+        sprite->scaleY = scaleY;
+        sprite->unk48 &= ~5;
+        sprite->time = sprite->duration = sprite->duration * 2 + sprite->duration / 2;
+        sprite->startScaleX = sprite->scaleX;
+        sprite->startScaleY = sprite->scaleY;
+        done = 1;
+    }
+    return done;
+}
 
 s32 func_800993A8(CardScreen *screen, CardSprite *sprite) {
     s32 done = 0;
@@ -894,17 +1721,258 @@ s32 func_800996B0(CardScreen *screen, CardSprite *sprite) {
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_80099780);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_800998EC);
+/* Draws a sprite's effect animation (unk47 1-4, frames 0x28-0x4C of the fourth TIM) and ends it when its time runs out */
+void func_800998EC(CardScreen *screen, CardSprite *sprite) {
+    SpriteDrawer drawer;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_80099C00);
+    if (sprite->visible != 0 && sprite->unk47 != 0) {
+        initSpriteDrawer(&drawer);
+        /* both scales at 0x1000, read as one word */
+        if (*(s32 *)&sprite->scaleX != 0x10001000) {
+            drawer.setPivot((sprite->x >> 8) + 0x14, (sprite->y >> 8) + 0x17);
+            drawer.setScale(sprite->scaleX, sprite->scaleY, 0x1000);
+        }
+        drawer.setLayerId(0x100, 1);
+        drawer.setTexture(0x340, 0);
+        switch (sprite->unk47) {
+        case 1:
+            drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), D_800A49C8[(screen->time >> 2) & 3] + 0x28,
+                        sprite->x >> 8, sprite->y >> 8);
+            break;
+        case 2:
+            drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), D_800A49CC[(sprite->unk34 >> 2) % 4] + 0x2C,
+                        sprite->x >> 8, sprite->y >> 8);
+            if (sprite->unk34 >= 8) {
+                sprite->unk47 = 0;
+                sprite->unk34 = 0;
+            }
+            sprite->unk34 += GFX.funcs.getFrameTime();
+            break;
+        case 3:
+            drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), (sprite->unk34 >> 1) % 9 + 0x3C,
+                        sprite->x >> 8, sprite->y >> 8);
+            if (sprite->unk34++ >= 36) {
+                sprite->unk47 = 0;
+                sprite->unk34 = 0;
+            }
+            sprite->unk34 += GFX.funcs.getFrameTime();
+            break;
+        case 4:
+            drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), (sprite->unk34 >> 1) % 7 + 0x46,
+                        sprite->x >> 8, sprite->y >> 8);
+            if (sprite->unk34 >= 28) {
+                sprite->unk47 = 0;
+                sprite->unk34 = 0;
+            }
+            sprite->unk34 += GFX.funcs.getFrameTime();
+            break;
+        }
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_80099E7C);
+/* Draws the highlights over a sprite (unk48 bits 0-2), with a cycling palette */
+void func_80099C00(CardScreen *screen, CardSprite *sprite) {
+    SpriteDrawer drawer;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_80099F7C);
+    if (sprite->visible != 0) {
+        if (sprite->unk48 & 6) {
+            initSpriteDrawer(&drawer);
+            if (sprite->unk48 & 4) {
+                drawer.setClutRow(D_800A49D0[(screen->time >> 2) % 6] + 5);
+            } else {
+                drawer.setClutRow(4);
+            }
+            /* both scales at 0x1000, read as one word */
+            if (*(s32 *)&sprite->scaleX != 0x10001000) {
+                drawer.setPivot((sprite->x >> 8) + 0x14, (sprite->y >> 8) + 0x17);
+                drawer.setScale(sprite->scaleX, sprite->scaleY, 0x1000);
+            }
+            drawer.setLayerId(0x100, 1);
+            drawer.setTexture(0x340, 0);
+            drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 8, sprite->x >> 8, sprite->y >> 8);
+        }
+        if (sprite->unk48 & 1) {
+            initSpriteDrawer(&drawer);
+            drawer.setClutRow(D_800A49D0[(screen->time >> 2) % 6]);
+            /* both scales at 0x1000, read as one word */
+            if (*(s32 *)&sprite->scaleX != 0x10001000) {
+                drawer.setPivot((sprite->x >> 8) + 0x14, (sprite->y >> 8) + 0x17);
+                drawer.setScale(sprite->scaleX, sprite->scaleY, 0x1000);
+            }
+            drawer.setLayerId(0x100, 1);
+            drawer.setTexture(0x340, 0);
+            drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 8, sprite->x >> 8, sprite->y >> 8);
+        }
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009A0BC);
+void func_80099E7C(CardScreen *screen, CardSprite *sprite) {
+    SpriteDrawer drawer;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009A5CC);
+    if (sprite->visible != 0 && sprite->unk46 != 0) {
+        initSpriteDrawer(&drawer);
+        /* both scales at 0x1000, read as one word */
+        if (*(s32 *)&sprite->scaleX != 0x10001000) {
+            drawer.setPivot((sprite->x >> 8) + 0x14, (sprite->y >> 8) + 0x17);
+            drawer.setScale(sprite->scaleX, sprite->scaleY, 0x1000);
+        }
+        drawer.setLayerId(0x100, 1);
+        drawer.setTexture(0x280, 0);
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), sprite->unk46 + 0x33, (sprite->x >> 8) + 3, (sprite->y >> 8) + 2);
+    }
+}
+
+/* Draws a card's marks that are set (unk3E[0..2]: sprites 0x37 to 0x39), in a row 8 pixels apart */
+void CARDGAME_drawSpriteMarks(CardScreen *screen, CardSprite *sprite) {
+    SpriteDrawer drawer;
+    s32 i;
+    s32 n;
+
+    if (sprite->visible != 0) {
+        for (i = 0, n = 0; i < 3; i++) {
+            if (sprite->unk3E[i] != 0) {
+                initSpriteDrawer(&drawer);
+                /* both scales at 0x1000, read as one word */
+                if (*(s32 *)&sprite->scaleX != 0x10001000) {
+                    drawer.setPivot((sprite->x >> 8) + 0x14, (sprite->y >> 8) + 0x17);
+                    drawer.setScale(sprite->scaleX, sprite->scaleY, 0x1000);
+                }
+                drawer.setLayerId(0x100, 1);
+                drawer.setTexture(0x280, 0);
+                drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), i + 0x37, (sprite->x >> 8) + 3 + n * 8, (sprite->y >> 8) + 0x15);
+                n++;
+            }
+        }
+    }
+}
+
+/* Draws a card's two numbers (unk43 and unk44) and the sprite between them */
+static inline void drawCardNumbers(CardSprite *sprite) {
+    CardNumber number;
+    SpriteDrawer drawer;
+
+    number.depth = 1;
+    number.digits = 2;
+    number.leadingZeros = 0;
+    number.x = (sprite->x >> 8) + 4;
+    number.y = (sprite->y >> 8) + 0x21;
+    number.value = sprite->unk43;
+    number.pivotX = (sprite->x >> 8) + 0x14;
+    number.pivotY = (sprite->y >> 8) + 0x17;
+    number.scaleX = sprite->scaleX;
+    number.scaleY = sprite->scaleY;
+    CARDGAME_drawNumber(&number, 1);
+    number.x = (sprite->x >> 8) + 0x17;
+    number.y = (sprite->y >> 8) + 0x21;
+    number.value = sprite->unk44;
+    number.pivotX = (sprite->x >> 8) + 0x14;
+    number.pivotY = (sprite->y >> 8) + 0x17;
+    number.scaleX = sprite->scaleX;
+    number.scaleY = sprite->scaleY;
+    CARDGAME_drawNumber(&number, 1);
+    initSpriteDrawer(&drawer);
+    /* both scales at 0x1000, read as one word */
+    if (*(s32 *)&sprite->scaleX != 0x10001000) {
+        drawer.setPivot((sprite->x >> 8) + 0x14, (sprite->y >> 8) + 0x17);
+        drawer.setScale(sprite->scaleX, sprite->scaleY, 0x1000);
+    }
+    drawer.setLayerId(0x100, 1);
+    drawer.setTexture(0x340, 0);
+    drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 0x1F, (sprite->x >> 8) + 0x12, (sprite->y >> 8) + 0x21);
+}
+
+/* Draws the mark (sprite 0x1E) of a card that is not of kind 16 */
+static inline void drawCardMark(CardSprite *sprite) {
+    SpriteDrawer drawer;
+
+    initSpriteDrawer(&drawer);
+    /* both scales at 0x1000, read as one word */
+    if (*(s32 *)&sprite->scaleX != 0x10001000) {
+        drawer.setPivot((sprite->x >> 8) + 0x14, (sprite->y >> 8) + 0x17);
+        drawer.setScale(sprite->scaleX, sprite->scaleY, 0x1000);
+    }
+    drawer.setLayerId(0x100, 1);
+    drawer.setTexture(0x340, 0);
+    drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 0x1E, (sprite->x >> 8) + 4, (sprite->y >> 8) + 0x21);
+}
+
+/* Draws a card sprite: its frame (visible 1, with the numbers or the mark and the image) or its back (visible 2 or 3) */
+void CARDGAME_drawSpriteCard(CardScreen *screen, CardSprite *sprite) {
+    /* the match depends on the early return together with the empty case 0 */
+    if (sprite->visible == 0) {
+        return;
+    }
+    switch (sprite->visible) {
+    case 0:
+        break;
+    case 1:
+        if (sprite->isKind16 != 0) {
+            drawCardNumbers(sprite);
+        } else {
+            drawCardMark(sprite);
+        }
+        {
+            SpriteDrawer drawer;
+
+            initSpriteDrawer(&drawer);
+            /* both scales at 0x1000, read as one word */
+            if (*(s32 *)&sprite->scaleX != 0x10001000) {
+                drawer.setPivot((sprite->x >> 8) + 0x14, (sprite->y >> 8) + 0x17);
+                drawer.setScale(sprite->scaleX, sprite->scaleY, 0x1000);
+            }
+            drawer.setLayerId(0x100, 1);
+            drawer.setTexture(0x280, 0);
+            drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), sprite->unk49 == 1 ? sprite->color + 0x3C : sprite->color,
+                        sprite->x >> 8, sprite->y >> 8);
+        }
+        func_80099780(sprite);
+        break;
+    case 2: {
+        SpriteDrawer drawer;
+
+        initSpriteDrawer(&drawer);
+        /* both scales at 0x1000, read as one word */
+        if (*(s32 *)&sprite->scaleX != 0x10001000) {
+            drawer.setPivot((sprite->x >> 8) + 0x14, (sprite->y >> 8) + 0x17);
+            drawer.setScale(sprite->scaleX, sprite->scaleY, 0x1000);
+        }
+        drawer.setLayerId(0x100, 1);
+        drawer.setTexture(0x280, 0);
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), 0x10, sprite->x >> 8, sprite->y >> 8);
+        break;
+    }
+    case 3: {
+        SpriteDrawer drawer;
+
+        initSpriteDrawer(&drawer);
+        /* both scales at 0x1000, read as one word */
+        if (*(s32 *)&sprite->scaleX != 0x10001000) {
+            drawer.setPivot((sprite->x >> 8) + 0x14, (sprite->y >> 8) + 0x17);
+            drawer.setScale(sprite->scaleX, sprite->scaleY, 0x1000);
+        }
+        drawer.setLayerId(0x100, 1);
+        drawer.setTexture(0x280, 0);
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), 0xC, sprite->x >> 8, sprite->y >> 8);
+        break;
+    }
+    }
+}
+
+void func_8009A5CC(CardScreen *screen, CardSprite *sprite) {
+    SpriteDrawer drawer;
+
+    if (sprite->visible != 0 && sprite->unk49 != 0) {
+        initSpriteDrawer(&drawer);
+        /* both scales at 0x1000, read as one word */
+        if (*(s32 *)&sprite->scaleX != 0x10001000) {
+            drawer.setPivot((sprite->x >> 8) + 0x14, (sprite->y >> 8) + 0x17);
+            drawer.setScale(sprite->scaleX, sprite->scaleY, 0x1000);
+        }
+        drawer.setLayerId(0x100, 1);
+        drawer.setTexture(0x340, 0);
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 10, sprite->x >> 8, sprite->y >> 8);
+    }
+}
 
 void func_8009A6C0(CardScreen *screen, CardSprite *sprite) {
     SpriteDrawer drawer;
@@ -920,16 +1988,67 @@ void func_8009A6C0(CardScreen *screen, CardSprite *sprite) {
     }
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009A7E4);
+/* Runs a sprite's animation for its state; sets bit 0 of unk54 while one runs */
+void func_8009A7E4(CardScreen *screen, CardScreenItems *items, CardSprite *sprite) {
+    switch (sprite->state) {
+    case 0:
+        sprite->visible = 0;
+        break;
+    case 2:
+    case 3:
+        screen->unk54 |= 1;
+        CARDGAME_moveSprite(screen, sprite);
+        break;
+    case 4:
+        screen->unk54 |= 1;
+        func_800996B0(screen, sprite);
+        break;
+    case 5:
+        screen->unk54 |= 1;
+        if (CARDGAME_flySprite(screen, sprite) != 0) {
+            screen->unk54 |= 2;
+        }
+        break;
+    case 6:
+        screen->unk54 |= 1;
+        func_80099580(screen, sprite);
+        break;
+    case 7:
+        screen->unk54 |= 1;
+        func_800993A8(screen, sprite);
+        break;
+    case 8:
+        screen->unk54 |= 1;
+        func_80099494(screen, sprite);
+        break;
+    case 11:
+        screen->unk54 |= 1;
+        sprite->duration += GFX.funcs.getFrameTime();
+        if (sprite->duration >= 11) {
+            sprite->state = 1;
+        }
+        break;
+    case 9:
+        func_80099504(screen, sprite, 36);
+        screen->unk54 |= 1;
+        break;
+    case 10:
+        func_80099504(screen, sprite, 28);
+        screen->unk54 |= 1;
+        break;
+    case 1:
+        break;
+    }
+}
 
 void func_8009A990(CardScreen *screen, CardSprite *sprite) {
     if (sprite->scaleX != 0 && sprite->scaleY != 0) {
         func_80099C00(screen, sprite);
-        func_80099F7C(screen, sprite);
+        CARDGAME_drawSpriteMarks(screen, sprite);
         func_80099E7C(screen, sprite);
         func_800998EC(screen, sprite);
         func_8009A5CC(screen, sprite);
-        func_8009A0BC(screen, sprite);
+        CARDGAME_drawSpriteCard(screen, sprite);
     }
 }
 
@@ -980,7 +2099,7 @@ void CARDGAME_updateScreen(CardScreen *screen, CardScreenItems *items) {
         screen->unk54 = 0;
         func_80098E28(screen, items);
         func_80097548(screen, items);
-        func_80096C78(screen, items);
+        CARDGAME_updateMessageWindow(screen, items);
         func_80096A9C(screen, items);
         func_8009AA1C(screen, items);
         func_80096018(screen, items);
@@ -1056,7 +2175,7 @@ s32 func_8009AF64(CardScreen *screen, s32 index, u8 arg2, s16 arg3, s32 arg4) {
     return 0;
 }
 
-void func_8009AFA8(CardScreen *screen, s32 arg1, u8 arg2, s16 arg3, s32 arg4) {
+void func_8009AFA8(CardScreen *screen, s32 arg1, s32 arg2, s16 arg3, s32 arg4) {
     SOUND.playSound(0x40019);
     screen->unkDF2 = 12;
     screen->unkDF0 = 12;
@@ -1081,7 +2200,7 @@ void func_8009B078(CardScreen *screen) {
     screen->unkDFA = 4;
 }
 
-void func_8009B0C0(CardScreen *screen, s16 value) {
+void func_8009B0C0(CardScreen *screen, s32 value) {
     screen->unkDF4 = value;
 }
 
@@ -1498,7 +2617,7 @@ void CARDGAME_dealSprites(CardScreen *screen, s16 duration, s16 count, s32 x, s3
     }
 }
 
-u8 CARDGAME_getCardColor(CardScreen *screen, s32 index) {
+s32 CARDGAME_getCardColor(CardScreen *screen, s32 index) {
     CardDrawer drawer;
 
     initCardDrawer(&drawer);
@@ -1661,7 +2780,69 @@ CardPreloader *CARDGAME_startPreloader(void) {
     return createTask(CARDGAME_tickPreloader, sizeof(CardPreloader), 0);
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009C628);
+/* Loads the opponent's data (FILE_CARDGAME_OPPONENTS, entry arg - 1): its deck and its card order */
+void CARDGAME_loadOpponent(CardBattle *battle, CardBattleItems *items) {
+    CardOpponent *opponent;
+    s32 i;
+
+    battle->opponents = (CardOpponent *)FILE_CACHE.load(FILE_CARDGAME_OPPONENTS);
+    opponent = &battle->opponents[battle->arg - 1];
+    battle->unk2E9 = opponent->unkC8;
+    battle->unk2EC = D_800A4AF0[opponent->unkCC];
+    for (i = 0; i < 40; i++) {
+        battle->unk30A[i].unk0 = i;
+        battle->unk30A[i].unk1 = opponent->cards[i].unk2;
+        battle->unk35C[i].unk0 = opponent->cards[i].unk3;
+        battle->unk35C[i].unk1 = (opponent->cards[i].card & 0x8000) != 0;
+        switch (battle->unk35C[i].unk0) {
+        case 1:
+            battle->unk35C[i].unk2 = i + 400;
+            break;
+        case 2:
+            battle->unk35C[i].unk2 = i + 300;
+            break;
+        case 3:
+            battle->unk35C[i].unk2 = i + 500;
+            break;
+        case 4:
+            battle->unk35C[i].unk2 = i + 200;
+            break;
+        case 5:
+            battle->unk35C[i].unk2 = i + 600;
+            break;
+        case 6:
+            battle->unk35C[i].unk2 = i + 100;
+            break;
+        case 7:
+            battle->unk35C[i].unk2 = i + 700;
+            break;
+        }
+    }
+    for (i = 0; i < 27; i++) {
+        if (opponent->unkA0[i] == 0) {
+            battle->unk400[i] = 7;
+            battle->unk400[i + 1] = 8;
+            battle->unk400[i + 2] = 24;
+            battle->unk400[i + 3] = 31;
+            battle->unk400[i + 4] = 32;
+            battle->unk400[i + 5] = 0;
+            battle->unk400[i + 6] = 6;
+            battle->unk400[i + 7] = 12;
+            battle->unk400[i + 8] = 18;
+            battle->unk400[i + 9] = 27;
+            battle->unk400[i + 10] = 30;
+            battle->unk400[i + 11] = 33;
+            battle->unk400[i + 12] = 37;
+            battle->unk400[i + 13] = 38;
+            battle->unk400[i + 14] = 0xFF;
+            break;
+        }
+        battle->unk400[i] = opponent->unkA0[i] - 1;
+    }
+    for (i = 0; i < 40; i++) {
+        battle->unk248[i] = (opponent->cards[i].card & 0xFFF) - 1;
+    }
+}
 
 void func_8009C844(CardBattle *battle) {
     s32 i;
@@ -1709,9 +2890,98 @@ void func_8009C92C(CardBattle *battle, CardBattleItems *items) {
     battle->unk41C = i;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009C9B0);
+/* Puts side 1's hand (unk64) back on its pile and renumbers the pile's cards */
+void func_8009C9B0(CardBattle *battle, CardBattleItems *items) {
+    CardPile *pile = &battle->sides[1].pile;
+    s32 start = pile->unk4;
+    s32 i;
+    s32 j;
+    s16 card;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009CB30);
+    while (pile->unkA > 0) {
+        pile->unk14[--pile->unk4] = pile->unk64[--pile->unkA];
+        pile->unk8++;
+    }
+    if (start != pile->unk4) {
+        for (i = pile->unk4; i < start; i++) {
+            battle->unk30A[i].unk1 = battle->unk300 * 2 + 1;
+        }
+    }
+    for (i = 0; i < 40; i++) {
+        j = pile->unk4;
+        if (battle->unk30A[j].unk1 > battle->unk300 * 2 + 2) {
+            break;
+        }
+        card = pile->unk14[j];
+        while (j < battle->unk41C - 1) {
+            pile->unk14[j] = pile->unk14[j + 1];
+            battle->unk30A[j].unk1 = battle->unk30A[j + 1].unk1;
+            j++;
+        }
+        pile->unk14[battle->unk41C - 1] = card;
+        battle->unk30A[battle->unk41C - 1].unk1 = 7;
+    }
+    for (i = 39; i >= 0; i--) {
+        battle->unk30A[i].unk0 = i;
+    }
+}
+
+/* Lays out the cards of one of a side's piles (which: 0 the hand, unk64; 1 unk78; 2 unk14 from unk4) as sprites in a row */
+void CARDGAME_layOutPile(CardBattle *battle, CardBattleItems *items, s32 side, s32 which) {
+    CardScreen *screen = items->screen;
+    CardBattle498 *p = &battle->unk498;
+    s32 i;
+
+    switch (which) {
+    case 0:
+        p->unk3C = battle->sides[side].pile.unkA;
+        break;
+    case 1:
+        p->unk3C = battle->sides[side].pile.unk6;
+        break;
+    case 2:
+        p->unk3C = battle->sides[side].pile.unk8;
+        break;
+    }
+    p->unk30 = 0;
+    p->unk34 = 0;
+    p->unk38 = 0;
+    p->unk40 = p->unk3C * 4 + 10;
+    if (p->unk3C != 0) {
+        for (i = 0; i < 40; i++) {
+            if (i < p->unk3C) {
+                screen->addSprite(screen, i, screen->getHandOffset(p->unk3C, i) + 0x1800, 0x6100);
+                switch (which) {
+                case 0:
+                    screen->setSpriteCard(screen, i, battle->sides[side].pile.unk64[i]);
+                    break;
+                case 1:
+                    screen->setSpriteCard(screen, i, battle->sides[side].pile.unk78[i]);
+                    break;
+                case 2:
+                    screen->setSpriteCard(screen, i, battle->sides[side].pile.unk14[battle->sides[side].pile.unk4 + i]);
+                    break;
+                }
+                if (p->unk4 != 0) {
+                    screen->sprites[i].visible = 2;
+                }
+                screen->sprites[i].scaleX = 0;
+                items->screen->sprites[i].unk49 = battle->unk498.unk6[i];
+            } else {
+                screen->removeSprite(screen, i);
+            }
+        }
+        p->unk4 = 0;
+    } else {
+        p->unk4 = 0;
+        screen->addSprite(screen, 0, screen->getHandOffset(p->unk3C, 0) + 0x1800, 0x6100);
+        screen->sprites[0].visible = 3;
+        screen->sprites[0].scaleX = 0;
+        for (i = 1; i < 40; i++) {
+            screen->removeSprite(screen, i);
+        }
+    }
+}
 
 s32 func_8009CE0C(CardBattle *battle, CardBattleItems *items) {
     s32 done = 0;
@@ -1727,7 +2997,7 @@ s32 func_8009CE0C(CardBattle *battle, CardBattleItems *items) {
     return done;
 }
 
-void func_8009CEB0(CardBattle *battle, s32 arg1, s32 side, s32 which) {
+void func_8009CEB0(CardBattle *battle, CardBattleItems *items, s32 side, s32 which) {
     CardBattle498 *p = &battle->unk498;
 
     switch (which) {
@@ -1747,7 +3017,151 @@ void func_8009CEB0(CardBattle *battle, s32 arg1, s32 side, s32 which) {
     p->unk40 = p->unk3C * 4 + 10;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009CF6C);
+/* Lays out the slots as sprites (0-5 player 0's, 6-11 player 1's) and each unk560.unk20 entry (12 on), marking in unk3E[entry] the slot sprites it applies to (by unk5) */
+void CARDGAME_layOutSlots(CardBattle *battle, CardBattleItems *items) {
+    CardScreen *screen = items->screen;
+    CardSlot *slot;
+    CardSprite *sprite;
+    s32 i;
+    s32 j;
+    s32 first;
+    s32 index;
+    s32 card;
+
+    for (i = 0; i < 6; i++) {
+        if (i >= battle->players[0].slotCount) {
+            break;
+        }
+#if VERSION_US
+        screen->addSprite(screen, i, 0x1800 + i * 0x2900, 0x9000);
+#elif VERSION_EU
+        screen->addSprite(screen, i, D_800A5958[SHIFT_PAL_SCREEN][0] + i * 0x2900, D_800A5958[SHIFT_PAL_SCREEN][1]);
+#endif
+        screen->setSpriteCard(screen, i, battle->players[0].slots[i].card);
+        screen->sprites[i].unk43 = battle->players[0].slots[i].unk6;
+        screen->sprites[i].unk44 = battle->players[0].slots[i].unk8;
+        screen->sprites[i].scaleX = 0;
+    }
+    for (i = 0; i < 6; i++) {
+        if (i >= battle->players[1].slotCount) {
+            break;
+        }
+#if VERSION_US
+        screen->addSprite(screen, i + 6, 0x1800 + i * 0x2900, 0x3200);
+#elif VERSION_EU
+        screen->addSprite(screen, i + 6, D_800A5958[SHIFT_PAL_SCREEN][2] + i * 0x2900, D_800A5958[SHIFT_PAL_SCREEN][3]);
+#endif
+        screen->setSpriteCard(screen, i + 6, battle->players[1].slots[i].card);
+        screen->sprites[i + 6].unk43 = battle->players[1].slots[i].unk6;
+        screen->sprites[i + 6].unk44 = battle->players[1].slots[i].unk8;
+        screen->sprites[i + 6].scaleX = 0;
+        if (battle->unk498.unk4 != 0) {
+            screen->sprites[i + 6].visible = 2;
+        }
+    }
+    battle->unk498.unk4 = 0;
+    for (i = 0; i < battle->unk560.unk15; i++) {
+        screen->addSprite(screen, i + 12, 0x5100 + i * 0x3200, 0x6100);
+        screen->setSpriteCard(screen, i + 12, battle->unk560.unk20[i].unk0);
+        screen->sprites[i + 12].scaleX = 0;
+        screen->sprites[i + 12].unk46 = i + 1;
+        screen->sprites[i + 12].unk3E[0] = 0;
+        screen->sprites[i + 12].unk3E[1] = 0;
+        screen->sprites[i + 12].unk3E[2] = 0;
+        screen->sprites[i + 12].moving = 0;
+        if (battle->unk560.unk20[i].unk2 != 0) {
+            screen->sprites[i + 12].unk3E[battle->unk560.unk20[i].unk2] = 1;
+        }
+        switch (battle->unk560.unk20[i].unk5) {
+        case 0:
+            for (j = 0; j < 12; j++) {
+                if (j < 6) {
+                    if (j >= battle->players[0].slotCount) {
+                        continue;
+                    }
+                    slot = &battle->players[0].slots[j];
+                } else {
+                    index = j - 6;
+                    if (index >= battle->players[1].slotCount) {
+                        continue;
+                    }
+                    slot = &battle->players[1].slots[index];
+                }
+                if (slot->order == battle->unk560.unk20[i].unk6) {
+                    screen->sprites[j].unk3E[i] = 1;
+                }
+            }
+            break;
+        case 1:
+            first = 0;
+            if (battle->unk560.unk20[i].unk4 != 0) {
+                first = 6;
+            }
+            sprite = &screen->sprites[first];
+            for (j = 0; j < 6; j++) {
+                sprite[j].unk3E[i] = 1;
+            }
+            break;
+        case 2:
+            first = 0;
+            if (battle->unk560.unk20[i].unk4 == 0) {
+                first = 6;
+            }
+            sprite = &screen->sprites[first];
+            for (j = 0; j < 6; j++) {
+                sprite[j].unk3E[i] = 1;
+            }
+            break;
+        case 3:
+            for (j = 0; j < 12; j++) {
+                screen->sprites[j].unk3E[i] = 1;
+            }
+            break;
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+            for (j = 0; j < 12; j++) {
+                if (j < 6) {
+                    card = battle->players[0].slots[j].card;
+                } else {
+                    card = battle->players[1].slots[j - 6].card;
+                }
+                switch (battle->unk560.unk20[i].unk5) {
+                case 4:
+                    if (screen->getCardColor(screen, card) != 1) {
+                        screen->sprites[j].unk3E[i] = 1;
+                    }
+                    break;
+                case 5:
+                    if (screen->getCardColor(screen, card) != 2) {
+                        screen->sprites[j].unk3E[i] = 1;
+                    }
+                    break;
+                case 6:
+                    if (screen->getCardColor(screen, card) == 3) {
+                        screen->sprites[j].unk3E[i] = 1;
+                    }
+                    break;
+                case 7:
+                    if (screen->getCardColor(screen, card) != 4) {
+                        screen->sprites[j].unk3E[i] = 1;
+                    }
+                    break;
+                case 8:
+                    if (screen->getCardColor(screen, card) == 6) {
+                        screen->sprites[j].unk3E[i] = 1;
+                    }
+                    break;
+                }
+            }
+            break;
+        case 9:
+            break;
+        }
+    }
+}
 
 void func_8009D470(CardBattle *battle, CardBattleItems *items) {
     s32 frames;
@@ -1781,7 +3195,202 @@ void func_8009D53C(CardBattle *battle) {
     }
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009D578);
+/* Starts (unk498.unk1) and runs (unk498.unk0) the screen's card animations: the hands', the record's and a pile's sprites scaling in or out */
+void CARDGAME_updateCardAnims(CardBattle *battle, CardBattleItems *items) {
+    CardBattle498 *p = &battle->unk498;
+    CardScreen *screen = items->screen;
+    s32 index = 0;
+    s32 count;
+    s32 i;
+
+    if (p->unk1 != 0) {
+        switch (p->unk1) {
+        case 1:
+            CARDGAME_layOutSlots(battle, items);
+            p->unk30 = 3;
+            p->unk34 = 0;
+            p->unk38 = 4;
+            p->unk40 = (battle->players[0].slotCount > battle->players[1].slotCount ? battle->players[0].slotCount : battle->players[1].slotCount) * 8;
+            for (i = 0; i < 40; i++) {
+                items->screen->sprites[i].unk49 = battle->unk498.unk6[i];
+            }
+            break;
+        case 3:
+            p->unk30 = 3;
+            p->unk34 = 0;
+            p->unk38 = 4;
+            p->unk40 = battle->unk560.unk15 * 10;
+            break;
+        case 2:
+            p->unk30 = 3;
+            p->unk34 = 0;
+            p->unk38 = 4;
+            p->unk40 = (battle->players[0].slotCount > battle->players[1].slotCount ? battle->players[0].slotCount : battle->players[1].slotCount) * 5;
+            break;
+        case 4:
+            p->unk30 = 3;
+            p->unk34 = 0;
+            p->unk38 = 4;
+            p->unk40 = battle->unk560.unk15 * 5 + 22;
+            break;
+        case 5:
+        case 17:
+            index++;
+        case 7:
+            index++;
+        case 9:
+            index++;
+        case 11:
+        case 18:
+            index++;
+        case 13:
+            index++;
+        case 15:
+            index++;
+            CARDGAME_layOutPile(battle, items, D_800A4BF0[index][0], D_800A4BF0[index][1]);
+            break;
+        case 6:
+            func_8009CEB0(battle, items, 0, 0);
+            break;
+        case 10:
+            func_8009CEB0(battle, items, 0, 1);
+            break;
+        case 8:
+            func_8009CEB0(battle, items, 0, 2);
+            break;
+        case 16:
+            func_8009CEB0(battle, items, 1, 1);
+            break;
+        case 14:
+            func_8009CEB0(battle, items, 1, 2);
+            break;
+        case 12:
+            func_8009CEB0(battle, items, 1, 0);
+            break;
+        }
+        p->unk3 = p->unk1 + 1;
+        p->unk0 = p->unk1;
+        p->unk1 = 0;
+    }
+    switch (p->unk0) {
+    case 1:
+        if (p->unk38 >= 4) {
+            if (p->unk34 < battle->players[0].slotCount) {
+                items->screen->scaleSprite(items->screen, p->unk34, 10, 0x1000, 0x1000);
+            }
+            if (p->unk34 < battle->players[1].slotCount) {
+                items->screen->scaleSprite(items->screen, p->unk34 + 6, 10, 0x1000, 0x1000);
+            }
+            p->unk34++;
+            p->unk38 -= 4;
+        }
+        p->unk30 += GFX.funcs.getFrameTime();
+        p->unk38 += GFX.funcs.getFrameTime();
+        if (p->unk40 < p->unk30) {
+            p->unk1 = 3;
+        }
+        break;
+    case 3:
+        if (p->unk38 >= 4) {
+            if (p->unk34 < battle->unk560.unk15) {
+                items->screen->scaleSprite(items->screen, p->unk34 + 12, 10, 0x1000, 0x1000);
+            }
+            if (p->unk34 - 1 < battle->unk560.unk15 && p->unk34 - 1 >= 0) {
+                items->screen->unkEA4(items->screen, p->unk34 - 1, battle->unk560.unk20[p->unk34 - 1].unk4);
+            }
+            p->unk34++;
+            p->unk38 -= 4;
+        }
+        p->unk30 += GFX.funcs.getFrameTime();
+        p->unk38 += GFX.funcs.getFrameTime();
+        if (p->unk40 < p->unk30) {
+            p->unk0 = 0;
+        }
+        break;
+    case 2:
+        if (p->unk38 >= 4) {
+            if (p->unk34 < battle->players[0].slotCount) {
+                items->screen->scaleSprite(items->screen, p->unk34, 5, 0, 0x1000);
+            }
+            if (p->unk34 < battle->players[1].slotCount) {
+                items->screen->scaleSprite(items->screen, p->unk34 + 6, 5, 0, 0x1000);
+            }
+            p->unk34++;
+            p->unk38 -= 4;
+        }
+        p->unk30 += GFX.funcs.getFrameTime();
+        p->unk38 += GFX.funcs.getFrameTime();
+        if (p->unk40 < p->unk30) {
+            p->unk1 = 4;
+        }
+        break;
+    case 4:
+        if (p->unk38 >= 4) {
+            if (p->unk34 < battle->unk560.unk15) {
+                items->screen->scaleSprite(items->screen, p->unk34 + 12, 5, 0, 0x1000);
+                items->screen->unkEA8(items->screen, p->unk34);
+            }
+            p->unk34++;
+            p->unk38 -= 4;
+        }
+        p->unk30 += GFX.funcs.getFrameTime();
+        p->unk38 += GFX.funcs.getFrameTime();
+        if (p->unk40 < p->unk30) {
+            p->unk0 = 0;
+        }
+        break;
+    case 5:
+    case 7:
+    case 9:
+    case 11:
+    case 13:
+    case 15:
+        count = p->unk3C;
+        if (count == 0) {
+            count = 1;
+        }
+        if (p->unk34 < count && p->unk38 >= 4) {
+            screen->scaleSprite(screen, p->unk34, 10, 0x1000, 0x1000);
+            p->unk34++;
+            p->unk38 -= 4;
+        }
+        if (p->unk30 > p->unk40) {
+            p->unk0 = 0;
+        }
+        p->unk30 += GFX.funcs.getFrameTime();
+        p->unk38 += GFX.funcs.getFrameTime();
+        break;
+    case 6:
+    case 8:
+    case 10:
+    case 12:
+    case 14:
+    case 16:
+        count = p->unk3C;
+        if (count == 0) {
+            count = 1;
+        }
+        if (p->unk34 < count && p->unk38 >= 4) {
+            screen->scaleSprite(screen, p->unk34, 5, 0, 0x1000);
+            p->unk34++;
+            p->unk38 -= 4;
+        }
+        if (p->unk30 > p->unk40) {
+            p->unk0 = 0;
+        }
+        p->unk30 += GFX.funcs.getFrameTime();
+        p->unk38 += GFX.funcs.getFrameTime();
+        break;
+    case 17:
+        p->unk0 = 0;
+        p->unk3 = 6;
+        break;
+    case 18:
+        p->unk0 = 0;
+        p->unk3 = 12;
+        break;
+    }
+}
 
 void func_8009DCDC(CardBattle *battle, CardBattleItems *items) {
     s32 side;
@@ -1819,9 +3428,193 @@ void func_8009DF5C(CardBattle *battle, s32 base, s32 n) {
     }
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009E020);
+/* Chooses the player's deck: opens the three deck windows and a marker, Up/Down/Cross pick one, then loads both decks' cards; 1 once done */
+s32 CARDGAME_chooseDeck(CardBattle *battle, CardBattleItems *items) {
+    CardPreloader *preloader;
+    CardPile *pile;
+    s32 i;
+    s32 done = 0;
 
-s32 func_8009E7D0(CardBattle *battle) {
+    switch (battle->unk2F9) {
+    case 0:
+    default:
+        preloader = items->unk0[0];
+        if (preloader == NULL) {
+            battle->unk2F9++;
+        } else if (preloader->state == 1 && preloader->ready != 0) {
+            battle->unk2F9++;
+        }
+        break;
+    case 1:
+        items->screen->unkEAC(items->screen, 5, 5, 0x41, 0, 0x26);
+        SOUND.playSound(0x40019);
+        items->deckWindows[0] = CARDGAME_createDeckWindow(0, CARDGAME_deckWindowPos[0].x, CARDGAME_deckWindowPos[0].y);
+        battle->unk2FC = 0;
+        battle->unk2F9++;
+        break;
+    case 2:
+        battle->unk2FC += GFX.funcs.getFrameTime();
+        if (battle->unk2FC >= 11) {
+            battle->unk2FC = 0;
+            battle->unk2F9++;
+        }
+        break;
+    case 3:
+        SOUND.playSound(0x40019);
+        items->deckWindows[1] = CARDGAME_createDeckWindow(1, CARDGAME_deckWindowPos[1].x, CARDGAME_deckWindowPos[1].y);
+        battle->unk2FC = 0;
+        battle->unk2F9++;
+        break;
+    case 4:
+        battle->unk2FC += GFX.funcs.getFrameTime();
+        if (battle->unk2FC >= 11) {
+            battle->unk2FC = 0;
+            battle->unk2F9++;
+        }
+        break;
+    case 5:
+        SOUND.playSound(0x40019);
+        items->deckWindows[2] = CARDGAME_createDeckWindow(2, CARDGAME_deckWindowPos[2].x, CARDGAME_deckWindowPos[2].y);
+        battle->unk2FC = 0;
+        battle->unk2F9++;
+        break;
+    case 6:
+        battle->unk2FC += GFX.funcs.getFrameTime();
+        if (battle->unk2FC >= 11) {
+            battle->unk2FC = 0;
+            battle->unk2F9++;
+        }
+        break;
+    case 7:
+        items->marker = CARDGAME_createMarker(CARDGAME_deckWindowPos[0].x, CARDGAME_deckWindowPos[0].y);
+        battle->unk2FC = 0;
+        battle->unk2F9++;
+        break;
+    case 8:
+        battle->unk2FC += GFX.funcs.getFrameTime();
+        if (battle->unk2FC >= 11) {
+            battle->unk2FC = 0;
+            battle->unk2EA = 0;
+            battle->unk2F9++;
+        }
+        break;
+    case 9:
+        if ((PAD.getPressed(0) & (1 << PAD.getButtonBit(0, PAD_UP))) |
+            (PAD.getRepeated(0) & (1 << PAD.getButtonBit(0, PAD_UP)))) {
+            if (battle->unk2EA > 0) {
+                battle->unk2EA--;
+                SOUND.playSound(0x4001B);
+            }
+        } else if ((PAD.getPressed(0) & (1 << PAD.getButtonBit(0, PAD_DOWN))) |
+                   (PAD.getRepeated(0) & (1 << PAD.getButtonBit(0, PAD_DOWN)))) {
+            if (battle->unk2EA < 2) {
+                battle->unk2EA++;
+                SOUND.playSound(0x4001B);
+            }
+        } else if (PAD_PRESSED(PAD_CROSS)) {
+            SOUND.playSound(0x4001C);
+            battle->unk2FC = 0;
+            battle->unk2F9++;
+            items->deckWindows[battle->unk2EA]->setBlink(items->deckWindows[battle->unk2EA]);
+            items->marker->setFast(items->marker);
+        }
+        items->marker->setPos(items->marker, CARDGAME_deckWindowPos[battle->unk2EA].x, CARDGAME_deckWindowPos[battle->unk2EA].y);
+        break;
+    case 10:
+        battle->unk2FC += GFX.funcs.getFrameTime();
+        if (battle->unk2FC >= 15) {
+            battle->unk2FC = 0;
+            battle->unk2F9++;
+        }
+        break;
+    case 11:
+        items->marker->close(items->marker);
+        battle->unk2FC = 0;
+        battle->unk2F9++;
+        break;
+    case 13:
+        SOUND.playSound(0x4001A);
+        items->deckWindows[0]->close(items->deckWindows[0]);
+        battle->unk2FC = 0;
+        battle->unk2F9++;
+        break;
+    case 14:
+        battle->unk2FC += GFX.funcs.getFrameTime();
+        if (battle->unk2FC >= 4) {
+            battle->unk2FC = 0;
+            battle->unk2F9++;
+        }
+        break;
+    case 15:
+        SOUND.playSound(0x4001A);
+        items->deckWindows[1]->close(items->deckWindows[1]);
+        battle->unk2FC = 0;
+        battle->unk2F9++;
+        break;
+    case 16:
+        battle->unk2FC += GFX.funcs.getFrameTime();
+        if (battle->unk2FC >= 4) {
+            battle->unk2FC = 0;
+            battle->unk2F9++;
+        }
+        break;
+    case 17:
+        SOUND.playSound(0x4001A);
+        items->deckWindows[2]->close(items->deckWindows[2]);
+        battle->unk2FC = 0;
+        battle->unk2F9++;
+        break;
+    case 18:
+        battle->unk2FC += GFX.funcs.getFrameTime();
+        if (battle->unk2FC >= 4) {
+            battle->unk2FC = 0;
+            battle->unk2F9++;
+        }
+        break;
+    case 19:
+        items->screen->unkEB0(items->screen, 5);
+        battle->unk2FC = 0;
+        battle->unk2F9++;
+        break;
+    case 12:
+    case 20:
+        battle->unk2FC += GFX.funcs.getFrameTime();
+        if (battle->unk2FC >= 6) {
+            battle->unk2FC = 0;
+            battle->unk2F9++;
+        }
+        break;
+    case 21:
+        if (GAME.decks[battle->unk2EA].cards[0] != 0) {
+            for (i = 0; i < 40; i++) {
+                battle->unk298[i] = GAME.decks[battle->unk2EA].cards[i] - 1;
+            }
+        } else {
+            for (i = 0; i < 40; i++) {
+                battle->unk298[i] = CARDGAME_defaultDeck[i];
+            }
+        }
+        battle->cardCount = items->screen->loadCardImages(battle->cards, battle->unk298, battle->unk248);
+        for (i = 0; i < 40; i++) {
+            battle->sides[0].pile.unk14[i] = i;
+            battle->sides[1].pile.unk14[i] = i + 40;
+        }
+        battle->unk300 = 0;
+        func_8009C92C(battle, items);
+        battle->sides[1].pile.unk8 = 40;
+        battle->sides[0].pile.unk8 = 40;
+        battle->sides[1].pile.unk4 = 0;
+        battle->sides[0].pile.unk4 = 0;
+        func_8009DCDC(battle, items);
+        pile = &battle->sides[0].pile;
+        battle->unk810(battle, pile->unk4, pile->unk8);
+        done = 1;
+        break;
+    }
+    return done;
+}
+
+s32 func_8009E7D0(CardBattle *battle, CardBattleItems *items) {
     s32 done = 0;
 
     if (battle->unk2F9 == 0) {
@@ -1839,7 +3632,7 @@ s32 func_8009E7D0(CardBattle *battle) {
     return done;
 }
 
-s32 func_8009E820(CardBattle *battle) {
+s32 func_8009E820(CardBattle *battle, CardBattleItems *items) {
     s32 result = 0;
 
     if (battle->unk2F9 == 0) {
@@ -1862,11 +3655,333 @@ s32 func_8009E820(CardBattle *battle) {
     return result;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009E8A8);
+/* Takes the first flagged card out of the hand of side unk560.unk19 into the record entry unk560.unk20[unk15]; returns its condition id */
+s32 CARDGAME_takeFlaggedCard(CardBattle *battle, CardBattleItems *items) {
+    s32 i;
+    s32 j;
+    s32 side;
+    s32 card;
+    s16 index;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009EA28);
+    for (i = 0; i < 10; i++) {
+        if (battle->unk46F[i] != 0) {
+            break;
+        }
+    }
+    side = battle->unk560.unk19;
+    card = battle->cards[battle->sides[side].pile.unk64[i]];
+    battle->unk560.unk20[battle->unk560.unk15].unk4 = side;
+    index = battle->sides[side].pile.unk64[i];
+    battle->unk560.unk20[battle->unk560.unk15].unk0 = index;
+    battle->unk560.unk20[battle->unk560.unk15].unk5 = func_800835C4(battle->cards[index], 3, 0);
+    for (j = i; j < battle->sides[side].pile.unkA - 1; j++) {
+        battle->sides[side].pile.unk64[j] = battle->sides[side].pile.unk64[j + 1];
+    }
+    battle->sides[side].pile.unkA--;
+    return func_800835C4(card, 0, 0);
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009ECE8);
+/* Flags (unk46F) the slots that the current record entry's target kind (unk560.unk20[unk15].unk5) picks */
+void func_8009EA28(CardBattle *battle, CardScreen *screen) {
+    CardSlot *slot;
+    s32 card;
+    s32 i;
+
+    for (i = 0; i < 12; i++) {
+        battle->unk46F[i] = 0;
+        switch (battle->unk560.unk20[battle->unk560.unk15].unk5) {
+        case 0:
+            if (i < 6) {
+                if (i >= battle->players[0].slotCount) {
+                    break;
+                }
+                slot = &battle->players[0].slots[i];
+            } else {
+                if (i - 6 >= battle->players[1].slotCount) {
+                    break;
+                }
+                slot = &battle->players[1].slots[i - 6];
+            }
+            if (slot->order == battle->unk560.unk20[battle->unk560.unk15].unk6) {
+                battle->unk46F[i] = 1;
+            }
+            break;
+        case 2:
+            if (i < 6 && i < battle->players[0].slotCount) {
+                battle->unk46F[i] = 1;
+            }
+            break;
+        case 1:
+            if (i >= 6 && i - 6 < battle->players[1].slotCount) {
+                battle->unk46F[i] = 1;
+            }
+            break;
+        case 3:
+            battle->unk46F[i] = 1;
+            break;
+        case 4:
+            if (i < 6) {
+                card = battle->players[0].slots[i].card;
+            } else {
+                card = battle->players[1].slots[i - 6].card;
+            }
+            if (screen->getCardColor(screen, card) != 1) {
+                battle->unk46F[i] = 1;
+            }
+            break;
+        case 5:
+            if (i < 6) {
+                card = battle->players[0].slots[i].card;
+            } else {
+                card = battle->players[1].slots[i - 6].card;
+            }
+            if (screen->getCardColor(screen, card) != 2) {
+                battle->unk46F[i] = 1;
+            }
+            break;
+        case 6:
+            if (i < 6) {
+                card = battle->players[0].slots[i].card;
+            } else {
+                card = battle->players[1].slots[i - 6].card;
+            }
+            if (screen->getCardColor(screen, card) == 3) {
+                battle->unk46F[i] = 1;
+            }
+            break;
+        case 7:
+            if (i < 6) {
+                card = battle->players[0].slots[i].card;
+            } else {
+                card = battle->players[1].slots[i - 6].card;
+            }
+            if (screen->getCardColor(screen, card) != 4) {
+                battle->unk46F[i] = 1;
+            }
+            break;
+        case 8:
+            if (i < 6) {
+                card = battle->players[0].slots[i].card;
+            } else {
+                card = battle->players[1].slots[i - 6].card;
+            }
+            if (screen->getCardColor(screen, card) == 6) {
+                battle->unk46F[i] = 1;
+            }
+            break;
+        case 9:
+            break;
+        }
+    }
+}
+
+/* Runs the rounds of plays (state unk560.unk14): each side in turn plays a card, the computer through CARDGAME_pickComputerCard; 1 once over */
+s32 CARDGAME_playRounds(CardBattle *battle, CardBattleItems *items) {
+    s32 condition;
+    s32 side;
+    s32 i;
+    s32 done = 0;
+
+    switch (battle->unk560.unk14) {
+    case 0:
+    default:
+        battle->unk560.unk14 = 16;
+        battle->unk560.unk15 = 0;
+        battle->unk560.unk17 = 0;
+        battle->unk560.unk20[0].unk2 = 0;
+        battle->unk560.unk20[1].unk2 = 0;
+        battle->unk560.unk20[2].unk2 = 0;
+        battle->unk498.unk5 = 1;
+        battle->unk498.unk1 = 1;
+        battle->unk560.unk18 = battle->unk560.unk19 = battle->unk2F5;
+        items->screen->unkEC8(items->screen);
+        break;
+    case 16:
+        if (items->screen->panels[0].state == 2 && battle->unk498.unk0 == 0) {
+            battle->unk560.unk14 = 17;
+            items->screen->unkEAC(items->screen, 5, 5, battle->unk2F8 == 5 ? 0x3C : 0x3D, 0, 0x6E);
+        }
+        break;
+    case 17:
+        if (items->screen->unkE0C[5].state == 2) {
+            if (PAD_PRESSED(PAD_CROSS) || PAD_PRESSED(PAD_TRIANGLE)) {
+                battle->unk560.unk14 = 18;
+                items->screen->unkEB0(items->screen, 5);
+            }
+        }
+        break;
+    case 18:
+        if (items->screen->unkE0C[5].state == 0) {
+            battle->unk560.unk14 = 1;
+        }
+        break;
+    case 1:
+        switch (battle->unk560.unk15) {
+        case 0:
+        case 2:
+            if (battle->unk560.unk18 != 0) {
+                battle->unk560.unk14 = 3;
+            } else {
+                battle->unk560.unk14 = 2;
+            }
+            break;
+        case 1:
+            if (battle->unk560.unk18 != 0) {
+                battle->unk560.unk14 = 2;
+            } else {
+                battle->unk560.unk14 = 3;
+            }
+            break;
+        default:
+            battle->unk560.unk14 = 12;
+            break;
+        }
+        if (battle->unk560.unk15 != 0) {
+            battle->unk560.unk17 = 0;
+        }
+        battle->unk560.unk1A = -1;
+        items->screen->setPanelValue(items->screen, 0, 6, battle->sides[0].pile.unkA);
+        items->screen->setPanelValue(items->screen, 1, 6, battle->sides[1].pile.unkA);
+        break;
+    case 3:
+        func_8009C844(battle);
+        if (CARDGAME_pickComputerCard(battle, items->screen)) {
+            condition = CARDGAME_takeFlaggedCard(battle, items);
+            if (condition == 0x83 || condition == 0x84) {
+                for (i = 0; i < 15; i++) {
+                    battle->unk46F[i] = 0;
+                }
+                battle->unk46F[battle->unk560.unk15 + 11] = 1;
+                battle->unk560.unk20[battle->unk560.unk15 - 1].unk2 = 1;
+            }
+            if (battle->unk560.unk17 != 0) {
+                SOUND.playSound(0x40019);
+                items->screen->unkED4(items->screen, 0);
+            }
+            battle->unk560.unk14 = 9;
+            func_8009EA28(battle, items->screen);
+        } else if (battle->unk560.unk15 == 0) {
+            battle->unk560.unk14 = 11;
+            battle->unk560.unk1C = 20;
+            battle->unk560.unk17++;
+            SOUND.playSound(0x40019);
+            items->screen->unkED0(items->screen, 1);
+        } else {
+            battle->unk560.unk14 = 12;
+        }
+        break;
+    case 2:
+        if (battle->unk560.unk1A == -1) {
+            battle->unk2F4 = 1;
+            battle->unk421 = 0x98;
+            battle->unk814(battle, battle->sides[0].pile.unk64, battle->sides[0].pile.unkA << 16, 0);
+        } else if (battle->unk560.unk1A != 0) {
+            battle->unk560.unk14 = CARDGAME_turnStates[battle->unk560.unk19 + 2];
+            battle->unk560.unk1A = -1;
+            if (battle->unk560.unk17 != 0) {
+                items->screen->panels[1].scale.state = 0;
+            }
+        } else if (battle->unk560.unk15 == 0) {
+            battle->unk560.unk14 = 11;
+            battle->unk560.unk1C = 20;
+            battle->unk560.unk17++;
+            SOUND.playSound(0x40019);
+            items->screen->unkED0(items->screen, 0);
+        } else {
+            battle->unk560.unk14 = 12;
+        }
+        break;
+    case 4:
+    case 5:
+        if (battle->unk560.unk1A == -1) {
+            battle->unk2F4 = 1;
+            battle->unk421 = 0x99;
+        } else if (battle->unk560.unk1A != 0) {
+            battle->unk560.unk14 = CARDGAME_turnStates[battle->unk560.unk19 + 4];
+            battle->unk560.unk1A = -1;
+        } else {
+            battle->unk560.unk14 = CARDGAME_turnStates[battle->unk560.unk19];
+            battle->unk560.unk1A = -1;
+            if (battle->unk560.unk17 != 0) {
+                items->screen->panels[1].scale.state = 2;
+            }
+        }
+        break;
+    case 6:
+    case 7:
+        if (battle->unk560.unk1A == -1) {
+            battle->unk421 = CARDGAME_takeFlaggedCard(battle, items);
+            battle->unk2F4 = 1;
+        } else if (battle->unk560.unk1A != 0) {
+            battle->unk560.unk14 = CARDGAME_turnStates[battle->unk560.unk19 + 6];
+        } else {
+            side = battle->unk560.unk19;
+            battle->sides[side].pile.unk64[battle->sides[side].pile.unkA] = battle->unk560.unk20[battle->unk560.unk15].unk0;
+            battle->sides[side].pile.unkA++;
+            battle->unk814(battle, battle->sides[0].pile.unk64, battle->sides[0].pile.unkA << 16, 0);
+            battle->unk560.unk14 = CARDGAME_turnStates[battle->unk560.unk19 + 2];
+            battle->unk560.unk1A = -1;
+        }
+        break;
+    case 9:
+        battle->unk421 = 0x13;
+        battle->unk2F4 = 1;
+        battle->unk560.unk14 = 10;
+        break;
+    case 8:
+        battle->unk421 = 0x12;
+        battle->unk2F4 = 1;
+        battle->unk560.unk14 = 10;
+        break;
+    case 10:
+        battle->unk560.unk14 = 1;
+        battle->unk560.unk19 ^= 1;
+        battle->unk560.unk15++;
+        break;
+    case 11:
+        if (--battle->unk560.unk1C <= 0) {
+            battle->unk560.unk14 = 14;
+        }
+        break;
+    case 12:
+        if (battle->unk560.unk15 > 0) {
+            battle->unk2F4 = 2;
+            battle->unk560.unk14 = 13;
+            battle->unk4DC = 0;
+            battle->unk4EC = 0;
+            battle->unk4E8 = 0;
+            battle->unk4DE = battle->unk560.unk15;
+        } else {
+            battle->unk560.unk14 = 14;
+        }
+        break;
+    case 13:
+        battle->unk560.unk14 = 12;
+        break;
+    case 14:
+        battle->unk560.unk14 = 1;
+        battle->unk560.unk15 = 0;
+        battle->unk560.unk20[0].unk2 = 0;
+        battle->unk560.unk20[1].unk2 = 0;
+        battle->unk560.unk20[2].unk2 = 0;
+        battle->unk560.unk18 ^= 1;
+        battle->unk560.unk19 = battle->unk560.unk18;
+        battle->unk560.unk16++;
+        if (battle->unk560.unk17 >= 2) {
+            battle->unk560.unk14 = 15;
+            battle->unk4E8 = 0;
+        }
+        break;
+    case 15:
+        items->screen->unkED4(items->screen, 0);
+        items->screen->unkED4(items->screen, 1);
+        if (func_8009CE0C(battle, items)) {
+            done = 1;
+        }
+        break;
+    }
+    return done;
+}
 
 void func_8009F458(CardBattle *battle, CardBattleItems *items) {
     battle->unk560.unk14 = 0;
@@ -1924,7 +4039,49 @@ void func_8009F664(CardBattle *battle, s32 side) {
     func_8009F4A0(battle, pile);
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009F754);
+/* Sets the values of a slot that holds the pass-th card of D_800A4AE4 from the battle's counts (0 to 99) */
+void func_8009F754(CardBattle *battle, CardSlot *slot, s32 side, s32 pass) {
+    CardSide *cardSide = &battle->sides[side];
+    CardPlayer *player = &battle->players[side];
+    s32 values[2];
+    s32 i;
+    s32 base;
+
+    if (battle->cards[slot->card] == D_800A4AE4[pass]) {
+        for (i = 0; i < 2; i++) {
+            if (i == 0) {
+                base = slot->unk2;
+            } else {
+                base = slot->unk4;
+            }
+            switch (pass) {
+            case 0:
+                values[i] = player->slotCount * 20 + base;
+                break;
+            case 1:
+                values[i] = cardSide->pile.unkA * 10 + 10 + base;
+                break;
+            case 2:
+                values[i] = cardSide->pile.unk6 * 20 + 10 + base;
+                break;
+            case 3:
+                values[i] = (battle->players[0].slotCount + battle->players[1].slotCount) * 10 + base;
+                break;
+            case 4:
+                values[i] = (battle->sides[0].pile.unk6 + battle->sides[1].pile.unk6) * 10 + 10 + base;
+                break;
+            }
+            if (values[i] >= 99) {
+                values[i] = 99;
+            }
+            if (values[i] <= 0) {
+                values[i] = 0;
+            }
+        }
+        slot->unk6 = values[0];
+        slot->unk8 = values[1];
+    }
+}
 
 s32 func_8009F90C(CardBattle *battle) {
     s32 found = 0;
@@ -1956,9 +4113,100 @@ void func_8009F9DC(CardBattle *battle, s32 side) {
     }
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009FA90);
+/* A battle step: each side puts out its flagged cards (unk818) between messages 0x9A, 0x9D and 0x9E; 1 once done */
+s32 func_8009FA90(CardBattle *battle, CardBattleItems *items) {
+    s32 done = 0;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009FBE4);
+    switch (battle->unk2F9) {
+    case 0:
+        battle->unk421 = 0x9A;
+        battle->unk2F4 = 1;
+        battle->unk2F9 = 1;
+        break;
+    case 1:
+        battle->unk818(battle, 0);
+        battle->unk2F9 = 2;
+        items->screen->setPanelValue(items->screen, 0, 6, battle->sides[0].pile.unkA);
+        break;
+    case 2:
+        func_8009C844(battle);
+        battle->unk421 = 0x9D;
+        battle->unk2F4 = 1;
+        battle->unk2F9 = 3;
+        break;
+    case 3:
+        battle->unk818(battle, 1);
+        battle->unk2F9 = 4;
+        func_8009F90C(battle);
+        func_8009F9DC(battle, 1);
+        func_8009F9DC(battle, 0);
+        items->screen->setPanelValue(items->screen, 1, 6, battle->sides[1].pile.unkA);
+        break;
+    case 4:
+        battle->unk421 = 0x9E;
+        battle->unk2F4 = 1;
+        battle->unk2F9 = 5;
+        break;
+    case 5:
+        done = 1;
+        break;
+    }
+    return done;
+}
+
+/* Finds three or more of one card (with a header unkA) among a side's slots, by id from start: flags them in unk446; the index after them or -1 */
+s32 CARDGAME_findCardSet(CardBattle *battle, s32 side, s32 start) {
+    CardSortEntry entries[6];
+    CardSortEntry tmp;
+    CardDrawer drawer;
+    s32 count;
+    s32 value;
+    s32 result;
+    s32 i;
+    s32 j;
+    s32 k;
+
+    result = -1;
+    value = 0x51;
+    count = battle->players[side].slotCount;
+    initCardDrawer(&drawer);
+    for (i = 0; i < count; i++) {
+        entries[i].card = battle->cards[battle->players[side].slots[i].card];
+        entries[i].slot = i;
+    }
+    for (i = 0; i < count - 1; i++) {
+        for (j = i + 1; j < count; j++) {
+            if (entries[i].card > entries[j].card) {
+                tmp = entries[i];
+                entries[i] = entries[j];
+                entries[j] = tmp;
+            }
+        }
+    }
+    j = 0;
+    for (i = start; i < count - 1; i++) {
+        drawer.setCard(entries[i].card + 1);
+        if (((CardImageHeader *)drawer.card)->unkA != 0 && entries[i].card == entries[i + 1].card) {
+            value = ((CardImageHeader *)drawer.card)->unkA;
+            j++;
+        } else if (j < 2) {
+            j = 0;
+        } else {
+            break;
+        }
+    }
+    if (j >= 2) {
+        for (k = 0; k < count; k++) {
+            battle->unk446[k] = 0;
+        }
+        for (; j >= 0; j--) {
+            battle->unk446[entries[i - j].slot] = 1;
+        }
+        battle->unk438 = value;
+        result = i + 1;
+    }
+    return result;
+}
 
 void func_8009FE5C(CardBattle *battle, CardBattleItems *items) {
     items->screen->unkEC8(items->screen);
@@ -1967,7 +4215,249 @@ void func_8009FE5C(CardBattle *battle, CardBattleItems *items) {
     battle->unk2F9 = 0;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009FEA4);
+/* The end of a round: shows both sides' cards, gives the round to the higher total (pile.unk2) and the battle to the first side with two rounds; 1 for the next round, 2 once the battle is over */
+s32 CARDGAME_endRound(CardBattle *battle, CardBattleItems *items) {
+    CardScreen *screen = items->screen;
+    s32 result = 0;
+    CardFader *fader;
+    s32 side;
+    s32 done;
+
+    switch (battle->unk2F9) {
+    case 0:
+        if (items->screen->panels[0].state == 2 && battle->unk498.unk0 == 0) {
+            battle->unk2F9 = 1;
+            battle->unk2FC = 0;
+        }
+        break;
+    case 1:
+        battle->unk2FC = CARDGAME_findCardSet(battle, 0, battle->unk2FC);
+        if (battle->unk2FC == -1) {
+            battle->unk2F9 = 2;
+            battle->unk2FC = 0;
+        } else {
+            battle->unk421 = 0x19;
+            battle->unk2F4 = 1;
+        }
+        break;
+    case 2:
+        battle->unk2FC = CARDGAME_findCardSet(battle, 1, battle->unk2FC);
+        if (battle->unk2FC == -1) {
+            battle->unk2F9 = 8;
+        } else {
+            battle->unk421 = 0x1A;
+            battle->unk2F4 = 1;
+        }
+        break;
+    case 8:
+        if (battle->unk304 != 0) {
+            battle->unk421 = 0x1B;
+            battle->unk2F4 = 1;
+            battle->unk305--;
+        }
+        if (battle->unk305 == 0) {
+            battle->unk2F9 = 9;
+        } else {
+            battle->unk2F9 = 8;
+        }
+        break;
+    case 9:
+        if (battle->players[0].slotCount == 0 || battle->players[1].slotCount == 0) {
+            if (battle->sides[0].pile.unk2 > battle->sides[1].pile.unk2) {
+                battle->unk301 = 0;
+            } else {
+                battle->unk301 = 1;
+            }
+            battle->unk2F9 = 11;
+            if (battle->players[battle->unk301].slotCount == 0 && battle->players[battle->unk301 ^ 1].slotCount != 0) {
+                battle->unk2F9 = 10;
+                battle->unk2FC = 0;
+            }
+        } else {
+            battle->unk2F9 = 3;
+            screen->unkEAC(screen, 5, 5, 13, 0, 110);
+        }
+        break;
+    case 3:
+        if (screen->unkE0C[5].state == 2) {
+            battle->unk2F9 = 4;
+        }
+        break;
+    case 4:
+        if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CROSS)) & 1 ||
+            (PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_TRIANGLE)) & 1) {
+            battle->unk2F9 = 5;
+            screen->unkEB0(screen, 5);
+        }
+        break;
+    case 5:
+        if (screen->unkE0C[5].state == 0) {
+            battle->unk2F9 = 6;
+        }
+        break;
+    case 6:
+        battle->unk421 = 0x15;
+        battle->unk2F4 = 1;
+        battle->unk2F9 = 7;
+        break;
+    case 7:
+        battle->unk421 = 0x16;
+        battle->unk2F4 = 1;
+        battle->unk2F9 = 10;
+        battle->unk2FC = 0;
+        break;
+    case 10:
+        if (battle->sides[0].pile.unk2 > battle->sides[1].pile.unk2) {
+            battle->unk421 = 0x18;
+            battle->unk301 = 0;
+        } else {
+            battle->unk421 = 0x17;
+            battle->unk301 = 1;
+        }
+        battle->unk2F4 = 1;
+        battle->unk2F9 = 11;
+        battle->unk2FC = 0;
+        break;
+    case 11:
+        side = battle->unk301;
+        if (battle->unk2FC & 1) {
+            items->screen->panels[side].unk44 = battle->sides[side].pile.unk12 + 1;
+        } else {
+            items->screen->panels[side].unk44 = battle->sides[side].pile.unk12;
+        }
+        if (battle->unk2FC == 0) {
+            SOUND.playSound(0x9C0002);
+            fader = CARDGAME_createFader(1);
+            items->unk0[1] = fader;
+            fader->setColor(fader, 0x80, 0x80, 0x80);
+            ((CardFader *)items->unk0[1])->start(items->unk0[1], 0, 0, 0, 10, 1);
+        }
+        battle->unk2FC += GFX.funcs.getFrameTime();
+        if (battle->unk2FC >= 51) {
+            items->screen->panels[side].unk44 = battle->sides[side].pile.unk12 + 1;
+            battle->sides[side].pile.unk12++;
+            battle->unk2F9 = 12;
+            if (battle->unk301 == 0) {
+                screen->unkEAC(screen, 5, 5, 16, 0, 110);
+            } else if (battle->sides[0].pile.unk2 != battle->sides[1].pile.unk2) {
+                screen->unkEAC(screen, 5, 5, 17, 0, 110);
+            } else {
+                screen->unkEE4(screen, 18, 0, 0, 1);
+            }
+        }
+        break;
+    case 12:
+        if (battle->sides[0].pile.unk2 != battle->sides[1].pile.unk2) {
+            done = screen->unkE0C[5].state == 2;
+        } else {
+            done = screen->unkDFA == 2;
+        }
+        if (done) {
+            battle->unk2F9 = 13;
+        }
+        break;
+    case 13:
+        if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CROSS)) & 1 ||
+            (PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_TRIANGLE)) & 1) {
+            if (battle->sides[0].pile.unk2 != battle->sides[1].pile.unk2) {
+                screen->unkEB0(screen, 5);
+            } else {
+                screen->unkEE8(screen);
+            }
+            battle->unk2F9 = 14;
+        }
+        break;
+    case 14:
+        if (battle->sides[0].pile.unk2 != battle->sides[1].pile.unk2) {
+            done = screen->unkE0C[5].state == 0;
+        } else {
+            done = screen->unkDFA == 0;
+        }
+        if (done) {
+            battle->unk2F9 = 15;
+            screen->unkEE4(screen, 19, 0, 0, 1);
+        }
+        break;
+    case 15:
+        if (screen->unkDFA == 2) {
+            battle->unk2F9 = 16;
+        }
+        break;
+    case 16:
+        if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CROSS)) & 1 ||
+            (PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_TRIANGLE)) & 1) {
+            screen->unkEE8(screen);
+            battle->unk2F9 = 17;
+        }
+        break;
+    case 17:
+        if (screen->unkDFA == 0) {
+            if (battle->sides[0].pile.unk12 >= 2) {
+                SOUND.playSound(0x6004001E);
+                screen->unkEAC(screen, 5, 5, 21, 0, 110);
+                battle->unk2F9 = 19;
+                battle->unk302 = 0;
+            } else if (battle->sides[1].pile.unk12 >= 2) {
+                screen->unkEAC(screen, 5, 5, 22, 0, 110);
+                battle->unk2F9 = 19;
+                battle->unk302 = 1;
+            } else {
+                battle->unk2F9 = 18;
+            }
+        }
+        break;
+    case 18:
+        if (battle->unk301 == 0) {
+            battle->unk421 = 0x1C;
+        } else {
+            battle->unk421 = 0x1D;
+        }
+        battle->unk2F4 = 1;
+        battle->unk2F9 = 26;
+        break;
+    case 19:
+        if (screen->unkE0C[5].state == 2) {
+            battle->unk2F9 = 20;
+        }
+        break;
+    case 20:
+        if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CROSS)) & 1 ||
+            (PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_TRIANGLE)) & 1) {
+            if (battle->unk301 == 0) {
+                screen->unkEB0(screen, 5);
+                battle->unk2F9 = 21;
+                battle->unk4E8 = 0;
+            } else {
+                battle->unk2F9 = 25;
+            }
+        }
+        break;
+    case 21:
+        if (screen->unkE0C[5].state == 0 && func_8009CE0C(battle, items)) {
+            battle->unk2F9 = 22;
+            screen->unkEE4(screen, battle->unk2EC, 0, 0, 3);
+        }
+        break;
+    case 22:
+        if (screen->unkDFA == 2) {
+            battle->unk2F9 = 23;
+        }
+        break;
+    case 23:
+        if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CROSS)) & 1 ||
+            (PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_TRIANGLE)) & 1) {
+            battle->unk2F9 = 25;
+        }
+        break;
+    case 25:
+        result = 2;
+        break;
+    case 26:
+        result = 1;
+        break;
+    }
+    return result;
+}
 
 void func_800A0908(CardPile *pile) {
     while (pile->unkA > 0) {
@@ -1998,7 +4488,7 @@ void func_800A096C(CardBattle *battle, CardBattleItems *items) {
 #endif
 }
 
-void func_800A0A0C(CardBattle *battle) {
+void func_800A0A0C(CardBattle *battle, CardBattleItems *items) {
     s32 i = battle->unk2F6;
 
     battle->unk2F4 = 1;
@@ -2006,7 +4496,7 @@ void func_800A0A0C(CardBattle *battle) {
     battle->unk2F7 = D_800A4C20[i].unk2;
 }
 
-void func_800A0A40(CardBattle *battle) {
+void func_800A0A40(CardBattle *battle, CardBattleItems *items) {
     battle->sides[0].pile.unk11 = 0;
     battle->sides[1].pile.unk11 = 1;
     battle->result = 0;
@@ -2014,7 +4504,107 @@ void func_800A0A40(CardBattle *battle) {
     battle->unk2F8 = 1;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_800A0A5C);
+/* Runs the battle's current phase (unk2F8), after switching to the one asked for in unk2F7; 1 once the battle is over */
+s32 CARDGAME_runPhase(CardBattle *battle, CardBattleItems *items) {
+    s32 done = 0;
+
+    if (battle->unk2F7 != 0) {
+        switch (battle->unk2F7) {
+        case 1:
+        case 2:
+            battle->unk2F9 = 0;
+            battle->unk2FC = 0;
+            break;
+        case 3:
+        case 4:
+        case 6:
+            battle->unk2F9 = 0;
+            break;
+        case 5:
+        case 7:
+            func_8009F458(battle, items);
+            break;
+        case 8:
+            func_8009FE5C(battle, items);
+            break;
+        case 9:
+            func_800A096C(battle, items);
+            break;
+        }
+        battle->unk2F6 = battle->unk2F8;
+        battle->unk2F8 = battle->unk2F7;
+        battle->unk2F7 = 0;
+    }
+    switch (battle->unk2F8) {
+    case 1:
+        switch (battle->unk2F9) {
+        case 0:
+        default:
+            items->screen->unkE9E = 1;
+            battle->unk2F9 = 1;
+            break;
+        case 1:
+            if (items->screen->unkE9E == 2) {
+                battle->unk2F7 = 10;
+            }
+            break;
+        }
+        break;
+    case 2:
+        if (CARDGAME_chooseDeck(battle, items)) {
+            battle->unk2F7 = 10;
+        }
+        break;
+    case 3:
+        if (func_8009E7D0(battle, items)) {
+            battle->unk2F7 = 10;
+        }
+        break;
+    case 4:
+        switch (func_8009E820(battle, items)) {
+        case 1:
+            battle->unk2F7 = 10;
+            break;
+        case 2:
+            battle->unk302 = 1;
+            done = 1;
+            break;
+        case 3:
+            battle->unk302 = 0;
+            done = 1;
+            break;
+        }
+        break;
+    case 5:
+    case 7:
+        if (CARDGAME_playRounds(battle, items)) {
+            battle->unk2F7 = 10;
+        }
+        break;
+    case 6:
+        if (func_8009FA90(battle, items)) {
+            battle->unk2F7 = 10;
+        }
+        break;
+    case 8:
+        switch (CARDGAME_endRound(battle, items)) {
+        case 1:
+            battle->unk2F7 = 9;
+            break;
+        case 2:
+            done = 1;
+            break;
+        }
+        break;
+    case 9:
+        battle->unk2F7 = 10;
+        break;
+    case 10:
+        func_800A0A0C(battle, items);
+        break;
+    }
+    return done;
+}
 
 s32 func_800A0CCC(CardBattle *battle, CardBattleItems *items) {
     s32 done = 0;
@@ -2031,35 +4621,376 @@ s32 func_800A0CCC(CardBattle *battle, CardBattleItems *items) {
     return done;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_800A0D74);
+/* Shows the last card played (unk560.unk20) in window 2 for 35 frames (Cross cuts it short), then scales its sprite away; 1 once done */
+s32 CARDGAME_showPlayedCard(CardBattle *battle, CardBattleItems *items) {
+    s32 done = 0;
+    s32 place;
+    s32 i;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_800A1084);
+    switch (battle->unk4E8) {
+    case 0:
+        battle->unk4E8 = 1;
+        battle->unk4EC = 0;
+        place = battle->unk560.unk20[battle->unk560.unk15 - 1].unk4;
+#if VERSION_US
+        items->screen->unkEAC(items->screen, 2, 1, battle->cards[battle->unk560.unk20[battle->unk560.unk15 - 1].unk0] + 1,
+                              CARDGAME_playedCardPos[0][place].x, CARDGAME_playedCardPos[0][place].y);
+#elif VERSION_EU
+        items->screen->unkEAC(items->screen, 2, 1, battle->cards[battle->unk560.unk20[battle->unk560.unk15 - 1].unk0] + 1,
+                              CARDGAME_playedCardPos[SHIFT_PAL_SCREEN][place].x, CARDGAME_playedCardPos[SHIFT_PAL_SCREEN][place].y);
+#endif
+        for (i = 0; i < 15; i++) {
+            items->screen->sprites[i].moving = 0;
+        }
+        break;
+    case 1:
+        if (battle->unk4EC >= 20 && (PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_CROSS)) & 1) {
+            battle->unk4EC = 35;
+        }
+        battle->unk4EC += GFX.funcs.getFrameTime();
+        if (battle->unk4EC >= 35) {
+            items->screen->unkEB0(items->screen, 2);
+            items->screen->scaleSprite(items->screen, battle->unk560.unk15 + 11, 8, 0x1400, 0x1400);
+            items->screen->unkEA8(items->screen, battle->unk560.unk15 - 1);
+            battle->unk4E8 = 2;
+            battle->unk4EC = 0;
+            SOUND.playSound(0x8004603C);
+        }
+        break;
+    case 2:
+        battle->unk4EC += GFX.funcs.getFrameTime();
+        if (battle->unk4EC >= 8) {
+            items->screen->unkF1C(items->screen, battle->unk560.unk15 + 11);
+            battle->unk4E8 = 3;
+            battle->unk4EC = 0;
+        }
+        break;
+    case 3:
+        battle->unk4EC += GFX.funcs.getFrameTime();
+        if (battle->unk4EC >= 15) {
+            items->screen->scaleSprite(items->screen, battle->unk560.unk15 + 11, 4, 0, 0);
+            battle->unk4E8 = 5;
+            battle->unk4EC = 0;
+            SOUND.playSound(0x8004603C);
+        }
+        break;
+    case 5:
+        battle->unk4EC += GFX.funcs.getFrameTime();
+        if (battle->unk4EC >= 15) {
+            done = 1;
+        }
+        break;
+    }
+    return done;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_800A150C);
+/* Plays out the last card played (unk560.unk20): its effect and its messages, then puts it in its side's pile.unk78; 1 once done */
+u8 CARDGAME_resolveCard(CardBattle *battle, CardBattleItems *items) {
+    u8 done = 0;
+    s16 card;
+    s32 i;
+    s32 text;
+    s32 index;
+    s32 side;
+    s8 count;
+
+    switch (battle->unk4DC) {
+    case 0:
+    default:
+        if (func_8009F90C(battle)) {
+            battle->unk421 = 0x5D;
+            battle->unk2F4 = 1;
+            battle->unk4DC = 1;
+            break;
+        }
+        battle->unk4DC = 3;
+    case 3:
+        if (items->screen->panels[0].state == 0) {
+            battle->unk4DC = 4;
+        } else {
+            battle->unk4DC = 5;
+            battle->unk4EC = 0;
+            battle->unk4E8 = 0;
+            battle->unk4DD = 0;
+        }
+        break;
+    case 1:
+        battle->unk421 = 0x4C;
+        battle->unk2F4 = 1;
+        battle->unk4DC = 2;
+        break;
+    case 2:
+        battle->unk421 = 0x5A;
+        battle->unk2F4 = 1;
+        battle->unk4DC = 3;
+        break;
+    case 4:
+        if (func_800A0CCC(battle, items)) {
+            battle->unk4DC = 5;
+            battle->unk4EC = 0;
+            battle->unk4E8 = 0;
+            battle->unk4DD = 0;
+        }
+        break;
+    case 5:
+        if (CARDGAME_showPlayedCard(battle, items)) {
+            battle->unk4DC = 6;
+            battle->unk4EC = 0;
+            battle->unk4E8 = 0;
+        }
+        break;
+    case 6:
+        card = battle->cards[battle->unk560.unk20[battle->unk560.unk15 - 1].unk0];
+        if (CARDGAME_checkPlayCondition(battle, items->screen, func_800835C4(card, 1, 0))) {
+            items->screen->unkEE4(items->screen, func_800835C4(card, 2, 0), 0, 1, 1);
+            battle->unk4DC = 8;
+        } else {
+            battle->unk4E0 = 0;
+            battle->unk4DC = 7;
+        }
+        break;
+    case 7:
+        text = func_800835C4(battle->cards[battle->unk560.unk20[battle->unk560.unk15 - 1].unk0], 4, battle->unk4E0);
+        if (text != 0) {
+            battle->unk421 = text;
+            battle->unk2F4 = 1;
+            battle->unk4E0++;
+        } else {
+            if (battle->unk560.unk15 >= 2) {
+                battle->unk560.unk20[battle->unk560.unk15 - 2].unk2 = 0;
+            }
+            for (i = 0; i < 12; i++) {
+                items->screen->sprites[i].unk3E[battle->unk560.unk15 - 1] = 0;
+            }
+            battle->unk4DC = 10;
+        }
+        break;
+    case 8:
+        if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CROSS)) & 1 ||
+            (PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_TRIANGLE)) & 1) {
+            items->screen->unkEE8(items->screen);
+            battle->unk4DC = 9;
+        }
+        break;
+    case 9:
+        if (items->screen->unkDFA == 0) {
+            battle->unk4DC = 12;
+        }
+        break;
+    case 10:
+        battle->unk421 = 0x5A;
+        battle->unk2F4 = 1;
+        battle->unk4DC = 11;
+        break;
+    case 11:
+        battle->unk4DC = 12;
+        break;
+    case 12:
+        index = battle->unk560.unk20[battle->unk560.unk15 - 1].unk0;
+        side = battle->unk560.unk20[battle->unk560.unk15 - 1].unk4;
+        if (battle->cards[index] != 13) {
+            battle->sides[side].pile.unk78[battle->sides[side].pile.unk6] = index;
+            battle->sides[side].pile.unk6++;
+        }
+        count = battle->unk560.unk15;
+        battle->unk560.unk15 = count - 1;
+        if (battle->unk4DD != 0) {
+            battle->unk560.unk15 = count - 2;
+        }
+        battle->unk4DC = 13;
+        battle->unk4EC = 0;
+        battle->unk4E8 = 0;
+        break;
+    case 13:
+        func_8009DCDC(battle, items);
+        battle->unk4DC = 14;
+        break;
+    case 14:
+        if (func_8009F90C(battle)) {
+            battle->unk421 = 0x5D;
+            battle->unk2F4 = 1;
+            battle->unk4DC = 15;
+        } else {
+            done = 1;
+        }
+        break;
+    case 15:
+        battle->unk421 = 0x4C;
+        battle->unk2F4 = 1;
+        battle->unk4DC = 16;
+        break;
+    case 16:
+        battle->unk421 = 0x5A;
+        battle->unk2F4 = 1;
+        battle->unk4DC = 17;
+        break;
+    case 17:
+        done = 1;
+        break;
+    }
+    return done;
+}
+
+/* The battle menu (unk560.unk8 its state): three help messages, back, and quitting after a yes/no question; 1 when closed, 2 to quit */
+s32 CARDGAME_runBattleMenu(CardBattle *battle, CardBattleItems *items) {
+    s32 result = 0;
+    s32 cursor;
+
+    switch (battle->unk560.unk8) {
+    case 1:
+    default:
+        /* save the battle state and the screen's, restored in case 15 */
+        *(CardBattleSave *)battle->unk4F0 = *(CardBattleSave *)&battle->unk420;
+        battle->unk560.unk9 = 0;
+        CARDGAME_savedScreenState = *(CardScreenSave *)&items->screen->unkDE4;
+        items->screen->unkEF4(items->screen, 0);
+        battle->unk560.unk8 = 2;
+        break;
+    case 2:
+        if (items->screen->unkE0A == 2) {
+            battle->unk560.unk8 = 3;
+        }
+        break;
+    case 3:
+        if ((PAD.getPressed(0) & (1 << PAD.getButtonBit(0, PAD_UP))) |
+            (PAD.getRepeated(0) & (1 << PAD.getButtonBit(0, PAD_UP)))) {
+            cursor = battle->unk560.unk9 - 1;
+            if (cursor < 0) {
+                cursor = 4;
+            }
+            battle->unk560.unk9 = cursor;
+            SOUND.playSound(0x8004513E);
+        } else if ((PAD.getPressed(0) & (1 << PAD.getButtonBit(0, PAD_DOWN))) |
+                   (PAD.getRepeated(0) & (1 << PAD.getButtonBit(0, PAD_DOWN)))) {
+            battle->unk560.unk9 = (u8)(battle->unk560.unk9 + 1) % 5;
+            SOUND.playSound(0x8004513E);
+        }
+        if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CROSS)) & 1) {
+            items->screen->unkEFC(items->screen);
+            battle->unk560.unk8 = 4;
+        } else if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_TRIANGLE)) & 1) {
+            SOUND.playSound(0x800450BD);
+            items->screen->unkEF8(items->screen);
+            battle->unk560.unk8 = 4;
+            battle->unk560.unk9 = 3;
+        }
+        items->screen->unkF00(items->screen, battle->unk560.unk9);
+        break;
+    case 4:
+        if (items->screen->unkE0A == 0) {
+            switch (battle->unk560.unk9) {
+            case 0:
+                battle->unk560.unk8 = 5;
+                break;
+            case 1:
+                battle->unk560.unk8 = 6;
+                break;
+            case 2:
+                battle->unk560.unk8 = 7;
+                break;
+            case 3:
+                battle->unk560.unk8 = 15;
+                break;
+            case 4:
+                items->screen->unkEE4(items->screen, 0x2C, 1, 0, 1);
+                battle->unk560.unk8 = 8;
+                break;
+            }
+        }
+        break;
+    case 5:
+        battle->unk421 = 0x9B;
+        battle->unk2F4 = 1;
+        battle->unk560.unk8 = 11;
+        break;
+    case 6:
+        battle->unk421 = 0xA8;
+        battle->unk2F4 = 1;
+        battle->unk560.unk8 = 12;
+        break;
+    case 7:
+        battle->unk421 = 0x9C;
+        battle->unk2F4 = 1;
+        battle->unk560.unk8 = 13;
+        break;
+    case 8:
+        if (items->screen->unkDFA == 2) {
+            battle->unk560.unk8 = 9;
+        }
+        break;
+    case 9:
+        if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_CROSS)) & 1) {
+            items->screen->unkEEC(items->screen);
+            battle->unk560.unk8 = 10;
+        } else if ((PAD.getPressed(0) & (1 << PAD.getButtonBit(0, PAD_UP))) |
+                   (PAD.getRepeated(0) & (1 << PAD.getButtonBit(0, PAD_UP)))) {
+            if (items->screen->unkDF4 != 0) {
+                SOUND.playSound(0x8004513E);
+            }
+            items->screen->unkDF4 = 0;
+        } else if ((PAD.getPressed(0) & (1 << PAD.getButtonBit(0, PAD_DOWN))) |
+                   (PAD.getRepeated(0) & (1 << PAD.getButtonBit(0, PAD_DOWN)))) {
+            if (items->screen->unkDF4 != 1) {
+                SOUND.playSound(0x8004513E);
+            }
+            items->screen->unkDF4 = 1;
+        } else if ((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_TRIANGLE)) & 1) {
+            SOUND.playSound(0x800450BD);
+            items->screen->unkDF4 = 1;
+            items->screen->unkEEC(items->screen);
+            items->screen->unkDF4 = 1;
+            battle->unk560.unk8 = 10;
+        }
+        break;
+    case 10:
+        if (items->screen->unkDFA == 0) {
+            if (items->screen->unkDF4 == 0) {
+                result = 2;
+            } else {
+                battle->unk560.unk8 = 14;
+            }
+        }
+        break;
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+        items->screen->unkEF4(items->screen, battle->unk560.unk9);
+        battle->unk560.unk8 = 2;
+        break;
+    case 15:
+        *(CardBattleSave *)&battle->unk420 = *(CardBattleSave *)battle->unk4F0;
+        result = 1;
+        *(CardScreenSave *)&items->screen->unkDE4 = CARDGAME_savedScreenState;
+        battle->unk560.unk8 = 0;
+        break;
+    }
+    return result;
+}
 
 s32 func_800A1CFC(CardBattle *battle, CardBattleItems *items) {
     s32 done = 0;
 
     func_8009D53C(battle);
-    func_8009D578(battle, items);
+    CARDGAME_updateCardAnims(battle, items);
     func_8009D470(battle, items);
     switch (battle->unk2F4) {
     case 0:
     default:
-        if (func_800A0A5C(battle, items)) {
+        if (CARDGAME_runPhase(battle, items)) {
             done = 1;
         }
         break;
     case 1:
-        func_80083AB0(battle, items->screen);
+        CARDGAME_runEffectStep(battle, items->screen);
         break;
     case 2:
-        if (func_800A1084(battle, items)) {
+        if (CARDGAME_resolveCard(battle, items)) {
             battle->unk2F4 = 0;
         }
         break;
     case 3:
-        switch (func_800A150C(battle, items)) {
+        switch (CARDGAME_runBattleMenu(battle, items)) {
         case 1:
             battle->unk2F4 = 1;
             break;
@@ -2072,16 +5003,83 @@ s32 func_800A1CFC(CardBattle *battle, CardBattleItems *items) {
     return done;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_800A1E04);
+/* The card battle task: sets up the battle and fades in, runs it (func_800A1CFC), then fades out and gives the player the item unk2EC for a win; result 2 once over */
+void CARDGAME_updateBattle(CardBattle *battle, CardBattleItems *items) {
+    TimLoader tim;
+    CardFader *fader;
+
+    switch (battle->state) {
+    case 0:
+    default:
+        if (SOUND_STATE.isLoading() == 0) {
+            FILE_CACHE.load(FILE_CARDGAME_TIMS);
+            func_800A0A40(battle, items);
+            CARDGAME_loadOpponent(battle, items);
+            items->screen = CARDGAME_createScreen(battle->cards);
+            items->unk0[0] = CARDGAME_startPreloader();
+            items->screen->unkECC(items->screen);
+            items->screen->unk5E = battle->unk2E9;
+            items->screen->unk5C = battle->arg;
+            initTimLoader(&tim);
+            tim.setImagePos(0x280, 0);
+            tim.loadArchive(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16));
+            fader = CARDGAME_createFader(2);
+            items->unk0[1] = fader;
+            fader->setColor(fader, 0xFF, 0xFF, 0xFF);
+            ((CardFader *)items->unk0[1])->start(items->unk0[1], 0, 0, 0, 100, 0);
+            battle->setState(battle, 2);
+            SOUND_STATE.playSound(0x609C0004);
+        }
+        break;
+    case 1:
+        if (func_800A1CFC(battle, items)) {
+            fader = CARDGAME_createFader(2);
+            items->unk0[1] = fader;
+            fader->setColor(fader, 0, 0, 0);
+            ((CardFader *)items->unk0[1])->start(items->unk0[1], 0xFF, 0xFF, 0xFF, 100, 0);
+            battle->setState(battle, 2);
+            battle->result = 1;
+        }
+        break;
+    case 2:
+        if (battle->substate == 0 && ((CardFader *)items->unk0[1])->isDone(items->unk0[1])) {
+            ((CardFader *)items->unk0[1])->kill(items->unk0[1]);
+            if (battle->result != 0) {
+                if (battle->result != 2) {
+                    if (battle->unk302 == 0) {
+                        if (GAME.items[battle->unk2EC] < 99) {
+                            GAME.items[battle->unk2EC]++;
+                        }
+                        PENDING_FLAG_10 = 1;
+                    } else {
+                        PENDING_FLAG_10 = 0;
+                    }
+                }
+                battle->result = 2;
+            } else {
+                battle->setState(battle, 1);
+            }
+            battle->substate = 1;
+        }
+        break;
+    case 3:
+        if (battle->unk302 == 0) {
+            SOUND_STATE.stopSound(0x6004001E);
+        } else {
+            SOUND_STATE.stopSound(0x609C0004);
+        }
+        break;
+    }
+}
 
 CardBattle *CARDGAME_createBattle(s32 arg) {
-    CardBattle *battle = createTask(func_800A1E04, sizeof(CardBattle), 7 * 4);
+    CardBattle *battle = createTask(CARDGAME_updateBattle, sizeof(CardBattle), 7 * 4);
 
     battle->unk810 = func_8009DF5C;
     battle->unk814 = func_8009DE0C;
     battle->unk818 = func_8009F664;
     battle->addCard = CARDGAME_addCard;
-    battle->unk820 = func_800A2838;
+    battle->unk820 = CARDGAME_scoreHand;
     battle->arg = arg;
     SOUND.loadBank(0x27);
     return battle;

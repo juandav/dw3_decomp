@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%204-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%2015-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -43,12 +43,12 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 344 / 346 | 95.67 % | 99.86 % |
 | | USA | 344 / 346 | 95.60 % | 99.86 % |
-| The 21 overlays | Europe | 446 / 1,702 | 9.67 % | 25.89 % |
-| | USA | 733 / 1,697 | 16.69 % | 37.32 % |
+| The 21 overlays | Europe | 546 / 1,702 | 22.73 % | 27.09 % |
+| | USA | 833 / 1,697 | 29.70 % | 38.52 % |
 | The stages (293 and 238) | Europe | 1,289 / 1,590 | 69.55 % | 99.27 % |
 | | USA | 1,223 / 1,369 | 81.64 % | 99.15 % |
-| **Total** | **Europe** | **2,079 / 3,638** | **30.14 %** | **90.58 %** |
-| | **USA** | **2,300 / 3,412** | **36.31 %** | **91.02 %** |
+| **Total** | **Europe** | **2,179 / 3,638** | **39.07 %** | **90.73 %** |
+| | **USA** | **2,400 / 3,412** | **45.56 %** | **91.18 %** |
 
 - The executable's game code is all C but two functions,
   `spriteDrawerDraw` and `convertText` (`graphics.c`). Its data is C too, in `src/main/data/`, until it moves
@@ -58,8 +58,8 @@ current:
   wrote in assembly are `.s` sources. They are Sony's
   code, not the game's, so like other PSX decomps they are built and compared
   but left out of the progress.
-- `CNTY_SEL` and `SOUNDTST` are all C, and `STDWTITL`, `STDGNAME`,
-  `STCRDABM`, `SHOCKTST` and `CARDGAME` mostly. `FIGHTSTG`, `STSTATUS` and
+- `CNTY_SEL` and `SOUNDTST` are all C, `CARDGAME` all but three functions,
+  and `STDWTITL`, `STDGNAME`, `STCRDABM` and `SHOCKTST` mostly. `FIGHTSTG`, `STSTATUS` and
   the other large overlays are still almost all assembly.
 - 98 of the 238 USA stages are all C. Many stages share functions built from the
   same source, so one match often repeats across stages. The stages' data is
@@ -90,8 +90,8 @@ above counts them: fake matches, then the other two kinds together.
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 3 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 1 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 1,280 | `INCLUDE_ASM` |
+| Form-dependent matches | 12 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 1,180 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -102,8 +102,9 @@ above counts them: fake matches, then the other two kinds together.
   `libgs_gs_131`), one in the game's `drawTalkBoxArrow`.
 - A form-dependent match is C that matches in one of several equivalent
   forms only: an extra block, an `if` without braces, a copy of a variable, a
-  type, or one version's own form of a loop. The one so far is a copy of a
-  variable in `drawTalkBoxArrow`.
+  type, or one version's own form of a loop. The twelve so far are a copy of
+  a variable in `drawTalkBoxArrow` and eleven spots in CARDGAME: a loop or
+  state variable of its own, an empty case, or a statement written twice.
 - The functions still in assembly are not in the badge: they are the work
   left, in the game and in PsyQ.
 
@@ -128,7 +129,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 
 | Overlay | Loads at (us) | Functions in C (us) | What it runs |
 |---|---|---|---|
-| `CARDGAME` | `0x80082448` | 203 / 306 | the card battle (mode `0x700`): the decks, the cards in play and the battle screen |
+| `CARDGAME` | `0x80082448` | 303 / 306 | the card battle (mode `0x700`): the decks, the cards in play and the battle screen |
 | `CNTY_SEL` | `0x80082448` | 26 / 26 | the country select screen |
 | `FIELDSTG` | `0x80082448` | 108 / 222 | the field mode, where the player walks around the map; the stages load on top of it |
 | `FIGHTSTG` | `0x80082448` | 2 / 310 | not identified yet |

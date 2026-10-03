@@ -141,6 +141,20 @@ struct Layer {
     /* 0x168 */ void (*free)(struct Layer *);
 };
 
+/* The 12-byte header in front of a card's TIM (CardDrawer.card) */
+typedef struct CardImageHeader {
+    /* 0x0 */ u8 color; /* from 1 */
+    /* 0x1 */ u8 unk1;
+    /* 0x2 */ u8 unk2;
+    /* 0x3 */ u8 kind; /* an index in CARD_KINDS */
+    /* 0x4 */ u8 unk4;
+    /* 0x5 */ u8 unk5;
+    /* 0x6 */ u8 unk6;
+    /* 0x7 */ u8 unk7;
+    /* 0x8 */ s16 unk8;
+    /* 0xA */ s16 unkA;
+} CardImageHeader;
+
 /*
  * Draws 32x32 8-bit images from files 0x7E7-0x7EB (64 per file, 0x62C bytes
  * each: a 12-byte header and a TIM). There are 320 of them, so they are
@@ -148,7 +162,7 @@ struct Layer {
  * drawer that was set up last (CARD_DRAWER).
  */
 typedef struct CardDrawer {
-    /* 0x00 */ u8 *card;
+    /* 0x00 */ u8 *card; /* its CardImageHeader, then the TIM */
     /* 0x04 */ s32 imageX; /* VRAM position of the image grid */
     /* 0x08 */ s32 imageY;
     /* 0x0C */ s32 clutX;
