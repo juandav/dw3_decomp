@@ -1,0 +1,3 @@
+// WFIGHTTS.PRO: the battle test
+
+WFIGHTTS_strings = 0x800A4CBC; // size:0x9C0
