@@ -11,6 +11,18 @@
 
 extern MATRIX D_8004D3C8; /* the identity, the root bone's parent */
 
+/* The sub-overlays (func_800867F0) and their entry points */
+#if VERSION_US
+#define FILE_WFIGHTMN 0x1FA
+#define FILE_WFIGHTTS 0x1FB
+#elif VERSION_EU
+#define FILE_WFIGHTMN 0x208
+#define FILE_WFIGHTTS 0x209
+#endif
+Task *WFIGHTMN_start(void);
+Task *WFIGHTTS_start(void);
+struct BattleTask *func_800A9040(u8 actor, s32 id);
+
 /* Draws one bone of a Model (func_8008588C), from the parts of an archive */
 typedef struct Mesh {
     TASK_HEADER(Mesh);
@@ -116,6 +128,14 @@ typedef struct ModelControl {
     } unk34[2];
 } ModelControl;
 
+/* A motion in the motions' archive: its keyframes, step by step */
+typedef struct MotionStep {
+    /* 0x0 */ s16 index; /* 0x7FFF ends them */
+    /* 0x2 */ s16 count; /* frames, 0 for the last one */
+    /* 0x4 */ s16 frame;
+    /* 0x6 */ s16 unk6; /* 0: blend to the next one */
+} MotionStep;
+
 /*
  * A 3D model (func_80083CE0), registered with id 0x11: a tree of bones,
  * each drawn by a Mesh child (children[i] for bone i, children[0] the
@@ -143,8 +163,8 @@ typedef struct Model {
     /* 0x009C */ s32 unk9C;
     /* 0x00A0 */ s32 keyframeCount;
     /* 0x00A4 */ u16 keyframes[0x640];
-    /* 0x0D24 */ s16 unkD24[0x640];
-    /* 0x19A4 */ s16 unk19A4[0x640];
+    /* 0x0D24 */ u16 unkD24[0x640];
+    /* 0x19A4 */ u16 unk19A4[0x640];
     /* 0x2624 */ void (*setMotion)(struct Model *model, s32 motion, s32 restart);
     /* 0x2628 */ s32 (*isMotionDone)(struct Model *model);
     /* 0x262C */ void (*setColor)(); /* (model, mode, color): its meshes' */
@@ -309,6 +329,15 @@ typedef struct FighterInfo {
     /* 0xAA */ s16 camProj[12];
 } FighterInfo;
 
+/* An enemy's FighterInfo: it has 3 cameras where a partner has 12 */
+typedef struct FighterInfoEnemy {
+    /* 0x00 */ u8 unk0[0x1A];
+    /* 0x1A */ ShortVec3 camPos[3];
+    /* 0x2C */ ShortVec3 camRef[3];
+    /* 0x3E */ s16 camProj[3];
+    /* 0x44 */ s16 cameraCount;
+} FighterInfoEnemy;
+
 /* The fighters' file (D_800A32E0.funcs) */
 typedef struct FighterInfoFuncs {
     /* 0x0 */ FighterInfo *(*getInfo)(s32 id);
@@ -464,10 +493,14 @@ typedef struct SpriteAnim {
     /* 0x7E */ s16 clutRow;
     /* 0x80 */ s16 x;
     /* 0x82 */ s16 y;
-    /* 0x84 */ s16 scaleX;
-    /* 0x86 */ s16 scaleY;
-    /* 0x88 */ s16 rotX;
-    /* 0x8A */ s16 rotY;
+    /* 0x84 */ union {
+        s16 v[2]; /* x, y; 0x1000 = 1.0 */
+        s32 both; /* to test the two at once */
+    } scale;
+    /* 0x88 */ union {
+        s16 v[2]; /* x, y */
+        s32 both;
+    } rot;
     /* 0x8C */ s16 rotZ;
 } SpriteAnim;
 
@@ -519,15 +552,73 @@ typedef struct Unk80090908 {
 typedef struct Unk80092350 {
     TASK_HEADER(Unk80092350);
     /* 0x50 */ s32 unk50; /* 0xFF / the frames */
-    /* 0x54 */ u8 unk54[4];
+    /* 0x54 */ s32 level; /* added to the screen (white), 0-0xFF */
 } Unk80092350;
+
+/* A number that eases from one value to another (func_80092660) */
+typedef struct HpTween {
+    /* 0x00 */ s32 from;
+    /* 0x04 */ s32 to;
+    /* 0x08 */ s32 value; /* the one shown */
+    /* 0x0C */ s16 active;
+    /* 0x0E */ s16 fighter; /* whose hp it is */
+    /* 0x10 */ s16 time;
+    /* 0x12 */ s16 duration;
+} HpTween;
+
+/* func_80093058's task: the names and the hp of the fighters out */
+typedef struct HpDisplay {
+    TASK_HEADER(HpDisplay);
+    /* 0x50 */ s32 shown[2]; /* the fighters the names are of */
+    /* 0x58 */ HpTween hp[2]; /* each side's */
+    /* 0x80 */ s32 timer;
+    /* 0x84 */ s32 interval; /* how often the hp is checked */
+} HpDisplay;
 
 typedef struct Unk800937FC {
     TASK_HEADER(Unk800937FC);
     /* 0x50 */ s32 *unk50;
-    /* 0x54 */ s32 unk54; /* *unk50, which becomes -1 */
-    /* 0x58 */ u8 unk58[0x1C];
+    /* 0x54 */ s32 unk54; /* *unk50, which becomes -1: a partner */
+    /* 0x58 */ s32 unk58;
+    /* 0x5C */ s32 unk5C;
+    /* 0x60 */ s16 ids[4]; /* the partner, then its slots of 3 or more */
+    /* 0x68 */ s32 count;
+    /* 0x6C */ s16 slots[4]; /* GAME.funcs.getPartnerSlots's */
 } Unk800937FC;
+
+/* func_8009619C's task: a menu of techniques, six a page */
+typedef struct Unk80095AC0 {
+    TASK_HEADER(Unk80095AC0);
+    /* 0x50 */ s32 *unk50; /* -1 until it is done */
+    /* 0x54 */ u8 unk54[0x48];
+    /* 0x9C */ s32 techs[12]; /* ids in the low 13 bits, from 1 */
+    /* 0xCC */ s32 count;
+    /* 0xD0 */ s32 page;
+    /* 0xD4 */ s32 pageCount;
+} Unk80095AC0;
+
+/* The battle's item menu (func_80094D04): the usable items, seven a page */
+typedef struct ItemMenu {
+    TASK_HEADER(ItemMenu);
+    /* 0x050 */ s32 *unk50; /* -1 until it is done, then the item or -2 */
+    /* 0x054 */ s32 sel; /* the cursor's line last frame */
+    /* 0x058 */ s16 items[0x194]; /* ITEM_FUNCS->list's */
+    /* 0x380 */ s16 *usable; /* the items with flag 2 */
+    /* 0x384 */ s32 count;
+    /* 0x388 */ s32 page;
+    /* 0x38C */ s32 pageCount;
+} ItemMenu;
+
+/* func_80094D04's children */
+typedef struct ItemMenuWindows {
+    /* 0x00 */ struct Unk8009A098 *cursor;
+    /* 0x04 */ TextWindow *unk4;
+    /* 0x08 */ TextWindow *unk8;
+    /* 0x0C */ TextWindow *unkC;
+    /* 0x10 */ TextWindow *count; /* how many of the item */
+    /* 0x14 */ TextWindow *message; /* its description */
+    /* 0x18 */ TextWindow *names[7];
+} ItemMenuWindows;
 
 typedef struct Unk800973D4 {
     TASK_HEADER(Unk800973D4);
@@ -558,7 +649,9 @@ typedef struct Unk800973D4Windows {
 /* An entry of the executable's technique table (D_800427E8, from 1) */
 typedef struct BattleTech {
     /* 0x00 */ u16 mp; /* its cost */
-    /* 0x02 */ u8 unk2[0x10];
+    /* 0x02 */ u8 unk2[2];
+    /* 0x04 */ u8 icon; /* a frame of the menu sprites, from 0x37 */
+    /* 0x05 */ u8 unk5[0xD];
 } BattleTech;
 extern BattleTech D_800427E8[];
 
@@ -568,6 +661,20 @@ typedef struct Unk800931CC {
     /* 0x50 */ s32 unk50;
     /* 0x54 */ s32 *unk54; /* -1 until it is done */
 } Unk800931CC;
+
+/* func_800931CC's children: a cursor over six lines */
+typedef struct Unk800931CCWindows {
+    /* 0x00 */ struct Unk8009A098 *cursor;
+    /* 0x04 */ TextWindow *lines[6];
+} Unk800931CCWindows;
+
+/* Shows the partner's model on layer 0x1009 (func_800935F4), through
+   the two FighterCamera children, a new one each time it is set up */
+typedef struct Unk800933EC {
+    TASK_HEADER(Unk800933EC);
+    /* 0x50 */ Layer *layer;
+    /* 0x54 */ s32 unk54;
+} Unk800933EC;
 
 /* func_8008EAA0's task */
 typedef struct Unk8008E3C8 {
@@ -579,6 +686,14 @@ typedef struct Unk8008E3C8 {
     /* 0x84 */ s32 unk84;
     /* 0x88 */ s32 unk88;
 } Unk8008E3C8;
+
+/* func_80088380's task */
+typedef struct Unk80087CE4 {
+    TASK_HEADER(Unk80087CE4);
+    /* 0x50 */ s32 lines[10]; /* func_80097F8C's, 0 ends them */
+    /* 0x78 */ s32 target; /* -2 to -4 for an enemy, else any but the active one */
+    /* 0x7C */ s32 unk7C;
+} Unk80087CE4;
 
 /* func_80099400's task */
 typedef struct Unk80097F8C {
@@ -600,6 +715,13 @@ typedef struct Unk80097F8C {
     /* 0xB0 */ void (*unkB0)(struct Unk80097F8C *task);
 } Unk80097F8C;
 
+/* func_80090264's task: two func_80099400 messages around WFIGHTMN's
+   func_800A9040, then the battle goes on (func_8009B5F8) */
+typedef struct Unk80090098 {
+    TASK_HEADER(Unk80090098);
+    /* 0x50 */ s32 lines[8]; /* func_80097F8C's, 0 ends them */
+} Unk80090098;
+
 /* func_80097F8C's children: the lines it shows one by one */
 typedef struct Unk80097F8CWindows {
     /* 0x0 */ TextWindow *lines[2];
@@ -618,13 +740,26 @@ typedef struct Unk80086180 {
     /* 0x64 */ s32 unk64;
 } Unk80086180;
 
+/* A partner's entry in its slot, as GAME.funcs.getPartnerEntry gives it */
+typedef struct BattlePartnerEntry {
+    /* 0x0 */ s16 id;
+    /* 0x2 */ s8 unk2;
+    /* 0x3 */ u8 unk3;
+    /* 0x4 */ s16 unk4[2];
+    /* 0x8 */ s16 techs[6]; /* the low 13 bits, 0x4000 for one it can pass on */
+} BattlePartnerEntry;
+
 typedef struct Unk80094278 {
     TASK_HEADER(Unk80094278);
     /* 0x50 */ s32 unk50;
-    /* 0x54 */ s32 unk54;
-    /* 0x58 */ s32 unk58;
-    /* 0x5C */ s32 unk5C;
-    /* 0x60 */ u8 unk60[0x8C];
+    /* 0x54 */ s32 unk54; /* the partner */
+    /* 0x58 */ s32 unk58; /* what it shows: 0 the stats, 1 and 2 techniques */
+    /* 0x5C */ s32 unk5C; /* the slot, from 1, or 0 for the partner itself */
+    /* 0x60 */ s32 unk60; /* shown as a number, or text 0x1A when negative */
+    /* 0x64 */ s16 stats[0x16]; /* shown up to 999 */
+    /* 0x90 */ s16 slots[4]; /* GAME.funcs.getPartnerSlots's */
+    /* 0x98 */ BattlePartnerEntry entries[3];
+    /* 0xD4 */ s32 techs[6]; /* a technique in the low 13 bits */
 } Unk80094278;
 
 typedef struct Unk800967A4 {
@@ -772,13 +907,44 @@ typedef struct FighterFilter {
 } FighterFilter;
 
 /* The battle script's task (func_8008BD10) */
+/* A fighter's battle script (func_8008BD10, WFIGHTMN's BattleTask): a list
+   of s16 commands in an archive entry of the fighter's file, which play its
+   motions, effects, sounds and camera moves */
 typedef struct BattleScript {
     TASK_HEADER(BattleScript);
-    /* 0x50 */ s32 unk50;
-    /* 0x54 */ u8 unk54[0x38];
+    /* 0x50 */ s32 unk50; /* the enemy's */
+    /* 0x54 */ s32 index; /* the script, in the fighter's archive */
+    /* 0x58 */ s32 hits[4]; /* 0 a hit, 3 a miss; [3] how it ended */
+    /* 0x68 */ s32 stage; /* what the stage command's 0x38 stands for */
+    /* 0x6C */ s32 unk6C;
+    /* 0x70 */ s32 sound; /* what the sound commands' 0x62 and 0x63 stand for on a hit */
+    /* 0x74 */ s32 unk74;
+    /* 0x78 */ s32 fighter;
+    /* 0x7C */ s32 model; /* the Models task's id */
+    /* 0x80 */ s32 archive;
+    /* 0x84 */ s32 unk84;
+    /* 0x88 */ Models *models;
     /* 0x8C */ s16 *pc;
-    /* 0x90 */ u8 unk90[0x24];
+    /* 0x90 */ s32 scripts; /* how many hits command 5 has played */
+    /* 0x94 */ s32 sounds; /* and the sound commands */
+    /* 0x98 */ s32 waiting;
+    /* 0x9C */ s32 wait; /* the time left */
+    /* 0xA0 */ s32 loadStep; /* func_8008B400's, loading a 2D effect */
+    /* 0xA4 */ s32 effectImages; /* FIGHTSTG_findEffectSheet's */
+    /* 0xA8 */ s32 effectSheet;
+    /* 0xAC */ Vec2 effectTexPos;
 } BattleScript;
+
+/* The battle script's children */
+typedef struct BattleScriptChildren {
+    /* 0x00 */ Unk80092350 *fade;
+    /* 0x04 */ Task *unk4;
+    /* 0x08 */ Task *unk8;
+    /* 0x0C */ BattleSound *sound;
+    /* 0x10 */ Task *unk10[8];
+    /* 0x30 */ EffectModel *effects[3];
+    /* 0x3C */ BattleScript *script; /* one it plays */
+} BattleScriptChildren;
 
 
 /* An event of the battle, as it is queued (FIGHTSTG_pushEvent) */
@@ -804,6 +970,7 @@ typedef struct EventKey {
 /* The event queue's functions (D_800A25F0.funcs) */
 typedef struct EventQueueFuncs {
     /* 0x00 */ s8 unk0;
+    /* 0x01 */ u8 unk1;
     /* 0x04 */ void (*push)(BattleEvent *event);
     /* 0x08 */ void (*pushFirst)(BattleEvent *event); /* before all the others */
     /* 0x0C */ s32 (*pop)(void); /* the next event due */
@@ -813,6 +980,14 @@ typedef struct EventQueueFuncs {
     /* 0x1C */ void (*remove)(EventKey *key); /* the events whose first two args are its */
     /* 0x20 */ s32 (*getDelay)(s32 side, s32 kind); /* func_8009AEA4: when an event of side's runs */
 } EventQueueFuncs;
+
+/* An event kind's delay range (D_800A310C, by kind): func_8009AEA4 adds a
+   random part below div, and clamps to min and max where they are not 0 */
+typedef struct EventDelay {
+    /* 0x0 */ s16 div;
+    /* 0x2 */ s16 min;
+    /* 0x4 */ s16 max;
+} EventDelay;
 
 /* The battle's events (D_800A25F0) */
 typedef struct EventQueue {
@@ -996,6 +1171,9 @@ void FIGHTSTG_getFighterRange(u32 enemy, s32 *min, s32 *max);
 extern Vec2 D_800A12D0[];
 extern EventQueue D_800A25F0;
 extern void (*D_800A3108)();
+extern u8 D_800A315C[]; /* func_8009B430's event types */
+extern u8 D_800A3164[]; /* and the status flags they clear */
+extern RECT D_800A3470; /* func_800933EC's layer */
 extern BattleEvent D_800A34E0;
 extern BattleTableEntry *(*D_800A2584)(s32 id);
 void FIGHTSTG_pushEvent(BattleEvent *event);
@@ -1019,16 +1197,21 @@ void func_800876B8(Models *task, s32 id);
 void func_800877A4(Models *task, s32 id, s32 motion);
 Model *func_80083F10(s32 file, s32 motionFile, Vec2 texPos, ModelControl *control);
 void func_800867F0();
+s32 func_80086084(void);
 void func_8008690C();
-void func_80087CE4();
+void func_80087CE4(Unk80087CE4 *task, Task **children);
 void func_8008BD10();
-void func_80090098();
-void func_80092E0C();
-void func_800933EC();
+void func_80090098(Unk80090098 *task, Unk80097F8C **children);
+void func_8009B5F8(s32 arg0);
+void func_8009C18C(void);
+void func_800924DC(HpDisplay *task, TextWindow **windows);
+void func_800928BC(HpDisplay *task, TextWindow **windows);
+void func_80092E0C(HpDisplay *task, TextWindow **windows);
+void func_800933EC(Unk800933EC *task, FighterCamera **cameras);
 void func_800A1048();
 void func_800A1FE0();
 void func_80091A58();
-void func_8009D8B4();
+void func_8009D8B4(s32 layerId, s32 depth, DVECTOR *xy, CVECTOR *colors, s32 semi);
 void func_800973D4();
 void func_80087870();
 void FIGHTSTG_updateScreenFade(ScreenFade *task);
@@ -1037,14 +1220,15 @@ void func_80089458();
 void func_8008EAF8();
 void func_80090290();
 void FIGHTSTG_updateCamera(FighterCamera *task);
-void func_80092350();
+void func_800921EC(Unk80092350 *task);
+void func_80092350(Unk80092350 *task);
 void func_800937FC();
 void func_8008C0BC();
 void func_8008CFFC();
 void func_80090908();
 Unk800973D4 *func_80097B74(s32 *arg0);
 void func_80094D04();
-void func_80095AC0();
+void func_80095AC0(Unk80095AC0 *task, TextWindow **windows);
 void func_8009C294();
 void func_8009C330();
 void func_8009C418();
@@ -1058,13 +1242,12 @@ void func_8009CCD4();
 void func_8009CDCC();
 void func_8009C8EC();
 extern u8 D_8004276E;
-void func_8009BD20();
+void func_8009BD20(u8 side, s32 fighter, s32 kind, s32 arg3);
 void func_80097C14();
 void func_80097D74();
 void func_80098808();
 void func_800931CC();
 void func_8008E3C8();
-s32 func_8009AEA4();
 s32 FIGHTSTG_findBattleTableIndex(s32 id);
 BattleTableEntry *FIGHTSTG_getBattleTableEntry(s32 id);
 void func_80094278();
@@ -1089,11 +1272,12 @@ extern JumpParams D_800A23E4[];
 extern s32 D_800A2414[]; /* sound ids */
 extern EffectSheet D_800A1914[];
 extern SpriteEffectEntry D_800A1C44[];
-void func_8008899C(SpriteAnim *task, Layer *layer);
+void func_8008899C(void *arg, Layer *layer);
 extern CameraView D_800A3438;
 extern s32 D_800A2588[]; /* per event type, FIGHTSTG_popEvent takes (1), peeks at (-1) or skips (0) it */
 extern DigimonData *(*ON_PARTNER_ENTRY_ADDED)(s32 id);
 struct Unk8009A098 *func_8009A214(Unk8009A214 *arg0);
+extern Unk8009A214 D_800A22BC; /* func_80094D04's cursor */
 extern Unk8009A214 D_800A22FC; /* func_800967A4's cursor */
 extern Unk8009A214 D_800A231C[2]; /* func_800973D4's cursors */
 extern Unk8009A214 D_800A23BC; /* func_800999E4's */
@@ -1114,5 +1298,17 @@ void func_8009981C(Unk800999E4 *task, Unk800999E4Windows *windows, s32 arg2);
 void func_80099894(Unk800999E4 *task, s32 index, s32 arg2);
 void func_80099F20(Unk8009A098 *task);
 void func_80099D24(Unk8009A098 *task);
+s32 func_8009E74C(s32 value, s32 arg1);
 s32 func_8009E7E4(u8 side, s32 id, s32 value);
+s32 func_8009F36C(u8 side, s32 id);
+s32 func_8009F5D4(u8 side, s32 id);
+s32 func_800860DC(s32 id);
+extern s32 D_800A3430;
+s32 FIGHTSTG_getEffectModelFile(s32 id);
+EffectModel *func_80088FC4(s32 id, SVECTOR *pos, SVECTOR *rot);
+BattleSound *FIGHTSTG_playBattleSound(s32 index, s32 time);
+s32 FIGHTSTG_findEffectSheet(s32 effect, s32 *images, s32 *sheet, Vec2 *texPos);
+SpriteEffect *FIGHTSTG_startSpriteEffect(s32 effect, SVECTOR *pos);
+extern s32 D_800A3168[]; /* the event types of func_8009BD20, by kind */
+extern s32 D_800A3174[]; /* and of func_8009BE1C */
 #endif /* FIGHTSTG_H */

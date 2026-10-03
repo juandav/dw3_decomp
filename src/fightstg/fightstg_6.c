@@ -23,7 +23,37 @@ void func_8008EAA0(s8 arg0, s32 arg1, s32 arg2) {
 }
 
 #if VERSION_EU
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8008F5D4);
+/* WFIGHTMN's WFIGHTMN_checkEquip */
+void func_800A57A8(s32 fighter);
+
+/* The six event types func_8008F5D4 clears */
+extern s32 FIGHTSTG_clearIds[];
+
+/* Revives one of the player's fighters at full HP, clearing its status
+   events, and passes tech's unkC to D_800A3308.unkE0 */
+void func_8008F5D4(s32 tech, s32 fighter) {
+    BattleFighter *fighters = D_800A31E8.fighters[0];
+    Unk800427D6 *entry = &D_800427D6[tech];
+    s32 index;
+    s32 i;
+
+    if (fighters[fighter].id == 0) {
+        return;
+    }
+    for (i = 0; i < 6; i++) {
+        index = D_800A25F0.funcs.find(FIGHTSTG_clearIds[i], 0, fighter);
+        if (index >= 0) {
+            D_800A25F0.events[index].type = 0;
+        }
+    }
+    if (fighters[fighter].hp == 0) {
+        func_800A57A8(fighter);
+    }
+    fighters[fighter].flags = 0;
+    fighters[fighter].hp = fighters[fighter].maxHp;
+    D_800A3308.unkE0(0, fighter, 1, entry->unkC);
+    func_8009BD20(0, fighter, 1, tech);
+}
 #endif
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8008EAF8);
@@ -35,7 +65,57 @@ void func_80090050(s32 arg0, s32 arg1) {
     task->unk54 = arg1;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80090098);
+/* WFIGHTMN declares it as returning its BattleTask */
+Unk80097F8C *func_80099400(void);
+
+void func_80090098(Unk80090098 *task, Unk80097F8C **children) {
+    BattleTableEntry *entry;
+    BattleFighter *fighter;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        entry = D_800A2584(D_800A31E8.fighters[1][D_800A31E8.active[1]].id);
+        children[0] = func_80099400();
+        task->lines[0] = 0x10;
+        task->lines[1] = entry->unk8[1];
+        children[0]->unkAC(children[0], 3, task->lines);
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+        switch (task->substate) {
+        case 0:
+        default:
+            if (children[0] == NULL) {
+                children[0] = (Unk80097F8C *)func_800A9040(0x10, task->lines[1]);
+                task->substate++;
+            }
+            break;
+        case 1:
+            if (children[0] == NULL) {
+                fighter = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
+                children[0] = func_80099400();
+                task->lines[0] = 0;
+                task->lines[1] = fighter->hp - 1;
+                children[0]->unkAC(children[0], 4, task->lines);
+                fighter->hp = 1;
+                task->substate++;
+            }
+            break;
+        case 2:
+            if (children[0] == NULL) {
+                func_8009B5F8(D_800A25F0.funcs.getDelay(0x10, 0));
+                func_8009C18C();
+                task->state = TASK_KILL;
+            }
+            break;
+        }
+        break;
+    case 2:
+    case TASK_KILL:
+        break;
+    }
+}
 
 void func_80090264(void) {
     createTask(func_80090098, 0x70, sizeof(Task *));
@@ -121,11 +201,12 @@ void FIGHTSTG_updateCamera(FighterCamera *task) {
     }
 }
 
-void FIGHTSTG_createCamera(s32 fighter, ModelControl *control) {
+FighterCamera *FIGHTSTG_createCamera(s32 fighter, ModelControl *control) {
     FighterCamera *task = createTask(FIGHTSTG_updateCamera, sizeof(FighterCamera), 0);
 
     task->fighter = fighter;
     task->control = control;
+    return task;
 }
 
 void FIGHTSTG_updateBattleCamera(BattleCamera *task) {
@@ -287,7 +368,33 @@ s32 func_800921B8(void) {
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800921EC);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80092350);
+void func_80092350(Unk80092350 *task) {
+    switch (task->state) {
+    case TASK_INIT: /* the match depends on this case, which default covers */
+    default:
+        task->nextState(task);
+        task->level = 0;
+    case TASK_RUN:
+        if (task->substate == 0) {
+            task->level += task->unk50 * GFX_FUNCS.getFrameTime();
+            if (task->level >= 0xFF) {
+                task->level = 0xFF;
+                task->nextSubstate(task);
+            }
+        }
+        break;
+    case TASK_DONE:
+        task->level -= task->unk50 * GFX_FUNCS.getFrameTime();
+        if (task->level < 0) {
+            task->level = 0;
+            task->setState(task, TASK_KILL);
+        }
+        break;
+    case TASK_KILL:
+        break;
+    }
+    func_800921EC(task);
+}
 
 void func_8009245C(Unk80092350 *task, s32 frames) {
     task->unk50 = 0xFF / frames;
@@ -303,19 +410,123 @@ Unk80092350 *func_80092494(s32 frames) {
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800924DC);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80092660);
+void func_80092660(HpTween *tween) {
+    s32 t;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80092738);
+    if (tween->active != 0) {
+        tween->time += GFX_FUNCS.getFrameTime();
+        if (tween->time >= tween->duration) {
+            tween->active = 0;
+            tween->from = tween->value = tween->to;
+        } else {
+            t = rsin((tween->time << 10) / tween->duration) * tween->duration / 4096;
+            tween->value = tween->from + (tween->to - tween->from) * t / tween->duration;
+        }
+    }
+}
+
+void func_80092738(HpDisplay *task, TextWindow **windows) {
+    BattleTableEntry *enemy;
+    s32 i;
+
+    if (D_800A31E8.active[0] != task->shown[0]) {
+        if (windows[0] == NULL) {
+            windows[0] = createTextWindow(0x1005, 1, 0xAE, 0x15);
+        }
+        windows[0]->setString(windows[0], GAME.partners[GAME.funcs.getPartyMember(D_800A31E8.active[0])].name, -1);
+    }
+    if (D_800A31E8.active[1] != task->shown[1]) {
+        enemy = D_800A2584(D_80042728.enemies[D_800A31E8.active[1]].fighter);
+        if (windows[1] == NULL) {
+            windows[1] = createTextWindow(0x1005, 1, 0x11, 0x15);
+        }
+        if (enemy != NULL) {
+            windows[1]->setString(windows[1], FILE_CACHE.load(TEXT_FILE(0x4F)), enemy->nameId);
+        }
+    }
+    for (i = 0; i < 2; i++) {
+        task->shown[i] = D_800A31E8.active[i];
+    }
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800928BC);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80092E0C);
+void func_80092E0C(HpDisplay *task, TextWindow **windows) {
+    s32 i;
+    BattleFighter (*fighters)[3];
 
-void func_80093058(void) {
-    createTask(func_80092E0C, 0x88, 5 * sizeof(Task *));
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->shown[1] = -1;
+        task->shown[0] = -1;
+        func_80092738(task, windows);
+        windows[2] = createTextWindow(0x1005, 3, 0x10C, 0x1A);
+        windows[2]->setString(windows[2], FILE_CACHE.load(TEXT_FILE(0x80)), 0x10);
+        fighters = D_800A31E8.fighters;
+        windows[4] = createTextWindow(0x1005, 3, 0x10B, 0x1A);
+        windows[4]->setNumber(windows[4], 0, fighters[0][D_800A31E8.active[0]].hp);
+        windows[4]->setRightAlign(windows[4], 1);
+        windows[3] = createTextWindow(0x1005, 3, 0x12E, 0x1A);
+        windows[3]->setNumber(windows[3], 0, fighters[0][D_800A31E8.active[0]].maxHp);
+        windows[3]->setRightAlign(windows[3], 1);
+        for (i = 0; i < 2; i++) {
+            task->hp[i].from = fighters[i][D_800A31E8.active[i]].hp;
+            task->hp[i].to = fighters[i][D_800A31E8.active[i]].hp;
+            task->hp[i].value = fighters[i][D_800A31E8.active[i]].hp;
+            task->hp[i].active = 0;
+            task->hp[i].fighter = D_800A31E8.active[i];
+            task->hp[i].time = 0;
+            task->hp[i].duration = 0;
+        }
+        task->timer = 0;
+        task->interval = 8;
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+        func_800924DC(task, windows);
+        func_80092660(&task->hp[0]);
+        func_80092660(&task->hp[1]);
+        func_800928BC(task, windows);
+        break;
+    case TASK_DONE:
+        task->nextState(task);
+        break;
+    case TASK_KILL:
+        break;
+    }
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80093084);
+void func_80093058(void) {
+    createTask(func_80092E0C, sizeof(HpDisplay), 5 * sizeof(TextWindow *));
+}
+
+/* Creates the six lines once, the first three in palette 7 when the active
+   fighter has flag 8 and the third when it has 0x20 (the first window's
+   setPalette is called for each) */
+void func_80093084(Unk800931CC *task) {
+    Unk800931CCWindows *w = task->children;
+    BattleFighter *fighter;
+    char *text;
+    s32 i;
+
+    if (w->lines[0] == NULL) {
+        text = FILE_CACHE.load(TEXT_FILE(0x80));
+        for (i = 0; i < 6; i++) {
+            w->lines[i] = createTextWindow(0x1005, 1, 0x24, 0x6D + i * 0x13);
+            w->lines[i]->setString(w->lines[i], text, i + 1);
+        }
+        fighter = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
+        if (fighter->flags & 8) {
+            for (i = 0; i < 3; i++) {
+                w->lines[0]->setPalette(w->lines[i], 7);
+            }
+        }
+        if (fighter->flags & 0x20) {
+            w->lines[0]->setPalette(w->lines[2], 7);
+        }
+    }
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800931CC);
 
@@ -327,7 +538,7 @@ void func_80093324(s32 arg0, s32 *done) {
     task->unk50 = arg0;
 }
 
-void func_80093374(void) {
+void func_80093374(Unk800933EC *task, FighterCamera **cameras) {
     SpriteDrawer drawer;
 
     initSpriteDrawer(&drawer);
@@ -336,13 +547,104 @@ void func_80093374(void) {
     drawer.draw(FILE_CACHE.getEntry(FILE_BATTLE_MENU << 16), 10, 246, 74);
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800933EC);
+void func_800933EC(Unk800933EC *task, FighterCamera **cameras) {
+    Models *models;
+    ModelControl *control;
+    FighterCamera *other;
+    s32 fighter;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        D_800A3470.x = 0xD0;
+        D_800A3470.y = 0x4C;
+        D_800A3470.w = 0x64;
+        D_800A3470.h = 0x3C;
+        task->layer = GFX_FUNCS.createLayer(&D_800A3470, 0xC, 0x1009);
+        task->layer->setOffset(task->layer, 0x102, 0x6A);
+        task->layer->allocCallbacks(task->layer, 0x32);
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+        if (task->substate == 0) {
+            models = TASK_FUNCS.find(0x14, -1, -1);
+            if (models != NULL) {
+                control = models->get(models, 0);
+                control->unk34[1].enabled = 1;
+                control->unk34[1].alt = 0;
+                control->unk34[1].arg = 0x1009;
+                fighter = control->fighter;
+                if (cameras[0] == NULL) {
+                    cameras[0] = FIGHTSTG_createCamera(fighter, control);
+                    other = cameras[1];
+                } else {
+                    cameras[1] = FIGHTSTG_createCamera(fighter, control);
+                    other = cameras[0];
+                }
+                if (other != NULL) {
+                    other->setState(other, 3);
+                }
+                task->nextSubstate(task);
+            }
+        }
+        func_80093374(task, cameras);
+        break;
+    case 2:
+        task->nextState(task);
+        break;
+    case TASK_KILL:
+        if (task->layer != NULL) {
+            models = TASK_FUNCS.find(0x14, -1, -1);
+            models->get(models, 0)->unk34[1].enabled = 0;
+            GFX_FUNCS.destroyLayer(0x1009);
+        }
+        break;
+    }
+}
 
 void func_800935F4(void) {
     createTask(func_800933EC, 0x58, 2 * sizeof(Task *));
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80093620);
+void func_80093620(Unk800937FC *task) {
+    TextWindow **windows = task->children;
+    BattleFighter *fighter;
+    DigimonData *data;
+    s32 index;
+    s32 current;
+    s32 i;
+
+    /* the match depends on setting index in the loop's init */
+    for (i = 0, index = -1; i < 3; i++) {
+        if (task->unk54 == GAME.funcs.getPartyMember(i)) {
+            index = i;
+            break;
+        }
+    }
+    if (index == -1) {
+        return;
+    }
+    fighter = &D_800A31E8.fighters[0][index];
+    if (fighter->unk1A) {
+        current = fighter->prevId;
+    } else {
+        current = fighter->id;
+    }
+    for (i = 0; i < task->count; i++) {
+        if (windows[i + 1] == NULL) {
+            windows[i + 1] = createTextWindow(0x1005, 1, 0xBB, 0x92 + i * 0x13);
+        }
+        data = ON_PARTNER_ENTRY_ADDED(task->ids[i]);
+        if (data != NULL) {
+            windows[i + 1]->setString(windows[i + 1], FILE_CACHE.load(TEXT_FILE(0x4F)), data->nameId);
+            if (current == task->ids[i]) {
+                windows[i + 1]->setPalette(windows[i + 1], 7);
+            } else {
+                windows[i + 1]->setPalette(windows[i + 1], 0);
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800937FC);
 
@@ -355,19 +657,222 @@ Unk800937FC *func_80093BB0(s32 *arg0) {
     return task;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80093BFC);
+void func_80093BFC(Unk80094278 *task) {
+    SpriteDrawer drawer;
+    s32 sheet = FILE_CACHE.getEntry(FILE_BATTLE_MENU << 16);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80093CB0);
+    initSpriteDrawer(&drawer);
+    drawer.setLayerId(0x1005, 1);
+    drawer.setTexture(0x200, 0);
+    if (GFX_FUNCS.getTime() & 0x10) {
+        drawer.draw(sheet, 0x1F, 0x18, 0xAB);
+        drawer.draw(sheet, 0x20, 0x48, 0xAB);
+    }
+}
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80093D7C);
+void func_80093CB0(Unk80094278 *task, TextWindow **windows) {
+    void *text = FILE_CACHE.load(TEXT_FILE(0x80));
+
+    windows[1] = createTextWindow(0x1005, 3, 0x22, 0xAB);
+    windows[1]->setString(windows[1], text, 0x11);
+    windows[1]->setPalette(windows[1], 2);
+    windows[2] = createTextWindow(0x1005, 3, 0x38, 0xAB);
+    windows[2]->setString(windows[2], text, 0x12);
+    windows[2]->setPalette(windows[2], 2);
+}
+
+void func_80093D7C(Unk80094278 *task) {
+    SpriteDrawer drawer;
+    s32 sheet;
+
+    initSpriteDrawer(&drawer);
+    drawer.setLayerId(0x1005, 1);
+    sheet = FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16);
+    drawer.setTexture(0x140, 0);
+    drawer.draw(sheet, 0x23, 0x18, 0x51);
+    sheet = FILE_CACHE.getEntry(FILE_BATTLE_MENU << 16);
+    drawer.setTexture(0x200, 0);
+    drawer.draw(sheet, 0x25, 0x10, 0x4A);
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80093E4C);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80093F94);
+void func_80093F94(Unk80094278 *task) {
+    SpriteDrawer drawer;
+    s32 sheet;
+    s32 i;
+    s32 tech;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800940CC);
+    initSpriteDrawer(&drawer);
+    drawer.setLayerId(0x1005, 1);
+    sheet = FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16);
+    drawer.setTexture(0x140, 0);
+    for (i = 0; i < 6; i++) {
+        tech = task->techs[i] & 0x1FFF;
+        if (tech != 0) {
+            drawer.draw(sheet, D_800427E8[tech - 1].icon + 0x37, 0x18, 0x51 + i * 0xE);
+        }
+    }
+    sheet = FILE_CACHE.getEntry(FILE_BATTLE_MENU << 16);
+    drawer.setTexture(0x200, 0);
+    drawer.draw(sheet, 0x26, 0x10, 0x4A);
+}
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80094278);
+void func_800940CC(Unk80094278 *task, TextWindow **windows) {
+    void *text = FILE_CACHE.load(TEXT_FILE(0x80));
+    s32 i;
+    s32 tech;
+
+    windows[3] = createTextWindow(0x1005, 1, 0x5A, 0xA9);
+    windows[3]->setString(windows[3], text, 0x19);
+    windows[4] = createTextWindow(0x1005, 1, 0x93, 0xA9);
+    if (task->unk60 >= 0) {
+        windows[4]->setNumber(windows[4], 0, task->unk60);
+    } else {
+        windows[4]->setString(windows[4], text, 0x1A);
+    }
+    windows[4]->setRightAlign(windows[4], 1);
+    for (i = 0; i < 6; i++) {
+        windows[i + 18] = createTextWindow(0x1005, 1, 0x26, 0x51 + i * 0xE);
+        tech = task->techs[i];
+        if (tech != 0) {
+            windows[i + 18]->setString(windows[i + 18], FILE_CACHE.load(TEXT_FILE(0xA3)), tech & 0x1FFF);
+            if (tech & 0x8000) {
+                windows[i + 18]->setPalette(windows[i + 18], 3);
+            } else if (tech & 0x4000) {
+                windows[i + 18]->setPalette(windows[i + 18], 4);
+            }
+        }
+    }
+}
+
+void func_80093E4C(Unk80094278 *task, TextWindow **windows);
+
+void func_80094278(Unk80094278 *task, TextWindow **windows) {
+    s32 list[10];
+    s32 partner;
+    DigimonData *data;
+    s32 count;
+    s32 tech;
+    s32 n;
+    s32 k;
+    s32 m;
+    s32 i;
+    s32 j;
+
+    switch (task->state) {
+    case 0:
+    default:
+        partner = task->unk54;
+        switch (task->unk58) {
+        case 0:
+            GAME.funcs.computeStats(partner, (struct PartnerTotals *)task->stats);
+            if (task->unk5C != 0) {
+                GAME.funcs.getPartnerSlots(partner, task->slots);
+                data = ON_PARTNER_ENTRY_ADDED(task->slots[task->unk5C - 1]);
+                /* the match depends on indexing from &task->stats[6] and [12] */
+                for (j = 0; j < 6; j++) {
+                    (&task->stats[6])[j] += data->battleStats[j];
+                }
+                for (j = 0; j < 7; j++) {
+                    (&task->stats[12])[j] += data->resistances[j];
+                }
+            }
+            break;
+        case 1:
+            if (task->unk5C == 0) {
+                data = &DIGIMON_DATA[partner];
+                task->techs[0] = data->skills[6] | 0x8000;
+                task->unk60 = -1;
+            } else {
+                GAME.funcs.getPartnerSlots(partner, task->slots);
+                GAME.funcs.getPartnerEntry(partner, task->slots[task->unk5C - 1], &task->entries[0]);
+                task->unk60 = task->entries[0].unk2;
+                for (j = 0, n = 0; j < 6; j++) {
+                    if (task->entries[0].techs[j] != 0) {
+                        task->techs[n++] = task->entries[0].techs[j];
+                    }
+                }
+            }
+            break;
+        case 2:
+            if (task->unk5C == 0) {
+                task->unk60 = -1;
+            } else {
+                for (k = 0; k < 10; k++) {
+                    list[k] = 0;
+                }
+                k = 0;
+                count = GAME.funcs.getPartnerSlots(partner, task->slots);
+                for (i = 0; i < count; i++) {
+                    if (GAME.funcs.getPartnerEntry(partner, task->slots[i], &task->entries[i]) >= 0 &&
+                        i != task->unk5C - 1) {
+                        for (j = 0; j < 6; j++) {
+                            tech = task->entries[i].techs[j];
+                            if (tech != 0 && (tech & 0x4000)) {
+                                list[k++] = tech & 0x1FFF;
+                            }
+                        }
+                    }
+                }
+                n = 0;
+                for (m = 0; m < 10; m++) {
+                    tech = list[m];
+                    for (k = 0; k < 6; k++) {
+                        if (task->techs[k] == list[m]) {
+                            tech = 0;
+                            break;
+                        }
+                    }
+                    if (tech != 0) {
+                        task->techs[n++] = tech;
+                    }
+                }
+                task->unk60 = task->entries[task->unk5C - 1].unk2;
+            }
+            break;
+        }
+        func_80093CB0(task, windows);
+        switch (task->unk58) {
+        case 0:
+            func_80093E4C(task, windows);
+            break;
+        case 1:
+        case 2:
+            func_800940CC(task, windows);
+            break;
+        }
+        task->nextState(task);
+        break;
+    case 1:
+        func_80093BFC(task);
+        switch (task->unk58) {
+        case 0:
+            func_80093D7C(task);
+            break;
+        case 1:
+        case 2:
+            func_80093F94(task);
+            break;
+        }
+        break;
+    case 2:
+        func_80093BFC(task);
+        switch (task->unk58) {
+        case 0:
+            func_80093D7C(task);
+            break;
+        case 1:
+        case 2:
+            func_80093F94(task);
+            break;
+        }
+        task->nextState(task);
+        break;
+    case 3:
+        break;
+    }
+}
 
 Unk80094278 *func_80094754(s32 arg0, s32 arg1, s32 arg2) {
     Unk80094278 *task = createTask(func_80094278, sizeof(Unk80094278), 0x60);
@@ -378,32 +883,239 @@ Unk80094278 *func_80094754(s32 arg0, s32 arg1, s32 arg2) {
     return task;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800947AC);
+/* Draws the page's item icons, the page arrows (blinking) and the frame */
+void func_800947AC(ItemMenu *task) {
+    SpriteDrawer drawer;
+    s32 sheet;
+    s32 index;
+    s32 i;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800949AC);
+    initSpriteDrawer(&drawer);
+    drawer.setLayerId(0x1005, 1);
+    drawer.setTexture(0x140, 0);
+    sheet = FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16);
+    for (i = 0; i < 7; i++) {
+        index = task->page * 7 + i;
+        if (index > task->count - 1) {
+            break;
+        }
+        drawer.draw(sheet, ITEM_FUNCS->getCategory(task->usable[index]), 0x1D, 0x45 + i * 0xE);
+    }
+    sheet = FILE_CACHE.getEntry(FILE_BATTLE_MENU << 16);
+    drawer.setTexture(0x200, 0);
+    if (GFX_FUNCS.getTime() & 0x10) {
+        if (task->page > 0) {
+            drawer.draw(sheet, 0x1F, 0x10, 0xA9);
+        }
+        if (task->page < task->pageCount - 1) {
+            drawer.draw(sheet, 0x20, 0x90, 0xA9);
+        }
+    }
+    drawer.draw(sheet, 0x27, 8, 0x3E);
+    drawer.draw(sheet, 0x28, 0xA6, 0xA0);
+    drawer.draw(sheet, 0x31, 0xB, 0xBC);
+}
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80094B1C);
+void func_800949AC(ItemMenu *task, ItemMenuWindows *w) {
+    char *text;
+    s32 i;
+
+    text = FILE_CACHE.load(TEXT_FILE(0x80));
+    w->unk4 = createTextWindow(0x1005, 3, 0x1A, 0xA9);
+    w->unk4->setString(w->unk4, text, 0x11);
+    w->unk4->setPalette(w->unk4, 2);
+    w->unk8 = createTextWindow(0x1005, 3, 0x80, 0xA9);
+    w->unk8->setString(w->unk8, text, 0x12);
+    w->unk8->setPalette(w->unk8, 2);
+    w->unkC = createTextWindow(0x1005, 1, 0xAC, 0xA5);
+    w->unkC->setString(w->unkC, text, 0xC);
+    for (i = 0; i < 7; i++) {
+        w->names[i] = createTextWindow(0x1005, 1, 0x2A, 0x45 + i * 0xE);
+    }
+    w->message = createTextWindow(0x1005, 1, 0x14, 0xC2);
+    w->count = createTextWindow(0x1005, 1, 0xC6, 0xA5);
+}
+
+/* Shows the page's names and the description and count of the item under
+   the cursor, or text 0x15 and 0x1A when there are none */
+void func_80094B1C(ItemMenu *task, ItemMenuWindows *w) {
+    s32 index;
+    s32 item;
+    s32 i;
+
+    if (task->count != 0) {
+        for (i = 0; i < 7; i++) {
+            index = task->page * 7 + i;
+            if (index > task->count - 1) {
+                w->names[i]->setVisible(w->names[i], 0);
+            } else {
+                item = task->usable[index];
+                if (item != 0) {
+                    w->names[i]->setString(w->names[i], FILE_CACHE.load(TEXT_FILE(0x6B)), item);
+                }
+            }
+        }
+        item = task->usable[task->page * 7 + w->cursor->sel];
+        w->message->setString(w->message, FILE_CACHE.load(TEXT_FILE(0x64)), item);
+        w->count->setNumber(w->count, 0, GAME.items[item]);
+    } else {
+        w->message->setString(w->message, FILE_CACHE.load(TEXT_FILE(0x80)), 0x15);
+        w->count->setString(w->count, FILE_CACHE.load(TEXT_FILE(0x80)), 0x1A);
+    }
+    w->count->setRightAlign(w->count, 1);
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80094D04);
 
-Unk800937FC *func_80095154(s32 *arg0) {
-    Unk800937FC *task = createTask(func_80094D04, 0x390, 13 * sizeof(Task *));
+ItemMenu *func_80095154(s32 *arg0) {
+    ItemMenu *task = createTask(func_80094D04, sizeof(ItemMenu), sizeof(ItemMenuWindows));
 
     task->unk50 = arg0;
     *arg0 = -1;
     return task;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80095194);
+void func_80095194(Unk80095AC0 *task) {
+    SpriteDrawer drawer;
+    s32 sheet;
+    s32 index;
+    s32 tech;
+    s32 i;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009539C);
+    initSpriteDrawer(&drawer);
+    drawer.setLayerId(0x1005, 1);
+    drawer.setTexture(0x140, 0);
+    sheet = FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16);
+    for (i = 0; i < 6; i++) {
+        index = task->page * 6 + i;
+        if (index < task->count) {
+            tech = task->techs[index] & 0x1FFF;
+            if (tech == 0) {
+                break;
+            }
+            drawer.draw(sheet, D_800427E8[tech - 1].icon + 0x37, 0x1D, 0x45 + i * 0xE);
+        }
+    }
+    drawer.setTexture(0x200, 0);
+    sheet = FILE_CACHE.getEntry(FILE_BATTLE_MENU << 16);
+    if (GFX_FUNCS.getTime() & 0x10) {
+        if (task->page > 0) {
+            drawer.draw(sheet, 0x1F, 0x10, 0x9F);
+        }
+        if (task->page < task->pageCount - 1) {
+            drawer.draw(sheet, 0x20, 0x90, 0x9F);
+        }
+    }
+    drawer.draw(sheet, 0x2A, 8, 0x3E);
+    drawer.draw(sheet, 0x29, 0xA3, 0x21);
+    drawer.draw(sheet, 0x31, 0xB, 0xBC);
+}
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80095660);
+void func_8009539C(Unk80095AC0 *task, TextWindow **windows) {
+    BattleFighter *fighter = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
+    void *text = FILE_CACHE.load(TEXT_FILE(0x80));
+    s32 i;
+
+    windows[1] = createTextWindow(0x1005, 3, 0x1A, 0x9F);
+    windows[1]->setString(windows[1], text, 0x11);
+    windows[1]->setPalette(windows[1], 2);
+    windows[2] = createTextWindow(0x1005, 3, 0x80, 0x9F);
+    windows[2]->setString(windows[2], text, 0x12);
+    windows[2]->setPalette(windows[2], 2);
+    windows[3] = createTextWindow(0x1005, 3, 0xAC, 0x3A);
+    windows[3]->setString(windows[3], text, 0xD);
+    windows[6] = createTextWindow(0x1005, 3, 0xD8, 0x3A);
+    if (fighter->unk1A) {
+        if (fighter->mp < 100) {
+            windows[6]->setString(windows[6], text, 0x1A);
+        } else if (fighter->mp < 1000) {
+            windows[6]->setString(windows[6], text, 0xF);
+        } else {
+            windows[6]->setString(windows[6], text, 0x24);
+        }
+    } else {
+        windows[6]->setNumber(windows[6], 0, fighter->mp);
+    }
+    windows[6]->setRightAlign(windows[6], 1);
+    windows[5] = createTextWindow(0x1005, 3, 0xD9, 0x3A);
+    windows[5]->setString(windows[5], text, 0x10);
+    windows[4] = createTextWindow(0x1005, 3, 0xFB, 0x3A);
+    windows[4]->setNumber(windows[4], 0, fighter->maxMp);
+    windows[4]->setRightAlign(windows[4], 1);
+    for (i = 0; i < 6; i++) {
+        windows[7 + i] = createTextWindow(0x1005, 1, 0x2A, 0x45 + i * 0xE);
+    }
+    windows[13] = createTextWindow(0x1005, 1, 0x14, 0xC2);
+    windows[14] = createTextWindow(0x1005, 1, 0x100, 0xD0);
+    windows[15] = createTextWindow(0x1005, 1, 0x12B, 0xD0);
+}
+
+void func_80095660(Unk80095AC0 *task, TextWindow **windows) {
+    BattleFighter *fighter = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
+    s32 index;
+    s32 tech;
+    s32 mp;
+    s32 i;
+
+    if (task->count != 0) {
+        for (i = 0; i < 6; i++) {
+            index = task->page * 6 + i;
+            if (index > task->count - 1) {
+                windows[7 + i]->setVisible(windows[7 + i], 0);
+            } else {
+                tech = task->techs[index];
+                windows[7 + i]->setString(windows[7 + i], FILE_CACHE.load(TEXT_FILE(0xA3)), tech & 0x1FFF);
+                mp = D_800A3308.unkE8(0, tech);
+                if (fighter->unk1A) {
+                    if (tech & 0x8000) {
+                        windows[7 + i]->setPalette(windows[7 + i], 3);
+                    } else if (tech & 0x4000) {
+                        windows[7 + i]->setPalette(windows[7 + i], 4);
+                    } else {
+                        windows[7 + i]->setPalette(windows[7 + i], 0);
+                    }
+                } else if (fighter->mp < mp) {
+                    windows[7 + i]->setPalette(windows[7 + i], 7);
+                } else if (tech & 0x8000) {
+                    windows[7 + i]->setPalette(windows[7 + i], 3);
+                } else if (tech & 0x4000) {
+                    windows[7 + i]->setPalette(windows[7 + i], 4);
+                } else {
+                    windows[7 + i]->setPalette(windows[7 + i], 0);
+                }
+            }
+        }
+        mp = D_800A3308.unkE8(0, task->techs[task->page * 6 + ((Unk8009A098 *)windows[0])->sel]);
+        tech = task->techs[task->page * 6 + ((Unk8009A098 *)windows[0])->sel];
+        if (fighter->unk1A == 0 && fighter->mp < mp) {
+            windows[13]->setString(windows[13], FILE_CACHE.load(TEXT_FILE(0x80)), 0x54);
+            windows[14]->setString(windows[14], FILE_CACHE.load(TEXT_FILE(0x80)), 0xD);
+            windows[14]->setPalette(windows[14], 7);
+            windows[15]->setNumber(windows[15], 0, mp);
+            windows[15]->setRightAlign(windows[15], 1);
+            windows[15]->setPalette(windows[15], 7);
+        } else {
+            windows[13]->setString(windows[13], FILE_CACHE.load(TEXT_FILE(0x9C)), tech & 0x1FFF);
+            windows[14]->setString(windows[14], FILE_CACHE.load(TEXT_FILE(0x80)), 0xD);
+            windows[15]->setNumber(windows[15], 0, mp);
+            windows[15]->setRightAlign(windows[15], 1);
+            if (tech & 0x4000) {
+                windows[14]->setPalette(windows[14], 4);
+                windows[15]->setPalette(windows[15], 4);
+            } else {
+                windows[14]->setPalette(windows[14], 0);
+                windows[15]->setPalette(windows[15], 0);
+            }
+        }
+    } else {
+        windows[13]->setString(windows[13], FILE_CACHE.load(TEXT_FILE(0x80)), 0x13);
+    }
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80095AC0);
 
-Unk800937FC *func_8009619C(s32 *arg0) {
-    Unk800937FC *task = createTask(func_80095AC0, 0xD8, 16 * sizeof(Task *));
+Unk80095AC0 *func_8009619C(s32 *arg0) {
+    Unk80095AC0 *task = createTask(func_80095AC0, sizeof(Unk80095AC0), 16 * sizeof(Task *));
 
     task->unk50 = arg0;
     *arg0 = -1;
@@ -1043,11 +1755,12 @@ void func_800993BC(Unk80097F8C *task) {
     task->step = GFX_FUNCS.getTime();
 }
 
-void func_80099400(void) {
+Unk80097F8C *func_80099400(void) {
     Unk80097F8C *task = createTask(func_80097F8C, sizeof(Unk80097F8C), 8);
 
     task->unkAC = func_80098808;
     task->unkB0 = func_800993BC;
+    return task;
 }
 
 void func_80099444(Unk800999E4 *task) {
@@ -1435,7 +2148,7 @@ void func_8009A638(MoveTask *task) {
     }
 }
 
-void func_8009A79C(ModelControl *control, ShortVec3 *to, s32 time) {
+MoveTask *func_8009A79C(ModelControl *control, ShortVec3 *to, s32 time) {
     MoveTask *task = createTask(func_8009A638, sizeof(MoveTask), 0);
 
     task->control = control;
@@ -1443,6 +2156,7 @@ void func_8009A79C(ModelControl *control, ShortVec3 *to, s32 time) {
     task->from = control->pos;
     task->t = 0;
     task->tStep = 0x1000 / time;
+    return task;
 }
 
 void FIGHTSTG_updateBattleSound(BattleSound *task) {
@@ -1679,9 +2393,133 @@ void FIGHTSTG_removeEvents(EventKey *key) {
     }
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009AEA4);
+/* fightstg.c defines it as a u16 array */
+extern EventDelay D_800A310C[];
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009B430);
+s32 func_8009AEA4(u8 side, s32 kind) {
+    s32 delay;
+
+    /* the match depends on each case having its own row and stats */
+    switch (kind) {
+    case 2: {
+        s32 row = side != 0;
+        BattleStats *own = D_800A3308.computeStats(side, 1, D_800A31E8.active[row]);
+
+        delay = RANDOM.next() % D_800A310C[kind].div + own->stats[2] * 10;
+        break;
+    }
+    case 8:
+        delay = RANDOM.next() % 8001;
+        break;
+    case 9: {
+        s32 row = side != 0;
+        BattleStats *own = D_800A3308.computeStats(side, 1, D_800A31E8.active[row]);
+        BattleStats *other = D_800A3308.computeStats((side == 0) << 4, 0, D_800A31E8.active[1 - row]);
+
+        delay = RANDOM.next() % D_800A310C[kind].div + 3000 + (own->stats[2] + D_800A25F0.funcs.unk1) * 8
+              - (other->resist[8] + other->resist[4]) * 8;
+        break;
+    }
+    case 10: {
+        s32 row = side != 0;
+        BattleStats *own = D_800A3308.computeStats(side, 1, D_800A31E8.active[row]);
+        BattleStats *other = D_800A3308.computeStats((side == 0) << 4, 0, D_800A31E8.active[1 - row]);
+
+        delay = RANDOM.next() % D_800A310C[kind].div + 3000 + (own->stats[2] + D_800A25F0.funcs.unk1) * 8
+              - (other->resist[9] + other->resist[3]) * 8;
+        break;
+    }
+    case 11: {
+        s32 row = side != 0;
+        BattleStats *own = D_800A3308.computeStats(side, 1, D_800A31E8.active[row]);
+        BattleStats *other = D_800A3308.computeStats((side == 0) << 4, 0, D_800A31E8.active[1 - row]);
+
+        delay = RANDOM.next() % D_800A310C[kind].div + 1000 + (own->stats[2] + D_800A25F0.funcs.unk1) * 8
+              - (other->resist[10] + other->resist[2]) * 8;
+        break;
+    }
+    case 12: {
+        s32 row = side != 0;
+        BattleStats *own = D_800A3308.computeStats(side, 1, D_800A31E8.active[row]);
+
+        delay = RANDOM.next() % D_800A310C[kind].div + 2000 + own->stats[2] * 10;
+        break;
+    }
+    default: {
+        s32 row = side != 0;
+        BattleStats *own = D_800A3308.computeStats(side, 1, D_800A31E8.active[row]);
+        BattleStats *other = D_800A3308.computeStats(0x10 - side, 0, D_800A31E8.active[1 - row]);
+        s32 square = own->stats[4] * other->stats[4];
+        s32 root = 999;
+        s32 i;
+
+        /* Newton's square root */
+        for (i = 0; i < 10; i++) {
+            root = (root + square / root) / 2;
+        }
+        delay = D_800A310C[kind].div * other->stats[4] / root;
+        break;
+    }
+    }
+    if (D_800A310C[kind].min != 0 && delay < D_800A310C[kind].min) {
+        delay = D_800A310C[kind].min;
+    }
+    if (D_800A310C[kind].max != 0 && delay > D_800A310C[kind].max) {
+        delay = D_800A310C[kind].max;
+    }
+    return delay;
+}
+
+/* An item's cure (D_800A3108): items 0xBE-0xC5 clear a status of the
+   fighter and remove its events, 0xC4 and 0xC5 all of them */
+void func_8009B430(u8 side, s32 fighter, s32 item) {
+    s32 kind;
+    s32 index;
+    BattleFighter *fighters;
+    s32 i;
+    s32 row;
+
+    switch (item) {
+    case 0xBE:
+    case 0xBF:
+    default:
+        kind = 0;
+        break;
+    case 0xC0:
+    case 0xC1:
+        kind = 1;
+        break;
+    case 0xC2:
+    case 0xC3:
+        kind = 2;
+        break;
+    case 0xC4:
+    case 0xC5:
+        kind = 3;
+        break;
+    }
+    /* the match depends on the row local, and on kind becoming the event type */
+    row = side != 0;
+    fighters = D_800A31E8.fighters[row];
+    if (fighters[fighter].id == 0) {
+        return;
+    }
+    fighters[fighter].flags &= ~D_800A3164[kind];
+    if (kind != 3) {
+        kind = D_800A315C[kind];
+        index = D_800A25F0.funcs.find(kind, side, fighter);
+        if (index >= 0) {
+            D_800A25F0.events[index].type = 0;
+        }
+    } else {
+        for (i = 0; i < 6; i++) {
+            index = D_800A25F0.funcs.find(D_800A315C[i], side, fighter);
+            if (index >= 0) {
+                D_800A25F0.events[index].type = 0;
+            }
+        }
+    }
+}
 
 void func_8009B5BC(s32 arg0) {
     D_800A34E0.type = 2;
@@ -1789,15 +2627,132 @@ void func_8009B8D4(u8 side, s32 fighter, s32 arg2) {
     entry->flags |= 1;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009B9B0);
+void func_8009B9B0(u8 side, s32 unused, u8 arg2) {
+    s32 other = side != 0;
+    s32 i = FIGHTSTG_findEvent(10, side, D_800A31E8.active[other]);
+    s32 time;
+    BattleFighter *entry;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009BAC0);
+    D_800A25F0.funcs.unk1 = arg2;
+    time = func_8009AEA4(side, 9);
+    if (i >= 0) {
+        D_800A25F0.events[i].time = time;
+    } else {
+        D_800A34E0.type = 10;
+        D_800A34E0.delay = time;
+        D_800A34E0.args[0] = side;
+        D_800A34E0.args[1] = D_800A31E8.active[other];
+        FIGHTSTG_pushEvent(&D_800A34E0);
+    }
+    entry = &D_800A31E8.fighters[other][D_800A31E8.active[other]];
+    entry->unk1D = arg2;
+    entry->flags |= 2;
+}
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009BC10);
+void func_8009BAC0(u8 side, s32 arg1, u8 arg2) {
+    s32 other = side != 0;
+    s32 i = FIGHTSTG_findEvent(11, side, D_800A31E8.active[other]);
+    s32 time;
+    BattleFighter *entry;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009BD20);
+    if (arg1 == 0) {
+        time = func_8009AEA4(side, 8);
+    } else {
+        D_800A25F0.funcs.unk1 = arg2;
+        time = func_8009AEA4(side, 10);
+    }
+    if (i >= 0) {
+        D_800A25F0.events[i].time = time;
+    } else {
+        D_800A34E0.type = 11;
+        D_800A34E0.delay = time;
+        D_800A34E0.args[0] = side;
+        D_800A34E0.args[1] = D_800A31E8.active[other];
+        FIGHTSTG_pushEvent(&D_800A34E0);
+    }
+    entry = &D_800A31E8.fighters[other][D_800A31E8.active[other]];
+    entry->unk1F = arg2;
+    entry->flags |= 4;
+}
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009BE1C);
+void func_8009BC10(u8 side, s32 unused, u8 arg2) {
+    s32 other = side != 0;
+    s32 i = FIGHTSTG_findEvent(12, side, D_800A31E8.active[other]);
+    s32 time;
+    BattleFighter *entry;
+
+    D_800A25F0.funcs.unk1 = arg2;
+    time = func_8009AEA4(side, 11);
+    if (i >= 0) {
+        D_800A25F0.events[i].time = time;
+    } else {
+        D_800A34E0.type = 12;
+        D_800A34E0.delay = time;
+        D_800A34E0.args[0] = side;
+        D_800A34E0.args[1] = D_800A31E8.active[other];
+        FIGHTSTG_pushEvent(&D_800A34E0);
+    }
+    entry = &D_800A31E8.fighters[other][D_800A31E8.active[other]];
+    entry->unk1E = arg2;
+    entry->flags |= 8;
+}
+
+void func_8009BD20(u8 side, s32 fighter, s32 kind, s32 arg3) {
+    s32 i = FIGHTSTG_findEvent(D_800A3168[kind], side, fighter);
+    s32 time;
+
+    if (arg3 != 0) {
+        time = func_8009AEA4(side, 12);
+    } else {
+        time = func_8009AEA4(side, 8);
+    }
+    if (i >= 0) {
+        D_800A25F0.events[i].time = time;
+    } else {
+        D_800A34E0.type = D_800A3168[kind];
+        D_800A34E0.delay = time;
+        D_800A34E0.args[0] = side;
+        D_800A34E0.args[1] = fighter;
+        D_800A34E0.args[2] = kind;
+        FIGHTSTG_pushEvent(&D_800A34E0);
+    }
+}
+
+void func_8009BE1C(s32 tech) {
+    Unk800427D6 *entry = &D_800427D6[tech];
+    s32 kind;
+    s32 fighter;
+    s32 i;
+    s32 time;
+    BattleFighter *target;
+
+    kind = 0;
+    if (entry->unkA != 13) {
+        kind = entry->unkA == 14;
+    }
+    fighter = D_800A31E8.active[0];
+    i = FIGHTSTG_findEvent(D_800A3174[kind], 0, fighter);
+    time = (RANDOM.next() % 101 + 100) * entry->unkC;
+
+    if (i >= 0) {
+        QueuedEvent *queued = &D_800A25F0.events[i];
+
+        queued->time = time;
+    } else {
+        D_800A34E0.type = D_800A3174[kind];
+        D_800A34E0.delay = time;
+        D_800A34E0.args[0] = 0;
+        D_800A34E0.args[1] = fighter;
+        D_800A34E0.args[2] = kind;
+        FIGHTSTG_pushEvent(&D_800A34E0);
+    }
+    target = &D_800A31E8.fighters[0][fighter];
+    if (kind == 0) {
+        target->flags |= 0x10;
+    } else {
+        target->flags |= 0x20;
+    }
+}
 
 void func_8009BF84(s32 arg0) {
     D_800A34E0.type = 8;
@@ -2188,7 +3143,92 @@ void func_8009D0B0(void) {
     }
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009D204);
+s32 func_800A9A40(u8 side, s32 damage, s32 hits); /* WFIGHTMN's */
+
+void func_8009D204(u8 side, s32 tech) {
+    Unk800427D6 *entry;
+
+    HEAP.zero(&D_800A317C, 0x68);
+    entry = &D_800427D6[tech];
+    D_800A317C.unk20 = side;
+    D_800A317C.unk24 = tech;
+    if (entry->unkA == 0x1F) {
+        func_8009CF18();
+    } else if (entry->unkA == 0x23) {
+        func_8009CFF4();
+    } else {
+        /* the match depends on the fighter's pointer sum */
+        if (entry->unkA == 10 &&
+            (side == 0 || D_800A2584((D_800A31E8.fighters[1] + D_800A31E8.active[1])->id)->unk8[0] != tech)) {
+            func_8009C874();
+            return;
+        }
+        switch (entry->unk4) {
+        case 2:
+            D_800A317C.hits[0] = D_800A3308.unk9C(side, tech);
+            D_800A317C.unk36++;
+            D_800A317C.damage = D_800A3308.unk84(side, tech);
+            /* the match depends on the second test of unkA 9, which the
+               compiler merges with the first and with case 3's */
+            if (side == 0) {
+                if (entry->unkA < 2) {
+                    if (entry->unk10 == 11 || entry->unk10 == 12) {
+                        break;
+                    }
+                    if (D_800A3308.stats[0].unk30[7]) {
+                        func_8009C60C();
+                        break;
+                    }
+                    if (D_800A317C.hits[0] == 0) {
+                        break;
+                    }
+                    if (D_800A3308.stats[0].unk2D) {
+                        func_8009C294();
+                    }
+                    if (D_800A3308.stats[0].unk2F) {
+                        func_8009C330();
+                    }
+                    if (D_800A3308.stats[0].unk30[1]) {
+                        func_8009C418();
+                    }
+                    if (D_800A3308.stats[0].unk30[3]) {
+                        func_8009C5C4();
+                    }
+                    if (D_800A3308.stats[0].unk30[5]) {
+                        func_8009C764();
+                    }
+                } else if (entry->unkA == 9) {
+                    func_8009C60C();
+                } else if (D_800A317C.hits[0]) {
+                    func_8009D0B0();
+                }
+            } else if (entry->unkA >= 2) {
+                if (entry->unkA == 9) {
+                    func_8009C60C();
+                } else if (D_800A317C.hits[0]) {
+                    func_8009D0B0();
+                }
+            }
+            break;
+        case 3:
+            D_800A317C.hits[0] = D_800A3308.unkA0(side, tech);
+            D_800A317C.unk36++;
+            D_800A317C.damage = D_800A3308.unk88(side, tech);
+            if (entry->unkA < 2) {
+                break;
+            }
+            if (entry->unkA == 9) {
+                func_8009C60C();
+            } else if (D_800A317C.hits[0]) {
+                func_8009D0B0();
+            }
+            break;
+        }
+    }
+    if (D_800A31E8.unkD6 != 0) {
+        D_800A317C.damage = func_800A9A40(side, D_800A317C.damage, D_800A317C.unk38[9] ? D_800A317C.unk34 : 0);
+    }
+}
 
 void func_8009D560(void) {
     BattleSpeed *speed = &D_800A31E8.speed;
@@ -2241,17 +3281,94 @@ void FIGHTSTG_projectPoint(Layer *layer, SVECTOR *pos, ShortVec3 *out) {
     out->z = z >> shift;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009D8B4);
+/* A Gouraud-shaded quad on a layer, blended when semi is set; the match
+   depends on setSemiTrans inside the if and on poly moving on past it */
+void func_8009D8B4(s32 layerId, s32 depth, DVECTOR *xy, CVECTOR *colors, s32 semi) {
+    Layer *layer = GFX.funcs.getLayer(layerId);
+    u_long *ot = (u_long *)layer->getOtEntry(layer, depth);
+    POLY_G4 *poly = GFX.funcs.getPrim();
+    DR_TPAGE *mode;
 
-void func_8009DA88(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    *(CVECTOR *)&poly->r0 = colors[0];
+    *(CVECTOR *)&poly->r1 = colors[1];
+    *(CVECTOR *)&poly->r2 = colors[2];
+    *(CVECTOR *)&poly->r3 = colors[3];
+    setPolyG4(poly);
+    if (semi) {
+        setSemiTrans(poly, 1);
+    }
+    poly->x0 = xy[0].vx;
+    poly->x1 = xy[1].vx;
+    poly->x2 = xy[2].vx;
+    poly->x3 = xy[3].vx;
+    poly->y0 = xy[0].vy;
+    poly->y1 = xy[1].vy;
+    poly->y2 = xy[2].vy;
+    poly->y3 = xy[3].vy;
+    addPrim(ot, poly);
+    poly++;
+    if (semi) {
+        mode = (DR_TPAGE *)poly;
+        setlen(mode, 1);
+        mode->code[0] = 0xE1000245;
+        addPrim(ot, mode);
+        poly = (POLY_G4 *)(mode + 1);
+    }
+    GFX.funcs.setPrim(poly);
+}
+
+void func_8009DA88(s32 arg0, s32 arg1, DVECTOR *arg2, CVECTOR *arg3) {
     func_8009D8B4(arg0, arg1, arg2, arg3, 0);
 }
 
-void func_8009DAA8(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void func_8009DAA8(s32 arg0, s32 arg1, DVECTOR *arg2, CVECTOR *arg3) {
     func_8009D8B4(arg0, arg1, arg2, arg3, 1);
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", FIGHTSTG_getFighterInfo);
+/* the match depends on reaching the cache through the symbol until a fighter
+   is found, and on each branch storing and returning its own info */
+FighterInfo *FIGHTSTG_getFighterInfo(s32 id) {
+    FightersFile *file;
+    FighterEntry *entry;
+    u8 *partners;
+    u8 *enemies;
+    FighterCache *cache;
+    FighterInfo *info;
+    s32 i;
+
+    if (id == D_800A32E0.id) {
+        if (D_800A32E0.unk4) {
+            return D_800A32E0.info;
+        }
+        return D_800A32E0.unk10;
+    }
+    file = (FightersFile *)FILE_CACHE.load(FILE_FIGHTERS);
+    entry = (FighterEntry *)((u8 *)file + file->entries);
+    partners = (u8 *)file + file->partners;
+    enemies = (u8 *)file + file->enemies;
+    while (entry->id != 0) {
+        if (entry->id == id) {
+            D_800A32E0.id = id;
+            cache = &D_800A32E0;
+            cache->unk8 = i = entry->index;
+            cache->unkC = entry->kind;
+            cache->unk4 = entry->kind >= 0x3A;
+            if (cache->unk4) {
+                info = (FighterInfo *)(enemies + i * 0x48);
+                cache->unk10 = info;
+                cache->info = info;
+                return info;
+            } else {
+                info = (FighterInfo *)(partners + i * 0xC4);
+                cache->unk10 = info;
+                cache->info = info;
+                return info;
+            }
+        }
+        entry++;
+    }
+    return NULL;
+}
 
 void FIGHTSTG_cacheFighter(s32 index) {
     FightersFile *file = (FightersFile *)FILE_CACHE.load(FILE_FIGHTERS);
@@ -2322,11 +3439,126 @@ s32 func_8009E74C(s32 value, s32 arg1) {
     return 0;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009E7E4);
+s32 func_8009E7E4(u8 side, s32 id, s32 value) {
+    Unk800427D6 *tech = &D_800427D6[id];
+    BattleStats *user = &D_800A3308.stats[0];
+    BattleStats *target = &D_800A3308.stats[1];
+    s32 result = value;
+    s32 i;
+
+    result += func_8009E74C(result, tech->unk7);
+    if (tech->unk9 >= 2) {
+        if (tech->unk9 == target->unk25) {
+            result += result / 2;
+        }
+    } else {
+        for (i = 0; i < 3; i++) {
+            if (user->unk28[i] >= 2 && user->unk28[i] == target->unk25) {
+                result += result / 2;
+                break;
+            }
+        }
+    }
+    if (user->unk26 != 0) {
+        result += result * user->unk26 / 64;
+    }
+    if (tech->unk7 >= 2) {
+        result += result * tech->unk8 * 2 / target->resist[tech->unk7 - 2];
+    } else if ((tech->unk10 < 11 || tech->unk10 > 12) && user->unk2B != 0) {
+        result += result * user->unk2C * 2 / target->resist[user->unk2B - 2];
+    }
+    if (tech->unkA < 2 && user->unk30[7] != 0 && (tech->unk10 < 11 || tech->unk10 > 12)) {
+        result = result * 4 / 10;
+    }
+    if (func_8009F36C(side, id) != 0) {
+        result += result * ((RANDOM.next() & 0x3F) + 0x20) / 64;
+    }
+    if (target->unk27 != 0) {
+        result -= target->unk27;
+        if (result <= 0) {
+            result = 0;
+        }
+    }
+    if (result > value * 5) {
+        result = value * 5;
+    }
+#if VERSION_EU
+    if (result >= 10000) {
+        result = 9999;
+    }
+#endif
+    return result;
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009EA74);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009EBAC);
+s32 func_8009EBAC(u8 side, s32 id) {
+    Unk800427D6 *tech;
+    BattleStats *user;
+    BattleStats *target;
+    s32 base;
+    s32 enemy;
+    s32 power;
+    s32 result;
+    s16 resist;
+
+    if (side == 0) {
+        FIGHTSTG_computeStats(0, 1, D_800A31E8.active[0]);
+        FIGHTSTG_computeStats(0x10, 0, D_800A31E8.active[1]);
+    } else {
+        FIGHTSTG_computeStats(0, 0, D_800A31E8.active[0]);
+        FIGHTSTG_computeStats(0x10, 1, D_800A31E8.active[1]);
+    }
+    user = &D_800A3308.stats[0];
+    tech = &D_800427D6[id];
+    target = &D_800A3308.stats[1];
+    if (side == 0) {
+        base = tech->unk2;
+    } else {
+        enemy = D_800A31E8.active[1]; /* the match depends on reading it first */
+        base = tech->unk2 * D_80042728.enemies[enemy].unkA / 16;
+    }
+    power = base * (user->stats[2] * 50 / target->stats[2] + 50) / 100;
+    if (power > base * 2) {
+        power = base * 2;
+    }
+    if (power < base / 2) {
+        power = base / 2;
+    }
+    result = power;
+    result += func_8009E74C(result, tech->unk7);
+    if (tech->unk7 >= 2) {
+        resist = target->resist[tech->unk7 - 2];
+        if (resist < 100) {
+            result = result * (400 - resist * 3) / 100;
+        } else if (resist >= 300) {
+            result = result * (65 - resist / 20) / 100;
+        } else {
+            result = result * (125 - resist / 4) / 100;
+        }
+    }
+    if (tech->unk9 >= 2 && tech->unk9 == target->unk25) {
+        result += result / 2;
+    }
+    if (func_8009F5D4(side, id) != 0) {
+        result += result * (RANDOM.next() % 65 + 0x20) / 64;
+    }
+    if (target->unk27 != 0) {
+        result -= target->unk27;
+        if (result <= 0) {
+            result = 0;
+        }
+    }
+    if (result > power * 5) {
+        result = power * 5;
+    }
+#if VERSION_EU
+    if (result >= 10000) {
+        result = 9999;
+    }
+#endif
+    return result;
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009EF04);
 
@@ -2874,7 +4106,14 @@ s32 func_800A062C(s32 actor, s32 id) {
 }
 
 #if VERSION_EU
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800A15A8);
+/* D_800A3308.unkEU: a random test, likelier the bigger arg1 is next to the
+   player's fighter's max HP */
+s32 func_800A15A8(s32 arg0, s32 arg1) {
+    BattleFighter *fighter = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
+    s32 chance = (arg1 << 6) / fighter->maxHp + 32;
+
+    return (RANDOM.next() & 0x7F) < chance;
+}
 #endif
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800A067C);

@@ -52,3 +52,10 @@ D_800A317C = 0x800A317C; // size:0x6C
 D_800A31E8 = 0x800A31E8; // size:0xF8
 D_800A32E0 = 0x800A32E0; // size:0x28
 D_800A3308 = 0x800A3308; // size:0xEC
+
+// the sub-overlays' functions FIGHTSTG calls
+WFIGHTTS_start = 0x800A6924; // type:func
+WFIGHTMN_start = 0x800A8E40; // type:func
+func_800A9040 = 0x800A9040; // type:func
+func_800A9A40 = 0x800A9A40; // type:func
+func_800A57A8 = 0x800A57A8; // type:func

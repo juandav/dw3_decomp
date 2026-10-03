@@ -161,7 +161,7 @@ s32 func_80086084(void) {
     return RANDOM.next() % 27 + 1;
 }
 
-s16 func_800860DC(s32 id) {
+s32 func_800860DC(s32 id) {
     return (s16)(((FightStageInfo *)FILE_CACHE_LOAD[0](FILE_FIGHT_STAGES))[id].motions >> 16);
 }
 
