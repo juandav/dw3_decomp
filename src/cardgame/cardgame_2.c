@@ -96,7 +96,65 @@ void func_800860CC(CardBattle *battle, CardScreen *screen) {
     screen->unkE0C[4].unk10 = 0;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800860E4);
+void func_800860E4(CardBattle *battle, CardScreen *screen, s32 offset) {
+    CardDrawer drawer;
+    s32 i;
+    s32 found;
+    s32 card;
+    s32 id;
+
+    func_800860CC(battle, screen);
+    if (screen->sprites[offset + battle->unk43C].isKind16 != 0) {
+        screen->unkE0C[1].unk10 |= screen->sprites[offset + battle->unk43C].unk41;
+        screen->unkE0C[1].unk10 |= screen->sprites[offset + battle->unk43C].color << 4;
+        screen->unkE0C[1].unkE = 1;
+    }
+    found = 0;
+    if (screen->sprites[offset + battle->unk43C].visible != 3) {
+        card = battle->cards[screen->sprites[offset + battle->unk43C].index] + 1;
+        screen->unkE0C[2].unk10 = card;
+        for (i = 0; i < 5; i++) {
+            if (D_800A4AE4[i] == battle->cards[screen->sprites[offset + battle->unk43C].index]) {
+                found = 1;
+            }
+        }
+        if (screen->sprites[offset + battle->unk43C].isKind16 != 0 && found == 0) {
+            screen->unkE0C[4].unk10 = 500;
+            screen->unkE0C[4].unk14[2] = 1;
+            screen->unkE0C[4].unk14[0] = screen->sprites[offset + battle->unk43C].unk43;
+            screen->unkE0C[4].unk14[1] = screen->sprites[offset + battle->unk43C].unk44;
+        } else {
+            screen->unkE0C[4].unk14[2] = 0;
+            screen->unkE0C[4].unk10 = card;
+        }
+        id = battle->cards[screen->sprites[offset + battle->unk43C].index];
+        initCardDrawer(&drawer);
+        drawer.setCard(id + 1);
+        switch (drawer.card[6]) {
+        case 0:
+            screen->unkE0C[3].unk10 = 0;
+            break;
+        case 1:
+            screen->unkE0C[3].unk10 = 0x25;
+            break;
+        case 2:
+            screen->unkE0C[3].unk10 = 0x26;
+            break;
+        case 3:
+            screen->unkE0C[3].unk10 = 0x27;
+            break;
+        case 4:
+            screen->unkE0C[3].unk10 = 0x28;
+            break;
+        case 5:
+            screen->unkE0C[3].unk10 = 0x29;
+            break;
+        }
+    } else {
+        screen->unkE0C[4].unk14[2] = 0;
+        screen->unkE0C[4].unk10 = 500;
+    }
+}
 
 void func_800863DC(CardBattle *battle, CardScreen *screen, s32 kind) {
     s32 offset = 0;

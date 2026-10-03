@@ -396,7 +396,7 @@ CardFileEntry CARDGAME_preloadFiles[] = {
     { 0x6A, 1 },
     { -1, 0 },
 };
-u16 D_800A4AE4[] = {
+s16 D_800A4AE4[] = {
     0x0044, 0x006F, 0x009A, 0x00C5, 0x00F0, 0x0000,
 };
 u16 D_800A4AF0[] = {

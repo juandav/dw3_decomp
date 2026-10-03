@@ -558,6 +558,7 @@ void func_8009DE0C(CardBattle *battle, void *arg1, s32 arg2, s32 arg3);
 void func_8009DF5C(CardBattle *battle, s32 base, s32 n);
 s32 func_8009F754(CardBattle *battle, CardSlot *slot, s32 side, s32 pass);
 extern CardFadeColor D_800A4BD8[];
+extern s16 D_800A4AE4[]; /* five card ids, minus one */
 void CARDGAME_setSlot(CardBattle *battle, s32 side, s32 card, s32 index);
 void CARDGAME_addCard(CardBattle *battle, s32 side, s32 card);
 void func_8009F664(CardBattle *battle, s32 side);
