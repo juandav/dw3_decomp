@@ -257,7 +257,18 @@ void func_8008B7E0(void) {
     FILE_CACHE.request(TEXT_FILE(0x95));
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B880);
+s32 func_8008B880(void) {
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x72)) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x6B)) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x64)) != 0) {
+        return 1;
+    }
+    return FILE_CACHE.isLoading(TEXT_FILE(0x95)) != 0;
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B908);
 
