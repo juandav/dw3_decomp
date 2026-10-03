@@ -209,17 +209,65 @@ ShopBuy *func_800850A8(ItemShop *shop) {
     return buy;
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800850FC);
+void func_800850FC(ShopSell *sell, ShopSellWindows *win) {
+    s32 i;
+
+    win->cursor = createCursor(sell->layer, sell->depth - 1, 0, 0xB0);
+    win->cursor->setVisible(win->cursor, 0);
+    for (i = 0; i < 4; i++) {
+        win->types[i] = createTextWindow(sell->layer, 1, 0xBE, i * 0xE + 0x2F);
+    }
+    win->quantityLabel = createTextWindow(sell->layer, 1, 0xB9, 0x3A);
+    win->times = createTextWindow(sell->layer, 1, 0x103, 0x54);
+    win->quantity = createTextWindow(sell->layer, 1, 0x11E, 0x54);
+    win->unk28 = createTextWindow(sell->layer, 1, 0x9A, 0x2C);
+    win->total = createTextWindow(sell->layer, 1, 0xC5, 0x49);
+    win->unk30 = createTextWindow(sell->layer, 1, 0xC5, 0x59);
+    win->unk34 = createTextWindow(sell->layer, 1, 0x9A, 0x8A);
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80085254);
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80085684);
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800869F8);
+void func_800869F8(ShopSell *sell, ShopSellWindows *win) {
+    switch (sell->state) {
+    case TASK_INIT:
+    default:
+        sell->nextState(sell);
+        func_800850FC(sell, win);
+        sell->panels[0].duration = 10;
+        sell->panels[1].duration = 10;
+        sell->panels[2].duration = 10;
+        sell->panels[3].duration = 10;
+        sell->panels[4].duration = 10;
+        sell->quantity = 1;
+        break;
+    case TASK_RUN:
+        func_80085684(sell, win);
+        func_80085254(sell, win);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80086AA0);
+void func_80086AA0(ShopSell *sell, s32 item, s32 arg) {
+    ShopSellWindows *win = sell->children;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80086AD8);
+    win->info->showItem(win->info, item, arg);
+}
+
+ShopSell *func_80086AD8(ItemShop *shop) {
+    ShopSell *sell = createTask(func_800869F8, sizeof(ShopSell), sizeof(ShopSellWindows));
+
+    sell->showItem = func_80086AA0;
+    sell->layer = 0x1000;
+    sell->depth = 4;
+    sell->shop = shop;
+    return sell;
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80086B2C);
 
