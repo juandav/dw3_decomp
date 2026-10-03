@@ -57,10 +57,15 @@ CC1 ?= $(BIN_DIR)/gcc-$(GCC_VERSION)-psx/cc1
 MASPSX_POST :=
 PSYQ_CSE :=
 FLOAT_ABI := -msoft-float
+# The game's code puts a small const in .rodata, not .sdata, and reads it
+# with lui/lw even at -G8 (OVERLAY_ADDRESS in system.c); it changes nothing
+# else
+EMBEDDED_DATA := -membedded-data
 # STDWTITL links libpress, the movie decoder, into the overlay
 PSYQ_OBJ := $(BUILDDIR)/src/main/psyq/%.c.o $(BUILDDIR)/src/stdwtitl/libpress.c.o
 $(PSYQ_OBJ): GCC_VERSION := 2.7.2
 $(PSYQ_OBJ): FLOAT_ABI := -mhard-float
+$(PSYQ_OBJ): EMBEDDED_DATA :=
 $(PSYQ_OBJ): MASPSX_POST := | $(PYTHON) tools/aspsx_reorder.py
 $(PSYQ_OBJ): MASPSX_DIV := --expand-div
 $(PSYQ_OBJ): PSYQ_CSE := -fno-rerun-cse-after-loop
@@ -94,7 +99,7 @@ CPPFLAGS = $(INC) -undef -nostdinc -Wundef \
 	    -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C \
 	    -DVERSION_$(VERSION_UPPER) -DASM_DIR='"$(ASM_DIR)"'
 CC1FLAGS = -quiet -O2 -G$(SDATA_LIMIT) -mips1 -mcpu=3000 -mgas $(FLOAT_ABI) \
-	    -fgnu-linker -fsigned-char -fno-builtin -fdollars-in-identifiers -Wall -Wno-unused $(PSYQ_CSE)
+	    -fgnu-linker -fsigned-char -fno-builtin -fdollars-in-identifiers -Wall -Wno-unused $(PSYQ_CSE) $(EMBEDDED_DATA)
 MASPSXFLAGS = --aspsx-version=2.86 -G$(SDATA_LIMIT) --use-comm-section --use-comm-for-lcomm $(MASPSX_DIV)
 
 # Most of the game is built with -G0; graphics.c reads its own small variables

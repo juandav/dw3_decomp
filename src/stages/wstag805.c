@@ -381,7 +381,7 @@ void func_800A5ADC(void) {
 extern s32 D_800A65B8[];
 extern s32 D_800A64C0[];
 extern s32 D_800A65A8[];
-extern CVECTOR D_800A4CA4;
+const CVECTOR D_800A4CA4 = { 0x80, 0x80, 0x80, 0x00 };
 extern s32 D_800A64A4[];
 extern s32 D_800A6618[];
 #if VERSION_US

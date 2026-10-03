@@ -35,7 +35,7 @@ extern s32 D_800A5BC4[];
 extern s32 D_800A60E8[];
 extern s32 D_800A51F0[];
 extern s32 D_800A5B2C[];
-extern CVECTOR D_800A4CA4;
+const CVECTOR D_800A4CA4 = { 0x80, 0x80, 0x80, 0x00 };
 extern s32 D_800A51D4[];
 extern s32 D_800A61AC[];
 #if VERSION_US

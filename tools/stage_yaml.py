@@ -9,15 +9,15 @@ and ends:
 
 A stage loads at STAGE_VRAM (mk/version/<version>.mk; 0x800A4CA4 in us), after
 the largest main overlay (CARDGAME), on top of FIELDSTG, whose functions it calls. Most stages start right with code; the
-others with a word no function of the stage reads (a color such as 0x808080,
-or a pointer), which stays in asm, so there is no other .rodata to migrate to
-functions. From the end of the code on, the file is data: C, from the
+others with the color that their setup function copies to D_800990B4.unk38
+(0x808080, 0x966754 or 0x1966754), or with the jump tables of their switch
+statements. From the end of the code on, the file is data: C, from the
 stage's C file, unless the stage is marked "asm" (its code and data are still
 splat's assembly in this version) or "asm-data" (only its data is).
-The bytes before the code of some stages are the jump tables of their switch
-statements instead; once all those functions are C, "c-rodata" takes them
+"c-rodata" takes the bytes before the code (the color, or the jump tables)
 from the stage's C file too (it can follow "asm-data"). "head-word" before it
-keeps a first word that comes before the jump tables in asm.
+keeps a color that comes before the jump tables in asm: GCC would align the
+jump tables to 8 bytes after it (WSTAG924).
 
 usage: stage_yaml.py wstag200 build/us/generated/stages/wstag200.yaml
 (VERSION, as for make, picks the version; eu by default)

@@ -88,7 +88,8 @@ extern s32 *SOUND_BANK_FILES[];
 extern s32 SOUND_SPU_ADDRS[];
 extern s32 SOUND_HEAD_BUFFERS[];
 extern s32 (*MODE_ENTRY_POINTS[])(void);
-extern void *SUB_OVERLAY_ADDRESS;
+extern void *const OVERLAY_ADDRESS;
+extern void *const SUB_OVERLAY_ADDRESS;
 extern OverlayState OVERLAY_STATE[];
 extern SoundState SOUND_STATE;
 

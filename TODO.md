@@ -101,11 +101,12 @@ own.
 
 - [x] The game code is all C: `spriteDrawerDraw` and `convertText`
   (`graphics.c`) were the last.
-- [ ] Rodata still behind `INCLUDE_RODATA`: `OVERLAY_ADDRESS` and
-  `SUB_OVERLAY_ADDRESS` in `system.c`. The original has the two pointers in
-  `.rodata` and reads them with `lui`/`lw`, but `system.c` is built with
-  `-G8`, so GCC puts a 4-byte `const` it defines in `.sdata` and reads it
-  through `$gp`. `text_window.c`'s strings and tables are C.
+- [x] The executable's rodata is all C. `OVERLAY_ADDRESS` and
+  `SUB_OVERLAY_ADDRESS` (`system.c`) are `const` pointers in `.rodata`,
+  read with `lui`/`lw` although `system.c` is built with `-G8`: the game's
+  code is built with `-membedded-data`, which puts a small `const` in
+  `.rodata` and changes nothing else. `text_window.c`'s strings and tables
+  are C.
 - [ ] 9 game functions still have splat's name: `func_80012698`,
   `func_8001350C`, `func_80013590`, `func_80015490`, `func_80015584`,
   `func_80015A34`, `func_80015D90`, `func_8001602C` and `func_80017878`.
@@ -280,26 +281,33 @@ own.
   overlay is C. objdiff counts a section only when all of it
   matches, so the `.rodata` of the overlays with functions still in asm
   doesn't count yet. `INCLUDE_RODATA` is left in `SHOCKTST` (7),
-  `FIGHTSTG` (4), `SOUNDTST` (4), `STAGSLCT` (3) and `FIELDSTG` (1).
-  `WFIGHTTS`'s strings are a `const char` array whose padding after each
-  table's last string is what the assembler left there, in both versions. The European `CNTY_SEL` `.data`
+  `FIGHTSTG` (4), `STAGSLCT` (3), `FIELDSTG` (1) and the European
+  `SOUNDTST` (1). `WFIGHTTS`'s strings are a `const char` array whose
+  padding after each table's last string is what the assembler left there,
+  in both versions. The European `CNTY_SEL` `.data`
   stays at 98.95 % in the report: the file ends 3 bytes into its last
   word, which splat's object leaves out.
+- [x] `SOUNDTST`'s texts are string literals in its lists, which GCC puts
+  in `.rodata` in reverse order of each list. The European file pads the
+  last one, `"＞"`, with 0x2D instead of 0, so there it stays asm
+  (`SOUNDTST_STR_CURSOR`).
 
 ## Stages
 
 - [x] The USA stages are all C: their 1,369 functions, the setup
   functions too (see the European stages above).
-- [x] A stage's jump tables come from its C (`c-rodata` in `stages.txt`);
-  `head-word` keeps a first word before them in asm, as GCC would align a
-  C constant there (`WSTAG924`).
-- [x] The stages' data is C, in both versions: 808,672 of the 815,984 bytes
-  of the USA stages in the report, as splat's words (`tools/data_to_c.py`)
-  at the end of each stage's C file, with `#if VERSION_US` / `VERSION_EU`
-  rows for the words that differ (file numbers, mostly) or that one version
-  hasn't.
-- [ ] `WSTAG331`'s data is still asm (`asm-data` in `stages.txt`): it differs
-  throughout between the versions.
+- [x] A stage's jump tables come from its C (`c-rodata` in `stages.txt`),
+  and so does the color that 85 stages start with (a `const CVECTOR` that
+  the setup function copies to `unk38`); `head-word` keeps the color in
+  asm where it comes before jump tables, as GCC would align them to 8 bytes
+  after it (`WSTAG924`).
+- [x] The stages' data and rodata are all C, in both versions (816,636
+  bytes in the USA version's report, 950,484 in the European one's), as
+  splat's words (`tools/data_to_c.py`) at the end of each stage's C file,
+  with `#if VERSION_US` / `VERSION_EU` rows for the words that differ (file
+  numbers, mostly) or that one version hasn't. `WSTAG331`'s data differs
+  throughout between the versions (its event scripts), so some of its
+  arrays have each version's whole definition.
 - [ ] Most of the stages' data is still splat's words: the point paths,
   animations and tile tables the C reads have types (`include/stage.h`),
   give the rest real ones (and names) as the code that reads it is

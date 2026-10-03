@@ -212,7 +212,7 @@ void func_800A5368(void) {
 extern s32 D_800A7808[];
 extern s32 D_800A7050[];
 extern s32 D_800A7750[];
-extern CVECTOR D_800A4CA4;
+const CVECTOR D_800A4CA4 = { 0x54, 0x67, 0x96, 0x00 };
 extern s32 D_800A7D54[];
 #if VERSION_US
 #define STAGE_TEXT 0xF0

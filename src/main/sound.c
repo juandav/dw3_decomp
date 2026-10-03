@@ -2,7 +2,6 @@
 #include "libsnd.h"
 
 extern s32 MODE_OVERLAY_FILES[];
-extern void *OVERLAY_ADDRESS;
 
 /* The slot (0-2) that holds bank `id`, or -1 */
 s32 findSoundBank(s32 id) {

@@ -27,7 +27,7 @@ StageTask *func_800A4CF0(void *owner) {
 extern s32 D_800A4E9C[];
 extern s32 D_800A4FF4[];
 extern s32 D_800A4E3C[];
-extern CVECTOR D_800A4CA4;
+const CVECTOR D_800A4CA4 = { 0x54, 0x67, 0x96, 0x00 };
 #if VERSION_US
 #define STAGE_TEXT 0xF0
 #define STAGE_FILE 0x1A3
