@@ -8,6 +8,8 @@
 #include <libgte.h>
 #include <libgpu.h>
 
+struct PartnerTotals;
+
 /* The game state's methods (GAME.funcs, also GAME_FUNCS) */
 typedef struct GameFuncs {
     /* 0x00 */ void (*newGame)();
