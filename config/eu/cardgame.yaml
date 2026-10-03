@@ -51,8 +51,12 @@ segments:
     subsegments:
       # us's modules, each with its rodata, data and bss (tools/split_version.py)
       - [0x0, .rodata, cardgame]
-      - [0xE54, .rodata, cardgame_2]
+      - [0x5BC, .rodata, cardgame_2]
+      - [0x9F0, .rodata, cardgame_3]
+      - [0xE54, .rodata, cardgame_4]
       - [0x1184, c, cardgame]
-      - [0x20A34, c, cardgame_2]
+      - [0x3138, c, cardgame_2]
+      - [0x1232C, c, cardgame_3]
+      - [0x20A34, c, cardgame_4]
       - [0x22144, .data, cardgame]
   - [0x23130]
