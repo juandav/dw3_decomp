@@ -1,19 +1,22 @@
 #ifndef STDGNAME_H
 #define STDGNAME_H
 
-#include "game.h"
+#include "name_entry.h"
 
 /* The screen's files: the discs number them differently */
 #if VERSION_US
 #define STDGNAME_FILE_SPRITES 0x279
 #define STDGNAME_FILE_IMAGES 0x27A
 #define STDGNAME_FILE_KEYBOARD 0x762
+#define STDGNAME_FILE_KEY_SPRITES 0x761
 #elif VERSION_EU
 #define STDGNAME_FILE_SPRITES 0x288
 #define STDGNAME_FILE_IMAGES 0x289
 #define STDGNAME_FILE_KEYBOARD 0x771
+#define STDGNAME_FILE_KEY_SPRITES 0x770
 #endif
 #define STDGNAME_SPRITES (STDGNAME_FILE_SPRITES << 16) /* sprite bank */
+#define STDGNAME_KEY_SPRITES (STDGNAME_FILE_KEY_SPRITES << 16) /* the keyboard's and partners' sprites */
 
 /* A full-screen fade */
 typedef struct FadeTask {
@@ -33,13 +36,6 @@ typedef struct Tween {
     /* 0x8 */ s32 value;
     /* 0xC */ s32 active;
 } Tween;
-
-/* The character pages of the keyboard */
-typedef struct Keyboard {
-    /* 0x0 */ s32 pageCount;
-    /* 0x4 */ s32 (*tabTexts)[3]; /* three per page */
-    /* 0x8 */ s8 (*keys)[7][15][2];
-} Keyboard;
 
 typedef struct NameWindows {
     /* 0x00 */ TextWindow *title;
@@ -159,52 +155,55 @@ typedef struct ScreenFuncs {
     /* 0x14 */ s32 (*tickTween)(Tween *tween);
 } ScreenFuncs;
 
-extern Keyboard D_8008837C;
-extern TextStyle D_80086FC0;
-extern s32 D_80086EE0[][3];
-extern s8 D_80086EEC[][7][15][2];
+extern NameKeyboard STDGNAME_keyboard;
+extern TextStyle STDGNAME_nameStyle;
+extern s32 STDGNAME_nameAnims[];
+extern BigKey STDGNAME_bigKeys[];
+extern s32 STDGNAME_keyArrowCluts[];
+extern KeyTabs STDGNAME_keyPages[];
+extern KeyPage STDGNAME_keyChars[];
 #if VERSION_EU
 /* the keyboard of language 0, three pages */
-extern s32 D_800876FC[][3];
-extern s8 D_80087720[][7][15][2];
+extern KeyTabs STDGNAME_keyPagesJp[];
+extern KeyPage STDGNAME_keyCharsJp[];
 #endif
 extern MenuSprite D_8008710C[];
 extern MenuSlot D_800872B0[];
 extern MenuWindow D_800872E0[];
 extern s32 D_800873A0[][7];
-extern ScreenFuncs D_80087480;
+extern ScreenFuncs STDGNAME_funcs;
 
-void func_80082724(Task *task, void **children);
-Task *func_8008281C(void);
-void func_80082848(FadeTask *task, s32 fadeIn, s32 duration);
-void func_800828D0(FadeTask *task);
-void func_80082A14(FadeTask *task);
-FadeTask *func_80082AC8(void);
-void func_80082B10(Tween *tween, s32 open);
-s32 func_80082BA4(Tween *tween);
-void func_80082C10(NameTask *task, NameWindows *windows);
-void func_80082E00(NameTask *task, NameWindows *windows, s32 show);
-void func_80083104(NameTask *task);
-void func_80083A30(NameTask *task, NameWindows *windows);
-void func_80084640(NameTask *task, NameWindows *windows);
-void func_80084744(NameTask *task, s32 x, s32 y);
-void func_80084750(NameTask *task, char *name);
-void func_800847E4(NameTask *task, char *out);
-void func_800848E4(NameTask *task);
-NameTask *func_800848F0(char *name, s32 partner);
+void STDGNAME_updateScene(Task *task, void **children);
+Task *STDGNAME_start(void);
+void STDGNAME_startFader(FadeTask *task, s32 fadeIn, s32 duration);
+void STDGNAME_drawFader(FadeTask *task);
+void STDGNAME_updateFader(FadeTask *task);
+FadeTask *STDGNAME_createFader(void);
+void STDGNAME_startTween(Tween *tween, s32 open);
+s32 STDGNAME_updateTween(Tween *tween);
+void STDGNAME_createNameWindows(NameTask *task, NameWindows *windows);
+void STDGNAME_showNameWindows(NameTask *task, NameWindows *windows, s32 show);
+void STDGNAME_drawKeyboard(NameTask *task);
+void STDGNAME_updateKeyboard(NameTask *task, NameWindows *windows);
+void STDGNAME_updateNameEntry(NameTask *task, NameWindows *windows);
+void STDGNAME_setNameVram(NameTask *task, s32 x, s32 y);
+void STDGNAME_setName(NameTask *task, char *name);
+void STDGNAME_getName(NameTask *task, char *out);
+void STDGNAME_closeNameEntry(NameTask *task);
+NameTask *STDGNAME_createNameEntry(char *name, s32 partner);
 void func_80084998(MenuTask *task, TextWindow **window, s32 index, s32 show);
 void func_80084B0C(MenuTask *task, TextWindow **windows);
 s32 func_800850E0(MenuTask *task, TextWindow **windows);
 void func_80085354(MenuTask *task, TextWindow **windows);
-MenuTask *func_800856B4(ScreenTask *screen);
-void func_800856F4(ScreenTask *task, ScreenChildren *children);
-void func_800858D8(ScreenTask *task);
-void func_800859CC(ScreenTask *task, ScreenChildren *children);
-void func_80085ADC(ScreenTask *task);
-ScreenTask *func_80085B20(void);
-void func_80085B60(void);
-s32 func_80085C08(void);
-void func_80085C78(Tween *tween, s32 open);
-s32 func_80085D0C(Tween *tween);
+MenuTask *STDGNAME_createMenu(ScreenTask *screen);
+void STDGNAME_stepScreen(ScreenTask *task, ScreenChildren *children);
+void STDGNAME_drawBackground(ScreenTask *task);
+void STDGNAME_updateScreen(ScreenTask *task, ScreenChildren *children);
+void STDGNAME_fadeOutScreen(ScreenTask *task);
+ScreenTask *STDGNAME_createScreen(void);
+void STDGNAME_loadFiles(void);
+s32 STDGNAME_filesLoading(void);
+void STDGNAME_startFade(Tween *tween, s32 open);
+s32 STDGNAME_updateFade(Tween *tween);
 
 #endif /* STDGNAME_H */

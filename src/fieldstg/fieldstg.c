@@ -505,10 +505,10 @@ void func_800865AC(StreamTask *task, Layer *layer, s32 x, s32 y) {
         for (j = 0; j < 5; j++) {
             if (task->sprites[i][j].visible) {
                 SetSprt(prim);
-                if (i == 2 || D_800990B4.unk38[3] != 0) {
-                    prim->r0 = D_800990B4.unk38[0];
-                    prim->g0 = D_800990B4.unk38[1];
-                    prim->b0 = D_800990B4.unk38[2];
+                if (i == 2 || D_800990B4.unk38.cd != 0) {
+                    prim->r0 = D_800990B4.unk38.r;
+                    prim->g0 = D_800990B4.unk38.g;
+                    prim->b0 = D_800990B4.unk38.b;
                 } else {
                     prim->r0 = 0x80;
                     prim->g0 = 0x80;
@@ -686,7 +686,84 @@ void func_80086D20(Task *task, AreaNameWindows *windows) {
     }
 }
 
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80086E64);
+/* Stretches a box toward from-to along one axis. The match depends on each
+   case having its own variables. */
+void func_80086E64(Unk800870D4 *task, Unk800870D4Box *box) {
+    switch (box->stretch) {
+    case 1: {
+        s32 start = box->pos.vx;
+        s32 end = start + box->size.vx;
+        s32 from = box->from;
+        s32 to = box->to;
+        s32 speed = box->speed;
+
+        if (start < from) {
+            start += speed;
+            if (start > from) {
+                start = from;
+            }
+        } else if (start > from) {
+            start -= speed;
+            if (start < from) {
+                start = from;
+            }
+        }
+        if (end < to) {
+            end += speed;
+            if (end > to) {
+                end = to;
+            }
+        } else if (end > to) {
+            end -= speed;
+            if (end < to) {
+                end = to;
+            }
+        }
+        box->pos.vx = start;
+        box->size.vx = end - start;
+        if (start == from && end == to) {
+            box->stretch = 0;
+        }
+        break;
+    }
+    case 2: {
+        s32 start = box->pos.vy;
+        s32 end = start + box->size.vy;
+        s32 from = box->from;
+        s32 to = box->to;
+        s32 speed = box->speed;
+
+        if (start < from) {
+            start += speed;
+            if (start > from) {
+                start = from;
+            }
+        } else if (start > from) {
+            start -= speed;
+            if (start < from) {
+                start = from;
+            }
+        }
+        if (end < to) {
+            end += speed;
+            if (end > to) {
+                end = to;
+            }
+        } else if (end > to) {
+            end -= speed;
+            if (end < to) {
+                end = to;
+            }
+        }
+        box->pos.vy = start;
+        box->size.vy = end - start;
+        if (start == from && end == to) {
+            box->stretch = 0;
+        }
+        break;
+    }
+    }
+}
 
 void func_80086FB4(Unk800870D4 *task, u_long *ot, DVECTOR pos, DVECTOR size, s32 color) {
     POLY_F4 *poly = GFX.funcs.getPrim();
@@ -841,7 +918,7 @@ s32 func_800879E8(Unk80087FDC *task) {
     s32 type;
 
     tile = actor->tile;
-    cell = (u8)D_8009A750(7, &tile);
+    cell = (u8)D_8009A70C.getCell(7, &tile);
     if (cell == 0) {
         return 0;
     }
@@ -883,7 +960,7 @@ s32 func_80087ACC(Unk80087FDC *task, Unk80087FDCChildren *children) {
             GAME.unk26E0 = task->entry->unkA;
             return 0;
         case 6:
-            D_8009A760[0](task->entry->unkA);
+            D_8009A70C.unk54(task->entry->unkA);
             return 0;
         case 8:
             if (children->script == NULL) {
@@ -1196,8 +1273,8 @@ void func_80088640(Unk8008878C *task, Layer *layer, s32 index) {
         if (object->id != 0xFF) {
             sprite.setTexture(0x140, 0x100);
             sprite.setClutRow(object->clutRow);
-            if (D_800990B4.unk38[3] != 0) {
-                sprite.setColor(D_800990B4.unk38);
+            if (D_800990B4.unk38.cd != 0) {
+                sprite.setColor(&D_800990B4.unk38);
             }
             sprite.draw(FILE_CACHE_GET_ENTRY[0](task->unk50), object->frame, object->x, object->y);
         } else {
@@ -2053,7 +2130,82 @@ void func_8008D07C(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008D0C0);
+s32 func_8008D0C0(Actor *actor, s32 x, s32 y, Point offset) {
+    s32 blocked = 0;
+    Point pos;
+    u8 cell;
+
+    pos.x = (actor->pos.x >> 8) + x;
+    pos.y = (actor->pos.y >> 8) + y;
+    cell = D_8009A70C.unk58(&pos);
+    if (cell != 0) {
+        cell = D_8009A70C.getCell(GAME.unk26D8, &pos);
+    }
+    if (actor->unk64 != 0 && cell != 1) {
+        switch (cell) {
+        case 2:
+            if (actor->unk64 < 0x2000) {
+                cell = 0;
+            }
+            break;
+        case 3:
+            if (actor->unk64 < 0x3000) {
+                cell = 0;
+            }
+            break;
+        case 4:
+            if (actor->unk64 < 0x4000) {
+                cell = 0;
+            }
+            break;
+        case 5:
+            if (actor->unk64 < 0x5000) {
+                cell = 0;
+            }
+            break;
+        case 6:
+            if (actor->unk64 < 0x6000) {
+                cell = 0;
+            }
+            break;
+        }
+        switch (cell) {
+        case 18:
+            if (actor->unk64 > 0x6000) {
+                cell = 0;
+            }
+            break;
+        case 19:
+            if (actor->unk64 > 0x5000) {
+                cell = 0;
+            }
+            break;
+        case 20:
+            if (actor->unk64 > 0x4000) {
+                cell = 0;
+            }
+            break;
+        case 21:
+            if (actor->unk64 > 0x3000) {
+                cell = 0;
+            }
+            break;
+        case 22:
+            if (actor->unk64 > 0x2000) {
+                cell = 0;
+            }
+            break;
+        }
+        if (cell == 0) {
+            blocked = 1;
+        }
+    }
+    if (cell == 0) {
+        actor->pos.x -= offset.x;
+        actor->pos.y -= offset.y;
+    }
+    return blocked;
+}
 
 s32 func_8008D2A0(Actor *actor) {
     s32 blocked = 0;
@@ -2073,7 +2225,7 @@ s32 func_8008D2A0(Actor *actor) {
         if (sign[1] & 0x80) {
             offset.y = -offset.y;
         }
-        if (func_8008D0C0(actor, D_80096EBC[probe], offset)) {
+        if (func_8008D0C0(actor, D_80096EBC[probe].x, D_80096EBC[probe].y, offset)) {
             blocked = 1;
         }
     }
@@ -2889,7 +3041,7 @@ void func_80091854(void) {
     Battle *battle;
 
     tile = actor->tile;
-    area = (u8)D_8009A750(4, &tile) - 1;
+    area = (u8)D_8009A70C.getCell(4, &tile) - 1;
     index = RANDOM.next() & 7;
     battle = D_800990B4.unk20->battles[area]->battles[index];
     D_80042728.unkC = battle->unk4;
@@ -2897,7 +3049,30 @@ void func_80091854(void) {
     func_8008AEDC(battle->unk0);
 }
 
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091910);
+void func_80091910(void) {
+    Actor *actor;
+    Point tile;
+    s32 area;
+    s32 rate;
+
+    if (D_8009A70C.files[4] != 0 && D_800990B4.unk20 != NULL && D_800990B4.unk5C == 0 &&
+        D_800990B4.unk58 == 0 && D_800990B4.unk60 == 0 && D_800990B4.unk54 == 0) {
+        actor = TASK_FUNCS.find(5, -1, 0);
+        tile = actor->tile;
+        area = (u8)D_8009A70C.getCell(4, &tile);
+        if (area != 0) {
+            area--;
+            rate = D_8009A6F4[D_800990B4.unk20->battles[area]->count];
+            GAME.unk30 -= rate;
+            if (GAME.unk30 <= 0) {
+                if (D_80042728.unk0 != 0) {
+                    func_80091854();
+                }
+                func_800917D8();
+            }
+        }
+    }
+}
 
 void func_80091A4C(s32 index) {
     Battle *battle;
@@ -2913,7 +3088,7 @@ void func_80091A4C(s32 index) {
 INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091AA8);
 
 void func_80091B78(s32 index, s32 value) {
-    D_8009A70C[index] = value;
+    D_8009A70C.files[index] = value;
 }
 
 void func_80091B90(s32 arg0) {
@@ -2926,9 +3101,88 @@ void func_80091BB4(s32 arg0) {
     GAME.unk26D8 = arg0;
 }
 
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091BC0);
+s32 func_80091BC0(s32 index, Point *pos) {
+    s32 x;
+    s32 y;
+    s32 i;
 
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091D3C);
+    if (func_80091AA8(index) == 0) {
+        return 1;
+    }
+    y = pos->y;
+    x = pos->x;
+    /* the match depends on the * 4 being a statement of its own */
+    i = D_8009A70C.grid[y / 128 * D_8009A70C.width + x / 128];
+    i *= 4;
+    if (y & 0x40) {
+        i += 2;
+    }
+    i = D_8009A70C.cells64[(x & 0x40) ? i + 1 : i];
+    i *= 4;
+    if (y & 0x20) {
+        i += 2;
+    }
+    i = D_8009A70C.cells32[(x & 0x20) ? i + 1 : i];
+    i *= 4;
+    if (y & 0x10) {
+        i += 2;
+    }
+    i = D_8009A70C.cells16[(x & 0x10) ? i + 1 : i];
+    i *= 4;
+    if (y & 8) {
+        i += 2;
+    }
+    i = D_8009A70C.cells8[(x & 8) ? i + 1 : i];
+    return D_8009A70C.pixels[i * 64 + (y & 7) * 8 + (x & 7)];
+}
+
+/* Whether nothing stands at pos: no character's box (gathered once a frame)
+   and no object. The match depends on the boxes' variables being local to
+   their blocks. */
+s32 func_80091D3C(Point *pos) {
+    s32 frame = GFX_FUNCS.getFrameCount();
+    Actor *actor;
+    s32 i;
+
+    if (frame != D_8009A768) {
+        actor = TASK_REGISTRY.funcs.find(5, -1, 1);
+        for (i = 0; actor != NULL; i++) {
+            s32 width = actor->unk80;
+
+            D_8009AA4C[i].left = actor->tile.x - width;
+            D_8009AA4C[i].right = actor->tile.x + width;
+            width /= 2;
+            D_8009AA4C[i].top = actor->tile.y - width;
+            D_8009AA4C[i].bottom = actor->tile.y + width;
+            actor = TASK_REGISTRY.funcs.findNext();
+        }
+        D_8009AB8C = i;
+        D_8009A768 = frame;
+    }
+    for (i = 0; i < D_8009AB8C; i++) {
+        if (pos->x >= D_8009AA4C[i].left && D_8009AA4C[i].right >= pos->x && pos->y >= D_8009AA4C[i].top
+            && D_8009AA4C[i].bottom >= pos->y) {
+            s32 dx = pos->x - D_8009AA4C[i].left;
+            s32 dy = pos->y - D_8009AA4C[i].top;
+            s32 width = D_8009AA4C[i].right - D_8009AA4C[i].left;
+            s32 height = D_8009AA4C[i].bottom - D_8009AA4C[i].top;
+            s32 halfWidth = width / 2;
+            s32 halfHeight = height / 2;
+            s32 ratio = width / height;
+
+            if (halfWidth < dx) {
+                dx = halfWidth - (dx - halfWidth);
+            }
+            if (halfHeight < dy) {
+                dy = halfHeight - (dy - halfHeight);
+            }
+            if (dx >= halfWidth - dy * ratio) {
+                return 0;
+            }
+        }
+    }
+    return func_8008C160(pos, 0) == NULL;
+}
 
 void func_80091F4C(Point *pos, s32 scale, s32 index, Point *out) {
     s32 cell = (u8)func_80091BC0(GAME.unk26D8, pos);
@@ -3884,7 +4138,7 @@ void func_80091124();
 void func_80082F84();
 void func_80091910();
 s32 func_80091BC0(s32, Point *);
-void func_80091D3C();
+s32 func_80091D3C(Point *pos);
 #if VERSION_EU
 extern s32 D_800940A4[];
 extern s32 D_800940B0[];
@@ -10066,23 +10320,23 @@ s32 D_8009A6F4[] = {
     2000, 3, 4, 6,
     9, 18,
 };
-s32 D_8009A70C[] = {
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-};
-s32 D_8009A73C = 0;
-s32 D_8009A740 = 0;
-s32 D_8009A744 = 0;
-s32 D_8009A748 = 0;
-s32 D_8009A74C = (s32)func_80091B78;
-s32 (*D_8009A750)(s32, Point *) = func_80091BC0;
-s32 D_8009A754 = (s32)func_80091F4C;
-s32 D_8009A758[] = {
-    (s32)func_8009204C, (s32)func_80091B90,
-};
-void (*D_8009A760[])(s32) = {
-    func_80091BB4, func_80091D3C,
+FieldMap D_8009A70C = {
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    0,
+    0,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    func_80091B78,
+    func_80091BC0,
+    func_80091F4C,
+    func_8009204C,
+    func_80091B90,
+    func_80091BB4,
+    func_80091D3C,
 };
 s32 D_8009A768 = -1;
 Point D_8009A76C[][8] = {

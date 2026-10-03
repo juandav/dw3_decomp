@@ -35,7 +35,26 @@ void STCRDABM_startFader(CardAlbumFader *fader, s32 fadeIn, s32 frames) {
     }
 }
 
-INCLUDE_ASM("stcrdabm/nonmatchings/stcrdabm", STCRDABM_drawFader);
+void STCRDABM_drawFader(CardAlbumFader *fader) {
+    Layer *layer = GFX.funcs.getLayer(fader->layer);
+    u_long *ot = (u_long *)layer->getOtEntry(layer, fader->depth);
+    POLY_F4 *poly = GFX.funcs.getPrim();
+    DR_TPAGE *mode;
+
+    setlen(poly, 5);
+    poly->code = 0x2A;
+    poly->r0 = poly->g0 = poly->b0 = fader->level >> 8;
+    poly->x0 = poly->x2 = 0;
+    poly->x1 = poly->x3 = 320;
+    poly->y0 = poly->y1 = 0;
+    poly->y2 = poly->y3 = 256;
+    addPrim(ot, poly);
+    mode = (DR_TPAGE *)(poly + 1);
+    setlen(mode, 1);
+    mode->code[0] = 0xE1000245;
+    addPrim(ot, mode);
+    GFX.funcs.setPrim(mode + 1);
+}
 
 void STCRDABM_updateFader(CardAlbumFader *fader) {
     switch (fader->state) {

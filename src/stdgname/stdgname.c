@@ -4,7 +4,7 @@
 #define PAD_PRESSED(button) ((PAD.getPressed(0) >> PAD.getButtonBit(0, button)) & 1)
 #define PAD_REPEATED(button) ((PAD.getRepeated(0) >> PAD.getButtonBit(0, button)) & 1)
 
-/* The glyphs and icons of the screen's two text styles, D_80086FC0 and
+/* The glyphs and icons of the screen's two text styles, STDGNAME_nameStyle and
    D_80088364 */
 #if VERSION_US
 s32 D_80085D78[] = {
@@ -359,188 +359,75 @@ s32 D_8008675C[] = {
 
 #if VERSION_EU
 /* The keyboard of language 0: three pages */
-s32 D_800876FC[][3] = {
-    {2, 3, 4}, {5, 6, 7}, {8, 9, 10},
+KeyTabs STDGNAME_keyPagesJp[] = {
+    { { 2, 3, 4 } },
+    { { 5, 6, 7 } },
+    { { 8, 9, 10 } },
 };
-s8 D_80087720[][7][15][2] = {
-    {
-        {
-            {1, 67}, {1, 69}, {1, 71}, {1, 73}, {1, 75}, {1, -123}, {0, 0},
-            {1, -121}, {0, 0}, {1, -119}, {1, 114}, {1, 117}, {1, 120},
-            {1, 123}, {1, 126},
-        },
-        {
-            {1, 76}, {1, 78}, {1, 80}, {1, 82}, {1, 84}, {1, -118}, {1, -117},
-            {1, -116}, {1, -115}, {1, -114}, {1, 66}, {1, 68}, {1, 70},
-            {1, 72}, {1, 74},
-        },
-        {
-            {1, 86}, {1, 88}, {1, 90}, {1, 92}, {1, 94}, {1, -112}, {0, 0},
-            {1, -111}, {0, 0}, {1, -110}, {1, -124}, {1, -122}, {1, -120},
-            {1, 100}, {0, 0},
-        },
-        {
-            {1, 96}, {1, 98}, {1, 101}, {1, 103}, {1, 105}, {1, 77}, {1, 79},
-            {1, 81}, {1, 83}, {1, 85}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0},
-        },
-        {
-            {1, 107}, {1, 108}, {1, 109}, {1, 110}, {1, 111}, {1, 87}, {1, 89},
-            {1, 91}, {1, 93}, {1, 95}, {1, 0}, {-1, 0}, {-2, 0}, {-3, 0},
-            {-4, 0},
-        },
-        {
-            {1, 112}, {1, 115}, {1, 118}, {1, 121}, {1, 124}, {1, 97}, {1, 99},
-            {1, 102}, {1, 104}, {1, 106}, {1, 0}, {-1, 0}, {-2, 0}, {-3, 0},
-            {-4, 0},
-        },
-        {
-            {1, 127}, {1, -128}, {1, -127}, {1, -126}, {1, -125}, {1, 113},
-            {1, 116}, {1, 119}, {1, 122}, {1, 125}, {1, 0}, {1, 0}, {-1, 0},
-            {1, 0}, {-1, 0},
-        },
-    },
-    {
-        {
-            {1, -108}, {1, -106}, {1, -104}, {1, -102}, {1, -100}, {1, -42},
-            {0, 0}, {1, -40}, {0, 0}, {1, -38}, {1, -61}, {1, -58}, {1, -55},
-            {1, -52}, {1, -49},
-        },
-        {
-            {1, -99}, {1, -97}, {1, -95}, {1, -93}, {1, -91}, {1, -37},
-            {1, -36}, {1, -35}, {1, -34}, {1, -33}, {1, -109}, {1, -107},
-            {1, -105}, {1, -103}, {1, -101},
-        },
-        {
-            {1, -89}, {1, -87}, {1, -85}, {1, -83}, {1, -81}, {1, -31}, {0, 0},
-            {1, -30}, {0, 0}, {1, -29}, {1, -43}, {1, -41}, {1, -39}, {1, -75},
-            {1, -28},
-        },
-        {
-            {1, -79}, {1, -77}, {1, -74}, {1, -72}, {1, -70}, {1, -98},
-            {1, -96}, {1, -94}, {1, -92}, {1, -90}, {0, 0}, {0, 0}, {0, 0},
-            {0, 0}, {0, 0},
-        },
-        {
-            {1, -68}, {1, -67}, {1, -66}, {1, -65}, {1, -64}, {1, -88},
-            {1, -86}, {1, -84}, {1, -82}, {1, -80}, {1, 0}, {-1, 0}, {-2, 0},
-            {-3, 0}, {-4, 0},
-        },
-        {
-            {1, -63}, {1, -60}, {1, -57}, {1, -54}, {1, -51}, {1, -78},
-            {1, -76}, {1, -73}, {1, -71}, {1, -69}, {1, 0}, {-1, 0}, {-2, 0},
-            {-3, 0}, {-4, 0},
-        },
-        {
-            {1, -48}, {1, -47}, {1, -46}, {1, -45}, {1, -44}, {1, -62},
-            {1, -59}, {1, -56}, {1, -53}, {1, -50}, {1, 0}, {1, 0}, {-1, 0},
-            {1, 0}, {-1, 0},
-        },
-    },
-    {
-        {
-            {1, 14}, {1, 15}, {1, 16}, {1, 17}, {1, 18}, {1, 40}, {1, 41},
-            {1, 42}, {1, 43}, {1, 44}, {1, 4}, {1, 5}, {1, 6}, {1, 7}, {1, 8},
-        },
-        {
-            {1, 19}, {1, 20}, {1, 21}, {1, 22}, {1, 23}, {1, 45}, {1, 46},
-            {1, 47}, {1, 48}, {1, 49}, {1, 9}, {1, 10}, {1, 11}, {1, 12},
-            {1, 13},
-        },
-        {
-            {1, 24}, {1, 25}, {1, 26}, {1, 27}, {1, 28}, {1, 50}, {1, 51},
-            {1, 52}, {1, 53}, {1, 54}, {1, -24}, {1, -23}, {1, -27}, {1, -26},
-            {1, -25},
-        },
-        {
-            {1, 29}, {1, 30}, {1, 31}, {1, 32}, {1, 33}, {1, 55}, {1, 56},
-            {1, 57}, {1, 58}, {1, 59}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0},
-        },
-        {
-            {1, 34}, {1, 35}, {1, 36}, {1, 37}, {1, 38}, {1, 60}, {1, 61},
-            {1, 62}, {1, 63}, {1, 64}, {1, 0}, {-1, 0}, {-2, 0}, {-3, 0},
-            {-4, 0},
-        },
-        {
-            {1, 39}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1, 65}, {0, 0}, {0, 0},
-            {0, 0}, {0, 0}, {1, 0}, {-1, 0}, {-2, 0}, {-3, 0}, {-4, 0},
-        },
-        {
-            {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0},
-            {0, 0}, {0, 0}, {1, 0}, {1, 0}, {-1, 0}, {1, 0}, {-1, 0},
-        },
-    },
+KeyPage STDGNAME_keyCharsJp[] = {
+    { {
+        { { 1, 0x43 }, { 1, 0x45 }, { 1, 0x47 }, { 1, 0x49 }, { 1, 0x4B }, { 1, 0x85 }, { 0, 0x00 }, { 1, 0x87 }, { 0, 0x00 }, { 1, 0x89 }, { 1, 0x72 }, { 1, 0x75 }, { 1, 0x78 }, { 1, 0x7B }, { 1, 0x7E } },
+        { { 1, 0x4C }, { 1, 0x4E }, { 1, 0x50 }, { 1, 0x52 }, { 1, 0x54 }, { 1, 0x8A }, { 1, 0x8B }, { 1, 0x8C }, { 1, 0x8D }, { 1, 0x8E }, { 1, 0x42 }, { 1, 0x44 }, { 1, 0x46 }, { 1, 0x48 }, { 1, 0x4A } },
+        { { 1, 0x56 }, { 1, 0x58 }, { 1, 0x5A }, { 1, 0x5C }, { 1, 0x5E }, { 1, 0x90 }, { 0, 0x00 }, { 1, 0x91 }, { 0, 0x00 }, { 1, 0x92 }, { 1, 0x84 }, { 1, 0x86 }, { 1, 0x88 }, { 1, 0x64 }, { 0, 0x00 } },
+        { { 1, 0x60 }, { 1, 0x62 }, { 1, 0x65 }, { 1, 0x67 }, { 1, 0x69 }, { 1, 0x4D }, { 1, 0x4F }, { 1, 0x51 }, { 1, 0x53 }, { 1, 0x55 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 } },
+        { { 1, 0x6B }, { 1, 0x6C }, { 1, 0x6D }, { 1, 0x6E }, { 1, 0x6F }, { 1, 0x57 }, { 1, 0x59 }, { 1, 0x5B }, { 1, 0x5D }, { 1, 0x5F }, { 1, 0x00 }, { -1, 0x00 }, { -2, 0x00 }, { -3, 0x00 }, { -4, 0x00 } },
+        { { 1, 0x70 }, { 1, 0x73 }, { 1, 0x76 }, { 1, 0x79 }, { 1, 0x7C }, { 1, 0x61 }, { 1, 0x63 }, { 1, 0x66 }, { 1, 0x68 }, { 1, 0x6A }, { 1, 0x00 }, { -1, 0x00 }, { -2, 0x00 }, { -3, 0x00 }, { -4, 0x00 } },
+        { { 1, 0x7F }, { 1, 0x80 }, { 1, 0x81 }, { 1, 0x82 }, { 1, 0x83 }, { 1, 0x71 }, { 1, 0x74 }, { 1, 0x77 }, { 1, 0x7A }, { 1, 0x7D }, { 1, 0x00 }, { 1, 0x00 }, { -1, 0x00 }, { 1, 0x00 }, { -1, 0x00 } },
+    } },
+    { {
+        { { 1, 0x94 }, { 1, 0x96 }, { 1, 0x98 }, { 1, 0x9A }, { 1, 0x9C }, { 1, 0xD6 }, { 0, 0x00 }, { 1, 0xD8 }, { 0, 0x00 }, { 1, 0xDA }, { 1, 0xC3 }, { 1, 0xC6 }, { 1, 0xC9 }, { 1, 0xCC }, { 1, 0xCF } },
+        { { 1, 0x9D }, { 1, 0x9F }, { 1, 0xA1 }, { 1, 0xA3 }, { 1, 0xA5 }, { 1, 0xDB }, { 1, 0xDC }, { 1, 0xDD }, { 1, 0xDE }, { 1, 0xDF }, { 1, 0x93 }, { 1, 0x95 }, { 1, 0x97 }, { 1, 0x99 }, { 1, 0x9B } },
+        { { 1, 0xA7 }, { 1, 0xA9 }, { 1, 0xAB }, { 1, 0xAD }, { 1, 0xAF }, { 1, 0xE1 }, { 0, 0x00 }, { 1, 0xE2 }, { 0, 0x00 }, { 1, 0xE3 }, { 1, 0xD5 }, { 1, 0xD7 }, { 1, 0xD9 }, { 1, 0xB5 }, { 1, 0xE4 } },
+        { { 1, 0xB1 }, { 1, 0xB3 }, { 1, 0xB6 }, { 1, 0xB8 }, { 1, 0xBA }, { 1, 0x9E }, { 1, 0xA0 }, { 1, 0xA2 }, { 1, 0xA4 }, { 1, 0xA6 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 } },
+        { { 1, 0xBC }, { 1, 0xBD }, { 1, 0xBE }, { 1, 0xBF }, { 1, 0xC0 }, { 1, 0xA8 }, { 1, 0xAA }, { 1, 0xAC }, { 1, 0xAE }, { 1, 0xB0 }, { 1, 0x00 }, { -1, 0x00 }, { -2, 0x00 }, { -3, 0x00 }, { -4, 0x00 } },
+        { { 1, 0xC1 }, { 1, 0xC4 }, { 1, 0xC7 }, { 1, 0xCA }, { 1, 0xCD }, { 1, 0xB2 }, { 1, 0xB4 }, { 1, 0xB7 }, { 1, 0xB9 }, { 1, 0xBB }, { 1, 0x00 }, { -1, 0x00 }, { -2, 0x00 }, { -3, 0x00 }, { -4, 0x00 } },
+        { { 1, 0xD0 }, { 1, 0xD1 }, { 1, 0xD2 }, { 1, 0xD3 }, { 1, 0xD4 }, { 1, 0xC2 }, { 1, 0xC5 }, { 1, 0xC8 }, { 1, 0xCB }, { 1, 0xCE }, { 1, 0x00 }, { 1, 0x00 }, { -1, 0x00 }, { 1, 0x00 }, { -1, 0x00 } },
+    } },
+    { {
+        { { 1, 0x0E }, { 1, 0x0F }, { 1, 0x10 }, { 1, 0x11 }, { 1, 0x12 }, { 1, 0x28 }, { 1, 0x29 }, { 1, 0x2A }, { 1, 0x2B }, { 1, 0x2C }, { 1, 0x04 }, { 1, 0x05 }, { 1, 0x06 }, { 1, 0x07 }, { 1, 0x08 } },
+        { { 1, 0x13 }, { 1, 0x14 }, { 1, 0x15 }, { 1, 0x16 }, { 1, 0x17 }, { 1, 0x2D }, { 1, 0x2E }, { 1, 0x2F }, { 1, 0x30 }, { 1, 0x31 }, { 1, 0x09 }, { 1, 0x0A }, { 1, 0x0B }, { 1, 0x0C }, { 1, 0x0D } },
+        { { 1, 0x18 }, { 1, 0x19 }, { 1, 0x1A }, { 1, 0x1B }, { 1, 0x1C }, { 1, 0x32 }, { 1, 0x33 }, { 1, 0x34 }, { 1, 0x35 }, { 1, 0x36 }, { 1, 0xE8 }, { 1, 0xE9 }, { 1, 0xE5 }, { 1, 0xE6 }, { 1, 0xE7 } },
+        { { 1, 0x1D }, { 1, 0x1E }, { 1, 0x1F }, { 1, 0x20 }, { 1, 0x21 }, { 1, 0x37 }, { 1, 0x38 }, { 1, 0x39 }, { 1, 0x3A }, { 1, 0x3B }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 } },
+        { { 1, 0x22 }, { 1, 0x23 }, { 1, 0x24 }, { 1, 0x25 }, { 1, 0x26 }, { 1, 0x3C }, { 1, 0x3D }, { 1, 0x3E }, { 1, 0x3F }, { 1, 0x40 }, { 1, 0x00 }, { -1, 0x00 }, { -2, 0x00 }, { -3, 0x00 }, { -4, 0x00 } },
+        { { 1, 0x27 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 1, 0x41 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 1, 0x00 }, { -1, 0x00 }, { -2, 0x00 }, { -3, 0x00 }, { -4, 0x00 } },
+        { { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 1, 0x00 }, { 1, 0x00 }, { -1, 0x00 }, { 1, 0x00 }, { -1, 0x00 } },
+    } },
 };
 #endif
 
-s32 D_80086EE0[][3] = {
-    {8, 9, 10},
+KeyTabs STDGNAME_keyPages[] = {
+    { { 8, 9, 10 } },
 };
 
-s8 D_80086EEC[][7][15][2] = {
-    {
-        {
-            {1, 14}, {1, 15}, {1, 16}, {1, 17}, {1, 18}, {1, 40}, {1, 41},
-            {1, 42}, {1, 43}, {1, 44}, {1, 4}, {1, 5}, {1, 6}, {1, 7}, {1, 8},
-        },
-        {
-            {1, 19}, {1, 20}, {1, 21}, {1, 22}, {1, 23}, {1, 45}, {1, 46},
-            {1, 47}, {1, 48}, {1, 49}, {1, 9}, {1, 10}, {1, 11}, {1, 12},
-            {1, 13},
-        },
-        {
-            {1, 24}, {1, 25}, {1, 26}, {1, 27}, {1, 28}, {1, 50}, {1, 51},
-            {1, 52}, {1, 53}, {1, 54}, {1, -24}, {1, -23}, {1, -27}, {1, -26},
-            {1, -25},
-        },
-        {
-            {1, 29}, {1, 30}, {1, 31}, {1, 32}, {1, 33}, {1, 55}, {1, 56},
-            {1, 57}, {1, 58}, {1, 59}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0},
-        },
-        {
-            {1, 34}, {1, 35}, {1, 36}, {1, 37}, {1, 38}, {1, 60}, {1, 61},
-            {1, 62}, {1, 63}, {1, 64}, {1, 0}, {-1, 0}, {-2, 0}, {-3, 0},
-            {-4, 0},
-        },
-        {
-            {1, 39}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1, 65}, {0, 0}, {0, 0},
-            {0, 0}, {0, 0}, {1, 0}, {-1, 0}, {-2, 0}, {-3, 0}, {-4, 0},
-        },
-        {
-            {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0},
-            {0, 0}, {0, 0}, {1, 0}, {1, 0}, {-1, 0}, {1, 0}, {-1, 0},
-        },
-    },
+KeyPage STDGNAME_keyChars[] = {
+    { {
+        { { 1, 0x0E }, { 1, 0x0F }, { 1, 0x10 }, { 1, 0x11 }, { 1, 0x12 }, { 1, 0x28 }, { 1, 0x29 }, { 1, 0x2A }, { 1, 0x2B }, { 1, 0x2C }, { 1, 0x04 }, { 1, 0x05 }, { 1, 0x06 }, { 1, 0x07 }, { 1, 0x08 } },
+        { { 1, 0x13 }, { 1, 0x14 }, { 1, 0x15 }, { 1, 0x16 }, { 1, 0x17 }, { 1, 0x2D }, { 1, 0x2E }, { 1, 0x2F }, { 1, 0x30 }, { 1, 0x31 }, { 1, 0x09 }, { 1, 0x0A }, { 1, 0x0B }, { 1, 0x0C }, { 1, 0x0D } },
+        { { 1, 0x18 }, { 1, 0x19 }, { 1, 0x1A }, { 1, 0x1B }, { 1, 0x1C }, { 1, 0x32 }, { 1, 0x33 }, { 1, 0x34 }, { 1, 0x35 }, { 1, 0x36 }, { 1, 0xE8 }, { 1, 0xE9 }, { 1, 0xE5 }, { 1, 0xE6 }, { 1, 0xE7 } },
+        { { 1, 0x1D }, { 1, 0x1E }, { 1, 0x1F }, { 1, 0x20 }, { 1, 0x21 }, { 1, 0x37 }, { 1, 0x38 }, { 1, 0x39 }, { 1, 0x3A }, { 1, 0x3B }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 } },
+        { { 1, 0x22 }, { 1, 0x23 }, { 1, 0x24 }, { 1, 0x25 }, { 1, 0x26 }, { 1, 0x3C }, { 1, 0x3D }, { 1, 0x3E }, { 1, 0x3F }, { 1, 0x40 }, { 1, 0x00 }, { -1, 0x00 }, { -2, 0x00 }, { -3, 0x00 }, { -4, 0x00 } },
+        { { 1, 0x27 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 1, 0x41 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 1, 0x00 }, { -1, 0x00 }, { -2, 0x00 }, { -3, 0x00 }, { -4, 0x00 } },
+        { { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 0, 0x00 }, { 1, 0x00 }, { 1, 0x00 }, { -1, 0x00 }, { 1, 0x00 }, { -1, 0x00 } },
+    } },
 };
 
-TextStyle D_80086FC0 = {
+TextStyle STDGNAME_nameStyle = {
     0xFF, 14, {0}, (s32)D_80085D78, (s32)D_8008675C,
     FONT_GLYPH_MAP, FONT_ICON_MAP,
     234, 114,
 };
 
-s32 D_80086FD8[] = {
+s32 STDGNAME_nameAnims[] = {
     7, 8, 9, 10, 9, 8, -1, 14, 15, 16, 15, -1, -1, -1, 11, 12, 13, 12, -1, -1,
     -1, 3, 4, 5, 6, 5, 4, -1, 25, 26, 27, 28, 27, 26, -1, 0, 1, 2, 1, -1, -1,
     -1, 17, 18, 19, 20, 19, 18, -1, 21, 22, 23, 24, 23, 22, -1,
 };
 
-s32 D_800870B8[] = {
-    44, 203, 195, 45, 222, 195,
+BigKey STDGNAME_bigKeys[] = {
+    { 44, 203, 195 }, { 45, 222, 195 }, { 60, 203, 153 }, { 68, 203, 174 }, { 76, 246, 195 },
 };
 
-s32 D_800870D0[] = {
-    60, 203, 153,
-};
-
-s32 D_800870DC[] = {
-    68, 203, 174,
-};
-
-s32 D_800870E8[] = {
-    76, 246, 195,
-};
-
-s32 D_800870F4[] = {
+s32 STDGNAME_keyArrowCluts[] = {
     0, 1, 2, 3, 2, 1,
 };
 
@@ -575,8 +462,8 @@ s32 D_800873A0[][7] = {
 
 extern TextStyle D_80088364;
 
-ScreenFuncs D_80087480 = {
-    &D_80088364, 0, func_80085B60, func_80085C08, func_80085C78, func_80085D0C,
+ScreenFuncs STDGNAME_funcs = {
+    &D_80088364, 0, STDGNAME_loadFiles, STDGNAME_filesLoading, STDGNAME_startFade, STDGNAME_updateFade,
 };
 
 #if VERSION_US
@@ -911,9 +798,9 @@ TextStyle D_80088364 = {
     234, 114,
 };
 
-Keyboard D_8008837C = {0};
+NameKeyboard STDGNAME_keyboard = {0};
 
-void func_80082724(Task *task, void **children) {
+void STDGNAME_updateScene(Task *task, void **children) {
     RECT rect;
     Layer *layer;
 
@@ -929,7 +816,7 @@ void func_80082724(Task *task, void **children) {
         rect.h = 240;
         layer = GFX.funcs.createLayer(&rect, 3, 0x1000);
         layer->setBgColor(layer, 0, 0, 0);
-        *children = func_80085B20();
+        *children = STDGNAME_createScreen();
         task->nextState(task);
         break;
     case TASK_RUN:
@@ -939,11 +826,11 @@ void func_80082724(Task *task, void **children) {
     }
 }
 
-Task *func_8008281C(void) {
-    return createTask(func_80082724, sizeof(Task), sizeof(void *));
+Task *STDGNAME_start(void) {
+    return createTask(STDGNAME_updateScene, sizeof(Task), sizeof(void *));
 }
 
-void func_80082848(FadeTask *task, s32 fadeIn, s32 duration) {
+void STDGNAME_startFader(FadeTask *task, s32 fadeIn, s32 duration) {
     task->setState(task, TASK_RUN);
     task->substate = 1;
     task->fadeIn = fadeIn;
@@ -956,7 +843,7 @@ void func_80082848(FadeTask *task, s32 fadeIn, s32 duration) {
     }
 }
 
-void func_800828D0(FadeTask *task) {
+void STDGNAME_drawFader(FadeTask *task) {
     Layer *layer = GFX.funcs.getLayer(task->layer);
     u_long *ot = (u_long *)layer->getOtEntry(layer, task->depth);
     POLY_F4 *poly = GFX.funcs.getPrim();
@@ -977,7 +864,7 @@ void func_800828D0(FadeTask *task) {
     GFX.funcs.setPrim(mode + 1);
 }
 
-void func_80082A14(FadeTask *task) {
+void STDGNAME_updateFader(FadeTask *task) {
     switch (task->state) {
     case TASK_INIT:
     default:
@@ -995,27 +882,27 @@ void func_80082A14(FadeTask *task) {
                 task->level = 0;
                 task->state = TASK_DONE;
             }
-            func_800828D0(task);
+            STDGNAME_drawFader(task);
         }
         break;
     case TASK_DONE:
-        func_800828D0(task);
+        STDGNAME_drawFader(task);
         break;
     case TASK_KILL:
         break;
     }
 }
 
-FadeTask *func_80082AC8(void) {
-    FadeTask *task = createTask(func_80082A14, sizeof(FadeTask), 0);
+FadeTask *STDGNAME_createFader(void) {
+    FadeTask *task = createTask(STDGNAME_updateFader, sizeof(FadeTask), 0);
 
-    task->start = func_80082848;
+    task->start = STDGNAME_startFader;
     task->layer = 0x1000;
     task->depth = 6;
     return task;
 }
 
-void func_80082B10(Tween *tween, s32 open) {
+void STDGNAME_startTween(Tween *tween, s32 open) {
     tween->active = 1;
     if (open) {
         SOUND.playSound(0x40019);
@@ -1028,7 +915,7 @@ void func_80082B10(Tween *tween, s32 open) {
     }
 }
 
-s32 func_80082BA4(Tween *tween) {
+s32 STDGNAME_updateTween(Tween *tween) {
     if (tween->active == 0) {
         return 1;
     }
@@ -1048,20 +935,20 @@ s32 func_80082BA4(Tween *tween) {
 }
 #include "stdgname.h"
 
-void func_80082C10(NameTask *task, NameWindows *windows) {
+void STDGNAME_createNameWindows(NameTask *task, NameWindows *windows) {
     s32 i;
 
     windows->title = createTextWindow(task->layer, 1, 0x20, 0x1A);
     windows->title->setPalette(windows->title, 4);
     windows->name = createTextWindow(task->layer, 1, 0x4B, 0x40);
     windows->name->setSpacing(windows->name, 0x13, 0);
-    windows->name->style = (u8 *)&D_80086FC0;
+    windows->name->style = (u8 *)&STDGNAME_nameStyle;
     for (i = 0; i < 3; i++) {
         windows->tabs[i] = createTextWindow(task->layer, 1, 0x2F + i * 0x4E, 0x5B);
         windows->tabs[i]->setDepth(windows->tabs[i], task->depth - 1);
         windows->tabs[i]->setLines(windows->tabs[i], 7);
         windows->tabs[i]->setSpacing(windows->tabs[i], 0xE, 0x12);
-        windows->tabs[i]->style = (u8 *)&D_80086FC0;
+        windows->tabs[i]->style = (u8 *)&STDGNAME_nameStyle;
     }
     windows->unk20 = createTextWindow(task->layer, 1, 0xCE, 0xC6);
     windows->unk24 = createTextWindow(task->layer, 1, 0xE1, 0xC6);
@@ -1072,13 +959,384 @@ void func_80082C10(NameTask *task, NameWindows *windows) {
     windows->unk30 = createTextWindow(task->layer, 1, 0x3E, 0x72);
 }
 
-INCLUDE_ASM("stdgname/nonmatchings/stdgname", func_80082E00);
+void STDGNAME_showNameWindows(NameTask *task, NameWindows *windows, s32 show) {
+    s32 i;
 
-INCLUDE_ASM("stdgname/nonmatchings/stdgname", func_80083104);
+    if (show != 0) {
+        windows->title->setString(windows->title, FILE_CACHE.load(TEXT_FILE(0x87)), 1);
+        windows->name->setText(windows->name, task->name);
+        windows->name->setPalette(windows->name, 1);
+        for (i = 0; i < 3; i++) {
+            windows->tabs[i]->setString(windows->tabs[i], FILE_CACHE.load(TEXT_FILE(0x87)),
+                                        STDGNAME_keyboard.tabTexts[task->page].texts[i]);
+            windows->tabs[i]->setPalette(windows->tabs[i], 1);
+        }
+        windows->unk20->setString(windows->unk20, FILE_CACHE.load(TEXT_FILE(0x87)), 0xD);
+        windows->unk20->setPalette(windows->unk20, 1);
+        windows->unk24->setString(windows->unk24, FILE_CACHE.load(TEXT_FILE(0x87)), 0xE);
+        windows->unk24->setPalette(windows->unk24, 1);
+        if (STDGNAME_keyboard.pageCount >= 2) {
+            windows->unk28->setString(windows->unk28, FILE_CACHE.load(TEXT_FILE(0x87)), 0x10);
+            windows->unk28->setPalette(windows->unk28, 1);
+            windows->unk2C->setString(windows->unk2C, FILE_CACHE.load(TEXT_FILE(0x87)), 0x11);
+            windows->unk2C->setPalette(windows->unk2C, 1);
+        }
+    } else {
+        windows->title->setVisible(windows->title, 0);
+        windows->name->setVisible(windows->name, 0);
+        for (i = 0; i < 3; i++) {
+            windows->tabs[i]->setVisible(windows->tabs[i], 0);
+        }
+        windows->unk20->setVisible(windows->unk20, 0);
+        windows->unk24->setVisible(windows->unk24, 0);
+        windows->unk28->setVisible(windows->unk28, 0);
+        windows->unk2C->setVisible(windows->unk2C, 0);
+    }
+}
 
-INCLUDE_ASM("stdgname/nonmatchings/stdgname", func_80083A30);
+void STDGNAME_drawKeyboard(NameTask *task) {
+    SpriteDrawer sprite;
+    s32 i;
+    s32 key;
 
-void func_80084640(NameTask *task, NameWindows *windows) {
+    initSpriteDrawer(&sprite);
+    sprite.setTexture(task->vramX, task->vramY);
+    sprite.setLayerId(task->layer, task->depth);
+    if (task->unkD0.value != 0) {
+        if (task->active) {
+            if (GFX.funcs.getTime() - task->keyTime >= 5) {
+                task->keyTime = GFX.funcs.getTime();
+                if (++task->keyFrame >= 4) {
+                    task->keyFrame = 0;
+                }
+            }
+            sprite.setClutRow(task->keyFrame);
+            if (task->column < 10 || task->row < 3) {
+                sprite.draw(FILE_CACHE_GET_ENTRY[0](STDGNAME_KEY_SPRITES), 0x27, task->column * 14 + 0x2F + task->column / 5 * 8,
+                            task->row * 18 + 0x5A);
+            } else {
+                for (i = 0; STDGNAME_keyboard.pages[task->page].cells[task->row][task->column + i].kind != 1; i--) {
+                }
+                switch (task->column + i + task->row * 15) {
+                case 0x64:
+                default:
+                    key = 0;
+                    break;
+                case 0x65:
+                    key = 1;
+                    break;
+                case 0x46:
+                    key = 2;
+                    STDGNAME_bigKeys[2].sprite = NAME_ENTRY_TEXT_SPRITE(0x3C);
+                    break;
+                case 0x55:
+                    key = 3;
+                    STDGNAME_bigKeys[3].sprite = NAME_ENTRY_TEXT_SPRITE(0x44);
+                    break;
+                case 0x67:
+                    key = 4;
+                    STDGNAME_bigKeys[4].sprite = NAME_ENTRY_TEXT_SPRITE(0x4C);
+                    break;
+                }
+                sprite.draw(FILE_CACHE_GET_ENTRY[0](STDGNAME_KEY_SPRITES), STDGNAME_bigKeys[key].sprite, STDGNAME_bigKeys[key].x,
+                            STDGNAME_bigKeys[key].y);
+            }
+            sprite.draw(FILE_CACHE_GET_ENTRY[0](STDGNAME_KEY_SPRITES), 0x28, task->cursor * 19 + 0x4B, 0x40);
+            sprite.setClutRow(0);
+        }
+        if (task->unkD0.value != 0x1000) {
+            sprite.setScale(task->unkD0.value, 0x1000, 0x1000);
+        }
+        if (task->unkD0.value != 0x1000) {
+            sprite.setPivot(0x18, 0x20);
+        }
+        sprite.draw(FILE_CACHE.getEntry(STDGNAME_KEY_SPRITES), 0x1D, 0x18, 0x15);
+        if (task->mode != 2) {
+            if (task->unkD0.value != 0x1000) {
+                sprite.setPivot(0x20, 0x3F);
+            }
+            if (task->partner != -1) {
+                if (GFX.funcs.getTime() - task->partnerTime >= 13) {
+                    task->partnerTime = GFX.funcs.getTime();
+                    if (++task->partnerFrame >= 7 || STDGNAME_nameAnims[task->partner * 7 + task->partnerFrame] == -1) {
+                        task->partnerFrame = 0;
+                    }
+                }
+                sprite.draw(FILE_CACHE_GET_ENTRY[0](STDGNAME_KEY_SPRITES), STDGNAME_nameAnims[task->partner * 7 + task->partnerFrame],
+                            0x22, 0x30);
+            } else {
+                sprite.draw(FILE_CACHE.getEntry(STDGNAME_KEY_SPRITES), 0x36, 0x20, 0x2E);
+            }
+            if (GFX.funcs.getTime() - task->unk74 >= 5) {
+                task->unk74 = GFX.funcs.getTime();
+                if (++task->unk70 >= 14) {
+                    task->unk70 = 0;
+                }
+            }
+            sprite.setLayerId(task->layer, task->depth - 1);
+            sprite.setClutRow(task->unk70);
+            sprite.draw(FILE_CACHE.getEntry(STDGNAME_KEY_SPRITES), 0x1F, 0x20, 0x2E);
+            sprite.setClutRow(0);
+            sprite.setLayerId(task->layer, task->depth);
+            sprite.draw(FILE_CACHE.getEntry(STDGNAME_KEY_SPRITES), 0x1E, 0x20, 0x2E);
+        }
+        if (task->unkD0.value != 0x1000) {
+            sprite.setPivot(0x20, 0x49);
+        }
+        if (task->mode != 2) {
+            if (NAME_ENTRY_JAPANESE) {
+                sprite.draw(FILE_CACHE_GET_ENTRY[0](STDGNAME_KEY_SPRITES), 0x34, 0x4B, 0x40);
+            } else {
+                sprite.draw(FILE_CACHE_GET_ENTRY[0](STDGNAME_KEY_SPRITES), 0x37, 0x4B, 0x40);
+            }
+        } else {
+            sprite.draw(FILE_CACHE_GET_ENTRY[0](STDGNAME_KEY_SPRITES), 0x35, 0x4B, 0x40);
+        }
+        if (task->unkD0.value != 0x1000) {
+            sprite.setScale(0x1000, task->unkD0.value, 0x1000);
+        }
+        if (STDGNAME_keyboard.pageCount >= 2) {
+            if (GFX.funcs.getTime() - task->arrowTime >= 7) {
+                task->arrowTime = GFX.funcs.getTime();
+                if (++task->arrowFrame >= 6) {
+                    task->arrowFrame = 0;
+                }
+            }
+            sprite.setClutRow(STDGNAME_keyArrowCluts[task->arrowFrame]);
+            sprite.draw(FILE_CACHE.getEntry(STDGNAME_KEY_SPRITES), 0x32, 0xA, 0x5E);
+            sprite.draw(FILE_CACHE.getEntry(STDGNAME_KEY_SPRITES), 0x33, 0x119, 0x5E);
+            sprite.setClutRow(0);
+        }
+        sprite.setClutRow(4);
+        sprite.draw(FILE_CACHE.getEntry(STDGNAME_KEY_SPRITES), 0x2C, 0xCB, 0xC3);
+        sprite.draw(FILE_CACHE.getEntry(STDGNAME_KEY_SPRITES), 0x2D, 0xDE, 0xC3);
+        sprite.draw(FILE_CACHE.getEntry(STDGNAME_KEY_SPRITES), NAME_ENTRY_TEXT_SPRITE(0x3C), 0xCB, 0x99);
+        sprite.draw(FILE_CACHE.getEntry(STDGNAME_KEY_SPRITES), NAME_ENTRY_TEXT_SPRITE(0x44), 0xCB, 0xAE);
+        sprite.draw(FILE_CACHE.getEntry(STDGNAME_KEY_SPRITES), NAME_ENTRY_TEXT_SPRITE(0x4C), 0xF6, 0xC3);
+        sprite.setClutRow(0);
+        sprite.draw(FILE_CACHE.getEntry(STDGNAME_KEY_SPRITES), 0x25, 0x1D, 0x54);
+    }
+    sprite.setLayerId(task->layer, task->depth - 1);
+    if (task->unkE0.value != 0) {
+        if (task->unkE0.value != 0x1000) {
+            sprite.setScale(0x1000, task->unkE0.value, 0x1000);
+            sprite.setPivot(0, 0x78);
+        }
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](STDGNAME_KEY_SPRITES), 0x26, 0, 0x64);
+    }
+}
+
+void STDGNAME_updateKeyboard(NameTask *task, NameWindows *windows) {
+    s32 page;
+    s32 newPage;
+    s32 i;
+    s32 key;
+    s32 j;
+    u16 c;
+    u32 glyph; /* the match depends on this u32 copy of c, which orders the loads of the key's glyph */
+
+    switch (task->substate) {
+    case 0:
+    default:
+        STDGNAME_startTween(&task->unkD0, 1);
+        task->substate++;
+        break;
+    case 1:
+        if (STDGNAME_updateTween(&task->unkD0)) {
+            STDGNAME_showNameWindows(task, windows, 1);
+            task->active = 1;
+            task->substate++;
+        }
+        break;
+    case 2:
+        if (PAD_PRESSED(PAD_START)) {
+            SOUND.playSound(0x4001B);
+            task->column = 13;
+            task->row = 6;
+            break;
+        }
+        if (STDGNAME_keyboard.pageCount >= 2) {
+            page = task->page;
+            if (!((PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_R1)) & 1) && PAD_PRESSED(PAD_L1)) {
+                if (--task->page < 0) {
+                    task->page = STDGNAME_keyboard.pageCount - 1;
+                }
+            } else if (!((PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_L1)) & 1) && PAD_PRESSED(PAD_R1)) {
+                if (++task->page > STDGNAME_keyboard.pageCount - 1) {
+                    task->page = 0;
+                }
+            }
+            if (page != task->page) {
+                SOUND.playSound(0x4001B);
+                STDGNAME_showNameWindows(task, windows, 1);
+                if (NAME_ENTRY_JAPANESE) {
+                    newPage = task->page;
+                    if (newPage == 0 || newPage == 1) {
+                        while (STDGNAME_keyboard.pages[newPage].cells[task->row][task->column].kind != 1) {
+                            if (--task->column < 0) {
+                                task->column = 14;
+                            }
+                        }
+                    } else {
+                        while (STDGNAME_keyboard.pages[newPage].cells[task->row][task->column].kind == 0) {
+                            if (--task->row < 0) {
+                                task->row = 6;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (PAD_PRESSED(PAD_LEFT) || PAD_REPEATED(PAD_LEFT)) {
+            if (STDGNAME_keyboard.pages[task->page].cells[task->row][task->column].kind < 0) {
+                task->column += STDGNAME_keyboard.pages[task->page].cells[task->row][task->column].kind;
+            }
+            do {
+                if (--task->column < 0) {
+                    task->column = 14;
+                }
+            } while (STDGNAME_keyboard.pages[task->page].cells[task->row][task->column].kind != 1);
+            SOUND.playSound(0x4001B);
+        } else if (PAD_PRESSED(PAD_RIGHT) || PAD_REPEATED(PAD_RIGHT)) {
+            if (STDGNAME_keyboard.pages[task->page].cells[task->row][task->column].kind < 0) {
+                task->column += STDGNAME_keyboard.pages[task->page].cells[task->row][task->column].kind;
+            }
+            do {
+                if (++task->column >= 15) {
+                    task->column = 0;
+                }
+            } while (STDGNAME_keyboard.pages[task->page].cells[task->row][task->column].kind != 1);
+            SOUND.playSound(0x4001B);
+        }
+        if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
+            do {
+                if (--task->row < 0) {
+                    task->row = 6;
+                }
+            } while (STDGNAME_keyboard.pages[task->page].cells[task->row][task->column].kind == 0);
+            SOUND.playSound(0x4001B);
+        } else if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
+            do {
+                if (++task->row >= 7) {
+                    task->row = 0;
+                }
+            } while (STDGNAME_keyboard.pages[task->page].cells[task->row][task->column].kind == 0);
+            SOUND.playSound(0x4001B);
+        }
+        if (PAD_PRESSED(PAD_CROSS)) {
+            for (i = 0; STDGNAME_keyboard.pages[task->page].cells[task->row][task->column + i].kind != 1; i--) {
+            }
+            key = task->row * 15 + task->column + i;
+            SOUND.playSound(0x4001C);
+            switch (key) {
+            case 0x64:
+                if (--task->cursor < 0) {
+                    task->cursor = 0;
+                }
+                break;
+            case 0x65:
+                if (++task->cursor > task->maxLength - 1) {
+                    task->cursor = task->maxLength - 1;
+                }
+                break;
+            case 0x46:
+                if (task->cursor <= task->maxLength - 1 && task->name[task->cursor] == 0x4081) {
+                    if (--task->cursor < 0) {
+                        task->cursor = 0;
+                    }
+                }
+                c = ((TextStyle *)windows->name->style)->iconMap[1].code;
+                task->name[task->cursor] = (c >> 8) | ((c & 0xFF) << 8);
+                windows->name->setText(windows->name, task->name);
+                break;
+            case 0x55:
+                c = ((TextStyle *)windows->name->style)->iconMap[1].code;
+                task->name[task->cursor] = (c >> 8) | ((c & 0xFF) << 8);
+                if (++task->cursor > task->maxLength - 1) {
+                    task->cursor = task->maxLength - 1;
+                }
+                windows->name->setText(windows->name, task->name);
+                break;
+            case 0x67:
+                for (j = 0; j < task->maxLength; j++) {
+                    if (task->name[j] != 0x4081 && task->name[j] != 0) {
+                        for (j = 19; j >= 0; j--) {
+                            if (task->name[j] != 0x4081) {
+                                task->substate = 100;
+                                return;
+                            }
+                            task->name[j] = 0;
+                        }
+                    }
+                }
+                task->substate = 20;
+                break;
+            default:
+                glyph = ((TextStyle *)windows->name->style)
+                            ->sjisMap[STDGNAME_keyboard.pages[task->page].cells[task->row][task->column].code]
+                            .code;
+                task->name[task->cursor] = (glyph >> 8) | ((glyph & 0xFF) << 8);
+                windows->name->setText(windows->name, task->name);
+                if (++task->cursor > task->maxLength - 1) {
+                    task->cursor = task->maxLength - 1;
+                    task->column = 13;
+                    task->row = 6;
+                }
+                break;
+            }
+        } else if (PAD_PRESSED(PAD_TRIANGLE)) {
+            SOUND.playSound(0x800450BD);
+            if (task->cursor <= task->maxLength - 1 && task->name[task->cursor] == 0x4081) {
+                if (--task->cursor < 0) {
+                    task->cursor = 0;
+                }
+            }
+            c = ((TextStyle *)windows->name->style)->iconMap[1].code;
+            task->name[task->cursor] = (c >> 8) | ((c & 0xFF) << 8);
+            windows->name->setText(windows->name, task->name);
+        }
+        break;
+    case 10:
+        STDGNAME_showNameWindows(task, windows, 0);
+        STDGNAME_startTween(&task->unkD0, 0);
+        task->active = 0;
+        task->substate++;
+        break;
+    case 11:
+        if (STDGNAME_updateTween(&task->unkD0)) {
+            task->state = TASK_DONE;
+        }
+        break;
+    case 20:
+        task->active = 0;
+        STDGNAME_startTween(&task->unkE0, 1);
+        task->substate++;
+        break;
+    case 21:
+        if (STDGNAME_updateTween(&task->unkE0)) {
+            windows->unk30->setString(windows->unk30, FILE_CACHE_LOAD[0](TEXT_FILE(0x87)), 0x12);
+            task->substate++;
+        }
+        break;
+    case 22:
+        if (PAD_PRESSED(PAD_CROSS)) {
+            windows->unk30->setVisible(windows->unk30, 0);
+            STDGNAME_startTween(&task->unkE0, 0);
+            task->substate++;
+        }
+        break;
+    case 23:
+        if (STDGNAME_updateTween(&task->unkE0)) {
+            task->active = 1;
+            task->substate = 2;
+        }
+        break;
+    case 100:
+        break;
+    }
+}
+
+void STDGNAME_updateNameEntry(NameTask *task, NameWindows *windows) {
     TimLoader loader;
 
     switch (task->state) {
@@ -1089,28 +1347,28 @@ void func_80084640(NameTask *task, NameWindows *windows) {
         loader.setImagePos(task->vramX, task->vramY);
         loader.loadArchive(FILE_CACHE_GET_ENTRY[0](STDGNAME_FILE_KEYBOARD << 16));
 #if VERSION_US
-        D_8008837C.pageCount = 1;
-        D_8008837C.tabTexts = D_80086EE0;
-        D_8008837C.keys = D_80086EEC;
+        STDGNAME_keyboard.pageCount = 1;
+        STDGNAME_keyboard.tabTexts = STDGNAME_keyPages;
+        STDGNAME_keyboard.pages = STDGNAME_keyChars;
 #elif VERSION_EU
         if (LANGUAGE == 0) {
-            D_8008837C.pageCount = 3;
-            D_8008837C.tabTexts = D_800876FC;
-            D_8008837C.keys = D_80087720;
+            STDGNAME_keyboard.pageCount = 3;
+            STDGNAME_keyboard.tabTexts = STDGNAME_keyPagesJp;
+            STDGNAME_keyboard.pages = STDGNAME_keyCharsJp;
         } else {
-            D_8008837C.pageCount = 1;
-            D_8008837C.tabTexts = D_80086EE0;
-            D_8008837C.keys = D_80086EEC;
+            STDGNAME_keyboard.pageCount = 1;
+            STDGNAME_keyboard.tabTexts = STDGNAME_keyPages;
+            STDGNAME_keyboard.pages = STDGNAME_keyChars;
         }
 #endif
         task->unkC0.duration = 10;
         task->unkE0.duration = 10;
         task->unkD0.duration = 10;
-        func_80082C10(task, windows);
+        STDGNAME_createNameWindows(task, windows);
         break;
     case TASK_RUN:
-        func_80083A30(task, windows);
-        func_80083104(task);
+        STDGNAME_updateKeyboard(task, windows);
+        STDGNAME_drawKeyboard(task);
         break;
     case TASK_DONE:
     case TASK_KILL:
@@ -1118,12 +1376,12 @@ void func_80084640(NameTask *task, NameWindows *windows) {
     }
 }
 
-void func_80084744(NameTask *task, s32 x, s32 y) {
+void STDGNAME_setNameVram(NameTask *task, s32 x, s32 y) {
     task->vramX = x;
     task->vramY = y;
 }
 
-void func_80084750(NameTask *task, char *name) {
+void STDGNAME_setName(NameTask *task, char *name) {
     TextTools conv;
     s32 i;
 
@@ -1134,7 +1392,7 @@ void func_80084750(NameTask *task, char *name) {
     }
 }
 
-void func_800847E4(NameTask *task, char *out) {
+void STDGNAME_getName(NameTask *task, char *out) {
     TextTools conv;
     s32 i;
 
@@ -1150,15 +1408,15 @@ void func_800847E4(NameTask *task, char *out) {
     conv.convert(out, &task->name[i], 1);
 }
 
-void func_800848E4(NameTask *task) {
+void STDGNAME_closeNameEntry(NameTask *task) {
     task->substate = 10;
 }
 
-NameTask *func_800848F0(char *name, s32 partner) {
-    NameTask *task = createTask(func_80084640, sizeof(NameTask), sizeof(NameWindows));
+NameTask *STDGNAME_createNameEntry(char *name, s32 partner) {
+    NameTask *task = createTask(STDGNAME_updateNameEntry, sizeof(NameTask), sizeof(NameWindows));
 
-    task->getName = func_800847E4;
-    task->unkF4 = func_800848E4;
+    task->getName = STDGNAME_getName;
+    task->unkF4 = STDGNAME_closeNameEntry;
     task->layer = 0x1000;
     task->depth = 3;
     task->mode = 1;
@@ -1173,8 +1431,8 @@ NameTask *func_800848F0(char *name, s32 partner) {
         task->maxLength = 8;
     }
 #endif
-    func_80084750(task, name);
-    func_80084744(task, 0x280, 0x100);
+    STDGNAME_setName(task, name);
+    STDGNAME_setNameVram(task, 0x280, 0x100);
     return task;
 }
 
@@ -1192,7 +1450,7 @@ void func_80084998(MenuTask *task, TextWindow **window, s32 index, s32 show) {
         }
         if (index >= 2 && index <= 4) {
             name = GAME.funcs.getPartnerStats(GAME.funcs.getPartyMember(index - 2))->name;
-            (*window)->style = (u8 *)D_80087480.style;
+            (*window)->style = (u8 *)STDGNAME_funcs.style;
             (*window)->setString(*window, name, -1);
         } else {
             (*window)->setString(*window, FILE_CACHE_LOAD[0](TEXT_FILE(0x41)), D_800872E0[index].text);
@@ -1224,7 +1482,7 @@ void func_80084B0C(MenuTask *task, TextWindow **windows) {
                 sprite.setScale(value, 0x1000, 0x1000);
             }
             if (D_8008710C[i].sprite == 0x20) {
-                sprite.setPivot(D_8008710C[i].pivotX, D_8008710C[i].pivotY + D_80087480.partner * 43);
+                sprite.setPivot(D_8008710C[i].pivotX, D_8008710C[i].pivotY + STDGNAME_funcs.partner * 43);
             } else {
                 sprite.setPivot(D_8008710C[i].pivotX, D_8008710C[i].pivotY);
             }
@@ -1238,7 +1496,7 @@ void func_80084B0C(MenuTask *task, TextWindow **windows) {
                 }
             }
             sprite.setClutRow(task->titleClut);
-            sprite.draw(FILE_CACHE.getEntry(STDGNAME_SPRITES), D_8008710C[i].sprite, D_8008710C[i].x, D_8008710C[i].y + D_80087480.partner * 43);
+            sprite.draw(FILE_CACHE.getEntry(STDGNAME_SPRITES), D_8008710C[i].sprite, D_8008710C[i].x, D_8008710C[i].y + STDGNAME_funcs.partner * 43);
             sprite.setClutRow(0);
         } else {
             sprite.draw(FILE_CACHE.getEntry(STDGNAME_SPRITES), D_8008710C[i].sprite, D_8008710C[i].x, D_8008710C[i].y);
@@ -1290,19 +1548,19 @@ void func_80084B0C(MenuTask *task, TextWindow **windows) {
 
 s32 func_800850E0(MenuTask *task, TextWindow **windows) {
     if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
-        if (--D_80087480.partner < 0) {
-            D_80087480.partner = task->partyCount - 1;
+        if (--STDGNAME_funcs.partner < 0) {
+            STDGNAME_funcs.partner = task->partyCount - 1;
         }
         SOUND.playSound(0x4001B);
     } else if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
-        if (++D_80087480.partner > task->partyCount - 1) {
-            D_80087480.partner = 0;
+        if (++STDGNAME_funcs.partner > task->partyCount - 1) {
+            STDGNAME_funcs.partner = 0;
         }
         SOUND.playSound(0x4001B);
     }
     if (PAD_PRESSED(PAD_CROSS)) {
         SOUND.playSound(0x4001C);
-        task->screen->choice = D_80087480.partner;
+        task->screen->choice = STDGNAME_funcs.partner;
         return 1;
     }
     if (PAD_PRESSED(PAD_TRIANGLE)) {
@@ -1337,28 +1595,28 @@ void func_80085354(MenuTask *task, TextWindow **windows) {
         switch (task->substate) {
         case 0:
         default:
-            D_80087480.startTween(&task->tweens[0], 1);
-            D_80087480.startTween(&task->tweens[1], 1);
+            STDGNAME_funcs.startTween(&task->tweens[0], 1);
+            STDGNAME_funcs.startTween(&task->tweens[1], 1);
             task->substate++;
             break;
         case 1:
-            done += D_80087480.tickTween(&task->tweens[0]);
-            done += D_80087480.tickTween(&task->tweens[1]);
+            done += STDGNAME_funcs.tickTween(&task->tweens[0]);
+            done += STDGNAME_funcs.tickTween(&task->tweens[1]);
             if (done == 2) {
                 func_80084998(task, &windows[0], 0, 1);
                 func_80084998(task, &windows[1], 1, 1);
-                D_80087480.startTween(&task->tweens[3], 1);
+                STDGNAME_funcs.startTween(&task->tweens[3], 1);
                 task->nextSubstate(task);
             }
             break;
         case 2:
-            if (D_80087480.tickTween(&task->tweens[task->step + 3])) {
+            if (STDGNAME_funcs.tickTween(&task->tweens[task->step + 3])) {
                 func_80084998(task, &windows[task->step + 2], task->step + 2, 1);
                 if (task->step < task->partyCount - 1) {
                     task->step++;
-                    D_80087480.startTween(&task->tweens[task->step + 3], 1);
+                    STDGNAME_funcs.startTween(&task->tweens[task->step + 3], 1);
                 } else {
-                    D_80087480.startTween(&task->tweens[2], 1);
+                    STDGNAME_funcs.startTween(&task->tweens[2], 1);
                     task->nextSubstate(task);
                 }
             }
@@ -1367,20 +1625,20 @@ void func_80085354(MenuTask *task, TextWindow **windows) {
             if (func_800850E0(task, windows)) {
                 task->substate++;
                 for (i = 0; i < 6; i++) {
-                    D_80087480.startTween(&task->tweens[i], 0);
+                    STDGNAME_funcs.startTween(&task->tweens[i], 0);
                     func_80084998(task, &windows[i], i, 0);
                 }
             }
             break;
         case 3:
         case 5:
-            if (D_80087480.tickTween(&task->tweens[2])) {
+            if (STDGNAME_funcs.tickTween(&task->tweens[2])) {
                 task->substate++;
             }
             break;
         case 6:
             for (j = 0; j < 6; j++) {
-                done += D_80087480.tickTween(&task->tweens[j]);
+                done += STDGNAME_funcs.tickTween(&task->tweens[j]);
             }
             if (done == 6) {
                 task->setState(task, TASK_KILL);
@@ -1395,7 +1653,7 @@ void func_80085354(MenuTask *task, TextWindow **windows) {
     }
 }
 
-MenuTask *func_800856B4(ScreenTask *screen) {
+MenuTask *STDGNAME_createMenu(ScreenTask *screen) {
     MenuTask *task = createTask(func_80085354, sizeof(MenuTask), 10 * sizeof(TextWindow *));
 
     task->screen = screen;

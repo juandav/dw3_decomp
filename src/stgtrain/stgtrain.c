@@ -21,6 +21,8 @@ ScreenFade *func_80085898(void);
 TrainResult *func_800875E8(TrainScreen *screen, s32 partner, s32 training);
 TrainSession *func_80088CA8(TrainScreen *screen);
 TrainMenu *func_8008AD40(TrainScreen *screen);
+s32 func_800859F4(TrainResult *result, s32 stat);
+s32 func_80085AF8(TrainResult *result, s32 stat);
 void func_80086258(TrainResult *result, TrainResultWindows *win);
 void func_800874A0(TrainResult *result, TrainResultWindows *win);
 void func_80086340(TrainResult *result);
@@ -30,8 +32,10 @@ void func_800878C0(TrainSession *session);
 void func_80087E34(TrainSession *session, TrainSessionWindows *win);
 void func_80088CFC(TrainActor *actor, TrainActorSprites *sprites);
 TrainActor *func_800897B8(s32 set, s32 file, s32 layerId, s32 depth);
-void func_80089924(TrainMenu *menu, void *children, s32 arg2);
-void func_8008AA28(TrainMenu *menu, void *children);
+void func_80089924(TrainMenu *menu, TextWindow **win, s32 show);
+void func_8008AA28(TrainMenu *menu, TextWindow **win);
+void func_8008A004(TrainMenu *menu, TextWindow **win);
+void func_80089A54(TrainMenu *menu);
 
 /* Sets the sprite bank and where the sprites start in it */
 void func_800827F0(TrainSprite *sprite, TrainSpriteBank *bank, s32 offset) {
@@ -291,7 +295,83 @@ void func_800839E4(TrainScreen *screen, TrainScreenWindows *win, s32 show) {
     }
 }
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_80083ADC);
+/*
+ * Shows the selected partner's stats, in colour where they differ from
+ * before (NULL: just shows them). The MP label is given win->mp[3] (that
+ * is, slashes[0]) as its window, as in the original. The match depends on
+ * the stats and resistances being read as *(totals.stats + i).
+ */
+void func_80083ADC(TrainScreen *screen, TrainTotals *before) {
+    TrainScreenWindows *win = screen->children;
+    TrainTotals totals;
+    s32 partner;
+    s32 i;
+
+    if (before == NULL) {
+        func_800834A8(screen, win, 1);
+        func_800837D8(screen, win, 1);
+        return;
+    }
+    partner = GAME.funcs.getPartyMember(screen->partner);
+    GAME.funcs.getPartnerStats(partner);
+    GAME.funcs.computeStats(partner, (PartnerTotals *)&totals);
+    win->hp[0]->setString(win->hp[0], FILE_CACHE.load(STGTRAIN_TEXT), 2);
+    win->hp[1]->setNumber(win->hp[1], 0, totals.hp);
+    win->hp[2]->setNumber(win->hp[2], 0, totals.maxHp);
+    for (i = 1; i < 3; i++) {
+        win->hp[i]->setRightAlign(win->hp[i], 1);
+    }
+    if (before->maxHp < totals.maxHp) {
+        win->hp[2]->setPalette(win->hp[2], 1);
+    } else if (totals.maxHp < before->maxHp) {
+        win->hp[2]->setPalette(win->hp[2], 5);
+    } else {
+        win->hp[2]->setPalette(win->hp[2], 0);
+    }
+    win->mp[0]->setString(win->mp[i], FILE_CACHE.load(STGTRAIN_TEXT), 3);
+    win->mp[1]->setNumber(win->mp[1], 0, totals.mp);
+    win->mp[2]->setNumber(win->mp[2], 0, totals.maxMp);
+    for (i = 1; i < 3; i++) {
+        win->mp[i]->setRightAlign(win->mp[i], 1);
+    }
+    if (before->maxMp < totals.maxMp) {
+        win->mp[2]->setPalette(win->mp[2], 1);
+    } else if (totals.maxMp < before->maxMp) {
+        win->mp[2]->setPalette(win->mp[2], 5);
+    } else {
+        win->mp[2]->setPalette(win->mp[2], 0);
+    }
+    for (i = 0; i < 2; i++) {
+        win->slashes[i]->setString(win->slashes[i], FILE_CACHE.load(STGTRAIN_TEXT), 0x43);
+    }
+    if (totals.boosted[0] != 0) {
+        win->stats[0]->setPalette(win->stats[0], 6);
+    }
+    if (totals.boosted[1] != 0) {
+        win->stats[1]->setPalette(win->stats[1], 6);
+    }
+    if (totals.boosted[2] != 0) {
+        win->stats[4]->setPalette(win->stats[4], 6);
+    }
+    for (i = 0; i < 6; i++) {
+        win->stats[i]->setNumber(win->stats[i], 0, *(totals.stats + i));
+        win->stats[i]->setRightAlign(win->stats[i], 1);
+        if (before->stats[i] < *(totals.stats + i)) {
+            win->stats[i]->setPalette(win->stats[i], 1);
+        } else if (*(totals.stats + i) < before->stats[i]) {
+            win->stats[i]->setPalette(win->stats[i], 5);
+        }
+    }
+    for (i = 0; i < 7; i++) {
+        win->resistances[i]->setNumber(win->resistances[i], 0, *(totals.resistances + i));
+        win->resistances[i]->setRightAlign(win->resistances[i], 1);
+        if (before->resistances[i] < *(totals.resistances + i)) {
+            win->resistances[i]->setPalette(win->resistances[i], 1);
+        } else if (*(totals.resistances + i) < before->resistances[i]) {
+            win->resistances[i]->setPalette(win->resistances[i], 5);
+        }
+    }
+}
 
 /* Draws the screen: the panels, the party's sprites and the sign */
 void func_80083F8C(TrainScreen *screen) {
@@ -789,15 +869,159 @@ ScreenFade *func_80085898(void) {
     return task;
 }
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_800858E0);
+/* Raises a battle stat (1-5) by the training's gain, up to 999 */
+s32 func_800858E0(TrainResult *result, s32 stat) {
+    PartnerStats *stats = (PartnerStats *)GAME.funcs.getPartnerStats(result->partner);
+    s32 column = 6;
+    s16 *value;
+    s32 gained;
+
+    if ((u32)(stat - 1) >= 5) {
+        return 0;
+    }
+    value = &stats->stats[stat + 5];
+    if (result->training < 0xD) {
+        column = 0;
+    }
+    column += result->unkD8 * 3 + result->screen->unk7C;
+    if (D_8008B80C[column].range != 0) {
+        gained = D_8008B80C[column].base + RANDOM.next() % D_8008B80C[column].range;
+    } else {
+        gained = D_8008B80C[column].base;
+    }
+    *value += gained;
+    if (*value >= 1000) {
+        *value = 999;
+    }
+    return gained;
+}
 
 INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_800859F4);
 
 INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_80085AF8);
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_80085CC4);
+/*
+ * Raises the maximum HP (stat 15) or MP (16) by the training's gain, up to
+ * 9999; the US version also raises the current value, up to the maximum.
+ */
+s32 func_80085CC4(TrainResult *result, s32 stat) {
+    PartnerStats *stats;
+    s16 *value;
+#if VERSION_US
+    s16 *current;
+#endif
+    s32 column;
+    s32 gained;
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_80085E30);
+    if ((u32)(stat - 15) >= 2) {
+        return 0;
+    }
+    stats = (PartnerStats *)GAME.funcs.getPartnerStats(result->partner);
+    if (stat == 15) {
+        value = &stats->stats[3];
+#if VERSION_US
+        current = &stats->stats[2];
+#endif
+    } else {
+        value = &stats->stats[5];
+#if VERSION_US
+        current = &stats->stats[4];
+#endif
+    }
+    column = 0;
+    if (result->unkD8 != 0) {
+        if (result->training < 0xD) {
+            column = 1;
+        } else {
+            column = 2;
+        }
+    }
+    column += result->screen->unk7C * 3;
+    if (D_8008B998[column].range != 0) {
+        gained = D_8008B998[column].base + RANDOM.next() % D_8008B998[column].range;
+    } else {
+        gained = D_8008B998[column].base;
+    }
+    *value += gained;
+    if (*value >= 10000) {
+        *value = 9999;
+    }
+#if VERSION_US
+    *current += gained;
+    if (*current > *value) {
+        *current = *value;
+    }
+#endif
+    return gained;
+}
+
+/*
+ * Applies the i-th try of a training (if it worked) and shows what it
+ * changed: the stat it raises, and the one it lowers or also raises.
+ */
+void func_80085E30(TrainResult *result, s32 i) {
+    TrainResultWindows *win = result->children;
+    TrainEntry *entry = (TrainEntry *)D_8008C4D4.findTableEntry(result->modeArg, result->training);
+
+    if (result->trained[i] != 0) {
+        /* The match depends on stat (and other below) being s16 locals. */
+        s16 stat = entry->stat;
+
+        if (stat != 0) {
+            if ((u16)stat - 1 < 5u) {
+                result->gains[i] = func_800858E0(result, stat);
+            } else {
+                result->gains[i] = func_80085AF8(result, stat);
+                stat = entry->other;
+                if (stat != 0) {
+                    if ((u16)stat - 1 < 5u) {
+                        result->losses[i] = func_800859F4(result, stat);
+                    } else {
+                        result->losses[i] = func_80085CC4(result, stat);
+                    }
+                }
+            }
+        }
+    }
+    if (result->trained[i] != 0) {
+        if ((u16)entry->stat - 1 < 5u) {
+            win->message[0]->setString(win->message[0], FILE_CACHE.load(STGTRAIN_TEXT), 0x5C);
+            win->message[0]->setSubString(win->message[0], FILE_CACHE.load(STGTRAIN_TEXT), entry->stat + 0x46, 1);
+            win->message[0]->setNumber(win->message[0], 2, result->gains[i]);
+            win->message[0]->setPalette(win->message[0], 1);
+            win->message[1]->setVisible(win->message[1], 0);
+        } else {
+            s16 other;
+
+            win->message[0]->setString(win->message[0], FILE_CACHE.load(STGTRAIN_TEXT), 0x5C);
+            win->message[0]->setSubString(win->message[0], FILE_CACHE.load(STGTRAIN_TEXT), entry->stat + 0x4D, 1);
+            win->message[0]->setNumber(win->message[0], 2, result->gains[i]);
+            win->message[0]->setPalette(win->message[0], 1);
+            other = entry->other;
+            if (other != 0) {
+                if ((u16)other - 1 < 5u) {
+                    if (result->losses[i] != 0) {
+                        win->message[1]->setString(win->message[1], FILE_CACHE.load(STGTRAIN_TEXT), 0x5D);
+                        win->message[1]->setSubString(win->message[1], FILE_CACHE.load(STGTRAIN_TEXT), entry->other + 0x46, 1);
+                        win->message[1]->setNumber(win->message[1], 2, result->losses[i]);
+                        win->message[1]->setPalette(win->message[1], 5);
+                    } else {
+                        win->message[1]->setVisible(win->message[1], 0);
+                    }
+                } else {
+                    win->message[1]->setString(win->message[1], FILE_CACHE.load(STGTRAIN_TEXT), 0x5C);
+                    win->message[1]->setSubString(win->message[1], FILE_CACHE.load(STGTRAIN_TEXT), entry->other + 0x44, 1);
+                    win->message[1]->setNumber(win->message[1], 2, result->losses[i]);
+                    win->message[1]->setPalette(win->message[1], 1);
+                }
+            }
+        }
+    } else {
+        win->message[0]->setString(win->message[0], FILE_CACHE.load(STGTRAIN_TEXT), 0x46);
+        win->message[0]->setPalette(win->message[0], 0);
+        win->message[1]->setVisible(win->message[1], 0);
+    }
+}
 
 /* The bonus of the accessories 0x151 (3) and 0x152 (6) */
 s32 func_800861F0(TrainResult *result) {
@@ -827,7 +1051,41 @@ INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_80086340);
 
 INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_800867A0);
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_800874A0);
+/* The training result's task. The match depends on the -1 being in a variable. */
+void func_800874A0(TrainResult *result, TrainResultWindows *win) {
+    s32 i;
+
+    switch (result->state) {
+    case TASK_INIT:
+    default:
+        result->nextState(result);
+        func_80086258(result, win);
+        result->panels[0].duration = 10;
+        result->panels[1].duration = 10;
+        result->panels[2].duration = 10;
+        result->panels[3].duration = 10;
+        {
+            s32 none = -1;
+            for (i = 4; i >= 0; i--) {
+                result->trained[i] = none;
+            }
+        }
+        win->actor = func_800897B8(result->partner, result->training, result->layerId, result->depth - 3);
+        win->actor->setPos(win->actor, 0x300, 0);
+        win->actor->setClutPos(win->actor, 0x2C0, 0);
+        win->actor->pause(win->actor);
+        win->actor->setScale(win->actor, 0);
+        GAME.funcs.computeStats(result->partner, (PartnerTotals *)&result->before);
+        break;
+    case TASK_RUN:
+        func_800867A0(result, win);
+        func_80086340(result);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 /* Creates the results of a training of a partner */
 TrainResult *func_800875E8(TrainScreen *screen, s32 partner, s32 training) {
@@ -884,7 +1142,20 @@ TrainIdle *func_80087744(TrainScreen *screen) {
     return task;
 }
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_8008778C);
+/* Creates the training session's text windows and cursor */
+void func_8008778C(TrainSession *session, TrainSessionWindows *win) {
+    win->text[0] = createTextWindow(session->layerId, 1, 0xA2, 0x49);
+    win->text[1] = createTextWindow(session->layerId, 1, 0xBC, 0x14);
+    win->text[2] = createTextWindow(session->layerId, 1, 0xC0, 0x29);
+    win->text[3] = createTextWindow(session->layerId, 1, 0x98, 0x66);
+    win->text[4] = createTextWindow(session->layerId, 1, 0xC0, 0x66);
+    win->text[5] = createTextWindow(session->layerId, 1, 0xE6, 0x66);
+    win->text[6] = createTextWindow(session->layerId, 1, 0x94, 0x87);
+    win->text[7] = createTextWindow(session->layerId, 1, 0xA2, 0x64);
+    win->text[8] = createTextWindow(session->layerId, 1, 0xA2, 0x74);
+    win->cursor = createCursor(session->layerId, session->depth - 1, 0, 0);
+    win->cursor->setVisible(win->cursor, 0);
+}
 
 INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_800878C0);
 
@@ -1022,15 +1293,412 @@ TrainActor *func_800897B8(s32 set, s32 file, s32 layerId, s32 depth) {
     return actor;
 }
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_80089898);
+/* Creates the training menu's text windows */
+void func_80089898(TrainMenu *menu, TextWindow **win) {
+    win[0] = createTextWindow(menu->layerId, 1, 0xAE, 0x49);
+    win[1] = createTextWindow(menu->layerId, 1, 0xA3, 0xA0);
+    win[2] = createTextWindow(menu->layerId, 1, 0x74, 0xC0);
+    win[3] = createTextWindow(menu->layerId, 1, 0x74, 0xCE);
+}
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_80089924);
+/* Shows the name and description of the selected training (show) or hides them */
+void func_80089924(TrainMenu *menu, TextWindow **win, s32 show) {
+    s32 entry;
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_80089A54);
+    if (show != 0) {
+        entry = menu->trainings[menu->page][menu->col + menu->row * 4];
+        if (entry > 0) {
+            win[2]->setString(win[2], FILE_CACHE.load(STGTRAIN_TEXT), D_8008C4D4.trainings[entry].name);
+            win[3]->setString(win[3], FILE_CACHE.load(STGTRAIN_TEXT), D_8008C4D4.trainings[entry].desc);
+            return;
+        }
+    }
+    win[2]->setVisible(win[2], 0);
+    win[3]->setVisible(win[3], 0);
+}
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_8008A004);
+/* Draws the training menu: its panels, the trainings of the page and the cursor */
+void func_80089A54(TrainMenu *menu) {
+    SpriteDrawer sprite;
+    s32 i;
+    s32 entry;
+    s32 x;
+    s32 y;
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_8008AA28);
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(menu->layerId, menu->depth);
+    sprite.setTexture(0x240, 0x100);
+    if (menu->panels[0].level != 0) {
+        if (menu->panels[0].level != 0x1000) {
+            sprite.setScale(menu->panels[0].level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0x4E);
+        }
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x22, 0x92, 0x43);
+    }
+    if (menu->cursorShown != 0) {
+        if (GFX.funcs.getTime() - menu->cursorTime >= 0xB) {
+            menu->cursorTime = GFX.funcs.getTime();
+            menu->cursorClut++;
+            if (menu->cursorClut >= 4) {
+                menu->cursorClut = 0;
+            }
+        }
+        sprite.setClutRow(menu->cursorClut);
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x1E, menu->col * 40 + 0x94, menu->row * 40 + 0x64);
+        sprite.setClutRow(0);
+    }
+    if (menu->panels[2].level != 0) {
+        if (GFX.funcs.getTime() - menu->iconTime >= 0x10) {
+            menu->iconTime = GFX.funcs.getTime();
+            menu->iconFrame++;
+            if (menu->iconFrame >= 4) {
+                menu->iconFrame = 0;
+            }
+        }
+        if (menu->panels[2].level != 0x1000) {
+            sprite.setScale(menu->panels[2].level, menu->panels[2].level, 0x1000);
+        }
+        for (i = 0; i < 8; i++) {
+            entry = menu->trainings[menu->page][i];
+            if (entry != 0) {
+                x = (i % 4) * 40;
+                y = (i / 4) * 40;
+                if (menu->panels[2].level != 0x1000) {
+                    sprite.setPivot(x + 0xA8, y + 0x76);
+                }
+                if (entry == -1) {
+                    sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x5F, x + 0x94, y + 0x64);
+                } else if (i == menu->col + menu->row * 4) {
+                    sprite.setClutRow(0);
+                    sprite.draw(FILE_CACHE.getEntry(STGTRAIN_FILE_SPRITES << 16),
+                                D_8008C4D4.trainings[entry].icons[menu->iconFrame], x + 0x94, y + 0x64);
+                } else {
+                    sprite.setClutRow(1);
+                    sprite.draw(FILE_CACHE.getEntry(STGTRAIN_FILE_SPRITES << 16), D_8008C4D4.trainings[entry].icons[0],
+                                x + 0x94, y + 0x64);
+                }
+            }
+        }
+    }
+    if (menu->arrowShown != 0) {
+        if (GFX.funcs.getTime() - menu->arrowTime >= 0xB) {
+            menu->arrowTime = GFX.funcs.getTime();
+            menu->arrowClut++;
+            if (menu->arrowClut >= 4) {
+                menu->arrowClut = 0;
+            }
+        }
+        sprite.setClutRow(menu->arrowClut);
+        if (menu->page == 0) {
+            sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x2C, 0xE4, 0xA0);
+        } else {
+            sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x2B, 0x94, 0xA0);
+        }
+    }
+    sprite.setClutRow(0);
+    if (menu->panels[1].level != 0) {
+        sprite.setScale(menu->panels[1].level, 0x1000, 0x1000);
+        if (menu->panels[1].level != 0x1000) {
+            sprite.setPivot(0x140, 0x8A);
+        }
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x24, 0x8F, 0x5F);
+    }
+    if (menu->panels[3].level != 0) {
+        if (menu->panels[3].level != 0x1000) {
+            sprite.setScale(menu->panels[3].level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0xCD);
+        }
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x23, 0x46, 0xBA);
+    }
+}
+
+/*
+ * Runs the training menu: opens its panels, moves the cursor over the
+ * trainings of a page (L1 and R1 turn the pages when the gym has more than
+ * five), and closes with a training picked (cross) or none (triangle).
+ */
+void func_8008A004(TrainMenu *menu, TextWindow **win) {
+    s32 col;
+    s32 row;
+
+    switch (menu->substate) {
+    case 0:
+    default:
+        D_8008C4D4.startFade(&menu->panels[0], 1);
+        menu->substate++;
+        break;
+    case 1:
+        if (D_8008C4D4.updateFade(&menu->panels[0])) {
+            win[0]->setString(win[0], FILE_CACHE.load(STGTRAIN_TEXT), 7);
+            D_8008C4D4.startFade(&menu->panels[1], 1);
+            menu->substate++;
+        }
+        break;
+    case 2:
+        if (D_8008C4D4.updateFade(&menu->panels[1])) {
+            D_8008C4D4.startFade(&menu->panels[2], 1);
+            menu->substate++;
+        }
+        break;
+    case 3:
+        if (D_8008C4D4.updateFade(&menu->panels[2])) {
+            if (D_8008C4D4.tableCount >= 6) {
+                menu->arrowShown = 1;
+                if (menu->page == 0) {
+                    win[1]->setString(win[1], FILE_CACHE.load(STGTRAIN_TEXT), 0x45);
+                    win[1]->setPos(win[1], 0xE4, 0xA0);
+                } else {
+                    win[1]->setString(win[1], FILE_CACHE.load(STGTRAIN_TEXT), 0x44);
+                    win[1]->setPos(win[1], 0xA3, 0xA0);
+                }
+            }
+            D_8008C4D4.startFade(&menu->panels[3], 1);
+            menu->substate++;
+        }
+        break;
+    case 4:
+        if (D_8008C4D4.updateFade(&menu->panels[3])) {
+            func_80089924(menu, win, 1);
+            menu->cursorShown = 1;
+            menu->substate = 10;
+        }
+        break;
+    case 10:
+        col = menu->page;
+        if (D_8008C4D4.tableCount >= 6) {
+            if (!((PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_R1)) & 1) && PAD_PRESSED(PAD_L1)) {
+                menu->page = 0;
+            } else if (!((PAD.getHeld(0) >> PAD.getButtonBit(0, PAD_L1)) & 1) && PAD_PRESSED(PAD_R1)) {
+                menu->page = 1;
+            }
+        }
+        if (col != menu->page) {
+            SOUND.playSound(0x4001B);
+            if (menu->page == 0) {
+                win[1]->setString(win[1], FILE_CACHE.load(STGTRAIN_TEXT), 0x45);
+                win[1]->setPos(win[1], 0xE4, 0xA0);
+            } else {
+                win[1]->setString(win[1], FILE_CACHE.load(STGTRAIN_TEXT), 0x44);
+                win[1]->setPos(win[1], 0xA3, 0xA0);
+            }
+            for (col = 0; col < 8; col++) {
+                if (menu->trainings[menu->page][col] > 0) {
+                    menu->col = col % 4;
+                    menu->row = col / 4;
+                    break;
+                }
+            }
+            func_80089924(menu, win, 1);
+            menu->iconFrame = 0;
+            break;
+        }
+        col = menu->col;
+        row = menu->row;
+        if (PAD_PRESSED(PAD_LEFT) || PAD_REPEATED(PAD_LEFT)) {
+            for (;;) {
+                if (--menu->col < 0) {
+                    menu->col = 0;
+                    break;
+                }
+                if (menu->trainings[menu->page][menu->col + menu->row * 4] > 0) {
+                    break;
+                }
+            }
+        } else if (PAD_PRESSED(PAD_RIGHT) || PAD_REPEATED(PAD_RIGHT)) {
+            for (;;) {
+                if (++menu->col >= 4) {
+                    menu->col = 3;
+                    break;
+                }
+                if (menu->trainings[menu->page][menu->col + menu->row * 4] > 0) {
+                    break;
+                }
+            }
+        }
+        if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
+            for (;;) {
+                if (--menu->row < 0) {
+                    menu->row = 0;
+                    break;
+                }
+                if (menu->trainings[menu->page][menu->col + menu->row * 4] > 0) {
+                    break;
+                }
+            }
+        } else if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
+            for (;;) {
+                if (++menu->row >= 2) {
+                    menu->row = 1;
+                    break;
+                }
+                if (menu->trainings[menu->page][menu->col + menu->row * 4] > 0) {
+                    break;
+                }
+            }
+        }
+        if (col != menu->col || row != menu->row) {
+            if (menu->trainings[menu->page][menu->col + menu->row * 4] > 0) {
+                SOUND.playSound(0x4001B);
+                func_80089924(menu, win, 1);
+            } else {
+                menu->col = col;
+                menu->row = row;
+            }
+        } else if (PAD_PRESSED(PAD_CROSS)) {
+            SOUND.playSound(0x4001B);
+            menu->screen->unk78 = menu->trainings[menu->page][menu->col + menu->row * 4];
+            if (menu->screen->unk78 > 0) {
+                menu->substate = 0x32;
+            }
+        } else if (PAD_PRESSED(PAD_TRIANGLE)) {
+            SOUND.playSound(0x800450BD);
+            menu->substate = 0x32;
+            menu->step = 1;
+        }
+        break;
+    case 0x32:
+        menu->cursorShown = 0;
+        menu->arrowShown = 0;
+        win[1]->setVisible(win[1], 0);
+        D_8008C4D4.startFade(&menu->panels[2], 0);
+        menu->substate++;
+        break;
+    case 0x33:
+        if (D_8008C4D4.updateFade(&menu->panels[2])) {
+            func_80089924(menu, win, 0);
+            win[0]->setVisible(win[0], 0);
+            D_8008C4D4.startFade(&menu->panels[0], 0);
+            D_8008C4D4.startFade(&menu->panels[1], 0);
+            D_8008C4D4.startFade(&menu->panels[3], 0);
+            menu->substate++;
+        }
+        break;
+    case 0x34:
+        D_8008C4D4.updateFade(&menu->panels[0]);
+        D_8008C4D4.updateFade(&menu->panels[1]);
+        if (D_8008C4D4.updateFade(&menu->panels[3])) {
+            if (menu->step != 0) {
+                menu->setState(menu, TASK_DONE);
+            } else {
+                menu->state = TASK_KILL;
+            }
+        }
+        break;
+    }
+}
+
+/*
+ * The training menu's task: a grid of trainings on two pages, filled from
+ * the gym's table (the trainings it has), with the cursor on the last one.
+ */
+void func_8008AA28(TrainMenu *menu, TextWindow **win) {
+    s32 *table;
+    s32 i;
+    s32 page;
+    s32 row;
+    s32 col;
+
+    switch (menu->state) {
+    case TASK_INIT:
+    default:
+        menu->nextState(menu);
+        func_80089898(menu, win);
+        menu->panels[0].duration = 10;
+        menu->panels[1].duration = 10;
+        menu->panels[2].duration = 10;
+        menu->panels[3].duration = 10;
+        table = D_8008C4D4.getTable(GAME.funcs.getModeArg());
+        for (row = 0; row < 2; row++) {
+            for (col = 0; col < 3; col++) {
+                if (row == 1 && col == 2) {
+                    break;
+                }
+                menu->trainings[0][col + row * 4] = -1;
+            }
+        }
+        for (row = 0; row < 2; row++) {
+            for (col = 0; col < 4; col++) {
+                if (row != 1 || col != 0) {
+                    menu->trainings[1][col + row * 4] = -1;
+                }
+            }
+        }
+        for (i = 0; i < 16; i++) {
+            switch (table[i * 2]) {
+            case 1:
+            case 13:
+                menu->trainings[0][0] = table[i * 2];
+                break;
+            case 2:
+            case 14:
+                menu->trainings[0][1] = table[i * 2];
+                break;
+            case 3:
+            case 15:
+                menu->trainings[0][2] = table[i * 2];
+                break;
+            case 4:
+            case 16:
+                menu->trainings[0][4] = table[i * 2];
+                break;
+            case 5:
+            case 17:
+                menu->trainings[0][5] = table[i * 2];
+                break;
+            case 6:
+            case 18:
+                menu->trainings[1][0] = table[i * 2];
+                break;
+            case 7:
+            case 19:
+                menu->trainings[1][1] = table[i * 2];
+                break;
+            case 8:
+            case 20:
+                menu->trainings[1][2] = table[i * 2];
+                break;
+            case 9:
+            case 21:
+                menu->trainings[1][3] = table[i * 2];
+                break;
+            case 10:
+            case 22:
+                menu->trainings[1][5] = table[i * 2];
+                break;
+            case 11:
+            case 23:
+                menu->trainings[1][6] = table[i * 2];
+                break;
+            case 12:
+            case 24:
+                menu->trainings[1][7] = table[i * 2];
+                break;
+            }
+        }
+        if (menu->screen->unk78 > 0) {
+            for (page = 0; page < 2; page++) {
+                for (row = 0; row < 2; row++) {
+                    for (col = 0; col < 4; col++) {
+                        if (menu->trainings[page][col + row * 4] == menu->screen->unk78) {
+                            menu->page = page;
+                            menu->col = col;
+                            menu->row = row;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        break;
+    case TASK_RUN:
+        func_8008A004(menu, win);
+        func_80089A54(menu);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 void func_8008ACF8(TrainMenu *menu) {
     menu->state = TASK_RUN;
@@ -1278,7 +1946,7 @@ s32 *func_8008B6D0(s32 index, s32 id) {
 extern TrainGain D_8008B884[];
 extern TrainGain D_8008B8CC[];
 extern TrainGain D_8008B914[];
-extern s32 D_8008C0EC[];
+extern TrainInfo D_8008C0EC[];
 void func_8008ADAC(void);
 void func_8008AE04(PanelAnim *fade, s32 fadeIn);
 s32 func_8008AE98(PanelAnim *fade);
@@ -1441,45 +2109,34 @@ s32 D_8008B9EC[14][16][2] = {
         {22, 0x4000C}, {23, 0xF000D}, {24, 0x3000E}, {0, 0},
     },
 };
-s32 D_8008C0EC[] = {
-    0, 0, 0, 0,
-    0, 0, 19, 43,
-    0, 1, 2, 3,
-    20, 44, 4, 5,
-    6, 7, 21, 45,
-    8, 9, 10, 11,
-    22, 46, 12, 13,
-    14, 15, 23, 47,
-    16, 17, 18, 19,
-    29, 53, 20, 21,
-    22, 23, 30, 54,
-    24, 25, 26, 27,
-    31, 55, 28, 29,
-    30, 31, 32, 56,
-    32, 33, 34, 35,
-    33, 57, 36, 37,
-    38, 39, 34, 58,
-    40, 41, 42, 43,
-    35, 59, 95, 96,
-    97, 98, 24, 48,
-    45, 46, 47, 48,
-    25, 49, 49, 50,
-    51, 52, 26, 50,
-    53, 54, 55, 56,
-    27, 51, 57, 58,
-    59, 60, 28, 52,
-    61, 62, 63, 64,
-    36, 60, 65, 66,
-    67, 68, 37, 61,
-    71, 72, 73, 74,
-    38, 62, 75, 76,
-    77, 78, 39, 63,
-    79, 80, 81, 82,
-    40, 64, 83, 84,
-    85, 86, 41, 65,
-    87, 88, 89, 90,
-    42, 66, 91, 92,
-    93, 94,
+/* The trainings: their name and description in the text file, and the
+   frames of their icon */
+TrainInfo D_8008C0EC[] = {
+    {0, 0, {0, 0, 0, 0}},
+    {19, 43, {0, 1, 2, 3}},
+    {20, 44, {4, 5, 6, 7}},
+    {21, 45, {8, 9, 10, 11}},
+    {22, 46, {12, 13, 14, 15}},
+    {23, 47, {16, 17, 18, 19}},
+    {29, 53, {20, 21, 22, 23}},
+    {30, 54, {24, 25, 26, 27}},
+    {31, 55, {28, 29, 30, 31}},
+    {32, 56, {32, 33, 34, 35}},
+    {33, 57, {36, 37, 38, 39}},
+    {34, 58, {40, 41, 42, 43}},
+    {35, 59, {95, 96, 97, 98}},
+    {24, 48, {45, 46, 47, 48}},
+    {25, 49, {49, 50, 51, 52}},
+    {26, 50, {53, 54, 55, 56}},
+    {27, 51, {57, 58, 59, 60}},
+    {28, 52, {61, 62, 63, 64}},
+    {36, 60, {65, 66, 67, 68}},
+    {37, 61, {71, 72, 73, 74}},
+    {38, 62, {75, 76, 77, 78}},
+    {39, 63, {79, 80, 81, 82}},
+    {40, 64, {83, 84, 85, 86}},
+    {41, 65, {87, 88, 89, 90}},
+    {42, 66, {91, 92, 93, 94}},
 };
 /* the discs number their files differently */
 #if VERSION_US

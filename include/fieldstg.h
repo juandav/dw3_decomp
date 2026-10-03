@@ -187,7 +187,7 @@ typedef struct FieldState {
     /* 0x2C */ s32 unk2C;
     /* 0x30 */ s32 unk30;
     /* 0x34 */ s32 unk34;
-    /* 0x38 */ u8 unk38[4];
+    /* 0x38 */ CVECTOR unk38;
     /* 0x3C */ s32 unk3C;
     /* 0x40 */ s32 unk40;
     /* 0x44 */ s32 unk44;
@@ -650,7 +650,7 @@ void func_8008E7E0();
 void func_8008EC74(Actor *actor);
 void func_8008F184(Actor *actor, Unk80089320 **children);
 void func_8008BC30(Unk8008BFE8 *task);
-s32 func_8008D0C0(Actor *actor, Point probe, Point offset);
+s32 func_8008D0C0(Actor *actor, s32 x, s32 y, Point offset);
 s32 func_80091730(s32 id);
 void func_80091774(s32 arg0, s32 id, s32 arg2, s32 arg3);
 Unk8008C59C *func_8008C9F8(Point pos);
@@ -680,6 +680,31 @@ void func_8008B9D8(Unk8008B9D8 *task);
 void func_8008CA3C(Unk8008CC4C *task);
 void func_800834A0();
 
+/*
+ * The field's map and the functions that read it (the stages see it as
+ * FieldFuncs). The map is a tree of cells: a grid of 128-pixel cells, then
+ * levels of 64, 32, 16 and 8 pixels, each cell four of the next level's, then
+ * a byte for each pixel of the 8x8 blocks.
+ */
+typedef struct FieldMap {
+    /* 0x00 */ s32 files[8]; /* the file entry of each map, set by setFile */
+    /* 0x20 */ s32 width; /* of the grid, in cells */
+    /* 0x24 */ s32 height;
+    /* 0x28 */ u8 *grid;
+    /* 0x2C */ u8 *cells64;
+    /* 0x30 */ s16 *cells32;
+    /* 0x34 */ s16 *cells16;
+    /* 0x38 */ s16 *cells8;
+    /* 0x3C */ u8 *pixels;
+    /* 0x40 */ void (*setFile)(s32 index, s32 file); /* func_80091B78 */
+    /* 0x44 */ s32 (*getCell)(s32 index, Point *pos); /* func_80091BC0 */
+    /* 0x48 */ void (*unk48)(Point *pos, s32 scale, s32 index, Point *out);
+    /* 0x4C */ void (*unk4C)(s32 arg0, s32 scale, s32 index, Point *out);
+    /* 0x50 */ void (*unk50)(s32 arg0);
+    /* 0x54 */ void (*unk54)(s32 arg0);
+    /* 0x58 */ s32 (*unk58)(Point *pos); /* func_80091D3C: 0 where a character or an object stands */
+} FieldMap;
+
 extern Point D_8009A938;
 extern u8 *D_8009A940;
 extern s32 D_8009A944;
@@ -688,6 +713,7 @@ extern Point D_80096398[]; /* VRAM position of each StreamTask slot's image */
 extern s32 D_8009638C[]; /* depth of each layer of a StreamTask's sprites */
 extern Point D_8009A76C[][8]; /* a direction's vector, scaled by 4096 */
 extern u8 D_8009A92C[];
+s32 func_80091AA8(s32 index);
 s32 func_80091BC0(s32, Point *);
 extern FieldState D_800990B4;
 extern ScriptCommand D_8009A448[];
@@ -699,7 +725,6 @@ extern u8 D_80096D14[][2]; /* animation of func_8008BCAC: (frame, time) pairs up
 extern void (*D_8009A6EC[])();
 Unk8008B9D8 *func_8008BBD4(Point from, Point to);
 Unk8008C388 *func_8008C564(s32 arg0);
-extern void (*D_8009A760[])(s32);
 extern AreaName D_800963F8[];
 #if VERSION_EU
 extern StageEntry D_8009A884[];
@@ -712,11 +737,10 @@ extern void (*D_8009A434[])(); /* the script helpers (func_80091648...) */
 extern s16 D_800969C4[]; /* the modes that load the field file 0x5D (func_80088CD0) */
 extern s32 D_80096FE8[];
 extern s32 D_80096FF4[];
-extern s32 (*D_8009A750)(s32, Point *);
 extern void (*FIELDSTG_initFuncs[])(void);
 
 extern u8 D_80099758[];
-extern s32 D_8009A70C[];
+extern FieldMap D_8009A70C;
 extern u8 D_80096E94[][5]; /* the probes of each direction (func_8008D2A0) */
 extern Point D_80096EBC[]; /* a probe's position */
 extern u8 D_80096F3C[][2]; /* a probe's offset: bit 0 set, bit 7 negative */
@@ -724,6 +748,7 @@ extern u8 *D_80096DAC[]; /* func_8008C388's animation for each direction */
 extern s32 D_80096DCC[]; /* and its depth offset */
 extern ProgressEvent D_80095F18[];
 extern AnimFrame *D_800961E4[][4]; /* func_80085350's animations */
+extern s32 D_8009A6F4[]; /* how much each area lowers GAME.unk30, the steps to the next battle */
 extern s32 D_8009A768; /* the frame D_8009AA4C was filled in */
 extern Box D_8009AA4C[20]; /* the characters' boxes (func_80091D3C) */
 extern s32 D_8009AB8C; /* and their number */
