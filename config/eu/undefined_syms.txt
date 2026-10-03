@@ -1,0 +1,10 @@
+/* addresses the executable uses that none of its objects defines */
+
+/* FIELDSTG's functions and data that game3.c calls and reads, at their
+   European addresses. They are here, for the link only, and not in
+   symbols.txt: splat would label every overlay at these addresses with
+   them, and they fall inside CARDGAME's functions. */
+func_8008AEB4 = 0x8008B770;
+func_8008B2C4 = 0x8008BFA4;
+func_8008B320 = 0x8008C000;
+D_8009A6EC = 0x8009B6A4;
