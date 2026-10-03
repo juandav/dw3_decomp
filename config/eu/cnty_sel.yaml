@@ -37,7 +37,10 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 
-  ld_bss_is_noload: False
+  # the file does not end on a word: no padding after the data, nor for the
+  # (empty) bss
+  ld_bss_is_noload: True
+  ld_align_section_vram_end: False
 
   migrate_rodata_to_functions: True
   create_data_pads: False
@@ -51,13 +54,7 @@ segments:
     subalign: 4
     subsegments:
       # us's modules, each with its rodata, data and bss (tools/split_version.py)
-      - [0x0, rodata, cnty_sel]
-      - [0x38, asm, cnty_sel]
-      - [0x1710, data, cnty_sel]
-  # the file does not end on a word, which splat's data segment would pad
-  - name: cnty_sel_end
-    type: databin
-    start: 0x1778
-    vram: 0x80084428
-    subalign: 4
+      - [0x0, .rodata, cnty_sel]
+      - [0x38, c, cnty_sel]
+      - [0x1710, .data, cnty_sel]
   - [0x177B]

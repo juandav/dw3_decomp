@@ -12,10 +12,26 @@ extern char SHOCKTST_STR_PLAY_PATTERN[]; /* "パターンじっこう" */
 extern char SHOCKTST_STR_VIBRATION_TEST[]; /* "しんどうテスト" */
 extern char SHOCKTST_STR_CROSS_STOP[]; /* "×：じっこうていし" */
 extern char SHOCKTST_STR_START_BACK[]; /* "ＳＴＡＲＴ：もどる" */
-extern ShockTestRow SHOCKTST_menuRows[4];
-extern char SHOCKTST_numberFormats[3][0x40];
-extern char *SHOCKTST_motorNames[2];
-extern char *SHOCKTST_textPath;
+extern char SHOCKTST_STR_SLOW[];
+extern char SHOCKTST_STR_FAST[];
+extern char SHOCKTST_PATH_DLSKDATA_TXT[]; /* "sim:C:\DEVELOP\DLSKDATA.TXT" */
+
+ShockTestRow SHOCKTST_menuRows[4] = {
+    {{1, 0}, {1, 0, 0, 0}},
+    {{1, 1}, {2, 3, 6, 7}},
+    {{1, 1}, {4, 5, 8, 9}},
+    {{1, 0}, {10, 0, 11, 0}},
+};
+
+/* The strings of the pattern, time and power windows (setString) */
+char SHOCKTST_numberFormats[3][0x40] = {
+    "\xC3\xB1\xE8\xE3\x01\x07\x02\x05\x01",
+    "\xC7\xDE\xE8\xD2\x01\x07\x02\x05\x01",
+    "\x65\x89\x56\x01\x07\x02\x05\x01",
+};
+
+char *SHOCKTST_motorNames[2] = {SHOCKTST_STR_FAST, SHOCKTST_STR_SLOW};
+char *SHOCKTST_textPath = SHOCKTST_PATH_DLSKDATA_TXT;
 
 Task *SHOCKTST_createLoader(void);
 s32 SHOCKTST_playAllPatterns(ShockTest *task, ShockTestWindows *win);
@@ -293,7 +309,12 @@ void SHOCKTST_updateEditor(ShockTest *task, ShockTestWindows *win) {
         task->nextState(task);
         task->windowId = 0x1000;
         win->pattern = createTextWindow(task->windowId, 1, 0x28, 0x3C);
+        /* the discs number their files differently */
+#if VERSION_US
         task->unk50 = FILE_CACHE_LOAD[0](0xC5);
+#elif VERSION_EU
+        task->unk50 = FILE_CACHE_LOAD[0](0xBE);
+#endif
         win->pattern->setString(win->pattern, SHOCKTST_numberFormats[0], -1);
         win->pattern->setNumber(win->pattern, 1, task->pattern);
         for (i = 0; i < 2; i++) {

@@ -14,7 +14,7 @@ typedef struct TaskFuncs {
     /* 0x04 */ void (*add)();
     /* 0x08 */ void (*remove)();
     /* 0x0C */ void *(*find)(s32 id, s32 key1, s32 key2);
-    /* 0x10 */ void (*findNext)();
+    /* 0x10 */ void *(*findNext)(void);
     /* 0x14 */ void (*runChildren)();
     /* 0x18 */ void *(*run)(void *task);
     /* 0x1C */ void (*kill)(s32 task);

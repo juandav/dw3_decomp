@@ -1,7 +1,19 @@
 #include "stcrdabm.h"
 
-extern s32 STCRDABM_cursorBlink[6];
-extern CardAlbumFuncs STCRDABM_funcs;
+void STCRDABM_loadFiles(void);
+s32 STCRDABM_filesLoading(void);
+void STCRDABM_startFade(PanelAnim *fade, s32 fadeIn);
+s32 STCRDABM_updateFade(PanelAnim *fade);
+void STCRDABM_startLerp(CardAlbumLerp *lerp, s32 from, s32 to, s32 frames);
+s32 STCRDABM_updateLerp(CardAlbumLerp *lerp);
+
+/* The cursor's CLUT row on each frame of its blink */
+s32 STCRDABM_cursorBlink[6] = {0, 1, 2, 3, 2, 1};
+
+CardAlbumFuncs STCRDABM_funcs = {
+    STCRDABM_loadFiles, STCRDABM_filesLoading, STCRDABM_startFade,
+    STCRDABM_updateFade, STCRDABM_startLerp, STCRDABM_updateLerp,
+};
 
 void initCardDrawer(CardDrawer *obj);
 void STCRDABM_drawFader(CardAlbumFader *fader);
@@ -131,7 +143,7 @@ void STCRDABM_drawCards(CardAlbumGrid *grid, s32 previous) {
             icon.setCell(col, row);
             icon.draw(x + 0x27, y + 0x34);
             if (icon.getKind() != 0) {
-                sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0x1D, x + 0x27, y + 0x53);
+                sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), 0x1D, x + 0x27, y + 0x53);
             } else {
                 value = icon.card[1];
                 j = value / 10;
@@ -145,7 +157,7 @@ void STCRDABM_drawCards(CardAlbumGrid *grid, s32 previous) {
                 digits[2] = 0x1C;
                 for (j = 0, dx = 0x27; j < 3; j++, dx += 7) {
                     if (digits[j] != 0) {
-                        sprite.draw(FILE_CACHE.getEntry(0x05F50000), digits[j], x + dx, y + 0x53);
+                        sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), digits[j], x + dx, y + 0x53);
                     }
                 }
                 value = icon.card[2];
@@ -159,13 +171,13 @@ void STCRDABM_drawCards(CardAlbumGrid *grid, s32 previous) {
                 digits[1] = j + 0x1E;
                 for (j = 0, dx = 0x3A; j < 2; j++, dx += 7) {
                     if (digits[j] != 0) {
-                        sprite.draw(FILE_CACHE.getEntry(0x05F50000), digits[j], x + dx, y + 0x53);
+                        sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), digits[j], x + dx, y + 0x53);
                     }
                 }
             }
-            sprite.draw(FILE_CACHE.getEntry(0x05F50000), icon.card[0] - 1, x + 0x23, y + 0x32);
+            sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), icon.card[0] - 1, x + 0x23, y + 0x32);
         } else {
-            sprite.draw(FILE_CACHE.getEntry(0x05F50000), 6, x + 0x23, y + 0x32);
+            sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), 6, x + 0x23, y + 0x32);
         }
     }
 }
@@ -189,7 +201,7 @@ void STCRDABM_drawTurningSlots(CardAlbumGrid *grid) {
         } else {
             sprite.setClutRow(0);
         }
-        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 6, col * 42 + 0x23, row * 54 + 0x32);
+        sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), 6, col * 42 + 0x23, row * 54 + 0x32);
     }
 }
 
@@ -357,21 +369,21 @@ void STCRDABM_createWindows(CardAlbum *album, CardAlbumWindows *win) {
 
 void STCRDABM_showPageInfo(CardAlbum *album, CardAlbumWindows *win, s32 show) {
     if (show != 0) {
-        win->title->setString(win->title, FILE_CACHE.load(0x25), 1);
-        win->help->setString(win->help, FILE_CACHE.load(0x25), 2);
+        win->title->setString(win->title, FILE_CACHE.load(TEXT_FILE(0x25)), 1);
+        win->help->setString(win->help, FILE_CACHE.load(TEXT_FILE(0x25)), 2);
         win->page->setNumber(win->page, 0, album->page + 1);
         win->page->setRightAlign(win->page, 1);
-        win->pageSlash->setString(win->pageSlash, FILE_CACHE.load(0x25), 5);
+        win->pageSlash->setString(win->pageSlash, FILE_CACHE.load(TEXT_FILE(0x25)), 5);
         win->pageCount->setNumber(win->pageCount, 0, album->pageCount);
         win->pageCount->setRightAlign(win->pageCount, 1);
         if (album->active != 0) {
             if (album->page > 0) {
-                win->prev->setString(win->prev, FILE_CACHE.load(0x25), 3);
+                win->prev->setString(win->prev, FILE_CACHE.load(TEXT_FILE(0x25)), 3);
             } else {
                 win->prev->setVisible(win->prev, 0);
             }
             if (album->page < album->pageCount - 1) {
-                win->next->setString(win->next, FILE_CACHE_LOAD[0](0x25), 4);
+                win->next->setString(win->next, FILE_CACHE_LOAD[0](TEXT_FILE(0x25)), 4);
             } else {
                 win->next->setVisible(win->next, 0);
             }
@@ -404,23 +416,23 @@ void STCRDABM_drawAlbum(CardAlbum *album) {
     } else {
         album->frameToggle = 1;
     }
-    sprite.draw(FILE_CACHE.getEntry(0x05F50000), 8, album->frame, album->frame);
+    sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), 8, album->frame, album->frame);
     sprite.setLayerId(album->layer, album->depth - 2);
     if (album->fade.level != 0) {
         if (album->fade.level != 0x1000) {
             sprite.setScale(album->fade.level, 0x1000, 0x1000);
             sprite.setPivot(0, 0x20);
         }
-        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 9, 0, 0x15);
+        sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), 9, 0, 0x15);
         if (album->fade.level != 0x1000) {
             sprite.setPivot(0x140, 0x20);
         }
-        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0xF, 0xC8, 0x15);
+        sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), 0xF, 0xC8, 0x15);
         if (album->fade.level != 0x1000) {
             sprite.setScale(album->fade.level, album->fade.level, 0x1000);
             sprite.setPivot(0x3A, 0xA5);
         }
-        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0xE, 0x22, 0x9A);
+        sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), 0xE, 0x22, 0x9A);
     }
     if (album->active != 0) {
         if (album->pageCount >= 2) {
@@ -430,10 +442,10 @@ void STCRDABM_drawAlbum(CardAlbum *album) {
             }
             if (album->blink != 0) {
                 if (album->page > 0) {
-                    sprite.draw(FILE_CACHE_GET_ENTRY[0](0x05F50000), 0x1A, 0xE, 0x5A);
+                    sprite.draw(FILE_CACHE_GET_ENTRY[0](STCRDABM_SPRITES), 0x1A, 0xE, 0x5A);
                 }
                 if (album->page < album->pageCount - 1) {
-                    sprite.draw(FILE_CACHE_GET_ENTRY[0](0x05F50000), 0x1B, 0x121, 0x5A);
+                    sprite.draw(FILE_CACHE_GET_ENTRY[0](STCRDABM_SPRITES), 0x1B, 0x121, 0x5A);
                 }
             }
         }
@@ -445,7 +457,7 @@ void STCRDABM_drawAlbum(CardAlbum *album) {
                 }
             }
             sprite.setClutRow(STCRDABM_cursorBlink[album->cursorFrame]);
-            sprite.draw(FILE_CACHE_GET_ENTRY[0](0x05F50000), 7, album->slot % 6 * 42 + 0x24, album->slot / 6 * 54 + 0x32);
+            sprite.draw(FILE_CACHE_GET_ENTRY[0](STCRDABM_SPRITES), 7, album->slot % 6 * 42 + 0x24, album->slot / 6 * 54 + 0x32);
             sprite.setClutRow(0);
         }
     }
@@ -464,27 +476,27 @@ void STCRDABM_drawAlbum(CardAlbum *album) {
         } else {
             frame = icon.card[0] + 0x13;
         }
-        sprite.draw(FILE_CACHE.getEntry(0x05F50000), frame, 0x103, 0x9F);
-        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0xD, 0xFC, 0x9D);
+        sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), frame, 0x103, 0x9F);
+        sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), 0xD, 0xFC, 0x9D);
         if (album->infoFade.level != 0x1000) {
             sprite.setPivot(0x140, 0xA8);
         }
-        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0xA, 0x82, 0x9D);
+        sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), 0xA, 0x82, 0x9D);
         if (album->infoFade.level != 0x1000) {
             sprite.setPivot(0x140, 0xD0);
         }
-        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0x10, 0x103, 0xC5);
-        sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0xD, 0xFC, 0xC3);
+        sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), 0x10, 0x103, 0xC5);
+        sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), 0xD, 0xFC, 0xC3);
         if (album->infoFade.level != 0x1000) {
             sprite.setPivot(0x140, 0xC6);
         }
         if (kind != 0) {
-            sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0xB, 0x4A, 0xB3);
+            sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), 0xB, 0x4A, 0xB3);
         } else if (album->card == 0x45 || album->card == 0x70 || album->card == 0x9B || album->card == 0xC6 ||
                    album->card == 0xF1) {
-            sprite.draw(FILE_CACHE_GET_ENTRY[0](0x05F50000), 0xB, 0x4A, 0xB3);
+            sprite.draw(FILE_CACHE_GET_ENTRY[0](STCRDABM_SPRITES), 0xB, 0x4A, 0xB3);
         } else {
-            sprite.draw(FILE_CACHE.getEntry(0x05F50000), 0xC, 0xC7, 0xB3);
+            sprite.draw(FILE_CACHE.getEntry(STCRDABM_SPRITES), 0xC, 0xC7, 0xB3);
         }
     }
 }
@@ -731,40 +743,40 @@ void STCRDABM_loadFiles(void) {
 
     initTimLoader(&loader);
     loader.setImagePos(0x280, 0);
-    loader.loadArchive(FILE_CACHE.getEntry(0x05F60000));
-    FILE_CACHE.request(0x7E7);
-    FILE_CACHE.request(0x7E8);
-    FILE_CACHE.request(0x7E9);
-    FILE_CACHE.request(0x7EA);
-    FILE_CACHE.request(0x7EB);
-    FILE_CACHE.request(0x17);
-    FILE_CACHE.request(0x1E);
-    FILE_CACHE.request(0x25);
+    loader.loadArchive(FILE_CACHE.getEntry(STCRDABM_IMAGES));
+    FILE_CACHE.request(STCRDABM_FILE_DATA);
+    FILE_CACHE.request(STCRDABM_FILE_DATA + 1);
+    FILE_CACHE.request(STCRDABM_FILE_DATA + 2);
+    FILE_CACHE.request(STCRDABM_FILE_DATA + 3);
+    FILE_CACHE.request(STCRDABM_FILE_DATA + 4);
+    FILE_CACHE.request(TEXT_FILE(0x17));
+    FILE_CACHE.request(TEXT_FILE(0x1E));
+    FILE_CACHE.request(TEXT_FILE(0x25));
 }
 
 s32 STCRDABM_filesLoading(void) {
-    if (FILE_CACHE.isLoading(0x7E7) != 0) {
+    if (FILE_CACHE.isLoading(STCRDABM_FILE_DATA) != 0) {
         return 1;
     }
-    if (FILE_CACHE.isLoading(0x7E8) != 0) {
+    if (FILE_CACHE.isLoading(STCRDABM_FILE_DATA + 1) != 0) {
         return 1;
     }
-    if (FILE_CACHE.isLoading(0x7E9) != 0) {
+    if (FILE_CACHE.isLoading(STCRDABM_FILE_DATA + 2) != 0) {
         return 1;
     }
-    if (FILE_CACHE.isLoading(0x7EA) != 0) {
+    if (FILE_CACHE.isLoading(STCRDABM_FILE_DATA + 3) != 0) {
         return 1;
     }
-    if (FILE_CACHE.isLoading(0x7EB) != 0) {
+    if (FILE_CACHE.isLoading(STCRDABM_FILE_DATA + 4) != 0) {
         return 1;
     }
-    if (FILE_CACHE.isLoading(0x17) != 0) {
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x17)) != 0) {
         return 1;
     }
-    if (FILE_CACHE.isLoading(0x1E) != 0) {
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x1E)) != 0) {
         return 1;
     }
-    return FILE_CACHE.isLoading(0x25) != 0;
+    return FILE_CACHE.isLoading(TEXT_FILE(0x25)) != 0;
 }
 
 void STCRDABM_startFade(PanelAnim *fade, s32 fadeIn) {

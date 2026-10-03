@@ -1,5 +1,8 @@
 // CNTY_SEL.PRO's own symbols, which only its splat config reads
 
+// The language of each option, which the USA version doesn't store
+CNTY_SEL_languages = 0x80084424; // size:0x7 version-only
+
 // names from us (tools/match_versions.py --seed): the same function or datum
 CNTY_SEL_tickScreen = 0x80082CE8; // type:func
 CNTY_SEL_start = 0x80082E8C; // type:func
@@ -27,11 +30,11 @@ CNTY_SEL_tickLeftPanel = 0x80083BC0; // type:func
 CNTY_SEL_startLeftPanelTask = 0x80083CEC; // type:func
 CNTY_SEL_tickMenu = 0x80083D18; // type:func
 CNTY_SEL_startMenuTask = 0x80084394; // type:func
-CNTY_SEL_screenRect = 0x800843C0;
-CNTY_SEL_vramRect = 0x800843C8;
-CNTY_SEL_fadeRect = 0x800843D0;
-CNTY_SEL_cursorFlash = 0x800843D8;
-CNTY_SEL_topPanelTweens = 0x800843EC;
-CNTY_SEL_rightPanelTweens = 0x800843FC;
-CNTY_SEL_leftPanelTweens = 0x8008440C;
+CNTY_SEL_screenRect = 0x800843C0; // size:0x8
+CNTY_SEL_vramRect = 0x800843C8; // size:0x8
+CNTY_SEL_fadeRect = 0x800843D0; // size:0x8
+CNTY_SEL_cursorFlash = 0x800843D8; // size:0x14
+CNTY_SEL_topPanelTweens = 0x800843EC; // size:0x10
+CNTY_SEL_rightPanelTweens = 0x800843FC; // size:0x10
+CNTY_SEL_leftPanelTweens = 0x8008440C; // size:0x18
 // end of the names from us

@@ -322,6 +322,8 @@ void *decompressorGetData(Decompressor *task);
 void updateDecompressor(Decompressor *task);
 void updateMessageBoxFrame(struct MessageBoxFrame *task);
 void updateTalkBoxFrame(Task *task);
+Task *createMessageBox(s32 layerId, s32 strings, s32 index);
+TalkBox *createTalkBox(s32 id, s16 x, s16 y, s32 file, s32 index, u32 type);
 
 extern char STR_NULL_MESSAGE[];
 extern char STR_BAD_DIGIT_BUFFER[];

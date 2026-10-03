@@ -26,6 +26,7 @@ options:
 
   symbol_addrs_path:
     - config/eu/symbols.txt
+    - config/eu/symbols_stgtrain.txt
 
   undefined_funcs_auto_path: build/eu/generated/undefined_funcs_auto_stgtrain.txt
   undefined_syms_auto_path: build/eu/generated/undefined_syms_auto_stgtrain.txt
@@ -49,7 +50,7 @@ segments:
     subalign: 4
     subsegments:
       # us's modules, each with its rodata, data and bss (tools/split_version.py)
-      - [0x0, rodata, stgtrain]
-      - [0x3A8, asm, stgtrain]
-      - [0x9574, data, stgtrain]
+      - [0x0, .rodata, stgtrain]
+      - [0x3A8, c, stgtrain]
+      - [0x9574, .data, stgtrain]
   - [0xA658]

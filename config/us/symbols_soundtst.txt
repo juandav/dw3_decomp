@@ -8,10 +8,13 @@ SOUNDTST_selectBank = 0x80084054; // type:func
 SOUNDTST_updateSoundTest = 0x800842C4; // type:func
 SOUNDTST_createSoundTest = 0x800844E0; // type:func
 
-SOUNDTST_entryNames = 0x80082448;
+SOUNDTST_entryNames = 0x80082448; // size:0x167C
 SOUNDTST_STR_SELECT_VAB = 0x80083AC4;
 SOUNDTST_STR_SOUND_TEST = 0x80083AF4;
 SOUNDTST_STR_CURSOR = 0x80083B04;
 SOUNDTST_soundLists = 0x80084E7C;
 SOUNDTST_banks = 0x80084F98;
 SOUNDTST_screenRect = 0x800851D8;
+
+// A sound id in D_8008450C, not FILE_CACHE_SLOTS + 2
+D_8004474A = 0x8004474A; // ignore:true

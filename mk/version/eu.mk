@@ -112,6 +112,12 @@ C_SRC += src/cardgame/cardgame_4.c
 # small overlays
 C_SRC += src/stgmcard/stgmcard.c src/stfgtrep/stfgtrep.c src/wfightmn/wfightmn.c src/stcrdshp/stcrdshp.c src/stplnmet/stplnmet.c src/wfightts/wfightts.c
 
+# overlays
+C_SRC += src/shocktst/shocktst.c src/cnty_sel/cnty_sel.c src/stcrdabm/stcrdabm.c
+C_SRC += src/stagslct/stagslct.c src/stdgname/stdgname.c src/stdgname/stdgname_2.c
+C_SRC += src/stdwtitl/stdwtitl.c src/stdwtitl/stdwtitl_2.c src/fieldstg/fieldstg.c
+C_SRC += src/stcrddek/stcrddek.c src/stgtrain/stgtrain.c src/fightstg/fightstg.c
+
 # The stages the USA version has, built from its C
 C_SRC += $(addprefix src/stages/, \
 	wstag200.c wstag201.c wstag202.c wstag203.c wstag205.c wstag206.c \

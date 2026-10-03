@@ -1,5 +1,50 @@
 #include "stdwtitl.h"
 
+s32 D_80087154[3] = {0};
+
+RECT STDWTITL_screenRect = {0, 0, 320, 240};
+
+/* The sprite frames of the logo's two animations; -1 ends each */
+s16 STDWTITL_logoFrames[2][13] = {
+    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, -1},
+    {0, 1, 2, 3, 4, 5, 6, 7, -1},
+};
+
+s32 STDWTITL_movieWidth = 0;
+s32 STDWTITL_movieHeight = 0;
+RECT STDWTITL_vramRect = {0, 0, 1024, 512};
+
+/* Each movie's file, the frame it ends on and the game mode after it */
+MovieInfo STDWTITL_movies[] = {
+#if VERSION_US
+    {0x7E5, 0x6F0, 0xE00}, {0x7DB, 0x1D1, 0x207}, {0x7E3, 0x166, 0x26D},
+    {0x7DC, 0x3C0, 0x216}, {0x7DD, 0x231, 0x272}, {0x7DE, 0x294, 0x288},
+    {0x7DF, 0xE0, 0x288},  {0x7E0, 0x151, 0x2DE}, {0x7E1, 0x1B2, 0x600},
+    {0x7E4, 0x28F, 0xE0B}, {0x894, 0x671, 0x2D7}, {0xC0, 0x671, 0x2D7},
+    {0xBF, 0x671, 0x2D7},
+#elif VERSION_EU
+    {0x94C, 0x6F0, 0xE00}, {0x7F4, 0x6F0, 0xE00}, {0x7EA, 0x1D1, 0x207},
+    {0x7F2, 0x166, 0x26D}, {0x7EB, 0x3C0, 0x216}, {0x7EC, 0x231, 0x272},
+    {0x7ED, 0x294, 0x288}, {0x7EE, 0xE0, 0x288},  {0x7EF, 0x151, 0x2DE},
+    {0x7F0, 0x1B2, 0x600}, {0x7F3, 0x28F, 0xE0C}, {0x8A5, 0x671, 0x2D7},
+    {0x817, 0x671, 0x2D7}, {0x816, 0x671, 0x2D7},
+#endif
+};
+
+s16 STDWTITL_glintAltFrames[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+s16 STDWTITL_glintFrames[] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1,
+};
+
+Point STDWTITL_menuCursorPositions[] = {{79, 154}, {79, 174}, {79, 166}};
+
+#if VERSION_EU
+u8 STDWTITL_menuSprites[][4] = {
+    {8, 9, 10}, {8, 9, 10}, {8, 9, 10}, {17, 18, 19},
+    {11, 12, 13}, {20, 21, 22}, {14, 15, 16},
+};
+#endif
+
 void STDWTITL_tickSplashLoader(Task *task, Task **splash) {
     TimLoader loader;
     Layer *layer;
@@ -49,7 +94,7 @@ void STDWTITL_tickScreen(Task *task, ScreenChildren *children) {
             layer->setBgColor(layer, 0, 0, 0);
             children->title = STDWTITL_startTitleLoaderTask();
             break;
-        case 12:
+        case STDWTITL_SPLASH_MODE:
             children->splash = STDWTITL_startSplashLoaderTask();
             break;
         default:
@@ -75,16 +120,16 @@ void STDWTITL_drawLogo(LogoTask *task) {
     if (task->visible) {
         initSpriteDrawer(&sprite);
         sprite.setLayerId(task->layerId, 0);
-        sprite.setTexture(0x280, 0);
+        sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
         sprite.draw(FILE_CACHE.getEntry(STDWTITL_spriteBank), 6, 29, 209);
         initSpriteDrawer(&sprite);
         sprite.setLayerId(task->layerId, 0);
-        sprite.setTexture(0x280, 0);
+        sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
         sprite.setClutRow(task->anims[0].frame);
         sprite.draw(FILE_CACHE.getEntry(STDWTITL_spriteBank), 3, 8, 28);
         initSpriteDrawer(&sprite);
         sprite.setLayerId(task->layerId, 0);
-        sprite.setTexture(0x280, 0);
+        sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
         sprite.setClutRow(task->anims[1].frame);
         sprite.draw(FILE_CACHE.getEntry(STDWTITL_spriteBank), 5, 20, 202);
     }
@@ -345,6 +390,7 @@ void STDWTITL_tickMovie(MovieTask *task, MoviePlayerTask **player) {
         GFX.funcs.reset();
         GFX.funcs.allocPrimBuffers(0x2800);
         GFX.funcs.setDisplayMode(320, 480, 1, 1);
+#if VERSION_US
         if (task->movie != 10) {
             *player = STDWTITL_startMoviePlayerTask(STDWTITL_movies[task->movie].file, STDWTITL_movies[task->movie].endFrame);
             task->nextMode = STDWTITL_movies[task->movie].nextMode;
@@ -352,6 +398,42 @@ void STDWTITL_tickMovie(MovieTask *task, MoviePlayerTask **player) {
             *player = STDWTITL_startMoviePlayerTask(STDWTITL_movies[11].file, STDWTITL_movies[11].endFrame);
             task->nextMode = STDWTITL_movies[11].nextMode;
         }
+#elif VERSION_EU
+        /* movie 11 is one of three, by the language */
+        if (task->movie != 11) {
+            *player = STDWTITL_startMoviePlayerTask(STDWTITL_movies[task->movie].file, STDWTITL_movies[task->movie].endFrame);
+        } else {
+            switch (LANGUAGE) {
+            case 0:
+                *player = STDWTITL_startMoviePlayerTask(STDWTITL_movies[11].file, STDWTITL_movies[11].endFrame);
+                break;
+            case 1:
+                *player = STDWTITL_startMoviePlayerTask(STDWTITL_movies[12].file, STDWTITL_movies[12].endFrame);
+                break;
+            case 2 ... 6:
+                *player = STDWTITL_startMoviePlayerTask(STDWTITL_movies[13].file, STDWTITL_movies[13].endFrame);
+                break;
+            }
+        }
+        if (task->movie != 11) {
+            task->nextMode = STDWTITL_movies[task->movie].nextMode;
+            if (task->movie == 2 && GAME_PROGRESS == 0x2D) {
+                task->nextMode = 0x276;
+            }
+        } else {
+            switch (LANGUAGE) {
+            case 0:
+                task->nextMode = STDWTITL_movies[11].nextMode;
+                break;
+            case 1:
+                task->nextMode = STDWTITL_movies[12].nextMode;
+                break;
+            case 2 ... 6:
+                task->nextMode = STDWTITL_movies[13].nextMode;
+                break;
+            }
+        }
+#endif
         SOUND_STATE.stopAll();
         task->nextState(task);
         break;
@@ -381,13 +463,13 @@ void STDWTITL_drawGlintAlt(GlintTask *task) {
     initSpriteDrawer(&sprite);
     if (task->lit) {
         sprite.setLayerId(task->layerId, 0);
-        sprite.setTexture(0x280, 0);
+        sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
         sprite.setAltClut(0, 0x1F0);
         sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 2, 49, 121);
         initSpriteDrawer(&sprite);
     }
     sprite.setLayerId(task->layerId, 0);
-    sprite.setTexture(0x280, 0);
+    sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
     sprite.setClutRow(task->frame);
     sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 4, 37, 114);
 }
@@ -455,14 +537,14 @@ void STDWTITL_drawGlint(GlintTask *task) {
     initSpriteDrawer(&sprite);
     if (task->lit) {
         sprite.setLayerId(task->layerId, 0);
-        sprite.setTexture(0x280, 0);
+        sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
         sprite.setAltClut(0, 0x1F0);
         sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 2, 253, 100);
         initSpriteDrawer(&sprite);
     }
     if (task->frame != -1) {
         sprite.setLayerId(task->layerId, 0);
-        sprite.setTexture(0x280, 0);
+        sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
         sprite.setClutRow(task->frame);
         sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 4, 243, 90);
     }
@@ -522,12 +604,38 @@ GlintTask *STDWTITL_startGlintTask(s32 skip) {
 
 void STDWTITL_drawSplash(SplashTask *task) {
     SpriteDrawer sprite;
+#if VERSION_EU
+    /* the screen has a frame per group of languages */
+    s32 frame = 0;
+
+    switch (LANGUAGE) {
+    case 0:
+    case 1:
+    case 2:
+        frame = 0;
+        break;
+    case 3:
+    case 6:
+        frame = 2;
+        break;
+    case 4:
+        frame = 3;
+        break;
+    case 5:
+        frame = 1;
+        break;
+    }
+#endif
 
     initSpriteDrawer(&sprite);
     sprite.setLayerId(STDWTITL_SPLASH_LAYER, 1);
     sprite.setTexture(0x280, 0);
     sprite.setClutRow(task->fade);
+#if VERSION_US
     sprite.draw(FILE_CACHE_GET_ENTRY[0](SPLASH_SPRITES), 0, 0, 0);
+#elif VERSION_EU
+    sprite.draw(FILE_CACHE_GET_ENTRY[0](SPLASH_SPRITES), frame, 0, 0);
+#endif
 }
 
 void STDWTITL_tickSplash(SplashTask *task) {
@@ -647,7 +755,7 @@ void STDWTITL_drawTitle1Alt(SlideTask *task) {
     initSpriteDrawer(&sprite);
     sprite.setLayerId(task->layerId, 0);
     sprite.setAltClut(0, 0x1F0);
-    sprite.setTexture(0x280, 0);
+    sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
     sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 1, task->x, task->y);
 }
 
@@ -714,7 +822,7 @@ void STDWTITL_drawTitle1(SlideTask *task) {
     initSpriteDrawer(&sprite);
     sprite.setLayerId(task->layerId, 0);
     sprite.setAltClut(0, 0x1F0);
-    sprite.setTexture(0x280, 0);
+    sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
     sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 1, task->x, task->y);
 }
 
@@ -771,7 +879,7 @@ void STDWTITL_drawTitle0Alt(SlideTask *task) {
     initSpriteDrawer(&sprite);
     sprite.setLayerId(task->layerId, 0);
     sprite.setAltClut(0, 0x1F0);
-    sprite.setTexture(0x280, 0);
+    sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
     sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 0, task->x, task->y);
 }
 
@@ -838,7 +946,7 @@ void STDWTITL_drawTitle0(SlideTask *task) {
     initSpriteDrawer(&sprite);
     sprite.setLayerId(task->layerId, 0);
     sprite.setAltClut(0, 0x1F0);
-    sprite.setTexture(0x280, 0);
+    sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
     sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 0, task->x, task->y);
 }
 
@@ -889,13 +997,20 @@ SlideTask *STDWTITL_startTitle0Task(s32 skip) {
     return task;
 }
 
+/* The menu's sprites: the European version has them for each language */
+#if VERSION_US
+#define MENU_SPRITE(i) (8 + (i))
+#elif VERSION_EU
+#define MENU_SPRITE(i) (STDWTITL_menuSprites[LANGUAGE][i])
+#endif
+
 void STDWTITL_drawMenu(MenuTask *task) {
     SpriteDrawer sprite;
 
     if (task->showCursor) {
         initSpriteDrawer(&sprite);
         sprite.setLayerId(task->layerId, 0);
-        sprite.setTexture(0x280, 0);
+        sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
         sprite.setClutRow(task->blink);
         sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 7,
                     STDWTITL_menuCursorPositions[task->selection].x,
@@ -904,20 +1019,20 @@ void STDWTITL_drawMenu(MenuTask *task) {
     if (task->showOptions == 0) {
         initSpriteDrawer(&sprite);
         sprite.setLayerId(task->layerId, 0);
-        sprite.setTexture(0x280, 0);
+        sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
         sprite.setClutRow(task->selection != 2);
-        sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), 8, 79, 166);
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_spriteBank), MENU_SPRITE(0), 79, 166);
     } else {
         initSpriteDrawer(&sprite);
         sprite.setLayerId(task->layerId, 0);
-        sprite.setTexture(0x280, 0);
+        sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
         sprite.setClutRow(task->selection != 0);
-        sprite.draw(FILE_CACHE.getEntry(STDWTITL_spriteBank), 9, task->options[0].x, task->options[0].y);
+        sprite.draw(FILE_CACHE.getEntry(STDWTITL_spriteBank), MENU_SPRITE(1), task->options[0].x, task->options[0].y);
         initSpriteDrawer(&sprite);
         sprite.setLayerId(task->layerId, 0);
-        sprite.setTexture(0x280, 0);
+        sprite.setTexture(0x280, STDWTITL_TEXTURE_Y);
         sprite.setClutRow(task->selection != 1);
-        sprite.draw(FILE_CACHE.getEntry(STDWTITL_spriteBank), 10, task->options[1].x, task->options[1].y);
+        sprite.draw(FILE_CACHE.getEntry(STDWTITL_spriteBank), MENU_SPRITE(2), task->options[1].x, task->options[1].y);
     }
 }
 

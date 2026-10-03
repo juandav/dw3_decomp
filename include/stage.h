@@ -793,6 +793,7 @@ extern FieldFuncs D_8009A70C;
 /* FIELDSTG functions the stages call */
 void *func_80084B80(s32 id); /* creates the task of an event object */
 StageTile *func_80088C9C(s32 anim); /* the record of StageInfo.unk10's table with that animation */
+s32 func_8008B258(void); /* starts a battle: the handler of the stages' events 9000 */
 
 Cursor *createCursor(s16 layerId, s32 depth, s16 x, s16 y);
 

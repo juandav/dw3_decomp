@@ -22,9 +22,9 @@ World 3*, and the European one, *Digimon World 2003*, both build from this
 source tree and match byte for byte. The USA release is the one being
 decompiled; the European one, the most complete release, is where the work
 is heading next: it is split into the USA release's files and carries its
-names, and builds the PsyQ libraries, the executable's game code and data
-and a few overlay files from the same C, but is splat's disassembly
-otherwise.
+names, and builds the PsyQ libraries, the executable's game code and data,
+the overlay functions the USA version has in C and the stages from the same
+C, but is splat's disassembly otherwise.
 
 This repository does not contain any game data. You need your own copy of the
 game to build it.
@@ -43,12 +43,12 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 344 / 346 | 95.67 % | 99.86 % |
 | | USA | 344 / 346 | 95.60 % | 99.86 % |
-| The 21 overlays | Europe | 546 / 1,702 | 22.73 % | 27.09 % |
-| | USA | 833 / 1,697 | 29.70 % | 38.52 % |
+| The 21 overlays | Europe | 915 / 1,702 | 32.72 % | 75.12 % |
+| | USA | 915 / 1,697 | 32.79 % | 74.80 % |
 | The stages (293 and 238) | Europe | 1,289 / 1,590 | 69.55 % | 99.27 % |
 | | USA | 1,223 / 1,369 | 81.64 % | 99.15 % |
-| **Total** | **Europe** | **2,179 / 3,638** | **39.07 %** | **90.73 %** |
-| | **USA** | **2,400 / 3,412** | **45.56 %** | **91.18 %** |
+| **Total** | **Europe** | **2,548 / 3,638** | **45.90 %** | **96.48 %** |
+| | **USA** | **2,482 / 3,412** | **47.76 %** | **96.03 %** |
 
 - The executable's game code is all C but two functions,
   `spriteDrawerDraw` and `convertText` (`graphics.c`). Its data is C too, in `src/main/data/`, until it moves
@@ -59,8 +59,9 @@ current:
   code, not the game's, so like other PSX decomps they are built and compared
   but left out of the progress.
 - `CNTY_SEL` and `SOUNDTST` are all C, `CARDGAME` all but three functions,
-  and `STDWTITL`, `STDGNAME`, `STCRDABM` and `SHOCKTST` mostly. `FIGHTSTG`, `STSTATUS` and
-  the other large overlays are still almost all assembly.
+  and `FIELDSTG`, `STDWTITL`, `STDGNAME`, `STCRDABM` and `SHOCKTST` mostly.
+  `FIGHTSTG`, `STSTATUS` and the other large overlays are still almost all
+  assembly.
 - 98 of the 238 USA stages are all C. Many stages share functions built from the
   same source, so one match often repeats across stages. The stages' data is
   C too, as splat's words, at the end of each stage's C file: all but
@@ -91,7 +92,7 @@ above counts them: fake matches, then the other two kinds together.
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 3 | `/* unused, but it is in the original stack frame */` |
 | Form-dependent matches | 12 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 1,180 | `INCLUDE_ASM` |
+| Functions still in assembly | 1,104 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -131,7 +132,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 |---|---|---|---|
 | `CARDGAME` | `0x80082448` | 303 / 306 | the card battle (mode `0x700`): the decks, the cards in play and the battle screen |
 | `CNTY_SEL` | `0x80082448` | 26 / 26 | the country select screen |
-| `FIELDSTG` | `0x80082448` | 108 / 222 | the field mode, where the player walks around the map; the stages load on top of it |
+| `FIELDSTG` | `0x80082448` | 190 / 222 | the field mode, where the player walks around the map; the stages load on top of it |
 | `FIGHTSTG` | `0x80082448` | 2 / 310 | not identified yet |
 | `SHOCKTST` | `0x80082448` | 15 / 17 | the debug vibration test |
 | `SOUNDTST` | `0x80082448` | 8 / 8 | the debug sound test |

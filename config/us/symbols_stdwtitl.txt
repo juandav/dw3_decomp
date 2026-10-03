@@ -94,6 +94,7 @@ DecDCTvlcSize2 = 0x80086CF0; // type:func
 DecDCTvlc2 = 0x80086D20; // type:func
 DecDCTvlcBuild = 0x80087070; // type:func
 
+D_80087154 = 0x80087154; // size:0xC
 STDWTITL_screenRect = 0x80087160; // size:0x8
 STDWTITL_logoFrames = 0x80087168; // size:0x34
 STDWTITL_movieWidth = 0x8008719C; // size:0x4

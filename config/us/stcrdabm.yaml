@@ -51,5 +51,5 @@ segments:
     subsegments:
       - [0x0, .rodata, stcrdabm]
       - [0xD8, c, stcrdabm]
-      - [0x2D20, data, stcrdabm]
+      - [0x2D20, .data, stcrdabm]
   - [0x2D50]

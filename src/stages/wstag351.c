@@ -626,11 +626,7 @@ void (*D_800A5A74[])(void) = {
 };
 s32 D_800A5A78[] = {
     9000, 0, 0,
-#if VERSION_US
-    0x8008B258,
-#elif VERSION_EU
-    0x8008BF38,
-#endif
+    (s32)func_8008B258,
     0, -1, 0, 0,
     0, 0,
 };

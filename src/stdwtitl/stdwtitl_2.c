@@ -1,5 +1,94 @@
 #include "stdwtitl.h"
 
+/* The screen's edges, from which it fades out */
+EdgeLine STDWTITL_edgeFadeLines[] = {
+    {0, -15, 320, -15}, {320, -15, 320, 260}, {0, 260, 320, 260},
+    {0, -15, 0, 260},
+};
+
+AnimFrame STDWTITL_backgroundAnim0[] = {
+    {300, 180}, {0, 2}, {1, 3}, {2, 5}, {3, 4}, {4, 4}, {5, 4}, {6, 5}, {7, 4},
+    {8, 4}, {9, 4}, {10, 4}, {11, 4}, {12, 4}, {13, 4}, {300, 12}, {0xFF, 0},
+};
+AnimFrame STDWTITL_backgroundAnim1[] = {
+    {300, 240}, {83, 1}, {14, 1}, {82, 1}, {84, 2}, {85, 2}, {86, 2}, {87, 2},
+    {14, 6}, {88, 2}, {89, 2}, {90, 3}, {91, 3}, {92, 3}, {93, 3}, {94, 3},
+    {95, 3}, {96, 3}, {97, 3}, {300, 10}, {0xFF, 0},
+};
+AnimFrame STDWTITL_backgroundAnim2[] = {
+    {0xF, 1}, {14, 1}, {16, 1}, {14, 1}, {17, 1}, {14, 1}, {18, 1}, {24, 1},
+    {19, 1}, {25, 1}, {20, 1}, {26, 1}, {21, 1}, {27, 1}, {22, 1}, {28, 1},
+    {23, 1}, {29, 1}, {33, 1}, {30, 1}, {34, 1}, {31, 1}, {35, 1}, {32, 1},
+    {36, 1}, {14, 1}, {37, 1}, {49, 1}, {38, 1}, {48, 1}, {39, 1}, {47, 1},
+    {40, 1}, {46, 1}, {14, 1}, {45, 1}, {14, 1}, {44, 1}, {14, 1}, {43, 1},
+    {14, 1}, {42, 1}, {14, 1}, {41, 1}, {300, 20}, {0xFF, 0},
+};
+AnimFrame STDWTITL_backgroundAnim3[] = {
+    {300, 25}, {50, 1}, {14, 1}, {51, 1}, {14, 1}, {52, 1}, {14, 1}, {53, 1},
+    {14, 1}, {54, 1}, {14, 1}, {55, 1}, {14, 1}, {56, 1}, {14, 1}, {57, 1},
+    {14, 1}, {58, 1}, {66, 1}, {59, 1}, {67, 1}, {60, 1}, {68, 1}, {61, 1},
+    {69, 1}, {62, 1}, {70, 1}, {63, 1}, {71, 1}, {64, 1}, {72, 1}, {65, 1},
+    {73, 1}, {14, 1}, {74, 1}, {14, 1}, {75, 1}, {14, 1}, {76, 1}, {14, 1},
+    {77, 1}, {14, 1}, {78, 1}, {14, 1}, {79, 1}, {14, 1}, {80, 1}, {14, 1},
+    {81, 1}, {300, 30}, {0xFF, 0},
+};
+AnimFrame STDWTITL_backgroundAnim4[] = {
+    {300, 240}, {27, 1}, {5, 1}, {28, 1}, {5, 1}, {29, 1}, {5, 1}, {30, 1},
+    {5, 1}, {31, 1}, {5, 1}, {32, 1}, {5, 1}, {33, 1}, {5, 1}, {34, 1}, {5, 1},
+    {35, 1}, {5, 1}, {36, 1}, {5, 1}, {37, 1}, {5, 1}, {38, 1}, {5, 1},
+    {39, 1}, {5, 1}, {40, 1}, {5, 1}, {13, 1}, {14, 1}, {0xF, 1}, {16, 1},
+    {17, 1}, {40, 1}, {18, 1}, {39, 1}, {19, 1}, {38, 1}, {20, 1}, {37, 1},
+    {21, 1}, {36, 1}, {22, 1}, {35, 1}, {23, 1}, {34, 1}, {24, 1}, {33, 1},
+    {25, 1}, {32, 1}, {26, 1}, {31, 1}, {5, 1}, {30, 1}, {5, 1}, {29, 1},
+    {5, 1}, {28, 1}, {5, 1}, {27, 1}, {300, 60}, {0xFF, 0},
+};
+AnimFrame STDWTITL_backgroundAnim5[] = {
+    {300, 180}, {41, 2}, {5, 1}, {41, 1}, {5, 1}, {42, 2}, {5, 1}, {42, 1},
+    {5, 1}, {43, 2}, {5, 1}, {43, 1}, {5, 1}, {44, 2}, {5, 1}, {44, 1}, {5, 9},
+    {45, 2}, {5, 1}, {45, 1}, {5, 1}, {46, 2}, {5, 1}, {46, 1}, {5, 1},
+    {47, 2}, {5, 1}, {47, 1}, {300, 180}, {0xFF, 0},
+};
+AnimFrame STDWTITL_backgroundAnim6[] = {
+    {300, 180}, {0, 1}, {5, 1}, {0, 2}, {5, 1}, {1, 2}, {5, 1}, {2, 2}, {5, 1},
+    {2, 1}, {5, 1}, {3, 1}, {5, 1}, {3, 1}, {5, 1}, {4, 1}, {5, 1}, {4, 1},
+    {300, 240}, {0xFF, 0},
+};
+AnimFrame STDWTITL_backgroundAnim7[] = {
+    {300, 120}, {6, 1}, {5, 1}, {7, 1}, {5, 1}, {6, 1}, {5, 1}, {7, 1}, {5, 1},
+    {8, 1}, {5, 1}, {8, 1}, {5, 1}, {9, 1}, {5, 1}, {10, 1}, {5, 1}, {11, 1},
+    {5, 1}, {12, 1}, {300, 240}, {0xFF, 0},
+};
+
+Point16 STDWTITL_background6Positions[] = {
+    {16, 165}, {265, 85}, {200, 0},
+};
+Point16 STDWTITL_background7Positions[] = {
+    {150, 0}, {282, 8}, {290, 178}, {0, 0}, {0, 108},
+};
+
+s32 STDWTITL_spriteBank = 0;
+
+TitleFuncs STDWTITL_titleFuncs = {
+    STDWTITL_loadTitleImages, STDWTITL_startFade, STDWTITL_stepFade,
+    STDWTITL_startTween, STDWTITL_stepTween,
+};
+
+/* The title's TIM archives and sprite banks; the European version picks one
+   by the language */
+TitleImages STDWTITL_titleImages[] = {
+#if VERSION_US
+    {0x08750001, 0x08750000}, {0x08930001, 0x08930000},
+    {0x08750001, 0x08750000}, {0x08750001, 0x08750000},
+    {0x08750001, 0x08750000}, {0x08750001, 0x08750000},
+    {0x08750001, 0x08750000},
+#elif VERSION_EU
+    {0x08860001, 0x08860000}, {0x08A40001, 0x08A40000},
+    {0x094D0001, 0x094D0000}, {0x094D0001, 0x094D0000},
+    {0x094D0001, 0x094D0000}, {0x094D0001, 0x094D0000},
+    {0x094D0001, 0x094D0000},
+#endif
+};
+
 s32 STDWTITL_getEdgeFadeLevel(s32 time) {
     if (time >= 30) {
         return 255;
@@ -115,11 +204,11 @@ void STDWTITL_drawBackground(BackgroundTask *task) {
     sprite.setLayerId(task->layerId, 0);
     sprite.setAltClut(0, 0x1F3);
     sprite.setTexture(0x300, 0);
-    sprite.draw(FILE_CACHE.getEntry(0x08760000), 0, 0, 0);
+    sprite.draw(FILE_CACHE.getEntry(STDWTITL_BACKGROUND(0)), 0, 0, 0);
     sprite.setTexture(0x340, 0);
-    sprite.draw(FILE_CACHE.getEntry(0x08760001), 0, 0, 0);
+    sprite.draw(FILE_CACHE.getEntry(STDWTITL_BACKGROUND(1)), 0, 0, 0);
     sprite.setTexture(0x380, 0);
-    sprite.draw(FILE_CACHE.getEntry(0x08760002), 0, 0, 0);
+    sprite.draw(FILE_CACHE.getEntry(STDWTITL_BACKGROUND(2)), 0, 0, 0);
 }
 
 void STDWTITL_drawBackgroundSprites(BackgroundTask *task) {
@@ -137,28 +226,28 @@ void STDWTITL_drawBackgroundSprites(BackgroundTask *task) {
     sprite.setLayerId(task->layerId, 0);
     sprite.setTexture(0x3C0, 0);
     if (frame0 != 300) {
-        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760003), frame0, 0, 0);
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_BACKGROUND(3)), frame0, 0, 0);
     }
     if (frame1 != 300) {
-        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760003), frame1, 0, 0);
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_BACKGROUND(3)), frame1, 0, 0);
     }
     if (frame2 != 300) {
-        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760003), frame2, 0, 0);
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_BACKGROUND(3)), frame2, 0, 0);
     }
     if (frame3 != 300) {
-        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760003), frame3, 0, 0);
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_BACKGROUND(3)), frame3, 0, 0);
     }
     if (frame4 != 300) {
-        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760008), frame4, 0, 0);
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_BACKGROUND(8)), frame4, 0, 0);
     }
     if (frame5 != 300) {
-        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760008), frame5, 0, 0);
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_BACKGROUND(8)), frame5, 0, 0);
     }
     if (frame6 != 300) {
-        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760008), frame6, task->pos6.x, task->pos6.y);
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_BACKGROUND(8)), frame6, task->pos6.x, task->pos6.y);
     }
     if (frame7 != 300) {
-        sprite.draw(FILE_CACHE_GET_ENTRY[0](0x08760008), frame7, task->pos7.x, task->pos7.y);
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](STDWTITL_BACKGROUND(8)), frame7, task->pos7.x, task->pos7.y);
     }
 }
 

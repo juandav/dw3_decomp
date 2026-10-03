@@ -1,5 +1,78 @@
 // SOUNDTST.PRO's own symbols, which only its splat config reads
 
+// us's sound lists, at other addresses
+D_8008450C = 0x80084D74; // size:0x390
+D_8008489C = 0x80085104; // size:0x10
+D_800848AC = 0x80085114; // size:0x10
+D_800848BC = 0x80085124; // size:0x10
+D_800848CC = 0x80085134; // size:0x10
+D_800848DC = 0x80085144; // size:0x10
+D_800848EC = 0x80085154; // size:0x10
+D_800848FC = 0x80085164; // size:0x10
+D_8008490C = 0x80085174; // size:0x10
+D_8008491C = 0x80085184; // size:0x10
+D_8008492C = 0x80085194; // size:0x10
+D_8008493C = 0x800851A4; // size:0x10
+D_8008494C = 0x800851B4; // size:0x30
+D_8008497C = 0x800851E4; // size:0x10
+D_8008498C = 0x800851F4; // size:0x18
+D_800849A4 = 0x8008520C; // size:0x10
+D_800849B4 = 0x8008521C; // size:0x20
+D_800849D4 = 0x8008523C; // size:0x10
+D_800849E4 = 0x8008524C; // size:0x20
+D_80084A04 = 0x8008526C; // size:0x10
+D_80084A14 = 0x8008527C; // size:0x28
+D_80084A3C = 0x800852A4; // size:0x10
+D_80084A4C = 0x800852B4; // size:0x10
+D_80084A5C = 0x800852C4; // size:0x10
+D_80084A6C = 0x800852D4; // size:0x20
+D_80084A8C = 0x800852F4; // size:0x10
+D_80084A9C = 0x80085304; // size:0x10
+D_80084AAC = 0x80085314; // size:0x18
+D_80084AC4 = 0x8008532C; // size:0x10
+D_80084AD4 = 0x8008533C; // size:0x10
+D_80084AE4 = 0x8008534C; // size:0x10
+D_80084AF4 = 0x8008535C; // size:0x10
+D_80084B04 = 0x8008536C; // size:0x28
+D_80084B2C = 0x80085394; // size:0x10
+D_80084B3C = 0x800853A4; // size:0x10
+D_80084B4C = 0x800853B4; // size:0x10
+D_80084B5C = 0x800853C4; // size:0x10
+D_80084B6C = 0x800853D4; // size:0x10
+D_80084B7C = 0x800853E4; // size:0x30
+D_80084BAC = 0x80085414; // size:0x10
+D_80084BBC = 0x80085424; // size:0x48
+D_80084C04 = 0x8008546C; // size:0x10
+D_80084C14 = 0x8008547C; // size:0x10
+D_80084C24 = 0x8008548C; // size:0x10
+D_80084C34 = 0x8008549C; // size:0x10
+D_80084C44 = 0x800854AC; // size:0x18
+D_80084C5C = 0x800854C4; // size:0x10
+D_80084C6C = 0x800854D4; // size:0x10
+D_80084C7C = 0x800854E4; // size:0x10
+D_80084C8C = 0x800854F4; // size:0x10
+D_80084C9C = 0x80085504; // size:0x18
+D_80084CB4 = 0x8008551C; // size:0x10
+D_80084CC4 = 0x8008552C; // size:0x10
+D_80084CD4 = 0x8008553C; // size:0x10
+D_80084CE4 = 0x8008554C; // size:0x10
+D_80084CF4 = 0x8008555C; // size:0x10
+D_80084D04 = 0x8008556C; // size:0x10
+D_80084D14 = 0x8008557C; // size:0x18
+D_80084D2C = 0x80085594; // size:0x18
+D_80084D44 = 0x800855AC; // size:0x10
+D_80084D54 = 0x800855BC; // size:0x10
+D_80084D64 = 0x800855CC; // size:0x10
+D_80084D74 = 0x800855DC; // size:0x10
+D_80084D84 = 0x800855EC; // size:0x30
+D_80084DB4 = 0x8008561C; // size:0x10
+D_80084DC4 = 0x8008562C; // size:0x20
+D_80084DE4 = 0x8008564C; // size:0x30
+D_80084E14 = 0x8008567C; // size:0x38
+D_80084E4C = 0x800856B4; // size:0x10
+D_80084E5C = 0x800856C4; // size:0x10
+D_80084E6C = 0x800856D4; // size:0x10
+
 // names from us (tools/match_versions.py --seed): the same function or datum
 SOUNDTST_STR_SELECT_VAB = 0x8008432C;
 SOUNDTST_STR_SOUND_TEST = 0x8008435C;
@@ -18,4 +91,4 @@ SOUNDTST_screenRect = 0x80085A40;
 // end of the names from us
 
 // names from the C of the modules this version builds (tools/version_symbols.py)
-SOUNDTST_entryNames = 0x80082CB0;
+SOUNDTST_entryNames = 0x80082CB0; // size:0x167C

@@ -1,0 +1,15 @@
+// FIELDSTG.PRO: the field
+
+// A one-entry table of the function that loads the field's sound bank and
+// files, called when func_800842C8's task starts
+FIELDSTG_initFuncs = 0x80098B6C; // size:0x4
+// Entries of the field's files (the high half is a file number),
+// read by func_80091398
+FIELDSTG_fileEntries = 0x80099134;
+// The field's state, one struct that the data splits in pieces
+D_800990B4 = 0x800990B4; // size:0x80
+// The handler of the stages' events 9000, which starts a battle: named so
+// that splat writes the stages' pointers to it as relocations, as GCC does
+func_8008B258 = 0x8008B258; // type:func
+D_80096920 = 0x80096920; // size:0x63
+D_80096983 = 0x80096983; // size:0x1

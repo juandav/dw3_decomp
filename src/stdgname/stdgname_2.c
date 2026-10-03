@@ -55,7 +55,7 @@ void func_800858D8(ScreenTask *task) {
     initSpriteDrawer(&sprite);
     sprite.setLayerId(task->layer, 7);
     sprite.setTexture(0x280, 0);
-    sprite.draw(FILE_CACHE_GET_ENTRY[0](0x02790000), 0x31, 0, 0);
+    sprite.draw(FILE_CACHE_GET_ENTRY[0](STDGNAME_SPRITES), 0x31, 0, 0);
     /* Scroll one pixel every other frame, wrapping at 96 */
     if (task->tick) {
         task->scroll = task->scroll++ < 95 ? task->scroll : 0;
@@ -63,7 +63,7 @@ void func_800858D8(ScreenTask *task) {
     } else {
         task->tick = 1;
     }
-    sprite.draw(FILE_CACHE_GET_ENTRY[0](0x02790000), 0x24, task->scroll, task->scroll);
+    sprite.draw(FILE_CACHE_GET_ENTRY[0](STDGNAME_SPRITES), 0x24, task->scroll, task->scroll);
 }
 
 void func_800859CC(ScreenTask *task, ScreenChildren *children) {
@@ -121,20 +121,20 @@ void func_80085B60(void) {
     HEAP.zero(&D_80087480.partner, sizeof(D_80087480.partner));
     initTimLoader(&loader);
     loader.setImagePos(0x280, 0);
-    loader.loadArchive(FILE_CACHE.getEntry(0x027A0000));
-    FILE_CACHE.request(0x41);
-    FILE_CACHE.request(0x762);
-    FILE_CACHE.request(0x87);
+    loader.loadArchive(FILE_CACHE.getEntry(STDGNAME_FILE_IMAGES << 16));
+    FILE_CACHE.request(TEXT_FILE(0x41));
+    FILE_CACHE.request(STDGNAME_FILE_KEYBOARD);
+    FILE_CACHE.request(TEXT_FILE(0x87));
 }
 
 s32 func_80085C08(void) {
-    if (FILE_CACHE.isLoading(0x762)) {
+    if (FILE_CACHE.isLoading(STDGNAME_FILE_KEYBOARD)) {
         return 1;
     }
-    if (FILE_CACHE.isLoading(0x41)) {
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x41))) {
         return 1;
     }
-    return FILE_CACHE.isLoading(0x87) != 0;
+    return FILE_CACHE.isLoading(TEXT_FILE(0x87)) != 0;
 }
 
 void func_80085C78(Tween *tween, s32 open) {

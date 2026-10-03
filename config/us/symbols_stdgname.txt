@@ -1,0 +1,6 @@
+// STDGNAME.PRO's own symbols, which only its splat config reads
+
+// Data whose pieces are one object in C, and the keys without their padding
+D_80087480 = 0x80087480; // size:0x18
+D_8008837C = 0x8008837C; // size:0xC
+D_80086EEC = 0x80086EEC; // size:0xD2
