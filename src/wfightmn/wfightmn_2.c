@@ -1,29 +1,12 @@
 #include "wfightmn.h"
 
-/* The 18-byte entries of the executable's table at D_800427D6 */
-typedef struct Unk800427D6 {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ u8 unk2[2];
-    /* 0x04 */ u8 unk4;
-    /* 0x05 */ u8 unk5[2];
-    /* 0x07 */ u8 unk7;
-    /* 0x08 */ u8 unk8;
-    /* 0x09 */ u8 unk9;
-    /* 0x0A */ u8 unkA;
-    /* 0x0B */ u8 unkB;
-    /* 0x0C */ u8 unkC;
-    /* 0x0D */ u8 unkD;
-    /* 0x0E */ u8 unkE;
-    /* 0x0F */ u8 unkF;
-    /* 0x10 */ u8 unk10;
-    /* 0x11 */ u8 unk11;
-} Unk800427D6;
+extern s32 (*D_800A3104)(s32 side, s32 kind); /* D_800A25F0.funcs.getDelay */
+
 
 extern Unk800427D6 D_800427D6[];
 
 /* FIGHTSTG's */
 extern u8 D_800A31F0[0xD4];
-extern s32 (*D_800A3104)(s32 arg0, s32 arg1);
 BattleTask *func_80087ACC(s32 arg0, s32 arg1, s32 damage);
 BattleTask *func_8008C090();
 BattleTask *func_8008C8B8(s32 arg0);
@@ -54,7 +37,7 @@ Task *func_80086128(s32 id, s32 fadeInTime);
 BattleModels *func_800877D4(void);
 Task *func_8008A838(s32 layer);
 extern s16 D_800A32BE;
-extern ActionResult D_800A317C;
+extern BattleAction D_800A317C;
 #if VERSION_EU
 Task *func_800A246C(void);
 #endif
@@ -153,17 +136,17 @@ void func_800A5878(void) {
     s16 slots[4];
     DigimonData *digimon;
     s32 partner;
-    BattleUnit *unit;
+    BattleFighter *unit;
     s32 i;
 
-    D_80042790.partners[D_800A31E8.current[0]].fought = 1;
-    partner = GAME.funcs.getPartyMember(D_800A31E8.current[0]);
-    unit = &D_800A31E8.units[0][D_800A31E8.current[0]];
+    D_80042790.partners[D_800A31E8.active[0]].fought = 1;
+    partner = GAME.funcs.getPartyMember(D_800A31E8.active[0]);
+    unit = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
     digimon = &DIGIMON_DATA[partner];
     if (digimon->id != unit->id && GAME.funcs.getPartnerSlots(partner, slots) > 0) {
         for (i = 0; i < 3; i++) {
             if (slots[i] == unit->id) {
-                D_80042790.partners[D_800A31E8.current[0]].used[i] = 1;
+                D_80042790.partners[D_800A31E8.active[0]].used[i] = 1;
                 return;
             }
         }
@@ -206,8 +189,8 @@ void WFIGHTMN_updateMenu(BattleMenu *task, BattleMenuChildren *children) {
     s32 chance;
     s32 mode;
     BattleStats *stats;
-    BattleUnit *unit;
-    BattleUnit *units;
+    BattleFighter *unit;
+    BattleFighter *units;
     s32 found;
     s32 i;
 
@@ -274,7 +257,7 @@ void WFIGHTMN_updateMenu(BattleMenu *task, BattleMenuChildren *children) {
                 children->models->add(children->models, 0x10, D_80042728.enemies[0].fighter, 1);
                 children->models->face(children->models, 0x10);
                 func_800A5538(digimon);
-                unit = &D_800A31E8.units[0][D_800A31E8.current[0]];
+                unit = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
                 if (unit->maxHp / 4 >= unit->hp) {
                     children->models->setIdleMotion(children->models, 0, 1);
                 }
@@ -312,8 +295,8 @@ void WFIGHTMN_updateMenu(BattleMenu *task, BattleMenuChildren *children) {
                     task->step++;
                     func_80092154(1);
                 } else {
-                    stats = D_800A3308.getStats(0, 1, D_800A31E8.current[0]);
-                    chance = D_800A3308.getStats(0x10, 0, D_800A31E8.current[1])->unk8[1] * 8 / stats->unk8[1];
+                    stats = D_800A3308.computeStats(0, 1, D_800A31E8.active[0]);
+                    chance = D_800A3308.computeStats(0x10, 0, D_800A31E8.active[1])->stats[4] * 8 / stats->stats[4];
                     if (RANDOM.next() % 128 < chance) {
                         func_8009B5F8(0);
                         func_8009B5BC(D_800A3104(0, 0) / 2);
@@ -337,7 +320,7 @@ void WFIGHTMN_updateMenu(BattleMenu *task, BattleMenuChildren *children) {
         break;
     case 1:
         func_800A8B08(task);
-        units = D_800A31E8.units[0];
+        units = D_800A31E8.fighters[0];
         if (task->unk70 == 0) {
             for (i = 0; i < 3; i++) {
                 if (units[i].flags & 4) {
@@ -368,47 +351,47 @@ void WFIGHTMN_updateMenu(BattleMenu *task, BattleMenuChildren *children) {
 
 /* Undoes the current partner's unk1A and the actions that go with it */
 void func_800A61C8(void) {
-    s32 index = D_800A25F0.find(0x13, 0, D_800A31E8.current[0]);
-    BattleUnit *unit = &D_800A31E8.units[0][D_800A31E8.current[0]];
-    s32 member = GAME_FUNCS.getPartyMember(D_800A31E8.current[0]);
+    s32 index = D_800A25F0.funcs.find(0x13, 0, D_800A31E8.active[0]);
+    BattleFighter *unit = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
+    s32 member = GAME_FUNCS.getPartyMember(D_800A31E8.active[0]);
 
     if (unit->unk1A != 0) {
         if (index >= 0) {
-            D_800A25F0.entries[index].kind = 0;
+            D_800A25F0.events[index].type = 0;
         }
         D_80042728.unk58[member] = 0;
         unit->unk1A = 0;
-        index = D_800A25F0.find(8, 0, D_800A31E8.current[0]);
+        index = D_800A25F0.funcs.find(8, 0, D_800A31E8.active[0]);
         if (index >= 0) {
-            D_800A25F0.entries[index].kind = 0;
+            D_800A25F0.events[index].type = 0;
         }
     }
 }
 
 void func_800A62B8(BattleMenu *task, BattleMenuChildren *children) {
-    BattleUnit *unit;
+    BattleFighter *unit;
     s32 index;
 
     switch (task->step) {
     case 0:
     default:
-        index = D_800A25F0.find(8, 0, D_800A31E8.current[0]);
+        index = D_800A25F0.funcs.find(8, 0, D_800A31E8.active[0]);
         if (index >= 0) {
-            D_800A25F0.entries[index].kind = 0;
+            D_800A25F0.events[index].type = 0;
         }
-        index = D_800A25F0.find(4, 0, D_800A31E8.current[0]);
+        index = D_800A25F0.funcs.find(4, 0, D_800A31E8.active[0]);
         if (index >= 0) {
             children->task = func_80099400();
             task->args[0] = 0x42;
             task->args[1] = 0;
             children->task->show(children->task, 2, task->args);
-            D_800A25F0.entries[index].kind = 0;
+            D_800A25F0.events[index].type = 0;
         }
         task->step++;
         break;
     case 1:
         if (children->task == NULL) {
-            unit = &D_800A31E8.units[0][D_800A31E8.current[0]];
+            unit = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
             if ((unit->flags & 2) && D_800A3308.unkDC(0) != 0) {
                 children->task = func_80099400();
                 task->args[0] = 0x56;
@@ -473,13 +456,13 @@ void func_800A62B8(BattleMenu *task, BattleMenuChildren *children) {
 /* The state that changes the current partner's Digimon to the one picked
    (commands->unk64), then says so */
 void func_800A6654(BattleMenu *task, BattleMenuChildren *children) {
-    BattleUnit *unit;
+    BattleFighter *unit;
     DigimonData *digimon;
 
     switch (task->step) {
     case 0:
     default:
-        unit = &D_800A31E8.units[0][D_800A31E8.current[0]];
+        unit = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
         unit->id = children->commands->unk64;
         func_800A5878();
         func_800A61C8();
@@ -490,7 +473,7 @@ void func_800A6654(BattleMenu *task, BattleMenuChildren *children) {
         if (children->task == NULL) {
             /* a pointer sum, not units[0][...]: the match depends on it,
                which adds the base first */
-            digimon = ON_PARTNER_ENTRY_ADDED((D_800A31E8.units[0] + D_800A31E8.current[0])->id);
+            digimon = ON_PARTNER_ENTRY_ADDED((D_800A31E8.fighters[0] + D_800A31E8.active[0])->id);
             children->task = func_80099400();
             task->args[0] = 0;
             task->args[1] = digimon->nameId;
@@ -501,13 +484,87 @@ void func_800A6654(BattleMenu *task, BattleMenuChildren *children) {
     }
 }
 
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn_2", func_800A6778);
+/* Swaps the partner on the field for the one picked (children->commands):
+   message 0x38, then the swap effect with current[0] set to the new partner's
+   slot for it, then the switch itself and message 0x39 */
+void func_800A6778(BattleMenu *task, BattleMenuChildren *children) {
+    s32 member;
+    s32 slot;
+    s32 newSlot;
+    s32 i;
+    BattleFighter *unit;
+
+    switch (task->step) {
+    case 0:
+    default:
+        children->task = func_80099400();
+        task->args[0] = 0x38;
+        task->args[1] = 0;
+        children->task->show(children->task, 2, task->args);
+        task->step++;
+        break;
+    case 1:
+        if (children->task == NULL) {
+            /* the match depends on setting i here, before the call */
+            i = 0;
+            slot = -1;
+            member = GAME.funcs.getPartyMember(children->commands->unk60);
+            for (; i < 3; i++) {
+                if (GAME.funcs.getPartyMember(i) == member) {
+                    slot = i;
+                    break;
+                }
+            }
+            task->args[0] = slot;
+            task->args[1] = D_800A31E8.active[0];
+            D_800A31E8.active[0] = task->args[0];
+            children->task = func_80086780(children->commands->unk64, 0, func_800A9840(0, 0));
+            D_800A31E8.active[0] = task->args[1];
+            task->step++;
+        }
+        break;
+    case 2:
+        if (children->task->unk50 != 0) {
+            newSlot = task->args[0];
+            unit = D_800A31E8.fighters[0] + D_800A31E8.active[0];
+            if (unit->unk1B != 0) {
+                unit->unk1B = 0;
+#if VERSION_US
+                /* func_8009C0B0's event, built in the arguments */
+                task->args[0] = 0x15;
+                task->args[1] = 1;
+                task->args[2] = 0;
+                task->args[3] = D_800A31E8.active[0];
+                D_800A25F0.funcs.pushFirst((BattleEvent *)task->args);
+#elif VERSION_EU
+                func_8009C0B0();
+#endif
+            }
+            func_800A61C8();
+            D_800A31E8.active[0] = newSlot;
+            unit = D_800A31E8.fighters[0] + newSlot;
+            unit->id = children->commands->unk64;
+            func_800A5878();
+            task->step++;
+        }
+        break;
+    case 3:
+        if (children->task == NULL) {
+            children->task = func_80099400();
+            task->args[0] = 0x39;
+            task->args[1] = 0;
+            children->task->show(children->task, 2, task->args);
+            task->setSubstate(task, 2);
+        }
+        break;
+    }
+}
 
 /* The state after the battle's last action: goes on to state 5 while an
    enemy is left, or ends the battle */
 void func_800A69D0(BattleMenu *task, BattleMenuChildren *children) {
     s32 i;
-    BattleUnit *unit;
+    BattleFighter *unit;
 
     switch (task->step) {
     case 0:
@@ -517,7 +574,7 @@ void func_800A69D0(BattleMenu *task, BattleMenuChildren *children) {
         break;
     case 1:
         if (children->task == NULL) {
-            for (i = 0, unit = D_800A31E8.units[1]; i < 3; i++, unit++) {
+            for (i = 0, unit = D_800A31E8.fighters[1]; i < 3; i++, unit++) {
                 if (unit->id != 0 && unit->hp != 0) {
                     task->setSubstate(task, 5);
                     task->step = 1;
@@ -535,9 +592,9 @@ void func_800A69D0(BattleMenu *task, BattleMenuChildren *children) {
    partners' HP and MP, fades out and requests the next mode */
 void WFIGHTMN_endBattle(BattleMenu *task, BattleMenuChildren *children) {
     Battle *battle;
-    BattleUnit *units;
-    BattleUnit *unit;
-    EnemyInfo *info;
+    BattleFighter *units;
+    BattleFighter *unit;
+    BattleTableEntry *info;
     BattleEnd *end;
     Layer *layer;
     s32 count;
@@ -558,18 +615,18 @@ void WFIGHTMN_endBattle(BattleMenu *task, BattleMenuChildren *children) {
         if (D_800A30E4 != 0) {
             count = 0;
             battle = &D_800A31E8;
-            units = battle->units[1];
+            units = battle->fighters[1];
             D_80042790.battle = D_80042728.unk10;
-            D_80042790.member = battle->current[0];
+            D_80042790.member = battle->active[0];
             for (i = 0; i < 3; i++) {
-                if (units[i].id != 0 && units[i].unk18 != 0) {
+                if (units[i].id != 0 && units[i].item != 0) {
                     count++;
                 }
             }
             pick = RANDOM.next() % count;
             count = 0;
             for (i = 0; i < 3; i++) {
-                if (units[i].id != 0 && units[i].unk18 != 0) {
+                if (units[i].id != 0 && units[i].item != 0) {
                     if (pick == count) {
                         break;
                     }
@@ -578,10 +635,10 @@ void WFIGHTMN_endBattle(BattleMenu *task, BattleMenuChildren *children) {
             }
             /* an address sum with the offset first: the match depends on it, which
                puts the offset first in the addu */
-            unit = (BattleUnit *)(count * sizeof(BattleUnit) + (s32)units);
+            unit = (BattleFighter *)(count * sizeof(BattleFighter) + (s32)units);
             info = D_800A2584(unit->id);
-            if (unit->unk18 > 0 && info->itemChance + 1 > RANDOM.next() % 1024) {
-                D_80042790.item = unit->unk18;
+            if (unit->item > 0 && info->itemChance + 1 > RANDOM.next() % 1024) {
+                D_80042790.item = unit->item;
             } else {
                 D_80042790.item = 0;
             }
@@ -592,16 +649,16 @@ void WFIGHTMN_endBattle(BattleMenu *task, BattleMenuChildren *children) {
         for (member = 0; member < 3; member++) {
             partner = GAME.funcs.getPartyMember(member);
             if (partner >= 0) {
-                if ((D_800A31E8.units[0] + member)->hp <= 0) {
+                if ((D_800A31E8.fighters[0] + member)->hp <= 0) {
                     GAME.partners[partner].hp = 1;
                     D_80042790.partners[member].fought = 0;
                     D_80042790.partners[member].used[0] = 0;
                     D_80042790.partners[member].used[1] = 0;
                     D_80042790.partners[member].used[2] = 0;
                 } else {
-                    GAME.partners[partner].hp = (D_800A31E8.units[0] + member)->hp;
+                    GAME.partners[partner].hp = (D_800A31E8.fighters[0] + member)->hp;
                 }
-                GAME.partners[partner].mp = (D_800A31E8.units[0] + member)->mp;
+                GAME.partners[partner].mp = (D_800A31E8.fighters[0] + member)->mp;
             }
         }
         end = func_8008A22C();
@@ -647,52 +704,89 @@ void WFIGHTMN_endBattle(BattleMenu *task, BattleMenuChildren *children) {
     }
 }
 
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn_2", func_800A6E6C);
+extern s32 (*D_800A33D8)(u8 actor);
+
+/* Asks FIGHTSTG (D_800A33D8) whether the current action's actor can act; if
+   so shows message 0x43 (a partner) or 0x5F (an enemy) and waits for the
+   window to close, otherwise sets the event's time from getDelay */
+void func_800A6E6C(BattleMenu *task, BattleMenuChildren *children) {
+    QueuedEvent *action;
+
+    switch (task->counter) {
+    case 0:
+    default:
+        action = &D_800A25F0.events[D_800A25F0.curIndex];
+        if (D_800A33D8(action->args[0]) != 0) {
+            task->counter = 1;
+            action->type = 0;
+            children->task = func_80099400();
+            /* the match depends on args[1] being set in both branches */
+            if (action->args[0] == 0) {
+                task->args[0] = 0x43;
+                task->args[1] = action->args[0];
+            } else {
+                task->args[0] = 0x5F;
+                task->args[1] = action->args[0];
+            }
+            children->task->show(children->task, 2, task->args);
+        } else {
+            action->time = D_800A25F0.funcs.getDelay((u8)action->args[0], 1);
+            task->setSubstate(task, 0);
+        }
+        break;
+    case 1:
+        if (children->task == NULL) {
+            func_8009B634(0);
+            task->setSubstate(task, 0);
+        }
+        break;
+    }
+}
 
 /* Removes the current action's kind 6 action, unless the partner it is for
    has WFIGHTMN_ITEM equipped */
 void func_800A6FA0(BattleMenu *task, BattleMenuChildren *children) {
-    BattleAction *action = &D_800A25F0.entries[D_800A25F0.current];
-    s32 index = D_800A25F0.find(6, (u8)action->actor, action->unit);
-    BattleAction *found;
+    QueuedEvent *action = &D_800A25F0.events[D_800A25F0.curIndex];
+    s32 index = D_800A25F0.funcs.find(6, (u8)action->args[0], action->args[1]);
+    QueuedEvent *found;
     PartnerStats *stats;
 
     if (index >= 0) {
-        found = &D_800A25F0.entries[index];
+        found = &D_800A25F0.events[index];
         children->task = func_80099400();
         task->args[0] = 0x5A;
-        task->args[1] = action->actor;
-        task->args[2] = action->unit;
+        task->args[1] = action->args[0];
+        task->args[2] = action->args[1];
         children->task->show(children->task, 7, task->args);
-        if (found->actor == 0) {
-            stats = (PartnerStats *)GAME.funcs.getPartnerStats(GAME.funcs.getPartyMember(found->unit));
+        if (found->args[0] == 0) {
+            stats = (PartnerStats *)GAME.funcs.getPartnerStats(GAME.funcs.getPartyMember(found->args[1]));
             if (stats->equip[4] == WFIGHTMN_ITEM || stats->equip[5] == WFIGHTMN_ITEM) {
-                found->kind = 6;
-                found->unkC = 0;
+                found->type = 6;
+                found->args[2] = 0;
             } else {
-                found->kind = 0;
+                found->type = 0;
             }
         } else {
-            found->kind = 0;
+            found->type = 0;
         }
     }
     task->setSubstate(task, 2);
 }
 
 void func_800A70E8(BattleMenu *task, BattleMenuChildren *children) {
-    BattleAction *action = &D_800A25F0.entries[D_800A25F0.current];
-    s32 side = action->actor >> 4;
-    BattleUnit *unit = &D_800A31E8.units[side][action->unit];
+    QueuedEvent *action = &D_800A25F0.events[D_800A25F0.curIndex];
+    s32 side = action->args[0] >> 4;
+    BattleFighter *unit = &D_800A31E8.fighters[side][action->args[1]];
 
     switch (task->step) {
     case 0:
     default:
-        action->unk2 = 1000;
-        task->counter = D_800A3308.getHeal(action->actor, action->unit, action->unkC);
+        action->time = 1000;
+        task->counter = D_800A3308.getHeal(action->args[0], action->args[1], action->args[2]);
         if (unit->hp < unit->maxHp) {
-            if (action->unit == D_800A31E8.current[side]) {
-                children->task = func_800A9040(action->actor, 0xBD);
-                func_800A9840(action->actor, -task->counter);
+            if (action->args[1] == D_800A31E8.active[side]) {
+                children->task = func_800A9040(action->args[0], 0xBD);
+                func_800A9840(action->args[0], -task->counter);
             }
             task->step++;
         } else {
@@ -702,8 +796,8 @@ void func_800A70E8(BattleMenu *task, BattleMenuChildren *children) {
     case 1:
         if (children->task == NULL) {
             children->task = func_80099400();
-            task->args[0] = action->actor;
-            task->args[1] = action->unit;
+            task->args[0] = action->args[0];
+            task->args[1] = action->args[1];
             task->args[2] = task->counter;
             children->task->show(children->task, 0xA, task->args);
             task->step++;
@@ -732,24 +826,24 @@ void func_800A72E0(BattleMenu *task, BattleMenuChildren *children) {
 
 /* Carries out the current action's damage (D_800A3308.getDamage) on its unit */
 void func_800A7358(BattleMenu *task, BattleMenuChildren *children) {
-    BattleAction *action;
-    BattleUnit *unit;
-    BattleUnit *hit;
+    QueuedEvent *action;
+    BattleFighter *unit;
+    BattleFighter *hit;
     s32 side;
     s32 damage;
 
     switch (task->step) {
     case 0:
     default:
-        action = &D_800A25F0.entries[D_800A25F0.current];
-        side = action->actor >> 4;
-        task->args[0] = action->actor;
-        task->args[1] = action->unit;
-        damage = D_800A3308.getDamage(&action->actor);
+        action = &D_800A25F0.events[D_800A25F0.curIndex];
+        side = action->args[0] >> 4;
+        task->args[0] = action->args[0];
+        task->args[1] = action->args[1];
+        damage = D_800A3308.getDamage(&action->args[0]);
         task->args[2] = damage;
-        if (action->unit == D_800A31E8.current[side]) {
-            unit = &D_800A31E8.units[side][action->unit];
-            if (action->actor == 0) {
+        if (action->args[1] == D_800A31E8.active[side]) {
+            unit = &D_800A31E8.fighters[side][action->args[1]];
+            if (action->args[0] == 0) {
                 children->task = func_80087ACC(unit->hp - damage <= 0 ? 2 : 1, 1, damage);
             } else {
                 children->task = func_8008C090();
@@ -764,16 +858,16 @@ void func_800A7358(BattleMenu *task, BattleMenuChildren *children) {
                     children->task->hits[3] = 1;
                 }
             }
-            func_800A9840(action->actor, task->args[2]);
+            func_800A9840(action->args[0], task->args[2]);
             task->step++;
         } else {
             task->setSubstate(task, 0);
         }
-        action->unk2 = 1000;
+        action->time = 1000;
         break;
     case 1:
         if (children->task == NULL) {
-            hit = &D_800A31E8.units[task->args[0] >> 4][task->args[1]];
+            hit = &D_800A31E8.fighters[task->args[0] >> 4][task->args[1]];
             hit->hp -= task->args[2];
             if (hit->hp <= 0) {
                 hit->hp = 0;
@@ -794,22 +888,22 @@ void func_800A7358(BattleMenu *task, BattleMenuChildren *children) {
 
 /* States 13-15: clear the current action's unit's flag 2, 4 or 8 */
 void func_800A75F8(BattleMenu *task, BattleMenuChildren *children) {
-    BattleAction *action = &D_800A25F0.entries[D_800A25F0.current];
-    BattleUnit *unit;
+    QueuedEvent *action = &D_800A25F0.events[D_800A25F0.curIndex];
+    BattleFighter *unit;
 
     switch (task->step) {
     case 0:
     default:
         task->args[0] = task->substate + 0x1C;
-        task->args[1] = action->actor;
-        task->args[2] = action->unit;
+        task->args[1] = action->args[0];
+        task->args[2] = action->args[1];
         children->task = func_80099400();
         children->task->show(children->task, 7, task->args);
         task->step++;
         break;
     case 1:
         if (children->task == NULL) {
-            unit = &D_800A31E8.units[action->actor != 0][action->unit];
+            unit = &D_800A31E8.fighters[action->args[0] != 0][action->args[1]];
             switch (task->substate) {
             case 13:
             default:
@@ -830,23 +924,23 @@ void func_800A75F8(BattleMenu *task, BattleMenuChildren *children) {
 
 /* Clears the current action's unit's unk10[unkC] */
 void func_800A7754(BattleMenu *task, BattleMenuChildren *children) {
-    BattleAction *action = &D_800A25F0.entries[D_800A25F0.current];
-    BattleUnit *unit;
+    QueuedEvent *action = &D_800A25F0.events[D_800A25F0.curIndex];
+    BattleFighter *unit;
 
     switch (task->step) {
     case 0:
     default:
         children->task = func_80099400();
-        task->args[0] = action->unkC + 0x5B;
-        task->args[1] = action->actor;
-        task->args[2] = action->unit;
+        task->args[0] = action->args[2] + 0x5B;
+        task->args[1] = action->args[0];
+        task->args[2] = action->args[1];
         children->task->show(children->task, 7, task->args);
         task->step++;
         break;
     case 1:
         if (children->task == NULL) {
-            unit = &D_800A31E8.units[action->actor >> 4][action->unit];
-            unit->unk10[action->unkC] = 0;
+            unit = &D_800A31E8.fighters[action->args[0] >> 4][action->args[1]];
+            unit->boosts[action->args[2]] = 0;
             task->setSubstate(task, 0);
         }
         break;
@@ -876,23 +970,23 @@ void func_800A7878(BattleMenu *task, BattleMenuChildren *children) {
 
 /* Clears the current action's unit's flag 0x10 << unkC */
 void func_800A7950(BattleMenu *task, BattleMenuChildren *children) {
-    BattleAction *action = &D_800A25F0.entries[D_800A25F0.current];
-    BattleUnit *unit;
+    QueuedEvent *action = &D_800A25F0.events[D_800A25F0.curIndex];
+    BattleFighter *unit;
 
     switch (task->step) {
     case 0:
     default:
         children->task = func_80099400();
-        task->args[0] = action->unkC + 0x57;
-        task->args[1] = action->actor;
-        task->args[2] = action->unit;
+        task->args[0] = action->args[2] + 0x57;
+        task->args[1] = action->args[0];
+        task->args[2] = action->args[1];
         children->task->show(children->task, 7, task->args);
         task->step++;
         break;
     case 1:
         if (children->task == NULL) {
-            unit = &D_800A31E8.units[action->actor >> 4][action->unit];
-            unit->flags &= ~(1 << (action->unkC + 4));
+            unit = &D_800A31E8.fighters[action->args[0] >> 4][action->args[1]];
+            unit->flags &= ~(1 << (action->args[2] + 4));
             task->setSubstate(task, 0);
         }
         break;
@@ -903,7 +997,7 @@ void func_800A7950(BattleMenu *task, BattleMenuChildren *children) {
    reaches (unk50), and heals it when the change ends */
 void func_800A7A7C(BattleMenu *task, BattleMenuChildren *children) {
     BattleModels *models;
-    BattleUnit *unit;
+    BattleFighter *unit;
     DigimonData *digimon;
     s32 partner;
     s32 level;
@@ -923,7 +1017,7 @@ void func_800A7A7C(BattleMenu *task, BattleMenuChildren *children) {
         break;
     case 1:
         if (children->task == NULL) {
-            partner = GAME.funcs.getPartyMember(D_800A31E8.current[0]);
+            partner = GAME.funcs.getPartyMember(D_800A31E8.active[0]);
             level = GAME.funcs.getPartnerStats(partner)->level;
             if (level < 4) {
                 tier = 0;
@@ -936,7 +1030,7 @@ void func_800A7A7C(BattleMenu *task, BattleMenuChildren *children) {
             } else {
                 tier = 4;
             }
-            unit = &D_800A31E8.units[0][D_800A31E8.current[0]];
+            unit = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
             digimon = ON_PARTNER_ENTRY_ADDED(DIGIMON_DATA[partner].id);
             unit->prevId = unit->id;
             unit->id = DIGIMON_DATA[digimon->unk50[tier] - 1].id;
@@ -949,14 +1043,14 @@ void func_800A7A7C(BattleMenu *task, BattleMenuChildren *children) {
     case 2:
         models = TASK_FUNCS.find(0x14, -1, -1);
         if (models->get(models, 0)->motion == 13) {
-            BattleUnit *current = &D_800A31E8.units[0][D_800A31E8.current[0]];
+            BattleFighter *current = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
             current->hp = current->maxHp;
 #if VERSION_EU
             if (current->flags & 4) {
-                index = D_800A25F0.find(0xB, 0, D_800A31E8.current[0]);
+                index = D_800A25F0.funcs.find(0xB, 0, D_800A31E8.active[0]);
                 if (index >= 0) {
-                    D_800A25F0.entries[index].kind = 0;
-                    D_800A25F0.entries[index].unk2 = 0;
+                    D_800A25F0.events[index].type = 0;
+                    D_800A25F0.events[index].time = 0;
                 }
                 current->flags &= ~4;
                 task->unk70 = 0;
@@ -970,12 +1064,12 @@ void func_800A7A7C(BattleMenu *task, BattleMenuChildren *children) {
 
 /* Turns the current partner back into the Digimon it was (prevId) */
 void func_800A7CB8(BattleMenu *task, BattleMenuChildren *children) {
-    BattleUnit *unit;
+    BattleFighter *unit;
 
     switch (task->step) {
     case 0:
     default:
-        unit = &D_800A31E8.units[0][D_800A31E8.current[0]];
+        unit = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
         unit->id = unit->prevId;
         func_800A61C8();
         children->task = func_80086780(unit->id, 0, func_800A9840(0, 0));
@@ -996,40 +1090,40 @@ void func_800A7CB8(BattleMenu *task, BattleMenuChildren *children) {
 INCLUDE_ASM("wfightmn/nonmatchings/wfightmn_2", func_800A7DB0);
 
 void func_800A83D8(BattleMenu *task, BattleMenuChildren *children) {
-    BattleAction *action = &D_800A25F0.entries[D_800A25F0.current];
-    BattleUnit *unit;
+    QueuedEvent *action = &D_800A25F0.events[D_800A25F0.curIndex];
+    BattleFighter *unit;
 
-    unit = &D_800A31E8.units[0][action->unit];
+    unit = &D_800A31E8.fighters[0][action->args[1]];
     unit->unk1B = 0;
     children->task = func_80099400();
     task->args[0] = 0x59;
-    task->args[1] = action->actor;
-    task->args[2] = action->unit;
+    task->args[1] = action->args[0];
+    task->args[2] = action->args[1];
     children->task->show(children->task, 7, task->args);
     task->setSubstate(task, 2);
 }
 
 void func_800A8494(BattleMenu *task, BattleMenuChildren *children) {
     Battle *battle;
-    BattleActions *actions;
+    EventQueue *actions;
     s32 index;
-    BattleUnit *unit;
-    BattleUnit *units;
+    BattleFighter *unit;
+    BattleFighter *units;
 
     switch (task->step) {
     case 0:
     default:
         battle = &D_800A31E8;
-        units = battle->units[0];
-        index = GAME_FUNCS.getPartyMember(battle->current[0]);
-        unit = units + battle->current[0];
+        units = battle->fighters[0];
+        index = GAME_FUNCS.getPartyMember(battle->active[0]);
+        unit = units + battle->active[0];
         unit->id = DIGIMON_DATA[index].id;
         unit->unkE = 0;
         func_800A61C8();
         actions = &D_800A25F0;
-        index = actions->find(8, 0, battle->current[0]);
+        index = actions->funcs.find(8, 0, battle->active[0]);
         if (index >= 0) {
-            actions->entries[index].kind = 0;
+            actions->events[index].type = 0;
         }
         children->task = func_80086780(unit->id, 0, func_800A9840(0, 0));
         task->step++;
@@ -1071,18 +1165,18 @@ void func_800A8610(BattleMenu *task, BattleMenuChildren *children) {
 INCLUDE_ASM("wfightmn/nonmatchings/wfightmn_2", func_800A86E0);
 
 void func_800A8A64(BattleMenu *task) {
-    BattleRequest request;
-    s32 index = D_800A25F0.findKind(3);
+    BattleEvent request;
+    s32 index = D_800A25F0.funcs.first(3);
 
     if (index >= 0) {
-        D_800A25F0.entries[index].kind = 0;
+        D_800A25F0.events[index].type = 0;
     }
-    request.kind = 3;
-    request.unk4 = 1;
-    request.unk8 = -1;
-    D_800A25F0.add(&request);
-    D_800A31E8.units[1][0].unk10[3] = 0;
-    D_800A31E8.units[1][0].unk10[1] = 0;
+    request.type = 3;
+    request.delay = 1;
+    request.args[0] = -1;
+    D_800A25F0.funcs.pushFirst(&request);
+    D_800A31E8.fighters[1][0].boosts[3] = 0;
+    D_800A31E8.fighters[1][0].boosts[1] = 0;
     task->setSubstate(task, 2);
 }
 
@@ -1099,10 +1193,10 @@ void func_800A8B08(BattleMenu *task) {
 #if VERSION_EU
             task->setSubstate(task, 1);
 #endif
-            task->step = D_800A25F0.unkB00();
+            task->step = D_800A25F0.funcs.pop();
             if (task->step == 0) {
                 func_8009B5BC(0);
-                func_8009B5F8(D_800A25F0.unkB14(0, 0) / 2);
+                func_8009B5F8(D_800A25F0.funcs.getDelay(0, 0) / 2);
                 task->setSubstate(task, 0);
             }
 #if VERSION_US
@@ -1139,7 +1233,7 @@ void func_800A8B08(BattleMenu *task) {
                 children->task = func_800908C0(0, 0);
                 task->setSubstate(task, 2);
             } else {
-                (D_800A31E8.units[1] + D_800A31E8.current[1])->unk4++;
+                (D_800A31E8.fighters[1] + D_800A31E8.active[1])->unk4++;
                 children->task = func_80088380(&D_800A31E8);
                 task->setSubstate(task, 2);
             }
@@ -1241,8 +1335,8 @@ void func_800A8EBC(u8 side, s32 id) {
 /* Adds what damage gives to the current partner's gauge
    (D_80042728.unk58), up to 1000 */
 void func_800A8F60(u8 side, s32 damage) {
-    BattleUnit *unit = &D_800A31E8.units[0][D_800A31E8.current[0]];
-    s32 member = GAME_FUNCS.getPartyMember(D_800A31E8.current[0]);
+    BattleFighter *unit = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
+    s32 member = GAME_FUNCS.getPartyMember(D_800A31E8.active[0]);
 
     if (side != 0 && damage != 0 && unit->hp != 0 && unit->unk1A == 0) {
         D_80042728.unk58[member] += D_800A3308.unkE4(damage);
@@ -1262,15 +1356,15 @@ BattleTask *func_800A9040(u8 actor, s32 id) {
     BattleStats *own;
     BattleStats *other;
     BattleTask *task;
-    BattleUnit *units;
+    BattleFighter *units;
     s32 damage;
     s32 i;
     s32 j;
 
     side = actor != 0;
     info = &D_800427D6[id];
-    own = D_800A3308.getStats(actor, 1, D_800A31E8.current[side]);
-    other = D_800A3308.getStats((u8)(0x10 - actor), 0, D_800A31E8.current[1 - side]);
+    own = D_800A3308.computeStats(actor, 1, D_800A31E8.active[side]);
+    other = D_800A3308.computeStats((u8)(0x10 - actor), 0, D_800A31E8.active[1 - side]);
     task = func_8008C090();
     task->unk50 = actor;
     if (actor == 0) {
@@ -1362,14 +1456,14 @@ BattleTask *func_800A9040(u8 actor, s32 id) {
             task->unk68 = -1;
         }
     }
-    units = D_800A31E8.units[1 - side];
+    units = D_800A31E8.fighters[1 - side];
     if (id == 0x1B5) {
         damage = 9999;
         task->hits[3] = 1;
     } else if (info->unkA == 0x1F) {
         if (D_800A317C.unk34 != 0) {
             damage = D_800A317C.unk60[0] + D_800A317C.unk60[1];
-            if (units[D_800A31E8.current[1 - side]].hp - damage <= 0) {
+            if (units[D_800A31E8.active[1 - side]].hp - damage <= 0) {
                 if (D_800A317C.unk34 == 1) {
                     task->hits[0] = 3;
                 } else {
@@ -1392,7 +1486,7 @@ BattleTask *func_800A9040(u8 actor, s32 id) {
         }
     } else if (D_800A317C.unk38[9] != 0) {
         damage = D_800A317C.unk34 * D_800A317C.damage;
-        if (units[D_800A31E8.current[1 - side]].hp - damage <= 0) {
+        if (units[D_800A31E8.active[1 - side]].hp - damage <= 0) {
             for (i = 0; i < D_800A317C.unk34 - 1; i++) {
                 if (D_800A317C.hits[i] != 0) {
                     task->hits[i] = 0;
@@ -1423,7 +1517,7 @@ BattleTask *func_800A9040(u8 actor, s32 id) {
         damage = D_800A317C.damage;
     } else if ((u32)(info->unk4 - 2) < 2) {
         if (D_800A317C.hits[0] != 0) {
-            if (units[D_800A31E8.current[1 - side]].hp - D_800A317C.damage <= 0) {
+            if (units[D_800A31E8.active[1 - side]].hp - D_800A317C.damage <= 0) {
                 task->hits[3] = 2;
             } else {
                 task->hits[3] = 1;
@@ -1445,7 +1539,7 @@ BattleTask *func_800A9040(u8 actor, s32 id) {
         case 0xBB:
         case 0xBC:
         case 0x190:
-            damage = -D_800A3308.unk90[1](actor, id);
+            damage = -D_800A3308.unk94(actor, id);
             break;
         default:
             damage = 0;
@@ -1471,13 +1565,13 @@ BattleTask *func_800A9040(u8 actor, s32 id) {
 s32 func_800A9840(u8 id, s32 damage) {
     u32 side = id >> 4;
     BattleMenuChildren *children = ((Task *)TASK_FUNCS.find(0xC, -1, -1))->children;
-    BattleUnit *unit;
+    BattleFighter *unit;
 
     if (id == 0x10 && D_800A31E8.unkD6 == 6) {
         children->models->setIdleMotion(children->models, 0x10, D_800A31E8.unkDB);
         return 1;
     }
-    unit = &D_800A31E8.units[side][D_800A31E8.current[side]];
+    unit = &D_800A31E8.fighters[side][D_800A31E8.active[side]];
     if (unit->hp - damage <= unit->maxHp / 4) {
         children->models->setIdleMotion(children->models, id, 1);
         return 1;
@@ -1506,7 +1600,7 @@ void func_800A99F0(u8 side) {
    side 0 does none */
 s32 func_800A9A40(u8 side, s32 damage, s32 hits) {
     s32 other = side == 0;
-    BattleUnit *unit = &D_800A31E8.units[other][D_800A31E8.current[other]];
+    BattleFighter *unit = &D_800A31E8.fighters[other][D_800A31E8.active[other]];
     s32 limit;
     s32 total;
 

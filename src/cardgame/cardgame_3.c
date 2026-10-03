@@ -834,19 +834,19 @@ void func_800966FC(CardScreen *screen, CardScreenItems *items, CardScreenE0C *wi
             window->state = 2;
             switch (index) {
             case 0:
-                func_80096504(screen, window, items->texts[7], TEXT_FILE(0x10), 1);
+                func_80096504(screen, window, items->moreTexts[2], TEXT_FILE(0x10), 1);
                 break;
             case 2:
-                func_80096504(screen, window, items->texts[9], TEXT_FILE(0x17), 0);
+                func_80096504(screen, window, items->moreTexts[4], TEXT_FILE(0x17), 0);
                 break;
             case 3:
-                func_80096504(screen, window, items->texts[8], TEXT_FILE(0x10), 0);
+                func_80096504(screen, window, items->moreTexts[3], TEXT_FILE(0x10), 0);
                 break;
             case 5:
                 if (window->unkC == 5) {
-                    func_800965D8(screen, items, window, items->texts[5], TEXT_FILE(0x10));
+                    func_800965D8(screen, items, window, items->moreTexts[0], TEXT_FILE(0x10));
                 } else {
-                    func_80096504(screen, window, items->texts[5], TEXT_FILE(0x10), window->unk10 != 0x24);
+                    func_80096504(screen, window, items->moreTexts[0], TEXT_FILE(0x10), window->unk10 != 0x24);
                 }
                 break;
             case 1:
@@ -859,25 +859,25 @@ void func_800966FC(CardScreen *screen, CardScreenItems *items, CardScreenE0C *wi
         window->from = 0x1000;
         switch (index) {
         case 2:
-            func_80096504(screen, window, items->texts[9], TEXT_FILE(0x17), 0);
+            func_80096504(screen, window, items->moreTexts[4], TEXT_FILE(0x17), 0);
             break;
         case 3:
-            func_80096504(screen, window, items->texts[8], TEXT_FILE(0x10), 0);
+            func_80096504(screen, window, items->moreTexts[3], TEXT_FILE(0x10), 0);
             break;
         case 4:
             if (window->unk10 == 0x1F4) {
                 if (window->unk14[2] == 0) {
                     window->unk10 = 0x2A;
-                    func_80096504(screen, window, items->texts[10], TEXT_FILE(0x10), 1);
+                    func_80096504(screen, window, items->moreTexts[5], TEXT_FILE(0x10), 1);
                 } else {
                     window->unk10 = 0x40;
                     func_8009642C(screen, items, window);
-                    func_80096504(screen, window, items->texts[10], TEXT_FILE(0x10), 2);
+                    func_80096504(screen, window, items->moreTexts[5], TEXT_FILE(0x10), 2);
                 }
             } else {
                 items->texts[0]->setVisible(items->texts[0], 0);
                 items->texts[1]->setVisible(items->texts[1], 0);
-                func_80096504(screen, window, items->texts[10], TEXT_FILE(0x1E), 0);
+                func_80096504(screen, window, items->moreTexts[5], TEXT_FILE(0x1E), 0);
             }
             break;
         }
@@ -885,21 +885,21 @@ void func_800966FC(CardScreen *screen, CardScreenItems *items, CardScreenE0C *wi
     case 3:
         switch (index) {
         case 0:
-            items->texts[7]->setVisible(items->texts[7], 0);
+            items->moreTexts[2]->setVisible(items->moreTexts[2], 0);
             break;
         case 2:
-            items->texts[9]->setVisible(items->texts[9], 0);
+            items->moreTexts[4]->setVisible(items->moreTexts[4], 0);
             break;
         case 3:
-            items->texts[8]->setVisible(items->texts[8], 0);
+            items->moreTexts[3]->setVisible(items->moreTexts[3], 0);
             break;
         case 4:
             items->texts[0]->setVisible(items->texts[0], 0);
             items->texts[1]->setVisible(items->texts[1], 0);
-            items->texts[10]->setVisible(items->texts[10], 0);
+            items->moreTexts[5]->setVisible(items->moreTexts[5], 0);
             break;
         case 5:
-            items->texts[5]->setVisible(items->texts[5], 0);
+            items->moreTexts[0]->setVisible(items->moreTexts[0], 0);
             break;
         case 1:
             break;
@@ -966,34 +966,34 @@ void CARDGAME_updateMessageWindow(CardScreen *screen, CardScreenItems *items) {
             if (screen->unkDFB != 0) {
                 items->cursor->setVisible(items->cursor, 1);
                 items->cursor->setPos(items->cursor, 0x14, D_800A4894[screen->unkDE4][1] + 0x11 + screen->unkDF4 * 14);
-                items->texts[12]->setString(items->texts[12], FILE_CACHE_LOAD[0](TEXT_FILE(0x10)), 0x18);
-                items->texts[12]->setPos(items->texts[12], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x12);
+                items->moreTexts[7]->setString(items->moreTexts[7], FILE_CACHE_LOAD[0](TEXT_FILE(0x10)), 0x18);
+                items->moreTexts[7]->setPos(items->moreTexts[7], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x12);
             } else {
-                items->texts[12]->setVisible(items->texts[12], 0);
+                items->moreTexts[7]->setVisible(items->moreTexts[7], 0);
                 items->cursor->setVisible(items->cursor, 0);
             }
 #elif VERSION_EU
             switch (screen->unkDFB) {
             case 0:
             default:
-                items->texts[12]->setVisible(items->texts[12], 0);
+                items->moreTexts[7]->setVisible(items->moreTexts[7], 0);
                 items->cursor->setVisible(items->cursor, 0);
                 break;
             case 1:
                 items->cursor->setVisible(items->cursor, 1);
                 items->cursor->setPos(items->cursor, 0x14, D_800A4894[screen->unkDE4][1] + 0x11 + screen->unkDF4 * 14);
-                items->texts[12]->setString(items->texts[12], FILE_CACHE_LOAD[0](TEXT_FILE(0x10)), 0x18);
-                items->texts[12]->setPos(items->texts[12], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x12);
+                items->moreTexts[7]->setString(items->moreTexts[7], FILE_CACHE_LOAD[0](TEXT_FILE(0x10)), 0x18);
+                items->moreTexts[7]->setPos(items->moreTexts[7], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x12);
                 break;
             case 2:
             case 3:
                 items->cursor->setVisible(items->cursor, 1);
                 items->cursor->setPos(items->cursor, 0x14, D_800A4894[screen->unkDE4][1] + 0x11 + screen->unkDF4 * 14);
-                items->texts[12]->setString(items->texts[12], FILE_CACHE.load(TEXT_FILE(0x10)), 0x45);
+                items->moreTexts[7]->setString(items->moreTexts[7], FILE_CACHE.load(TEXT_FILE(0x10)), 0x45);
                 if (screen->unkDFB == 3) {
-                    items->texts[12]->setPalette(items->texts[12], 7);
+                    items->moreTexts[7]->setPalette(items->moreTexts[7], 7);
                 }
-                items->texts[12]->setPos(items->texts[12], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x12);
+                items->moreTexts[7]->setPos(items->moreTexts[7], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x12);
                 items->texts[0]->setString(items->texts[0], FILE_CACHE.load(TEXT_FILE(0x10)), 0x46);
                 items->texts[0]->setRightAlign(items->texts[0], 0);
                 items->texts[0]->setPos(items->texts[0], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x20);
@@ -1001,18 +1001,18 @@ void CARDGAME_updateMessageWindow(CardScreen *screen, CardScreenItems *items) {
             }
 #endif
             if (screen->unkDE4 == 3) {
-                items->texts[6]->setPos(items->texts[6], D_800A4894[3][0] + 0x40, D_800A4894[3][1] + 4);
-                items->texts[6]->setString(items->texts[6], FILE_CACHE.load(TEXT_FILE(0x10)), 0x42);
-                items->texts[12]->setString(items->texts[12], FILE_CACHE.load(TEXT_FILE(0x6B)), screen->unkDE8);
-                items->texts[12]->setPos(items->texts[12], D_800A4894[screen->unkDE4][0] + 0x40, D_800A4894[screen->unkDE4][1] + 0x12);
+                items->moreTexts[1]->setPos(items->moreTexts[1], D_800A4894[3][0] + 0x40, D_800A4894[3][1] + 4);
+                items->moreTexts[1]->setString(items->moreTexts[1], FILE_CACHE.load(TEXT_FILE(0x10)), 0x42);
+                items->moreTexts[7]->setString(items->moreTexts[7], FILE_CACHE.load(TEXT_FILE(0x6B)), screen->unkDE8);
+                items->moreTexts[7]->setPos(items->moreTexts[7], D_800A4894[screen->unkDE4][0] + 0x40, D_800A4894[screen->unkDE4][1] + 0x12);
             } else if (screen->unkDE8 != 0) {
-                items->texts[6]->setPos(items->texts[6], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 4);
-                items->texts[6]->setString(items->texts[6], FILE_CACHE.load(TEXT_FILE(0x10)), screen->unkDE8);
+                items->moreTexts[1]->setPos(items->moreTexts[1], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 4);
+                items->moreTexts[1]->setString(items->moreTexts[1], FILE_CACHE.load(TEXT_FILE(0x10)), screen->unkDE8);
                 if (screen->unkDE8 == 0x13) {
-                    items->texts[12]->setString(items->texts[12], FILE_CACHE.load(TEXT_FILE(0x10)), 0x2B);
-                    items->texts[12]->setPos(items->texts[12], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x12);
+                    items->moreTexts[7]->setString(items->moreTexts[7], FILE_CACHE.load(TEXT_FILE(0x10)), 0x2B);
+                    items->moreTexts[7]->setPos(items->moreTexts[7], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x12);
                     initTextTools(&tools);
-                    x = tools.measure(items->texts[12]->text, items->texts[12]->style, items->texts[12]->spacingX) + 0x1B;
+                    x = tools.measure(items->moreTexts[7]->text, items->moreTexts[7]->style, items->moreTexts[7]->spacingX) + 0x1B;
                     for (i = 0; i < 2; i++) {
                         items->texts[i]->setPos(items->texts[i], D_800A4894[screen->unkDE4][0] + x + 0xE, D_800A4894[screen->unkDE4][1] + 0x12 + i * 14);
                         items->texts[i]->setNumber(items->texts[i], 0, screen->panels[i].unk44);
@@ -1026,7 +1026,7 @@ void CARDGAME_updateMessageWindow(CardScreen *screen, CardScreenItems *items) {
                     items->texts[1]->setPos(items->texts[1], D_800A4894[screen->unkDE4][0] + 0x1B, D_800A4894[screen->unkDE4][1] + 0x12);
                 }
             } else {
-                items->texts[6]->setVisible(items->texts[6], 0);
+                items->moreTexts[1]->setVisible(items->moreTexts[1], 0);
             }
         }
         break;
@@ -1052,11 +1052,11 @@ void CARDGAME_updateMessageWindow(CardScreen *screen, CardScreenItems *items) {
         break;
     case 5:
         items->cursor->setVisible(items->cursor, 0);
-        items->texts[6]->setVisible(items->texts[6], 0);
+        items->moreTexts[1]->setVisible(items->moreTexts[1], 0);
 #if VERSION_EU
-        items->texts[12]->setPalette(items->texts[12], 0);
+        items->moreTexts[7]->setPalette(items->moreTexts[7], 0);
 #endif
-        items->texts[12]->setVisible(items->texts[12], 0);
+        items->moreTexts[7]->setVisible(items->moreTexts[7], 0);
         items->texts[0]->setVisible(items->texts[0], 0);
         items->texts[1]->setVisible(items->texts[1], 0);
         items->texts[2]->setVisible(items->texts[2], 0);
@@ -1100,8 +1100,8 @@ void func_80097548(CardScreen *screen, CardScreenItems *items) {
             screen->unkE0A = 2;
             items->cursor->setVisible(items->cursor, 1);
             items->cursor->setPos(items->cursor, 10, screen->unkE04 * 14 + 0x65);
-            items->texts[11]->setString(items->texts[11], FILE_CACHE_LOAD[0](TEXT_FILE(0x10)), 0x20);
-            items->texts[11]->setPos(items->texts[11], 0x18, 0x65);
+            items->moreTexts[6]->setString(items->moreTexts[6], FILE_CACHE_LOAD[0](TEXT_FILE(0x10)), 0x20);
+            items->moreTexts[6]->setPos(items->moreTexts[6], 0x18, 0x65);
         }
         break;
     case 2:
@@ -1121,7 +1121,7 @@ void func_80097548(CardScreen *screen, CardScreenItems *items) {
         break;
     case 5:
         items->cursor->setVisible(items->cursor, 0);
-        items->texts[11]->setVisible(items->texts[11], 0);
+        items->moreTexts[6]->setVisible(items->moreTexts[6], 0);
         screen->unkE00 -= GFX.funcs.getFrameTime();
         if (screen->unkE00 <= 0) {
             screen->unkE0A = 0;
@@ -1450,7 +1450,58 @@ void CARDGAME_slidePanel(CardPanel *panel, CardScreenItems *items, s32 side) {
     }
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_80098930);
+/* Draws a side's panel icon at the panel's open or close scale, and once the
+   panel is open (state 2) its label; the European version takes both
+   positions from D_800A5AA8, by SHIFT_PAL_SCREEN */
+void func_80098930(CardScreen *screen, CardScreenItems *items, s32 side, CardPanelScale *scale) {
+    SpriteDrawer drawer;
+    s32 iconX;
+    s32 iconY;
+    s32 textX;
+    s32 textY;
+
+#if VERSION_US
+    if (side == 0) {
+        iconX = 0x7C;
+        iconY = 0x33;
+        textX = 0x8A;
+        textY = 0x34;
+    } else {
+        iconX = 0x7C;
+        iconY = 0x23;
+        textX = 0x8A;
+        textY = 0x24;
+    }
+#elif VERSION_EU
+    if (side == 0) {
+        iconX = D_800A5AA8[SHIFT_PAL_SCREEN][0][0].x;
+        iconY = D_800A5AA8[SHIFT_PAL_SCREEN][0][0].y;
+        textX = D_800A5AA8[SHIFT_PAL_SCREEN][1][0].x;
+        textY = D_800A5AA8[SHIFT_PAL_SCREEN][1][0].y;
+    } else {
+        iconX = D_800A5AA8[SHIFT_PAL_SCREEN][0][1].x;
+        iconY = D_800A5AA8[SHIFT_PAL_SCREEN][0][1].y;
+        textX = D_800A5AA8[SHIFT_PAL_SCREEN][1][1].x;
+        textY = D_800A5AA8[SHIFT_PAL_SCREEN][1][1].y;
+    }
+#endif
+    if (scale->state != 0) {
+        initSpriteDrawer(&drawer);
+        drawer.setLayerId(0x100, 1);
+        drawer.setTexture(0x280, 0);
+        drawer.setPivot(screen->panels[side].x + iconX, screen->panels[side].y + iconY);
+        drawer.setScale(scale->value, 0x1000, 0x1000);
+        drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), side == 0 ? 0x44 : 0x43,
+                    screen->panels[side].x + iconX, screen->panels[side].y + iconY);
+    }
+    if (scale->state == 2) {
+        items->panelTexts[side]->setPos(items->panelTexts[side], screen->panels[side].x + textX,
+                                        screen->panels[side].y + textY);
+        items->panelTexts[side]->setString(items->panelTexts[side], FILE_CACHE.load(TEXT_FILE(0x10)), 0x3F);
+    } else {
+        items->panelTexts[side]->setVisible(items->panelTexts[side], 0);
+    }
+}
 
 void func_80098B38(CardScreen *screen, CardScreenItems *items, s32 side, CardPanelScale *scale) {
     switch (scale->state) {
@@ -1719,7 +1770,44 @@ s32 func_800996B0(CardScreen *screen, CardSprite *sprite) {
     return done;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_80099780);
+/* Draws a card's picture: a one-part sprite sheet (D_800A499C) made on the fly,
+   the 32x32 cell `index` of an 8-row grid with the card's own CLUT row */
+void func_80099780(CardSprite *sprite) {
+    SpriteDrawer drawer;
+    s16 *frame;
+    SpritePart *part;
+    s32 u;
+    s32 v;
+    s32 *sheet;
+
+    u = sprite->index / 8 * 32;
+    v = sprite->index % 8 * 32;
+    sheet = D_800A499C;
+    frame = (s16 *)((u8 *)sheet + sheet[2]);
+    frame[0] = 1;
+    frame[2] = -1;
+    frame[1] = sprite->index;
+    frame[3] = 0;
+    frame[4] = 4;
+    frame[5] = 2;
+    part = (SpritePart *)((u8 *)sheet + sheet[0]);
+    part->u = u;
+    part->v = v;
+    part->w = 32;
+    part->h = 32;
+    part->clutX = 0;
+    part->clutY = 0x100;
+    part->mode = 1;
+    initSpriteDrawer(&drawer);
+    if (*(s32 *)&sprite->scaleX != 0x10001000) {
+        drawer.setPivot((sprite->x >> 8) + 0x14, (sprite->y >> 8) + 0x17);
+        drawer.setScale(sprite->scaleX, sprite->scaleY, 0x1000);
+    }
+    drawer.setLayerId(0x100, 1);
+    drawer.setTexture(0x140, 0x100);
+    drawer.setAltClut(0x300, 0x100);
+    drawer.draw(sheet, 0, sprite->x >> 8, sprite->y >> 8);
+}
 
 /* Draws a sprite's effect animation (unk47 1-4, frames 0x28-0x4C of the fourth TIM) and ends it when its time runs out */
 void func_800998EC(CardScreen *screen, CardSprite *sprite) {
@@ -2079,20 +2167,20 @@ void CARDGAME_updateScreen(CardScreen *screen, CardScreenItems *items) {
         items->texts[0] = createTextWindow(0x100, 1, 0, 0);
         items->texts[1] = createTextWindow(0x100, 1, 0, 0);
         items->texts[2] = createTextWindow(0x100, 1, 0, 0);
-        items->texts[3] = createTextWindow(0x100, 1, 0, 0);
-        items->texts[4] = createTextWindow(0x100, 1, 0, 0);
-        items->texts[5] = createTextWindow(0x100, 1, 0, 0);
-        items->texts[6] = createTextWindow(0x100, 1, 0, 0);
-        items->texts[6]->setLines(items->texts[6], 3);
-        items->texts[7] = createTextWindow(0x100, 1, 0, 0);
-        items->texts[8] = createTextWindow(0x100, 1, 0, 0);
-        items->texts[9] = createTextWindow(0x100, 1, 0, 0);
-        items->texts[10] = createTextWindow(0x100, 1, 0, 0);
-        items->texts[10]->setLines(items->texts[10], 3);
-        items->texts[11] = createTextWindow(0x100, 1, 0, 0);
-        items->texts[11]->setLines(items->texts[11], 5);
-        items->texts[12] = createTextWindow(0x100, 1, 0, 0);
-        items->texts[12]->setLines(items->texts[12], 2);
+        items->panelTexts[0] = createTextWindow(0x100, 1, 0, 0);
+        items->panelTexts[1] = createTextWindow(0x100, 1, 0, 0);
+        items->moreTexts[0] = createTextWindow(0x100, 1, 0, 0);
+        items->moreTexts[1] = createTextWindow(0x100, 1, 0, 0);
+        items->moreTexts[1]->setLines(items->moreTexts[1], 3);
+        items->moreTexts[2] = createTextWindow(0x100, 1, 0, 0);
+        items->moreTexts[3] = createTextWindow(0x100, 1, 0, 0);
+        items->moreTexts[4] = createTextWindow(0x100, 1, 0, 0);
+        items->moreTexts[5] = createTextWindow(0x100, 1, 0, 0);
+        items->moreTexts[5]->setLines(items->moreTexts[5], 3);
+        items->moreTexts[6] = createTextWindow(0x100, 1, 0, 0);
+        items->moreTexts[6]->setLines(items->moreTexts[6], 5);
+        items->moreTexts[7] = createTextWindow(0x100, 1, 0, 0);
+        items->moreTexts[7]->setLines(items->moreTexts[7], 2);
         break;
     case 1:
         screen->time += GFX.funcs.getFrameTime();

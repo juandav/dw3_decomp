@@ -5,78 +5,16 @@
    at STAGE_VRAM for a normal battle, and WFIGHTTS in its place for the
    battle test. */
 
-#include "game.h"
+#include "fightstg.h"
 
 /* The item a partner can equip that makes FIGHTSTG's func_8009B7A4 act on
    it at the start of the battle */
 #define WFIGHTMN_ITEM 0x140
 
-/* A fighter in the battle (Battle.units): partner HP and MP are copied back
-   to the party when it ends */
-typedef struct BattleUnit {
-    /* 0x00 */ s16 id; /* the Digimon (DIGIMON_DATA) */
-    /* 0x02 */ s16 prevId; /* its id before unk1A changed it */
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ s16 maxHp;
-    /* 0x08 */ s16 hp;
-    /* 0x0A */ s16 maxMp;
-    /* 0x0C */ s16 mp;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10[4];
-    /* 0x18 */ s16 unk18; /* an enemy's item */
-    /* 0x1A */ u8 unk1A; /* id is a temporary Digimon */
-    /* 0x1B */ u8 unk1B;
-    /* 0x1C */ u8 flags;
-    /* 0x1D */ u8 unk1D[3];
-} BattleUnit;
 
-/* FIGHTSTG's battle state (D_800A31E8); WFIGHTMN_start clears it from unk8 */
-typedef struct Battle {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 current[2]; /* each side's fighter in units */
-    /* 0x10 */ BattleUnit units[2][3]; /* the partners, then the enemies */
-    /* 0xD0 */ s16 unkD0;
-    /* 0xD2 */ s16 unkD2;
-    /* 0xD4 */ s16 unkD4;
-    /* 0xD6 */ s16 unkD6;
-    /* 0xD8 */ s16 unkD8;
-    /* 0xDA */ s8 unkDA;
-    /* 0xDB */ u8 unkDB;
-} Battle;
 
-/* An entry of FIGHTSTG's D_800A25F0 */
-typedef struct BattleAction {
-    /* 0x00 */ s16 kind; /* 0 for a free entry */
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s32 actor; /* side << 4 */
-    /* 0x08 */ s32 unit;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ u8 unk10[0xC];
-} BattleAction;
 
-/* What D_800A25F0.add takes */
-typedef struct BattleRequest {
-    /* 0x00 */ s32 kind;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ u8 unkC[0x10];
-} BattleRequest;
 
-/* FIGHTSTG's D_800A25F0 */
-typedef struct BattleActions {
-    /* 0x000 */ BattleAction entries[100];
-    /* 0xAF0 */ u8 unkAF0;
-    /* 0xAF1 */ s8 current; /* the entry being carried out */
-    /* 0xAF2 */ u8 unkAF2[0xA];
-    /* 0xAFC */ void (*add)(BattleRequest *request);
-    /* 0xB00 */ s32 (*unkB00)();
-    /* 0xB04 */ s32 (*findKind)(s32 kind);
-    /* 0xB08 */ void (*unkB08)();
-    /* 0xB0C */ s32 (*find)(s32 kind, s32 actor, s32 unit); /* -1 for none */
-    /* 0xB10 */ void (*unkB10)();
-    /* 0xB14 */ s32 (*unkB14)(s32 actor, s32 arg1);
-} BattleActions;
 
 /* What the battle menu's states start and wait for (BattleMenuChildren.task):
    FIGHTSTG's message window (func_80099400), effects and the like */
@@ -155,66 +93,9 @@ typedef struct BattleMenuChildren {
 /* Points to getDigimon, whatever its name says */
 extern DigimonData *(*ON_PARTNER_ENTRY_ADDED)(s32 id);
 
-/* A side's stats as FIGHTSTG works them out (FIGHTSTG's BattleStats) */
-typedef struct BattleStats {
-    /* 0x00 */ s32 unk0[2];
-    /* 0x08 */ s16 unk8[0xE];
-    /* 0x24 */ u8 unk24;
-    /* 0x25 */ u8 unk25;
-    /* 0x26 */ u8 unk26[2];
-    /* 0x28 */ u8 unk28[3];
-    /* 0x2B */ u8 unk2B;
-    /* 0x2C */ u8 unk2C;
-    /* 0x2D */ u8 unk2D[3];
-    /* 0x30 */ u8 unk30[0x10];
-} BattleStats;
 
-/* FIGHTSTG's BattleAction (D_800A317C): what the action being carried out
-   does */
-typedef struct ActionResult {
-    /* 0x00 */ s16 unk0[0xE];
-    /* 0x1C */ u8 unk1C;
-    /* 0x1D */ u8 unk1D[3];
-    /* 0x20 */ u8 unk20;
-    /* 0x24 */ s32 unk24; /* an entry of D_800427D6 */
-    /* 0x28 */ s32 damage; /* per hit */
-    /* 0x2C */ s32 unk2C;
-    /* 0x30 */ u8 hits[4]; /* whether each hit lands */
-    /* 0x34 */ s16 unk34;
-    /* 0x36 */ s16 unk36;
-    /* 0x38 */ u8 unk38[0x28]; /* by D_800427D6's unkA */
-    /* 0x60 */ s32 unk60[2];
-    /* 0x68 */ void (*unk68)();
-} ActionResult;
 
-/* FIGHTSTG's D_800A3308: its battle functions from 0x80, the ones WFIGHTMN
-   calls */
-typedef struct BattleFuncs {
-    /* 0x00 */ BattleStats stats[2];
-    /* 0x80 */ BattleStats *(*getStats)(s32 side, s32 arg1, s32 unit);
-    /* 0x84 */ s32 (*unk84[2])();
-    /* 0x8C */ s32 (*getDamage)(s32 *actor); /* of the action actor is in */
-    /* 0x90 */ s32 (*unk90[2])();
-    /* 0x98 */ s32 (*getHeal)(u8 actor, s32 unit, s32 arg2);
-    /* 0x9C */ s32 (*unk9C[13])();
-#if VERSION_EU
-    /* 0xD0 */ s32 (*unkEU)();
-#endif
-    /* the European version's offsets are 4 more from here */
-    /* 0xD0 */ s32 (*unkD0[3])();
-    /* 0xDC */ s32 (*unkDC)(s32 arg0);
-    /* 0xE0 */ s32 (*unkE0)();
-    /* 0xE4 */ s32 (*unkE4)(s32 damage);
-    /* 0xE8 */ s32 (*unkE8)();
-} BattleFuncs;
 
-/* A battle table entry as WFIGHTMN reads it (FIGHTSTG's BattleTableEntry) */
-typedef struct EnemyInfo {
-    /* 0x00 */ s16 id;
-    /* 0x02 */ s16 item; /* what the enemy may leave */
-    /* 0x04 */ s16 itemChance; /* in 1024ths, less one */
-    /* 0x06 */ s16 name; /* its text */
-} EnemyInfo;
 
 /* FIGHTSTG's func_8008A22C: the fade at the end of a battle */
 typedef struct BattleEnd {
@@ -228,12 +109,8 @@ typedef struct BattleEnd {
 BattleEnd *func_8008A22C(void);
 void func_8009C0B0(void);
 
-extern EnemyInfo *(*D_800A2584)(s32 id);
 /* How the battle ended: 1 won (mode 0x1400 follows, for the report), 2 requests
    mode 0xE00 and anything else goes back to the field */
 extern u8 D_800A30E4;
-extern Battle D_800A31E8;
-extern BattleFuncs D_800A3308;
-extern BattleActions D_800A25F0;
 
 #endif /* WFIGHTMN_H */

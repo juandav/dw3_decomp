@@ -353,7 +353,9 @@ typedef struct CardNumber {
 /* The battle screen's task items */
 typedef struct CardScreenItems {
     /* 0x00 */ Cursor *cursor;
-    /* 0x04 */ TextWindow *texts[13];
+    /* 0x04 */ TextWindow *texts[3];
+    /* 0x10 */ TextWindow *panelTexts[2]; /* the label under each side's panel (func_80098930) */
+    /* 0x18 */ TextWindow *moreTexts[8];
 } CardScreenItems;
 
 /* A panel's open (state 1) or close (state 3) scale, which goes over
@@ -646,6 +648,7 @@ extern s16 CARDGAME_savedPanelScales[2]; /* the panels' scale states, kept by CA
 extern s32 D_800A4C68; /* the message of CARDGAME_chooseCard's selection */
 #if VERSION_EU
 extern s32 D_800A5958[2][4]; /* sprite positions, by SHIFT_PAL_SCREEN */
+extern CardOffset D_800A5AA8[2][2][2]; /* func_80098930's icon and label positions, by SHIFT_PAL_SCREEN and side (EU) */
 #endif
 extern s16 D_800A4748[2][3][4][2];
 s32 func_80089504(CardBattle *battle, CardScreen *screen);
@@ -908,6 +911,7 @@ void CARDGAME_moveSprite(CardScreen *screen, CardSprite *sprite);
 s32 CARDGAME_flySprite(CardScreen *screen, CardSprite *sprite);
 void func_80099780(CardSprite *sprite);
 extern s16 D_800A4AF0[];
+extern s32 D_800A499C[]; /* the sprite sheet func_80099780 draws a card's picture with */
 extern u8 D_800A49C8[];
 extern u8 D_800A49CC[];
 extern u8 D_800A49D0[]; /* a palette cycle: 0, 1, 2, 3, 2, 1 */
