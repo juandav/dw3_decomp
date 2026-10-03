@@ -1,10 +1,13 @@
 #ifndef STGDGLAB_H
 #define STGDGLAB_H
 
-/* STGDGLAB.PRO: a lab that manages the partners. Its main menu
-   (STGDGLAB_createMenu) opens one of three screens (STGDGLAB_screens); on the way in
-   and out it packs the party (STGDGLAB_packParty) so that the members come
-   first. Its strings are in files 0x3A, 0x4F, 0x48, 0xA3 and 0x9C. */
+/* STGDGLAB.PRO: the partners' digivolutions, it seems. Its main menu
+   (STGDGLAB_createMenu) opens one of three screens (STGDGLAB_screens): the
+   third checks the recipes of STGDGLAB_tables (how many of a few ids are
+   needed) against the entries a partner has (listPartnerEntries), and the
+   second sets a partner's three slots (setPartnerSlots). On the way in it
+   packs the party (STGDGLAB_packParty) so that the members come first. Its
+   strings are in files 0x3A, 0x4F, 0x48, 0xA3 and 0x9C. */
 
 #include "game.h"
 
