@@ -1,0 +1,4 @@
+// STITSHOP.PRO: the item shop
+
+STITSHOP_shops = 0x8008C6E0; // size:0xF8
+STITSHOP_funcs = 0x8008C7D8; // size:0x2C

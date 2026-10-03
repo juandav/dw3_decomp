@@ -2,6 +2,9 @@
 
 func_8008B614 = 0x8008BFB0; // type:func
 
+STITSHOP_shops = 0x8008D0B4; // size:0xF8
+STITSHOP_funcs = 0x8008D1AC; // size:0x2C
+
 // names from the C of the modules this version builds (tools/version_symbols.py)
 func_800829B4 = 0x8008321C; // type:func
 func_80082AB0 = 0x80083318; // type:func
@@ -107,10 +110,3 @@ D_8008C5F4 = 0x8008CFC8;
 D_8008C620 = 0x8008CFF4;
 D_8008C648 = 0x8008D01C;
 D_8008C674 = 0x8008D048;
-D_8008C6E0 = 0x8008D0B4;
-D_8008C7D8 = 0x8008D1AC;
-D_8008C7DC = 0x8008D1B0;
-D_8008C7E0 = 0x8008D1B4;
-D_8008C7E4 = 0x8008D1B8;
-D_8008C7E8 = 0x8008D1BC;
-D_8008C7F8 = 0x8008D1CC;

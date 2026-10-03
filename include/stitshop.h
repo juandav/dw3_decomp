@@ -50,7 +50,25 @@ typedef struct ShopLerp {
 /* A shop: the items it sells */
 typedef struct ShopList {
     /* 0x0 */ s32 count;
-    /* 0x4 */ s32 *items;
+    /* 0x4 */ u16 *items;
 } ShopList;
+
+/* The shop's helpers (STITSHOP_funcs) */
+typedef struct ItemShopFuncs {
+    /* 0x00 */ s32 count; /* the items of the shop getShopItems returned */
+    /* 0x04 */ void (*loadFiles)(void);
+    /* 0x08 */ s32 (*filesLoading)(void);
+    /* 0x0C */ void (*startFade)(PanelAnim *fade, s32 fadeIn);
+    /* 0x10 */ s32 (*updateFade)(PanelAnim *fade);
+    /* 0x14 */ void (*startLerp)(ShopLerp *lerp, s32 from, s32 to, s32 frames);
+    /* 0x18 */ s32 (*updateLerp)(ShopLerp *lerp);
+    /* 0x1C */ u16 *(*getShopItems)(s32 shop);
+    /* 0x20 */ s32 (*canEquip)(s32 partner, s32 item);
+    /* 0x24 */ s32 (*compareEquip)(s32 partner, s32 item);
+    /* 0x28 */ void (*equip)(s32 partner, s32 slot, s32 item, s32 fromBag);
+} ItemShopFuncs;
+
+extern ShopList STITSHOP_shops[31];
+extern ItemShopFuncs STITSHOP_funcs;
 
 #endif /* STITSHOP_H */
