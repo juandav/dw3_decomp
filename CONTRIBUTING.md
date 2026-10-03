@@ -113,9 +113,10 @@ give it real types once the code that uses it is understood.
   the CI runs `tools/hacks.py --check README.md`. `tools/hacks.py --list`
   lists them all.
 - When a form recurs and has a likely origin, give it a name and say so
-  once, as `DEBUG_LOG()` in `include/stage.h` does: an empty
-  `do { } while (0)` whose loop notes keep GCC 2.8's scheduler from moving
-  code across it, probably a debug print compiled out of the release.
+  once, as `COUNTDOWN_BORROW` in `include/stage.h` does: a statement macro
+  for the timed stages' countdown, whose `do { } while (0)` the match
+  depends on. Say it once for a form every copy shares too, as the comment
+  above `StageInfo` does for the setup functions' `(Vec2){x, y}`.
 - Code that was written in assembly, not compiled, stays as assembly. Say in
   a comment what shows it is hand-written (things no compiler emits). An
   object that is all assembly is a `.s` source, a splat `hasm` segment, as

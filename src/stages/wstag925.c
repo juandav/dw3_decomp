@@ -38,7 +38,29 @@ void func_800A5EC0(void) {
     FLAGS_00.applyAction(0x7053, 1);
 }
 
-INCLUDE_ASM("stages/nonmatchings/wstag925", func_800A5F0C);
+extern s32 D_800A64B0[];
+extern s32 D_800A6588[];
+extern s32 D_800A63DC[];
+extern s32 D_800A64A4[];
+extern s32 D_800A65BC[];
+void func_800A5F0C(void) {
+    D_800990B4.unk44 = LANGUAGE + 0xFD;
+    D_800990B4.unk8 = 0x19E;
+    D_800990B4.unkC = 0x8E90000;
+    D_800990B4.unk10 = D_800A64B0;
+    D_800990B4.unk14 = D_800A6588;
+    D_800990B4.unk1C = 0x8E8;
+    D_800990B4.unk2C = (Vec2){0xFD00, 0x17700};
+    D_800990B4.unk28 = D_800A63DC;
+    D_800990B4.unk3C = 0x33;
+    D_800990B4.unk40 = 0x60CC0000;
+    D_800990B4.unk4C = D_800A64A4;
+    D_800990B4.unk34 = 0;
+    D_800990B4.events = D_800A65BC;
+    D_8009A70C.setFile(0, 0x8E90001);
+    D_8009A70C.setFile(7, 0x8E90002);
+    D_8009A70C.unk50(0);
+}
 
 s32 func_800A6000(Anim4 *obj, AnimFrame *frames, s32 depth) {
     AnimFrame *frame = &frames[obj->anim.index];

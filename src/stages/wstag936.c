@@ -23,7 +23,29 @@ StageTask *func_800A5E2C(void *owner) {
     return task;
 }
 
-INCLUDE_ASM("stages/nonmatchings/wstag936", func_800A5E88);
+extern s32 D_800A6138[];
+extern s32 D_800A6290[];
+extern s32 D_800A5F8C[];
+extern s32 D_800A6130[];
+extern CVECTOR D_800A5DE0;
+void func_800A5E88(void) {
+    D_800990B4.unk44 = LANGUAGE + 0xFD;
+    D_800990B4.unk8 = 0x1B0;
+    D_800990B4.unkC = 0x8FF0000;
+    D_800990B4.unk10 = D_800A6138;
+    D_800990B4.unk14 = D_800A6290;
+    D_800990B4.unk1C = 0x8FE;
+    D_800990B4.unk2C = (Vec2){0xFD00, 0x1CD00};
+    D_800990B4.unk28 = D_800A5F8C;
+    D_800990B4.unk3C = 0x2C;
+    D_800990B4.unk40 = 0x60B00000;
+    D_800990B4.unk34 = 0;
+    D_800990B4.unk4C = D_800A6130;
+    D_800990B4.unk38 = D_800A5DE0;
+    D_8009A70C.setFile(0, 0x8FF0001);
+    D_8009A70C.setFile(7, 0x8FF0002);
+    D_8009A70C.unk50(0);
+}
 
 void func_800A5E88();
 extern s32 D_800A5FFC[];

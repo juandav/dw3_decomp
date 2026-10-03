@@ -47,7 +47,38 @@ void func_800A4ED4(void) {
     FLAGS_00.applyAction(0x800D, 1);
 }
 
-INCLUDE_ASM("stages/nonmatchings/wstag475", func_800A4F0C);
+extern s32 D_800A5A28[];
+extern s32 D_800A5A84[];
+extern s32 D_800A55A8[];
+extern s32 D_800A59DC[];
+extern s32 D_800A5AD0[];
+#if VERSION_US
+#define STAGE_TEXT 0xF7
+#define STAGE_FILE 0x223
+#define STAGE_ARCHIVE 0x3CA
+#elif VERSION_EU
+#define STAGE_TEXT (LANGUAGE + 0xEF)
+#define STAGE_FILE 0x232
+#define STAGE_ARCHIVE 0x3DA
+#endif
+void func_800A4F0C(void) {
+    D_800990B4.unk44 = STAGE_TEXT;
+    D_800990B4.unk8 = STAGE_FILE - 1;
+    D_800990B4.unkC = STAGE_FILE << 16;
+    D_800990B4.unk10 = D_800A5A28;
+    D_800990B4.unk14 = D_800A5A84;
+    D_800990B4.unk1C = STAGE_ARCHIVE;
+    D_800990B4.unk2C = (Vec2){0x8E00, 0x10000};
+    D_800990B4.unk28 = D_800A55A8;
+    D_800990B4.unk3C = 0xF;
+    D_800990B4.unk40 = 0x603C0000;
+    D_800990B4.unk4C = D_800A59DC;
+    D_800990B4.unk34 = 0;
+    D_800990B4.events = D_800A5AD0;
+    D_8009A70C.setFile(0, STAGE_FILE << 16 | 2);
+    D_8009A70C.setFile(7, STAGE_FILE << 16 | 1);
+    D_8009A70C.unk50(0);
+}
 
 void func_800A4F0C();
 void func_800A4ED4();

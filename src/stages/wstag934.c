@@ -167,7 +167,29 @@ StageTask *func_800A633C(void *owner) {
 /* the color the setup copies to D_800990B4.unk38 */
 const CVECTOR D_800A5DF8 = { 0x80, 0x80, 0x80, 0 };
 
-INCLUDE_ASM("stages/nonmatchings/wstag934", func_800A6398);
+extern s32 D_800A66FC[];
+extern s32 D_800A67F8[];
+extern s32 D_800A65CC[];
+extern s32 D_800A66F0[];
+void func_800A6398(void) {
+    D_800990B4.unk44 = LANGUAGE + 0xFD;
+    D_800990B4.unk8 = 0x1AC;
+    D_800990B4.unkC = 0x8FB0000;
+    D_800990B4.unk10 = D_800A66FC;
+    D_800990B4.unk14 = D_800A67F8;
+    D_800990B4.unk1C = 0x8FA;
+    D_800990B4.unk2C = (Vec2){0x6700, 0x12300};
+    D_800990B4.unk28 = D_800A65CC;
+    D_800990B4.unk3C = 0x42;
+    D_800990B4.unk34 = 0;
+    D_800990B4.unk40 = 0x61080002;
+    D_800990B4.unk4C = D_800A66F0;
+    D_800990B4.unk38 = D_800A5DF8;
+    D_8009A70C.setFile(0, 0x8FB0001);
+    D_8009A70C.setFile(1, 0x8FB0002);
+    D_8009A70C.setFile(7, 0x8FB0003);
+    D_8009A70C.unk50(0);
+}
 
 void func_800A64B8(StageTween *tween, s32 up) {
     tween->active = 1;

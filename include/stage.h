@@ -28,7 +28,13 @@ typedef struct Anim8 {
     /* 0x8 */ AnimState anim;
 } Anim8;
 
-/* What a stage tells FIELDSTG about itself (filled by its setup function) */
+/*
+ * What a stage tells FIELDSTG about itself (filled by its setup function).
+ * The setup functions set unk2C with a constructor, (Vec2){x, y}: GCC
+ * clobbers the whole field before its two stores, which keeps the stores to
+ * D_800990B4 on either side of it but lets the constants rise above it. The
+ * match depends on that form: two stores of their own schedule otherwise.
+ */
 typedef struct StageInfo {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
@@ -37,17 +43,16 @@ typedef struct StageInfo {
     /* 0x10 */ void *unk10;
     /* 0x14 */ void *unk14;
     /* 0x18 */ s32 unk18;
-    /* 0x1C */ s32 unk1C; /* a file id */
+    /* 0x1C */ s32 unk1C; /* a file id: an archive FIELDSTG loads */
     /* 0x20 */ void *unk20;
     /* 0x24 */ void *events;
     /* 0x28 */ void *unk28;
-    /* 0x2C */ s32 unk2C;
-    /* 0x30 */ s32 unk30;
-    /* 0x34 */ s32 unk34;
+    /* 0x2C */ Vec2 unk2C; /* where the player starts */
+    /* 0x34 */ s32 unk34; /* and its direction */
     /* 0x38 */ CVECTOR unk38; /* copied from the word at the start of the stage */
     /* 0x3C */ s32 unk3C;
     /* 0x40 */ s32 unk40;
-    /* 0x44 */ s32 unk44;
+    /* 0x44 */ s32 unk44; /* the stage's text file */
     /* 0x48 */ s32 unk48;
     /* 0x4C */ void *unk4C;
     /* 0x50 */ s32 unk50;
@@ -55,16 +60,13 @@ typedef struct StageInfo {
     /* 0x58 */ s32 unk58;
     /* 0x5C */ s32 unk5C;
     /* 0x60 */ s32 unk60;
+    /* 0x64 */ Vec2 unk64;
+    /* 0x6C */ s32 unk6C;
+    /* 0x70 */ void (*init)(void);
+    /* 0x74 */ s32 (*unk74)(s32 index);
+    /* 0x78 */ s32 (*unk78)(s32 index);
+    /* 0x7C */ void *(*unk7C)(u8 *list, s32 id); /* the record of a list of 0x1C-byte records with that id (at 4) */
 } StageInfo;
-
-/*
- * Compiles to nothing, but its loop notes stop GCC 2.8's scheduler from moving
- * code across it. The setup functions have one after their first six fields:
- * probably a debug print, compiled out as do { } while (0) in the release.
- */
-#define DEBUG_LOG() \
-    do {            \
-    } while (0)
 
 /*
  * Carries the borrow down the digits of GAME.countdown, the timer of the
@@ -802,6 +804,14 @@ extern s32 LANGUAGE; /* 2-5 */
 #define TEXT_ENTRY(file, n) ((LANGUAGE << 16) + ((file) << 16 | (n)))
 #endif
 
+/*
+ * The files a stage's setup function gives FIELDSTG, numbered differently in
+ * each version, are the stage's own defines: STAGE_TEXT, its text file (the
+ * European version adds the language), and STAGE_FILE, the file whose
+ * entries go to D_8009A70C.setFile (STAGE_FILE << 16 | n), its neighbours
+ * usually the files at unk8 and unk1C (STAGE_FILE_8 and STAGE_ARCHIVE
+ * otherwise).
+ */
 extern StageInfo D_800990B4;
 
 /* FIELDSTG functions the stages call */
