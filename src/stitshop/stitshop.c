@@ -367,17 +367,67 @@ INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008A46C);
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008A5E8);
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008A91C);
+void func_8008A91C(ShopInfo *info, s32 item, s32 arg) {
+    void *win = info->children;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008A9A4);
+    info->item = item;
+    info->unk1E8 = arg;
+    if (info->shown != 0) {
+        func_800894EC(info, win, 1);
+        if (info->page == 0) {
+            func_80089774(info, win, 1);
+        } else {
+            func_80089774(info, win, 0);
+            func_8008988C(info, win, 1);
+        }
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008A9C0);
+void func_8008A9A4(ShopInfo *info) {
+    if (info->substate == 3) {
+        info->substate = 0x32;
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008A9F8);
+void func_8008A9C0(ShopInfo *info, s32 visible) {
+    TextWindow **win = info->children;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008AAB0);
+    win[8]->setVisible(win[8], visible);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008AB04);
+void func_8008A9F8(ShopInfo *info) {
+    if (ITEM_FUNCS->isKind(info->item, 3) != 0 || ITEM_FUNCS->isKind(info->item, 4) != 0 ||
+        ITEM_FUNCS->isKind(info->item, 5) != 0) {
+        SOUND.playSound(0x4001B);
+        info->substate = 10;
+        info->shown = 0;
+        info->page = 1 - info->page;
+    }
+}
+
+void func_8008AAB0(ShopInfo *info, s32 arg) {
+    void *win = info->children;
+
+    func_800894EC(info, win, 1);
+    func_80088960(info, win, arg);
+}
+
+ShopInfo *func_8008AB04(s32 selling, s32 item) {
+    ShopInfo *info = createTask(func_8008A5E8, sizeof(ShopInfo), 0xAC);
+
+    info->showItem = func_8008A91C;
+    info->close = func_8008A9A4;
+    info->setArrowVisible = func_8008A9C0;
+    info->turnPage = func_8008A9F8;
+    info->func_8008AAB0 = func_8008AAB0;
+    info->layer = 0x1000;
+    info->depth = 6;
+    info->selling = selling;
+    info->item = item;
+    info->unk1E8 = 1;
+    info->shown = 1;
+    return info;
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008ABA4);
 
