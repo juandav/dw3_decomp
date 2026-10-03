@@ -51,6 +51,14 @@ segments:
     subsegments:
       # us's modules, each with its rodata, data and bss (tools/split_version.py)
       - [0x0, .rodata, fieldstg]
+      - [0x7C, .rodata, fieldstg_2]
+      - [0x150, .rodata, fieldstg_3]
+      - [0x184, .rodata, fieldstg_4]
+      - [0x198, .rodata, fieldstg_5]
       - [0xAD4, c, fieldstg]
+      - [0x1058, c, fieldstg_2]
+      - [0x20DC, c, fieldstg_3]
+      - [0x4A54, c, fieldstg_4]
+      - [0x55D8, c, fieldstg_5]
       - [0x1014C, .data, fieldstg]
   - [0x18E98]

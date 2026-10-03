@@ -118,9 +118,9 @@ void func_800A5050(void) {
     D_800990B4.events = D_800A5CF8;
     D_800990B4.unk34 = 0;
     D_800990B4.unk20 = D_800A5544;
-    D_8009A70C.unk40(0, 0x2480001);
-    D_8009A70C.unk40(7, 0x2480002);
-    D_8009A70C.unk40(4, 0x2480003);
+    D_8009A70C.setFile(0, 0x2480001);
+    D_8009A70C.setFile(7, 0x2480002);
+    D_8009A70C.setFile(4, 0x2480003);
     D_8009A70C.unk50(0);
 }
 #elif VERSION_EU
