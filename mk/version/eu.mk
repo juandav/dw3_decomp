@@ -99,3 +99,6 @@ C_SRC += $(addprefix src/main/psyq/, \
 # game
 C_SRC += src/main/inn.c src/main/system.c src/main/memcard.c src/main/game3.c src/main/text_window.c src/main/pad.c src/main/graphics.c src/main/sound.c
 C_SRC += src/main/data/game.c src/main/data/game_2.c src/main/data/game_3.c src/main/data/game_bss.c
+
+# menus
+C_SRC += src/stitshop/stitshop.c
