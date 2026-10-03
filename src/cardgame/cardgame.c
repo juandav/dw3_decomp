@@ -10,6 +10,7 @@ extern s16 D_800A49D8[];
 extern CardOffset CARDGAME_deckCountOffsets[];
 extern s16 D_800A4AA0[];
 extern CardOffset D_800A485C[];
+extern u16 D_800A488C[];
 Cursor *createCursor(s16 layerId, s32 depth, s16 x, s16 y);
 void func_80095B44(CardScreen *screen);
 void func_80096C78(CardScreen *screen, CardScreenItems *items);
@@ -583,9 +584,61 @@ CardDeckWindow *CARDGAME_createDeckWindow(s32 deck, s32 x, s32 y) {
     return window;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80095B44);
+void func_80095B44(CardScreen *screen) {
+    SpriteDrawer drawer;
+    s32 row;
+    s32 x;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80095C88);
+    initSpriteDrawer(&drawer);
+    drawer.setLayerId(0x100, 2);
+    row = 0;
+    drawer.setTexture(0x340, 0);
+    switch (screen->unkE9E) {
+    case 1:
+        if (screen->unkE9D >= 4) {
+            screen->unkE9D -= 4;
+            if (++screen->unkE9C >= 11) {
+                screen->unkE9C = 11;
+                screen->unkE9E = 2;
+            }
+        }
+        row = screen->unkE9C;
+        screen->unkE9D += GFX.funcs.getFrameTime();
+        break;
+    case 2:
+        row = 11;
+        break;
+    case 0:
+        break;
+    }
+    drawer.setClutRow(row);
+    x = (screen->time >> 1) & 0x3F;
+    drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), 0, x, x);
+}
+
+void CARDGAME_drawNumber(CardNumber *number, s32 scaled) {
+    SpriteDrawer drawer;
+    s32 value;
+    s32 digit;
+    s32 i;
+
+    initSpriteDrawer(&drawer);
+    drawer.setLayerId(0x100, number->depth);
+    drawer.setTexture(0x340, 0);
+    if (scaled != 0) {
+        drawer.setPivot(number->pivotX, number->pivotY);
+        drawer.setScale(number->scaleX, number->scaleY, 0x1000);
+    }
+    value = number->value;
+    for (i = 0; i < number->digits; i++) {
+        digit = value % 10;
+        if (i == 0 || number->leadingZeros != 0 || digit != 0 || value / 10 != 0) {
+            drawer.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), digit + 0x14,
+                        number->x + (number->digits - 1 - i) * 7, number->y);
+        }
+        value /= 10;
+    }
+}
 
 void func_80095E14(CardScreen *screen, CardScreenItems *items, s32 index, CardScreenDC0 *p) {
     SpriteDrawer drawer;
@@ -634,11 +687,47 @@ void func_80096018(CardScreen *screen, CardScreenItems *items) {
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80096080);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009642C);
+void func_8009642C(CardScreen *screen, CardScreenItems *items, CardScreenE0C *window) {
+    s32 values[2];
+    s32 i;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80096504);
+    values[0] = window->unk14[0];
+    values[1] = window->unk14[1];
+    for (i = 0; i < 2; i++) {
+        items->texts[i]->setPos(items->texts[i], window->x + 0x67, window->y + 4 + i * 13);
+        items->texts[i]->setNumber(items->texts[i], 0, values[i]);
+        items->texts[i]->setRightAlign(items->texts[i], 1);
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800965D8);
+void func_80096504(CardScreen *screen, CardScreenE0C *window, TextWindow *text, s32 file, s32 index) {
+    if (window->unk10 != 0) {
+        text->setPos(text, window->x + D_800A488C[index], window->y + 4);
+        text->setString(text, FILE_CACHE.load(file), window->unk10);
+    } else {
+        text->setVisible(text, 0);
+    }
+}
+
+void func_800965D8(CardScreen *screen, CardScreenItems *items, CardScreenE0C *window, TextWindow *text, s32 file) {
+    TextTools tools;
+    s32 width;
+
+    if (window->unk10 != 0) {
+        text->setString(text, FILE_CACHE.load(file), window->unk10);
+        initTextTools(&tools);
+        width = tools.measure(text->text, text->style, text->spacingX);
+        if (window->unk10 == 0x1F) {
+            text->setPalette(text, 3);
+        } else {
+            text->setPalette(text, 0);
+        }
+        text->setVisible(text, 1);
+        text->setPos(text, 0xA0 - width / 2, window->y + 4);
+    } else {
+        text->setVisible(text, 0);
+    }
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800966FC);
 

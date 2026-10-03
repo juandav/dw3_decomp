@@ -57,3 +57,4 @@ CARDGAME_setDeckWindowBlink = 0x800959EC; // type:func
 CARDGAME_closeDeckWindow = 0x800959FC; // type:func
 CARDGAME_createDeckWindow = 0x80095A1C; // type:func
 CARDGAME_deckCountOffsets = 0x800A4844;
+CARDGAME_drawNumber = 0x80095C88; // type:func

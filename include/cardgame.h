@@ -95,6 +95,20 @@ typedef struct CardDeckWindow {
     /* 0x70 */ void (*close)(struct CardDeckWindow *window);
 } CardDeckWindow;
 
+/* A number drawn with the TIM archive's digits (CARDGAME_drawNumber) */
+typedef struct CardNumber {
+    /* 0x00 */ s16 value;
+    /* 0x02 */ s16 x;
+    /* 0x04 */ s16 y;
+    /* 0x06 */ s16 scaleX;
+    /* 0x08 */ s16 scaleY;
+    /* 0x0A */ s16 pivotX;
+    /* 0x0C */ s16 pivotY;
+    /* 0x0E */ u8 digits;
+    /* 0x0F */ u8 leadingZeros;
+    /* 0x10 */ u8 depth;
+} CardNumber;
+
 /* The battle screen's task items */
 typedef struct CardScreenItems {
     /* 0x00 */ Cursor *cursor;
@@ -215,7 +229,7 @@ typedef struct CardScreen {
     TASK_HEADER(CardScreen);
     /* 0x050 */ s16 *cards; /* the battle's card list */
     /* 0x054 */ s32 unk54;
-    /* 0x058 */ s32 time;
+    /* 0x058 */ u32 time;
     /* 0x05C */ u8 unk5C[4];
     /* 0x060 */ CardPanel panels[2];
     /* 0x108 */ CardSprite sprites[40];
