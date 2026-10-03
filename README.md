@@ -36,15 +36,19 @@ Click it for the details on decomp.dev.</sub>
 
 ## Status
 
-Measured with `make report` on the USA version at commit `45827a6`; the
-badges above are always current:
+Measured with `make report` on both versions; the badges above are always
+current:
 
-| Part | Functions in C | Code | Data |
-|---|---|---|---|
-| Executable, game code | 344 / 346 | 95.60 % | 99.67 % |
-| The 21 overlays | 295 / 1,697 | 7.30 % | 37.15 % |
-| The 238 stages | 815 / 1,374 | 35.88 % | 0 % |
-| **Total** | **1,454 / 3,417** | **19.21 %** | **23.86 %** |
+| Part | Version | Functions in C | Code | Data |
+|---|---|---|---|---|
+| Executable, game code | Europe | 344 / 346 | 95.67 % | 99.86 % |
+| | USA | 344 / 346 | 95.60 % | 99.86 % |
+| The 21 overlays | Europe | 446 / 1,702 | 9.67 % | 25.89 % |
+| | USA | 733 / 1,697 | 16.69 % | 37.32 % |
+| The stages (293 and 238) | Europe | 1,289 / 1,590 | 69.55 % | 99.27 % |
+| | USA | 1,223 / 1,369 | 81.64 % | 99.15 % |
+| **Total** | **Europe** | **2,079 / 3,638** | **30.14 %** | **90.58 %** |
+| | **USA** | **2,300 / 3,412** | **36.31 %** | **91.02 %** |
 
 - The executable's game code is all C but two functions,
   `spriteDrawerDraw` and `convertText` (`graphics.c`). Its data is C too, in `src/main/data/`, until it moves
@@ -57,14 +61,18 @@ badges above are always current:
 - `CNTY_SEL` and `SOUNDTST` are all C, and `STDWTITL`, `STDGNAME`,
   `STCRDABM`, `SHOCKTST` and `CARDGAME` mostly. `FIGHTSTG`, `STSTATUS` and
   the other large overlays are still almost all assembly.
-- 64 of the 238 stages are all C. Many stages share functions built from the
-  same source, so one match often repeats across stages.
+- 98 of the 238 USA stages are all C. Many stages share functions built from the
+  same source, so one match often repeats across stages. The stages' data is
+  C too, as splat's words, at the end of each stage's C file: all but
+  `WSTAG331`'s, whose data differs throughout between the versions.
 - The European version, the default one and the one decomp.dev shows first,
   is split into the USA version's files, with the USA names, and builds the
   275 PsyQ files, the executable's game code and data (the same 344 of 346
-  functions as the USA version), `SOUNDTST` and `STDWTITL`'s `libpress` from
-  the USA version's C. The rest of its executable, 21 overlays and 293 stages
-  is splat's disassembly, so its report counts it as still to do.
+  functions as the USA version), the overlay functions the USA version has
+  in C, the 238 stages the USA version has from their C files (716 functions
+  and their data), and 98 functions and the data of its 55 own stages. The
+  rest of its executable and overlays is splat's disassembly, so its report
+  counts it as still to do.
 
 Progress is measured by [objdiff](https://github.com/encounter/objdiff), with
 one unit per C file, and tracked on
@@ -83,7 +91,7 @@ above counts them: fake matches, then the other two kinds together.
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 3 | `/* unused, but it is in the original stack frame */` |
 | Form-dependent matches | 1 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 1,538 | `INCLUDE_ASM` |
+| Functions still in assembly | 1,280 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -206,7 +214,8 @@ One source tree builds every version, one at a time, picked with `VERSION`
   them with the offsets where their code starts and ends, and
   `tools/stage_yaml.py` writes their splat configs into
   `build/<version>/generated/stages/`. A stage marked `asm` there keeps its
-  code in an asm segment until it has a C file in that version.
+  code and data in asm segments until it has a C file in that version; one
+  marked `asm-data` only its data.
 - The C sees `VERSION_US` and `VERSION_EU`, each 0 or 1
   (`include/version.h`), and so does the assembly (`--defsym`). Code tests
   them with `#if VERSION_EU`, never `#ifdef`; CONTRIBUTING.md has the rules.
@@ -214,8 +223,10 @@ One source tree builds every version, one at a time, picked with `VERSION`
   far (`C_SRC`), with `#if VERSION_EU` blocks where its code or data differ;
   the rest of its executable and overlays is split into
   the USA version's files as asm segments, so its asm lands at the same paths
-  (`asm/eu/main/system.s` for `asm/us/main/system.s`), and each stage is its
-  rodata, code and data as asm. The European release has the USA one's 21
+  (`asm/eu/main/system.s` for `asm/us/main/system.s`). Its stages that the
+  USA version has build from their C files (`config/eu/stages/<stage>.txt`
+  gives their functions the USA names), and so do its own, whose functions
+  are C where they are the code of a USA stage's C. The European release has the USA one's 21
   overlays and 238 stages plus 55 stages of its own (`WSTAG920`-`974`).
 - The versions share their names: the European symbol files hold the USA
   names of the functions and data paired between the two

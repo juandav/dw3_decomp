@@ -1,0 +1,2 @@
+D_800A5BE0 = 0x800A5BE0; // size:0x38
+D_800A5C18 = 0x800A5C18; // size:0x4C

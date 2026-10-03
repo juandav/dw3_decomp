@@ -1,21 +1,170 @@
 #include "common.h"
 #include "stage.h"
-extern u8 D_800A5800[];
-extern CVECTOR D_800A4CBC;
-extern u8 D_800A56B0[];
+extern s32 D_800A5800[];
+extern s32 D_800A56B0[];
 extern u8 D_800A5570[];
 extern u8 D_800A5784[];
 extern u8 D_800A56BC[];
 extern void (*D_800A57FC[])(void);
 void func_800A51B8();
+void func_800A526C();
+void func_800A4CC0();
+extern s16 D_800A555C[];
 
-INCLUDE_ASM("stages/nonmatchings/wstag261", func_800A4CC0);
+/* Moves the two records and the player 0x7F up or down when an event sets TASK_DONE */
+void func_800A4CC0(StageTileLift *task) {
+    StageTile *rec;
+    StageTile *tile0;
+    StageTile *tile1;
+    StageActor *player;
+    s32 d;
 
-INCLUDE_ASM("stages/nonmatchings/wstag261", func_800A50DC);
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->nextState(task);
+        for (rec = D_800990B4.unk10; rec->unk2 != 0; rec++) {
+            switch (rec->anim) {
+            case 2:
+                task->tiles[1] = rec;
+                task->homeY[1] = rec->unkC;
+                if (task->down) {
+                    rec->unkC -= 0x7F;
+                }
+                rec->visible = 0;
+                break;
+            case 3:
+                task->tiles[0] = rec;
+                task->homeY[0] = rec->unkC;
+                if (task->down) {
+                    rec->unkC -= 0x7F;
+                }
+                rec->visible = 1;
+                break;
+            }
+        }
+        task->down = 0;
+        break;
+    case TASK_RUN:
+        break;
+    case TASK_DONE:
+        tile0 = task->tiles[0];
+        tile1 = task->tiles[1];
+        player = TASK_FUNCS.find(5, -1, 0);
+        switch (task->substate) {
+        case 0:
+        default:
+            tile1->visible = 1;
+            task->timer = 0;
+            task->y[0] = tile0->unkC;
+            task->y[1] = tile1->unkC;
+            task->playerY = player->y;
+            SOUND.playSound(0x8004103C);
+            task->nextSubstate(task);
+            break;
+        case 1:
+            task->timer += GFX_FUNCS.getFrameTime();
+            if (task->timer >= 0x1E) {
+                task->shake = 0;
+                task->nextSubstate(task);
+                SOUND.playSound(0x1080001);
+            }
+            break;
+        case 2:
+        case 4:
+            d = D_800A555C[task->shake];
+            if (d != 0x3E8) {
+                tile0->unkC = task->y[0] + d;
+                tile1->unkC = task->y[1] + d;
+                player->y = task->playerY + d;
+                task->shake++;
+            } else {
+                task->nextSubstate(task);
+                task->shake = 0;
+            }
+            break;
+        case 3:
+            if (++task->shake >= 0xFE) {
+                if (task->down) {
+                    tile0->unkC = task->homeY[0];
+                    tile1->unkC = task->homeY[1];
+                    player->y = task->playerY + 0x7F00;
+                } else {
+                    tile0->unkC = task->homeY[0] - 0x7F;
+                    tile1->unkC = task->homeY[1] - 0x7F;
+                    player->y = task->playerY - 0x7F00;
+                }
+                task->y[0] = tile0->unkC;
+                task->y[1] = tile1->unkC;
+                task->playerY = player->y;
+                task->nextSubstate(task);
+                task->shake = 0;
+            } else if (task->shake & 1) {
+                if (task->down) {
+                    tile0->unkC++;
+                    tile1->unkC++;
+                    player->y += 0x100;
+                } else {
+                    tile0->unkC--;
+                    tile1->unkC--;
+                    player->y -= 0x100;
+                }
+            }
+            break;
+        case 5:
+            tile1->visible = 0;
+            task->setState(task, TASK_RUN);
+            task->down ^= 1;
+            break;
+        }
+        break;
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("stages/nonmatchings/wstag261", func_800A5150);
+/* Ends the task when map object 0x348 (down = 0) or 0x349 (down = 1) is triggered */
+void func_800A50DC(StageTileLift *task, s32 id) {
+    if (task != NULL) {
+        switch (id) {
+        case 0x348:
+            task->setState(task, TASK_DONE);
+            task->down = 0;
+            break;
+        case 0x349:
+            task->setState(task, TASK_DONE);
+            task->down = 1;
+            break;
+        }
+    }
+}
 
-INCLUDE_ASM("stages/nonmatchings/wstag261", func_800A51B8);
+/* Creates the task of func_800A4CC0, down set from flag 0x1C3D */
+StageTileLift *func_800A5150(s32 id) {
+    StageTileLift *task = createTaskWithId(func_800A4CC0, sizeof(StageTileLift), 0, id);
+
+    if (FLAGS_00.checkCondition(0x1C3D, 1)) {
+        task->down = 1;
+    } else {
+        task->down = 0;
+    }
+    return task;
+}
+
+/* The stage task: creates the object of map object 0x33B */
+void func_800A51B8(StageTask *task, void **children) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->nextState(task);
+        children[0] = func_800A5150(0x33B);
+        break;
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 StageTask *func_800A5210(void *owner) {
     StageTask *task = createTask(func_800A51B8, sizeof(StageTask), 4);
@@ -25,6 +174,10 @@ StageTask *func_800A5210(void *owner) {
     return task;
 }
 
+/* the color the setup copies to D_800990B4.unk38 */
+const CVECTOR D_800A4CBC = { 0x80, 0x80, 0x80, 0 };
+
+#if VERSION_US
 void func_800A526C(void) {
     D_800990B4.unk44 = 0xE2;
     D_800990B4.unk8 = 0x516;
@@ -47,3 +200,192 @@ void func_800A526C(void) {
     D_8009A70C.unk40(7, 0x5170002);
     D_8009A70C.unk50(0);
 }
+#elif VERSION_EU
+INCLUDE_ASM("stages/nonmatchings/wstag261", func_800A526C);
+#endif
+
+extern s32 D_800A55E0[];
+extern s32 D_800A55E8[];
+extern s32 D_800A55F4[];
+extern s32 D_800A55FC[];
+extern s32 D_800A5608[];
+extern s32 D_800A5610[];
+extern s32 D_800A561C[];
+extern s32 D_800A5624[];
+extern s32 D_800A5678[];
+extern s32 D_800A5630[];
+extern s32 D_800A5680[];
+extern s32 D_800A5654[];
+extern s32 D_800A5688[];
+extern s32 D_800A569C[];
+extern s32 D_800A5394[];
+extern s32 D_800A5478[];
+
+s32 D_800A5394[] = {
+    0x20102, 0x19000BF, 0x1000003, 0xB0003F,
+    0x1010188, 0x1003F, 0x1010000, 0x337032D,
+    0x3020002, 0x1010002, 0x36C032D, 0x3000002,
+    0x101003C, 0x10002, 0x3000006, 0x101001E,
+    0x10002, 0x3000005, 0x101001E, 0x10002,
+    0x3000006, 0x101001E, 0x10002, 0x3000007,
+    0x101001E, 0x10002, 0x3000006, 0x101001E,
+    0x10002, 0x3000007, 0x101001E, 0x10002,
+    0x3000007, 0x101001E, 0x10002, 0x3000005,
+    0x102001E, 0xEC0002, 0x50178, 0x20302,
+    0x20102, 0x1840108, 0x3020007, 0x2000002,
+    0x10000, 2, 0x20101, 0x30001,
+    0x1000301, 0xB0003F, 0x1010109, 0x1003F,
+    0x1010000, 0x348033B, 0x3000002, 0x300012C,
+    30,
+};
+s32 D_800A5478[] = {
+    0x20102, 0x11100BF, 0x1000003, 0xB0003F,
+    0x1010109, 0x1003F, 0x1010000, 0x337032D,
+    0x3020002, 0x1010002, 0x36C032D, 0x3000002,
+    0x101003C, 0x10002, 0x3000006, 0x101001E,
+    0x10002, 0x3000005, 0x101001E, 0x10002,
+    0x3000006, 0x101001E, 0x10002, 0x3000007,
+    0x101001E, 0x10002, 0x3000006, 0x101001E,
+    0x10002, 0x3000007, 0x101001E, 0x10002,
+    0x3000007, 0x101001E, 0x10002, 0x3000005,
+    0x102001E, 0xEF0002, 0x500F9, 0x20302,
+    0x20102, 0x1050108, 0x3020007, 0x2000002,
+    0x10000, 2, 0x20101, 0x30001,
+    0x1000301, 0xB0003F, 0x1010188, 0x1003F,
+    0x1010000, 0x349033B, 0x3000002, 0x300012C,
+    30,
+};
+s16 D_800A555C[] = {
+    1, 2, 1, 0, -1, -2, -1, 0,
+    0x3E8, 0,
+};
+u8 D_800A5570[] = {
+    0x00, 0x02, 0x00, 0x01, 0x1C, 0x02, 0xA6, 0x01,
+    0x70, 0x00, 0xA6, 0x00, 0x30, 0x02, 0xFE, 0x01,
+    0x00, 0x02, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01,
+    0x00, 0x00, 0x00, 0x00, 0x20, 0x02, 0xFE, 0x01,
+    0x00, 0x02, 0x00, 0x01, 0x16, 0x02, 0x38, 0x01,
+    0x58, 0x00, 0x38, 0x00, 0x00, 0x02, 0xFD, 0x01,
+    0x00, 0x02, 0x00, 0x01, 0x08, 0x02, 0xBC, 0x01,
+    0x20, 0x00, 0xBC, 0x00, 0x10, 0x02, 0xFD, 0x01,
+    0x00, 0x02, 0x00, 0x01, 0x10, 0x02, 0xBC, 0x01,
+    0x40, 0x00, 0xBC, 0x00, 0x20, 0x02, 0xFD, 0x01,
+    0x00, 0x02, 0x00, 0x01, 0x00, 0x02, 0xBC, 0x01,
+    0x00, 0x00, 0xBC, 0x00, 0x30, 0x02, 0xFD, 0x01,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+s32 D_800A55E0[] = {
+    7229, 65535,
+};
+s32 D_800A55E8[] = {
+    0x19062, 0x11C3D, 65535,
+};
+s32 D_800A55F4[] = {
+    0x11C3D, 65535,
+};
+s32 D_800A55FC[] = {
+    0x19063, 7229, 65535,
+};
+s32 D_800A5608[] = {
+    7229, 65535,
+};
+s32 D_800A5610[] = {
+    0x19062, 0x11C3D, 65535,
+};
+s32 D_800A561C[] = {
+    0x11C3D, 65535,
+};
+s32 D_800A5624[] = {
+    0x19063, 7229, 65535,
+};
+s32 D_800A5630[] = {
+    (s32)D_800A55E0, (s32)D_800A55E8, 515, (s32)D_800A55F4,
+    (s32)D_800A55FC, 516, 0, 0,
+    0,
+};
+s32 D_800A5654[] = {
+    (s32)D_800A5608, (s32)D_800A5610, 515, (s32)D_800A561C,
+    (s32)D_800A5624, 516, 0, 0,
+    0,
+};
+s32 D_800A5678[] = {
+    7229, 65535,
+};
+s32 D_800A5680[] = {
+    0x11C3D, 65535,
+};
+s32 D_800A5688[] = {
+    (s32)D_800A5678, (s32)D_800A5630, 0x4003F, 0x18800B0,
+    1,
+};
+s32 D_800A569C[] = {
+    (s32)D_800A5680, (s32)D_800A5654, 0x4003F, 0x10900B0,
+    1,
+};
+s32 D_800A56B0[] = {
+    (s32)D_800A5688, (s32)D_800A569C, 0,
+};
+u8 D_800A56BC[] = {
+    0x00, 0x01, 0x44, 0x02, 0x3A, 0x02, 0x00, 0x01,
+    0x04, 0x00, 0x38, 0x01, 0x1A, 0x01, 0x00, 0x00,
+    0x00, 0x00, 0x01, 0x02, 0x40, 0x02, 0x32, 0x01,
+    0x32, 0x39, 0x04, 0x00, 0x87, 0x00, 0x66, 0x01,
+    0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x40, 0x06,
+    0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x48, 0x01,
+    0xC2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
+    0x40, 0x06, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0xC0, 0x00, 0xA1, 0x01, 0x00, 0x00, 0x00, 0x00,
+    0x01, 0x03, 0xCD, 0x06, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0xA0, 0x00, 0x52, 0x01, 0x00, 0x00,
+    0x00, 0x00, 0x01, 0x00, 0x40, 0x0A, 0x3E, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x48, 0x01, 0x10, 0x01,
+    0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x48, 0x0A,
+    0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00,
+    0xCA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
+    0x49, 0x0A, 0x15, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0xC8, 0x00, 0xB7, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x01, 0x00, 0x40, 0x04, 0x3D, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x50, 0x01, 0xA6, 0x00, 0xC1, 0x00,
+    0x00, 0x00, 0x01, 0x00, 0x40, 0x08, 0x3F, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x50, 0x01, 0xF4, 0x00,
+    0x15, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+u8 D_800A5784[] = {
+    0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00,
+    0x01, 0x00, 0x71, 0x02, 0x68, 0x03, 0xF4, 0x00,
+    0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00,
+    0x01, 0x00, 0x81, 0x02, 0xFE, 0x02, 0xA5, 0x00,
+    0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00,
+    0x06, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00,
+    0x05, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+void (*D_800A57FC[])(void) = {
+    func_800A526C,
+};
+s32 D_800A5800[] = {
+    1321, (s32)D_800A5394,
+#if VERSION_US
+    0x10B002E,
+#elif VERSION_EU
+    0x112002E,
+#endif
+    0, 0, 1326, (s32)D_800A5478,
+#if VERSION_US
+    0x10B002F,
+#elif VERSION_EU
+    0x112002F,
+#endif
+    0, 0, -1, 0,
+    0, 0, 0,
+};

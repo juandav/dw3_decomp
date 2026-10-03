@@ -1,0 +1,5 @@
+D_800A6244 = 0x800A6244; // size:0x50
+D_800A6294 = 0x800A6294; // size:0x50
+
+// names from the C of the modules this version builds (tools/version_symbols.py)
+func_80084B80 = 0x800853F8;

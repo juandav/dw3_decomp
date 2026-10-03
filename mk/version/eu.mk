@@ -111,3 +111,59 @@ C_SRC += src/cardgame/cardgame_4.c
 
 # small overlays
 C_SRC += src/stgmcard/stgmcard.c src/stfgtrep/stfgtrep.c src/wfightmn/wfightmn.c src/stcrdshp/stcrdshp.c src/stplnmet/stplnmet.c src/wfightts/wfightts.c
+
+# The stages the USA version has, built from its C
+C_SRC += $(addprefix src/stages/, \
+	wstag200.c wstag201.c wstag202.c wstag203.c wstag205.c wstag206.c \
+	wstag210.c wstag211.c wstag212.c wstag218.c wstag219.c wstag220.c \
+	wstag221.c wstag225.c wstag226.c wstag230.c wstag231.c wstag232.c \
+	wstag233.c wstag235.c wstag236.c wstag237.c wstag238.c wstag240.c \
+	wstag241.c wstag245.c wstag246.c wstag250.c wstag251.c wstag255.c \
+	wstag256.c wstag261.c wstag270.c wstag271.c wstag275.c wstag276.c \
+	wstag280.c wstag281.c wstag285.c wstag286.c wstag290.c wstag291.c \
+	wstag295.c wstag296.c wstag300.c wstag301.c wstag305.c wstag306.c \
+	wstag310.c wstag311.c wstag315.c wstag316.c wstag320.c wstag321.c \
+	wstag325.c wstag326.c wstag330.c wstag331.c wstag335.c wstag336.c \
+	wstag340.c wstag341.c wstag345.c wstag346.c wstag350.c wstag351.c \
+	wstag355.c wstag356.c wstag360.c wstag361.c wstag365.c wstag366.c \
+	wstag370.c wstag371.c wstag375.c wstag376.c wstag380.c wstag381.c \
+	wstag385.c wstag386.c wstag395.c wstag396.c wstag400.c wstag401.c \
+	wstag405.c wstag406.c wstag410.c wstag411.c wstag415.c wstag420.c \
+	wstag421.c wstag425.c wstag426.c wstag430.c wstag431.c wstag435.c \
+	wstag436.c wstag440.c wstag441.c wstag445.c wstag446.c wstag450.c \
+	wstag451.c wstag455.c wstag456.c wstag460.c wstag465.c wstag466.c \
+	wstag470.c wstag471.c wstag475.c wstag476.c wstag480.c wstag481.c \
+	wstag485.c wstag486.c wstag490.c wstag491.c wstag495.c wstag496.c \
+	wstag500.c wstag501.c wstag505.c wstag506.c wstag520.c wstag521.c \
+	wstag525.c wstag526.c wstag530.c wstag531.c wstag535.c wstag537.c \
+	wstag538.c wstag540.c wstag545.c wstag550.c wstag551.c wstag555.c \
+	wstag556.c wstag560.c wstag561.c wstag565.c wstag566.c wstag570.c \
+	wstag571.c wstag575.c wstag576.c wstag580.c wstag581.c wstag585.c \
+	wstag586.c wstag590.c wstag591.c wstag595.c wstag596.c wstag600.c \
+	wstag601.c wstag605.c wstag606.c wstag610.c wstag611.c wstag615.c \
+	wstag616.c wstag620.c wstag621.c wstag625.c wstag630.c wstag631.c \
+	wstag635.c wstag636.c wstag640.c wstag641.c wstag645.c wstag646.c \
+	wstag650.c wstag651.c wstag655.c wstag656.c wstag660.c wstag661.c \
+	wstag675.c wstag676.c wstag680.c wstag685.c wstag686.c wstag690.c \
+	wstag691.c wstag695.c wstag696.c wstag700.c wstag701.c wstag705.c \
+	wstag706.c wstag710.c wstag711.c wstag715.c wstag716.c wstag720.c \
+	wstag721.c wstag725.c wstag726.c wstag730.c wstag731.c wstag735.c \
+	wstag736.c wstag740.c wstag741.c wstag745.c wstag746.c wstag750.c \
+	wstag755.c wstag756.c wstag760.c wstag761.c wstag780.c wstag785.c \
+	wstag790.c wstag795.c wstag800.c wstag805.c wstag810.c wstag815.c \
+	wstag820.c wstag825.c wstag830.c wstag835.c wstag840.c wstag845.c \
+	wstag850.c wstag855.c wstag860.c wstag865.c wstag870.c wstag875.c \
+	wstag880.c wstag885.c wstag890.c wstag895.c)
+
+# The stages the USA version doesn't have
+C_SRC += $(addprefix src/stages/, \
+	wstag920.c wstag921.c wstag922.c wstag923.c wstag924.c wstag925.c \
+	wstag926.c wstag927.c wstag928.c wstag929.c wstag930.c wstag931.c \
+	wstag932.c wstag933.c wstag934.c wstag935.c wstag936.c wstag937.c \
+	wstag938.c wstag939.c wstag940.c wstag941.c wstag942.c wstag943.c \
+	wstag944.c wstag945.c wstag946.c wstag947.c wstag948.c wstag949.c \
+	wstag950.c wstag951.c wstag952.c wstag953.c wstag954.c wstag955.c \
+	wstag956.c wstag957.c wstag958.c wstag959.c wstag960.c wstag961.c \
+	wstag962.c wstag963.c wstag964.c wstag965.c wstag966.c wstag967.c \
+	wstag968.c wstag969.c wstag970.c wstag971.c wstag972.c wstag973.c \
+	wstag974.c)

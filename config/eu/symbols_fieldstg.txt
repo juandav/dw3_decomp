@@ -1,0 +1,2 @@
+// FIELDSTG.PRO's symbols the stages use, at their address in this version
+D_800990B4 = 0x80099D80;
