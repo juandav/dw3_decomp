@@ -41,17 +41,17 @@ current:
 
 | Part | Version | Functions in C | Code | Data |
 |---|---|---|---|---|
-| Executable, game code | Europe | 346 / 346 | 100.00 % | 99.97 % |
-| | USA | 346 / 346 | 100.00 % | 99.97 % |
+| Executable, game code | Europe | 346 / 346 | 100.00 % | 100.00 % |
+| | USA | 346 / 346 | 100.00 % | 100.00 % |
 | The 21 overlays | Europe | 1,540 / 1,702 | 76.88 % | 85.52 % |
-| | USA | 1,538 / 1,697 | 77.07 % | 85.13 % |
-| The stages (293 and 238) | Europe | 1,590 / 1,590 | 100.00 % | 99.27 % |
-| | USA | 1,369 / 1,369 | 100.00 % | 99.15 % |
-| **Total** | **Europe** | **3,476 / 3,638** | **84.19 %** | **97.74 %** |
-| | **USA** | **3,253 / 3,412** | **83.70 %** | **97.43 %** |
+| | USA | 1,538 / 1,697 | 77.07 % | 88.74 % |
+| The stages (293 and 238) | Europe | 1,590 / 1,590 | 100.00 % | 100.00 % |
+| | USA | 1,369 / 1,369 | 100.00 % | 100.00 % |
+| **Total** | **Europe** | **3,476 / 3,638** | **84.19 %** | **98.27 %** |
+| | **USA** | **3,253 / 3,412** | **83.70 %** | **98.49 %** |
 
-- The executable's game code is all C. Its data is C too, in
-  `src/main/data/`, until it moves next to the code that uses it.
+- The executable's game code is all C, and its rodata. Its data is C too,
+  in `src/main/data/`, until it moves next to the code that uses it.
 - The PsyQ 4.7 libraries linked into the executable are decompiled too, one
   file per library object: 480 of their 563 functions are C, and the 71 Sony
   wrote in assembly are `.s` sources. They are Sony's
@@ -64,8 +64,7 @@ current:
 - The stages are all C, the 238 USA ones and the 55 of the European version
   alone. Many stages share functions built from the same source, so one
   match often repeats across stages. The stages' data is
-  C too, as splat's words, at the end of each stage's C file: all but
-  `WSTAG331`'s, whose data differs throughout between the versions.
+  C too, as splat's words, at the end of each stage's C file.
 - The European version, the default one and the one decomp.dev shows first,
   is split into the USA version's files, with the USA names, and builds the
   275 PsyQ files, the executable's game code and data (the same 346

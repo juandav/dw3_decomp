@@ -67,7 +67,7 @@ extern s32 D_800A6548[];
 extern s32 D_800A655C[];
 extern s32 D_800A6294[];
 extern s32 D_800A6530[];
-extern CVECTOR D_800A5DE0;
+const CVECTOR D_800A5DE0 = { 0x80, 0x80, 0x80, 0x00 };
 extern s32 D_800A6650[];
 extern s32 D_800A6888[];
 void func_800A6024(void) {

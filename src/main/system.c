@@ -1050,6 +1050,12 @@ void initMemCard(void) {
     MEMCARD.dataSize = 0x2700;
 }
 
-INCLUDE_RODATA("main/nonmatchings/system", OVERLAY_ADDRESS);
-
-INCLUDE_RODATA("main/nonmatchings/system", SUB_OVERLAY_ADDRESS);
+/* Where the modes' overlays (AAA/PRO/*.PRO) and the stages and other
+ * sub-overlays load. */
+#if VERSION_US
+void *const OVERLAY_ADDRESS = (void *)0x80082448;
+void *const SUB_OVERLAY_ADDRESS = (void *)0x800A4CA4;
+#elif VERSION_EU
+void *const OVERLAY_ADDRESS = (void *)0x80082CB0;
+void *const SUB_OVERLAY_ADDRESS = (void *)0x800A5DE0;
+#endif

@@ -63,7 +63,7 @@ extern s32 D_800A620C[];
 extern s32 D_800A6364[];
 extern s32 D_800A6180[];
 extern s32 D_800A6204[];
-extern CVECTOR D_800A5DE0;
+const CVECTOR D_800A5DE0 = { 0x54, 0x67, 0x96, 0x01 };
 extern s32 D_800A69E0[];
 void func_800A5FB4(void) {
     D_800990B4.unk44 = LANGUAGE + 0x104;

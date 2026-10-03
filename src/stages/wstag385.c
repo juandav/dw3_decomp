@@ -2,7 +2,7 @@
 #include "stage.h"
 extern s32 D_800A55DC[];
 extern s32 D_800A703C[];
-extern CVECTOR D_800A4CA4;
+const CVECTOR D_800A4CA4 = { 0x54, 0x67, 0x96, 0x00 };
 extern s32 D_800A62A8[];
 extern u8 D_800A55F8[];
 extern u8 D_800A6F00[];

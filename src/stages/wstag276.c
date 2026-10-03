@@ -1,6 +1,6 @@
 #include "common.h"
 #include "stage.h"
-extern CVECTOR D_800A4CA4;
+const CVECTOR D_800A4CA4 = { 0x80, 0x80, 0x80, 0x00 };
 extern s32 D_800A4F70[];
 extern u8 D_800A4E4C[];
 extern u8 D_800A50D8[];

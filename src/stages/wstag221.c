@@ -28,7 +28,7 @@ extern s32 D_800A5414[];
 extern s32 D_800A56C0[];
 extern s32 D_800A4E94[];
 extern s32 D_800A53B8[];
-extern CVECTOR D_800A4CA4;
+const CVECTOR D_800A4CA4 = { 0x80, 0x80, 0x80, 0x00 };
 #if VERSION_US
 #define STAGE_TEXT 0xE2
 #define STAGE_FILE 0x4D0

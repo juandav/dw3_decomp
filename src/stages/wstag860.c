@@ -63,7 +63,7 @@ extern s32 D_800A5A20[];
 extern s32 D_800A5B0C[];
 extern s32 D_800A58DC[];
 extern s32 D_800A5A10[];
-extern CVECTOR D_800A4CA4;
+const CVECTOR D_800A4CA4 = { 0x54, 0x67, 0x96, 0x01 };
 extern s32 D_800A586C[];
 #if VERSION_US
 #define STAGE_TEXT 0xE9
