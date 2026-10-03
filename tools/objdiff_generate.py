@@ -37,6 +37,8 @@ A source file X_2.c is the second half of an original object split in
 config/us/main.yaml (X.c and X_2.c come from one file before the split). Its
 unit is reported together with X's under X's name, from the two objects
 linked with `ld -r`, so progress keeps being tracked per unit as before.
+An overlay split into several objects, X.c, X_2.c, X_3.c..., is not a pair
+of halves: each of its files is a unit of its own (CARDGAME, FIGHTSTG).
 
 The PsyQ SDK (src/main/psyq/) is Sony's code linked into the executable, not
 the game's: like other PSX decomps (jype0/dw_decomp), progress doesn't count
@@ -424,7 +426,8 @@ def main() -> None:
     # a module the version doesn't build from C yet)
     names = [n for n in names if (ASM / f"{n}.s").exists()]
     built = {n for n in names if (ROOT / f"build/{V}/src/{n}.c.o").exists()}
-    halves = {n[:-2]: n for n in names if n.endswith("_2") and n[:-2] in names}
+    halves = {n[:-2]: n for n in names
+              if n.endswith("_2") and n[:-2] in names and f"{n[:-2]}_3" not in names}
     units = []
     for name in names:
         if name in halves.values():

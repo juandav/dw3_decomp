@@ -109,6 +109,9 @@ C_SRC += src/cardgame/cardgame_2.c
 C_SRC += src/cardgame/cardgame_3.c
 C_SRC += src/cardgame/cardgame_4.c
 
+# fightstg's other objects (fightstg.c is with the overlays)
+C_SRC += $(addprefix src/fightstg/, fightstg_2.c fightstg_3.c fightstg_4.c fightstg_5.c fightstg_6.c fightstg_7.c)
+
 # small overlays
 C_SRC += src/stgmcard/stgmcard.c src/stfgtrep/stfgtrep.c src/wfightmn/wfightmn.c src/stcrdshp/stcrdshp.c src/stplnmet/stplnmet.c src/wfightts/wfightts.c
 
