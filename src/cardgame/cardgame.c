@@ -5,6 +5,8 @@ extern RECT CARDGAME_fadeRect;
 extern CardFileEntry CARDGAME_preloadFiles[];
 
 CardBattle *CARDGAME_createBattle(s32 arg);
+void initCardDrawer(CardDrawer *obj);
+extern s16 D_800A49D8[];
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800835C4);
 
@@ -400,7 +402,16 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009747C);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80097548);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009784C);
+s32 CARDGAME_getHandOffset(s32 count, s32 index) {
+    s32 step;
+
+    if (count < 7) {
+        step = 0x2900;
+    } else {
+        step = 0xF600 / count;
+    }
+    return step * index;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80097880);
 
@@ -456,93 +467,436 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009AA1C);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009AAFC);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009AD94);
+void func_8009AD94(CardScreen *screen, s32 index, s16 value) {
+    screen->unkDC0[index].from = 0x1000;
+    screen->unkDC0[index].state = 1;
+    screen->unkDC0[index].to = 0;
+    screen->unkDC0[index].value = value;
+    screen->unkDC0[index].duration = 10;
+    screen->unkDC0[index].time = 10;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009ADCC);
+void func_8009ADCC(CardScreen *screen, s32 index) {
+    screen->unkDC0[index].from = 0x1000;
+    screen->unkDC0[index].to = 0x1000;
+    screen->unkDC0[index].state = 3;
+    screen->unkDC0[index].duration = 5;
+    screen->unkDC0[index].time = 5;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009AE00);
+void func_8009AE00(CardScreen *screen, s32 index, s16 arg2, s32 arg3, s32 x, s32 y) {
+    SOUND.playSound(0x40019);
+    screen->unkE0C[index].x = x;
+    screen->unkE0C[index].y = y;
+    screen->unkE0C[index].from = 0;
+    screen->unkE0C[index].to = 0x1000;
+    screen->unkE0C[index].state = 1;
+    screen->unkE0C[index].unkC = arg2;
+    screen->unkE0C[index].unk10 = arg3;
+    screen->unkE0C[index].duration = 12;
+    screen->unkE0C[index].time = 12;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009AEB0);
+void func_8009AEB0(CardScreen *screen, s32 index) {
+    SOUND.playSound(0x4001A);
+    screen->unkE0C[index].from = 0x1000;
+    screen->unkE0C[index].to = 0x1000;
+    screen->unkE0C[index].state = 3;
+    screen->unkE0C[index].duration = 6;
+    screen->unkE0C[index].time = 6;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009AF20);
+s32 func_8009AF20(CardScreen *screen, s32 index, s16 x, s16 y) {
+    screen->unkCE8[index].state = 1;
+    screen->unkCE8[index].x = x;
+    screen->unkCE8[index].y = y;
+    screen->unkCE8[index].unkA = 0;
+    screen->unkCE8[index].unk8 = 0;
+    screen->unkCE8[index].startY = 0;
+    screen->unkCE8[index].startX = 0;
+    screen->unkCE8[index].unkF = 0;
+    screen->unkCE8[index].unkE = 0;
+    screen->unkCE8[index].unkC = 0;
+    return 0;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009AF64);
+s32 func_8009AF64(CardScreen *screen, s32 index, u8 arg2, s16 arg3, s32 arg4) {
+    screen->unkCE8[index].state = 2;
+    screen->unkCE8[index].unk8 = arg3;
+    screen->unkCE8[index].unkF = arg2;
+    screen->unkCE8[index].unkE = arg2;
+    screen->unkCE8[index].unkA = arg4;
+    screen->unkCE8[index].startX = screen->unkCE8[index].x;
+    screen->unkCE8[index].startY = screen->unkCE8[index].y;
+    return 0;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009AFA8);
+void func_8009AFA8(CardScreen *screen, s32 arg1, u8 arg2, s16 arg3, s32 arg4) {
+    SOUND.playSound(0x40019);
+    screen->unkDF2 = 12;
+    screen->unkDF0 = 12;
+    screen->unkDF4 = arg3;
+    screen->unkDE8 = arg1;
+    screen->unkDFB = arg2;
+    screen->unkDE4 = arg4;
+    screen->unkDFA = 1;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B030);
+void func_8009B030(CardScreen *screen) {
+    SOUND.playSound(0x4001A);
+    screen->unkDF2 = 6;
+    screen->unkDF0 = 6;
+    screen->unkDFA = 5;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B078);
+void func_8009B078(CardScreen *screen) {
+    SOUND.playSound(0x8004503C);
+    screen->unkDF2 = 10;
+    screen->unkDF0 = 10;
+    screen->unkDFA = 4;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B0C0);
+void func_8009B0C0(CardScreen *screen, s16 value) {
+    screen->unkDF4 = value;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B0C8);
+void func_8009B0C8(CardScreen *screen, s16 value) {
+    SOUND.playSound(0x40019);
+    screen->unkE02 = 12;
+    screen->unkE00 = 12;
+    screen->unkE04 = value;
+    screen->unkE0A = 1;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B120);
+void func_8009B120(CardScreen *screen) {
+    SOUND.playSound(0x4001A);
+    screen->unkE02 = 6;
+    screen->unkE00 = 6;
+    screen->unkE0A = 5;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B168);
+void func_8009B168(CardScreen *screen) {
+    SOUND.playSound(0x8004503C);
+    screen->unkE02 = 10;
+    screen->unkE00 = 10;
+    screen->unkE0A = 4;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B1B0);
+void func_8009B1B0(CardScreen *screen, s16 value) {
+    screen->unkE04 = value;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B1B8);
+void func_8009B1B8(CardScreen *screen) {
+    screen->panels[0].state = 0;
+    screen->panels[0].duration = 0;
+    screen->panels[0].time = 0;
+    screen->panels[0].x = 0;
+    screen->panels[0].y = 0xF1;
+    screen->panels[0].unk20 = 0x147;
+    screen->panels[0].unk22 = 0x8F;
+    screen->panels[0].unk3C = 0x140;
+    screen->panels[0].unk3E = 0xBD;
+    screen->panels[1].state = 0;
+    screen->panels[1].duration = 0;
+    screen->panels[1].time = 0;
+    screen->panels[1].x = 0;
+    screen->panels[1].y = -100;
+    screen->panels[1].unk20 = 0x147;
+    screen->panels[1].unk22 = 0x50;
+    screen->panels[1].unk3C = 0x140;
+    screen->panels[1].unk3E = 0x26;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B224);
+void func_8009B224(CardScreen *screen) {
+    screen->panels[0].state = 1;
+    screen->panels[0].unk6 = 2;
+    screen->panels[0].duration = 20;
+    screen->panels[0].time = 20;
+    screen->panels[0].x = 0;
+    screen->panels[0].y = 0xF1;
+    screen->panels[0].unk20 = 0x147;
+    screen->panels[0].unk22 = 0x8F;
+    screen->panels[0].unk3C = 0x140;
+    screen->panels[0].unk3E = 0xBD;
+    screen->panels[1].state = 1;
+    screen->panels[1].duration = 20;
+    screen->panels[1].time = 20;
+    screen->panels[1].x = 0;
+    screen->panels[1].y = -100;
+    screen->panels[1].unk20 = 0xF9;
+    screen->panels[1].unk22 = 0x50;
+    screen->panels[1].unk3C = 0x140;
+    screen->panels[1].unk3E = 0x26;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B2A4);
+void func_8009B2A4(CardScreen *screen) {
+    screen->panels[0].state = 3;
+    screen->panels[0].duration = 10;
+    screen->panels[0].time = 10;
+    screen->panels[0].x = 0;
+    screen->panels[0].y = 0x8D;
+    screen->panels[0].unk20 = 0x120;
+    screen->panels[0].unk22 = 0x8F;
+    screen->panels[0].unk3C = 0x113;
+    screen->panels[0].unk3E = 0xBD;
+    screen->panels[1].state = 3;
+    screen->panels[1].duration = 10;
+    screen->panels[1].time = 10;
+    screen->panels[1].x = 0;
+    screen->panels[1].y = 0;
+    screen->panels[1].unk20 = 0x120;
+    screen->panels[1].unk22 = 0x50;
+    screen->panels[1].unk3C = 0x113;
+    screen->panels[1].unk3E = 0x26;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B314);
+void func_8009B314(CardScreen *screen, s32 side) {
+    screen->panels[side].state = 4;
+    screen->panels[side ^ 1].state = 0;
+    screen->panels[side].unk6 = 2;
+    screen->panels[side].duration = 10;
+    screen->panels[side].time = 10;
+    if (side == 0) {
+        screen->panels[0].x = 0;
+        screen->panels[0].y = 0xF1;
+    } else {
+        screen->panels[side].x = 0;
+        screen->panels[side].y = -100;
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B38C);
+void func_8009B38C(CardScreen *screen, s32 side) {
+    screen->panels[side].state = 5;
+    screen->panels[side ^ 1].state = 0;
+    screen->panels[side].duration = 5;
+    screen->panels[side].time = 5;
+    if (side == 0) {
+        screen->panels[0].x = 0;
+        screen->panels[0].y = 0x8D;
+    } else {
+        screen->panels[side].x = 0;
+        screen->panels[side].y = 0;
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B3F8);
+void func_8009B3F8(CardScreen *screen, s32 side) {
+    screen->panels[side].scaleState = 1;
+    screen->panels[side].scaleDuration = 12;
+    screen->panels[side].scaleTime = 12;
+    screen->panels[side].scale = 0;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B42C);
+void func_8009B42C(CardScreen *screen, s32 side) {
+    screen->panels[side].scaleState = 3;
+    screen->panels[side].scaleDuration = 6;
+    screen->panels[side].scaleTime = 6;
+    screen->panels[side].scale = 0x1000;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B464);
+s32 CARDGAME_addSprite(CardScreen *screen, s32 index, s32 x, s32 y) {
+    HEAP.zero(&screen->sprites[index], sizeof(CardSprite));
+    screen->sprites[index].visible = 1;
+    screen->sprites[index].state = 1;
+    screen->sprites[index].x = x;
+    screen->sprites[index].y = y;
+    screen->sprites[index].targetScaleX = 0x1000;
+    screen->sprites[index].scaleX = 0x1000;
+    screen->sprites[index].targetScaleY = 0x1000;
+    screen->sprites[index].scaleY = 0x1000;
+    screen->sprites[index].index = 0;
+    screen->sprites[index].card = 0;
+    screen->sprites[index].slot = index;
+    screen->sprites[index].unk43 = 0;
+    screen->sprites[index].unk44 = 0;
+    screen->sprites[index].unk47 = 0;
+    screen->sprites[index].unk49 = 0;
+    screen->sprites[index].moving = 0;
+    return 0;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B52C);
+s32 func_8009B52C(CardScreen *screen, s32 index) {
+    SOUND.playSound(0x8004613E);
+    screen->sprites[index].state = 4;
+    screen->sprites[index].time = 0;
+    screen->sprites[index].duration = 0;
+    screen->sprites[index].scaleX = 0x1000;
+    screen->sprites[index].scaleY = 0x1000;
+    screen->sprites[index].moving = 0;
+    return 0;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B5A8);
+s32 func_8009B5A8(CardScreen *screen, s32 index) {
+    SOUND.playSound(0x9C0003);
+    screen->sprites[index].state = 6;
+    screen->sprites[index].scaleX = 0x1000;
+    screen->sprites[index].scaleY = 0x1000;
+    screen->sprites[index].time = 0;
+    screen->sprites[index].duration = 0;
+    screen->sprites[index].unk47 = 1;
+    screen->sprites[index].moving = 0;
+    screen->sprites[index].startX = screen->sprites[index].x;
+    screen->sprites[index].startY = screen->sprites[index].y;
+    return 0;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B63C);
+s32 func_8009B63C(CardScreen *screen, s32 index) {
+    SOUND.playSound(0x9C0003);
+    screen->sprites[index].state = 7;
+    screen->sprites[index].time = 0;
+    screen->sprites[index].duration = 0;
+    screen->sprites[index].unk47 = 1;
+    screen->sprites[index].moving = 0;
+    screen->sprites[index].startX = screen->sprites[index].x;
+    screen->sprites[index].startY = screen->sprites[index].y;
+    return 0;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B6C4);
+s32 func_8009B6C4(CardScreen *screen, s32 index) {
+    SOUND.playSound(0x40014);
+    screen->sprites[index].state = 8;
+    screen->sprites[index].time = 0;
+    screen->sprites[index].duration = 0;
+    screen->sprites[index].unk47 = 2;
+    screen->sprites[index].moving = 0;
+    screen->sprites[index].startX = screen->sprites[index].x;
+    screen->sprites[index].startY = screen->sprites[index].y;
+    return 0;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B74C);
+s32 func_8009B74C(CardScreen *screen, s32 index, s32 arg2) {
+    switch (arg2) {
+    case 0:
+    default:
+        screen->sprites[index].state = 9;
+        screen->sprites[index].unk47 = 3;
+        break;
+    case 1:
+        screen->sprites[index].unk47 = 4;
+        screen->sprites[index].state = 10;
+        break;
+    }
+    screen->sprites[index].time = 0;
+    screen->sprites[index].duration = 0;
+    screen->sprites[index].moving = 0;
+    screen->sprites[index].startX = screen->sprites[index].x;
+    screen->sprites[index].startY = screen->sprites[index].y;
+    return 0;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B7EC);
+s32 CARDGAME_setSpriteScaleTarget(CardScreen *screen, s32 index, s32 duration, s32 scaleX, s32 scaleY, s32 instant) {
+    screen->sprites[index].targetScaleX = scaleX;
+    screen->sprites[index].targetScaleY = scaleY;
+    screen->sprites[index].startScaleX = screen->sprites[index].scaleX;
+    screen->sprites[index].startScaleY = screen->sprites[index].scaleY;
+    if (instant != 1) {
+        screen->sprites[index].duration = duration;
+        screen->sprites[index].time = duration;
+        screen->sprites[index].state = 2;
+        screen->sprites[index].moving = 1;
+        screen->sprites[index].targetX = screen->sprites[index].x;
+        screen->sprites[index].targetY = screen->sprites[index].y;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B858);
+void CARDGAME_setSpriteScale(CardScreen *screen, s32 index, s32 scaleX, s32 scaleY) {
+    CARDGAME_setSpriteScaleTarget(screen, index, 0, scaleX, scaleY, 1);
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B88C);
+void CARDGAME_scaleSprite(CardScreen *screen, s32 index, s32 duration, s32 scaleX, s32 scaleY) {
+    CARDGAME_setSpriteScaleTarget(screen, index, duration, scaleX, scaleY, 0);
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B8B4);
+void CARDGAME_setSpriteMove(CardScreen *screen, s32 index, s32 duration, s32 x, s32 y) {
+    screen->sprites[index].targetX = x;
+    screen->sprites[index].duration = duration;
+    screen->sprites[index].time = duration;
+    screen->sprites[index].targetY = y;
+    screen->sprites[index].startX = screen->sprites[index].x;
+    screen->sprites[index].startY = screen->sprites[index].y;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B8F4);
+void func_8009B8F4(CardScreen *screen, s32 index, s32 duration, s32 x, s32 y) {
+    SOUND.playSound(0x8004603C);
+    screen->sprites[index].state = 2;
+    CARDGAME_setSpriteMove(screen, index, duration, x, y);
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B990);
+void func_8009B990(CardScreen *screen, s32 index, s32 duration, s32 x, s32 y) {
+    screen->sprites[index].state = 3;
+    CARDGAME_setSpriteMove(screen, index, duration, x, y);
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009B9D4);
+s32 func_8009B9D4(CardScreen *screen, s32 index, s32 duration, s32 x, s32 y) {
+    screen->sprites[index].state = 5;
+    screen->sprites[index].unk30 = 16;
+    screen->sprites[index].scaleX = 0x1000;
+    screen->sprites[index].scaleY = 0x1000;
+    screen->sprites[index].targetX = x;
+    screen->sprites[index].duration = duration;
+    screen->sprites[index].time = duration;
+    screen->sprites[index].targetY = y;
+    screen->sprites[index].startX = screen->sprites[index].x;
+    screen->sprites[index].startY = screen->sprites[index].y;
+    return 0;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009BA34);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009BBA0);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009BCF8);
+void CARDGAME_clearPanelFlags(CardScreen *screen) {
+    HEAP.zero(screen->panels[0].flags, sizeof(screen->panels[0].flags));
+    HEAP.zero(screen->panels[1].flags, sizeof(screen->panels[1].flags));
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009BD50);
+s32 CARDGAME_removeSprite(CardScreen *screen, s32 index) {
+    screen->sprites[index].state = 0;
+    screen->sprites[index].visible = 0;
+    screen->sprites[index].index = 0;
+    return 0;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009BD7C);
+s32 func_8009BD7C(CardScreen *screen, s32 index) {
+    SOUND.playSound(0x4001C);
+    screen->sprites[index].state = 11;
+    screen->sprites[index].duration = 0;
+    screen->sprites[index].time = 0;
+    return 0;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009BDE8);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009BEB4);
+u8 CARDGAME_getCardNumber(CardScreen *screen, s32 index) {
+    CardDrawer drawer;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009BF10);
+    initCardDrawer(&drawer);
+    drawer.setCard(screen->cards[index] + 1);
+    return drawer.card[0];
+}
+
+void CARDGAME_setSpriteCard(CardScreen *screen, s32 sprite, s32 index) {
+    CardDrawer drawer;
+
+    initCardDrawer(&drawer);
+    drawer.setCard(screen->cards[index] + 1);
+    screen->sprites[sprite].index = index;
+    screen->sprites[sprite].unk43 = drawer.card[1];
+    screen->sprites[sprite].unk44 = drawer.card[2];
+    screen->sprites[sprite].unk41 = drawer.card[5];
+    screen->sprites[sprite].card = drawer.card[0] - 1;
+    if (drawer.card[3] == 0x10) {
+        screen->sprites[sprite].isKind16 = 1;
+    } else {
+        screen->sprites[sprite].isKind16 = 0;
+    }
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009C004);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009C094);
+s16 func_8009C094(s32 index) {
+    return D_800A49D8[index];
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009C0B0);
 
@@ -1281,7 +1635,7 @@ u8 D_800A49CC[] = {
 u8 D_800A49D0[] = {
     0x00, 0x01, 0x02, 0x03, 0x02, 0x01, 0x00, 0x00,
 };
-u16 D_800A49D8[] = {
+s16 D_800A49D8[] = {
     0x003C, 0x003D, 0x003E, 0x0040, 0x0041, 0x0042, 0x0043, 0x0046,
     0x0047, 0x0048, 0x0049, 0x004A, 0x004B, 0x004C, 0x0067, 0x0068,
     0x0069, 0x006A, 0x006B, 0x006C, 0x006D, 0x006E, 0x0070, 0x0071,
