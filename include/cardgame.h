@@ -40,6 +40,15 @@ typedef struct CardSideEntry {
     /* 0x7 */ u8 unk7;
 } CardSideEntry;
 
+/* An entry of D_800A3CF8, read through func_800835C4 */
+typedef struct CardTableEntry {
+    /* 0x0 */ u8 unk0;
+    /* 0x1 */ u8 unk1;
+    /* 0x2 */ u8 unk2;
+    /* 0x3 */ u8 unk3;
+    /* 0x4 */ u8 unk4[40];
+} CardTableEntry;
+
 typedef struct CardBattle35C {
     /* 0x0 */ u8 unk0;
     /* 0x1 */ u8 unk1;
