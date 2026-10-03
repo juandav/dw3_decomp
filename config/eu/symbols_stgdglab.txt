@@ -8,6 +8,8 @@ func_8008A6A4_part = 0x8008B770; // type:label segment:stgdglab version-only
 func_8008B0A4_part = 0x8008BFA4; // type:label segment:stgdglab version-only
 func_8008B0A4_part2 = 0x8008C000; // type:label segment:stgdglab version-only
 
+STGDGLAB_funcs = 0x8008FD90; // size:0x20
+
 // names from the C of the modules this version builds (tools/version_symbols.py)
 func_800826E0 = 0x80082F48; // type:func
 func_800827D8 = 0x80083040; // type:func
@@ -96,8 +98,3 @@ D_8008F40C = 0x8008FBE8;
 D_8008F4CC = 0x8008FCA8;
 D_8008F58C = 0x8008FD68;
 D_8008F590 = 0x8008FD6C;
-D_8008F5B4 = 0x8008FD90;
-D_8008F5B8 = 0x8008FD94;
-D_8008F5BC = 0x8008FD98;
-D_8008F5C0 = 0x8008FD9C;
-D_8008F5CC = 0x8008FDA8;
