@@ -33,6 +33,30 @@ typedef struct ScreenFade {
     /* 0x64 */ void (*start)(); /* (fade, fadeIn, frames); state 2 when done */
 } ScreenFade;
 
+/* A vertical scroll bar, as the menu overlays (STSTATUS, STGDGLAB) draw one */
+typedef struct ScrollBar {
+    TASK_HEADER(ScrollBar);
+    /* 0x50 */ s32 layer;
+    /* 0x54 */ s32 depth;
+    /* 0x58 */ s32 x;
+    /* 0x5C */ s32 y;
+    /* 0x60 */ s32 width;
+    /* 0x64 */ s32 size; /* of the thumb, in fixed point */
+    /* 0x68 */ s32 hasCount;
+    /* 0x6C */ s32 pageSize;
+    /* 0x70 */ s32 count;
+    /* 0x74 */ s32 pos;
+    /* 0x78 */ s32 hasRange;
+    /* 0x7C */ s32 top;
+    /* 0x80 */ s32 bottom;
+    /* 0x84 */ s32 unk84;
+    /* 0x88 */ s32 posStep; /* fixed point */
+    /* 0x8C */ void (*setX)(struct ScrollBar *bar, s32 x, s32 width);
+    /* 0x90 */ void (*setRange)(struct ScrollBar *bar, s32 top, s32 bottom);
+    /* 0x94 */ void (*setCount)(struct ScrollBar *bar, s32 pageSize, s32 count);
+    /* 0x98 */ void (*setPos)(struct ScrollBar *bar, s32 pos);
+} ScrollBar;
+
 /*
  * The inn: pay INNS[inn].price per party member to restore HP, MP and
  * status, with a fade to black and a jingle. `step` is set when the money

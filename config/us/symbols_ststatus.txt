@@ -1,0 +1,25 @@
+// STSTATUS.PRO: the field menu's screens
+
+STSTATUS_funcs = 0x8009A8E4; // size:0x28
+STSTATUS_startFader = 0x800843FC; // type:func
+STSTATUS_drawFader = 0x80084484; // type:func
+STSTATUS_updateFader = 0x800845C8; // type:func
+STSTATUS_createFader = 0x8008467C; // type:func
+STSTATUS_setScrollBarX = 0x80098780; // type:func
+STSTATUS_setScrollBarRange = 0x8009878C; // type:func
+STSTATUS_setScrollBarCount = 0x800987A0; // type:func
+STSTATUS_setScrollBarPos = 0x800987B4; // type:func
+STSTATUS_updateScrollBar = 0x800987BC; // type:func
+STSTATUS_createScrollBar = 0x800989E8; // type:func
+STSTATUS_loadFiles = 0x80098ED0; // type:func
+STSTATUS_filesLoading = 0x80098FA0; // type:func
+STSTATUS_startFade = 0x80099070; // type:func
+STSTATUS_updateFade = 0x80099104; // type:func
+STSTATUS_startLerp = 0x80099170; // type:func
+STSTATUS_updateLerp = 0x80099204; // type:func
+STSTATUS_listItems = 0x80099298; // type:func
+STSTATUS_canEquip = 0x80099658; // type:func
+STSTATUS_equip = 0x800996FC; // type:func
+STSTATUS_isLateGame = 0x80099984; // type:func
+STSTATUS_getArea = 0x800999AC; // type:func
+STSTATUS_screens = 0x80099C9C; // size:0x38

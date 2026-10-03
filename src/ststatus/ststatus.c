@@ -1,8 +1,83 @@
-#include "common.h"
+#include "ststatus.h"
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80082CF0);
+Task *createFieldMenu(s32 layerId, s32 cursor);
+Task *func_80091318(FieldMenuScreen *menu, s32 extra);
+FieldMenuScreen *func_80098DE4(void);
+void func_80098BF8(FieldMenuScreen *menu, FieldMenuScreenChildren *children);
+void STSTATUS_loadFiles(void);
+s32 STSTATUS_filesLoading(void);
+void STSTATUS_startFade(PanelAnim *fade, s32 fadeIn);
+s32 STSTATUS_updateFade(PanelAnim *fade);
+void STSTATUS_startLerp(StatusLerp *lerp, s32 from, s32 to, s32 frames);
+s32 STSTATUS_updateLerp(StatusLerp *lerp);
+s32 *func_80099270(s32 list, s32 index);
+void STSTATUS_listItems(s32 list, u16 *out);
+s32 STSTATUS_canEquip(s32 partner, s32 slot, s32 item);
+void STSTATUS_equip(s32 partner, s32 slot, s32 item);
+s32 STSTATUS_isLateGame(void);
+s32 STSTATUS_getArea(void);
+void func_800999CC(s32 *out);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80082DEC);
+void func_80084204(StatusScreen *screen, void *children);
+void func_800859E0(StatusScreen *screen, void *children);
+void func_800911E4(StatusScreen0 *screen, void *children);
+void func_8009576C(StatusScreen *screen, void *children);
+void func_80097460(StatusScreen *screen, void *children);
+void func_8008DCF0(StatusScreen4 *screen, void *children);
+void func_8008AA00(StatusPanel4A *panel, void *children);
+void func_80087914(StatusPanel4B *panel, void *children);
+void func_80092974(StatusPanel0 *panel, void *children);
+void STSTATUS_startFader(ScreenFade *task, s32 fadeIn, s32 duration);
+void STSTATUS_updateFader(ScreenFade *task);
+void func_8008BA38(StatusScreen4 *screen);
+void func_8008E668(StatusScreen0 *screen, s32 arg);
+void func_8008E828(StatusScreen0 *screen, s32 arg);
+ScreenFade *STSTATUS_createFader(void);
+StatusPanel4B *func_800879C8(StatusScreen4 *screen);
+StatusPanel4A *func_8008AB04(StatusScreen4 *screen);
+StatusPanel0 *func_80092B0C(StatusScreen0 *screen, s32 list, s32 arg2);
+void STSTATUS_drawFader(ScreenFade *task);
+void func_80085BD8(StatusPanel4B *panel, void *children);
+void func_80086B28(StatusPanel4B *panel, void *children);
+void func_800864B0(StatusPanel4B *panel);
+s32 func_8009930C(u16 *out);
+s32 func_800994D0(s32 list, u16 *out);
+extern s32 FIELD_MENU_CHOICE[2];
+extern s32 D_80099BA4[];
+extern Task *(*STSTATUS_screens[2][7])(FieldMenuScreen *menu, s32 extra);
+extern s32 *D_8009A254[][5];
+extern u8 D_8009A910[];
+extern StatusAreaFuncs D_8009AA00;
+
+void func_80082CF0(Task *task, Task **children) {
+    RECT rect;
+    Layer *layer;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        GFX.funcs.reset();
+        GFX.funcs.allocPrimBuffers(0x14000);
+        GFX.funcs.setDisplayMode(0x140, 0xF0, 0, 0);
+        rect.x = 0;
+        rect.y = 0;
+        rect.w = 0x140;
+        rect.h = 0xF0;
+        layer = GFX.funcs.createLayer(&rect, 3, 0x1000);
+        layer->setBgColor(layer, 0, 0, 0);
+        children[0] = (Task *)func_80098DE4();
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
+
+Task *func_80082DEC(void) {
+    return createTask(func_80082CF0, sizeof(Task), 4);
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80082E18);
 
@@ -16,15 +91,86 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800839B0);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80084204);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800843B4);
+Task *func_800843B4(FieldMenuScreen *menu, s32 extra) {
+    StatusScreen *screen = createTask(func_80084204, 0xD4, 0xA0);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800843FC);
+    screen->layer = 0x1000;
+    screen->depth = 6;
+    screen->menu = menu;
+    return (Task *)screen;
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80084484);
+void STSTATUS_startFader(ScreenFade *task, s32 fadeIn, s32 duration) {
+    task->setState(task, TASK_RUN);
+    task->substate = 1;
+    task->fadeIn = fadeIn;
+    if (fadeIn == 0) {
+        task->level = 0;
+        task->levelStep = 0xFF00 / duration;
+    } else {
+        task->level = 0xFF00;
+        task->levelStep = -(0xFF00 / duration);
+    }
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800845C8);
+void STSTATUS_drawFader(ScreenFade *task) {
+    Layer *layer = GFX.funcs.getLayer(task->layerId);
+    u_long *ot = (u_long *)layer->getOtEntry(layer, task->depth);
+    POLY_F4 *poly = GFX.funcs.getPrim();
+    DR_TPAGE *mode;
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008467C);
+    setlen(poly, 5);
+    poly->code = 0x2A;
+    poly->r0 = poly->g0 = poly->b0 = task->level >> 8;
+    poly->x0 = poly->x2 = 0;
+    poly->x1 = poly->x3 = 320;
+    poly->y0 = poly->y1 = 0;
+    poly->y2 = poly->y3 = 256;
+    addPrim(ot, poly);
+    mode = (DR_TPAGE *)(poly + 1);
+    setlen(mode, 1);
+    mode->code[0] = 0xE1000245;
+    addPrim(ot, mode);
+    GFX.funcs.setPrim(mode + 1);
+}
+
+void STSTATUS_updateFader(ScreenFade *task) {
+    switch (task->state) {
+    case 0:
+    default:
+        task->nextState(task);
+        break;
+    case 1:
+        if (task->substate == 0) {
+            break;
+        }
+        task->level += task->levelStep;
+        if (task->fadeIn == 0) {
+            if (task->level > 0xFF00) {
+                task->level = 0xFF00;
+                task->state = 2;
+            }
+        } else if (task->level < 0) {
+            task->level = 0;
+            task->state = 2;
+        }
+        /* fallthrough */
+    case 2:
+        STSTATUS_drawFader(task);
+        break;
+    case 3:
+        break;
+    }
+}
+
+ScreenFade *STSTATUS_createFader(void) {
+    ScreenFade *task = createTask(STSTATUS_updateFader, sizeof(ScreenFade), 0);
+
+    task->start = STSTATUS_startFader;
+    task->layerId = 0x1000;
+    task->depth = 0;
+    return task;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800846C0);
 
@@ -38,7 +184,14 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800852B8);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800859E0);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80085B90);
+Task *func_80085B90(FieldMenuScreen *menu, s32 extra) {
+    StatusScreen *screen = createTask(func_800859E0, 0xD4, 0x9C);
+
+    screen->layer = 0x1000;
+    screen->depth = 6;
+    screen->menu = menu;
+    return (Task *)screen;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80085BD8);
 
@@ -54,9 +207,39 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800864B0);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80086B28);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80087914);
+void func_80087914(StatusPanel4B *panel, void *children) {
+    switch (panel->state) {
+    case TASK_INIT:
+    default:
+        panel->nextState(panel);
+        panel->unk6C = 0;
+        func_80085BD8(panel, children);
+        panel->panels[3].duration = 10;
+        panel->panels[1].duration = 10;
+        panel->panels[2].duration = 10;
+        panel->panels[0].duration = 10;
+        break;
+    case TASK_RUN:
+        func_80086B28(panel, children);
+        func_800864B0(panel);
+        break;
+    case TASK_KILL:
+        panel->screen->unk70 = 0;
+        /* fallthrough */
+    case TASK_DONE:
+        break;
+    }
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800879C8);
+StatusPanel4B *func_800879C8(StatusScreen4 *screen) {
+    StatusPanel4B *panel = createTask(func_80087914, sizeof(StatusPanel4B), 0xA4);
+
+    panel->layer = 0x1000;
+    panel->depth = 4;
+    panel->screen = screen;
+    panel->partner = GAME_FUNCS.getPartyMember(screen->member);
+    return panel;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80087A3C);
 
@@ -76,7 +259,15 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008927C);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AA00);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AB04);
+StatusPanel4A *func_8008AB04(StatusScreen4 *screen) {
+    StatusPanel4A *panel = createTask(func_8008AA00, sizeof(StatusPanel4A), 0x90);
+
+    panel->layer = 0x1000;
+    panel->depth = 6;
+    panel->screen = screen;
+    panel->member = screen->member;
+    return panel;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AB58);
 
@@ -84,7 +275,19 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AF7C);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B1B8);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B38C);
+void func_8008B38C(StatusPanel4A *panel, StatusPanel4AWindows *windows, s32 show) {
+    s32 i;
+
+    if (show != 0) {
+        for (i = 0; i < 2; i++) {
+            windows->labels[i]->setString(windows->labels[i], FILE_CACHE.load(TEXT_FILE(0xB1)), i + 0x2D);
+        }
+    } else {
+        for (i = 0; i < 2; i++) {
+            windows->labels[i]->setVisible(windows->labels[i], 0);
+        }
+    }
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B440);
 
@@ -102,13 +305,30 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008D380);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008DCF0);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008DEA4);
+Task *func_8008DEA4(FieldMenuScreen *menu, s32 extra) {
+    StatusScreen4 *screen = createTask(func_8008DCF0, sizeof(StatusScreen4), 0x110);
+
+    screen->func_8008BA38 = func_8008BA38;
+    screen->layer = 0x1000;
+    screen->depth = 6;
+    screen->menu = menu;
+    return (Task *)screen;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008DEF8);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008E2B0);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008E4EC);
+void func_8008E4EC(StatusScreen0 *screen, StatusScreen0Windows *windows, s32 show) {
+    if (show != 0) {
+        windows->moneyLabel->setString(windows->moneyLabel, FILE_CACHE.load(TEXT_FILE(0xB1)), 5);
+        windows->money->setNumber(windows->money, 0, GAME.money);
+        windows->money->setRightAlign(windows->money, 1);
+    } else {
+        windows->moneyLabel->setVisible(windows->moneyLabel, 0);
+        windows->money->setVisible(windows->money, 0);
+    }
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008E59C);
 
@@ -116,9 +336,19 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008E668);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008E828);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008EA38);
+void func_8008EA38(StatusScreen0 *screen, s32 show) {
+    if (show != 0) {
+        STSTATUS_funcs.startFade(&screen->fade, 1);
+        return;
+    }
+    STSTATUS_funcs.startFade(&screen->fade, 0);
+    func_8008E668(screen, 0);
+    func_8008E828(screen, 0);
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008EAAC);
+s32 func_8008EAAC(StatusScreen0 *screen) {
+    return STSTATUS_funcs.updateFade(&screen->fade) != 0;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008EAD4);
 
@@ -128,7 +358,14 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008F7A0);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800911E4);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80091318);
+Task *func_80091318(FieldMenuScreen *menu, s32 extra) {
+    StatusScreen0 *screen = createTask(func_800911E4, sizeof(StatusScreen0), 0xD4);
+
+    screen->layer = 0x1000;
+    screen->depth = 6;
+    screen->menu = menu;
+    return (Task *)screen;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80091360);
 
@@ -144,9 +381,31 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092440);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092974);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092B0C);
+StatusPanel0 *func_80092B0C(StatusScreen0 *screen, s32 list, s32 arg2) {
+    StatusPanel0 *panel = createTask(func_80092974, sizeof(StatusPanel0), 0x6C);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092B80);
+    panel->layer = 0x1000;
+    panel->depth = 3;
+    panel->screen = screen;
+    if (arg2 != 0) {
+        panel->unk60 = arg2;
+    }
+    panel->list = list;
+    return panel;
+}
+
+void func_80092B80(StatusPanel0 *panel) {
+    s32 i;
+
+    if (panel->list == 0) {
+        panel->count = ITEM_FUNCS->list(D_80099BA4[0], panel->bag);
+        for (i = 0; i < panel->count; i++) {
+            panel->items[i] = panel->bag[i];
+        }
+    } else {
+        panel->count = ITEM_FUNCS->list(D_80099BA4[panel->list], panel->items);
+    }
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092C38);
 
@@ -170,7 +429,14 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009440C);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009576C);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80095934);
+Task *func_80095934(FieldMenuScreen *menu, s32 extra) {
+    StatusScreen *screen = createTask(func_8009576C, 0x1F4, 0xB4);
+
+    screen->layer = 0x1000;
+    screen->depth = 6;
+    screen->menu = menu;
+    return (Task *)screen;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009597C);
 
@@ -182,7 +448,14 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80096830);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80097460);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800975FC);
+Task *func_800975FC(FieldMenuScreen *menu, s32 extra) {
+    StatusScreen *screen = createTask(func_80097460, 0xF4, 0x8C);
+
+    screen->layer = 0x1000;
+    screen->depth = 2;
+    screen->menu = menu;
+    return (Task *)screen;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80097644);
 
@@ -196,63 +469,372 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800984A4);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009868C);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80098780);
+void STSTATUS_setScrollBarX(ScrollBar *bar, s32 x, s32 width) {
+    bar->x = x;
+    bar->width = width;
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009878C);
+void STSTATUS_setScrollBarRange(ScrollBar *bar, s32 top, s32 bottom) {
+    bar->top = top;
+    bar->bottom = bottom;
+    bar->hasRange = 1;
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800987A0);
+void STSTATUS_setScrollBarCount(ScrollBar *bar, s32 pageSize, s32 count) {
+    bar->pageSize = pageSize;
+    bar->count = count;
+    bar->hasCount = 1;
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800987B4);
+void STSTATUS_setScrollBarPos(ScrollBar *bar, s32 pos) {
+    bar->pos = pos;
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800987BC);
+void STSTATUS_updateScrollBar(ScrollBar *bar) {
+    Layer *layer;
+    u_long *ot;
+    POLY_F4 *poly;
+    s32 range;
+#if VERSION_US
+    s32 pages;
+#endif
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800989E8);
+    switch (bar->state) {
+    case TASK_INIT:
+    default:
+        if (bar->hasRange != 0 && bar->hasCount != 0) {
+#if VERSION_US
+            bar->nextState(bar);
+            pages = bar->count / bar->pageSize + (bar->count % bar->pageSize != 0);
+            range = (bar->bottom - bar->top) << 8;
+            bar->size = range / pages;
+            bar->posStep = range / bar->count;
+#elif VERSION_EU
+            /* the European version sizes the thumb for the visible items */
+            range = (bar->bottom - bar->top) << 8;
+            bar->size = range / bar->count * bar->pageSize;
+            bar->posStep = range / bar->count;
+            bar->nextState(bar);
+#endif
+        }
+        break;
+    case TASK_RUN:
+        layer = GFX.funcs.getLayer(bar->layer);
+        ot = (u_long *)layer->getOtEntry(layer, bar->depth);
+        poly = GFX.funcs.getPrim();
+        if (bar->pos < bar->count - 1) {
+            bar->y = bar->top + ((bar->pos * bar->posStep) >> 8);
+            if (bar->bottom - (bar->size >> 8) < bar->y) {
+                bar->y = bar->bottom - (bar->size >> 8);
+            }
+        } else {
+            bar->y = bar->bottom - (bar->size >> 8);
+        }
+        setlen(poly, 5);
+        poly->code = 0x28;
+        poly->r0 = poly->g0 = poly->b0 = 0xFF;
+        poly->x0 = poly->x2 = bar->x;
+        poly->x1 = poly->x3 = bar->x + bar->width;
+        poly->y0 = poly->y1 = bar->y;
+        poly->y2 = poly->y3 = bar->y + (bar->size >> 8);
+        addPrim(ot, poly);
+        GFX.funcs.setPrim(poly + 1);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80098A50);
+ScrollBar *STSTATUS_createScrollBar(void) {
+    ScrollBar *bar = createTask(STSTATUS_updateScrollBar, sizeof(ScrollBar), 0);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80098B38);
+    bar->setX = STSTATUS_setScrollBarX;
+    bar->setRange = STSTATUS_setScrollBarRange;
+    bar->setCount = STSTATUS_setScrollBarCount;
+    bar->setPos = STSTATUS_setScrollBarPos;
+    bar->layer = 0x1000;
+    bar->depth = 0;
+    return bar;
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80098BF8);
+void func_80098A50(FieldMenuScreen *menu, FieldMenuScreenChildren *children) {
+    Task *(*open)(FieldMenuScreen *, s32);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80098DE4);
+    switch (menu->substate) {
+    case 0:
+    default:
+        open = STSTATUS_screens[FIELD_MENU_CHOICE[1]][FIELD_MENU_CHOICE[0]];
+        if (open != NULL) {
+            children->screen = open(menu, FIELD_MENU_CHOICE[1]);
+        } else {
+            children->screen = func_80091318(menu, FIELD_MENU_CHOICE[1]);
+        }
+        menu->substate++;
+        break;
+    case 1:
+        if (children->screen == NULL) {
+            children->fieldMenu = createFieldMenu(menu->layer, FIELD_MENU_CHOICE[0]);
+            menu->setState(menu, 2);
+        }
+        break;
+    }
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80098ED0);
+void func_80098B38(FieldMenuScreen *menu) {
+    SpriteDrawer sprite;
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80098FA0);
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(menu->layer, 7);
+    sprite.setTexture(0x280, 0x100);
+    if (menu->blinkSkip != 0) {
+        menu->blinkPos++;
+        menu->blinkPos = menu->blinkPos < 0x60 ? menu->blinkPos : 0;
+        menu->blinkSkip = 0;
+    } else {
+        menu->blinkSkip = 1;
+    }
+    sprite.draw(FILE_CACHE.getEntry(FILE_STATUS_SPRITES << 16), 0x1D, menu->blinkPos, menu->blinkPos);
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80099070);
+void func_80098BF8(FieldMenuScreen *menu, FieldMenuScreenChildren *children) {
+    TimLoader loader;
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80099104);
+    switch (menu->state) {
+    case TASK_INIT:
+    default:
+        switch (menu->substate) {
+        case 0:
+        default:
+            STSTATUS_funcs.loadFiles();
+            menu->substate++;
+            break;
+        case 1:
+            if (STSTATUS_funcs.filesLoading() == 0 && FILE_CACHE.isLoading(menu->bgFile) == 0 &&
+                FILE_CACHE.isLoading(menu->bgFile2) == 0) {
+                initTimLoader(&loader);
+                loader.setImagePos(0x380, 0x100);
+                loader.loadArchive(FILE_CACHE.getEntry(menu->bgArchive1));
+                loader.setImagePos(0x300, 0x100);
+                loader.loadArchive(FILE_CACHE.getEntry(menu->bgArchive2));
+                loader.setImagePos(0x280, 0);
+                loader.setClutPos(0x140, 0x100);
+                loader.loadArchive(FILE_CACHE.getEntry(menu->bgArchive));
+                menu->nextState(menu);
+            }
+            break;
+        }
+        break;
+    case TASK_RUN:
+        func_80098A50(menu, children);
+        func_80098B38(menu);
+        break;
+    case TASK_DONE:
+        if (children->fieldMenu == NULL) {
+            menu->state = TASK_RUN;
+        }
+        func_80098B38(menu);
+        break;
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80099170);
+FieldMenuScreen *func_80098DE4(void) {
+    FieldMenuScreen *menu = createTask(func_80098BF8, sizeof(FieldMenuScreen), sizeof(FieldMenuScreenChildren));
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80099204);
+    menu->layer = 0x1000;
+    menu->lateGame = D_8009AA00.isLateGame();
+    if (menu->lateGame == 0) {
+        menu->bgArchive = (FILE_STATUS_BG + 1) << 16;
+        menu->bgFile = FILE_STATUS_BG + 1;
+        menu->bgArchive1 = ((FILE_STATUS_BG + 1) << 16) + 1;
+        menu->bgArchive2 = ((FILE_STATUS_BG + 1) << 16) + 2;
+        menu->bgFile2 = FILE_STATUS_BG;
+    } else {
+        menu->bgArchive = (FILE_STATUS_BG + 3) << 16;
+        menu->bgFile = FILE_STATUS_BG + 3;
+        menu->bgArchive1 = ((FILE_STATUS_BG + 3) << 16) + 1;
+        menu->bgArchive2 = ((FILE_STATUS_BG + 3) << 16) + 2;
+        menu->bgFile2 = FILE_STATUS_BG + 2;
+    }
+    FILE_CACHE.request(menu->bgFile);
+    FILE_CACHE.request(menu->bgFile2);
+    return menu;
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80099270);
+void STSTATUS_loadFiles(void) {
+    TimLoader loader;
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80099298);
+    initTimLoader(&loader);
+    loader.setImagePos(0x280, 0x100);
+    loader.loadArchive(FILE_CACHE.getEntry((FILE_STATUS_SPRITES + 1) << 16));
+    FILE_CACHE.request(TEXT_FILE(0xB1));
+    FILE_CACHE.request(TEXT_FILE(0x6B));
+    FILE_CACHE.request(TEXT_FILE(0x64));
+    FILE_CACHE.request(TEXT_FILE(0x4F));
+    FILE_CACHE.request(TEXT_FILE(0x48));
+    FILE_CACHE.request(TEXT_FILE(0xA3));
+    FILE_CACHE.request(TEXT_FILE(0x9C));
+}
+
+s32 STSTATUS_filesLoading(void) {
+    if (FILE_CACHE.isLoading(TEXT_FILE(0xB1)) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x6B)) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x64)) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x4F)) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x48)) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(TEXT_FILE(0xA3)) != 0) {
+        return 1;
+    }
+    return FILE_CACHE.isLoading(TEXT_FILE(0x9C)) != 0;
+}
+
+void STSTATUS_startFade(PanelAnim *fade, s32 fadeIn) {
+    fade->active = 1;
+    if (fadeIn != 0) {
+        SOUND.playSound(0x40019);
+        fade->level = 0;
+        fade->step = 0x1000 / fade->duration;
+    } else {
+        SOUND.playSound(0x4001A);
+        fade->level = 0x1000;
+        fade->step = -((0x1000 / fade->duration) * 2);
+    }
+}
+
+s32 STSTATUS_updateFade(PanelAnim *fade) {
+    if (fade->active == 0) {
+        return 1;
+    }
+    fade->level += fade->step;
+    if (fade->step > 0) {
+        if (fade->level > 0x1000) {
+            fade->level = 0x1000;
+            fade->active = 0;
+            return 1;
+        }
+    } else if (fade->level < 0) {
+        fade->level = 0;
+        fade->active = 0;
+        return 1;
+    }
+    return 0;
+}
+
+void STSTATUS_startLerp(StatusLerp *lerp, s32 from, s32 to, s32 frames) {
+    if (from != to) {
+        SOUND.playSound(0x40019);
+        lerp->duration = frames;
+        lerp->fixed = from << 8;
+        lerp->value = from;
+        lerp->target = to;
+        lerp->active = 1;
+        lerp->step = ((to - from) << 8) / lerp->duration;
+    }
+}
+
+s32 STSTATUS_updateLerp(StatusLerp *lerp) {
+    if (lerp->active == 0) {
+        return 1;
+    }
+    lerp->fixed += lerp->step;
+    lerp->value = lerp->fixed >> 8;
+    if (lerp->step > 0) {
+        if (lerp->target < lerp->value) {
+            lerp->value = lerp->target;
+            lerp->active = 0;
+            return 1;
+        }
+    } else if (lerp->value < lerp->target) {
+        lerp->value = lerp->target;
+        lerp->active = 0;
+        return 1;
+    }
+    return 0;
+}
+
+s32 *func_80099270(s32 list, s32 index) {
+    return D_8009A254[list][index];
+}
+
+void STSTATUS_listItems(s32 list, u16 *out) {
+    if (list < 5) {
+        ITEM_FUNCS->list(list, out);
+        return;
+    }
+    switch (list) {
+    case 5:
+    default:
+        func_8009930C(out);
+        break;
+    case 6:
+        func_800994D0(4, out);
+        break;
+    case 7:
+        func_800994D0(5, out);
+        break;
+    }
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009930C);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800994D0);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80099658);
+INCLUDE_ASM("ststatus/nonmatchings/ststatus", STSTATUS_canEquip);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800996FC);
+INCLUDE_ASM("ststatus/nonmatchings/ststatus", STSTATUS_equip);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80099984);
+s32 STSTATUS_isLateGame(void) {
+    if (GAME.fieldMode >= 0x2D7) {
+        return -1;
+    }
+    return GAME.fieldMode >= 0x270;
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800999AC);
+s32 STSTATUS_getArea(void) {
+    return D_8009A910[(u8)GAME.fieldMode] & 0x7F;
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800999CC);
+void func_800999CC(s32 *out) {
+    s32 first;
+    s32 last;
+    s32 i;
+    s32 area;
+    s32 found;
 
-void func_80091318();
-void func_800975FC();
-void func_8009868C();
-void func_80095934();
-void func_8008DEA4();
-void func_80085B90();
-void func_800843B4();
+    if (STSTATUS_isLateGame() == 0) {
+        first = 0x200;
+        last = 0x26F;
+    } else {
+        first = 0x270;
+        last = 0x2D6;
+    }
+    for (i = first; i <= last; i++) {
+        area = D_8009A910[i & 0xFF] & 0x7F;
+        found = FLAGS_00.checkCondition((i & 0xFF) | 0x2000, 1);
+        if (found == 1) {
+            out[area] = found;
+        }
+    }
+}
+
+Task *func_800975FC(FieldMenuScreen *menu, s32 extra);
+Task *func_8009868C(FieldMenuScreen *menu, s32 extra);
+Task *func_80095934(FieldMenuScreen *menu, s32 extra);
+Task *func_8008DEA4(FieldMenuScreen *menu, s32 extra);
+Task *func_80085B90(FieldMenuScreen *menu, s32 extra);
+Task *func_800843B4(FieldMenuScreen *menu, s32 extra);
 extern s32 D_8009A160[];
 extern s32 D_8009A17C[];
 extern s32 D_8009A1AC[];
@@ -262,19 +844,6 @@ extern s32 D_80099CD4[];
 extern s32 D_80099DB4[];
 extern s32 D_80099E74[];
 extern s32 D_8009A0A8[];
-void func_80098ED0();
-void func_80098FA0();
-void func_80099070();
-void func_80099104();
-void func_80099170();
-void func_80099204();
-void func_80099270();
-void func_80099298();
-void func_80099658();
-void func_800996FC();
-void func_80099984();
-void func_800999AC();
-void func_800999CC();
 
 s32 D_80099A98[] = {
     0, 2, 3, 4,
@@ -352,11 +921,9 @@ s32 D_80099C78[] = {
 s32 D_80099C8C[] = {
     0, 1, 2, 1,
 };
-s32 D_80099C9C[] = {
-    (s32)func_80091318, (s32)func_800975FC, (s32)func_8009868C, (s32)func_80095934,
-    (s32)func_8008DEA4, (s32)func_80085B90, 0, (s32)func_80091318,
-    (s32)func_800975FC, (s32)func_8009868C, (s32)func_80095934, (s32)func_8008DEA4,
-    (s32)func_800843B4, (s32)func_80085B90,
+Task *(*STSTATUS_screens[2][7])(FieldMenuScreen *menu, s32 extra) = {
+    { func_80091318, func_800975FC, func_8009868C, func_80095934, func_8008DEA4, func_80085B90, NULL },
+    { func_80091318, func_800975FC, func_8009868C, func_80095934, func_8008DEA4, func_800843B4, func_80085B90 },
 };
 s32 D_80099CD4[] = {
     7, 8, 9, 10,
@@ -465,10 +1032,9 @@ s32 D_8009A1F4[] = {
     21, 22, 0,
 };
 s32 D_8009A250 = 0;
-s32 D_8009A254[] = {
-    (s32)D_8009A160, (s32)D_8009A17C, (s32)D_8009A1AC, (s32)D_8009A1AC,
-    (s32)D_8009A1F4, (s32)&D_8009A250, (s32)&D_8009A250, (s32)&D_8009A250,
-    (s32)D_8009A1AC, (s32)D_8009A1F4,
+s32 *D_8009A254[][5] = {
+    { D_8009A160, D_8009A17C, D_8009A1AC, D_8009A1AC, D_8009A1F4 },
+    { &D_8009A250, &D_8009A250, &D_8009A250, D_8009A1AC, D_8009A1F4 },
 };
 s32 D_8009A27C = (s32)D_80099CD4;
 s32 D_8009A280 = (s32)D_80099DB4;
@@ -579,17 +1145,9 @@ s32 D_8009A28C[] = {
     0, 0, 0, 0,
     0, 0,
 };
-s32 D_8009A8E4 = (s32)func_80098ED0;
-s32 D_8009A8E8 = (s32)func_80098FA0;
-s32 D_8009A8EC = (s32)func_80099070;
-s32 D_8009A8F0[] = {
-    (s32)func_80099104, (s32)func_80099170, (s32)func_80099204,
-};
-s32 D_8009A8FC[] = {
-    (s32)func_80099270, (s32)func_80099298,
-};
-s32 D_8009A904[] = {
-    (s32)func_80099658, (s32)func_800996FC,
+StatusFuncs STSTATUS_funcs = {
+    STSTATUS_loadFiles, STSTATUS_filesLoading, STSTATUS_startFade, STSTATUS_updateFade, STSTATUS_startLerp,
+    STSTATUS_updateLerp, func_80099270, STSTATUS_listItems, STSTATUS_canEquip, STSTATUS_equip,
 };
 u8 D_8009A90C[] = {
     0x01, 0x02, 0x03, 0x07,
@@ -626,6 +1184,8 @@ u8 D_8009A910[] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
 };
-s32 D_8009AA00[] = {
-    (s32)func_80099984, (s32)func_800999AC, (s32)func_800999CC,
+StatusAreaFuncs D_8009AA00 = {
+    STSTATUS_isLateGame,
+    STSTATUS_getArea,
+    func_800999CC,
 };

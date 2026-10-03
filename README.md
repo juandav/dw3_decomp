@@ -83,7 +83,7 @@ above counts them: fake matches, then the other two kinds together.
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 3 | `/* unused, but it is in the original stack frame */` |
 | Form-dependent matches | 1 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 1,975 | `INCLUDE_ASM` |
+| Functions still in assembly | 1840 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -133,12 +133,12 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `STDGNAME` | `0x80082448` | 29 / 32 | a name entry screen, a keyboard of character pages |
 | `STDWTITL` | `0x80082448` | 65 / 93 | the title screen, the opening movies and a notice screen |
 | `STFGTREP` | `0x80082448` | 0 / 36 | not identified yet |
-| `STGDGLAB` | `0x80082448` | 0 / 70 | not identified yet |
+| `STGDGLAB` | `0x80082448` | 44 / 70 | the partners' digivolutions, it seems: a menu of three screens that checks the requirements of `STGDGLAB_tables` against a partner's entries and sets its three slots |
 | `STGMCARD` | `0x80082448` | 0 / 45 | not identified yet |
 | `STGTRAIN` | `0x80082448` | 3 / 94 | not identified yet |
-| `STITSHOP` | `0x80082448` | 0 / 69 | not identified yet |
+| `STITSHOP` | `0x80082448` | 50 / 69 | the item shop, where the player buys and sells items and equips what was bought on a partner |
 | `STPLNMET` | `0x80082448` | 0 / 53 | not identified yet |
-| `STSTATUS` | `0x80082448` | 0 / 123 | not identified yet |
+| `STSTATUS` | `0x80082448` | 42 / 123 | the screens the field menu opens (`STSTATUS_screens`), such as the item list and the equipment |
 | `WFIGHTMN` | `0x800A4CA4` | 0 / 42 | not identified yet |
 | `WFIGHTTS` | `0x800A4CA4` | 0 / 14 | not identified yet |
 | `WSTAG###` (238) | `0x800A4CA4` | 815 / 1,374 | the stages: small programs that load on top of `FIELDSTG` and call into it |

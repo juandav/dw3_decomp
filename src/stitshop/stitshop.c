@@ -1,46 +1,294 @@
-#include "common.h"
+#include "stitshop.h"
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800829B4);
+Cursor *createCursor(s16 layerId, s32 depth, s16 x, s16 y);
+void func_800830DC(ShopBuy *buy, ShopBuyWindows *win);
+void func_8008361C(ShopBuy *buy, ShopBuyWindows *win);
+void func_80085254(ShopSell *sell, ShopSellWindows *win);
+void func_80085684(ShopSell *sell, ShopSellWindows *win);
+void func_80086CE4(ShopItemList *list, void *win, s32 arg);
+void func_800875AC();
+void func_80087D5C(ShopItemList *list, s32 frozen);
+void func_80087E00(ShopItemList *list, s32 visible);
+void STITSHOP_listSellable(ShopItemList *list);
+void func_80088960(ShopInfo *info, void *win, s32 arg);
+void func_800894EC(ShopInfo *info, void *win, s32 arg);
+void func_80089774(ShopInfo *info, void *win, s32 arg);
+void func_8008988C(ShopInfo *info, void *win, s32 arg);
+void func_8008A5E8();
+void func_800884A4(s16 *p, s32 stat, s32 delta);
+void func_8008AF88(ItemShop *shop, ItemShopWindows *win);
+extern s32 D_8008C114[];
+extern s32 D_8008C16C[];
+ItemShop *STITSHOP_createShop(void);
+void STITSHOP_updateShop();
+void STITSHOP_loadFiles(void);
+s32 STITSHOP_filesLoading(void);
+void STITSHOP_startFade(PanelAnim *fade, s32 fadeIn);
+s32 STITSHOP_updateFade(PanelAnim *fade);
+void STITSHOP_startLerp(ShopLerp *lerp, s32 from, s32 to, s32 frames);
+s32 STITSHOP_updateLerp(ShopLerp *lerp);
+u16 *STITSHOP_getShopItems(s32 shop);
+s32 STITSHOP_canEquip(s32 partner, s32 item);
+s32 func_8008BB3C(s32 partner, s32 item);
+void func_8008BE2C(s32 partner, s32 slot, s32 item, s32 fromBag);
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082AB0);
+void func_800829B4(Task *task, Task **children) {
+    RECT rect;
+    Layer *layer;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082ADC);
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        GFX.funcs.reset();
+        GFX.funcs.allocPrimBuffers(0x14000);
+        GFX.funcs.setDisplayMode(0x140, 0xF0, 0, 0);
+        rect.x = 0;
+        rect.y = 0;
+        rect.w = 0x140;
+        rect.h = 0xF0;
+        layer = GFX.funcs.createLayer(&rect, 3, 0x1000);
+        layer->setBgColor(layer, 0, 0, 0);
+        children[0] = (Task *)STITSHOP_createShop();
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082B64);
+Task *func_80082AB0(void) {
+    return createTask(func_800829B4, sizeof(Task), 4);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082CA8);
+void STITSHOP_startFader(ScreenFade *task, s32 fadeIn, s32 duration) {
+    task->setState(task, TASK_RUN);
+    task->substate = 1;
+    task->fadeIn = fadeIn;
+    if (fadeIn == 0) {
+        task->level = 0;
+        task->levelStep = 0xFF00 / duration;
+    } else {
+        task->level = 0xFF00;
+        task->levelStep = -(0xFF00 / duration);
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082D5C);
+void STITSHOP_drawFader(ScreenFade *task) {
+    Layer *layer = GFX.funcs.getLayer(task->layerId);
+    u_long *ot = (u_long *)layer->getOtEntry(layer, task->depth);
+    POLY_F4 *poly = GFX.funcs.getPrim();
+    DR_TPAGE *mode;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082DA4);
+    setlen(poly, 5);
+    poly->code = 0x2A;
+    poly->r0 = poly->g0 = poly->b0 = task->level >> 8;
+    poly->x0 = poly->x2 = 0;
+    poly->x1 = poly->x3 = 320;
+    poly->y0 = poly->y1 = 0;
+    poly->y2 = poly->y3 = 256;
+    addPrim(ot, poly);
+    mode = (DR_TPAGE *)(poly + 1);
+    setlen(mode, 1);
+    mode->code[0] = 0xE1000245;
+    addPrim(ot, mode);
+    GFX.funcs.setPrim(mode + 1);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082E90);
+void STITSHOP_updateFader(ScreenFade *task) {
+    switch (task->state) {
+    case 0:
+    default:
+        task->nextState(task);
+        break;
+    case 1:
+        if (task->substate == 0) {
+            break;
+        }
+        task->level += task->levelStep;
+        if (task->fadeIn == 0) {
+            if (task->level > 0xFF00) {
+                task->level = 0xFF00;
+                task->state = 2;
+            }
+        } else if (task->level < 0) {
+            task->level = 0;
+            task->state = 2;
+        }
+        /* fallthrough */
+    case 2:
+        STITSHOP_drawFader(task);
+        break;
+    case 3:
+        break;
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082F94);
+ScreenFade *STITSHOP_createFader(void) {
+    ScreenFade *task = createTask(STITSHOP_updateFader, sizeof(ScreenFade), 0);
+
+    task->start = STITSHOP_startFader;
+    task->layerId = 0x1000;
+    task->depth = 6;
+    return task;
+}
+
+void func_80082DA4(ShopBuy *buy, ShopBuyWindows *win) {
+    win->quantityLabel = createTextWindow(buy->layer, 1, 0xB9, 0x3A);
+    win->times = createTextWindow(buy->layer, 1, 0x103, 0x54);
+    win->quantity = createTextWindow(buy->layer, 1, 0x11E, 0x54);
+    win->total = createTextWindow(buy->layer, 1, 0x9A, 0x2C);
+    win->yes = createTextWindow(buy->layer, 1, 0xC5, 0x49);
+    win->no = createTextWindow(buy->layer, 1, 0xC5, 0x59);
+    win->cursor = createCursor(buy->layer, buy->depth - 1, 0xB8, 0x49);
+    win->cursor->setVisible(win->cursor, 0);
+}
+
+void func_80082E90(ShopBuy *buy, ShopBuyWindows *win, s32 show) {
+    if (show) {
+        win->quantityLabel->setString(win->quantityLabel, FILE_CACHE.load(TEXT_FILE(0x72)), 0x11);
+        win->times->setString(win->times, FILE_CACHE.load(TEXT_FILE(0x72)), 8);
+        win->quantity->setNumber(win->quantity, 0, buy->quantity);
+        win->quantity->setRightAlign(win->quantity, 1);
+    } else {
+        win->quantityLabel->setVisible(win->quantityLabel, 0);
+        win->times->setVisible(win->times, 0);
+        win->quantity->setVisible(win->quantity, 0);
+    }
+}
+
+void func_80082F94(ShopBuy *buy, ShopBuyWindows *win, s32 show) {
+    if (show) {
+        win->total->setString(win->total, FILE_CACHE.load(TEXT_FILE(0x72)), 0x12);
+        win->total->setNumber(win->total, 1, GET_ITEM[0](buy->item)->price * buy->quantity);
+        win->yes->setString(win->yes, FILE_CACHE.load(TEXT_FILE(0x72)), 0x13);
+        win->no->setString(win->no, FILE_CACHE.load(TEXT_FILE(0x72)), 0x14);
+    } else {
+        win->total->setVisible(win->total, 0);
+        win->yes->setVisible(win->yes, 0);
+        win->no->setVisible(win->no, 0);
+    }
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800830DC);
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008361C);
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80084FCC);
+void STITSHOP_updateBuy(ShopBuy *buy, ShopBuyWindows *win) {
+    switch (buy->state) {
+    case TASK_INIT:
+    default:
+        buy->nextState(buy);
+        func_80082DA4(buy, win);
+        buy->panels[0].duration = 10;
+        buy->panels[1].duration = 10;
+        buy->panels[2].duration = 10;
+        buy->panels[3].duration = 10;
+        buy->quantity = 1;
+        break;
+    case TASK_RUN:
+        func_8008361C(buy, win);
+        func_800830DC(buy, win);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80085070);
+void func_80085070(ShopBuy *buy, s32 item, s32 arg) {
+    ShopBuyWindows *win = buy->children;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800850A8);
+    win->info->showItem(win->info, item, arg);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800850FC);
+ShopBuy *STITSHOP_createBuy(ItemShop *shop) {
+    ShopBuy *buy = createTask(STITSHOP_updateBuy, sizeof(ShopBuy), sizeof(ShopBuyWindows));
+
+    buy->showItem = func_80085070;
+    buy->layer = 0x1000;
+    buy->depth = 4;
+    buy->shop = shop;
+    return buy;
+}
+
+void func_800850FC(ShopSell *sell, ShopSellWindows *win) {
+    s32 i;
+
+    win->cursor = createCursor(sell->layer, sell->depth - 1, 0, 0xB0);
+    win->cursor->setVisible(win->cursor, 0);
+    for (i = 0; i < 4; i++) {
+        win->types[i] = createTextWindow(sell->layer, 1, 0xBE, i * 0xE + 0x2F);
+    }
+    win->quantityLabel = createTextWindow(sell->layer, 1, 0xB9, 0x3A);
+    win->times = createTextWindow(sell->layer, 1, 0x103, 0x54);
+    win->quantity = createTextWindow(sell->layer, 1, 0x11E, 0x54);
+    win->unk28 = createTextWindow(sell->layer, 1, 0x9A, 0x2C);
+    win->total = createTextWindow(sell->layer, 1, 0xC5, 0x49);
+    win->unk30 = createTextWindow(sell->layer, 1, 0xC5, 0x59);
+    win->unk34 = createTextWindow(sell->layer, 1, 0x9A, 0x8A);
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80085254);
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80085684);
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800869F8);
+void STITSHOP_updateSell(ShopSell *sell, ShopSellWindows *win) {
+    switch (sell->state) {
+    case TASK_INIT:
+    default:
+        sell->nextState(sell);
+        func_800850FC(sell, win);
+        sell->panels[0].duration = 10;
+        sell->panels[1].duration = 10;
+        sell->panels[2].duration = 10;
+        sell->panels[3].duration = 10;
+        sell->panels[4].duration = 10;
+        sell->quantity = 1;
+        break;
+    case TASK_RUN:
+        func_80085684(sell, win);
+        func_80085254(sell, win);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80086AA0);
+void func_80086AA0(ShopSell *sell, s32 item, s32 arg) {
+    ShopSellWindows *win = sell->children;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80086AD8);
+    win->info->showItem(win->info, item, arg);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80086B2C);
+ShopSell *STITSHOP_createSell(ItemShop *shop) {
+    ShopSell *sell = createTask(STITSHOP_updateSell, sizeof(ShopSell), sizeof(ShopSellWindows));
+
+    sell->showItem = func_80086AA0;
+    sell->layer = 0x1000;
+    sell->depth = 4;
+    sell->shop = shop;
+    return sell;
+}
+
+void func_80086B2C(ShopItemList *list, ShopItemListWindows *win) {
+    s32 i;
+    s32 y = list->selling * 0x28;
+
+    for (i = 0; i < 14; i++) {
+        win->items[i] = createTextWindow(list->layer, 1, (i % 2) * 0x83 + 0x37, (i / 2) * 0xE + 0x24);
+        win->items[i]->setDepth(win->items[i], list->depth - 1);
+    }
+    win->unk38 = createTextWindow(list->layer, 1, 0x9B, y + 0x60);
+    win->unk3C = createTextWindow(list->layer, 1, 0x9C, y + 0x60);
+    win->unk40 = createTextWindow(list->layer, 1, 0xB0, y + 0x60);
+    win->unk44 = createTextWindow(list->layer, 1, 0x2D, y + 0x5C + list->selling * 2);
+    win->unk48 = createTextWindow(list->layer, 1, 0x102, y + 0x5C + list->selling * 2);
+    win->cursor = createCursor(list->layer, list->depth - 1, 0x1D, 0x24);
+    win->cursor->setVisible(win->cursor, 0);
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80086CE4);
 
@@ -50,31 +298,265 @@ INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800873E8);
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800875AC);
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087D5C);
+void func_80087D5C(ShopItemList *list, s32 frozen) {
+    ShopItemListWindows *win = list->children;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087E00);
+    if (frozen) {
+        win->cursor->setPalette(win->cursor, 7);
+        win->cursor->setStill(win->cursor, 1);
+        list->active = 0;
+    } else {
+        win->cursor->setPalette(win->cursor, 0);
+        win->cursor->setStill(win->cursor, 0);
+        list->active = 1;
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087EB0);
+void func_80087E00(ShopItemList *list, s32 visible) {
+    ShopItemListWindows *win = list->children;
+    s32 row;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087ED8);
+    list->active = visible;
+    row = (list->selection % list->pageSize) / 2;
+    win->cursor->setPos(win->cursor, (list->selection % 2) * 0x83 + 0x1D, row * 0xE + 0x24);
+    win->cursor->setVisible(win->cursor, visible);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087F1C);
+void func_80087EB0(ShopItemList *list) {
+    list->setState(list, TASK_RUN);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087F64);
+void func_80087ED8(ShopItemList *list) {
+    list->setState(list, TASK_RUN);
+    list->substate = 0x32;
+    func_80087E00(list, 0);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80087FD0);
+s16 STITSHOP_getSelectedItem(ShopItemList *list) {
+    if (!list->selling) {
+        return list->shopItems[list->selection];
+    }
+    return list->items[list->selection];
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80088094);
+void func_80087F64(ShopItemList *list) {
+    void *win = list->children;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80088150);
+    STITSHOP_listSellable(list);
+    func_80086CE4(list, win, 1);
+    ((ShopBuy *)list->dialog)->showItem((ShopBuy *)list->dialog, list->items[list->selection], 1);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800884A4);
+void STITSHOP_listSellable(ShopItemList *list) {
+    s32 i;
+    s32 n;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80088578);
+    list->count = 0;
+    n = ITEM_FUNCS->list(list->type, list->bag);
+    for (i = 0; i < n; i++) {
+        if (ITEM_FUNCS->get(list->bag[i])->sellPrice != 0) {
+            list->items[list->count++] = list->bag[i];
+        }
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80088638);
+ShopItemList *STITSHOP_createItemList(Task *dialog, s32 type, s32 selling) {
+    ShopItemList *list = createTask(func_800875AC, sizeof(ShopItemList), 0x50);
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008879C);
+    list->start = func_80087EB0;
+    list->close = func_80087ED8;
+    list->getSelected = STITSHOP_getSelectedItem;
+    list->showCursor = func_80087E00;
+    list->freezeCursor = func_80087D5C;
+    list->refresh = func_80087F64;
+    list->listBag = STITSHOP_listSellable;
+    list->layer = 0x1000;
+    list->depth = 4;
+    list->dialog = dialog;
+    list->selling = selling;
+    list->type = type;
+    return list;
+}
+
+void func_80088150(s32 partner, s16 *out) {
+    s16 *equip;
+    s32 i;
+    s32 j;
+    ItemInfo *info;
+    ShopItemData *data;
+    u8 type;
+    u8 stat;
+    s32 amount;
+
+    GameState *save = &GAME;
+    PartnerStats *d;
+
+    *(ShopStatBlock *)out = *(ShopStatBlock *)&save->partners[partner].level;
+    d = &PARTNER_STATS[partner];
+    equip = d->equip;
+    for (i = 0; i < 6; i++) {
+        if (equip[i] > 0) {
+            info = GET_ITEM[0](equip[i]);
+            type = info->type;
+            data = (ShopItemData *)info->data;
+            if ((u8)(type - 2) < 13) {
+                out[6] += data->weapon.atk;
+                if (out[6] >= 1000) {
+                    out[6] = 999;
+                }
+                for (j = 0; j < 2; j++) {
+                    stat = *(j + data->weapon.stats);
+                    amount = data->weapon.amounts[j];
+                    if (stat != 0) {
+                        func_800884A4(out, stat, (s16)amount);
+                    }
+                }
+            } else if ((u8)(type - 15) < 6) {
+                out[7] += data->armor.def;
+                if (out[7] >= 1000) {
+                    out[7] = 999;
+                }
+                for (j = 0; j < 2; j++) {
+                    stat = *(j + data->armor.stats);
+                    amount = data->armor.amounts[j];
+                    if (stat != 0) {
+                        func_800884A4(out, stat, (s16)amount);
+                    }
+                }
+            } else if ((u8)(type - 21) < 4) {
+                stat = data->acc.stat;
+                amount = data->acc.amount;
+                if (stat != 0) {
+                    func_800884A4(out, stat, (s16)amount);
+                }
+            } else {
+                continue;
+            }
+            out[11] += data->weapon.unk0;
+            if (out[11] >= 1000) {
+                out[11] = 999;
+            }
+        }
+    }
+    out[6] -= out[19];
+    if (out[6] < 0) {
+        out[6] = 0;
+    }
+    out[7] -= out[20];
+    if (out[7] < 0) {
+        out[7] = 0;
+    }
+    out[10] -= out[21];
+    if (out[10] < 0) {
+        out[10] = 0;
+    }
+}
+
+void func_800884A4(s16 *p, s32 stat, s32 delta) {
+    s32 i;
+    s16 value;
+
+    if (stat == 7) {
+        for (i = 0; i < 6; i++) {
+            value = p[i + 6] + delta;
+            p[i + 6] = value;
+            if (value >= 1000) {
+                p[i + 6] = 999;
+            }
+        }
+    } else if (stat - 1 < 6U) {
+        value = p[stat + 5] + delta;
+        p[stat + 5] = value;
+        if (value >= 1000) {
+            p[stat + 5] = 999;
+        }
+    } else if (stat - 8 < 7U) {
+        value = p[stat + 4] + delta;
+        p[stat + 4] = value;
+        if (value >= 1000) {
+            p[stat + 4] = 999;
+        }
+    }
+}
+
+void func_80088578(ShopInfo *info, TextWindow *win, ShopStatRow *row) {
+    ShopPartnerInfo *p = &info->partners[row->partner];
+    s16 value;
+
+    if (row->compare == 0) {
+        value = *(D_8008C114[row->stat] + p->stats);
+    } else {
+        value = *(D_8008C114[row->stat] + p->newStats);
+    }
+    win->setNumber(win, 0, value);
+    win->setRightAlign(win, 1);
+}
+
+void func_80088638(ShopInfo *info, TextWindow *win, ShopStatRow *row) {
+    ShopPartnerInfo *p = &info->partners[row->partner];
+    s32 penalty;
+    s16 v[2];
+
+    if (row->stat == 0) {
+        penalty = 0;
+    } else if (row->stat == 1) {
+        penalty = 1;
+    } else if (row->stat == 4) {
+        penalty = 2;
+    } else {
+        penalty = -1;
+    }
+    v[0] = *(D_8008C114[row->stat] + p->stats);
+    if (row->compare == 0) {
+        if (penalty >= 0 && p->penalties[penalty] != 0) {
+            win->setPalette(win, 6);
+        } else {
+            win->setPalette(win, 0);
+        }
+    } else {
+        v[1] = *(D_8008C114[row->stat] + p->newStats);
+        if (v[0] == v[1]) {
+            if (penalty >= 0 && p->penalties[penalty] != 0) {
+                win->setPalette(win, 6);
+            } else {
+                win->setPalette(win, 0);
+            }
+        } else if (v[0] < v[1]) {
+            win->setPalette(win, 1);
+        } else {
+            win->setPalette(win, 5);
+        }
+    }
+}
+
+void func_8008879C(ShopInfo *info, TextWindow **win, ShopStatRow *row) {
+    ShopPartnerInfo *p = &info->partners[row->partner];
+    s32 i;
+    s32 n = 0;
+    s16 v[2];
+
+    for (i = 0; i < 13; i++) {
+        if (i != row->skip && (row->skip2 < 0 || i != row->skip2)) {
+            v[0] = *(D_8008C114[i] + p->stats);
+            v[1] = *(D_8008C114[i] + p->newStats);
+            if (v[0] != v[1]) {
+                p->rows[n + 2] = i + 1;
+                win[n]->setNumber(win[n], 0, v[1]);
+                win[n]->setRightAlign(win[n], 1);
+                if (v[0] < v[1]) {
+                    win[n]->setPalette(win[n], 1);
+                } else {
+                    win[n]->setPalette(win[n], 5);
+                }
+                n++;
+            }
+        }
+    }
+    p->changes += n;
+    for (i = n; i < 4; i++) {
+        win[i]->setVisible(win[i], 0);
+    }
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80088960);
 
@@ -94,91 +576,394 @@ INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008A46C);
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008A5E8);
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008A91C);
+void func_8008A91C(ShopInfo *info, s32 item, s32 arg) {
+    void *win = info->children;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008A9A4);
+    info->item = item;
+    info->unk1E8 = arg;
+    if (info->shown != 0) {
+        func_800894EC(info, win, 1);
+        if (info->page == 0) {
+            func_80089774(info, win, 1);
+        } else {
+            func_80089774(info, win, 0);
+            func_8008988C(info, win, 1);
+        }
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008A9C0);
+void func_8008A9A4(ShopInfo *info) {
+    if (info->substate == 3) {
+        info->substate = 0x32;
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008A9F8);
+void func_8008A9C0(ShopInfo *info, s32 visible) {
+    TextWindow **win = info->children;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008AAB0);
+    win[8]->setVisible(win[8], visible);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008AB04);
+void func_8008A9F8(ShopInfo *info) {
+    if (ITEM_FUNCS->isKind(info->item, 3) != 0 || ITEM_FUNCS->isKind(info->item, 4) != 0 ||
+        ITEM_FUNCS->isKind(info->item, 5) != 0) {
+        SOUND.playSound(0x4001B);
+        info->substate = 10;
+        info->shown = 0;
+        info->page = 1 - info->page;
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008ABA4);
+void func_8008AAB0(ShopInfo *info, s32 arg) {
+    void *win = info->children;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008AC8C);
+    func_800894EC(info, win, 1);
+    func_80088960(info, win, arg);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008AF88);
+ShopInfo *STITSHOP_createInfo(s32 selling, s32 item) {
+    ShopInfo *info = createTask(func_8008A5E8, sizeof(ShopInfo), 0xAC);
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B614);
+    info->showItem = func_8008A91C;
+    info->close = func_8008A9A4;
+    info->setArrowVisible = func_8008A9C0;
+    info->turnPage = func_8008A9F8;
+    info->func_8008AAB0 = func_8008AAB0;
+    info->layer = 0x1000;
+    info->depth = 6;
+    info->selling = selling;
+    info->item = item;
+    info->unk1E8 = 1;
+    info->shown = 1;
+    return info;
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B728);
+void func_8008ABA4(ItemShop *shop, ItemShopWindows *win) {
+    win->help = createTextWindow(shop->layer, 1, 0xD3, 0xCC);
+    win->title = createTextWindow(shop->layer, 1, 0x1D, 0x14);
+    win->money = createTextWindow(shop->layer, 3, 0x117, 0x17);
+    win->moneyLabel = createTextWindow(shop->layer, 3, 0x11A, 0x17);
+    win->buy = createTextWindow(shop->layer, 1, 0xBE, 0x2F);
+    win->sell = createTextWindow(shop->layer, 1, 0xBE, 0x3D);
+    win->cursor = createCursor(shop->layer, 0, 0xB0, 0x2F);
+    win->cursor->setVisible(win->cursor, 0);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B77C);
+void func_8008AC8C(ItemShop *shop, ItemShopWindows *win) {
+    SpriteDrawer sprite;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B7E0);
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(shop->layer, 1);
+    sprite.setTexture(0x280, 0x100);
+    if (shop->panels[0].level != 0) {
+        if (shop->panels[0].level != 0x1000) {
+            sprite.setScale(shop->panels[0].level, 0x1000, 0x1000);
+            sprite.setPivot(0x57, 0x19);
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_SHOP_SPRITES << 16), 1, 0x16, 0x12);
+    }
+    if (shop->panels[1].level != 0) {
+        if (shop->panels[1].level != 0x1000) {
+            sprite.setScale(shop->panels[1].level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0x18);
+        } else {
+            sprite.setScale(0x1000, 0x1000, 0x1000);
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_SHOP_SPRITES << 16), 2, 0xD6, 0xF);
+    }
+    if (shop->panels[2].level != 0) {
+        if (shop->panels[2].level != 0x1000) {
+            sprite.setScale(shop->panels[2].level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0x3B);
+        } else {
+            sprite.setScale(0x1000, 0x1000, 0x1000);
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_SHOP_SPRITES << 16), 5, 0xA9, 0x26);
+    }
+    if (shop->panels[3].level != 0) {
+        if (shop->panels[3].level != 0x1000) {
+            sprite.setScale(shop->panels[3].level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0xD2);
+        } else {
+            sprite.setScale(0x1000, 0x1000, 0x1000);
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_SHOP_SPRITES << 16), 0, 0xC6, 0xC4);
+    }
+    sprite.setLayerId(shop->layer, 7);
+    if (shop->unk5C != 0) {
+        shop->unk58++;
+        shop->unk58 = shop->unk58 < 0x60 ? shop->unk58 : 0;
+        shop->unk5C = 0;
+    } else {
+        shop->unk5C = 1;
+    }
+    sprite.setScale(0x1000, 0x1000, 0x1000);
+    sprite.draw(FILE_CACHE.getEntry(FILE_SHOP_SPRITES << 16), 0x14, shop->unk58, shop->unk58);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B880);
+void func_8008AF88(ItemShop *shop, ItemShopWindows *win) {
+    s32 choice;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B908);
+    switch (shop->substate) {
+    case 0:
+    default:
+        STITSHOP_funcs.startFade(&shop->panels[0], 1);
+        STITSHOP_funcs.startFade(&shop->panels[1], 1);
+        shop->substate++;
+        break;
+    case 1:
+        STITSHOP_funcs.updateFade(&shop->panels[0]);
+        if (STITSHOP_funcs.updateFade(&shop->panels[1]) != 0) {
+            STITSHOP_funcs.startFade(&shop->panels[2], 1);
+            STITSHOP_funcs.startFade(&shop->panels[3], 1);
+            win->title->setString(win->title, FILE_CACHE.load(TEXT_FILE(0x95)), D_8008C16C[shop->shop]);
+            win->moneyLabel->setString(win->moneyLabel, FILE_CACHE.load(TEXT_FILE(0x72)), 2);
+            win->money->setNumber(win->money, 0, GAME.money);
+            win->money->setRightAlign(win->money, 1);
+            shop->substate++;
+        }
+        break;
+    case 2:
+        STITSHOP_funcs.updateFade(&shop->panels[2]);
+        if (STITSHOP_funcs.updateFade(&shop->panels[3]) != 0) {
+            win->buy->setString(win->buy, FILE_CACHE.load(TEXT_FILE(0x72)), 3);
+            win->sell->setString(win->sell, FILE_CACHE.load(TEXT_FILE(0x72)), 4);
+            win->cursor->setVisible(win->cursor, 1);
+            win->help->setString(win->help, FILE_CACHE.load(TEXT_FILE(0x72)), 5);
+            shop->substate++;
+        }
+        break;
+    case 3:
+        choice = shop->unk64;
+        if (PAD_PRESSED(PAD_UP)) {
+            shop->unk64 = 0;
+        } else if (PAD_PRESSED(PAD_DOWN)) {
+            shop->unk64 = 1;
+        }
+        if (choice != shop->unk64) {
+            SOUND.playSound(0x8004513E);
+            win->cursor->setPos(win->cursor, 0xB0, shop->unk64 * 0xE + 0x2F);
+        }
+        if (PAD_PRESSED(PAD_CROSS)) {
+            SOUND.playSound(0x8004503C);
+            shop->substate = 20;
+            shop->step = 1;
+        } else if (PAD_PRESSED(PAD_TRIANGLE)) {
+            SOUND.playSound(0x800450BD);
+            shop->setSubstate(shop, 20);
+        }
+        break;
+    case 10:
+        if (shop->unk64 == 0) {
+            win->dialog = (Task *)STITSHOP_createBuy(shop);
+        } else {
+            win->dialog = (Task *)STITSHOP_createSell(shop);
+        }
+        shop->substate++;
+        break;
+    case 11:
+        if (win->dialog == NULL) {
+            STITSHOP_funcs.startFade(&shop->panels[2], 1);
+            STITSHOP_funcs.startFade(&shop->panels[3], 1);
+            shop->substate = 2;
+        }
+        break;
+    case 20:
+        if (shop->step == 0) {
+            win->fade = STITSHOP_createFader();
+            win->fade->start(win->fade, 0, 0x1E);
+        }
+        STITSHOP_funcs.startFade(&shop->panels[2], 0);
+        STITSHOP_funcs.startFade(&shop->panels[3], 0);
+        win->help->setVisible(win->help, 0);
+        win->buy->setVisible(win->buy, 0);
+        win->sell->setVisible(win->sell, 0);
+        win->cursor->setVisible(win->cursor, 0);
+        shop->substate++;
+        break;
+    case 21:
+        STITSHOP_funcs.updateFade(&shop->panels[2]);
+        if (STITSHOP_funcs.updateFade(&shop->panels[3]) != 0) {
+            if (shop->step != 0) {
+                shop->setSubstate(shop, 10);
+            } else {
+                STITSHOP_funcs.startFade(&shop->panels[0], 0);
+                STITSHOP_funcs.startFade(&shop->panels[1], 0);
+                win->title->setVisible(win->title, 0);
+                win->moneyLabel->setVisible(win->moneyLabel, 0);
+                win->money->setVisible(win->money, 0);
+                shop->substate++;
+            }
+        }
+        break;
+    case 22:
+        STITSHOP_funcs.updateFade(&shop->panels[0]);
+        if (STITSHOP_funcs.updateFade(&shop->panels[1]) != 0) {
+            shop->substate++;
+        }
+        break;
+    case 23:
+        if (win->fade->state == 2) {
+            shop->state = TASK_KILL;
+        }
+        break;
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B99C);
+void STITSHOP_updateShop(ItemShop *shop, ItemShopWindows *win) {
+    switch (shop->state) {
+    case TASK_INIT:
+    default:
+        switch (shop->substate) {
+        case 0:
+        default:
+            STITSHOP_funcs.loadFiles();
+            shop->substate++;
+            break;
+        case 1:
+            if (STITSHOP_funcs.filesLoading() == 0) {
+                func_8008ABA4(shop, win);
+                shop->panels[0].duration = 10;
+                shop->panels[1].duration = 10;
+                shop->panels[2].duration = 10;
+                shop->panels[3].duration = 10;
+                shop->nextState(shop);
+            }
+            break;
+        }
+        break;
+    case TASK_RUN:
+        func_8008AF88(shop, win);
+        func_8008AC8C(shop, win);
+        break;
+    case TASK_DONE:
+        break;
+    case TASK_KILL:
+        GAME.funcs.requestMode(GAME.fieldMode, 0);
+        break;
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BA08);
+void func_8008B728(ItemShop *shop) {
+    ItemShopWindows *win = shop->children;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BA48);
+    win->money->setNumber(win->money, 0, GAME.money);
+    win->money->setRightAlign(win->money, 1);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BAB4);
+ItemShop *STITSHOP_createShop(void) {
+    ItemShop *shop = createTask(STITSHOP_updateShop, sizeof(ItemShop), sizeof(ItemShopWindows));
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BAF8);
+    shop->showMoney = func_8008B728;
+    shop->layer = 0x1000;
+    shop->shop = GAME_FUNCS.getModeArg();
+    return shop;
+}
+
+void STITSHOP_loadFiles(void) {
+    TimLoader loader;
+
+    initTimLoader(&loader);
+    loader.setImagePos(0x280, 0x100);
+    loader.loadArchive(FILE_CACHE.getEntry((FILE_SHOP_SPRITES + 1) << 16));
+    FILE_CACHE.request(TEXT_FILE(0x72));
+    FILE_CACHE.request(TEXT_FILE(0x6B));
+    FILE_CACHE.request(TEXT_FILE(0x64));
+    FILE_CACHE.request(TEXT_FILE(0x95));
+}
+
+s32 STITSHOP_filesLoading(void) {
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x72)) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x6B)) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x64)) != 0) {
+        return 1;
+    }
+    return FILE_CACHE.isLoading(TEXT_FILE(0x95)) != 0;
+}
+
+void STITSHOP_startFade(PanelAnim *fade, s32 fadeIn) {
+    fade->active = 1;
+    if (fadeIn != 0) {
+        SOUND.playSound(0x40019);
+        fade->level = 0;
+        fade->step = 0x1000 / fade->duration;
+    } else {
+        SOUND.playSound(0x4001A);
+        fade->level = 0x1000;
+        fade->step = -((0x1000 / fade->duration) * 2);
+    }
+}
+
+s32 STITSHOP_updateFade(PanelAnim *fade) {
+    if (fade->active == 0) {
+        return 1;
+    }
+    fade->level += fade->step;
+    if (fade->step > 0) {
+        if (fade->level > 0x1000) {
+            fade->level = 0x1000;
+            fade->active = 0;
+            return 1;
+        }
+    } else if (fade->level < 0) {
+        fade->level = 0;
+        fade->active = 0;
+        return 1;
+    }
+    return 0;
+}
+
+void STITSHOP_startLerp(ShopLerp *lerp, s32 from, s32 to, s32 frames) {
+    if (from != to) {
+        lerp->duration = frames;
+        lerp->fixed = from << 8;
+        lerp->value = from;
+        lerp->target = to;
+        lerp->active = 1;
+        lerp->step = ((to - from) << 8) / lerp->duration;
+    }
+}
+
+s32 STITSHOP_updateLerp(ShopLerp *lerp) {
+    if (lerp->active == 0) {
+        return 1;
+    }
+    lerp->fixed += lerp->step;
+    lerp->value = lerp->fixed >> 8;
+    if (lerp->step > 0) {
+        if (lerp->target < lerp->value) {
+            lerp->value = lerp->target;
+            lerp->active = 0;
+            return 1;
+        }
+    } else if (lerp->value < lerp->target) {
+        lerp->value = lerp->target;
+        lerp->active = 0;
+        return 1;
+    }
+    return 0;
+}
+
+u16 *STITSHOP_getShopItems(s32 shop) {
+    if (shop < 0 || STITSHOP_shops[shop].items == NULL) {
+        return NULL;
+    }
+    STITSHOP_funcs.count = STITSHOP_shops[shop].count;
+    return STITSHOP_shops[shop].items;
+}
+
+s32 STITSHOP_canEquip(s32 partner, s32 item) {
+    return (GET_ITEM[0](item)->data[4] >> partner) & 1;
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BB3C);
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BE2C);
 
-extern s32 D_8008C1E4[];
-extern s32 D_8008C1FC[];
-extern s32 D_8008C224[];
-extern s32 D_8008C24C[];
-extern s32 D_8008C274[];
-extern s32 D_8008C27C[];
-extern s32 D_8008C294[];
-extern s32 D_8008C2BC[];
-extern s32 D_8008C2D4[];
-extern s32 D_8008C2FC[];
-extern s32 D_8008C324[];
-extern s32 D_8008C34C[];
-extern s32 D_8008C374[];
-extern s32 D_8008C3A0[];
-extern s32 D_8008C3C8[];
-extern s32 D_8008C3F4[];
-extern s32 D_8008C41C[];
-extern s32 D_8008C444[];
-extern s32 D_8008C470[];
-extern s32 D_8008C4B4[];
-extern s32 D_8008C4D4[];
-extern s32 D_8008C4FC[];
-extern s32 D_8008C528[];
-extern s32 D_8008C550[];
-extern s32 D_8008C578[];
-extern s32 D_8008C5A4[];
-extern s32 D_8008C5CC[];
-extern s32 D_8008C5F4[];
-extern s32 D_8008C620[];
-extern s32 D_8008C648[];
-extern s32 D_8008C674[];
-void func_8008B7E0();
-void func_8008B880();
-void func_8008B908();
-void func_8008B99C();
-void func_8008BA08();
-void func_8008BA48();
-void func_8008BAB4();
-void func_8008BAF8();
-void func_8008BB3C();
-void func_8008BE2C();
 
 s32 D_8008C0D4[] = {
     1, 2, 3, 4,
@@ -209,186 +994,204 @@ s32 D_8008C16C[] = {
     11, 27, 28, 15,
     22, 10,
 };
-s32 D_8008C1E4[] = {
-    0x6A005C, 0xA7009D, 0xD700BE, 0xEC00E2,
-    0x10600F9, 275,
+u16 D_8008C1E4[] = {
+    0x05C, 0x06A, 0x09D, 0x0A7, 0x0BE, 0x0D7, 0x0E2, 0x0EC,
+    0x0F9, 0x106, 0x113, 0x000,
 };
-s32 D_8008C1FC[] = {
-    0x1260124, 0x12A0128, 0x12E012C, 0x1310130,
-    0x1330132, 0x1350134, 0x1370136, 0x1390138,
-    0x13B013A, 0,
+u16 D_8008C1FC[] = {
+    0x124, 0x126, 0x128, 0x12A, 0x12C, 0x12E, 0x130, 0x131,
+    0x132, 0x133, 0x134, 0x135, 0x136, 0x137, 0x138, 0x139,
+    0x13A, 0x13B, 0x000,
 };
-s32 D_8008C224[] = {
-    0x42002B, 0x450043, 0x470046, 0x490048,
-    0x4B004A, 0x4D004C, 0x4F004E, 0x510050,
-    0x530052, 84,
+u16 D_8008C224[] = {
+    0x02B, 0x042, 0x043, 0x045, 0x046, 0x047, 0x048, 0x049,
+    0x04A, 0x04B, 0x04C, 0x04D, 0x04E, 0x04F, 0x050, 0x051,
+    0x052, 0x053, 0x054, 0x000,
 };
-s32 D_8008C24C[] = {
-    0x6E0060, 0x86007A, 0xA10093, 0xB200AB,
-    0xC200B9, 0xD100C9, 0xE600DB, 0xFD00F0,
-    0x117010A, 0,
+u16 D_8008C24C[] = {
+    0x060, 0x06E, 0x07A, 0x086, 0x093, 0x0A1, 0x0AB, 0x0B2,
+    0x0B9, 0x0C2, 0x0C9, 0x0D1, 0x0DB, 0x0E6, 0x0F0, 0x0FD,
+    0x10A, 0x117, 0x000,
 };
-s32 D_8008C274[] = {
-    0x2C002B, 0,
+u16 D_8008C274[] = {
+    0x02B, 0x02C, 0x000,
 };
-s32 D_8008C27C[] = {
-    0x6B005D, 0xA8009E, 0xD800BF, 0xED00E3,
-    0x10700FA, 276,
+u16 D_8008C27C[] = {
+    0x05D, 0x06B, 0x09E, 0x0A8, 0x0BF, 0x0D8, 0x0E3, 0x0ED,
+    0x0FA, 0x107, 0x114, 0x000,
 };
-s32 D_8008C294[] = {
-    0x42002B, 0x450043, 0x470046, 0x490048,
-    0x4B004A, 0x4D004C, 0x4F004E, 0x510050,
-    0x530052, 84,
+u16 D_8008C294[] = {
+    0x02B, 0x042, 0x043, 0x045, 0x046, 0x047, 0x048, 0x049,
+    0x04A, 0x04B, 0x04C, 0x04D, 0x04E, 0x04F, 0x050, 0x051,
+    0x052, 0x053, 0x054, 0x000,
 };
-s32 D_8008C2BC[] = {
-    0x6C005E, 0xA9009F, 0xD900C0, 0xEE00E4,
-    0x10800FB, 277,
+u16 D_8008C2BC[] = {
+    0x05E, 0x06C, 0x09F, 0x0A9, 0x0C0, 0x0D9, 0x0E4, 0x0EE,
+    0x0FB, 0x108, 0x115, 0x000,
 };
-s32 D_8008C2D4[] = {
-    0x1260124, 0x12A0128, 0x12E012C, 0x1310130,
-    0x1330132, 0x1350134, 0x1370136, 0x1390138,
-    0x13B013A, 0,
+u16 D_8008C2D4[] = {
+    0x124, 0x126, 0x128, 0x12A, 0x12C, 0x12E, 0x130, 0x131,
+    0x132, 0x133, 0x134, 0x135, 0x136, 0x137, 0x138, 0x139,
+    0x13A, 0x13B, 0x000,
 };
-s32 D_8008C2FC[] = {
-    0x42002B, 0x450043, 0x470046, 0x490048,
-    0x4B004A, 0x4D004C, 0x4F004E, 0x510050,
-    0x530052, 84,
+u16 D_8008C2FC[] = {
+    0x02B, 0x042, 0x043, 0x045, 0x046, 0x047, 0x048, 0x049,
+    0x04A, 0x04B, 0x04C, 0x04D, 0x04E, 0x04F, 0x050, 0x051,
+    0x052, 0x053, 0x054, 0x000,
 };
-s32 D_8008C324[] = {
-    0x6D005F, 0x840078, 0xA00091, 0xB000AA,
-    0xC100B7, 0xCF00C7, 0xE500DA, 0xFC00EF,
-    0x1160109, 0,
+u16 D_8008C324[] = {
+    0x05F, 0x06D, 0x078, 0x084, 0x091, 0x0A0, 0x0AA, 0x0B0,
+    0x0B7, 0x0C1, 0x0C7, 0x0CF, 0x0DA, 0x0E5, 0x0EF, 0x0FC,
+    0x109, 0x116, 0x000,
 };
-s32 D_8008C34C[] = {
-    0x6D005F, 0x840078, 0xA00091, 0xB000AA,
-    0xC100B7, 0xCF00C7, 0xE500DA, 0xFC00EF,
-    0x1160109, 0,
+u16 D_8008C34C[] = {
+    0x05F, 0x06D, 0x078, 0x084, 0x091, 0x0A0, 0x0AA, 0x0B0,
+    0x0B7, 0x0C1, 0x0C7, 0x0CF, 0x0DA, 0x0E5, 0x0EF, 0x0FC,
+    0x109, 0x116, 0x000,
 };
-s32 D_8008C374[] = {
-    0x2C002B, 0x430042, 0x460045, 0x480047,
-    0x4A0049, 0x4C004B, 0x4E004D, 0x50004F,
-    0x520051, 0x540053, 0,
+u16 D_8008C374[] = {
+    0x02B, 0x02C, 0x042, 0x043, 0x045, 0x046, 0x047, 0x048,
+    0x049, 0x04A, 0x04B, 0x04C, 0x04D, 0x04E, 0x04F, 0x050,
+    0x051, 0x052, 0x053, 0x054, 0x000,
 };
-s32 D_8008C3A0[] = {
-    0x6F0061, 0x87007B, 0xA20094, 0xB300AC,
-    0xC300BA, 0xD200CA, 0xE700DC, 0xFE00F1,
-    0x118010B, 0,
+u16 D_8008C3A0[] = {
+    0x061, 0x06F, 0x07B, 0x087, 0x094, 0x0A2, 0x0AC, 0x0B3,
+    0x0BA, 0x0C3, 0x0CA, 0x0D2, 0x0DC, 0x0E7, 0x0F1, 0x0FE,
+    0x10B, 0x118, 0x000,
 };
-s32 D_8008C3C8[] = {
-    0x2C002B, 0x430042, 0x460045, 0x480047,
-    0x4A0049, 0x4C004B, 0x4E004D, 0x50004F,
-    0x520051, 0x540053, 0,
+u16 D_8008C3C8[] = {
+    0x02B, 0x02C, 0x042, 0x043, 0x045, 0x046, 0x047, 0x048,
+    0x049, 0x04A, 0x04B, 0x04C, 0x04D, 0x04E, 0x04F, 0x050,
+    0x051, 0x052, 0x053, 0x054, 0x000,
 };
-s32 D_8008C3F4[] = {
-    0x730065, 0x8C007F, 0xA60098, 0xB600AF,
-    0xC600BD, 0xD600CE, 0xEB00E1, 0x10500F8,
-    0x1230112, 0,
+u16 D_8008C3F4[] = {
+    0x065, 0x073, 0x07F, 0x08C, 0x098, 0x0A6, 0x0AF, 0x0B6,
+    0x0BD, 0x0C6, 0x0CE, 0x0D6, 0x0E1, 0x0EB, 0x0F8, 0x105,
+    0x112, 0x123, 0x000,
 };
-s32 D_8008C41C[] = {
-    0x1270125, 0x12B0129, 0x12F012D, 0x1310130,
-    0x1330132, 0x1350134, 0x1370136, 0x1390138,
-    0x13B013A, 0,
+u16 D_8008C41C[] = {
+    0x125, 0x127, 0x129, 0x12B, 0x12D, 0x12F, 0x130, 0x131,
+    0x132, 0x133, 0x134, 0x135, 0x136, 0x137, 0x138, 0x139,
+    0x13A, 0x13B, 0x000,
 };
-s32 D_8008C444[] = {
-    0x2C002B, 0x42002D, 0x450043, 0x470046,
-    0x490048, 0x4B004A, 0x4D004C, 0x4F004E,
-    0x510050, 0x530052, 84,
+u16 D_8008C444[] = {
+    0x02B, 0x02C, 0x02D, 0x042, 0x043, 0x045, 0x046, 0x047,
+    0x048, 0x049, 0x04A, 0x04B, 0x04C, 0x04D, 0x04E, 0x04F,
+    0x050, 0x051, 0x052, 0x053, 0x054, 0x000,
 };
-s32 D_8008C470[] = {
-    0x700062, 0x88007C, 0x950089, 0xCB00A3,
-    0xDD00D3, 0xE800DE, 0xF300F2, 0xF500F4,
-    0x10000FF, 0x1020101, 0x10D010C, 0x10F010E,
-    0x11A0119, 0x11C011B, 0x11E011D, 0x120011F,
+u16 D_8008C470[] = {
+    0x062, 0x070, 0x07C, 0x088, 0x089, 0x095, 0x0A3, 0x0CB,
+    0x0D3, 0x0DD, 0x0DE, 0x0E8, 0x0F2, 0x0F3, 0x0F4, 0x0F5,
+    0x0FF, 0x100, 0x101, 0x102, 0x10C, 0x10D, 0x10E, 0x10F,
+    0x119, 0x11A, 0x11B, 0x11C, 0x11D, 0x11E, 0x11F, 0x120,
+    0x000,
+};
+u16 D_8008C4B4[] = {
+    0x02F, 0x030, 0x031, 0x032, 0x033, 0x034, 0x035, 0x036,
+    0x037, 0x038, 0x039, 0x03A, 0x03B, 0x03C, 0x03D, 0x000,
+};
+u16 D_8008C4D4[] = {
+    0x060, 0x06E, 0x07A, 0x086, 0x093, 0x0A1, 0x0AB, 0x0B2,
+    0x0B9, 0x0C2, 0x0C9, 0x0D1, 0x0DB, 0x0E6, 0x0F0, 0x0FD,
+    0x10A, 0x117, 0x000,
+};
+u16 D_8008C4FC[] = {
+    0x02B, 0x02C, 0x042, 0x043, 0x045, 0x046, 0x047, 0x048,
+    0x049, 0x04A, 0x04B, 0x04C, 0x04D, 0x04E, 0x04F, 0x050,
+    0x051, 0x052, 0x053, 0x054, 0x000,
+};
+u16 D_8008C528[] = {
+    0x061, 0x06F, 0x07B, 0x087, 0x094, 0x0A2, 0x0AC, 0x0B3,
+    0x0BA, 0x0C3, 0x0CA, 0x0D2, 0x0DC, 0x0E7, 0x0F1, 0x0FE,
+    0x10B, 0x118, 0x000,
+};
+u16 D_8008C550[] = {
+    0x124, 0x126, 0x128, 0x12A, 0x12C, 0x12E, 0x130, 0x131,
+    0x132, 0x133, 0x134, 0x135, 0x136, 0x137, 0x138, 0x139,
+    0x13A, 0x13B, 0x000,
+};
+u16 D_8008C578[] = {
+    0x02B, 0x02C, 0x042, 0x043, 0x045, 0x046, 0x047, 0x048,
+    0x049, 0x04A, 0x04B, 0x04C, 0x04D, 0x04E, 0x04F, 0x050,
+    0x051, 0x052, 0x053, 0x054, 0x000,
+};
+u16 D_8008C5A4[] = {
+    0x063, 0x071, 0x07D, 0x08A, 0x096, 0x0A4, 0x0AD, 0x0B4,
+    0x0BB, 0x0C4, 0x0CC, 0x0D4, 0x0DF, 0x0E9, 0x0F6, 0x103,
+    0x110, 0x121, 0x000,
+};
+u16 D_8008C5CC[] = {
+    0x064, 0x072, 0x07E, 0x08B, 0x097, 0x0A5, 0x0AE, 0x0B5,
+    0x0BC, 0x0C5, 0x0CD, 0x0D5, 0x0E0, 0x0EA, 0x0F7, 0x104,
+    0x111, 0x122, 0x000,
+};
+u16 D_8008C5F4[] = {
+    0x02B, 0x02C, 0x042, 0x043, 0x045, 0x046, 0x047, 0x048,
+    0x049, 0x04A, 0x04B, 0x04C, 0x04D, 0x04E, 0x04F, 0x050,
+    0x051, 0x052, 0x053, 0x054, 0x000,
+};
+u16 D_8008C620[] = {
+    0x064, 0x072, 0x07E, 0x08B, 0x097, 0x0A5, 0x0AE, 0x0B5,
+    0x0BC, 0x0C5, 0x0CD, 0x0D5, 0x0E0, 0x0EA, 0x0F7, 0x104,
+    0x111, 0x122, 0x000,
+};
+u16 D_8008C648[] = {
+    0x02B, 0x02C, 0x042, 0x043, 0x045, 0x046, 0x047, 0x048,
+    0x049, 0x04A, 0x04B, 0x04C, 0x04D, 0x04E, 0x04F, 0x050,
+    0x051, 0x052, 0x053, 0x054, 0x000,
+};
+u16 D_8008C674[] = {
+    0x001, 0x002, 0x003, 0x004, 0x005, 0x006, 0x007, 0x008,
+    0x009, 0x00A, 0x00B, 0x00C, 0x00D, 0x00E, 0x00F, 0x010,
+    0x011, 0x012, 0x013, 0x014, 0x015, 0x016, 0x017, 0x018,
+    0x019, 0x01A, 0x01B, 0x01C, 0x01D, 0x01E, 0x01F, 0x020,
+    0x021, 0x022, 0x023, 0x024, 0x025, 0x026, 0x027, 0x028,
+    0x029, 0x02A, 0x168, 0x18A, 0x18B, 0x18C, 0x18D, 0x18E,
+    0x18F, 0x190, 0x191, 0x192, 0x000,
+};
+ShopList STITSHOP_shops[31] = {
+    { 11, D_8008C1E4 },
+    { 18, D_8008C1FC },
+    { 19, D_8008C224 },
+    { 18, D_8008C24C },
+    { 2, D_8008C274 },
+    { 11, D_8008C27C },
+    { 19, D_8008C294 },
+    { 11, D_8008C2BC },
+    { 18, D_8008C2D4 },
+    { 19, D_8008C2FC },
+    { 18, D_8008C324 },
+    { 18, D_8008C34C },
+    { 20, D_8008C374 },
+    { 18, D_8008C3A0 },
+    { 20, D_8008C3C8 },
+    { 18, D_8008C3F4 },
+    { 18, D_8008C41C },
+    { 21, D_8008C444 },
+    { 32, D_8008C470 },
+    { 15, D_8008C4B4 },
+    { 18, D_8008C4D4 },
+    { 20, D_8008C4FC },
+    { 18, D_8008C528 },
+    { 18, D_8008C550 },
+    { 20, D_8008C578 },
+    { 18, D_8008C5A4 },
+    { 18, D_8008C5CC },
+    { 20, D_8008C5F4 },
+    { 18, D_8008C620 },
+    { 20, D_8008C648 },
+    { 52, D_8008C674 },
+};
+ItemShopFuncs STITSHOP_funcs = {
     0,
-};
-s32 D_8008C4B4[] = {
-    0x30002F, 0x320031, 0x340033, 0x360035,
-    0x380037, 0x3A0039, 0x3C003B, 61,
-};
-s32 D_8008C4D4[] = {
-    0x6E0060, 0x86007A, 0xA10093, 0xB200AB,
-    0xC200B9, 0xD100C9, 0xE600DB, 0xFD00F0,
-    0x117010A, 0,
-};
-s32 D_8008C4FC[] = {
-    0x2C002B, 0x430042, 0x460045, 0x480047,
-    0x4A0049, 0x4C004B, 0x4E004D, 0x50004F,
-    0x520051, 0x540053, 0,
-};
-s32 D_8008C528[] = {
-    0x6F0061, 0x87007B, 0xA20094, 0xB300AC,
-    0xC300BA, 0xD200CA, 0xE700DC, 0xFE00F1,
-    0x118010B, 0,
-};
-s32 D_8008C550[] = {
-    0x1260124, 0x12A0128, 0x12E012C, 0x1310130,
-    0x1330132, 0x1350134, 0x1370136, 0x1390138,
-    0x13B013A, 0,
-};
-s32 D_8008C578[] = {
-    0x2C002B, 0x430042, 0x460045, 0x480047,
-    0x4A0049, 0x4C004B, 0x4E004D, 0x50004F,
-    0x520051, 0x540053, 0,
-};
-s32 D_8008C5A4[] = {
-    0x710063, 0x8A007D, 0xA40096, 0xB400AD,
-    0xC400BB, 0xD400CC, 0xE900DF, 0x10300F6,
-    0x1210110, 0,
-};
-s32 D_8008C5CC[] = {
-    0x720064, 0x8B007E, 0xA50097, 0xB500AE,
-    0xC500BC, 0xD500CD, 0xEA00E0, 0x10400F7,
-    0x1220111, 0,
-};
-s32 D_8008C5F4[] = {
-    0x2C002B, 0x430042, 0x460045, 0x480047,
-    0x4A0049, 0x4C004B, 0x4E004D, 0x50004F,
-    0x520051, 0x540053, 0,
-};
-s32 D_8008C620[] = {
-    0x720064, 0x8B007E, 0xA50097, 0xB500AE,
-    0xC500BC, 0xD500CD, 0xEA00E0, 0x10400F7,
-    0x1220111, 0,
-};
-s32 D_8008C648[] = {
-    0x2C002B, 0x430042, 0x460045, 0x480047,
-    0x4A0049, 0x4C004B, 0x4E004D, 0x50004F,
-    0x520051, 0x540053, 0,
-};
-s32 D_8008C674[] = {
-    0x20001, 0x40003, 0x60005, 0x80007,
-    0xA0009, 0xC000B, 0xE000D, 0x10000F,
-    0x120011, 0x140013, 0x160015, 0x180017,
-    0x1A0019, 0x1C001B, 0x1E001D, 0x20001F,
-    0x220021, 0x240023, 0x260025, 0x280027,
-    0x2A0029, 0x18A0168, 0x18C018B, 0x18E018D,
-    0x190018F, 0x1920191, 0,
-};
-s32 D_8008C6E0[] = {
-    11, (s32)D_8008C1E4, 18, (s32)D_8008C1FC,
-    19, (s32)D_8008C224, 18, (s32)D_8008C24C,
-    2, (s32)D_8008C274, 11, (s32)D_8008C27C,
-    19, (s32)D_8008C294, 11, (s32)D_8008C2BC,
-    18, (s32)D_8008C2D4, 19, (s32)D_8008C2FC,
-    18, (s32)D_8008C324, 18, (s32)D_8008C34C,
-    20, (s32)D_8008C374, 18, (s32)D_8008C3A0,
-    20, (s32)D_8008C3C8, 18, (s32)D_8008C3F4,
-    18, (s32)D_8008C41C, 21, (s32)D_8008C444,
-    32, (s32)D_8008C470, 15, (s32)D_8008C4B4,
-    18, (s32)D_8008C4D4, 20, (s32)D_8008C4FC,
-    18, (s32)D_8008C528, 18, (s32)D_8008C550,
-    20, (s32)D_8008C578, 18, (s32)D_8008C5A4,
-    18, (s32)D_8008C5CC, 20, (s32)D_8008C5F4,
-    18, (s32)D_8008C620, 20, (s32)D_8008C648,
-    52, (s32)D_8008C674,
-};
-s32 D_8008C7D8 = 0;
-s32 D_8008C7DC = (s32)func_8008B7E0;
-s32 D_8008C7E0 = (s32)func_8008B880;
-s32 D_8008C7E4 = (s32)func_8008B908;
-s32 D_8008C7E8[] = {
-    (s32)func_8008B99C, (s32)func_8008BA08, (s32)func_8008BA48, (s32)func_8008BAB4,
-};
-s32 D_8008C7F8[] = {
-    (s32)func_8008BAF8, (s32)func_8008BB3C, (s32)func_8008BE2C,
+    STITSHOP_loadFiles,
+    STITSHOP_filesLoading,
+    STITSHOP_startFade,
+    STITSHOP_updateFade,
+    STITSHOP_startLerp,
+    STITSHOP_updateLerp,
+    STITSHOP_getShopItems,
+    STITSHOP_canEquip,
+    func_8008BB3C,
+    func_8008BE2C,
 };
