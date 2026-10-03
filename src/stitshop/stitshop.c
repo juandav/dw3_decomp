@@ -1,6 +1,34 @@
-#include "common.h"
+#include "stitshop.h"
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800829B4);
+Cursor *createCursor(s16 layerId, s32 depth, s16 x, s16 y);
+ItemShop *func_8008B77C(void);
+void func_8008B614();
+
+void func_800829B4(Task *task, Task **children) {
+    RECT rect;
+    Layer *layer;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        GFX.funcs.reset();
+        GFX.funcs.allocPrimBuffers(0x14000);
+        GFX.funcs.setDisplayMode(0x140, 0xF0, 0, 0);
+        rect.x = 0;
+        rect.y = 0;
+        rect.w = 0x140;
+        rect.h = 0xF0;
+        layer = GFX.funcs.createLayer(&rect, 3, 0x1000);
+        layer->setBgColor(layer, 0, 0, 0);
+        children[0] = (Task *)func_8008B77C();
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082AB0);
 
