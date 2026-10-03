@@ -11,6 +11,7 @@ extern CardOffset CARDGAME_deckCountOffsets[];
 extern s16 D_800A4AA0[];
 extern CardOffset D_800A485C[];
 extern u16 D_800A488C[];
+extern CardWindowLayout CARDGAME_windowLayouts[];
 Cursor *createCursor(s16 layerId, s32 depth, s16 x, s16 y);
 void func_80095B44(CardScreen *screen);
 void func_80096C78(CardScreen *screen, CardScreenItems *items);
@@ -685,7 +686,70 @@ void func_80096018(CardScreen *screen, CardScreenItems *items) {
     }
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80096080);
+/* Draws the number in a type 3 window: its low four bits, and the sprite
+   for its high bits */
+static inline void drawWindowCount(CardScreenE0C *window) {
+    CardNumber number;
+    SpriteDrawer digits;
+
+    number.depth = 1;
+    number.digits = 2;
+    number.leadingZeros = 0;
+    number.x = window->x + 0x18;
+    number.y = window->y + 4;
+    number.value = window->unk10 & 0xF;
+    number.pivotX = window->x + CARDGAME_windowLayouts[window->unkC].x;
+    number.pivotY = window->y + CARDGAME_windowLayouts[window->unkC].y;
+    number.scaleX = window->from;
+    number.scaleY = 0x1000;
+    CARDGAME_drawNumber(&number, 1);
+    initSpriteDrawer(&digits);
+    digits.setLayerId(0x100, 1);
+    digits.setTexture(0x280, 0);
+    digits.setPivot(window->x + CARDGAME_windowLayouts[window->unkC].x,
+                    window->y + CARDGAME_windowLayouts[window->unkC].y);
+    digits.setScale(window->from, 0x1000, 0x1000);
+    digits.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), (window->unk10 >> 4) * 3 + 0x1D,
+                window->x + 6, window->y + 2);
+}
+
+void func_80096080(CardScreen *screen, CardScreenItems *items, CardScreenE0C *window) {
+    s32 offset = 0;
+
+    if (window->unkC == 2 && window->unk14[2] == 1) {
+        offset = 0x45;
+    }
+    if (window->state == 2 && window->unkC == 3 && window->unkE != 0) {
+        drawWindowCount(window);
+    }
+    {
+    SpriteDrawer frame;
+
+    if (CARDGAME_windowLayouts[window->unkC].kind == 2) {
+        initSpriteDrawer(&frame);
+        frame.setLayerId(0x100, 1);
+        frame.setTexture(0x340, 0);
+        if (window->from != 0x1000) {
+            frame.setPivot(window->x + CARDGAME_windowLayouts[window->unkC].x,
+                           window->y + CARDGAME_windowLayouts[window->unkC].y);
+            frame.setScale(window->from, 0x1000, 0x1000);
+        }
+        frame.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 3), CARDGAME_windowLayouts[window->unkC].sprite,
+                   window->x + offset, window->y);
+    } else {
+        initSpriteDrawer(&frame);
+        frame.setLayerId(0x100, 1);
+        frame.setTexture(0x280, 0);
+        if (window->from != 0x1000) {
+            frame.setPivot(window->x + CARDGAME_windowLayouts[window->unkC].x,
+                           window->y + CARDGAME_windowLayouts[window->unkC].y);
+            frame.setScale(window->from, 0x1000, 0x1000);
+        }
+        frame.draw(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 2), CARDGAME_windowLayouts[window->unkC].sprite,
+                   window->x + offset, window->y);
+    }
+    }
+}
 
 void func_8009642C(CardScreen *screen, CardScreenItems *items, CardScreenE0C *window) {
     s32 values[2];
@@ -2260,10 +2324,9 @@ s32 D_800A5958[] = {
 CardOffset D_800A485C[] = {
     {0x49, 0x61}, {0x7B, 0x61}, {0xAD, 0x61},
 };
-s32 D_800A4868[] = {
-    0xA0000, 0xBE0202, 0x203000A, 0x1800BE,
-    0x430204, 0x2050018, 0x1E0000, 0x1400237,
-    0x119000A,
+CardWindowLayout CARDGAME_windowLayouts[] = {
+    {0x00, 0x0A, 0x02, 2}, {0xBE, 0x0A, 0x03, 2}, {0xBE, 0x18, 0x04, 2},
+    {0x43, 0x18, 0x05, 2}, {0x00, 0x1E, 0x37, 2}, {0x140, 0x0A, 0x19, 1},
 };
 u16 D_800A488C[] = {
     0x0004, 0x0018, 0x0049, 0x0000,

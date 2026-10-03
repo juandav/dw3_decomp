@@ -76,6 +76,14 @@ typedef struct CardOffset {
     /* 0x2 */ s16 y;
 } CardOffset;
 
+/* How each of the six CardScreenE0C windows is drawn */
+typedef struct CardWindowLayout {
+    /* 0x0 */ s16 x; /* its pivot, from the window's corner */
+    /* 0x2 */ s16 y;
+    /* 0x4 */ u8 sprite;
+    /* 0x5 */ u8 kind; /* 2: a sprite of the fourth TIM, else of the third */
+} CardWindowLayout;
+
 /* A deck's window (CARDGAME_createDeckWindow): its name and how many cards
    of each of the six colours it has. It opens and closes by scaling. */
 typedef struct CardDeckWindow {
