@@ -429,7 +429,16 @@ ShopInfo *func_8008AB04(s32 selling, s32 item) {
     return info;
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008ABA4);
+void func_8008ABA4(ItemShop *shop, ItemShopWindows *win) {
+    win->help = createTextWindow(shop->layer, 1, 0xD3, 0xCC);
+    win->title = createTextWindow(shop->layer, 1, 0x1D, 0x14);
+    win->money = createTextWindow(shop->layer, 3, 0x117, 0x17);
+    win->moneyLabel = createTextWindow(shop->layer, 3, 0x11A, 0x17);
+    win->buy = createTextWindow(shop->layer, 1, 0xBE, 0x2F);
+    win->sell = createTextWindow(shop->layer, 1, 0xBE, 0x3D);
+    win->cursor = createCursor(shop->layer, 0, 0xB0, 0x2F);
+    win->cursor->setVisible(win->cursor, 0);
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008AC8C);
 
