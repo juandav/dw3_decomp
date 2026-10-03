@@ -83,7 +83,7 @@ above counts them: fake matches, then the other two kinds together.
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 3 | `/* unused, but it is in the original stack frame */` |
 | Form-dependent matches | 1 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 1840 | `INCLUDE_ASM` |
+| Functions still in assembly | 1,832 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable

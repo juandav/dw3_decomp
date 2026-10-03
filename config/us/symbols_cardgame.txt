@@ -1,1 +1,12 @@
 D_800A494C = 0x800A494C; // size:0x18
+
+// the screen fader (CardFader)
+CARDGAME_drawFader = 0x800A21DC; // type:func
+CARDGAME_stepFader = 0x800A238C; // type:func
+CARDGAME_setFaderColor = 0x800A244C; // type:func
+CARDGAME_startFade = 0x800A245C; // type:func
+CARDGAME_isFadeDone = 0x800A24A8; // type:func
+CARDGAME_killFader = 0x800A24B4; // type:func
+CARDGAME_tickFader = 0x800A24C0; // type:func
+CARDGAME_createFader = 0x800A2580; // type:func
+CARDGAME_fadeRect = 0x800A4C58;
