@@ -41,6 +41,25 @@ typedef struct ItemShopWindows {
     /* 0x20 */ ScreenFade *fade;
 } ItemShopWindows;
 
+/* What the details panel shows of a partner */
+typedef struct ShopPartnerInfo {
+    /* 0x00 */ s16 stats[19]; /* as computeStats gives them */
+    /* 0x26 */ s16 penalties[3]; /* subtracted from stats 6, 7 and 10 */
+    /* 0x2C */ s16 newStats[22]; /* with the item equipped */
+    /* 0x58 */ s32 unk58;
+    /* 0x5C */ s32 changes; /* how many of the stats would change */
+    /* 0x60 */ s32 rows[8]; /* from 2: the stats that change (from 1) */
+} ShopPartnerInfo;
+
+/* A row of the details panel's stats */
+typedef struct ShopStatRow {
+    /* 0x00 */ s32 partner;
+    /* 0x04 */ s32 stat; /* into D_8008C114 */
+    /* 0x08 */ s32 compare; /* show the stat with the item equipped */
+    /* 0x0C */ s32 skip;
+    /* 0x10 */ s32 skip2; /* -1: none */
+} ShopStatRow;
+
 /* The panel with the selected item's details (func_8008AB04) */
 typedef struct ShopInfo {
     TASK_HEADER(ShopInfo);
@@ -48,7 +67,8 @@ typedef struct ShopInfo {
     /* 0x054 */ s32 depth;
     /* 0x058 */ s32 selling;
     /* 0x05C */ s32 page; /* 0: the description, 1: the partners' stats */
-    /* 0x060 */ u8 unk60[0x1E4 - 0x60];
+    /* 0x060 */ s32 unk60;
+    /* 0x064 */ ShopPartnerInfo partners[3];
     /* 0x1E4 */ s32 item;
     /* 0x1E8 */ s32 unk1E8;
     /* 0x1EC */ s32 unk1EC;

@@ -17,6 +17,7 @@ void func_8008988C(ShopInfo *info, void *win, s32 arg);
 void func_8008A5E8();
 void func_800884A4(s16 *p, s32 stat, s32 delta);
 void func_8008AF88(ItemShop *shop, ItemShopWindows *win);
+extern s32 D_8008C114[];
 extern s32 D_8008C16C[];
 ItemShop *func_8008B77C(void);
 void func_8008B614();
@@ -443,11 +444,84 @@ void func_800884A4(s16 *p, s32 stat, s32 delta) {
     }
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80088578);
+void func_80088578(ShopInfo *info, TextWindow *win, ShopStatRow *row) {
+    ShopPartnerInfo *p = &info->partners[row->partner];
+    s16 value;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80088638);
+    if (row->compare == 0) {
+        value = *(D_8008C114[row->stat] + p->stats);
+    } else {
+        value = *(D_8008C114[row->stat] + p->newStats);
+    }
+    win->setNumber(win, 0, value);
+    win->setRightAlign(win, 1);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008879C);
+void func_80088638(ShopInfo *info, TextWindow *win, ShopStatRow *row) {
+    ShopPartnerInfo *p = &info->partners[row->partner];
+    s32 penalty;
+    s16 v[2];
+
+    if (row->stat == 0) {
+        penalty = 0;
+    } else if (row->stat == 1) {
+        penalty = 1;
+    } else if (row->stat == 4) {
+        penalty = 2;
+    } else {
+        penalty = -1;
+    }
+    v[0] = *(D_8008C114[row->stat] + p->stats);
+    if (row->compare == 0) {
+        if (penalty >= 0 && p->penalties[penalty] != 0) {
+            win->setPalette(win, 6);
+        } else {
+            win->setPalette(win, 0);
+        }
+    } else {
+        v[1] = *(D_8008C114[row->stat] + p->newStats);
+        if (v[0] == v[1]) {
+            if (penalty >= 0 && p->penalties[penalty] != 0) {
+                win->setPalette(win, 6);
+            } else {
+                win->setPalette(win, 0);
+            }
+        } else if (v[0] < v[1]) {
+            win->setPalette(win, 1);
+        } else {
+            win->setPalette(win, 5);
+        }
+    }
+}
+
+void func_8008879C(ShopInfo *info, TextWindow **win, ShopStatRow *row) {
+    ShopPartnerInfo *p = &info->partners[row->partner];
+    s32 i;
+    s32 n = 0;
+    s16 v[2];
+
+    for (i = 0; i < 13; i++) {
+        if (i != row->skip && (row->skip2 < 0 || i != row->skip2)) {
+            v[0] = *(D_8008C114[i] + p->stats);
+            v[1] = *(D_8008C114[i] + p->newStats);
+            if (v[0] != v[1]) {
+                p->rows[n + 2] = i + 1;
+                win[n]->setNumber(win[n], 0, v[1]);
+                win[n]->setRightAlign(win[n], 1);
+                if (v[0] < v[1]) {
+                    win[n]->setPalette(win[n], 1);
+                } else {
+                    win[n]->setPalette(win[n], 5);
+                }
+                n++;
+            }
+        }
+    }
+    p->changes += n;
+    for (i = n; i < 4; i++) {
+        win[i]->setVisible(win[i], 0);
+    }
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80088960);
 
