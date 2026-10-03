@@ -334,9 +334,76 @@ void FIGHTSTG_fadeBattleCamera(BattleCamera *task, CameraView *from, CameraView 
     task->setState(task, TASK_DONE);
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80091788);
+/* The view of a fighter's camera (id as Models.getFighter takes it), which ends
+   the battle camera's fade */
+CameraView *func_80091788(BattleCamera *task, s32 id, s32 camera) {
+    Models *models;
+    s32 fighter;
+    FighterInfo *info;
+    FighterInfoEnemy *enemy;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80091950);
+    /* the match depends on the do-while and its breaks, the early exit that
+       the stages' event code uses too */
+    do {
+        models = TASK_FUNCS.find(0x14, -1, -1);
+        if (models == NULL) {
+            break;
+        }
+        fighter = models->getFighter(models, id);
+        if (fighter == 0) {
+            break;
+        }
+        if (!(id & 0xF0)) {
+            info = D_800A32E0.funcs.getInfo(fighter);
+            D_800A3438.vpx = info->camPos[camera].x;
+            D_800A3438.vpy = -info->camPos[camera].y;
+            D_800A3438.vpz = -info->camPos[camera].z;
+            D_800A3438.vrx = info->camRef[camera].x;
+            D_800A3438.vry = -info->camRef[camera].y;
+            D_800A3438.vrz = -info->camRef[camera].z;
+            D_800A3438.proj = info->camProj[camera];
+        } else {
+            enemy = (FighterInfoEnemy *)D_800A32E0.funcs.getInfo(fighter);
+            D_800A3438.vpx = enemy->camPos[camera].x;
+            D_800A3438.vpy = -enemy->camPos[camera].y;
+            D_800A3438.vpz = -enemy->camPos[camera].z;
+            D_800A3438.vrx = enemy->camRef[camera].x;
+            D_800A3438.vry = -enemy->camRef[camera].y;
+            D_800A3438.vrz = -enemy->camRef[camera].z;
+            D_800A3438.proj = enemy->camProj[camera];
+        }
+        D_800A3438.rot.vx = 0;
+        D_800A3438.rot.vy = 0;
+        D_800A3438.rot.vz = 0;
+        D_800A3438.tx = 0;
+        D_800A3438.ty = 0;
+        D_800A3438.tz = 0;
+        D_800A3438.rz = 0;
+        task->setState(task, TASK_DONE);
+    } while (0);
+    return &D_800A3438;
+}
+
+/* The view of the enemy's last camera */
+CameraView *func_80091950(BattleCamera *task) {
+    Models *models;
+    s32 fighter;
+
+    /* the match depends on the do-while and its breaks, as func_80091788's */
+    do {
+        models = TASK_FUNCS.find(0x14, -1, -1);
+        if (models == NULL) {
+            break;
+        }
+        fighter = models->getFighter(models, 0x10);
+        if (fighter == 0) {
+            break;
+        }
+        D_800A32E0.funcs.getInfo(fighter);
+        func_80091788(task, 0, ((FighterInfoEnemy *)D_800A32E0.info)->cameraCount - 1);
+    } while (0);
+    return &D_800A3438;
+}
 
 void FIGHTSTG_createBattleCamera(s32 layerId) {
     BattleCamera *task = createTaskWithId(FIGHTSTG_updateBattleCamera, sizeof(BattleCamera), 0, 0x12);
@@ -965,7 +1032,111 @@ void func_80094B1C(ItemMenu *task, ItemMenuWindows *w) {
     w->count->setRightAlign(w->count, 1);
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80094D04);
+void func_80094D04(ItemMenu *task, ItemMenuWindows *w) {
+    s32 total;
+    s32 pressed;
+    s32 page;
+    s32 rows;
+    s32 n;
+    s32 i;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        total = ITEM_FUNCS->list(1, (u16 *)task->items);
+        task->count = 0;
+        for (i = 0; i < total; i++) {
+            if (task->items[i] == 0) {
+                break;
+            }
+            if (*GET_ITEM[0](task->items[i])->data & 2) {
+                task->count++;
+            }
+        }
+        if (task->count != 0) {
+            task->usable = HEAP.alloc(task->count * 2, 2);
+            n = 0;
+            for (i = 0; i < total; i++) {
+                if (task->items[i] == 0) {
+                    break;
+                }
+                if (*GET_ITEM[0](task->items[i])->data & 2) {
+                    task->usable[n++] = task->items[i];
+                }
+            }
+            if (task->count % 7 != 0) {
+                task->pageCount = task->count / 7 + 1;
+            } else {
+                task->pageCount = task->count / 7;
+            }
+            if (task->count != 0) {
+                if (task->count >= 8) {
+                    D_800A22BC.count = 7;
+                } else {
+                    D_800A22BC.count = task->count;
+                }
+            }
+        }
+        w->cursor = func_8009A214(&D_800A22BC);
+        func_800949AC(task, w);
+        func_80094B1C(task, w);
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+        func_800947AC(task);
+        pressed = PAD.getPressed(0);
+        page = task->page;
+        if (task->pageCount != 0) {
+            if (pressed & (1 << PAD_L1)) {
+                if (--task->page < 0) {
+                    task->page = 0;
+                }
+            } else if (pressed & (1 << PAD_R1)) {
+                if (++task->page > task->pageCount - 1) {
+                    task->page = task->pageCount - 1;
+                }
+            }
+        }
+        if (page != task->page) {
+            w->cursor->sel = 0;
+            rows = task->count - task->page * 7;
+            if (rows >= 8) {
+                rows = 7;
+            }
+            w->cursor->params.count = rows;
+            func_80094B1C(task, w);
+            SOUND.playSound(0x4001B);
+        } else if (task->sel != w->cursor->sel) {
+            func_80094B1C(task, w);
+        } else if (pressed & (1 << PAD_CROSS)) {
+            SOUND.playSound(0x4001C);
+            if (task->count != 0) {
+                *task->unk50 = task->usable[task->page * 7 + w->cursor->sel];
+                task->setState(task, 3);
+                w->cursor->locked = 1;
+                break;
+            }
+        } else if (pressed & (1 << PAD_TRIANGLE)) {
+            /* the match depends on the goto, which puts the cancel after the
+               cursor's line */
+            goto cancel;
+        }
+        task->sel = w->cursor->sel;
+        break;
+    cancel:
+        SOUND.playSound(0x800450BD);
+        *task->unk50 = -2;
+        task->setState(task, 3);
+        break;
+    case 2:
+        break;
+    case 3:
+        if (task->usable != NULL) {
+            HEAP.free(task->usable);
+        }
+        break;
+    }
+}
 
 ItemMenu *func_80095154(s32 *arg0) {
     ItemMenu *task = createTask(func_80094D04, sizeof(ItemMenu), sizeof(ItemMenuWindows));
@@ -1112,7 +1283,180 @@ void func_80095660(Unk80095AC0 *task, TextWindow **windows) {
     }
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80095AC0);
+/* fightstg.c defines it as an s32 array */
+extern Unk8009A214 D_800A22DC;
+
+/* The battle's technique menu: the active fighter's techniques (a Digimon of
+   a partner's slots has its entry's, its signature one and the ones the other
+   entries can pass on), six a page */
+void func_80095AC0(Unk80095AC0 *task, TextWindow **windows) {
+    s32 extra[10];
+    BattleFighter *fighter;
+    BattleFighter *active;
+    DigimonData *data;
+    s32 member;
+    s32 id;
+    s32 slots;
+    s32 found;
+    s32 count;
+    s32 tech;
+    s32 pressed;
+    s32 page;
+    s32 lines;
+    s32 mp;
+    s32 i;
+    s32 j;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        member = GAME.funcs.getPartyMember(D_800A31E8.active[0]);
+        fighter = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
+        id = fighter->id;
+        if (id == DIGIMON_DATA[member].id) {
+            task->techs[0] = DIGIMON_DATA[member].skills[6] | 0x8000;
+            task->count = 1;
+        } else {
+            slots = GAME.funcs.getPartnerSlots(member, task->slots);
+            task->count = 0;
+            for (i = 0; i < slots; i++) {
+                GAME.funcs.getPartnerEntry(member, task->slots[i], &task->entries[i]);
+                if (id == task->entries[i].id) {
+                    for (j = 0; j < 6; j++) {
+                        if (task->entries[i].techs[j] != 0) {
+                            task->techs[task->count++] = (s16)(task->entries[i].techs[j] & ~0x4000);
+                        }
+                    }
+                }
+            }
+            if (fighter->unk1A != 0) {
+                data = ON_PARTNER_ENTRY_ADDED(fighter->id);
+                found = 0;
+                for (j = 0; j < task->count; j++) {
+                    if ((task->techs[j] & 0x1FFF) == data->skills[6]) {
+                        task->techs[j] = (task->techs[j] & 0x1FFF) | 0x8000;
+                        found = -1;
+                        break;
+                    }
+                }
+                if (found != -1) {
+                    task->techs[task->count++] = data->skills[6] | 0x8000;
+                }
+            }
+            /* the techniques the other entries can pass on */
+            for (j = 9; j >= 0; j--) {
+                extra[j] = 0;
+            }
+            count = 0;
+            for (i = 0; i < slots; i++) {
+                if (id != task->entries[i].id) {
+                    for (j = 0; j < 6; j++) {
+                        if (task->entries[i].techs[j] & 0x4000) {
+                            extra[count++] = task->entries[i].techs[j];
+                        }
+                    }
+                }
+            }
+            for (j = 0; j < count; j++) {
+                tech = extra[j] & 0x1FFF;
+                for (i = 0; i < task->count; i++) {
+                    if (tech == (task->techs[i] & 0x1FFF)) {
+                        tech = 0;
+                        break;
+                    }
+                }
+                if (tech != 0) {
+                    task->techs[task->count++] = extra[j];
+                }
+            }
+        }
+        if (task->count != 0) {
+            if (task->count % 6 != 0) {
+                task->pageCount = task->count / 6 + 1;
+            } else {
+                task->pageCount = task->count / 6;
+            }
+        }
+        if (task->count != 0) {
+            if (task->count > 6) {
+                D_800A22DC.count = 6;
+            } else {
+                D_800A22DC.count = task->count;
+            }
+        }
+#if VERSION_EU
+        else {
+            D_800A22DC.count = 1;
+        }
+#endif
+        windows[0] = (TextWindow *)func_8009A214(&D_800A22DC);
+        func_8009539C(task, windows);
+        func_80095660(task, windows);
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+        func_80095194(task);
+        /* the match depends on the do-while and its breaks, which skip the
+           update of sel, the stages' early exit */
+        do {
+            pressed = PAD.getPressed(0);
+            page = task->page;
+            if (task->pageCount != 0) {
+                if (pressed & (1 << PAD_L1)) {
+                    if (--task->page < 0) {
+                        task->page = 0;
+                    }
+                } else if (pressed & (1 << PAD_R1)) {
+                    if (++task->page > task->pageCount - 1) {
+                        task->page = task->pageCount - 1;
+                    }
+                }
+            }
+            if (page != task->page) {
+                ((Unk8009A098 *)windows[0])->sel = 0;
+                lines = task->count - task->page * 6;
+                if (lines > 6) {
+                    lines = 6;
+                }
+                ((Unk8009A098 *)windows[0])->params.count = lines;
+                func_80095660(task, windows);
+                SOUND.playSound(0x4001B);
+            } else if (task->sel != ((Unk8009A098 *)windows[0])->sel) {
+                func_80095660(task, windows);
+            } else if (pressed & (1 << PAD_CROSS)) {
+                SOUND.playSound(0x4001C);
+                if (task->count != 0) {
+                    active = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
+                    /* the match depends on the choice written in both branches */
+                    if (active->unk1A != 0) {
+                        *task->unk50 = task->techs[task->page * 6 + ((Unk8009A098 *)windows[0])->sel] & 0x1FFF;
+                        task->setState(task, 3);
+                        ((Unk8009A098 *)windows[0])->locked = 1;
+                        break;
+                    }
+                    mp = D_800A3308.unkE8(0, task->techs[task->page * 6 + ((Unk8009A098 *)windows[0])->sel]);
+                    if (active->mp >= mp) {
+                        active->mp -= mp;
+                        *task->unk50 = task->techs[task->page * 6 + ((Unk8009A098 *)windows[0])->sel] & 0x1FFF;
+                        task->setState(task, 3);
+                        ((Unk8009A098 *)windows[0])->locked = 1;
+                        break;
+                    }
+                }
+            } else if (pressed & (1 << PAD_TRIANGLE)) {
+                SOUND.playSound(0x800450BD);
+                *task->unk50 = -2;
+                task->setState(task, 3);
+                break;
+            }
+            task->sel = ((Unk8009A098 *)windows[0])->sel;
+        } while (0);
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 Unk80095AC0 *func_8009619C(s32 *arg0) {
     Unk80095AC0 *task = createTask(func_80095AC0, sizeof(Unk80095AC0), 16 * sizeof(Task *));
@@ -1208,7 +1552,105 @@ void func_800965D4(Unk800967A4 *task, Unk800967A4Windows *w) {
     }
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800967A4);
+/* The battle's partner switch menu: the other two fighters, or a message
+   when there is none */
+void func_800967A4(Unk800967A4 *task, Unk800967A4Windows *w) {
+    SpriteDrawer drawer;
+    BattleFighter *fighters;
+    BattleFighter *fighter;
+    s32 pressed;
+    s32 sel;
+    s32 active;
+    s32 temporary;
+    s32 i;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        active = D_800A31E8.active[0];
+        fighters = D_800A31E8.fighters[0];
+        temporary = fighters[active].unk1A;
+        for (i = 0; i < 3; i++) {
+            if (fighters[i].id != 0 && i != D_800A31E8.active[0]) {
+                task->unk5C[task->count] = i;
+                if (task->unk58 != 0 && temporary == 0) {
+                    task->unk74[task->count] = func_800961DC(task, D_800A31E8.active[0], i);
+                }
+                task->count++;
+            }
+        }
+        if (task->count > 0) {
+            D_800A22FC.count = task->count;
+            w->cursor = func_8009A214(&D_800A22FC);
+            w->cursor->sel = *task->unk54;
+            func_800963D4(task, w);
+            func_800965D4(task, w);
+            task->nextState(task);
+        } else {
+            w->message = createTextWindow(0x1005, 1, 0x14, 0xC2);
+            w->message->setVisible(w->message, 0);
+            task->setState(task, 2);
+        }
+        break;
+    case TASK_RUN:
+        func_800962F8(task);
+        /* the match depends on the do-while and its break, the stages' early exit */
+        do {
+            pressed = PAD.getPressed(0);
+            if (task->unk58 != 0 && (pressed & (1 << PAD_TRIANGLE))) {
+                SOUND.playSound(0x800450BD);
+                *task->unk50 = -2;
+                task->setState(task, 3);
+                break;
+            }
+            if (pressed & (1 << PAD_CROSS)) {
+                SOUND.playSound(0x4001C);
+                sel = w->cursor->sel;
+                fighter = &D_800A31E8.fighters[0][task->unk5C[sel]];
+                if (fighter->hp != 0) {
+                    *task->unk54 = sel;
+                    *task->unk50 = task->unk5C[w->cursor->sel];
+                    task->setState(task, 3);
+                    w->cursor->locked = 1;
+                }
+            }
+        } while (0);
+        break;
+    case 2:
+        if (PAD.getPressed(0) & (1 << PAD_CROSS)) {
+            SOUND.playSound(0x4001C);
+            *task->unk50 = -2;
+            task->setState(task, 3);
+            w->message->setVisible(w->message, 0);
+            break;
+        }
+        initSpriteDrawer(&drawer);
+        drawer.setLayerId(0x1005, 1);
+        if (task->unk68 != 0) {
+            if (GFX.funcs.getTime() - task->unk6C >= 4) {
+                task->unk6C = GFX.funcs.getTime();
+                task->unk70++;
+                if (task->unk70 >= 5) {
+                    task->unk70 = 0;
+                }
+            }
+            drawer.setTexture(0x140, 0);
+            drawer.setClutRow(task->unk70);
+            drawer.draw(FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16), 10, 0x123, 0xD0);
+            drawer.setClutRow(0);
+        } else {
+            task->unk68 = 1;
+        }
+        drawer.setTexture(0x200, 0);
+        drawer.draw(FILE_CACHE.getEntry(FILE_BATTLE_MENU << 16), 0x31, 0xB, 0xBC);
+        if (!w->message->isVisible(w->message)) {
+            w->message->setString(w->message, FILE_CACHE.load(TEXT_FILE(0x80)), 0x14);
+        }
+        break;
+    case 3:
+        break;
+    }
+}
 
 void func_80096C8C(s32 *done, s32 *arg1, s32 arg2) {
     Unk800967A4 *task = createTask(func_800967A4, sizeof(Unk800967A4), 0x50);
@@ -1324,7 +1766,196 @@ void func_80097000(Unk800973D4 *task, Unk800973D4Windows *w, s32 visible) {
     }
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800973D4);
+/* The battle's two-step menu: one of a party member's Digimon (its own or a
+   slot's), then the attack or the technique the two fighters have together */
+void func_800973D4(Unk800973D4 *task, Unk800973D4Windows *w) {
+    BattleFighter *active;
+    BattleFighter *other;
+    DigimonData *data;
+    DigimonData *partner;
+    s32 member;
+    s32 pressed;
+    s32 count;
+    s32 changed;
+    s32 i;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        member = task->unk60;
+        GAME.funcs.getPartnerSlots(member, task->slots);
+        count = 1;
+        task->ids[0] = DIGIMON_DATA[member].id;
+        for (i = 0; i < 3; i++) {
+            if (task->slots[i] >= 3) {
+                task->ids[count] = task->slots[i];
+                count++;
+            }
+        }
+        task->count = count;
+        D_800A231C[0].count = count;
+        func_80096DB8(task, w);
+        task->unk58 = -1;
+        task->nextState(task);
+        /* fallthrough */
+    case TASK_RUN:
+        switch (task->substate) {
+        case 0:
+        default:
+            switch (task->step) {
+            case 0:
+            default:
+                w->cursor = func_8009A214(&D_800A231C[0]);
+                w->cursor->sel = task->unk64;
+                if (w->techCursor != NULL) {
+                    w->techCursor->setState(w->techCursor, 3);
+                }
+                task->nextStep(task);
+                break;
+            case 1:
+                /* the match depends on the do-while and its breaks, the stages' early
+                   exit, here and in the technique menu below */
+                do {
+                    pressed = PAD.getPressed(0);
+                    if (pressed & (1 << PAD_TRIANGLE)) {
+                        SOUND.playSound(0x800450BD);
+                        *task->unk50 = -2;
+                        task->setState(task, 3);
+                        break;
+                    }
+                    if (pressed & (1 << PAD_CROSS)) {
+                        SOUND.playSound(0x4001C);
+                        task->nextSubstate(task);
+                        func_80096EE0(task, w, 0);
+                        w->cursor->locked = 1;
+                        break;
+                    }
+                    if (pressed & (1 << PAD_R1)) {
+                        if (++task->unk54 == 3) {
+                            task->unk54 = 0;
+                        }
+                        SOUND.playSound(0x4001B);
+                        break;
+                    }
+                    if (pressed & (1 << PAD_L1)) {
+                        if (--task->unk54 < 0) {
+                            task->unk54 = 2;
+                        }
+                        SOUND.playSound(0x4001B);
+                        break;
+                    }
+                    func_80096EE0(task, w, 1);
+                    func_80097000(task, w, 0);
+                } while (0);
+                break;
+            }
+            break;
+        case 1:
+            switch (task->step) {
+            case 0:
+            default:
+                if (D_800A31E8.fighters[0][D_800A31E8.active[0]].unk1A == 0) {
+                    data = ON_PARTNER_ENTRY_ADDED(D_800A31E8.fighters[0][D_800A31E8.active[0]].id);
+                    partner = ON_PARTNER_ENTRY_ADDED(task->ids[task->unk64]);
+                    if (data->unk3D != 0 && data->unk3D == partner->nameId) {
+                        task->tech = data->unk2A;
+                    } else {
+                        task->tech = 0;
+                    }
+                }
+                /* the match depends on the ?: */
+                D_800A231C[1].count = task->tech != 0 ? 2 : 1;
+                w->techCursor = func_8009A214(&D_800A231C[1]);
+                if (w->cursor != NULL) {
+                    w->cursor->setState(w->cursor, 3);
+                }
+                task->nextStep(task);
+                break;
+            case 1:
+                do {
+                    pressed = PAD.getPressed(0);
+                    if (pressed & (1 << PAD_CROSS)) {
+                        active = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
+                        other = &D_800A31E8.fighters[0][task->unk5C];
+                        SOUND.playSound(0x4001C);
+                        if (w->techCursor->sel == 0) {
+                            if (!(active->flags & 0x10) && !(other->flags & 0x10)) {
+                                *task->unk50 = 0;
+                                *task->unk50 |= task->ids[task->unk64] << 4;
+                                task->setSubstate(task, 0);
+                                func_80097000(task, w, 0);
+                                w->techCursor->locked = 1;
+                            }
+                        } else if (active->mp >= D_800427E8[task->tech - 1].mp && other->mp >= D_800427E8[task->tech - 1].mp &&
+                                   !(active->flags & 0x20) && !(other->flags & 0x20) && !(active->flags & 8) && active->hp > 0 &&
+                                   other->hp > 0) {
+                            active->mp -= D_800427E8[task->tech - 1].mp;
+                            other->mp -= D_800427E8[task->tech - 1].mp;
+                            *task->unk50 = w->techCursor->sel;
+                            *task->unk50 |= task->ids[task->unk64] << 4;
+                            *task->unk80 = task->tech;
+                            task->setSubstate(task, 0);
+                            func_80097000(task, w, 0);
+                            w->techCursor->locked = 1;
+                        }
+                        break;
+                    }
+                    if (pressed & (1 << PAD_TRIANGLE)) {
+                        SOUND.playSound(0x800450BD);
+                        task->setSubstate(task, 0);
+                        func_80097000(task, w, 0);
+                        break;
+                    }
+                    if (pressed & (1 << PAD_R1)) {
+                        if (++task->unk54 == 3) {
+                            task->unk54 = 0;
+                        }
+                        SOUND.playSound(0x4001B);
+                        break;
+                    }
+                    if (pressed & (1 << PAD_L1)) {
+                        if (--task->unk54 < 0) {
+                            task->unk54 = 2;
+                        }
+                        SOUND.playSound(0x4001B);
+                        break;
+                    }
+                    func_80096EE0(task, w, 0);
+                    func_80097000(task, w, 1);
+                } while (0);
+                break;
+            }
+            func_80096CEC(task);
+            break;
+        }
+        if (task->unk58 != task->unk54) {
+            changed = 1;
+        } else if (w->cursor == NULL) {
+            changed = 0;
+        } else if (task->unk64 != w->cursor->sel) {
+            task->unk64 = w->cursor->sel;
+            changed = 1;
+        } else {
+            changed = 0;
+        }
+        if (changed) {
+            task->unk58 = task->unk54;
+            if (w->unk8 != NULL) {
+                w->unk8->setState(w->unk8, 2);
+                w->unkC = func_80094754(task->unk60, task->unk54, task->unk64);
+            } else {
+                if (w->unkC != NULL) {
+                    w->unkC->setState(w->unkC, 2);
+                }
+                w->unk8 = func_80094754(task->unk60, task->unk54, task->unk64);
+            }
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 Unk800973D4 *func_80097B74(s32 *arg0) {
     Unk800973D4 *task = createTask(func_800973D4, sizeof(Unk800973D4), 17 * sizeof(Task *));

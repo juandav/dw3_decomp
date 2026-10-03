@@ -59,7 +59,8 @@ typedef struct DigimonData {
     /* 0x02 */ u16 battleStats[6];
     /* 0x0E */ u16 resistances[7];
     /* 0x1C */ u16 skills[7]; /* [1]-[6] are learnt at skillLevels */
-    /* 0x2A */ u8 unk2A[7];
+    /* 0x2A */ u16 unk2A; /* a technique it has with the partner whose nameId is unk3D */
+    /* 0x2C */ u8 unk2C[5];
     /* 0x31 */ u8 skillLevels[6];
     /* 0x37 */ u8 knownLevels[5]; /* the levels that mark an entry's skills[0]-[4] known */
     /* 0x3C */ u8 expLevel; /* the level after which its exp grows faster */

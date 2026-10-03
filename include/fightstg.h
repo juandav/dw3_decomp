@@ -612,11 +612,22 @@ typedef struct Unk800937FC {
     /* 0x6C */ s16 slots[4]; /* GAME.funcs.getPartnerSlots's */
 } Unk800937FC;
 
+/* A partner's entry in its slot, as GAME.funcs.getPartnerEntry gives it */
+typedef struct BattlePartnerEntry {
+    /* 0x0 */ s16 id;
+    /* 0x2 */ s8 unk2;
+    /* 0x3 */ u8 unk3;
+    /* 0x4 */ s16 unk4[2];
+    /* 0x8 */ s16 techs[6]; /* the low 13 bits, 0x4000 for one it can pass on */
+} BattlePartnerEntry;
+
 /* func_8009619C's task: a menu of techniques, six a page */
 typedef struct Unk80095AC0 {
     TASK_HEADER(Unk80095AC0);
     /* 0x50 */ s32 *unk50; /* -1 until it is done */
-    /* 0x54 */ u8 unk54[0x48];
+    /* 0x54 */ s32 sel; /* the cursor's line last frame */
+    /* 0x58 */ s16 slots[4]; /* GAME.funcs.getPartnerSlots's */
+    /* 0x60 */ BattlePartnerEntry entries[3];
     /* 0x9C */ s32 techs[12]; /* ids in the low 13 bits, from 1 */
     /* 0xCC */ s32 count;
     /* 0xD0 */ s32 page;
@@ -810,15 +821,6 @@ typedef struct Unk80086180 {
     /* 0x60 */ s32 file; /* its model's */
     /* 0x64 */ s32 unk64;
 } Unk80086180;
-
-/* A partner's entry in its slot, as GAME.funcs.getPartnerEntry gives it */
-typedef struct BattlePartnerEntry {
-    /* 0x0 */ s16 id;
-    /* 0x2 */ s8 unk2;
-    /* 0x3 */ u8 unk3;
-    /* 0x4 */ s16 unk4[2];
-    /* 0x8 */ s16 techs[6]; /* the low 13 bits, 0x4000 for one it can pass on */
-} BattlePartnerEntry;
 
 typedef struct Unk80094278 {
     TASK_HEADER(Unk80094278);
