@@ -1,12 +1,12 @@
 // STFGTREP.PRO's own symbols, which only its splat config reads
 
 // names from the C of the modules this version builds (tools/version_symbols.py)
-func_80082608 = 0x80082E70; // type:func
-func_80082704 = 0x80082F6C; // type:func
-func_80082730 = 0x80082F98; // type:func
-func_800827B8 = 0x80083020; // type:func
-func_800828FC = 0x80083164; // type:func
-func_800829B0 = 0x80083218; // type:func
+STFGTREP_updateScene = 0x80082E70; // type:func
+STFGTREP_start = 0x80082F6C; // type:func
+STFGTREP_startFader = 0x80082F98; // type:func
+STFGTREP_drawFader = 0x80083020; // type:func
+STFGTREP_updateFader = 0x80083164; // type:func
+STFGTREP_createFader = 0x80083218; // type:func
 func_800829F8 = 0x80083260; // type:func
 func_80082B9C = 0x80083404; // type:func
 func_80082ECC = 0x80083744; // type:func
@@ -23,13 +23,13 @@ func_800842DC = 0x80084B98; // type:func
 func_80084364 = 0x80084C20; // type:func
 func_80084608 = 0x80084EC4; // type:func
 func_80084F0C = 0x800857F0; // type:func
-func_80085240 = 0x80085B24; // type:func
-func_8008527C = 0x80085B60; // type:func
-func_8008530C = 0x80085C08; // type:func
-func_8008537C = 0x80085C90; // type:func
-func_80085410 = 0x80085D24; // type:func
-func_8008547C = 0x80085D90; // type:func
-func_800854BC = 0x80085DD0; // type:func
+STFGTREP_createScreen = 0x80085B24; // type:func
+STFGTREP_loadFiles = 0x80085B60; // type:func
+STFGTREP_filesLoading = 0x80085C08; // type:func
+STFGTREP_startFade = 0x80085C90; // type:func
+STFGTREP_updateFade = 0x80085D24; // type:func
+STFGTREP_startLerp = 0x80085D90; // type:func
+STFGTREP_updateLerp = 0x80085DD0; // type:func
 func_80085528 = 0x80085E3C; // type:func
 func_80085870 = 0x80086184; // type:func
 func_80085A38 = 0x8008634C; // type:func

@@ -1,16 +1,109 @@
-#include "common.h"
+#include "stfgtrep.h"
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80082608);
+void func_80084F0C();
+FightReport *STFGTREP_createScreen(void);
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80082704);
+void STFGTREP_updateScene(Task *task, Task **children) {
+    RECT rect;
+    Layer *layer;
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80082730);
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        GFX.funcs.reset();
+        GFX.funcs.allocPrimBuffers(0x14000);
+        GFX.funcs.setDisplayMode(0x140, 0xF0, 0, 0);
+        rect.x = 0;
+        rect.y = 0;
+        rect.w = 0x140;
+        rect.h = 0xF0;
+        layer = GFX.funcs.createLayer(&rect, 3, 0x1000);
+        layer->setBgColor(layer, 0, 0, 0);
+        children[0] = (Task *)STFGTREP_createScreen();
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_800827B8);
+Task *STFGTREP_start(void) {
+    return createTask(STFGTREP_updateScene, sizeof(Task), 4);
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_800828FC);
+void STFGTREP_startFader(ScreenFade *task, s32 fadeIn, s32 duration) {
+    task->setState(task, TASK_RUN);
+    task->substate = 1;
+    task->fadeIn = fadeIn;
+    if (fadeIn == 0) {
+        task->level = 0;
+        task->levelStep = 0xFF00 / duration;
+    } else {
+        task->level = 0xFF00;
+        task->levelStep = -(0xFF00 / duration);
+    }
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_800829B0);
+void STFGTREP_drawFader(ScreenFade *task) {
+    Layer *layer = GFX.funcs.getLayer(task->layerId);
+    u_long *ot = (u_long *)layer->getOtEntry(layer, task->depth);
+    POLY_F4 *poly = GFX.funcs.getPrim();
+    DR_TPAGE *mode;
+
+    setlen(poly, 5);
+    poly->code = 0x2A;
+    poly->r0 = poly->g0 = poly->b0 = task->level >> 8;
+    poly->x0 = poly->x2 = 0;
+    poly->x1 = poly->x3 = 320;
+    poly->y0 = poly->y1 = 0;
+    poly->y2 = poly->y3 = 256;
+    addPrim(ot, poly);
+    mode = (DR_TPAGE *)(poly + 1);
+    setlen(mode, 1);
+    mode->code[0] = 0xE1000245;
+    addPrim(ot, mode);
+    GFX.funcs.setPrim(mode + 1);
+}
+
+void STFGTREP_updateFader(ScreenFade *task) {
+    switch (task->state) {
+    case 0:
+    default:
+        task->nextState(task);
+        break;
+    case 1:
+        if (task->substate == 0) {
+            break;
+        }
+        task->level += task->levelStep;
+        if (task->fadeIn == 0) {
+            if (task->level > 0xFF00) {
+                task->level = 0xFF00;
+                task->state = 2;
+            }
+        } else if (task->level < 0) {
+            task->level = 0;
+            task->state = 2;
+        }
+        /* fallthrough */
+    case 2:
+        STFGTREP_drawFader(task);
+        break;
+    case 3:
+        break;
+    }
+}
+
+ScreenFade *STFGTREP_createFader(void) {
+    ScreenFade *task = createTask(STFGTREP_updateFader, sizeof(ScreenFade), 0);
+
+    task->start = STFGTREP_startFader;
+    task->layerId = 0x1000;
+    task->depth = 6;
+    return task;
+}
 
 INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_800829F8);
 
@@ -44,19 +137,97 @@ INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80084608);
 
 INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80084F0C);
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80085240);
+FightReport *STFGTREP_createScreen(void) {
+    FightReport *report = createTask(func_80084F0C, sizeof(FightReport), 0x1C);
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_8008527C);
+    report->layer = 0x1000;
+    report->depth = 7;
+    return report;
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_8008530C);
+void STFGTREP_loadFiles(void) {
+    TimLoader loader;
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_8008537C);
+    initTimLoader(&loader);
+    loader.setImagePos(0x280, 0);
+    loader.loadArchive(FILE_CACHE.getEntry(FILE_FGTREP_SPRITES << 16));
+    FILE_CACHE.request(TEXT_FILE(0x56));
+    FILE_CACHE.request(TEXT_FILE(0x4F));
+    FILE_CACHE.request(TEXT_FILE(0x6B));
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80085410);
+s32 STFGTREP_filesLoading(void) {
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x56)) != 0) {
+        return 1;
+    }
+    if (FILE_CACHE.isLoading(TEXT_FILE(0x4F)) != 0) {
+        return 1;
+    }
+    return FILE_CACHE.isLoading(TEXT_FILE(0x6B)) != 0;
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_8008547C);
+void STFGTREP_startFade(PanelAnim *fade, s32 fadeIn) {
+    fade->active = 1;
+    if (fadeIn != 0) {
+        SOUND.playSound(0x40019);
+        fade->level = 0;
+        fade->step = 0x1000 / fade->duration;
+    } else {
+        SOUND.playSound(0x4001A);
+        fade->level = 0x1000;
+        fade->step = -((0x1000 / fade->duration) * 2);
+    }
+}
 
-INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_800854BC);
+s32 STFGTREP_updateFade(PanelAnim *fade) {
+    if (fade->active == 0) {
+        return 1;
+    }
+    fade->level += fade->step;
+    if (fade->step > 0) {
+        if (fade->level > 0x1000) {
+            fade->level = 0x1000;
+            fade->active = 0;
+            return 1;
+        }
+    } else if (fade->level < 0) {
+        fade->level = 0;
+        fade->active = 0;
+        return 1;
+    }
+    return 0;
+}
+
+void STFGTREP_startLerp(MenuLerp *lerp, s32 from, s32 to, s32 frames) {
+    if (from != to) {
+        lerp->duration = frames;
+        lerp->fixed = from << 8;
+        lerp->value = from;
+        lerp->target = to;
+        lerp->active = 1;
+        lerp->step = ((to - from) << 8) / lerp->duration;
+    }
+}
+
+s32 STFGTREP_updateLerp(MenuLerp *lerp) {
+    if (lerp->active == 0) {
+        return 1;
+    }
+    lerp->fixed += lerp->step;
+    lerp->value = lerp->fixed >> 8;
+    if (lerp->step > 0) {
+        if (lerp->target < lerp->value) {
+            lerp->value = lerp->target;
+            lerp->active = 0;
+            return 1;
+        }
+    } else if (lerp->value < lerp->target) {
+        lerp->value = lerp->target;
+        lerp->active = 0;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("stfgtrep/nonmatchings/stfgtrep", func_80085528);
 
@@ -80,12 +251,6 @@ extern s32 D_80087C28[];
 extern s32 D_80087EE8[];
 extern s32 D_800881A8[];
 extern s32 D_80088468[];
-void func_8008527C();
-void func_8008530C();
-void func_8008537C();
-void func_80085410();
-void func_8008547C();
-void func_800854BC();
 void func_80085870();
 void func_80085A38();
 void func_80085CAC();
@@ -992,11 +1157,11 @@ s32 D_80088748[] = {
     -1, 21, 22, 23,
     24, 23, 22, -1,
 };
-s32 D_80088828 = (s32)func_8008527C;
-s32 D_8008882C = (s32)func_8008530C;
-s32 D_80088830 = (s32)func_8008537C;
+s32 D_80088828 = (s32)STFGTREP_loadFiles;
+s32 D_8008882C = (s32)STFGTREP_filesLoading;
+s32 D_80088830 = (s32)STFGTREP_startFade;
 s32 D_80088834[] = {
-    (s32)func_80085410, (s32)func_8008547C, (s32)func_800854BC,
+    (s32)STFGTREP_updateFade, (s32)STFGTREP_startLerp, (s32)STFGTREP_updateLerp,
 };
 s32 D_80088840 = (s32)func_80085870;
 s32 D_80088844[] = {
