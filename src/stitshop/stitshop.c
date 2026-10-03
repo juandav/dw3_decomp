@@ -9,6 +9,7 @@ void func_8008B908(PanelAnim *fade, s32 fadeIn);
 s32 func_8008B99C(PanelAnim *fade);
 void func_8008BA08(ShopLerp *lerp, s32 from, s32 to, s32 frames);
 s32 func_8008BA48(ShopLerp *lerp);
+s32 func_8008BAF8(s32 partner, s32 item);
 
 void func_800829B4(Task *task, Task **children) {
     RECT rect;
@@ -335,7 +336,9 @@ s32 func_8008BA48(ShopLerp *lerp) {
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BAB4);
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BAF8);
+s32 func_8008BAF8(s32 partner, s32 item) {
+    return (GET_ITEM[0](item)->data[4] >> partner) & 1;
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BB3C);
 
@@ -373,7 +376,6 @@ extern s32 D_8008C620[];
 extern s32 D_8008C648[];
 extern s32 D_8008C674[];
 void func_8008BAB4();
-void func_8008BAF8();
 void func_8008BB3C();
 void func_8008BE2C();
 
