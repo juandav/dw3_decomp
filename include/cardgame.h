@@ -12,11 +12,88 @@
 #define FILE_CARDGAME_TIMS 0x25D
 #endif
 
-/* The card battle (CARDGAME_createBattle) */
+/* A card a player has out (CARDGAME_setSlot) */
+typedef struct CardSlot {
+    /* 0x0 */ s16 card; /* the index in the battle's card list */
+    /* 0x2 */ s16 unk2;
+    /* 0x4 */ s16 unk4;
+    /* 0x6 */ s16 unk6; /* the card's byte 1 */
+    /* 0x8 */ s16 unk8; /* the card's byte 2 */
+    /* 0xA */ u8 side;
+    /* 0xB */ u8 owner;
+    /* 0xC */ u8 order; /* CardBattle.slotCount when it was added */
+} CardSlot;
+
+/* One of the two players of a card battle */
+typedef struct CardPlayer {
+    /* 0x00 */ u8 slotCount;
+    /* 0x02 */ CardSlot slots[8];
+} CardPlayer;
+
+/* An entry of CardBattle.unk584 */
+typedef struct CardBattle584 {
+    /* 0x0 */ u8 unk0;
+    /* 0x1 */ u8 unk1[7];
+} CardBattle584;
+
+/* CardBattle.unk498 */
+typedef struct CardBattle498 {
+    /* 0x0 */ u8 unk0;
+    /* 0x1 */ u8 unk1;
+    /* 0x2 */ u8 unk2[3];
+    /* 0x5 */ u8 unk5; /* 1 or 2: set unk6 to 0 or 1 */
+    /* 0x6 */ u8 unk6[15];
+} CardBattle498;
+
+/* The card battle (CARDGAME_createBattle). Its seven task items: the battle
+   screen is the last one (CardBattleItems). */
 typedef struct CardBattle {
     TASK_HEADER(CardBattle);
-    /* 0x050 */ u8 unk50[0x2B3];
+    /* 0x050 */ s16 cards[80]; /* card ids, minus one */
+    /* 0x0F0 */ u8 unkF0[0x1F8];
+    /* 0x2E8 */ u8 arg; /* the mode argument */
+    /* 0x2E9 */ u8 unk2E9[0xB];
+    /* 0x2F4 */ u8 unk2F4;
+    /* 0x2F5 */ u8 unk2F5;
+    /* 0x2F6 */ u8 unk2F6[3];
+    /* 0x2F9 */ u8 unk2F9;
+    /* 0x2FA */ u8 unk2FA[9];
     /* 0x303 */ u8 result; /* 2 once the battle is over */
+    /* 0x304 */ u8 unk304[4];
+    /* 0x308 */ u8 slotCount; /* the slots added so far */
+    /* 0x309 */ u8 unk309[0x118];
+    /* 0x421 */ u8 unk421;
+    /* 0x422 */ u8 stepState; /* 1 when a step starts */
+    /* 0x423 */ u8 unk423;
+    /* 0x424 */ s32 unk424;
+    /* 0x428 */ s32 unk428;
+    /* 0x42C */ s32 unk42C;
+    /* 0x430 */ s32 unk430;
+    /* 0x434 */ s32 unk434;
+    /* 0x438 */ s32 unk438;
+    /* 0x43C */ s32 unk43C;
+    /* 0x440 */ s32 unk440;
+    /* 0x444 */ u8 unk444;
+    /* 0x445 */ u8 unk445;
+    /* 0x446 */ s8 unk446[0x29];
+    /* 0x46F */ s8 unk46F[40];
+    /* 0x497 */ u8 unk497;
+    /* 0x498 */ CardBattle498 unk498;
+    /* 0x4AD */ u8 unk4AD[0xC7];
+    /* 0x574 */ u8 unk574;
+    /* 0x575 */ s8 unk575;
+    /* 0x576 */ u8 unk576[0xE];
+    /* 0x584 */ CardBattle584 unk584[2];
+    /* 0x594 */ u8 unk594[0x12];
+    /* 0x5A6 */ s16 unk5A6;
+    /* 0x5A8 */ u8 unk5A8[0x58];
+    /* 0x600 */ u8 unk600[0x12C];
+    /* 0x72C */ CardPlayer players[2];
+    /* 0x810 */ void (*unk810)();
+    /* 0x814 */ void (*unk814)(struct CardBattle *battle, void *arg1, s32 arg2, s32 arg3);
+    /* 0x818 */ void (*unk818)();
+    /* 0x81C */ void (*addCard)(struct CardBattle *battle, s32 side, s32 card);
+    /* 0x820 */ void (*unk820)();
 } CardBattle;
 
 /* A file CARDGAME_tickPreloader reads; a text file is in each language */
@@ -307,5 +384,11 @@ typedef struct CardScreen {
     /* 0xF40 */ u8 (*getCardColor)(struct CardScreen *screen, s32 index);
     /* 0xF44 */ s32 (*loadCardImages)(s16 *dst, s16 *player, s16 *opponent);
 } CardScreen;
+
+/* The card battle's task items */
+typedef struct CardBattleItems {
+    /* 0x00 */ void *unk0[6];
+    /* 0x18 */ CardScreen *screen;
+} CardBattleItems;
 
 #endif /* CARDGAME_H */

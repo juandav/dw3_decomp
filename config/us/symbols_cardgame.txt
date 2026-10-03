@@ -59,3 +59,5 @@ CARDGAME_createDeckWindow = 0x80095A1C; // type:func
 CARDGAME_deckCountOffsets = 0x800A4844;
 CARDGAME_drawNumber = 0x80095C88; // type:func
 CARDGAME_windowLayouts = 0x800A4868;
+CARDGAME_setSlot = 0x8009F538; // type:func
+CARDGAME_addCard = 0x8009F618; // type:func
