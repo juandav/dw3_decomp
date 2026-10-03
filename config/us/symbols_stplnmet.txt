@@ -21,3 +21,15 @@ STPLNMET_updateFade = 0x80087994; // type:func
 STPLNMET_startLerp = 0x80087A00; // type:func
 STPLNMET_updateLerp = 0x80087A40; // type:func
 STPLNMET_nameStyle = 0x80088DE4;
+
+// the executable's Shift-JIS maps of its fonts, which the name font uses
+D_8004D7B8 = 0x8004D7B8;
+D_8004DB64 = 0x8004DB64;
+
+// the name font and the keyboard
+STPLNMET_nameGlyphs = 0x80087B9C; // size:0x9E2
+STPLNMET_nameIcons = 0x80088580; // size:0x4E6
+STPLNMET_keyPagesJp = 0x80088A68; // size:0x24
+STPLNMET_keyCharsJp = 0x80088A8C; // size:0x278
+STPLNMET_keyPages = 0x80088D04; // size:0xC
+STPLNMET_keyChars = 0x80088D10; // size:0xD4

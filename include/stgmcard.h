@@ -8,8 +8,10 @@
 /* The sprite archive of the screen */
 #if VERSION_US
 #define FILE_GMCARD_SPRITES 0x28F
+#define FILE_GMCARD_SHEET 0x28E /* the sprite sheet of its images */
 #elif VERSION_EU
 #define FILE_GMCARD_SPRITES 0x29E
+#define FILE_GMCARD_SHEET 0x29D
 #endif
 
 /* The root task of the overlay (STGMCARD_start) */
@@ -18,6 +20,14 @@ typedef struct MemCardScene {
     /* 0x50 */ s32 unk50;
     /* 0x54 */ s32 unk54;
 } MemCardScene;
+
+/* A mode (or stage) the screen can be opened from, and the value the screen
+   takes from it (D_800879D8, which ends with a zero mode) */
+typedef struct MemCardModeEntry {
+    /* 0x0 */ u8 value;
+    /* 0x1 */ u8 unk1;
+    /* 0x2 */ s16 mode;
+} MemCardModeEntry;
 
 /* The main task of the screen (func_80087174) */
 typedef struct MemCardScreen {
@@ -35,16 +45,47 @@ typedef struct MemCardScreen {
 struct MemCardMenu;
 struct MemCardPanel;
 struct MemCardInfo;
+struct MemCardSaves;
+
+/* The children of the main task */
+typedef struct MemCardScreenTasks {
+    /* 0x0 */ struct MemCardSaves *saves;
+    /* 0x4 */ ScreenFade *fade;
+} MemCardScreenTasks;
 
 /* The children of the save list */
 typedef struct MemCardSavesWindows {
-    /* 0x00 */ Task *unk0;
+    /* 0x00 */ TextWindow *unk0;
     /* 0x04 */ TextWindow *windows[5];
     /* 0x18 */ Cursor *cursor;
     /* 0x1C */ struct MemCardPanel *panel;
     /* 0x20 */ struct MemCardMenu *menu;
     /* 0x24 */ struct MemCardInfo *info;
 } MemCardSavesWindows;
+
+/* A save of the memory card, as the list shows it */
+typedef struct MemCardSave {
+    /* 0x00 */ u8 name[0x18]; /* empty for a free slot */
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ s32 unk20;
+    /* 0x24 */ s32 unk24;
+    /* 0x28 */ s16 time[3]; /* hours, minutes and seconds */
+    /* 0x2E */ s16 unk2E;
+    /* 0x30 */ s32 partners[3]; /* 3 and up: a partner, whose animation the
+                                   details show */
+    /* 0x3C */ s16 levels[3];
+    /* 0x42 */ s16 unk42;
+} MemCardSave;
+
+/* A text window of the details (D_800876BC) */
+typedef struct MemCardWindowSpec {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 type;
+    /* 0x08 */ s32 x;
+    /* 0x0C */ s32 y;
+    /* 0x10 */ s32 unk10;
+} MemCardWindowSpec;
 
 /* The saves of a memory card (func_80086BA0) */
 typedef struct MemCardSaves {
@@ -55,13 +96,19 @@ typedef struct MemCardSaves {
     /* 0x0064 */ s32 port;
     /* 0x0068 */ s32 count;
     /* 0x006C */ s32 unk6C[2];
+    /* 0x0074 */ MemCardSave saves[15];
 #if VERSION_US
-    /* 0x0074 */ u8 unk74[0x2788];
+    /* 0x0470 */ u8 unk470[0x238C];
 #elif VERSION_EU
-    /* 0x0074 */ u8 unk74[0x2790];
+    /* 0x0470 */ u8 unk470[0x2394];
 #endif
-    /* 0x27FC */ s32 unk27FC; /* 0x2804 in the European version */
-    /* 0x2800 */ u8 unk2800[0x4C];
+    /* 0x27FC */ s32 unk27FC; /* 0x2804 in the European version, as all below */
+    /* 0x2800 */ MenuLerp slide[2]; /* the list's x and y offsets */
+    /* 0x2838 */ s32 unk2838;
+    /* 0x283C */ s32 blinkTime;
+    /* 0x2840 */ s32 blinkFrame;
+    /* 0x2844 */ s32 unk2844;
+    /* 0x2848 */ s32 unk2848;
     /* 0x284C */ void (*refresh)(struct MemCardSaves *saves);
     /* 0x2850 */ void (*hide)(struct MemCardSaves *saves);
 } MemCardSaves;
@@ -74,7 +121,9 @@ typedef struct MemCardInfo {
     /* 0x58 */ s32 depth;
     /* 0x5C */ s32 unk5C;
     /* 0x60 */ s32 shown;
-    /* 0x64 */ u8 unk64[0x20];
+    /* 0x64 */ s32 time;
+    /* 0x68 */ s32 frames[3]; /* of the three partners' animations */
+    /* 0x74 */ PanelAnim fade;
     /* 0x84 */ void (*show)(struct MemCardInfo *info);
     /* 0x88 */ void (*hide)(struct MemCardInfo *info);
     /* 0x8C */ void (*refresh)(struct MemCardInfo *info);
@@ -88,9 +137,9 @@ typedef struct MemCardMenu {
     /* 0x58 */ s32 depth;
     /* 0x5C */ MenuLerp lerps[4];
     /* 0xCC */ s32 unkCC;
-    /* 0xD0 */ s32 unkD0;
-    /* 0xD4 */ s32 unkD4;
-    /* 0xD8 */ s32 unkD8;
+    /* 0xD0 */ s32 blinkTime;
+    /* 0xD4 */ s32 blinkFrame;
+    /* 0xD8 */ s32 blinkDown; /* the frame counts down */
     /* 0xDC */ void (*reset)(struct MemCardMenu *menu);
     /* 0xE0 */ void (*unkE0)(struct MemCardMenu *menu);
     /* 0xE4 */ void (*unkE4)(struct MemCardMenu *menu, s32 arg);
