@@ -8,6 +8,13 @@
 
 #include "game.h"
 
+/* The shop's sprite sheet; the next file is its texture archive */
+#if VERSION_US
+#define FILE_SHOP_SPRITES 0x3F2
+#elif VERSION_EU
+#define FILE_SHOP_SPRITES 0x402
+#endif
+
 /* The main task of the shop (STITSHOP_createShop) */
 typedef struct ItemShop {
     TASK_HEADER(ItemShop);

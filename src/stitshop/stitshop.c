@@ -3,6 +3,12 @@
 Cursor *createCursor(s16 layerId, s32 depth, s16 x, s16 y);
 ItemShop *func_8008B77C(void);
 void func_8008B614();
+void func_8008B7E0(void);
+s32 func_8008B880(void);
+void func_8008B908(PanelAnim *fade, s32 fadeIn);
+s32 func_8008B99C(PanelAnim *fade);
+void func_8008BA08(ShopLerp *lerp, s32 from, s32 to, s32 frames);
+s32 func_8008BA48(ShopLerp *lerp);
 
 void func_800829B4(Task *task, Task **children) {
     RECT rect;
@@ -239,7 +245,17 @@ ItemShop *func_8008B77C(void) {
     return shop;
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B7E0);
+void func_8008B7E0(void) {
+    TimLoader loader;
+
+    initTimLoader(&loader);
+    loader.setImagePos(0x280, 0x100);
+    loader.loadArchive(FILE_CACHE.getEntry((FILE_SHOP_SPRITES + 1) << 16));
+    FILE_CACHE.request(TEXT_FILE(0x72));
+    FILE_CACHE.request(TEXT_FILE(0x6B));
+    FILE_CACHE.request(TEXT_FILE(0x64));
+    FILE_CACHE.request(TEXT_FILE(0x95));
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B880);
 
@@ -290,12 +306,6 @@ extern s32 D_8008C5F4[];
 extern s32 D_8008C620[];
 extern s32 D_8008C648[];
 extern s32 D_8008C674[];
-void func_8008B7E0();
-void func_8008B880();
-void func_8008B908();
-void func_8008B99C();
-void func_8008BA08();
-void func_8008BA48();
 void func_8008BAB4();
 void func_8008BAF8();
 void func_8008BB3C();
