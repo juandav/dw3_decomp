@@ -729,7 +729,98 @@ void func_800965D8(CardScreen *screen, CardScreenItems *items, CardScreenE0C *wi
     }
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800966FC);
+void func_800966FC(CardScreen *screen, CardScreenItems *items, CardScreenE0C *window, s32 index) {
+    if (window->state == 0) {
+        return;
+    }
+    switch (window->state) {
+    case 1:
+    default:
+        window->from = 0x1000 - (window->time << 12) / window->duration;
+        window->time -= GFX.funcs.getFrameTime();
+        if (window->time <= 0) {
+            window->state = 2;
+            switch (index) {
+            case 0:
+                func_80096504(screen, window, items->texts[7], TEXT_FILE(0x10), 1);
+                break;
+            case 2:
+                func_80096504(screen, window, items->texts[9], TEXT_FILE(0x17), 0);
+                break;
+            case 3:
+                func_80096504(screen, window, items->texts[8], TEXT_FILE(0x10), 0);
+                break;
+            case 5:
+                if (window->unkC == 5) {
+                    func_800965D8(screen, items, window, items->texts[5], TEXT_FILE(0x10));
+                } else {
+                    func_80096504(screen, window, items->texts[5], TEXT_FILE(0x10), window->unk10 != 0x24);
+                }
+                break;
+            case 1:
+            case 4:
+                break;
+            }
+        }
+        break;
+    case 2:
+        window->from = 0x1000;
+        switch (index) {
+        case 2:
+            func_80096504(screen, window, items->texts[9], TEXT_FILE(0x17), 0);
+            break;
+        case 3:
+            func_80096504(screen, window, items->texts[8], TEXT_FILE(0x10), 0);
+            break;
+        case 4:
+            if (window->unk10 == 0x1F4) {
+                if (window->unk14[2] == 0) {
+                    window->unk10 = 0x2A;
+                    func_80096504(screen, window, items->texts[10], TEXT_FILE(0x10), 1);
+                } else {
+                    window->unk10 = 0x40;
+                    func_8009642C(screen, items, window);
+                    func_80096504(screen, window, items->texts[10], TEXT_FILE(0x10), 2);
+                }
+            } else {
+                items->texts[0]->setVisible(items->texts[0], 0);
+                items->texts[1]->setVisible(items->texts[1], 0);
+                func_80096504(screen, window, items->texts[10], TEXT_FILE(0x1E), 0);
+            }
+            break;
+        }
+        break;
+    case 3:
+        switch (index) {
+        case 0:
+            items->texts[7]->setVisible(items->texts[7], 0);
+            break;
+        case 2:
+            items->texts[9]->setVisible(items->texts[9], 0);
+            break;
+        case 3:
+            items->texts[8]->setVisible(items->texts[8], 0);
+            break;
+        case 4:
+            items->texts[0]->setVisible(items->texts[0], 0);
+            items->texts[1]->setVisible(items->texts[1], 0);
+            items->texts[10]->setVisible(items->texts[10], 0);
+            break;
+        case 5:
+            items->texts[5]->setVisible(items->texts[5], 0);
+            break;
+        case 1:
+            break;
+        }
+        window->time -= GFX.funcs.getFrameTime();
+        if (window->time <= 0) {
+            window->state = 0;
+        }
+        window->from = (window->time << 12) / window->duration;
+        break;
+    }
+    func_80096080(screen, items, window);
+}
 
 void func_80096A9C(CardScreen *screen, CardScreenItems *items) {
     s32 i;
