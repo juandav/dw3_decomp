@@ -1,5 +1,11 @@
 #include "common.h"
 #include "stage.h"
+extern s16 D_800A5938[];
+#if VERSION_US
+#define TIMER_SHEET 0x6E6
+#elif VERSION_EU
+#define TIMER_SHEET 0x6F6
+#endif
 extern s32 D_800A61E8[];
 extern s32 D_800A5B50[];
 extern s32 D_800A5F7C[];
@@ -148,9 +154,57 @@ void *func_800A50C4(void) {
     return task;
 }
 
-INCLUDE_ASM("stages/nonmatchings/wstag795", func_800A50F8);
+/* Draws the timer: its frame and the three digits of GAME.countdown */
+void func_800A50F8(StageTask *task) {
+    SpriteDrawer drawer;
+    Vec2 scroll;
+    s32 i;
+    Layer *layer = GFX_FUNCS.getLayer(0x1002);
 
-INCLUDE_ASM("stages/nonmatchings/wstag795", func_800A5240);
+    layer->getScroll(layer, &scroll);
+    initSpriteDrawer(&drawer);
+    drawer.setLayer(layer, 0);
+    drawer.setTexture(0x140, 0x100);
+    drawer.setAltClut(0, 0x1F0);
+    drawer.draw(FILE_CACHE.getEntry(TIMER_SHEET << 16), 1, scroll.x + 0xE0, scroll.y + 0x16);
+    scroll.y += 0x19;
+    for (i = 0; i < 3; i++) {
+        drawer.draw(FILE_CACHE.getEntry(TIMER_SHEET << 16), GAME.countdown[i] + 2, scroll.x + D_800A5938[i], scroll.y);
+    }
+}
+
+/* The timer: counts GAME.countdown down while nothing stops it, then starts event 0x5E1 */
+void func_800A5240(StageTask *task, void **children) {
+    u8 *countdown;
+
+    switch (task->state) {
+    case TASK_RUN:
+        if (FLAGS_00.checkCondition(0x4043, 0) || D_800990B4.unk58 != 0 || D_800990B4.unk5C != 0 ||
+            D_800990B4.unk54 != 0 || D_800990B4.unk50 != 0 || D_800990B4.unk60 != 0) {
+            break;
+        }
+        func_800A50F8(task);
+        countdown = GAME.countdown;
+        if (countdown[0] != 0 || countdown[1] != 0 || countdown[2] != 0) {
+            countdown[3] -= GFX_FUNCS.getFrameTime();
+            if (countdown[3] > 60) {
+                countdown[2]--;
+                countdown[3] += 60;
+                SOUND.playSound(0x800452C6);
+            }
+            COUNTDOWN_BORROW(countdown);
+            break;
+        }
+        children[0] = func_80084B80(0x5E1);
+    case TASK_INIT:
+    default:
+        task->nextState(task);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 void *func_800A5410(void) {
     return createTask(func_800A5240, 0x54, 0x4);
@@ -372,7 +426,7 @@ AnimFrame D_800A5910[] = {
 AnimFrame *D_800A592C[] = {
     D_800A58D8, D_800A58E4, D_800A5910,
 };
-u16 D_800A5938[] = {
+s16 D_800A5938[] = {
     226, 253, 0x118, 0,
 };
 s32 D_800A5940[] = {

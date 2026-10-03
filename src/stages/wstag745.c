@@ -8,9 +8,57 @@ extern StageEffectSpot D_800A5AA4[];
 void *func_800A4EB8(void);
 StageEffect *func_800A5734(s32 x, s32 y, s32 frame);
 
-INCLUDE_ASM("stages/nonmatchings/wstag745", func_800A4CA4);
+/* The flash: a white screen drawn while in TASK_DONE (GAME.unk26E8 is set then) */
+void func_800A4CA4(StageTask *task) {
+    Layer *layer;
+    u_long *ot;
+    POLY_F4 *poly;
+    DR_TPAGE *mode;
 
-void func_800A4CA4();
+    if (task->state == TASK_INIT) {
+        if (GAME.unk26E8 != 0) {
+            task->setState(task, TASK_DONE);
+        } else {
+            task->setState(task, TASK_RUN);
+        }
+    }
+    switch (task->state) {
+    case TASK_RUN:
+        if (task->key1 != 0) {
+            if (task->substate != 5) {
+                task->nextSubstate(task);
+            } else {
+                task->key1 = 0;
+                task->setState(task, TASK_DONE);
+                SOUND.playSound(0x800410BD);
+            }
+        }
+        GAME.unk26E8 = 0;
+        break;
+    case TASK_DONE:
+        layer = GFX.funcs.getLayer(0x1002);
+        ot = (u_long *)layer->getOtEntry(layer, 6);
+        poly = GFX.funcs.getPrim();
+        setlen(poly, 5);
+        poly->code = 0x2A;
+        poly->r0 = poly->g0 = poly->b0 = 0xFF;
+        poly->x1 = poly->x3 = 320;
+        poly->x0 = poly->x2 = 0;
+        poly->y0 = poly->y1 = 0;
+        poly->y2 = poly->y3 = 256;
+        addPrim(ot, poly);
+        mode = (DR_TPAGE *)(poly + 1);
+        setlen(mode, 1);
+        mode->code[0] = 0xE1000245;
+        addPrim(ot, mode);
+        GFX.funcs.setPrim(mode + 1);
+        GAME.unk26E8 = 1;
+        break;
+    case TASK_INIT:
+    case TASK_KILL:
+        break;
+    }
+}
 
 /* Creates the flash task (id 0x18) */
 void *func_800A4EB8(void) {

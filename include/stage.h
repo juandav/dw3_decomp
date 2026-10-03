@@ -49,6 +49,11 @@ typedef struct StageInfo {
     /* 0x44 */ s32 unk44;
     /* 0x48 */ s32 unk48;
     /* 0x4C */ void *unk4C;
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s32 unk58;
+    /* 0x5C */ s32 unk5C;
+    /* 0x60 */ s32 unk60;
 } StageInfo;
 
 /*
@@ -58,6 +63,23 @@ typedef struct StageInfo {
  */
 #define DEBUG_LOG() \
     do {            \
+    } while (0)
+
+/*
+ * Carries the borrow down the digits of GAME.countdown, the timer of the
+ * timed stages: a units digit that went below 0 (255) becomes 9 and takes one
+ * from the digit above. The match depends on this statement macro's do-while.
+ */
+#define COUNTDOWN_BORROW(c)  \
+    do {                     \
+        if (c[2] >= 10) {    \
+            c[2] = 9;        \
+            c[1]--;          \
+        }                    \
+        if (c[1] >= 10) {    \
+            c[1] = 9;        \
+            c[0]--;          \
+        }                    \
     } while (0)
 
 /* FIELDSTG functions the stages call through a table */

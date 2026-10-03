@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%2016-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%2017-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -45,10 +45,10 @@ current:
 | | USA | 346 / 346 | 100.00 % | 99.97 % |
 | The 21 overlays | Europe | 936 / 1,702 | 34.18 % | 78.62 % |
 | | USA | 936 / 1,697 | 34.26 % | 78.28 % |
-| The stages (293 and 238) | Europe | 1,289 / 1,590 | 69.55 % | 99.27 % |
-| | USA | 1,223 / 1,369 | 81.64 % | 99.15 % |
-| **Total** | **Europe** | **2,571 / 3,638** | **47.15 %** | **96.92 %** |
-| | **USA** | **2,505 / 3,412** | **49.07 %** | **96.52 %** |
+| The stages (293 and 238) | Europe | 1,297 / 1,590 | 70.55 % | 99.27 % |
+| | USA | 1,231 / 1,369 | 82.83 % | 99.15 % |
+| **Total** | **Europe** | **2,579 / 3,638** | **47.41 %** | **96.92 %** |
+| | **USA** | **2,513 / 3,412** | **49.34 %** | **96.52 %** |
 
 - The executable's game code is all C. Its data is C too, in
   `src/main/data/`, until it moves next to the code that uses it.
@@ -61,7 +61,7 @@ current:
   and `FIELDSTG`, `STDWTITL`, `STDGNAME`, `STCRDABM` and `SHOCKTST` mostly.
   `FIGHTSTG`, `STSTATUS` and the other large overlays are still almost all
   assembly.
-- 98 of the 238 USA stages are all C. Many stages share functions built from the
+- 100 of the 238 USA stages are all C. Many stages share functions built from the
   same source, so one match often repeats across stages. The stages' data is
   C too, as splat's words, at the end of each stage's C file: all but
   `WSTAG331`'s, whose data differs throughout between the versions.
@@ -90,8 +90,8 @@ above counts them: fake matches, then the other two kinds together.
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 3 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 13 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 1,081 | `INCLUDE_ASM` |
+| Form-dependent matches | 14 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 1,073 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -104,8 +104,10 @@ above counts them: fake matches, then the other two kinds together.
   forms only: an extra block, an `if` without braces, a copy of a variable, a
   type, or one version's own form of a loop. The thirteen so far are a copy
   of a variable in `drawTalkBoxArrow`, an unsigned compare in STGMCARD's
-  `func_80082E28`, and eleven spots in CARDGAME: a loop or state variable of
-  its own, an empty case, or a statement written twice.
+  `func_80082E28`, eleven spots in CARDGAME (a loop or state variable of its
+  own, an empty case, or a statement written twice) and the do-while of
+  `COUNTDOWN_BORROW`, the statement macro of the timed stages' countdown
+  (`include/stage.h`).
 - The functions still in assembly are not in the badge: they are the work
   left, in the game and in PsyQ.
 

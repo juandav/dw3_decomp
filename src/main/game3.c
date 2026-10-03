@@ -672,11 +672,11 @@ void newGame(void) {
     GAME.nextMode = 0x1600;
 #endif
     GAME.unk4 = 1;
-    GAME.unk26CC = 1;
-    GAME.unk26CD = 8;
-    GAME.unk26CF = 60;
+    GAME.countdown[0] = 1;
+    GAME.countdown[1] = 8;
+    GAME.countdown[3] = 60;
     GAME.modeArg = 0;
-    GAME.unk26CE = 0;
+    GAME.countdown[2] = 0;
     GAME.unkC = -1;
     initNewGameData();
     GAME.unk30 = (RANDOM.next() & 0x1FF) + 0x200;

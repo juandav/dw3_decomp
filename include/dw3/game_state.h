@@ -199,10 +199,7 @@ typedef struct GameState {
     /* 0x26C0 */ s32 nextMode;
     /* 0x26C4 */ s32 prevMode;
     /* 0x26C8 */ s32 modeArg;
-    /* 0x26CC */ s8 unk26CC;
-    /* 0x26CD */ s8 unk26CD;
-    /* 0x26CE */ s8 unk26CE;
-    /* 0x26CF */ s8 unk26CF;
+    /* 0x26CC */ u8 countdown[4]; /* three digits of seconds, then frames */
     /* 0x26D0 */ s32 clearTempFlags;
     /* 0x26D4 */ s32 unk26D4;
     /* 0x26D8 */ s32 unk26D8;
@@ -218,10 +215,7 @@ typedef struct GameState {
     /* 0x26C8 */ s32 nextMode;
     /* 0x26CC */ s32 prevMode;
     /* 0x26D0 */ s32 modeArg;
-    /* 0x26D4 */ s8 unk26CC;
-    /* 0x26D5 */ s8 unk26CD;
-    /* 0x26D6 */ s8 unk26CE;
-    /* 0x26D7 */ s8 unk26CF;
+    /* 0x26D4 */ u8 countdown[4];
     /* 0x26D8 */ s32 clearTempFlags;
     /* 0x26DC */ s32 unk26D4;
     /* 0x26E0 */ s32 unk26D8;

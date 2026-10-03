@@ -1,5 +1,10 @@
 #include "common.h"
 #include "stage.h"
+#if VERSION_US
+#define STAGE_FILE 0x6DD
+#elif VERSION_EU
+#define STAGE_FILE 0x6ED
+#endif
 extern void (*D_800A6E90[])(void);
 void func_800A517C();
 extern AnimFrame D_800A63B0[];
@@ -346,9 +351,25 @@ StageEffect *func_800A5894(s32 x, s32 y, s32 frame) {
     return task;
 }
 
-INCLUDE_ASM("stages/nonmatchings/wstag810", func_800A58F0);
+/* Puts back the first background when GAME.unk26DC is set, and clears it */
+s32 func_800A58F0(void) {
+    if (GAME.unk26DC != 0) {
+        D_8009A70C.unk40(7, STAGE_FILE << 16 | 3);
+        D_800990B4.unk14 = D_800A6968;
+        GAME.unk26DC = 0;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("stages/nonmatchings/wstag810", func_800A5954);
+/* Switches to the second background when GAME.unk26DC is clear, and sets it */
+s32 func_800A5954(void) {
+    if (GAME.unk26DC == 0) {
+        D_8009A70C.unk40(7, STAGE_FILE << 16 | 4);
+        D_800990B4.unk14 = D_800A6C68;
+        GAME.unk26DC = 0x20;
+    }
+    return 0;
+}
 
 void func_800A59BC(void) {
     FLAGS_00.applyAction(0x406D, 1);
@@ -372,8 +393,6 @@ void func_800A5AA0(void) {
 INCLUDE_ASM("stages/nonmatchings/wstag810", func_800A5AB0);
 
 void func_800A5AB0();
-void func_800A58F0();
-void func_800A5954();
 extern s32 D_800A6408[];
 extern s32 D_800A6414[];
 extern s32 D_800A6420[];
