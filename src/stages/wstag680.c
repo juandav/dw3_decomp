@@ -189,7 +189,33 @@ StageTask *func_800A5318(void *owner) {
     return task;
 }
 
-INCLUDE_ASM("stages/nonmatchings/wstag680", func_800A5374);
+extern s32 D_800A5710[];
+extern s32 D_800A5678[];
+extern s32 D_800A5708[];
+extern s32 D_800A5858[];
+#if VERSION_US
+#define STAGE_TEXT 0xD4
+#define STAGE_FILE 0x62D
+#elif VERSION_EU
+#define STAGE_TEXT (LANGUAGE + 0xCC)
+#define STAGE_FILE 0x63D
+#endif
+void func_800A5374(void) {
+    D_800990B4.unk44 = STAGE_TEXT;
+    D_800990B4.unk8 = STAGE_FILE - 1;
+    D_800990B4.unkC = STAGE_FILE << 16;
+    D_800990B4.unk10 = D_800A5710;
+    D_800990B4.unk1C = STAGE_FILE - 2;
+    D_800990B4.unk2C = (Vec2){0x9F00, 0x8500};
+    D_800990B4.unk28 = D_800A5678;
+    D_800990B4.unk3C = 0x3B;
+    D_800990B4.unk40 = 0x60EC0000;
+    D_800990B4.unk4C = D_800A5708;
+    D_800990B4.unk34 = 0;
+    D_800990B4.events = D_800A5858;
+    D_8009A70C.setFile(0, STAGE_FILE << 16 | 1);
+    D_8009A70C.unk50(0);
+}
 
 void func_800A5374();
 extern StageRiserFrame D_800A5618[];

@@ -372,16 +372,22 @@ void func_800A58F0(void) {
 }
 
 #if VERSION_US
+#define STAGE_TEXT 0xF7
+#define STAGE_FILE 0x267
+#define STAGE_ARCHIVE 0x3CF
+#elif VERSION_EU
+#define STAGE_TEXT (LANGUAGE + 0xEF)
+#define STAGE_FILE 0x276
+#define STAGE_ARCHIVE 0x3DF
+#endif
 void func_800A5900(void) {
-    D_800990B4.unk44 = 0xF7;
-    D_800990B4.unk8 = 0x266;
-    D_800990B4.unkC = 0x2670000;
+    D_800990B4.unk44 = STAGE_TEXT;
+    D_800990B4.unk8 = STAGE_FILE - 1;
+    D_800990B4.unkC = STAGE_FILE << 16;
     D_800990B4.unk10 = D_800A60C4;
     D_800990B4.unk14 = D_800A619C;
-    D_800990B4.unk1C = 0x3CF;
-    DEBUG_LOG();
-    D_800990B4.unk2C = 0x18800;
-    D_800990B4.unk30 = 0x24600;
+    D_800990B4.unk1C = STAGE_ARCHIVE;
+    D_800990B4.unk2C = (Vec2){0x18800, 0x24600};
     D_800990B4.unk28 = D_800A5F18;
     D_800990B4.unk3C = 0x13;
     D_800990B4.unk40 = 0x604C0000;
@@ -389,14 +395,11 @@ void func_800A5900(void) {
     D_800990B4.unk20 = D_800A5EFC;
     D_800990B4.unk34 = 0;
     D_800990B4.events = D_800A6230;
-    D_8009A70C.setFile(0, 0x2670001);
-    D_8009A70C.setFile(7, 0x2670002);
-    D_8009A70C.setFile(4, 0x2670003);
+    D_8009A70C.setFile(0, STAGE_FILE << 16 | 1);
+    D_8009A70C.setFile(7, STAGE_FILE << 16 | 2);
+    D_8009A70C.setFile(4, STAGE_FILE << 16 | 3);
     D_8009A70C.unk50(0);
 }
-#elif VERSION_EU
-INCLUDE_ASM("stages/nonmatchings/wstag545", func_800A5900);
-#endif
 
 extern AnimFrame D_800A5C64[];
 extern AnimFrame D_800A5C8C[];

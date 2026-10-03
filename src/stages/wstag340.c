@@ -24,7 +24,52 @@ StageTask *func_800A4CF0(void *owner) {
     return task;
 }
 
-INCLUDE_ASM("stages/nonmatchings/wstag340", func_800A4D4C);
+extern s32 D_800A5384[][7];
+extern s32 D_800A5384[][7];
+extern s32 D_800A5698[];
+extern s32 D_800A59B0[];
+extern s32 D_800A53BC[];
+extern s32 D_800A5680[];
+extern CVECTOR D_800A4CA4;
+extern s32 D_800A5384[][7];
+extern s32 D_800A5A5C[];
+#if VERSION_US
+#define STAGE_TEXT 0xDB
+#define STAGE_FILE 0x392
+#elif VERSION_EU
+#define STAGE_TEXT (LANGUAGE + 0xD3)
+#define STAGE_FILE 0x3A2
+#endif
+void func_800A4D4C(void) {
+    D_800990B4.unk44 = STAGE_TEXT;
+    D_800990B4.unk8 = STAGE_FILE - 1;
+    D_800990B4.unkC = STAGE_FILE << 16;
+    D_800990B4.unk10 = D_800A5698;
+    D_800990B4.unk14 = D_800A59B0;
+    D_800990B4.unk1C = STAGE_FILE - 2;
+    D_800990B4.unk2C = (Vec2){0x30700, 0x9A00};
+    D_800990B4.unk28 = D_800A53BC;
+    D_800990B4.unk3C = 0x36;
+    D_800990B4.unk40 = 0x60D80000;
+    D_800990B4.unk4C = D_800A5680;
+    D_800990B4.unk34 = 0;
+    D_800990B4.unk38 = D_800A4CA4;
+    D_800990B4.unk20 = D_800A5384;
+    D_800990B4.events = D_800A5A5C;
+    D_8009A70C.setFile(0, STAGE_FILE << 16 | 1);
+    D_8009A70C.setFile(7, STAGE_FILE << 16 | 2);
+    D_8009A70C.setFile(4, STAGE_FILE << 16 | 3);
+    D_8009A70C.unk50(0);
+    if (GAME_PROGRESS >= 0x27 && GAME_PROGRESS < 0x29) {
+        D_800990B4.unk3C = 0x1F;
+        D_800990B4.unk40 = 0x607C0000;
+    }
+    if (GAME_PROGRESS < 0xB) {
+        D_800990B4.unk20 = D_800A5384[0];
+    } else {
+        D_800990B4.unk20 = D_800A5384[1];
+    }
+}
 
 void func_800A4D4C();
 extern s32 D_800A4F64[];
@@ -376,11 +421,9 @@ s32 D_800A5360[] = {
     (s32)D_800A5324, (s32)D_800A5330, (s32)D_800A533C, (s32)D_800A5348,
     (s32)D_800A5354,
 };
-s32 D_800A5384[] = {
-    3, 0, 0, (s32)D_800A4FC4,
-    (s32)D_800A5048, (s32)D_800A50CC, (s32)D_800A5150, 26,
-    1, 0, (s32)D_800A51D4, (s32)D_800A5258,
-    (s32)D_800A52DC, (s32)D_800A5360,
+s32 D_800A5384[][7] = { /* records of 0x1C bytes: the second word is their id */
+    { 3, 0, 0, (s32)D_800A4FC4, (s32)D_800A5048, (s32)D_800A50CC, (s32)D_800A5150 },
+    { 26, 1, 0, (s32)D_800A51D4, (s32)D_800A5258, (s32)D_800A52DC, (s32)D_800A5360 },
 };
 s32 D_800A53BC[] = {
     0x1000200, 0x1A6021C, 0xA60070, 0x1FE0230,

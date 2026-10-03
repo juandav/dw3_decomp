@@ -97,7 +97,28 @@ void func_800A6118(void) {
     FLAGS_00.applyAction(0x7400, 1);
 }
 
-INCLUDE_ASM("stages/nonmatchings/wstag927", func_800A6164);
+extern s32 D_800A6370[];
+extern s32 D_800A62E4[];
+extern s32 D_800A6368[];
+extern s32 D_800A68E0[];
+extern s32 D_800A64CC[];
+void func_800A6164(void) {
+    D_800990B4.unk44 = LANGUAGE + 0xFD;
+    D_800990B4.unk8 = 0x346;
+    D_800990B4.unkC = 0x8ED0000;
+    D_800990B4.unk10 = D_800A6370;
+    D_800990B4.unk1C = 0x8EC;
+    D_800990B4.unk2C = (Vec2){0x11D00, 0x12800};
+    D_800990B4.unk28 = D_800A62E4;
+    D_800990B4.unk3C = 5;
+    D_800990B4.unk40 = 0x60140000;
+    D_800990B4.unk4C = D_800A6368;
+    D_800990B4.unk34 = 0;
+    D_800990B4.unk20 = D_800A68E0;
+    D_800990B4.events = D_800A64CC;
+    D_8009A70C.setFile(0, 0x8ED0001);
+    D_8009A70C.unk50(0);
+}
 
 void func_800A6164();
 void func_800A6118();

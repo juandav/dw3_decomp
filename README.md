@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%2068-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%2069-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -45,10 +45,10 @@ current:
 | | USA | 346 / 346 | 100.00 % | 99.97 % |
 | The 21 overlays | Europe | 1,528 / 1,702 | 74.90 % | 83.67 % |
 | | USA | 1,526 / 1,697 | 75.08 % | 83.29 % |
-| The stages (293 and 238) | Europe | 1,297 / 1,590 | 70.55 % | 99.27 % |
-| | USA | 1,231 / 1,369 | 82.83 % | 99.15 % |
-| **Total** | **Europe** | **3,171 / 3,638** | **75.25 %** | **97.52 %** |
-| | **USA** | **3,103 / 3,412** | **78.37 %** | **97.19 %** |
+| The stages (293 and 238) | Europe | 1,590 / 1,590 | 100.00 % | 99.27 % |
+| | USA | 1,369 / 1,369 | 100.00 % | 99.15 % |
+| **Total** | **Europe** | **3,464 / 3,638** | **82.84 %** | **97.52 %** |
+| | **USA** | **3,241 / 3,412** | **82.28 %** | **97.19 %** |
 
 - The executable's game code is all C. Its data is C too, in
   `src/main/data/`, until it moves next to the code that uses it.
@@ -61,16 +61,18 @@ current:
   `CARDGAME` all but one function, and `STCRDDEK`, `STDWTITL`,
   `STCRDABM`, `SHOCKTST`, `STGTRAIN`, `STSTATUS` and `FIELDSTG` mostly. `FIGHTSTG` and the other large overlays are still
   mostly assembly.
-- 100 of the 238 USA stages are all C. Many stages share functions built from the
-  same source, so one match often repeats across stages. The stages' data is
+- The stages are all C, the 238 USA ones and the 55 of the European version
+  alone. Many stages share functions built from the same source, so one
+  match often repeats across stages. The stages' data is
   C too, as splat's words, at the end of each stage's C file: all but
   `WSTAG331`'s, whose data differs throughout between the versions.
 - The European version, the default one and the one decomp.dev shows first,
   is split into the USA version's files, with the USA names, and builds the
   275 PsyQ files, the executable's game code and data (the same 346
   functions as the USA version), the overlay functions the USA version has
-  in C, the 238 stages the USA version has from their C files (716 functions
-  and their data), and 98 functions and the data of its 55 own stages. The
+  in C, the 238 stages the USA version has from their C files (1,370
+  functions and their data), and the 220 functions and the data of its 55
+  own stages. The
   rest of its executable and overlays is splat's disassembly, so its report
   counts it as still to do.
 
@@ -90,8 +92,8 @@ above counts them: fake matches, then the other two kinds together.
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 6 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 62 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 465 | `INCLUDE_ASM` |
+| Form-dependent matches | 63 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 172 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -102,7 +104,7 @@ above counts them: fake matches, then the other two kinds together.
   `libgs_gs_131`), one in the game's `drawTalkBoxArrow`.
 - A form-dependent match is C that matches in one of several equivalent
   forms only: an extra block, an `if` without braces, a copy of a variable, a
-  type, or one version's own form of a loop. The sixty-two so far are a copy
+  type, or one version's own form of a loop. The sixty-three so far are a copy
   of a variable in `drawTalkBoxArrow`, an unsigned compare in STGMCARD's
   `func_80082E28`, a variable that holds two values in STCRDDEK's
   `STCRDDEK_drawDeckCards`, a counter set before a call in
@@ -124,9 +126,10 @@ above counts them: fake matches, then the other two kinds together.
   in WFIGHTMN (a variable, a case or a statement of its own, a pointer sum,
   a statement written in both branches or a counter set before a call),
   eleven spots in CARDGAME (a loop or state variable of its
-  own, an empty case, or a statement written twice) and the do-while of
-  `COUNTDOWN_BORROW`, the statement macro of the timed stages' countdown
-  (`include/stage.h`).
+  own, an empty case, or a statement written twice), the do-while of
+  `COUNTDOWN_BORROW`, the statement macro of the timed stages' countdown,
+  and the start position that every stage's setup function sets as a
+  `(Vec2){x, y}` constructor (both in `include/stage.h`).
 - The functions still in assembly are not in the badge: they are the work
   left, in the game and in PsyQ.
 
@@ -172,7 +175,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `STSTATUS` | `0x80082448` | 101 / 123 | the screens the field menu opens (`STSTATUS_screens`), such as the item list and the equipment |
 | `WFIGHTMN` | `0x800A4CA4` | 39 / 42 | the battle's sub-overlay, which `FIGHTSTG` loads (file 0x1FA) for a normal battle: it checks the party and its equipment and ends the battle |
 | `WFIGHTTS` | `0x800A4CA4` | 12 / 14 | the debug battle test, which `FIGHTSTG` loads (file 0x1FB) in place of `WFIGHTMN`: lists of fighters, motions, effects and stages |
-| `WSTAG###` (238) | `0x800A4CA4` | 815 / 1,374 | the stages: small programs that load on top of `FIELDSTG` and call into it |
+| `WSTAG###` (238) | `0x800A4CA4` | 1,369 / 1,369 | the stages: small programs that load on top of `FIELDSTG` and call into it |
 
 `SMDLDATA`, `SDIGIEDT`, `SFSTDATA` and `WSTAG260` hold no code and aren't
 built. The disc's `AAA/DAT`, `AAA/PRO` and `AAA/STR` directories are only

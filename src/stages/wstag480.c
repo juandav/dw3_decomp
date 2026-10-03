@@ -128,7 +128,53 @@ void func_800A519C(void) {
 /* the color the setup copies to D_800990B4.unk38 */
 const CVECTOR D_800A4CB8 = { 0x80, 0x80, 0x80, 0 };
 
-INCLUDE_ASM("stages/nonmatchings/wstag480", func_800A51AC);
+extern s32 D_800A5D5C[][7];
+extern s32 D_800A5D5C[][7];
+extern s32 D_800A5D5C[][7];
+extern s32 D_800A5EAC[];
+extern s32 D_800A6F7C[];
+extern s32 D_800A5DB0[];
+extern s32 D_800A5EA4[];
+extern s32 D_800A70B8[];
+extern s32 D_800A5D5C[][7];
+#if VERSION_US
+#define STAGE_TEXT 0xF7
+#define STAGE_FILE 0x357
+#define STAGE_ARCHIVE 0x628
+#elif VERSION_EU
+#define STAGE_TEXT (LANGUAGE + 0xEF)
+#define STAGE_FILE 0x366
+#define STAGE_ARCHIVE 0x638
+#endif
+void func_800A51AC(void) {
+    D_800990B4.unk44 = STAGE_TEXT;
+    D_800990B4.unk8 = STAGE_FILE - 1;
+    D_800990B4.unkC = STAGE_FILE << 16;
+    D_800990B4.unk10 = D_800A5EAC;
+    D_800990B4.unk14 = D_800A6F7C;
+    D_800990B4.unk1C = STAGE_ARCHIVE;
+    D_800990B4.unk2C = (Vec2){0x1F000, 0x34400};
+    D_800990B4.unk28 = D_800A5DB0;
+    D_800990B4.unk3C = 0x11;
+    D_800990B4.unk40 = 0x60440000;
+    D_800990B4.unk4C = D_800A5EA4;
+    D_800990B4.unk34 = 0;
+    D_800990B4.unk38 = D_800A4CB8;
+    D_800990B4.events = D_800A70B8;
+    D_800990B4.unk20 = D_800A5D5C;
+    D_8009A70C.setFile(0, STAGE_FILE << 16 | 1);
+    D_8009A70C.setFile(1, STAGE_FILE << 16 | 3);
+    D_8009A70C.setFile(7, STAGE_FILE << 16 | 2);
+    D_8009A70C.setFile(4, STAGE_FILE << 16 | 4);
+    D_8009A70C.unk50(0);
+    if (GAME_PROGRESS < 0xA) {
+        D_800990B4.unk20 = D_800A5D5C[0];
+    } else if (GAME_PROGRESS < 0x18) {
+        D_800990B4.unk20 = D_800A5D5C[1];
+    } else {
+        D_800990B4.unk20 = D_800A5D5C[2];
+    }
+}
 
 void func_800A51AC();
 extern StageTileFrame D_800A5538[];
@@ -722,13 +768,10 @@ s32 D_800A5D38[] = {
     (s32)D_800A5CFC, (s32)D_800A5D08, (s32)D_800A5D14, (s32)D_800A5D20,
     (s32)D_800A5D2C,
 };
-s32 D_800A5D5C[] = {
-    17, 0, 0, (s32)D_800A578C,
-    (s32)D_800A5810, (s32)D_800A5894, (s32)D_800A5918, 18,
-    1, 0, (s32)D_800A599C, (s32)D_800A5A20,
-    (s32)D_800A5AA4, (s32)D_800A5B28, 56, 2,
-    0, (s32)D_800A5BAC, (s32)D_800A5C30, (s32)D_800A5CB4,
-    (s32)D_800A5D38,
+s32 D_800A5D5C[][7] = { /* records of 0x1C bytes: the second word is their id */
+    { 17, 0, 0, (s32)D_800A578C, (s32)D_800A5810, (s32)D_800A5894, (s32)D_800A5918 },
+    { 18, 1, 0, (s32)D_800A599C, (s32)D_800A5A20, (s32)D_800A5AA4, (s32)D_800A5B28 },
+    { 56, 2, 0, (s32)D_800A5BAC, (s32)D_800A5C30, (s32)D_800A5CB4, (s32)D_800A5D38 },
 };
 s32 D_800A5DB0[] = {
     0x1000200, 0x1A6021C, 0xA60070, 0x1FE0230,

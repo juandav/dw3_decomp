@@ -24,7 +24,38 @@ StageTask *func_800A4CEC(void *owner) {
     return task;
 }
 
-INCLUDE_ASM("stages/nonmatchings/wstag231", func_800A4D48);
+extern s32 D_800A5198[];
+extern s32 D_800A5348[];
+extern s32 D_800A4E6C[];
+extern s32 D_800A5168[];
+#if VERSION_US
+#define STAGE_TEXT 0xE2
+#define STAGE_FILE 0x4A4
+#elif VERSION_EU
+#define STAGE_TEXT (LANGUAGE + 0xDA)
+#define STAGE_FILE 0x4B4
+#endif
+void func_800A4D48(void) {
+    D_800990B4.unk44 = STAGE_TEXT;
+    D_800990B4.unk8 = STAGE_FILE - 1;
+    D_800990B4.unkC = STAGE_FILE << 16;
+    D_800990B4.unk10 = D_800A5198;
+    D_800990B4.unk14 = D_800A5348;
+    D_800990B4.unk1C = STAGE_FILE - 2;
+    D_800990B4.unk2C = (Vec2){0xDB00, 0xDF00};
+    D_800990B4.unk28 = D_800A4E6C;
+    D_800990B4.unk3C = 5;
+    D_800990B4.unk40 = 0x60140000;
+    D_800990B4.unk34 = 0;
+    D_800990B4.unk4C = D_800A5168;
+    D_8009A70C.setFile(0, STAGE_FILE << 16 | 1);
+    D_8009A70C.setFile(7, STAGE_FILE << 16 | 2);
+    D_8009A70C.unk50(0);
+    if (GAME_PROGRESS != 0x26 || FLAGS_00.checkCondition(0x1A0A, 0) != 0) {
+        D_800990B4.unk3C = 0x1F;
+        D_800990B4.unk40 = 0x607C0000;
+    }
+}
 
 void func_800A4D48();
 extern s32 D_800A501C[];

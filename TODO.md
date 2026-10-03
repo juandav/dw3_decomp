@@ -68,62 +68,28 @@ own.
   other 5 also have longer functions (`WSTAG210`, `220`, `270`, `280`) or
   one more (`WSTAG780`). Each USA stage builds from its C file in both
   versions, its functions with the USA names
-  (`config/eu/stages/<stage>.txt`): 1,297 of the European stages' 1,590
-  functions are C, and 293 `INCLUDE_ASM` are left: every stage's setup
-  function.
-- [ ] The setup functions (the one that fills `D_800990B4` and loads the
-  stage's text file) don't match in the European version from the USA C:
-  the language load (`LANGUAGE`) sits after the store to `0x14`, before
-  the `0x1C` and `0x44` ones, while the two-instruction constants and the
-  call's arguments are loaded at the very top. The scheduling it needs is
-  known: the stores up to `0x1C` and the one to `0x44` must come before
-  the others, as if they could alias, while the constants move freely
-  (`DEBUG_LOG` stops both). A store to `0x44` through a pointer GCC's
-  alias analysis can't follow gives exactly that, but costs a second base
-  register; making every store `volatile` gives it too, but then the last
-  store can't fill the call's delay slot. No natural C found yet: no order
-  of the statements, `DEBUG_LOG` placement or replacement, local, inline
-  function, loop, cast or compiler flag tried gives it (the closest is 33
-  instructions off, in `WSTAG310`). Once found, it applies to all 293.
-  What a second attempt ruled out or learned (on `WSTAG310`):
-  - The dependencies needed are exactly those of GCC 2.8.1's
-    `flush_pending_lists` (`sched.c`) at the `0x44` store: after every
-    memory access before it, before every one after it, with registers
-    free. The scheduler only flushes at a call, a volatile `asm`, a loop
-    note (these two also tie the registers, as `DEBUG_LOG` does) or when
-    more than 32 memory accesses are pending in the block, and this
-    function has 6 before that store.
-  - The alias analysis only sees a conflict between two stores to
-    `D_800990B4` when their base registers are different pseudos, one of
-    them with no known value (set twice, or without a `REG_EQUAL` note).
-    The `LANGUAGE` load can't be the anchor either: its address is a
-    `lo_sum` of the symbol, which never conflicts with the stores.
-  - CSE folds into the one base every other way of reaching the struct:
-    a pointer local (for some of the stores or all of them, declared at
-    the top or in a block), a pointer set twice, a `static inline` setter
-    (with the struct, the value or the file as its argument) or getter.
-  - Without `DEBUG_LOG`, every statement order gives 36 instructions off,
-    with the language load after the last store. With `DEBUG_LOG`
-    anywhere (first, after `0x14`, `0x1C` or `0x44`, or twice) it is
-    41-50: the constants can't rise above it.
-  - `volatile` on every store but `0x20` is 42 off (`0x20` moves); on all
-    of them, the order and registers match but the delay slot stays
-    empty, since GCC wraps each volatile access in `.set volatile`.
-  - No flag changes it: `-fforce-addr`, `-fforce-mem`, `-fvolatile-global`,
-    `-fno-rerun-cse-after-loop`, `-fno-cse-follow-jumps`,
-    `-fno-strength-reduce`, `-fcaller-saves` and the rest give 36,
-    `-fvolatile` 43, and `-fno-schedule-insns` 65. Neither does GCC 2.8.0
-    or the SN 2.8.1.
+  (`config/eu/stages/<stage>.txt`): all 1,590 of the European stages'
+  functions are C.
+- [x] The setup functions (the one that fills `D_800990B4` and loads the
+  stage's text file) are C in both versions, from one C. The European
+  scheduling needed the stores up to `0x1C` and the one to `0x44` to stay
+  before the others while the constants rise to the top. The start
+  position does it: written as a constructor, `unk2C = (Vec2){x, y}`, it
+  makes GCC's `store_constructor` clobber the whole field (a `BLKmode`
+  `MEM`, which conflicts with every access to `D_800990B4`) before its two
+  stores, so the stores stay on their side of it and the constants don't.
+  It gives the USA order too. The text file is `STAGE_TEXT`, the file and
+  archive numbers `STAGE_FILE` and `STAGE_ARCHIVE`, the stage's own
+  defines; `unk7C` (`FIELDSTG`'s `func_80091490`) finds a record of a list
+  of 0x1C-byte records by its id.
 - [x] The 8 functions that read `GAME` fields 8 bytes later in the European
   version (`countdown`, `unk26DC`, `unk26E8`) are C in both: `WSTAG745`/
   `746` `func_800A4CA4`, `WSTAG795` `func_800A50F8`/`func_800A5240`,
   `WSTAG800` `func_800A5404`/`func_800A554C`, `WSTAG810` `func_800A58F0`/
   `func_800A5954`, with `GAME.countdown` (`u8 [4]`, `0x26CC`) and the
   `StageInfo` fields `0x50`-`0x60`.
-- [ ] The setup functions of 100 USA stages are C in the USA version only
-  (`#if VERSION_US`, `INCLUDE_ASM` in the European one).
 - [x] The 55 European stages, `WSTAG920`-`974`, have C files, their data
-  too: every function but their setup is C.
+  too: all their functions are C.
 - [x] Where the versions' code differs only in numbers, `include/stage.h`
   and the stages' own defines give them: the file numbers (`SPRITES`,
   `MENU_TEXT`...), `MENU_SPRITES` and `TEXT_ENTRY` (the European version
@@ -194,8 +160,8 @@ own.
     30 tiles that slide off in a spiral), matches in both versions only with
     an empty `do {} while (0)` between `speed` and `move`: its loop notes
     stop the second scheduler from moving the load of `GFX.buffer` up into
-    the load delay of `task->counter`'s. A `DEBUG_LOG()` there would be the
-    stages' convention, but nothing else hints at a print, so it stays asm.
+    the load delay of `task->counter`'s. Nothing hints at a print
+    or a loop there, so it stays asm.
     `func_80091124`, `func_80091AA8`, `func_8008D4C4` and `func_80085650`
     are close but the permuter found no match; `func_8008DB60` and
     `func_8008DFE0` only match with the permuter's copy of a variable kept
@@ -310,15 +276,8 @@ own.
 
 ## Stages
 
-- [ ] 1,231 of the 1,369 functions of the USA stages are C, and 100 of the
-  238 stages are all C; 138 `INCLUDE_ASM` are left, all setup functions
-  (the form of the other 100 doesn't fit them). 50 are plain setups like
-  the matched ones, 39 of them with a one-instruction constant at `0x2C`:
-  there the first call's arguments are loaded first after `DEBUG_LOG`,
-  above that constant, which the C form can't do (`WSTAG235` is 4
-  instructions off with the `0x34` store moved up). 37 more check
-  `GAME_PROGRESS` after the calls, and 51 also copy `unk38` (34 of them
-  with the `GAME_PROGRESS` check).
+- [x] The USA stages are all C: their 1,369 functions, the setup
+  functions too (see the European stages above).
 - [x] A stage's jump tables come from its C (`c-rodata` in `stages.txt`);
   `head-word` keeps a first word before them in asm, as GCC would align a
   C constant there (`WSTAG924`).

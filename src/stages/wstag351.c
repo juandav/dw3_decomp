@@ -24,7 +24,43 @@ StageTask *func_800A4CEC(void *owner) {
     return task;
 }
 
-INCLUDE_ASM("stages/nonmatchings/wstag351", func_800A4D48);
+extern s32 D_800A5780[];
+extern s32 D_800A59E4[];
+extern s32 D_800A50CC[];
+extern s32 D_800A575C[];
+extern s32 D_800A5A78[];
+extern s32 D_800A50B0[];
+#if VERSION_US
+#define STAGE_TEXT 0xE9
+#define STAGE_FILE 0x698
+#elif VERSION_EU
+#define STAGE_TEXT (LANGUAGE + 0xE1)
+#define STAGE_FILE 0x6A8
+#endif
+void func_800A4D48(void) {
+    D_800990B4.unk44 = STAGE_TEXT;
+    D_800990B4.unk8 = STAGE_FILE - 1;
+    D_800990B4.unkC = STAGE_FILE << 16;
+    D_800990B4.unk10 = D_800A5780;
+    D_800990B4.unk14 = D_800A59E4;
+    D_800990B4.unk1C = STAGE_FILE - 2;
+    D_800990B4.unk2C = (Vec2){0x2F400, 0x9C00};
+    D_800990B4.unk28 = D_800A50CC;
+    D_800990B4.unk3C = 9;
+    D_800990B4.unk40 = 0x60240000;
+    D_800990B4.unk4C = D_800A575C;
+    D_800990B4.events = D_800A5A78;
+    D_800990B4.unk34 = 0;
+    D_800990B4.unk20 = D_800A50B0;
+    D_8009A70C.setFile(0, STAGE_FILE << 16 | 1);
+    D_8009A70C.setFile(7, STAGE_FILE << 16 | 2);
+    D_8009A70C.setFile(4, STAGE_FILE << 16 | 3);
+    D_8009A70C.unk50(0);
+    if (GAME_PROGRESS != 0x26 || FLAGS_00.checkCondition(0x1A0A, 0) != 0) {
+        D_800990B4.unk3C = 0x1F;
+        D_800990B4.unk40 = 0x607C0000;
+    }
+}
 
 void func_800A4D48();
 extern s32 D_800A4EA0[];

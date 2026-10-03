@@ -481,7 +481,33 @@ void func_800A5EE0(void) {
     FLAGS_00.applyAction(0x7400, 1);
 }
 
-INCLUDE_ASM("stages/nonmatchings/wstag415", func_800A5F2C);
+extern s32 D_800A665C[];
+extern s32 D_800A65D0[];
+extern s32 D_800A6654[];
+extern s32 D_800A6698[];
+extern s32 D_800A65B4[];
+#if VERSION_US
+#define STAGE_TEXT 0xF7
+#define STAGE_FILE 0x74E
+#elif VERSION_EU
+#define STAGE_TEXT (LANGUAGE + 0xEF)
+#define STAGE_FILE 0x75E
+#endif
+void func_800A5F2C(void) {
+    D_800990B4.unk44 = STAGE_TEXT;
+    D_800990B4.unkC = STAGE_FILE << 16;
+    D_800990B4.unk10 = D_800A665C;
+    D_800990B4.unk1C = STAGE_FILE + 1;
+    D_800990B4.unk2C = (Vec2){0x11500, 0x15500};
+    D_800990B4.unk28 = D_800A65D0;
+    D_800990B4.unk3C = 0xD;
+    D_800990B4.unk40 = 0x60340000;
+    D_800990B4.unk4C = D_800A6654;
+    D_800990B4.events = D_800A6698;
+    D_800990B4.unk20 = D_800A65B4;
+    D_800990B4.unk34 = 0;
+    D_8009A70C.unk50(0);
+}
 
 void func_800A5F2C();
 extern AnimFrame D_800A61E4[];
