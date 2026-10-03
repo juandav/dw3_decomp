@@ -8,24 +8,293 @@
    last object (fightstg_7.c) differs between the versions. */
 
 #include "fightstg.h"
+#include "gte.h"
 
-extern MATRIX D_8004D3C8; /* the identity, the root bone's parent */
+void func_80082A50(Model *model, ModelBone *bone) {
+    s32 i;
+    s32 archive;
+    SVECTOR *key;
+    SVECTOR *out;
+    SVECTOR cur;
+    SVECTOR prev;
+    SVECTOR diff;
+    SVECTOR step;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_80082A50);
+    archive = FILE_CACHE.getEntry(bone->unk8);
+    for (i = 0; i < 9; i += 3) {
+        key = (SVECTOR *)FILE_CACHE.getArchiveEntry(i / 3, archive);
+        switch (i) {
+        case 3:
+            out = &bone->rot;
+            break;
+        case 6:
+            out = &bone->scale;
+            break;
+        case 0:
+        default:
+            out = &bone->pos;
+            break;
+        }
+        for (; key->pad < model->unk84; key++) {
+        }
+        cur = *key;
+        switch (i) {
+        case 0:
+        default:
+            prev = bone->prevPos;
+            break;
+        case 3:
+            prev = bone->prevRot;
+            break;
+        case 6:
+            prev = bone->prevScale;
+            break;
+        }
+        if (i == 6 && (prev.vx == 0 || prev.vy == 0 || prev.vz == 0 || cur.vx == 0 || cur.vy == 0 || cur.vz == 0)) {
+            *out = cur;
+            return;
+        }
+        gte_lddp(model->unk98);
+        diff.vx = cur.vx - prev.vx;
+        diff.vy = cur.vy - prev.vy;
+        diff.vz = cur.vz - prev.vz;
+        gte_ldsv(&diff);
+        gte_gpf12();
+        *out = prev;
+        gte_stsv(&step);
+        out->vx += step.vx;
+        out->vy += step.vy;
+        out->vz += step.vz;
+    }
+}
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_80082D74);
+void func_80082D74(Model *model, ModelBone *bone, s32 frame) {
+    s32 i;
+    s32 archive;
+    SVECTOR *key;
+    SVECTOR *out;
+    s32 found;
+    s32 span;
+    SVECTOR cur;
+    SVECTOR prev;
+    SVECTOR diff;
+    SVECTOR step;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_80082FD4);
+    archive = FILE_CACHE.getEntry(bone->unk8);
+    for (i = 0; i < 9; i += 3) {
+        key = (SVECTOR *)FILE_CACHE.getArchiveEntry(i / 3, archive);
+        found = 0;
+        switch (i) {
+        case 3:
+            out = &bone->rot;
+            break;
+        case 6:
+            out = &bone->scale;
+            break;
+        case 0:
+        default:
+            out = &bone->pos;
+            break;
+        }
+        for (;; key++) {
+            if (key->pad == frame) {
+                found = 1;
+                break;
+            }
+            if (key->pad >= frame) {
+                break;
+            }
+        }
+        if (found) {
+            *out = *key;
+        } else {
+            cur = key[0];
+            prev = key[-1];
+            span = cur.pad - prev.pad;
+            gte_lddp(((frame - prev.pad) << 12) / span);
+            diff.vx = cur.vx - prev.vx;
+            diff.vy = cur.vy - prev.vy;
+            diff.vz = cur.vz - prev.vz;
+            gte_ldsv(&diff);
+            gte_gpf12();
+            *out = prev;
+            gte_stsv(&step);
+            out->vx += step.vx;
+            out->vy += step.vy;
+            out->vz += step.vz;
+        }
+    }
+}
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_80083140);
+void func_80082FD4(Model *model, Mesh **children) {
+    ModelBone *bone = model->bones;
+    VECTOR moved;
+    s32 i;
+
+    /* vx and vy as one word */
+    if (*(s32 *)&model->move != 0 || model->move.vz != 0) {
+        gte_SetRotMatrix(&bone->local);
+        gte_ldv0(&model->move);
+        gte_rtv0();
+        gte_stlvnl(&moved);
+        model->bones->pos.vx += moved.vx;
+        model->bones->pos.vy += moved.vy;
+        model->bones->pos.vz += moved.vz;
+        model->move.vz = 0;
+        model->move.vy = 0;
+        model->move.vx = 0;
+    }
+    bone = model->bones;
+    if (model->unk94 == 0) {
+        for (i = 1, bone++; i < model->boneCount; i++, bone++) {
+            func_80082D74(model, bone, model->unk84);
+        }
+    } else {
+        for (i = 1, bone++; i < model->boneCount; i++, bone++) {
+            func_80082A50(model, bone);
+        }
+    }
+}
+
+void FIGHTSTG_saveBlendPose(Model *model) {
+    ModelBone *bone = model->bones;
+    s32 i;
+
+    for (i = 0; i < model->boneCount; i++, bone++) {
+        bone->prevPos = bone->pos;
+        bone->prevRot = bone->rot;
+        bone->prevScale = bone->scale;
+    }
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_800831D4);
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_800833B0);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_8008358C);
+void func_8008358C(Model *model, Mesh **children) {
+    TimLoader loader;
+    VECTOR scale;
+    ModelBone *bone;
+    s32 archive;
+    s32 i;
+    s32 j;
+    ModelBone *drawn;
+    s32 b;
+    ModelBone *linked;
+    s32 c;
+    s32 d;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_80083BE4);
+    switch (model->state) {
+    case TASK_INIT:
+    default:
+        if (model->texFile != 0) {
+            initTimLoader(&loader);
+            loader.setImagePos(model->texPos.x, model->texPos.y);
+            loader.loadArchive(FILE_CACHE_GET_ENTRY[0](model->texFile));
+        }
+        for (b = 0, linked = model->bones; b < model->boneCount; b++, linked++) {
+            if (b != 0) {
+                linked->parentMatrix = &model->bones[linked->parent].world;
+            }
+        }
+        for (c = 0; c < model->boneCount; c++) {
+            if (c != 0) {
+                children[c + 1] = func_8008588C(FILE_CACHE.getEntry(model->bones[c].file), model->texPos);
+            }
+        }
+        children[0] = (Mesh *)FIGHTSTG_createFace(model, model->control->fighter);
+        model->motion = 1;
+        if (model->unk60 != 0) {
+            archive = FILE_CACHE.getEntry(model->motionFile);
+            model->unk88[0] = ((s16 *)FILE_CACHE.getArchiveEntry(0, archive))[2];
+            model->unk88[1] = ((s16 *)FILE_CACHE.getArchiveEntry(1, archive))[2];
+        }
+        func_800831D4(model, model->control->idleMotion + 1, 1);
+        model->control->motion = model->control->idleMotion + 1;
+        model->nextState(model);
+        break;
+    case TASK_RUN:
+        if (model->control->restart != 0 || model->motion != model->control->motion) {
+            model->control->restart = 0;
+            func_800831D4(model, model->control->motion, 1);
+            switch (model->control->motion) {
+            case 1:
+                model->control->idleMotion = 0;
+                break;
+            case 2:
+                model->control->idleMotion = 1;
+                break;
+            }
+        }
+        if (model->boneCount == 0) {
+            break;
+        }
+        func_800833B0(model);
+        func_80082FD4(model, children);
+        model->bones[0].pos.vx = model->control->pos.x;
+        model->bones[0].pos.vy = model->control->pos.y;
+        model->bones[0].pos.vz = model->control->pos.z;
+        model->bones[0].rot.vx = model->control->rot.x;
+        model->bones[0].rot.vy = model->control->rot.y;
+        model->bones[0].rot.vz = model->control->rot.z;
+        for (i = 0, bone = model->bones; i < model->boneCount; i++, bone++) {
+            scale.vx = bone->scale.vx;
+            scale.vy = bone->scale.vy;
+            scale.vz = bone->scale.vz;
+            if ((scale.vx | scale.vy | scale.vz) <= 48) {
+                bone->visible = 0;
+            } else {
+                bone->visible = 1;
+                RotMatrixZYX_gte(&bone->rot, &bone->local);
+                ScaleMatrix(&bone->local, &scale);
+                bone->local.t[0] = bone->pos.vx;
+                bone->local.t[1] = bone->pos.vy;
+                bone->local.t[2] = bone->pos.vz;
+                gte_CompMatrix(bone->parentMatrix, &bone->local, &bone->world);
+            }
+        }
+        for (j = 0; j < 2; j++) {
+            if (model->control->unk34[j].enabled) {
+                for (d = 0, drawn = model->bones; d < model->boneCount; d++, drawn++) {
+                    if (d != 0 && drawn->visible) {
+                        if (model->control->unk34[j].alt) {
+                            children[d + 1]->drawAlt(children[d + 1], model->control->unk34[j].arg, &drawn->world);
+                        } else {
+                            children[d + 1]->draw(children[d + 1], model->control->unk34[j].arg, &drawn->world);
+                        }
+                    }
+                }
+            }
+        }
+        break;
+    case TASK_DONE:
+        break;
+    case TASK_KILL:
+        if (model->bones != NULL) {
+            HEAP.free(model->bones);
+        }
+        break;
+    }
+}
+
+void FIGHTSTG_setModelColor(Model *model, s32 mode, CVECTOR *color) {
+    Mesh **children = model->children;
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < 2; i++) {
+        if (model->control->unk34[i].enabled) {
+            for (j = 0; j < model->boneCount; j++) {
+                if (j != 0) {
+                    children[j + 1]->colorMode = mode;
+                    if (color != NULL) {
+                        children[j + 1]->color = *color;
+                    }
+                }
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_80083C78);
 
@@ -70,7 +339,7 @@ Model *func_80083CE0(s32 file, s32 motionFile, Vec2 texPos, ModelControl *contro
     }
     model->setMotion = func_800831D4;
     model->isMotionDone = func_80083CD4;
-    model->unk262C = func_80083BE4;
+    model->setColor = FIGHTSTG_setModelColor;
     model->motionFile = motionFile;
     model->unk2630 = func_80083C78;
     return model;
@@ -84,9 +353,74 @@ Model *func_80083F44(s32 file, s32 motionFile, Vec2 texPos, ModelControl *contro
     return func_80083CE0(file, motionFile, texPos, control, 0);
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_80083F74);
+void func_80083F74(Mesh *mesh) {
+    ShortVec3 *normal = (ShortVec3 *)mesh->unk64;
+    s32 count = normal->x;
+    MATRIX light;
+    s32 *color;
+    s32 i;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_800841D4);
+    normal++;
+    if (count == 0) {
+        return;
+    }
+    gte_CompMatrix(&D_80080A90, &mesh->matrix, &light);
+    gte_SetLightMatrix(&light);
+    if (mesh->colors == NULL) {
+        mesh->colors = HEAP.alloc(count * 4, 2);
+    }
+    color = mesh->colors;
+    gte_ldv0_unaligned(normal);
+    gte_ncs();
+    gte_strgb(color);
+    i = 1;
+    normal++;
+    while (i < count) {
+        gte_ldv0_unaligned(normal);
+        gte_ncs();
+        normal++;
+        color++;
+        i++;
+        gte_strgb(color);
+    }
+}
+
+void func_800841D4(Mesh *mesh, Layer *layer) {
+    ShortVec3 *vertex = (ShortVec3 *)mesh->unk60;
+    s32 shift = 14 - layer->getOtShift(layer);
+    s32 count = vertex->x;
+    s32 *screen;
+    s32 *depth;
+    s32 i;
+    s32 z;
+
+    vertex++;
+    if (mesh->screen == NULL) {
+        mesh->screen = HEAP.alloc(count * 4, 2);
+    }
+    screen = mesh->screen;
+    if (mesh->depth == NULL) {
+        mesh->depth = HEAP.alloc(count * 4, 2);
+    }
+    depth = mesh->depth;
+    gte_ldv0_unaligned(vertex);
+    gte_rtps();
+    gte_stsxy(screen);
+    gte_stszotz(&z);
+    i = 1;
+    vertex++;
+    while (i < count) {
+        gte_ldv0_unaligned(vertex);
+        gte_rtps();
+        vertex++;
+        screen++;
+        i++;
+        *depth++ = z >> shift;
+        gte_stsxy(screen);
+        gte_stszotz(&z);
+    }
+    *depth = z >> shift;
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_80084340);
 
@@ -119,14 +453,14 @@ void func_800857EC(Mesh *mesh) {
     case TASK_DONE:
         break;
     case TASK_KILL:
-        if (mesh->unk78 != NULL) {
-            HEAP.free(mesh->unk78);
+        if (mesh->screen != NULL) {
+            HEAP.free(mesh->screen);
         }
-        if (mesh->unk7C != NULL) {
-            HEAP.free(mesh->unk7C);
+        if (mesh->depth != NULL) {
+            HEAP.free(mesh->depth);
         }
-        if (mesh->unk80 != NULL) {
-            HEAP.free(mesh->unk80);
+        if (mesh->colors != NULL) {
+            HEAP.free(mesh->colors);
         }
         break;
     }
@@ -151,10 +485,9 @@ void func_8009B430();
 void func_8009D204();
 s32 func_8009D560();
 s32 func_8009D648();
-s32 func_8009D674();
 s32 func_8009DA88();
 s32 func_8009DAA8();
-void func_8009DCCC();
+FaceRect *FIGHTSTG_getFighterFace(s32 id);
 s32 func_8009EA74();
 s32 func_8009EBAC();
 s32 func_8009EF04();
@@ -186,7 +519,7 @@ s32 func_800A0C80();
 s32 func_800A0DA4();
 void func_800A0EEC();
 void FIGHTSTG_lerpVector();
-void func_800A0FDC();
+s32 func_800A0FDC(s32 curve, s32 t, s32 value);
 
 s32 D_800A1238[] = {
     0xA004E03C, 0xA004E0BD, 0xA004E13E, 0xA004E1BF,
@@ -211,208 +544,272 @@ Vec2 D_800A12D0[] = {
 };
 /* the European version's differ */
 #if VERSION_US
-s32 D_800A12F0[] = {
-    39, 0x7FE001A, 0x7FE0000, 65,
-    0x7600004, 0x7600000, 66, 0x8050004,
-    0x8050001, 85, 0x8290006, 0x8290000,
-    86, 0x82A0007, 0x82A0000, 87,
-    0x7C90016, 0x7C90000, 88, 0x76E0006,
-    0x76E0000, 89, 0x7EC0006, 0x7EC0000,
-    90, 0x7F8000A, 0x7F80000, 91,
-    0x7F90008, 0x7F90001, 92, 0x7FA0006,
-    0x7FA0000, 93, 0x74A001A, 0x74A0000,
-    94, 0x74C002C, 0x74C0000, 95,
-    0x763000A, 0x7630000, 96, 0x7D5001A,
-    0x7D50004, 97, 0x7F50003, 0x7F50000,
-    98, 0x7F70007, 0x7F70000, 99,
-    0x7FB0008, 0x7FB0001, 100, 0x7FC0005,
-    0x7FC0006, 101, 0x7ED0003, 0x7ED0001,
-    102, 0x7EE0006, 0x7EE0001, 103,
-    0x7EF0006, 0x7EF0001, 106, 0x7F0000E,
-    0x7F00002, 107, 0x7F1000A, 0x7F10001,
-    108, 0x7CA000C, 0x7CA0000, 109,
-    0x7CB001C, 0x7CB0005, 113, 0x7FD0005,
-    0x7FD0006, 114, 0x874000C, 0x8740002,
-    115, 0x87D0001, 0x87D0000, 116,
-    0x87E000A, 0x87E0000, 201, 0x80D0004,
-    0x80D0000, 202, 0x80E0004, 0x80E0000,
-    203, 0x80F0004, 0x80F0000, 204,
-    0x8100004, 0x8100000, 205, 0x8110004,
-    0x8110000, 206, 0x8120004, 0x8120000,
-    207, 0x8130004, 0x8130000, 208,
-    0x8140004, 0x8140000, 209, 0x8150004,
-    0x8150000, 210, 0x8160004, 0x8160000,
-    211, 0x8170004, 0x8170000, 212,
-    0x8180004, 0x8180000, 213, 0x8190004,
-    0x8190000, 214, 0x81A0004, 0x81A0000,
-    215, 0x81B0004, 0x81B0000, 216,
-    0x81C0004, 0x81C0000, 217, 0x81D0004,
-    0x81D0000, 218, 0x81E0004, 0x81E0000,
-    219, 0x81F0004, 0x81F0000, 220,
-    0x8200004, 0x8200000, 221, 0x7C00004,
-    0x7C00000, 222, 0x8210004, 0x8210000,
-    223, 0x8220004, 0x8220000, 224,
-    0x8230004, 0x8230000, 225, 0x8240004,
-    0x8240000, 226, 0x8250004, 0x8250000,
-    301, 0x82B000E, 0x82B0000, 302,
-    0x82D0015, 0x82D0016, 303, 0x82E0004,
-    0x82E0001, 306, 0x82F0004, 0x82F0000,
-    307, 0x8300006, 0x8300000, 308,
-    0x8310008, 0x8310000, 309, 0x8320004,
-    0x8320000, 310, 0x834000A, 0x8340000,
-    310, 0x834000A, 0x8340000, 311,
-    0x8350004, 0x8350000, 312, 0x8360004,
-    0x8360000, 313, 0x8370004, 0x8370000,
-    314, 0x8380004, 0x8380000, 315,
-    0x839000A, 0x8390000, 316, 0x83A0006,
-    0x83A0001, 317, 0x83B0001, 0x83B0000,
-    318, 0x83C0004, 0x83C0001, 319,
-    0x83D000A, 0x83D0006, 320, 0x83E000A,
-    0x83E0000, 321, 0x83F0004, 0x83F0000,
-    322, 0x8400004, 0x8400000, 323,
-    0x8410004, 0x8410000, 324, 0x8420004,
-    0x8420000, 325, 0x8430004, 0x8430000,
-    326, 0x8440006, 0x8440000, 327,
-    0x845000D, 0x845000E, 328, 0x8460006,
-    0x8460000, 329, 0x8470006, 0x8470000,
-    330, 0x8480008, 0x8480000, 331,
-    0x8490008, 0x8490000, 332, 0x84A0008,
-    0x84A0000, 333, 0x84B000A, 0x84B0000,
-    334, 0x84C000A, 0x84C0000, 335,
-    0x84D0006, 0x84D0000, 336, 0x84E0005,
-    0x84E0006, 337, 0x84F000C, 0x84F0000,
-    338, 0x8500006, 0x8500000, 339,
-    0x8510007, 0x8510008, 340, 0x8520005,
-    0x8520006, 341, 0x853000C, 0x8530000,
-    342, 0x8540001, 0x8540000, 343,
-    0x8550001, 0x8550000, 344, 0x8560000,
-    0x8560008, 345, 0x8570000, 0x8570008,
-    346, 0x8580015, 0x8580016, 347,
-    0x8590004, 0x8590000, 348, 0x85A0001,
-    0x85A0000, 349, 0x85B000A, 0x85B0000,
-    350, 0x85C0019, 0x85C001A, 351,
-    0x85D000A, 0x85D0000, 352, 0x85E0008,
-    0x85E0000, 353, 0x85F0008, 0x85F0000,
-    354, 0x8600009, 0x860000A, 355,
-    0x8610001, 0x8610000, 356, 0x8620008,
-    0x8620000, 357, 0x8630001, 0x8630000,
-    358, 0x864000A, 0x8640000, 359,
-    0x8650008, 0x8650000, 360, 0x866000C,
-    0x8660002, 361, 0x8670011, 0x8670012,
-    362, 0x868000C, 0x8680000, 363,
-    0x8690011, 0x8690012, 364, 0x86A0031,
-    0x86A0032, 365, 0x86B001A, 0x86B0000,
-    366, 0x86C0006, 0x86C0000, 367,
-    0x86D0006, 0x86D0000, 368, 0x86E0004,
-    0x86E0001, 369, 0x86F0001, 0x86F0000,
-    370, 0x8700012, 0x8700000, 371,
-    0x8710008, 0x8710000, 372, 0x872000A,
-    0x8720000, 374, 0x8730012, 0x8730000,
-    375, 0x833000E, 0x8330003, 376,
-    0x8900012, 0x890000C, 0, 0,
-    0,
+EffectModelEntry D_800A12F0[] = {
+    { 39, 0x7FE001A, 0x7FE0000 },
+    { 65, 0x7600004, 0x7600000 },
+    { 66, 0x8050004, 0x8050001 },
+    { 85, 0x8290006, 0x8290000 },
+    { 86, 0x82A0007, 0x82A0000 },
+    { 87, 0x7C90016, 0x7C90000 },
+    { 88, 0x76E0006, 0x76E0000 },
+    { 89, 0x7EC0006, 0x7EC0000 },
+    { 90, 0x7F8000A, 0x7F80000 },
+    { 91, 0x7F90008, 0x7F90001 },
+    { 92, 0x7FA0006, 0x7FA0000 },
+    { 93, 0x74A001A, 0x74A0000 },
+    { 94, 0x74C002C, 0x74C0000 },
+    { 95, 0x763000A, 0x7630000 },
+    { 96, 0x7D5001A, 0x7D50004 },
+    { 97, 0x7F50003, 0x7F50000 },
+    { 98, 0x7F70007, 0x7F70000 },
+    { 99, 0x7FB0008, 0x7FB0001 },
+    { 100, 0x7FC0005, 0x7FC0006 },
+    { 101, 0x7ED0003, 0x7ED0001 },
+    { 102, 0x7EE0006, 0x7EE0001 },
+    { 103, 0x7EF0006, 0x7EF0001 },
+    { 106, 0x7F0000E, 0x7F00002 },
+    { 107, 0x7F1000A, 0x7F10001 },
+    { 108, 0x7CA000C, 0x7CA0000 },
+    { 109, 0x7CB001C, 0x7CB0005 },
+    { 113, 0x7FD0005, 0x7FD0006 },
+    { 114, 0x874000C, 0x8740002 },
+    { 115, 0x87D0001, 0x87D0000 },
+    { 116, 0x87E000A, 0x87E0000 },
+    { 201, 0x80D0004, 0x80D0000 },
+    { 202, 0x80E0004, 0x80E0000 },
+    { 203, 0x80F0004, 0x80F0000 },
+    { 204, 0x8100004, 0x8100000 },
+    { 205, 0x8110004, 0x8110000 },
+    { 206, 0x8120004, 0x8120000 },
+    { 207, 0x8130004, 0x8130000 },
+    { 208, 0x8140004, 0x8140000 },
+    { 209, 0x8150004, 0x8150000 },
+    { 210, 0x8160004, 0x8160000 },
+    { 211, 0x8170004, 0x8170000 },
+    { 212, 0x8180004, 0x8180000 },
+    { 213, 0x8190004, 0x8190000 },
+    { 214, 0x81A0004, 0x81A0000 },
+    { 215, 0x81B0004, 0x81B0000 },
+    { 216, 0x81C0004, 0x81C0000 },
+    { 217, 0x81D0004, 0x81D0000 },
+    { 218, 0x81E0004, 0x81E0000 },
+    { 219, 0x81F0004, 0x81F0000 },
+    { 220, 0x8200004, 0x8200000 },
+    { 221, 0x7C00004, 0x7C00000 },
+    { 222, 0x8210004, 0x8210000 },
+    { 223, 0x8220004, 0x8220000 },
+    { 224, 0x8230004, 0x8230000 },
+    { 225, 0x8240004, 0x8240000 },
+    { 226, 0x8250004, 0x8250000 },
+    { 301, 0x82B000E, 0x82B0000 },
+    { 302, 0x82D0015, 0x82D0016 },
+    { 303, 0x82E0004, 0x82E0001 },
+    { 306, 0x82F0004, 0x82F0000 },
+    { 307, 0x8300006, 0x8300000 },
+    { 308, 0x8310008, 0x8310000 },
+    { 309, 0x8320004, 0x8320000 },
+    { 310, 0x834000A, 0x8340000 },
+    { 310, 0x834000A, 0x8340000 },
+    { 311, 0x8350004, 0x8350000 },
+    { 312, 0x8360004, 0x8360000 },
+    { 313, 0x8370004, 0x8370000 },
+    { 314, 0x8380004, 0x8380000 },
+    { 315, 0x839000A, 0x8390000 },
+    { 316, 0x83A0006, 0x83A0001 },
+    { 317, 0x83B0001, 0x83B0000 },
+    { 318, 0x83C0004, 0x83C0001 },
+    { 319, 0x83D000A, 0x83D0006 },
+    { 320, 0x83E000A, 0x83E0000 },
+    { 321, 0x83F0004, 0x83F0000 },
+    { 322, 0x8400004, 0x8400000 },
+    { 323, 0x8410004, 0x8410000 },
+    { 324, 0x8420004, 0x8420000 },
+    { 325, 0x8430004, 0x8430000 },
+    { 326, 0x8440006, 0x8440000 },
+    { 327, 0x845000D, 0x845000E },
+    { 328, 0x8460006, 0x8460000 },
+    { 329, 0x8470006, 0x8470000 },
+    { 330, 0x8480008, 0x8480000 },
+    { 331, 0x8490008, 0x8490000 },
+    { 332, 0x84A0008, 0x84A0000 },
+    { 333, 0x84B000A, 0x84B0000 },
+    { 334, 0x84C000A, 0x84C0000 },
+    { 335, 0x84D0006, 0x84D0000 },
+    { 336, 0x84E0005, 0x84E0006 },
+    { 337, 0x84F000C, 0x84F0000 },
+    { 338, 0x8500006, 0x8500000 },
+    { 339, 0x8510007, 0x8510008 },
+    { 340, 0x8520005, 0x8520006 },
+    { 341, 0x853000C, 0x8530000 },
+    { 342, 0x8540001, 0x8540000 },
+    { 343, 0x8550001, 0x8550000 },
+    { 344, 0x8560000, 0x8560008 },
+    { 345, 0x8570000, 0x8570008 },
+    { 346, 0x8580015, 0x8580016 },
+    { 347, 0x8590004, 0x8590000 },
+    { 348, 0x85A0001, 0x85A0000 },
+    { 349, 0x85B000A, 0x85B0000 },
+    { 350, 0x85C0019, 0x85C001A },
+    { 351, 0x85D000A, 0x85D0000 },
+    { 352, 0x85E0008, 0x85E0000 },
+    { 353, 0x85F0008, 0x85F0000 },
+    { 354, 0x8600009, 0x860000A },
+    { 355, 0x8610001, 0x8610000 },
+    { 356, 0x8620008, 0x8620000 },
+    { 357, 0x8630001, 0x8630000 },
+    { 358, 0x864000A, 0x8640000 },
+    { 359, 0x8650008, 0x8650000 },
+    { 360, 0x866000C, 0x8660002 },
+    { 361, 0x8670011, 0x8670012 },
+    { 362, 0x868000C, 0x8680000 },
+    { 363, 0x8690011, 0x8690012 },
+    { 364, 0x86A0031, 0x86A0032 },
+    { 365, 0x86B001A, 0x86B0000 },
+    { 366, 0x86C0006, 0x86C0000 },
+    { 367, 0x86D0006, 0x86D0000 },
+    { 368, 0x86E0004, 0x86E0001 },
+    { 369, 0x86F0001, 0x86F0000 },
+    { 370, 0x8700012, 0x8700000 },
+    { 371, 0x8710008, 0x8710000 },
+    { 372, 0x872000A, 0x8720000 },
+    { 374, 0x8730012, 0x8730000 },
+    { 375, 0x833000E, 0x8330003 },
+    { 376, 0x8900012, 0x890000C },
+    { 0, 0, 0 },
 };
 #elif VERSION_EU
-s32 D_800A12F0[] = {
-    39, 0x80D001A, 0x80D0000, 65,
-    0x76F0004, 0x76F0000, 66, 0x8140004,
-    0x8140001, 85, 0x83A0006, 0x83A0000,
-    86, 0x83B0007, 0x83B0000, 87,
-    0x7D80016, 0x7D80000, 88, 0x77D0006,
-    0x77D0000, 89, 0x7FB0006, 0x7FB0000,
-    90, 0x807000A, 0x8070000, 91,
-    0x8080008, 0x8080001, 92, 0x8090006,
-    0x8090000, 93, 0x75A001A, 0x75A0000,
-    94, 0x75C002C, 0x75C0000, 95,
-    0x772000A, 0x7720000, 96, 0x7E4001A,
-    0x7E40004, 97, 0x8040003, 0x8040000,
-    98, 0x8060007, 0x8060000, 99,
-    0x80A0008, 0x80A0001, 100, 0x80B0005,
-    0x80B0006, 101, 0x7FC0003, 0x7FC0001,
-    102, 0x7FD0006, 0x7FD0001, 103,
-    0x7FE0006, 0x7FE0001, 106, 0x7FF000E,
-    0x7FF0002, 107, 0x800000A, 0x8000001,
-    108, 0x7D9000C, 0x7D90000, 109,
-    0x7DA001C, 0x7DA0005, 113, 0x80C0005,
-    0x80C0006, 114, 0x885000C, 0x8850002,
-    115, 0x88E0001, 0x88E0000, 116,
-    0x88F000A, 0x88F0000, 201, 0x81E0004,
-    0x81E0000, 202, 0x81F0004, 0x81F0000,
-    203, 0x8200004, 0x8200000, 204,
-    0x8210004, 0x8210000, 205, 0x8220004,
-    0x8220000, 206, 0x8230004, 0x8230000,
-    207, 0x8240004, 0x8240000, 208,
-    0x8250004, 0x8250000, 209, 0x8260004,
-    0x8260000, 210, 0x8270004, 0x8270000,
-    211, 0x8280004, 0x8280000, 212,
-    0x8290004, 0x8290000, 213, 0x82A0004,
-    0x82A0000, 214, 0x82B0004, 0x82B0000,
-    215, 0x82C0004, 0x82C0000, 216,
-    0x82D0004, 0x82D0000, 217, 0x82E0004,
-    0x82E0000, 218, 0x82F0004, 0x82F0000,
-    219, 0x8300004, 0x8300000, 220,
-    0x8310004, 0x8310000, 221, 0x7CF0004,
-    0x7CF0000, 222, 0x8320004, 0x8320000,
-    223, 0x8330004, 0x8330000, 224,
-    0x8340004, 0x8340000, 225, 0x8350004,
-    0x8350000, 226, 0x8360004, 0x8360000,
-    301, 0x83C000E, 0x83C0000, 302,
-    0x83E0015, 0x83E0016, 303, 0x83F0004,
-    0x83F0001, 306, 0x8400004, 0x8400000,
-    307, 0x8410006, 0x8410000, 308,
-    0x8420008, 0x8420000, 309, 0x8430004,
-    0x8430000, 310, 0x845000A, 0x8450000,
-    310, 0x845000A, 0x8450000, 311,
-    0x8460004, 0x8460000, 312, 0x8470004,
-    0x8470000, 313, 0x8480004, 0x8480000,
-    314, 0x8490004, 0x8490000, 315,
-    0x84A000A, 0x84A0000, 316, 0x84B0006,
-    0x84B0001, 317, 0x84C0001, 0x84C0000,
-    318, 0x84D0004, 0x84D0001, 319,
-    0x84E000A, 0x84E0006, 320, 0x84F000A,
-    0x84F0000, 321, 0x8500004, 0x8500000,
-    322, 0x8510004, 0x8510000, 323,
-    0x8520004, 0x8520000, 324, 0x8530004,
-    0x8530000, 325, 0x8540004, 0x8540000,
-    326, 0x8550006, 0x8550000, 327,
-    0x856000D, 0x856000E, 328, 0x8570006,
-    0x8570000, 329, 0x8580006, 0x8580000,
-    330, 0x8590008, 0x8590000, 331,
-    0x85A0008, 0x85A0000, 332, 0x85B0008,
-    0x85B0000, 333, 0x85C000A, 0x85C0000,
-    334, 0x85D000A, 0x85D0000, 335,
-    0x85E0006, 0x85E0000, 336, 0x85F0005,
-    0x85F0006, 337, 0x860000C, 0x8600000,
-    338, 0x8610006, 0x8610000, 339,
-    0x8620007, 0x8620008, 340, 0x8630005,
-    0x8630006, 341, 0x864000C, 0x8640000,
-    342, 0x8650001, 0x8650000, 343,
-    0x8660001, 0x8660000, 344, 0x8670000,
-    0x8670008, 345, 0x8680000, 0x8680008,
-    346, 0x8690015, 0x8690016, 347,
-    0x86A0004, 0x86A0000, 348, 0x86B0001,
-    0x86B0000, 349, 0x86C000A, 0x86C0000,
-    350, 0x86D0019, 0x86D001A, 351,
-    0x86E000A, 0x86E0000, 352, 0x86F0008,
-    0x86F0000, 353, 0x8700008, 0x8700000,
-    354, 0x8710009, 0x871000A, 355,
-    0x8720001, 0x8720000, 356, 0x8730008,
-    0x8730000, 357, 0x8740001, 0x8740000,
-    358, 0x875000A, 0x8750000, 359,
-    0x8760008, 0x8760000, 360, 0x877000C,
-    0x8770002, 361, 0x8780011, 0x8780012,
-    362, 0x879000C, 0x8790000, 363,
-    0x87A0011, 0x87A0012, 364, 0x87B0031,
-    0x87B0032, 365, 0x87C001A, 0x87C0000,
-    366, 0x87D0006, 0x87D0000, 367,
-    0x87E0006, 0x87E0000, 368, 0x87F0004,
-    0x87F0001, 369, 0x8800001, 0x8800000,
-    370, 0x8810012, 0x8810000, 371,
-    0x8820008, 0x8820000, 372, 0x883000A,
-    0x8830000, 374, 0x8840012, 0x8840000,
-    375, 0x844000E, 0x8440003, 376,
-    0x8A10012, 0x8A1000C, 0, 0,
-    0,
+EffectModelEntry D_800A12F0[] = {
+    { 39, 0x80D001A, 0x80D0000 },
+    { 65, 0x76F0004, 0x76F0000 },
+    { 66, 0x8140004, 0x8140001 },
+    { 85, 0x83A0006, 0x83A0000 },
+    { 86, 0x83B0007, 0x83B0000 },
+    { 87, 0x7D80016, 0x7D80000 },
+    { 88, 0x77D0006, 0x77D0000 },
+    { 89, 0x7FB0006, 0x7FB0000 },
+    { 90, 0x807000A, 0x8070000 },
+    { 91, 0x8080008, 0x8080001 },
+    { 92, 0x8090006, 0x8090000 },
+    { 93, 0x75A001A, 0x75A0000 },
+    { 94, 0x75C002C, 0x75C0000 },
+    { 95, 0x772000A, 0x7720000 },
+    { 96, 0x7E4001A, 0x7E40004 },
+    { 97, 0x8040003, 0x8040000 },
+    { 98, 0x8060007, 0x8060000 },
+    { 99, 0x80A0008, 0x80A0001 },
+    { 100, 0x80B0005, 0x80B0006 },
+    { 101, 0x7FC0003, 0x7FC0001 },
+    { 102, 0x7FD0006, 0x7FD0001 },
+    { 103, 0x7FE0006, 0x7FE0001 },
+    { 106, 0x7FF000E, 0x7FF0002 },
+    { 107, 0x800000A, 0x8000001 },
+    { 108, 0x7D9000C, 0x7D90000 },
+    { 109, 0x7DA001C, 0x7DA0005 },
+    { 113, 0x80C0005, 0x80C0006 },
+    { 114, 0x885000C, 0x8850002 },
+    { 115, 0x88E0001, 0x88E0000 },
+    { 116, 0x88F000A, 0x88F0000 },
+    { 201, 0x81E0004, 0x81E0000 },
+    { 202, 0x81F0004, 0x81F0000 },
+    { 203, 0x8200004, 0x8200000 },
+    { 204, 0x8210004, 0x8210000 },
+    { 205, 0x8220004, 0x8220000 },
+    { 206, 0x8230004, 0x8230000 },
+    { 207, 0x8240004, 0x8240000 },
+    { 208, 0x8250004, 0x8250000 },
+    { 209, 0x8260004, 0x8260000 },
+    { 210, 0x8270004, 0x8270000 },
+    { 211, 0x8280004, 0x8280000 },
+    { 212, 0x8290004, 0x8290000 },
+    { 213, 0x82A0004, 0x82A0000 },
+    { 214, 0x82B0004, 0x82B0000 },
+    { 215, 0x82C0004, 0x82C0000 },
+    { 216, 0x82D0004, 0x82D0000 },
+    { 217, 0x82E0004, 0x82E0000 },
+    { 218, 0x82F0004, 0x82F0000 },
+    { 219, 0x8300004, 0x8300000 },
+    { 220, 0x8310004, 0x8310000 },
+    { 221, 0x7CF0004, 0x7CF0000 },
+    { 222, 0x8320004, 0x8320000 },
+    { 223, 0x8330004, 0x8330000 },
+    { 224, 0x8340004, 0x8340000 },
+    { 225, 0x8350004, 0x8350000 },
+    { 226, 0x8360004, 0x8360000 },
+    { 301, 0x83C000E, 0x83C0000 },
+    { 302, 0x83E0015, 0x83E0016 },
+    { 303, 0x83F0004, 0x83F0001 },
+    { 306, 0x8400004, 0x8400000 },
+    { 307, 0x8410006, 0x8410000 },
+    { 308, 0x8420008, 0x8420000 },
+    { 309, 0x8430004, 0x8430000 },
+    { 310, 0x845000A, 0x8450000 },
+    { 310, 0x845000A, 0x8450000 },
+    { 311, 0x8460004, 0x8460000 },
+    { 312, 0x8470004, 0x8470000 },
+    { 313, 0x8480004, 0x8480000 },
+    { 314, 0x8490004, 0x8490000 },
+    { 315, 0x84A000A, 0x84A0000 },
+    { 316, 0x84B0006, 0x84B0001 },
+    { 317, 0x84C0001, 0x84C0000 },
+    { 318, 0x84D0004, 0x84D0001 },
+    { 319, 0x84E000A, 0x84E0006 },
+    { 320, 0x84F000A, 0x84F0000 },
+    { 321, 0x8500004, 0x8500000 },
+    { 322, 0x8510004, 0x8510000 },
+    { 323, 0x8520004, 0x8520000 },
+    { 324, 0x8530004, 0x8530000 },
+    { 325, 0x8540004, 0x8540000 },
+    { 326, 0x8550006, 0x8550000 },
+    { 327, 0x856000D, 0x856000E },
+    { 328, 0x8570006, 0x8570000 },
+    { 329, 0x8580006, 0x8580000 },
+    { 330, 0x8590008, 0x8590000 },
+    { 331, 0x85A0008, 0x85A0000 },
+    { 332, 0x85B0008, 0x85B0000 },
+    { 333, 0x85C000A, 0x85C0000 },
+    { 334, 0x85D000A, 0x85D0000 },
+    { 335, 0x85E0006, 0x85E0000 },
+    { 336, 0x85F0005, 0x85F0006 },
+    { 337, 0x860000C, 0x8600000 },
+    { 338, 0x8610006, 0x8610000 },
+    { 339, 0x8620007, 0x8620008 },
+    { 340, 0x8630005, 0x8630006 },
+    { 341, 0x864000C, 0x8640000 },
+    { 342, 0x8650001, 0x8650000 },
+    { 343, 0x8660001, 0x8660000 },
+    { 344, 0x8670000, 0x8670008 },
+    { 345, 0x8680000, 0x8680008 },
+    { 346, 0x8690015, 0x8690016 },
+    { 347, 0x86A0004, 0x86A0000 },
+    { 348, 0x86B0001, 0x86B0000 },
+    { 349, 0x86C000A, 0x86C0000 },
+    { 350, 0x86D0019, 0x86D001A },
+    { 351, 0x86E000A, 0x86E0000 },
+    { 352, 0x86F0008, 0x86F0000 },
+    { 353, 0x8700008, 0x8700000 },
+    { 354, 0x8710009, 0x871000A },
+    { 355, 0x8720001, 0x8720000 },
+    { 356, 0x8730008, 0x8730000 },
+    { 357, 0x8740001, 0x8740000 },
+    { 358, 0x875000A, 0x8750000 },
+    { 359, 0x8760008, 0x8760000 },
+    { 360, 0x877000C, 0x8770002 },
+    { 361, 0x8780011, 0x8780012 },
+    { 362, 0x879000C, 0x8790000 },
+    { 363, 0x87A0011, 0x87A0012 },
+    { 364, 0x87B0031, 0x87B0032 },
+    { 365, 0x87C001A, 0x87C0000 },
+    { 366, 0x87D0006, 0x87D0000 },
+    { 367, 0x87E0006, 0x87E0000 },
+    { 368, 0x87F0004, 0x87F0001 },
+    { 369, 0x8800001, 0x8800000 },
+    { 370, 0x8810012, 0x8810000 },
+    { 371, 0x8820008, 0x8820000 },
+    { 372, 0x883000A, 0x8830000 },
+    { 374, 0x8840012, 0x8840000 },
+    { 375, 0x844000E, 0x8440003 },
+    { 376, 0x8A10012, 0x8A1000C },
+    { 0, 0, 0 },
 };
 #endif
 /* the European version's differ */
@@ -805,10 +1202,8 @@ s32 D_800A23BC[] = {
 u16 D_800A23DC[] = {
     0x0000, 0x00F4, 0x000C, 0x000C,
 };
-s32 D_800A23E4[] = {
-    640, 136, 1280, 102,
-    1920, 81, 2560, 64,
-    1280, 64, 0, 42,
+JumpParams D_800A23E4[] = {
+    { 640, 136 }, { 1280, 102 }, { 1920, 81 }, { 2560, 64 }, { 1280, 64 }, { 0, 42 },
 };
 s32 D_800A2414[] = {
     0x6004001E, 0x4001C, 0x40004, 0x4000A,
@@ -878,10 +1273,10 @@ BattleAction D_800A317C = {
 };
 Battle D_800A31E8 = {
     0, 0, { 0 }, { { { 0 } } }, { 0 }, { 0 }, { 0, 0 },
-    func_8009D560, func_8009D648, func_8009D674, func_8009DA88, func_8009DAA8,
+    func_8009D560, func_8009D648, FIGHTSTG_projectPoint, func_8009DA88, func_8009DAA8,
 };
 FighterCache D_800A32E0 = {
-    0, 0, 0, 0, NULL, NULL, { FIGHTSTG_getFighterInfo, FIGHTSTG_cacheFighter, FIGHTSTG_getFighterRange }, func_8009DCCC,
+    0, 0, 0, 0, NULL, NULL, { FIGHTSTG_getFighterInfo, FIGHTSTG_cacheFighter, FIGHTSTG_getFighterRange }, FIGHTSTG_getFighterFace,
 };
 Battle800A3308 D_800A3308 = {
     { { { 0 }, { 0 }, { 0 } }, { { 0 }, { 0 }, { 0 } } },
@@ -904,16 +1299,11 @@ s32 D_800A33F4[] = {
 u16 D_800A3418[] = {
     0x0000, 0x0001, 0x0004, 0x0000,
 };
-Methods800A3420 D_800A3420 = { func_800A0EEC, FIGHTSTG_lerpVector };
+Methods800A3420 D_800A3420 = { func_800A0EEC, FIGHTSTG_lerpVector, func_800A0FDC };
 /* the European version has a table of its own after it */
 #if VERSION_US
-s32 D_800A3428[] = {
-    (s32)func_800A0FDC, 0,
-};
+s32 D_800A342C = 0;
 #elif VERSION_EU
-s32 D_800A3428[] = {
-    (s32)func_800A0FDC,
-};
 u16 D_800A46A8[] = {
     0x0040, 0x0006, 0x0002, 0x0003, 0xFFFF, 0x0000, 0x0020, 0x0001,
     0x0020, 0x0004, 0xFFFF, 0x0000, 0x0020, 0x0002, 0x0020, 0x0004,

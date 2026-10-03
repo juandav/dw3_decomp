@@ -129,7 +129,7 @@ struct Layer {
     /* 0x138 */ s32 (*getOtEntry)(struct Layer *, s32 depth);
     /* 0x13C */ void (*getOtEntryZ)();
     /* 0x140 */ void (*getOt)();
-    /* 0x144 */ void (*getOtShift)();
+    /* 0x144 */ s32 (*getOtShift)();
     /* 0x148 */ void (*allocCallbacks)();
     /* 0x14C */ void (*addSortedCallback)();
     /* 0x150 */ void (*addCallback)();
