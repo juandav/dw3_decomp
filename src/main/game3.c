@@ -24,11 +24,32 @@ void setBit(u8 *bits, s32 index, s32 set) {
 s32 func_80015584(s32 op, s32 arg) {
     s32 ret = 0;
 
+#if VERSION_US
     if ((GAME.items[7] != 0 || GAME.equippedItems[7] != 0) &&
         (GAME.items[0x59] != 0 || GAME.equippedItems[0x59] != 0) &&
         (GAME.items[0xA7] != 0 || GAME.equippedItems[0xA7] != 0)) {
         ret = 1;
     }
+#elif VERSION_EU
+    switch (op) {
+    case 0:
+        if ((GAME.items[7] != 0 || GAME.equippedItems[7] != 0) &&
+            (GAME.items[0x59] != 0 || GAME.equippedItems[0x59] != 0) &&
+            (GAME.items[0xA7] != 0 || GAME.equippedItems[0xA7] != 0)) {
+            ret = 1;
+        }
+        break;
+    case 1:
+        if ((GAME.items[0x69] != 0 || GAME.equippedItems[0x69] != 0) &&
+            (GAME.items[0x77] != 0 || GAME.equippedItems[0x77] != 0) &&
+            (GAME.items[0x83] != 0 || GAME.equippedItems[0x83] != 0) &&
+            (GAME.items[0x90] != 0 || GAME.equippedItems[0x90] != 0) &&
+            (GAME.items[0x9C] != 0 || GAME.equippedItems[0x9C] != 0)) {
+            ret = 1;
+        }
+        break;
+    }
+#endif
     return ret;
 }
 
@@ -37,10 +58,13 @@ s32 checkPartner(u32 op, s32 arg) {
     s32 i;
     s32 total;
     s32 id;
+#if VERSION_EU
+    s32 partner;
+#endif
 
     switch (op) {
     case 0:
-        if (PARTY_SET == arg) {
+        if (GAME.partySet == arg) {
             result = 1;
         }
         break;
@@ -83,6 +107,34 @@ s32 checkPartner(u32 op, s32 arg) {
             result = 1;
         }
         break;
+#if VERSION_EU
+    case 7:
+        result = 1;
+        for (id = 0; id < 8; id++) {
+            if (GAME.partners[id].unlocked != 0 && GAME.partners[id].level < 0x2D) {
+                result = 0;
+                break;
+            }
+        }
+        break;
+    case 8:
+        for (i = 0; i < 3; i++) {
+            partner = GAME.funcs.getPartyMember(i);
+            if (partner >= 0) {
+                GAME.partners[partner].hp = GAME.partners[partner].maxHp;
+                GAME.partners[partner].mp = GAME.partners[partner].maxMp;
+            }
+        }
+        result = 1;
+        break;
+    case 9:
+        if (GAME.partners[0].unlocked != 0 && GAME.partners[1].unlocked != 0 && GAME.partners[2].unlocked != 0 &&
+            GAME.partners[3].unlocked != 0 && GAME.partners[4].unlocked != 0 && GAME.partners[5].unlocked != 0 &&
+            GAME.partners[6].unlocked != 0 && GAME.partners[7].unlocked != 0) {
+            result = 1;
+        }
+        break;
+#endif
     }
     return result;
 }
@@ -113,7 +165,7 @@ s32 checkMoney(s32 op, s32 item) {
 }
 
 s32 checkProgressRange(s32 unused, s32 index) {
-    s32 value = GAME_PROGRESS;
+    s32 value = GAME.progress;
     s32 min = PROGRESS_RANGES[index][0];
     s32 max = PROGRESS_RANGES[index][1];
     s32 ret = 0;
@@ -124,6 +176,7 @@ s32 checkProgressRange(s32 unused, s32 index) {
     return ret;
 }
 
+#if VERSION_US
 s32 checkFlagCount(s32 unused, s32 mode) {
     s32 ret = 0;
     s32 on = 0;
@@ -156,6 +209,50 @@ s32 checkFlagCount(s32 unused, s32 mode) {
     }
     return ret;
 }
+#elif VERSION_EU
+s32 checkFlagCount(s32 group, s32 mode) {
+    s32 ret = 0;
+    s32 on = 0;
+    s32 off = 0;
+    s32 i;
+
+    switch (group) {
+    case 0:
+        for (i = 0x27; i < 0x2E; i++) {
+            if (testBit(FLAGS_1C, i, 1) != 0) {
+                on++;
+            } else {
+                off++;
+            }
+        }
+        switch (mode) {
+        case 0:
+            if (on != 0) {
+                ret = 1;
+            }
+            break;
+        case 1:
+            if (off >= 2) {
+                ret = 1;
+            }
+            break;
+        case 2:
+            if (off == 1) {
+                ret = 1;
+            }
+            break;
+        }
+        break;
+    case 1:
+        if (testBit(FLAGS_10, 0xD, 1) && testBit(FLAGS_10, 0xE, 1) && testBit(FLAGS_10, 0xF, 1) &&
+            testBit(FLAGS_10, 0x10, 1)) {
+            ret = 1;
+        }
+        break;
+    }
+    return ret;
+}
+#endif
 
 s32 func_80015A34(s32 op, s32 arg) {
     Task *obj = TASK_FUNCS.find(0x16, -1, -1);
@@ -202,11 +299,11 @@ s32 checkSpecialCondition(s32 id, s32 expected) {
 
 s32 checkProgress(s32 value, s32 mode) {
     if (mode != 0) {
-        if (GAME_PROGRESS == value) {
+        if (GAME.progress == value) {
             return 1;
         }
     } else {
-        if (GAME_PROGRESS != value) {
+        if (GAME.progress != value) {
             return 1;
         }
     }
@@ -267,6 +364,7 @@ s32 checkPartyStat(s32 index, s32 mode) {
 }
 
 s32 func_80015D90(s32 id, s32 arg1) {
+#if VERSION_US
     if (id < 30) {
         if (GAME.unk44 == id + 1) {
             return 1;
@@ -276,12 +374,36 @@ s32 func_80015D90(s32 id, s32 arg1) {
             return 1;
         }
     }
+#elif VERSION_EU
+    /* arg1 zero: the opposite test */
+    if (id < 30) {
+        if (arg1 != 0) {
+            if (GAME.unk44 == id + 1) {
+                return 1;
+            }
+        } else {
+            if (GAME.unk44 != id + 1) {
+                return 1;
+            }
+        }
+    } else {
+        if (arg1 != 0) {
+            if (GAME.unk46 == id - 29) {
+                return 1;
+            }
+        } else {
+            if (GAME.unk46 != id - 29) {
+                return 1;
+            }
+        }
+    }
+#endif
     return 0;
 }
 
 s32 unequipItem(s32 partner, s32 item) {
     PartnerStats *d = &PARTNER_STATS[partner];
-    u8 *info = GET_ITEM(item)->data;
+    u8 *info = GET_ITEM[0](item)->data;
     s16 *equip = d->equip;
     s32 i;
 
@@ -520,7 +642,7 @@ void updateModeFlags(void) {
     s32 i;
     u8 *p;
 
-    if (GAME_CLEAR_TEMP_FLAGS != 0) {
+    if (GAME.clearTempFlags != 0) {
         for (i = 2, p = &FLAGS_00.bits[i]; i >= 0; i--) {
             *p-- = 0;
         }
@@ -529,20 +651,26 @@ void updateModeFlags(void) {
     if (GAME_FUNCS.getPrevMode() == 0x700) {
         applyAction(0x11, 1);
         applyAction(0x12, 1);
-        if (PENDING_FLAG_10 != 0) {
+        if (FLAGS_00.pendingFlag10 != 0) {
             applyAction(0x10, 1);
         } else {
             applyAction(0x10, 0);
         }
-        PENDING_FLAG_10 = 0;
+        FLAGS_00.pendingFlag10 = 0;
     }
 }
 
 /* Clears the save data and sets up a new game */
 void newGame(void) {
+#if VERSION_US
     HEAP.zero(&GAME, 0x26BC);
     GAME.mode = 0xE01;
     GAME.nextMode = 0xE01;
+#elif VERSION_EU
+    HEAP.zero(&GAME, 0x26C4);
+    GAME.mode = 0x1600;
+    GAME.nextMode = 0x1600;
+#endif
     GAME.unk4 = 1;
     GAME.unk26CC = 1;
     GAME.unk26CD = 8;
@@ -567,15 +695,15 @@ void commitMode(void) {
 }
 
 s32 getPrevMode(void) {
-    return GAME_PREV_MODE;
+    return GAME.prevMode;
 }
 
 s32 getMode(void) {
-    return GAME_MODE;
+    return GAME.mode;
 }
 
 s32 getModeArg(void) {
-    return GAME_MODE_ARG;
+    return GAME.modeArg;
 }
 
 void requestMode(s32 mode, s32 arg) {
@@ -584,7 +712,7 @@ void requestMode(s32 mode, s32 arg) {
 }
 
 s32 isModeChangePending(void) {
-    return GAME_NEXT_MODE != 0;
+    return GAME.nextMode != 0;
 }
 
 void initNewGameData(void) {
@@ -596,17 +724,17 @@ void initNewGameData(void) {
     DigimonData *e;
 
     initTextTools(&cls);
-    strcpy(GAME.name, cls.getString(FILE_CACHE.load(0x87), 0xB));
+    strcpy(GAME.name, cls.getString(FILE_CACHE.load(TEXT_FILE(0x87)), 0xB));
     GAME.party[0] = -1;
     GAME.party[1] = -1;
     GAME.party[2] = -1;
     for (j = 0; j < 3; j++) {
-        strcpy(GAME.decks[j].name, cls.getString(FILE_CACHE.load(0x33), j + 0x16));
+        strcpy(GAME.decks[j].name, cls.getString(FILE_CACHE.load(TEXT_FILE(0x33)), j + 0x16));
     }
     GAME.funcs.giveStarterDeck();
     for (i = 0; i < 8; i++) {
         e = &DIGIMON_DATA[i];
-        strcpy(GAME.partners[i].name, cls.getString(FILE_CACHE.load(0x4F), e->nameId));
+        strcpy(GAME.partners[i].name, cls.getString(FILE_CACHE.load(TEXT_FILE(0x4F)), e->nameId));
         GAME.partners[i].level = 1;
         GAME.partners[i].hp = GAME.partners[i].maxHp = e->hp;
         GAME.partners[i].mp = GAME.partners[i].maxMp = e->mp;
@@ -639,7 +767,7 @@ void setParty(s32 set) {
         GAME.party[i] = partner;
         GAME.partners[partner].unlocked = partner + 3;
     }
-    PARTY_SET = set;
+    GAME.partySet = set;
 }
 
 void addCards(s32 item, s32 count) {
@@ -801,7 +929,7 @@ void computeStats(s32 partner, s16 *out) {
     equip = d->equip;
     for (i = 0; i < 6; i++) {
         if (equip[i] > 0) {
-            info = GET_ITEM(equip[i]);
+            info = GET_ITEM[0](equip[i]);
             type = info->type;
             data = (ItemData *)info->data;
             if ((u8)(type - 2) < 13) {

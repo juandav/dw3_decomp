@@ -1,5 +1,6 @@
 #include "game.h"
 #include <libgs.h>
+#include <libetc.h>
 
 /* -G8 unit: small variables defined here are reached through $gp */
 static u_char CD_MODE[8];
@@ -15,9 +16,6 @@ void *createModeTask();
 void func_8002DE28(s32);
 void setSaveFileName(void);
 int CdInit(void);
-int SetVideoMode(long mode);
-int ResetCallback(void);
-int VSync(int mode);
 void SsInit(void);
 void MemCardInit(long val);
 void MemCardStart(void);
@@ -114,14 +112,14 @@ void showPartnerPage(void *menu, FieldMenuWindows *win, s32 page, s32 show) {
             GAME.funcs.computeStats(id, &stats);
             win->pages[page].name->setString(win->pages[page].name, info, -1);
             for (i = 0; i < 5; i++) {
-                win->pages[page].labels[i]->setString(win->pages[page].labels[i], FILE_CACHE.load(0xB1), PAGE_LABEL_LAYOUT[i].string);
+                win->pages[page].labels[i]->setString(win->pages[page].labels[i], FILE_CACHE.load(TEXT_FILE(0xB1)), PAGE_LABEL_LAYOUT[i].string);
                 win->pages[page].values[i]->setNumber(win->pages[page].values[i], 0, ((s16 *)&stats)[PAGE_STATS[i]]);
                 win->pages[page].values[i]->setRightAlign(win->pages[page].values[i], 1);
             }
         } else {
-            win->pages[page].name->setString(win->pages[page].name, FILE_CACHE.load(0xB1), 0xC);
+            win->pages[page].name->setString(win->pages[page].name, FILE_CACHE.load(TEXT_FILE(0xB1)), 0xC);
             for (i = 0; i < 5; i++) {
-                win->pages[page].values[i]->setString(win->pages[page].values[i], FILE_CACHE.load(0xB1), FIELD_MENU_LAYOUT[6 + i].string);
+                win->pages[page].values[i]->setString(win->pages[page].values[i], FILE_CACHE.load(TEXT_FILE(0xB1)), FIELD_MENU_LAYOUT[6 + i].string);
                 win->pages[page].values[i]->setRightAlign(win->pages[page].values[i], 1);
             }
         }
@@ -209,7 +207,7 @@ void updateFieldMenu(FieldMenu *task, FieldMenuWindows *win) {
         case 0:
             if (updatePanel(&task->panels[0])) {
                 showPartnerPage(task, win, 0, 1);
-                win->title->setString(win->title, FILE_CACHE_LOAD[0](0xB1), 0x13);
+                win->title->setString(win->title, FILE_CACHE_LOAD[0](TEXT_FILE(0xB1)), 0x13);
                 SOUND.playSound(0x40019);
                 task->substate++;
             }
@@ -218,7 +216,7 @@ void updateFieldMenu(FieldMenu *task, FieldMenuWindows *win) {
             if (updatePanel(&task->panels[1])) {
                 showPartnerPage(task, win, 1, 1);
                 for (task->counter = 0; task->counter < task->count; task->counter++) {
-                    win->options[task->counter]->setString(win->options[task->counter], FILE_CACHE.load(0xB1),
+                    win->options[task->counter]->setString(win->options[task->counter], FILE_CACHE.load(TEXT_FILE(0xB1)),
                                               FIELD_MENU_OPTIONS[task->extraOption][task->counter]);
                 }
                 SOUND.playSound(0x40019);
@@ -231,7 +229,7 @@ void updateFieldMenu(FieldMenu *task, FieldMenuWindows *win) {
         case 2:
             if (updatePanel(&task->panels[2])) {
                 showPartnerPage(task, win, 2, 1);
-                win->moneyLabel->setString(win->moneyLabel, FILE_CACHE_LOAD[0](0xB1), 5);
+                win->moneyLabel->setString(win->moneyLabel, FILE_CACHE_LOAD[0](TEXT_FILE(0xB1)), 5);
                 win->money->setNumber(win->money, 0, GAME.money);
                 win->money->setRightAlign(win->money, 1);
                 win->cursor->setVisible(win->cursor, 1);
@@ -331,8 +329,8 @@ void updateFieldMenu(FieldMenu *task, FieldMenuWindows *win) {
                 } else {
                     obj.setScale(0x1000, 0x1000, 0x1000);
                 }
-                obj.draw(FILE_CACHE.getEntry(0x02770000), 0x15, 0, y);
-                obj.draw(FILE_CACHE.getEntry(0x02770000), 0x17, 0, y);
+                obj.draw(FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16), 0x15, 0, y);
+                obj.draw(FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16), 0x17, 0, y);
             }
             y += 0x2E;
             y2 += 0x2E;
@@ -344,7 +342,7 @@ void updateFieldMenu(FieldMenu *task, FieldMenuWindows *win) {
             } else {
                 obj.setScale(0x1000, 0x1000, 0x1000);
             }
-            obj.draw(FILE_CACHE_GET_ENTRY[0](0x02770000), 0x18, 0x22, 0xD);
+            obj.draw(FILE_CACHE_GET_ENTRY[0](FILE_MENU_SPRITES << 16), 0x18, 0x22, 0xD);
         }
         if (task->panels[1].level != 0) {
             if (task->panels[1].level != 0x1000) {
@@ -353,7 +351,7 @@ void updateFieldMenu(FieldMenu *task, FieldMenuWindows *win) {
             } else {
                 obj.setScale(0x1000, 0x1000, 0x1000);
             }
-            obj.draw(FILE_CACHE_GET_ENTRY[0](0x02770000), 0x1C - task->extraOption, 0xA8, 0x28);
+            obj.draw(FILE_CACHE_GET_ENTRY[0](FILE_MENU_SPRITES << 16), 0x1C - task->extraOption, 0xA8, 0x28);
         }
         if (task->panels[2].level != 0) {
             if (task->panels[2].level != 0x1000) {
@@ -362,7 +360,7 @@ void updateFieldMenu(FieldMenu *task, FieldMenuWindows *win) {
             } else {
                 obj.setScale(0x1000, 0x1000, 0x1000);
             }
-            obj.draw(FILE_CACHE_GET_ENTRY[0](0x02770000), 0x1A, 0, 0x9E);
+            obj.draw(FILE_CACHE_GET_ENTRY[0](FILE_MENU_SPRITES << 16), 0x1A, 0, 0x9E);
         }
         break;
     case 2:
@@ -424,7 +422,7 @@ void updateFieldMenu(FieldMenu *task, FieldMenuWindows *win) {
             } else {
                 obj2.setClutRow(0xF);
             }
-            obj2.draw(FILE_CACHE.getEntry(0x02770000), FIELD_MENU_SPRITES[j], 0, 0);
+            obj2.draw(FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16), FIELD_MENU_SPRITES[j], 0, 0);
         }
         break;
     case 3:
@@ -840,7 +838,11 @@ void markCachedFiles(void) {
 
 void touchMarkedFiles(void) {
     FileSlot *slot = FILE_CACHE_SLOTS;
+#if VERSION_US
     s32 now = GFX_FUNCS.getTime();
+#elif VERSION_EU
+    s32 now = GFX_FUNCS.getTime() - 10;
+#endif
     s32 i;
 
     for (i = 0; i < 64; i++, slot++) {
@@ -966,7 +968,15 @@ int main(void) {
     GsIMAGE tim;
     u_char param[8];
 
-    SetVideoMode(0);
+#if VERSION_US
+    SetVideoMode(MODE_NTSC);
+#elif VERSION_EU
+    if (NTSC_MODE) {
+        SetVideoMode(MODE_NTSC);
+    } else {
+        SetVideoMode(MODE_PAL);
+    }
+#endif
     ResetCallback();
     VSync(0);
     SetDispMask(0);

@@ -302,6 +302,12 @@ extern GfxFuncs GFX_FUNCS;
 extern s16 OT_LENGTHS[];
 extern s32 CARD_IMAGE_FILES[];
 extern GfxState GFX;
+#if VERSION_EU
+/* The European version runs at 50 Hz (PAL) unless NTSC_MODE is set; its
+   clocks then advance 0x133, 60/50 of 0x100, per frame */
+extern s32 NTSC_MODE;
+extern s32 SHIFT_PAL_SCREEN; /* moves both display areas 0x18 lines down */
+#endif
 extern s32 CARD_KINDS[];
 /* libgs globals: the light matrix and GsWSMATRIX */
 extern MATRIX D_80080A90;

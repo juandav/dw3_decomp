@@ -1,5 +1,150 @@
 #include "common.h"
 
+extern s32 D_80040DFC[];
+extern s32 D_80040E38[];
+extern s32 D_80040E74[];
+extern s32 D_80040EB0[];
+extern s32 D_80040EEC[];
+extern s32 D_80040F28[];
+extern s32 D_80040F64[];
+extern s32 D_80040FA0[];
+extern s32 D_80040FDC[];
+extern s32 D_80041018[];
+extern s32 D_80041054[];
+extern s32 D_80041090[];
+extern s32 D_800410CC[];
+extern s32 D_80041108[];
+void func_8001350C();
+extern s32 getItem[];
+extern s32 getItemCategory[];
+void func_80013590();
+extern s32 listItems[];
+extern s32 D_80041328[];
+extern s32 D_800413C4[];
+extern s32 isCdReading[];
+extern s32 readFile[];
+extern s32 isFileLoading[];
+extern s32 evictOldestFile[];
+extern s32 requestFile[];
+extern s32 updateFileCache[];
+extern s32 loadFile[];
+extern s32 freeFile[];
+extern s32 freeAllFiles[];
+extern s32 freeFilesFrom[];
+extern s32 getFileEntry[];
+extern s32 getArchiveEntry[];
+extern s32 markCachedFiles[];
+extern s32 touchMarkedFiles[];
+extern s32 fileExists[];
+extern s32 getFileSectorCount[];
+extern s32 getFileSector[];
+extern s32 getFilePos[];
+extern s32 initMemCard[];
+extern s32 setSaveFileName[];
+extern s32 setSaveHeader[];
+extern s32 checkMemCard[];
+extern s32 acceptMemCard[];
+extern s32 readSave[];
+extern s32 writeSave[];
+extern s32 listSaves[];
+extern s32 createSave[];
+extern s32 formatMemCard[];
+void func_80015490();
+extern s32 verifyChecksum[];
+extern s32 computeChecksum[];
+extern s32 checkConditions[];
+extern s32 applyAction[];
+extern s32 checkCondition[];
+extern s32 applyActions[];
+extern s32 updateModeFlags[];
+extern s32 newGame[];
+extern s32 commitMode[];
+extern s32 getMode[];
+extern s32 getModeArg[];
+extern s32 requestMode[];
+extern s32 isModeChangePending[];
+extern s32 getPrevMode[];
+extern s32 getPartyMember[];
+extern s32 setParty[];
+extern s32 addCards[];
+extern s32 giveStarterDeck[];
+extern s32 getPartyPartner[];
+extern s32 setStat[];
+extern s32 addStat[];
+extern s32 computeStats[];
+extern s32 getPartnerSlots[];
+extern s32 setPartnerSlots[];
+extern s32 listPartnerEntries[];
+extern s32 addPartnerEntry[];
+extern s32 getPartnerEntry[];
+extern s32 setPartnerEntry[];
+extern s32 getPartnerStats[];
+extern s32 resetPlayTime[];
+extern s32 updatePlayTime[];
+extern s32 initHeap[];
+extern s32 freeMem[];
+extern s32 freeMemByTag[];
+extern s32 allocMem[];
+extern s32 allocMemHigh[];
+extern s32 allocMemZeroed[];
+extern s32 zeroMem[];
+extern s32 fillMem[];
+extern s32 lockMem[];
+void func_80017878();
+extern s32 clearTaskRegistry[];
+extern s32 registerTask[];
+extern s32 unregisterTask[];
+extern s32 findTask[];
+extern s32 findNextTask[];
+extern s32 runChildTasks[];
+extern s32 runTask[];
+extern s32 killTask[];
+extern s32 initPad[];
+extern s32 shutdownPad[];
+extern s32 updatePad[];
+extern s32 setVibration[];
+extern s32 setAnalogMode[];
+extern s32 getPadPressed[];
+extern s32 getPadHeld[];
+extern s32 getPadRepeated[];
+extern s32 resetButtonMap[];
+extern s32 swapButtons[];
+extern s32 getButtonBit[];
+extern s32 startDemoRecording[];
+extern s32 stopDemoRecording[];
+extern s32 isDemoRecording[];
+extern s32 startDemoPlayback[];
+extern s32 stopDemoPlayback[];
+extern s32 isDemoPlaying[];
+extern s32 seedRandom[];
+extern s32 random[];
+extern s32 textCodeDefault[];
+extern s32 textCodeNewLine[];
+extern s32 textCodeWaitButton[];
+extern s32 textCodePageBreak[];
+extern s32 textCodeIgnore[];
+extern s32 textCodeInsert[];
+extern s32 textCodePause[];
+extern s32 textCodePlayerName[];
+extern s32 loadFont[];
+extern s32 decodeChar[];
+extern s32 resetGraphics[];
+extern s32 allocPrimBuffers[];
+extern s32 getPrim[];
+extern s32 setPrim[];
+extern s32 freePrimBuffers[];
+extern s32 startVSyncCallback[];
+extern s32 drawFrame[];
+extern s32 createLayer[];
+extern s32 destroyLayer[];
+extern s32 setDisplayMode[];
+extern s32 setDisplayArea[];
+extern s32 getLayer[];
+extern s32 moveLayer[];
+extern s32 getFrameCount[];
+extern s32 getTime[];
+extern s32 getFrameTime[];
+#if VERSION_US
 extern s32 D_8005C2FC[];
 extern s32 D_8005C300[];
 extern s32 D_8005C304[];
@@ -250,72 +395,58 @@ extern s32 D_80040DB4[];
 extern s32 D_80040DC8[];
 extern s32 D_80040DDC[];
 extern s32 D_80040DF0[];
-extern s32 D_80040DFC[];
 extern s32 D_80040E08[];
 extern s32 D_80040E14[];
 extern s32 D_80040E20[];
 extern s32 D_80040E2C[];
-extern s32 D_80040E38[];
 extern s32 D_80040E44[];
 extern s32 D_80040E50[];
 extern s32 D_80040E5C[];
 extern s32 D_80040E68[];
-extern s32 D_80040E74[];
 extern s32 D_80040E80[];
 extern s32 D_80040E8C[];
 extern s32 D_80040E98[];
 extern s32 D_80040EA4[];
-extern s32 D_80040EB0[];
 extern s32 D_80040EBC[];
 extern s32 D_80040EC8[];
 extern s32 D_80040ED4[];
 extern s32 D_80040EE0[];
-extern s32 D_80040EEC[];
 extern s32 D_80040EF8[];
 extern s32 D_80040F04[];
 extern s32 D_80040F10[];
 extern s32 D_80040F1C[];
-extern s32 D_80040F28[];
 extern s32 D_80040F34[];
 extern s32 D_80040F40[];
 extern s32 D_80040F4C[];
 extern s32 D_80040F58[];
-extern s32 D_80040F64[];
 extern s32 D_80040F70[];
 extern s32 D_80040F7C[];
 extern s32 D_80040F88[];
 extern s32 D_80040F94[];
-extern s32 D_80040FA0[];
 extern s32 D_80040FAC[];
 extern s32 D_80040FB8[];
 extern s32 D_80040FC4[];
 extern s32 D_80040FD0[];
-extern s32 D_80040FDC[];
 extern s32 D_80040FE8[];
 extern s32 D_80040FF4[];
 extern s32 D_80041000[];
 extern s32 D_8004100C[];
-extern s32 D_80041018[];
 extern s32 D_80041024[];
 extern s32 D_80041030[];
 extern s32 D_8004103C[];
 extern s32 D_80041048[];
-extern s32 D_80041054[];
 extern s32 D_80041060[];
 extern s32 D_8004106C[];
 extern s32 D_80041078[];
 extern s32 D_80041084[];
-extern s32 D_80041090[];
 extern s32 D_8004109C[];
 extern s32 D_800410A8[];
 extern s32 D_800410B4[];
 extern s32 D_800410C0[];
-extern s32 D_800410CC[];
 extern s32 D_800410D8[];
 extern s32 D_800410E4[];
 extern s32 D_800410F0[];
 extern s32 D_800410FC[];
-extern s32 D_80041108[];
 extern s32 D_80041114[];
 extern s32 D_8005C3C0[];
 extern s32 D_8005C3C4[];
@@ -351,121 +482,9 @@ extern s32 D_8005C438[];
 extern s32 D_8005C43C[];
 extern s32 D_8005C440[];
 extern s32 D_8005C444[];
-void func_8001350C();
-extern s32 getItem[];
-extern s32 getItemCategory[];
-void func_80013590();
-extern s32 listItems[];
 extern s32 D_80041120[];
 extern s32 D_80041188[];
 extern s32 D_80041230[];
-extern s32 D_80041328[];
-extern s32 D_800413C4[];
-extern s32 isCdReading[];
-extern s32 readFile[];
-extern s32 isFileLoading[];
-extern s32 evictOldestFile[];
-extern s32 requestFile[];
-extern s32 updateFileCache[];
-extern s32 loadFile[];
-extern s32 freeFile[];
-extern s32 freeAllFiles[];
-extern s32 freeFilesFrom[];
-extern s32 getFileEntry[];
-extern s32 getArchiveEntry[];
-extern s32 markCachedFiles[];
-extern s32 touchMarkedFiles[];
-extern s32 fileExists[];
-extern s32 getFileSectorCount[];
-extern s32 getFileSector[];
-extern s32 getFilePos[];
-extern s32 initMemCard[];
-extern s32 setSaveFileName[];
-extern s32 setSaveHeader[];
-extern s32 checkMemCard[];
-extern s32 acceptMemCard[];
-extern s32 readSave[];
-extern s32 writeSave[];
-extern s32 listSaves[];
-extern s32 createSave[];
-extern s32 formatMemCard[];
-void func_80015490();
-extern s32 verifyChecksum[];
-extern s32 computeChecksum[];
-extern s32 checkConditions[];
-extern s32 applyAction[];
-extern s32 checkCondition[];
-extern s32 applyActions[];
-extern s32 updateModeFlags[];
-extern s32 newGame[];
-extern s32 commitMode[];
-extern s32 getMode[];
-extern s32 getModeArg[];
-extern s32 requestMode[];
-extern s32 isModeChangePending[];
-extern s32 getPrevMode[];
-extern s32 getPartyMember[];
-extern s32 setParty[];
-extern s32 addCards[];
-extern s32 giveStarterDeck[];
-extern s32 getPartyPartner[];
-extern s32 setStat[];
-extern s32 addStat[];
-extern s32 computeStats[];
-extern s32 getPartnerSlots[];
-extern s32 setPartnerSlots[];
-extern s32 listPartnerEntries[];
-extern s32 addPartnerEntry[];
-extern s32 getPartnerEntry[];
-extern s32 setPartnerEntry[];
-extern s32 getPartnerStats[];
-extern s32 resetPlayTime[];
-extern s32 updatePlayTime[];
-extern s32 initHeap[];
-extern s32 freeMem[];
-extern s32 freeMemByTag[];
-extern s32 allocMem[];
-extern s32 allocMemHigh[];
-extern s32 allocMemZeroed[];
-extern s32 zeroMem[];
-extern s32 fillMem[];
-extern s32 lockMem[];
-void func_80017878();
-extern s32 clearTaskRegistry[];
-extern s32 registerTask[];
-extern s32 unregisterTask[];
-extern s32 findTask[];
-extern s32 findNextTask[];
-extern s32 runChildTasks[];
-extern s32 runTask[];
-extern s32 killTask[];
-extern s32 initPad[];
-extern s32 shutdownPad[];
-extern s32 updatePad[];
-extern s32 setVibration[];
-extern s32 setAnalogMode[];
-extern s32 getPadPressed[];
-extern s32 getPadHeld[];
-extern s32 getPadRepeated[];
-extern s32 resetButtonMap[];
-extern s32 swapButtons[];
-extern s32 getButtonBit[];
-extern s32 startDemoRecording[];
-extern s32 stopDemoRecording[];
-extern s32 isDemoRecording[];
-extern s32 startDemoPlayback[];
-extern s32 stopDemoPlayback[];
-extern s32 isDemoPlaying[];
-extern s32 seedRandom[];
-extern s32 random[];
-extern s32 textCodeDefault[];
-extern s32 textCodeNewLine[];
-extern s32 textCodeWaitButton[];
-extern s32 textCodePageBreak[];
-extern s32 textCodeIgnore[];
-extern s32 textCodeInsert[];
-extern s32 textCodePause[];
-extern s32 textCodePlayerName[];
 extern s32 D_8005C478[];
 extern s32 D_8005C474[];
 extern s32 D_8005C470[];
@@ -480,24 +499,6 @@ extern s32 D_8004FAE4[];
 extern s32 D_800504C8[];
 extern s32 D_8004D51C[];
 extern s32 D_8004D57C[];
-extern s32 loadFont[];
-extern s32 decodeChar[];
-extern s32 resetGraphics[];
-extern s32 allocPrimBuffers[];
-extern s32 getPrim[];
-extern s32 setPrim[];
-extern s32 freePrimBuffers[];
-extern s32 startVSyncCallback[];
-extern s32 drawFrame[];
-extern s32 createLayer[];
-extern s32 destroyLayer[];
-extern s32 setDisplayMode[];
-extern s32 setDisplayArea[];
-extern s32 getLayer[];
-extern s32 moveLayer[];
-extern s32 getFrameCount[];
-extern s32 getTime[];
-extern s32 getFrameTime[];
 extern s32 D_800509B0[];
 extern s32 D_800509CC[];
 extern s32 D_800509E4[];
@@ -572,6 +573,436 @@ extern s32 D_80051044[];
 extern s32 D_8005C4D0[];
 extern s32 D_8006A4D0[];
 extern s32 D_800744D0[];
+#elif VERSION_EU
+extern s32 D_8005CB54[];
+extern s32 D_8005CB58[];
+extern s32 D_8005CB5C[];
+extern s32 D_8005CB60[];
+extern s32 D_8005CB64[];
+extern s32 D_8005CB68[];
+extern s32 D_8005CB6C[];
+extern s32 D_8005CB70[];
+extern s32 D_8005CB74[];
+extern s32 D_8005CB78[];
+extern s32 D_8005CB7C[];
+extern s32 D_8005CB80[];
+extern s32 D_8005CB84[];
+extern s32 D_8005CB88[];
+extern s32 D_8005CB8C[];
+extern s32 D_8005CB90[];
+extern s32 D_8005CB94[];
+extern s32 D_8005CB98[];
+extern s32 D_8005CB9C[];
+extern s32 D_8005CBA0[];
+extern s32 D_8005CBA4[];
+extern s32 D_8005CBA8[];
+extern s32 D_8005CBAC[];
+extern s32 D_8005CBB0[];
+extern s32 D_8005CBB4[];
+extern s32 D_8005CBB8[];
+extern s32 D_8005CBBC[];
+extern s32 D_8005CBC0[];
+extern s32 D_8005CBC4[];
+extern s32 D_8005CBC8[];
+extern s32 D_8005CBCC[];
+extern s32 D_8005CBD0[];
+extern s32 D_8005CBD4[];
+extern s32 D_8005CBD8[];
+extern s32 D_8005CBDC[];
+extern s32 D_8005CBE0[];
+extern s32 D_8005CBE4[];
+extern s32 D_8005CBE8[];
+extern s32 D_8005CBEC[];
+extern s32 D_8005CBF0[];
+extern s32 D_8005CBF4[];
+extern s32 D_8005CBF8[];
+extern s32 D_8005CBFC[];
+extern s32 D_8005CC00[];
+extern s32 D_8005CC04[];
+extern s32 D_8005CC08[];
+extern s32 D_8005CC0C[];
+extern s32 D_8005CC10[];
+extern s32 D_8005CC14[];
+extern s32 D_80040244[];
+extern s32 D_80040258[];
+extern s32 D_8004026C[];
+extern s32 D_80040280[];
+extern s32 D_80040294[];
+extern s32 D_800402A8[];
+extern s32 D_800402BC[];
+extern s32 D_800402D0[];
+extern s32 D_800402E4[];
+extern s32 D_800402F8[];
+extern s32 D_8004030C[];
+extern s32 D_80040320[];
+extern s32 D_80040334[];
+extern s32 D_80040348[];
+extern s32 D_8004035C[];
+extern s32 D_80040370[];
+extern s32 D_80040384[];
+extern s32 D_80040398[];
+extern s32 D_800403AC[];
+extern s32 D_800403C0[];
+extern s32 D_800403D4[];
+extern s32 D_800403E8[];
+extern s32 D_800403FC[];
+extern s32 D_80040410[];
+extern s32 D_80040424[];
+extern s32 D_80040438[];
+extern s32 D_8004044C[];
+extern s32 D_80040460[];
+extern s32 D_80040474[];
+extern s32 D_80040488[];
+extern s32 D_8004049C[];
+extern s32 D_800404B0[];
+extern s32 D_800404C4[];
+extern s32 D_800404D8[];
+extern s32 D_800404EC[];
+extern s32 D_80040500[];
+extern s32 D_80040514[];
+extern s32 D_80040528[];
+extern s32 D_8004053C[];
+extern s32 D_80040550[];
+extern s32 D_80040564[];
+extern s32 D_80040578[];
+extern s32 D_8004058C[];
+extern s32 D_800405A0[];
+extern s32 D_800405B4[];
+extern s32 D_800405C8[];
+extern s32 D_800405DC[];
+extern s32 D_800405F0[];
+extern s32 D_80040604[];
+extern s32 D_80040618[];
+extern s32 D_8004062C[];
+extern s32 D_80040640[];
+extern s32 D_80040654[];
+extern s32 D_80040668[];
+extern s32 D_8004067C[];
+extern s32 D_80040690[];
+extern s32 D_800406A4[];
+extern s32 D_800406B8[];
+extern s32 D_800406CC[];
+extern s32 D_800406E0[];
+extern s32 D_800406F4[];
+extern s32 D_80040708[];
+extern s32 D_8004071C[];
+extern s32 D_80040730[];
+extern s32 D_80040744[];
+extern s32 D_80040758[];
+extern s32 D_8004076C[];
+extern s32 D_80040780[];
+extern s32 D_80040794[];
+extern s32 D_800407A8[];
+extern s32 D_800407BC[];
+extern s32 D_800407D0[];
+extern s32 D_800407E4[];
+extern s32 D_800407F8[];
+extern s32 D_8004080C[];
+extern s32 D_80040820[];
+extern s32 D_80040834[];
+extern s32 D_80040848[];
+extern s32 D_8004085C[];
+extern s32 D_80040870[];
+extern s32 D_80040884[];
+extern s32 D_80040898[];
+extern s32 D_800408AC[];
+extern s32 D_800408C0[];
+extern s32 D_800408D4[];
+extern s32 D_800408E8[];
+extern s32 D_800408FC[];
+extern s32 D_80040910[];
+extern s32 D_80040924[];
+extern s32 D_80040938[];
+extern s32 D_8004094C[];
+extern s32 D_80040960[];
+extern s32 D_80040974[];
+extern s32 D_80040988[];
+extern s32 D_8004099C[];
+extern s32 D_800409B0[];
+extern s32 D_800409C4[];
+extern s32 D_800409D8[];
+extern s32 D_800409EC[];
+extern s32 D_80040A00[];
+extern s32 D_80040A14[];
+extern s32 D_80040A28[];
+extern s32 D_80040A3C[];
+extern s32 D_80040A50[];
+extern s32 D_80040A64[];
+extern s32 D_80040A78[];
+extern s32 D_80040A8C[];
+extern s32 D_80040AA0[];
+extern s32 D_80040AB4[];
+extern s32 D_80040AC8[];
+extern s32 D_80040ADC[];
+extern s32 D_80040AF0[];
+extern s32 D_80040B04[];
+extern s32 D_80040B18[];
+extern s32 D_80040B2C[];
+extern s32 D_80040B40[];
+extern s32 D_80040B54[];
+extern s32 D_80040B68[];
+extern s32 D_80040B7C[];
+extern s32 D_80040B90[];
+extern s32 D_80040BA4[];
+extern s32 D_80040BB8[];
+extern s32 D_80040BCC[];
+extern s32 D_80040BE0[];
+extern s32 D_80040BF4[];
+extern s32 D_80040C08[];
+extern s32 D_80040C1C[];
+extern s32 D_80040C30[];
+extern s32 D_80040C44[];
+extern s32 D_80040C58[];
+extern s32 D_80040C6C[];
+extern s32 D_80040C80[];
+extern s32 D_80040C94[];
+extern s32 D_80040CA8[];
+extern s32 D_80040CBC[];
+extern s32 D_80040CD0[];
+extern s32 D_80040CE4[];
+extern s32 D_80040CF8[];
+extern s32 D_80040D0C[];
+extern s32 D_80040D20[];
+extern s32 D_80040D34[];
+extern s32 D_80040D48[];
+extern s32 D_80040D5C[];
+extern s32 D_80040D70[];
+extern s32 D_80040D84[];
+extern s32 D_80040D98[];
+extern s32 D_80040DAC[];
+extern s32 D_80040DC0[];
+extern s32 D_80040DD4[];
+extern s32 D_80040DE8[];
+extern s32 D_80040E10[];
+extern s32 D_80040E24[];
+extern s32 D_80040E4C[];
+extern s32 D_80040E60[];
+extern s32 D_80040E88[];
+extern s32 D_80040E9C[];
+extern s32 D_80040EC4[];
+extern s32 D_80040ED8[];
+extern s32 D_80040F00[];
+extern s32 D_80040F14[];
+extern s32 D_80040F3C[];
+extern s32 D_80040F50[];
+extern s32 D_80040F78[];
+extern s32 D_80040F8C[];
+extern s32 D_80040FB4[];
+extern s32 D_80040FC8[];
+extern s32 D_80040FF0[];
+extern s32 D_80041004[];
+extern s32 D_8004102C[];
+extern s32 D_80041040[];
+extern s32 D_80041068[];
+extern s32 D_8004107C[];
+extern s32 D_800410A4[];
+extern s32 D_800410B8[];
+extern s32 D_800410E0[];
+extern s32 D_800410F4[];
+extern s32 D_8004111C[];
+extern s32 D_80041130[];
+extern s32 D_80041144[];
+extern s32 D_80041158[];
+extern s32 D_8004116C[];
+extern s32 D_80041180[];
+extern s32 D_80041194[];
+extern s32 D_800411A8[];
+extern s32 D_800411BC[];
+extern s32 D_800411D0[];
+extern s32 D_800411E4[];
+extern s32 D_800411F0[];
+extern s32 D_800411FC[];
+extern s32 D_80041208[];
+extern s32 D_80041214[];
+extern s32 D_80041220[];
+extern s32 D_8004122C[];
+extern s32 D_80041238[];
+extern s32 D_80041244[];
+extern s32 D_80041250[];
+extern s32 D_8004125C[];
+extern s32 D_80041268[];
+extern s32 D_80041274[];
+extern s32 D_80041280[];
+extern s32 D_8004128C[];
+extern s32 D_80041298[];
+extern s32 D_800412A4[];
+extern s32 D_800412B0[];
+extern s32 D_800412BC[];
+extern s32 D_800412C8[];
+extern s32 D_800412D4[];
+extern s32 D_800412E0[];
+extern s32 D_800412EC[];
+extern s32 D_800412F8[];
+extern s32 D_80041304[];
+extern s32 D_80041310[];
+extern s32 D_8004131C[];
+extern s32 D_80041334[];
+extern s32 D_80041340[];
+extern s32 D_8004134C[];
+extern s32 D_80041358[];
+extern s32 D_80041364[];
+extern s32 D_80041370[];
+extern s32 D_8004137C[];
+extern s32 D_80041388[];
+extern s32 D_80041394[];
+extern s32 D_800413A0[];
+extern s32 D_800413AC[];
+extern s32 D_800413B8[];
+extern s32 D_800413D0[];
+extern s32 D_800413DC[];
+extern s32 D_800413E8[];
+extern s32 D_800413F4[];
+extern s32 D_80041400[];
+extern s32 D_8004140C[];
+extern s32 D_80041418[];
+extern s32 D_80041424[];
+extern s32 D_80041430[];
+extern s32 D_8004143C[];
+extern s32 D_80041448[];
+extern s32 D_80041454[];
+extern s32 D_80041460[];
+extern s32 D_8004146C[];
+extern s32 D_80041478[];
+extern s32 D_80041484[];
+extern s32 D_80041490[];
+extern s32 D_8004149C[];
+extern s32 D_800414A8[];
+extern s32 D_800414B4[];
+extern s32 D_800414C0[];
+extern s32 D_800414CC[];
+extern s32 D_800414D8[];
+extern s32 D_800414E4[];
+extern s32 D_800414F0[];
+extern s32 D_800414FC[];
+extern s32 D_80041508[];
+extern s32 D_8005CC18[];
+extern s32 D_8005CC1C[];
+extern s32 D_8005CC20[];
+extern s32 D_8005CC24[];
+extern s32 D_8005CC28[];
+extern s32 D_8005CC2C[];
+extern s32 D_8005CC30[];
+extern s32 D_8005CC34[];
+extern s32 D_8005CC38[];
+extern s32 D_8005CC3C[];
+extern s32 D_8005CC40[];
+extern s32 D_8005CC44[];
+extern s32 D_8005CC48[];
+extern s32 D_8005CC4C[];
+extern s32 D_8005CC50[];
+extern s32 D_8005CC54[];
+extern s32 D_8005CC58[];
+extern s32 D_8005CC5C[];
+extern s32 D_8005CC60[];
+extern s32 D_8005CC64[];
+extern s32 D_8005CC68[];
+extern s32 D_8005CC6C[];
+extern s32 D_8005CC70[];
+extern s32 D_8005CC74[];
+extern s32 D_8005CC78[];
+extern s32 D_8005CC7C[];
+extern s32 D_8005CC80[];
+extern s32 D_8005CC84[];
+extern s32 D_8005CC88[];
+extern s32 D_8005CC8C[];
+extern s32 D_8005CC90[];
+extern s32 D_8005CC94[];
+extern s32 D_8005CC98[];
+extern s32 D_8005CC9C[];
+extern s32 D_80041514[];
+extern s32 D_8004157C[];
+extern s32 D_80041624[];
+extern s32 D_8004171C[];
+extern s32 D_800417B8[];
+extern s32 D_8005CCDC[];
+extern s32 D_8005CCD8[];
+extern s32 D_8005CCD4[];
+extern s32 D_8005CCD0[];
+extern s32 D_8004E5A4[];
+extern s32 D_8004EF88[];
+extern u16 D_8004E010[];
+extern u16 D_8004E3BC[];
+extern s32 D_8004F470[];
+extern s32 D_8004FE54[];
+extern s32 D_8005033C[];
+extern s32 D_80050D20[];
+extern s32 D_8004DD74[];
+extern s32 D_8004DDD4[];
+extern s32 D_80051208[];
+extern s32 D_80051224[];
+extern s32 D_8005123C[];
+extern s32 D_80051254[];
+extern s32 D_8005126C[];
+extern s32 D_80051284[];
+extern s32 D_8005129C[];
+extern s32 D_800512B4[];
+extern s32 D_800512CC[];
+extern s32 D_800512E4[];
+extern s32 D_800512FC[];
+extern s32 D_80051314[];
+extern s32 D_8005132C[];
+extern s32 D_80051344[];
+extern s32 D_8005135C[];
+extern s32 D_80051374[];
+extern s32 D_8005138C[];
+extern s32 D_800513A4[];
+extern s32 D_800513BC[];
+extern s32 D_800513D4[];
+extern s32 D_800513EC[];
+extern s32 D_80051404[];
+extern s32 D_8005141C[];
+extern s32 D_80051434[];
+extern s32 D_8005144C[];
+extern s32 D_80051464[];
+extern s32 D_8005147C[];
+extern s32 D_80051494[];
+extern s32 D_800514AC[];
+extern s32 D_800514C4[];
+extern s32 D_800514DC[];
+extern s32 D_800514F4[];
+extern s32 D_8005150C[];
+extern s32 D_80051524[];
+extern s32 D_8005153C[];
+extern s32 D_80051554[];
+extern s32 D_8005156C[];
+extern s32 D_80051584[];
+extern s32 D_8005159C[];
+extern s32 D_800515B4[];
+extern s32 D_800515CC[];
+extern s32 D_800515E4[];
+extern s32 D_800515FC[];
+extern s32 D_80051614[];
+extern s32 D_8005162C[];
+extern s32 D_80051644[];
+extern s32 D_8005165C[];
+extern s32 D_80051674[];
+extern s32 D_8005168C[];
+extern s32 D_800516A4[];
+extern s32 D_800516BC[];
+extern s32 D_800516D4[];
+extern s32 D_800516EC[];
+extern s32 D_80051704[];
+extern s32 D_8005171C[];
+extern s32 D_80051734[];
+extern s32 D_8005174C[];
+extern s32 D_80051764[];
+extern s32 D_8005177C[];
+extern s32 D_80051794[];
+extern s32 D_800517AC[];
+extern s32 D_800517C4[];
+extern s32 D_800517DC[];
+extern s32 D_800517F4[];
+extern s32 D_8005180C[];
+extern s32 D_80051824[];
+extern s32 D_8005183C[];
+extern s32 D_80051854[];
+extern s32 D_8005186C[];
+extern s32 D_80051884[];
+extern s32 D_8005189C[];
+extern s32 D_8005CD38[];
+extern s32 D_8006AD38[];
+extern s32 D_80074D38[];
+#endif
 
 u16 INNS[] = {
     0x020A, 0x0000, 0x0001, 0x0008, 0x0223, 0x0000, 0x0002, 0x000C,
@@ -923,1011 +1354,2087 @@ u16 DIGIMON_DATA[] = {
     0x0100, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101,
     0x0000, 0x0000, 0x3700, 0x0001,
 };
+#if VERSION_US
 s32 D_8003FE50[] = {
+#elif VERSION_EU
+s32 D_80040244[] = {
+#endif
     0x3000F, 1, 0xE0000, 0x10A0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FE64[] = {
+#elif VERSION_EU
+s32 D_80040258[] = {
+#endif
     0x30014, 1, 0x1A0000, 0x10F0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FE78[] = {
+#elif VERSION_EU
+s32 D_8004026C[] = {
+#endif
     0x3001A, 1, 0x320000, 0x8140000,
     0x12020,
 };
+#if VERSION_US
 s32 D_8003FE8C[] = {
+#elif VERSION_EU
+s32 D_80040280[] = {
+#endif
     0x3001E, 1, 0x4A0000, 0x1190000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FEA0[] = {
+#elif VERSION_EU
+s32 D_80040294[] = {
+#endif
     0x30029, 1, 0x640000, 0x11E0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FEB4[] = {
+#elif VERSION_EU
+s32 D_800402A8[] = {
+#endif
     0x30033, 0x70001, 0x740000, 0x1230004,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FEC8[] = {
+#elif VERSION_EU
+s32 D_800402BC[] = {
+#endif
     0x1030037, 1, 0x780000, 0x1280000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FEDC[] = {
+#elif VERSION_EU
+s32 D_800402D0[] = {
+#endif
     0x30036, 1, 0x820000, 0x1280000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FEF0[] = {
+#elif VERSION_EU
+s32 D_800402E4[] = {
+#endif
     0x30038, 1, 0x8C0000, 0x12D0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FF04[] = {
+#elif VERSION_EU
+s32 D_800402F8[] = {
+#endif
     0x3003A, 0x50001, 0x960005, 0x1320502,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FF18[] = {
+#elif VERSION_EU
+s32 D_8004030C[] = {
+#endif
     0x3001E, 1, 0x140000, 0x1050000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FF2C[] = {
+#elif VERSION_EU
+s32 D_80040320[] = {
+#endif
     0x30028, 1, 0x3C0000, 0x1140000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FF40[] = {
+#elif VERSION_EU
+s32 D_80040334[] = {
+#endif
     0x30032, 1, 0x640000, 0x1230000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FF54[] = {
+#elif VERSION_EU
+s32 D_80040348[] = {
+#endif
     0x3003C, 1, 0xA00000, 0x1320000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FF68[] = {
+#elif VERSION_EU
+s32 D_8004035C[] = {
+#endif
     0x3000F, 2, 0xC0000, 0x10A0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FF7C[] = {
+#elif VERSION_EU
+s32 D_80040370[] = {
+#endif
     0x30012, 2, 0x180000, 0x10F0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FF90[] = {
+#elif VERSION_EU
+s32 D_80040384[] = {
+#endif
     0x30019, 0xFFFC0002, 0x2E0000, 0x1140005,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FFA4[] = {
+#elif VERSION_EU
+s32 D_80040398[] = {
+#endif
     0x3001F, 2, 0x440000, 0x6190000,
     0x10018,
 };
+#if VERSION_US
 s32 D_8003FFB8[] = {
+#elif VERSION_EU
+s32 D_800403AC[] = {
+#endif
     0x30028, 0x50002, 0x5A0000, 0x11E0002,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FFCC[] = {
+#elif VERSION_EU
+s32 D_800403C0[] = {
+#endif
     0x30034, 2, 0x6E0000, 0x1230000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FFE0[] = {
+#elif VERSION_EU
+s32 D_800403D4[] = {
+#endif
     0x2030037, 0x80002, 0x820000, 0x1280002,
     0x10000,
 };
+#if VERSION_US
 s32 D_8003FFF4[] = {
+#elif VERSION_EU
+s32 D_800403E8[] = {
+#endif
     0x30036, 2, 0x960000, 0x1280000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040008[] = {
+#elif VERSION_EU
+s32 D_800403FC[] = {
+#endif
     0x30038, 0xA0002, 0xA00000, 0x12D0002,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004001C[] = {
+#elif VERSION_EU
+s32 D_80040410[] = {
+#endif
     0x3003A, 2, 0xB40000, 0x1320000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040030[] = {
+#elif VERSION_EU
+s32 D_80040424[] = {
+#endif
     0x3001E, 2, 0x140000, 0x1050000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040044[] = {
+#elif VERSION_EU
+s32 D_80040438[] = {
+#endif
     0x30028, 2, 0x3C0000, 0x1140000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040058[] = {
+#elif VERSION_EU
+s32 D_8004044C[] = {
+#endif
     0x30032, 2, 0x8C0000, 0x1230000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004006C[] = {
+#elif VERSION_EU
+s32 D_80040460[] = {
+#endif
     0x3003C, 2, 0xC80000, 0x1320000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040080[] = {
+#elif VERSION_EU
+s32 D_80040474[] = {
+#endif
     0x3001E, 4, 0x640000, 0x1000000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040094[] = {
+#elif VERSION_EU
+s32 D_80040488[] = {
+#endif
     0x30023, 4, 0x720000, 0x1000000,
     0x10000,
 };
+#if VERSION_US
 s32 D_800400A8[] = {
+#elif VERSION_EU
+s32 D_8004049C[] = {
+#endif
     0x30027, 4, 0x780000, 0x1000000,
     0x10000,
 };
+#if VERSION_US
 s32 D_800400BC[] = {
+#elif VERSION_EU
+s32 D_800404B0[] = {
+#endif
     0x30032, 0xFFFB0004, 0x8C0000, 0x1050003,
     0x10000,
 };
+#if VERSION_US
 s32 D_800400D0[] = {
+#elif VERSION_EU
+s32 D_800404C4[] = {
+#endif
     0x3030037, 4, 0x900000, 0x1050000,
     0x10000,
 };
+#if VERSION_US
 s32 D_800400E4[] = {
+#elif VERSION_EU
+s32 D_800404D8[] = {
+#endif
     0x30036, 4, 0x960000, 0x1050000,
     0x10000,
 };
+#if VERSION_US
 s32 D_800400F8[] = {
+#elif VERSION_EU
+s32 D_800404EC[] = {
+#endif
     0x30038, 4, 0xA00000, 0x10A0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004010C[] = {
+#elif VERSION_EU
+s32 D_80040500[] = {
+#endif
     0x3003A, 4, 0xAA0000, 0x10A0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040120[] = {
+#elif VERSION_EU
+s32 D_80040514[] = {
+#endif
     0x3001E, 4, 0x140000, 0x1000000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040134[] = {
+#elif VERSION_EU
+s32 D_80040528[] = {
+#endif
     0x30028, 4, 0x3C0000, 0x1050000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040148[] = {
+#elif VERSION_EU
+s32 D_8004053C[] = {
+#endif
     0x30032, 4, 0x780000, 0x10A0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004015C[] = {
+#elif VERSION_EU
+s32 D_80040550[] = {
+#endif
     0x3003C, 4, 0xB40000, 0x10F0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040170[] = {
+#elif VERSION_EU
+s32 D_80040564[] = {
+#endif
     0x3001E, 0x300C0, 0x280000, 0x1190003,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040184[] = {
+#elif VERSION_EU
+s32 D_80040578[] = {
+#endif
     0x30025, 0x500C0, 0x360000, 0x11E0003,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040198[] = {
+#elif VERSION_EU
+s32 D_8004058C[] = {
+#endif
     0x30027, 0x700C0, 0x3C0000, 0x11E0003,
     0x10000,
 };
+#if VERSION_US
 s32 D_800401AC[] = {
+#elif VERSION_EU
+s32 D_800405A0[] = {
+#endif
     0x30033, 0xA00C0, 0x500000, 0x1230003,
     0x10000,
 };
+#if VERSION_US
 s32 D_800401C0[] = {
+#elif VERSION_EU
+s32 D_800405B4[] = {
+#endif
     0x8030037, 0xC0080, 0x540000, 0x1280004,
     0x30000,
 };
+#if VERSION_US
 s32 D_800401D4[] = {
+#elif VERSION_EU
+s32 D_800405C8[] = {
+#endif
     0x7030037, 0xC0040, 0x540000, 0x1280003,
     0x40000,
 };
+#if VERSION_US
 s32 D_800401E8[] = {
+#elif VERSION_EU
+s32 D_800405DC[] = {
+#endif
     0x30036, 0xE00C0, 0x5A0000, 0x1280003,
     0x10000,
 };
+#if VERSION_US
 s32 D_800401FC[] = {
+#elif VERSION_EU
+s32 D_800405F0[] = {
+#endif
     0x30038, 0x1000C0, 0x640000, 0x12D0003,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040210[] = {
+#elif VERSION_EU
+s32 D_80040604[] = {
+#endif
     0x3003A, 0x1400C0, 0x6E0000, 0x1320003,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040224[] = {
+#elif VERSION_EU
+s32 D_80040618[] = {
+#endif
     0x3001E, 0x600C0, 0xC0000, 0x1050003,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040238[] = {
+#elif VERSION_EU
+s32 D_8004062C[] = {
+#endif
     0x30028, 0xC00C0, 0x240000, 0x1140003,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004024C[] = {
+#elif VERSION_EU
+s32 D_80040640[] = {
+#endif
     0x30032, 0x1200C0, 0x4A0000, 0x1230003,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040260[] = {
+#elif VERSION_EU
+s32 D_80040654[] = {
+#endif
     0x3003C, 0x1800C0, 0x780000, 0x1320003,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040274[] = {
+#elif VERSION_EU
+s32 D_80040668[] = {
+#endif
     0x3001E, 56, 0x4A0000, 0x1190000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040288[] = {
+#elif VERSION_EU
+s32 D_8004067C[] = {
+#endif
     0x30022, 56, 0x5E0000, 0x11E0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004029C[] = {
+#elif VERSION_EU
+s32 D_80040690[] = {
+#endif
     0x3002B, 56, 0x640000, 0x81E0000,
     0x14040,
 };
+#if VERSION_US
 s32 D_800402B0[] = {
+#elif VERSION_EU
+s32 D_800406A4[] = {
+#endif
     0x30032, 56, 0x740000, 0x1230000,
     0x10000,
 };
+#if VERSION_US
 s32 D_800402C4[] = {
+#elif VERSION_EU
+s32 D_800406B8[] = {
+#endif
     0x6030037, 32, 0x780000, 0x1280000,
     0x10000,
 };
+#if VERSION_US
 s32 D_800402D8[] = {
+#elif VERSION_EU
+s32 D_800406CC[] = {
+#endif
     0x30036, 56, 0x640000, 0xB280000,
     0x14000,
 };
+#if VERSION_US
 s32 D_800402EC[] = {
+#elif VERSION_EU
+s32 D_800406E0[] = {
+#endif
     0x30038, 56, 0x8C0000, 0x22D0000,
     0x14040,
 };
+#if VERSION_US
 s32 D_80040300[] = {
+#elif VERSION_EU
+s32 D_800406F4[] = {
+#endif
     0x3003A, 56, 0x960000, 0x1320000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040314[] = {
+#elif VERSION_EU
+s32 D_80040708[] = {
+#endif
     0x3001E, 56, 0x140000, 0x1050000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040328[] = {
+#elif VERSION_EU
+s32 D_8004071C[] = {
+#endif
     0x30028, 56, 0x3C0000, 0x1140000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004033C[] = {
+#elif VERSION_EU
+s32 D_80040730[] = {
+#endif
     0x30032, 56, 0x640000, 0x1230000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040350[] = {
+#elif VERSION_EU
+s32 D_80040744[] = {
+#endif
     0x3003C, 56, 0xA00000, 0x1320000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040364[] = {
+#elif VERSION_EU
+s32 D_80040758[] = {
+#endif
     0x3000F, 255, 0xA0000, 0x10A0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040378[] = {
+#elif VERSION_EU
+s32 D_8004076C[] = {
+#endif
     0x30016, 255, 0x140000, 0x10F0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004038C[] = {
+#elif VERSION_EU
+s32 D_80040780[] = {
+#endif
     0x30019, 1, 0x280000, 0x1140000,
     0x10000,
 };
+#if VERSION_US
 s32 D_800403A0[] = {
+#elif VERSION_EU
+s32 D_80040794[] = {
+#endif
     0x30021, 57, 0x3C0000, 0x1190000,
     0x10000,
 };
+#if VERSION_US
 s32 D_800403B4[] = {
+#elif VERSION_EU
+s32 D_800407A8[] = {
+#endif
     0x3002A, 0x50039, 0x50FFFB, 0x11E0205,
     0x10000,
 };
+#if VERSION_US
 s32 D_800403C8[] = {
+#elif VERSION_EU
+s32 D_800407BC[] = {
+#endif
     0x30031, 1, 0x640000, 0x1230000,
     0x10000,
 };
+#if VERSION_US
 s32 D_800403DC[] = {
+#elif VERSION_EU
+s32 D_800407D0[] = {
+#endif
     0x4030037, 8, 0x6E0000, 0x1280000,
     0x10000,
 };
+#if VERSION_US
 s32 D_800403F0[] = {
+#elif VERSION_EU
+s32 D_800407E4[] = {
+#endif
     0x30036, 57, 0x780000, 0x1280000,
     0x40000,
 };
+#if VERSION_US
 s32 D_80040404[] = {
+#elif VERSION_EU
+s32 D_800407F8[] = {
+#endif
     0x30038, 57, 0x820000, 0x12D0000,
     0x15020,
 };
+#if VERSION_US
 s32 D_80040418[] = {
+#elif VERSION_EU
+s32 D_8004080C[] = {
+#endif
     0x3003A, 0xA0001, 0x8C0000, 0x1320005,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004042C[] = {
+#elif VERSION_EU
+s32 D_80040820[] = {
+#endif
     0x3000A, 192, 0x80000, 0x10A0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040440[] = {
+#elif VERSION_EU
+s32 D_80040834[] = {
+#endif
     0x30010, 192, 0x100000, 0x10F0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040454[] = {
+#elif VERSION_EU
+s32 D_80040848[] = {
+#endif
     0x30017, 192, 0x220000, 0x1140000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040468[] = {
+#elif VERSION_EU
+s32 D_8004085C[] = {
+#endif
     0x30019, 192, 0x320000, 0x1190000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004047C[] = {
+#elif VERSION_EU
+s32 D_80040870[] = {
+#endif
     0x30022, 192, 0x460000, 0x11E0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040490[] = {
+#elif VERSION_EU
+s32 D_80040884[] = {
+#endif
     0x3002C, 192, 0x5A0000, 0x1230000,
     0xA0000,
 };
+#if VERSION_US
 s32 D_800404A4[] = {
+#elif VERSION_EU
+s32 D_80040898[] = {
+#endif
     0x30032, 192, 0x640000, 0x8280000,
     0x16040,
 };
+#if VERSION_US
 s32 D_800404B8[] = {
+#elif VERSION_EU
+s32 D_800408AC[] = {
+#endif
     0x30034, 224, 0x780000, 0x12D0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_800404CC[] = {
+#elif VERSION_EU
+s32 D_800408C0[] = {
+#endif
     0x30036, 192, 0x820000, 0x1320000,
     0x10000,
 };
+#if VERSION_US
 s32 D_800404E0[] = {
+#elif VERSION_EU
+s32 D_800408D4[] = {
+#endif
     0x7001E, 0xFFFE0039, 0x6E0000, 0x1190005,
     0x10000,
 };
+#if VERSION_US
 s32 D_800404F4[] = {
+#elif VERSION_EU
+s32 D_800408E8[] = {
+#endif
     0x70024, 0xFFFD0039, 0x8A0000, 0x11E0005,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040508[] = {
+#elif VERSION_EU
+s32 D_800408FC[] = {
+#endif
     0x7002D, 0xFFFC0039, 0x920000, 0x11E0005,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004051C[] = {
+#elif VERSION_EU
+s32 D_80040910[] = {
+#endif
     0x70034, 0xFFFB0039, 0xB00000, 0x1230005,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040530[] = {
+#elif VERSION_EU
+s32 D_80040924[] = {
+#endif
     0x70036, 0xFFFA0039, 0xCC0000, 0x4280005,
     0x16020,
 };
+#if VERSION_US
 s32 D_80040544[] = {
+#elif VERSION_EU
+s32 D_80040938[] = {
+#endif
     0x70038, 0xFFF90039, 0xE80000, 0x12D0005,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040558[] = {
+#elif VERSION_EU
+s32 D_8004094C[] = {
+#endif
     0x7003A, 0xFFF80039, 0x1040000, 0x1320005,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004056C[] = {
+#elif VERSION_EU
+s32 D_80040960[] = {
+#endif
     0x70019, 0xFFFE0044, 0x5C0000, 0x1190005,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040580[] = {
+#elif VERSION_EU
+s32 D_80040974[] = {
+#endif
     0x7001D, 0xFFFD0044, 0x700000, 0x11E0005,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040594[] = {
+#elif VERSION_EU
+s32 D_80040988[] = {
+#endif
     0x70023, 0xFFFC0044, 0x780000, 0x11E0005,
     0x10000,
 };
+#if VERSION_US
 s32 D_800405A8[] = {
+#elif VERSION_EU
+s32 D_8004099C[] = {
+#endif
     0x70030, 0xFFFB0044, 0x8C0000, 0x6230005,
     0x10020,
 };
+#if VERSION_US
 s32 D_800405BC[] = {
+#elif VERSION_EU
+s32 D_800409B0[] = {
+#endif
     0x70032, 0xFFFA0044, 0xBE0000, 0x1280005,
     0x10000,
 };
+#if VERSION_US
 s32 D_800405D0[] = {
+#elif VERSION_EU
+s32 D_800409C4[] = {
+#endif
     0x70034, 0xFFF90044, 0xD20000, 0x12D0005,
     0x10000,
 };
+#if VERSION_US
 s32 D_800405E4[] = {
+#elif VERSION_EU
+s32 D_800409D8[] = {
+#endif
     0x70036, 0xFFF80044, 0xE00000, 0x1320005,
     0x10000,
 };
+#if VERSION_US
 s32 D_800405F8[] = {
+#elif VERSION_EU
+s32 D_800409EC[] = {
+#endif
     0x7000A, 4, 0x1A0000, 0x1140000,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004060C[] = {
+#elif VERSION_EU
+s32 D_80040A00[] = {
+#endif
     0x70013, 4, 0x300000, 0xB190000,
     0x12000,
 };
+#if VERSION_US
 s32 D_80040620[] = {
+#elif VERSION_EU
+s32 D_80040A14[] = {
+#endif
     0x70014, 4, 0x500000, 0x11E0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040634[] = {
+#elif VERSION_EU
+s32 D_80040A28[] = {
+#endif
     0x7001A, 4, 0x6E0000, 0x1230000,
     0x30000,
 };
+#if VERSION_US
 s32 D_80040648[] = {
+#elif VERSION_EU
+s32 D_80040A3C[] = {
+#endif
     0x70024, 4, 0x920000, 0x4280000,
     0x15018,
 };
+#if VERSION_US
 s32 D_8004065C[] = {
+#elif VERSION_EU
+s32 D_80040A50[] = {
+#endif
     0x7002D, 0x80004, 0xB00000, 0x12D0005,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040670[] = {
+#elif VERSION_EU
+s32 D_80040A64[] = {
+#endif
     0x70032, 4, 0xCC0000, 0x1320000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040684[] = {
+#elif VERSION_EU
+s32 D_80040A78[] = {
+#endif
     0x70034, 4, 0xE80000, 0x1370000,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040698[] = {
+#elif VERSION_EU
+s32 D_80040A8C[] = {
+#endif
     0x70036, 4, 0x1040000, 0x13C0000,
     0x10000,
 };
+#if VERSION_US
 s32 D_800406AC[] = {
+#elif VERSION_EU
+s32 D_80040AA0[] = {
+#endif
     0x30019, 0x800B8, 0x2E0000, 0x1230002,
     0x10000,
 };
+#if VERSION_US
 s32 D_800406C0[] = {
+#elif VERSION_EU
+s32 D_80040AB4[] = {
+#endif
     0x3001E, 0xA00B8, 0x3C0000, 0x1280002,
     0x10000,
 };
+#if VERSION_US
 s32 D_800406D4[] = {
+#elif VERSION_EU
+s32 D_80040AC8[] = {
+#endif
     0x30023, 0xC00B8, 0x42FFFC, 0x1280502,
     0x10000,
 };
+#if VERSION_US
 s32 D_800406E8[] = {
+#elif VERSION_EU
+s32 D_80040ADC[] = {
+#endif
     0x3002C, 0xE00B8, 0x560000, 0x12D0002,
     0x10000,
 };
+#if VERSION_US
 s32 D_800406FC[] = {
+#elif VERSION_EU
+s32 D_80040AF0[] = {
+#endif
     0x5030037, 0x100010, 0x5C0000, 0x1320002,
     0xB0000,
 };
+#if VERSION_US
 s32 D_80040710[] = {
+#elif VERSION_EU
+s32 D_80040B04[] = {
+#endif
     0x30032, 0x1200B8, 0x640000, 0x1320002,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040724[] = {
+#elif VERSION_EU
+s32 D_80040B18[] = {
+#endif
     0x30034, 0x1400B8, 0x6E0000, 0x1370002,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040738[] = {
+#elif VERSION_EU
+s32 D_80040B2C[] = {
+#endif
     0x30036, 0x1800B8, 0x780000, 0x13C0002,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004074C[] = {
+#elif VERSION_EU
+s32 D_80040B40[] = {
+#endif
     0x4001E, 0x40038, 0x32FFFE, 0x1000502,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040760[] = {
+#elif VERSION_EU
+s32 D_80040B54[] = {
+#endif
     0x40025, 0x50038, 0x42FFFF, 0x1000402,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040774[] = {
+#elif VERSION_EU
+s32 D_80040B68[] = {
+#endif
     0x40029, 0x60038, 0x46FFFE, 0x1000402,
     0x10000,
 };
+#if VERSION_US
 s32 D_80040788[] = {
+#elif VERSION_EU
+s32 D_80040B7C[] = {
+#endif
     0x40031, 0x70038, 0x5AFFFD, 0x3050402,
     0x10000,
 };
+#if VERSION_US
 s32 D_8004079C[] = {
+#elif VERSION_EU
+s32 D_80040B90[] = {
+#endif
     0x5040037, 0x80010, 0x640000, 0x1050002,
     0xB0000,
 };
+#if VERSION_US
 s32 D_800407B0[] = {
+#elif VERSION_EU
+s32 D_80040BA4[] = {
+#endif
     0x40036, 0x90038, 0x6EFFFC, 0x1050402,
     0x10000,
 };
+#if VERSION_US
 s32 D_800407C4[] = {
+#elif VERSION_EU
+s32 D_80040BB8[] = {
+#endif
     0x40038, 0xA0038, 0x78FFFB, 0x10A0402,
     0x10000,
 };
+#if VERSION_US
 s32 D_800407D8[] = {
+#elif VERSION_EU
+s32 D_80040BCC[] = {
+#endif
     0x4003A, 0xC0038, 0x820000, 0x10A0002,
     0x10000,
 };
+#if VERSION_US
 s32 D_800407EC[] = {
+#elif VERSION_EU
+s32 D_80040BE0[] = {
+#endif
     0x4000A, 0xA00FF, 0, 4,
     256,
 };
+#if VERSION_US
 s32 D_80040800[] = {
+#elif VERSION_EU
+s32 D_80040BF4[] = {
+#endif
     0x40010, 255, 0, 7,
     256,
 };
+#if VERSION_US
 s32 D_80040814[] = {
+#elif VERSION_EU
+s32 D_80040C08[] = {
+#endif
     0x40014, 255, 0, 10,
     256,
 };
+#if VERSION_US
 s32 D_80040828[] = {
+#elif VERSION_EU
+s32 D_80040C1C[] = {
+#endif
     0x40018, 0x700FF, 0x40000, 13,
     256,
 };
+#if VERSION_US
 s32 D_8004083C[] = {
+#elif VERSION_EU
+s32 D_80040C30[] = {
+#endif
     0x4001C, 0xA00FF, 0xA0000, 16,
     256,
 };
+#if VERSION_US
 s32 D_80040850[] = {
+#elif VERSION_EU
+s32 D_80040C44[] = {
+#endif
     0x40022, 0x800FF, 0x50000, 19,
     261,
 };
+#if VERSION_US
 s32 D_80040864[] = {
+#elif VERSION_EU
+s32 D_80040C58[] = {
+#endif
     0x7040032, 0x60040, 0x30000, 22,
     261,
 };
+#if VERSION_US
 s32 D_80040878[] = {
+#elif VERSION_EU
+s32 D_80040C6C[] = {
+#endif
     0x3040032, 4, 0, 23,
     266,
 };
+#if VERSION_US
 s32 D_8004088C[] = {
+#elif VERSION_EU
+s32 D_80040C80[] = {
+#endif
     0x40028, 0xA0006, 0xE0000, 24,
     266,
 };
+#if VERSION_US
 s32 D_800408A0[] = {
+#elif VERSION_EU
+s32 D_80040C94[] = {
+#endif
     0x4002E, 0xA00C6, 0x40000, 24,
     261,
 };
+#if VERSION_US
 s32 D_800408B4[] = {
+#elif VERSION_EU
+s32 D_80040CA8[] = {
+#endif
     0x40032, 0x800C6, 0x30000, 27,
     261,
 };
+#if VERSION_US
 s32 D_800408C8[] = {
+#elif VERSION_EU
+s32 D_80040CBC[] = {
+#endif
     0x4000A, 255, 0, 5,
     256,
 };
+#if VERSION_US
 s32 D_800408DC[] = {
+#elif VERSION_EU
+s32 D_80040CD0[] = {
+#endif
     0x4000F, 255, 0, 8,
     256,
 };
+#if VERSION_US
 s32 D_800408F0[] = {
+#elif VERSION_EU
+s32 D_80040CE4[] = {
+#endif
     0x40012, 0x50039, 0x30000, 12,
     261,
 };
+#if VERSION_US
 s32 D_80040904[] = {
+#elif VERSION_EU
+s32 D_80040CF8[] = {
+#endif
     0x4001B, 192, 0, 14,
     261,
 };
+#if VERSION_US
 s32 D_80040918[] = {
+#elif VERSION_EU
+s32 D_80040D0C[] = {
+#endif
     0x4001E, 192, 0, 18,
     261,
 };
+#if VERSION_US
 s32 D_8004092C[] = {
+#elif VERSION_EU
+s32 D_80040D20[] = {
+#endif
     0x40024, 198, 0, 20,
     261,
 };
+#if VERSION_US
 s32 D_80040940[] = {
+#elif VERSION_EU
+s32 D_80040D34[] = {
+#endif
     0x8040032, 128, 0, 24,
     266,
 };
+#if VERSION_US
 s32 D_80040954[] = {
+#elif VERSION_EU
+s32 D_80040D48[] = {
+#endif
     0x40028, 192, 0, 26,
     266,
 };
+#if VERSION_US
 s32 D_80040968[] = {
+#elif VERSION_EU
+s32 D_80040D5C[] = {
+#endif
     0x4002E, 198, 0, 29,
     266,
 };
+#if VERSION_US
 s32 D_8004097C[] = {
+#elif VERSION_EU
+s32 D_80040D70[] = {
+#endif
     0x40032, 192, 0, 33,
     266,
 };
+#if VERSION_US
 s32 D_80040990[] = {
+#elif VERSION_EU
+s32 D_80040D84[] = {
+#endif
     0x4000F, 255, 0, 6,
     261,
 };
+#if VERSION_US
 s32 D_800409A4[] = {
+#elif VERSION_EU
+s32 D_80040D98[] = {
+#endif
     0x40014, 255, 0, 9,
     261,
 };
+#if VERSION_US
 s32 D_800409B8[] = {
+#elif VERSION_EU
+s32 D_80040DAC[] = {
+#endif
     0x40019, 0xFFFD0039, 0x50000, 15,
     266,
 };
+#if VERSION_US
 s32 D_800409CC[] = {
+#elif VERSION_EU
+s32 D_80040DC0[] = {
+#endif
     0x4001E, 57, 0, 18,
     266,
 };
+#if VERSION_US
 s32 D_800409E0[] = {
+#elif VERSION_EU
+s32 D_80040DD4[] = {
+#endif
     0x40024, 0xA003F, 0xB0000, 19,
     266,
 };
+#if VERSION_US
 s32 D_800409F4[] = {
+#elif VERSION_EU
+s32 D_80040DE8[] = {
+#endif
     0x40027, 0x50039, 0xD0000, 24,
     266,
 };
+#if VERSION_US
 s32 D_80040A08[] = {
+#elif VERSION_EU
+s32 D_80040DFC[] = {
+#endif
     0x2040037, 2, 0, 27,
     276,
 };
+#if VERSION_US
 s32 D_80040A1C[] = {
+#elif VERSION_EU
+s32 D_80040E10[] = {
+#endif
     0x1040037, 1, 0, 28,
     276,
 };
+#if VERSION_US
 s32 D_80040A30[] = {
+#elif VERSION_EU
+s32 D_80040E24[] = {
+#endif
     0x4040037, 8, 0, 28,
     276,
 };
+#if VERSION_US
 s32 D_80040A44[] = {
+#elif VERSION_EU
+s32 D_80040E38[] = {
+#endif
     0x6040037, 32, 0, 27,
     276,
 };
+#if VERSION_US
 s32 D_80040A58[] = {
+#elif VERSION_EU
+s32 D_80040E4C[] = {
+#endif
     0x4002D, 63, 0, 29,
     266,
 };
+#if VERSION_US
 s32 D_80040A6C[] = {
+#elif VERSION_EU
+s32 D_80040E60[] = {
+#endif
     0x40034, 57, 0, 34,
     271,
 };
+#if VERSION_US
 s32 D_80040A80[] = {
+#elif VERSION_EU
+s32 D_80040E74[] = {
+#endif
     0x40037, 57, 0, 39,
     276,
 };
+#if VERSION_US
 s32 D_80040A94[] = {
+#elif VERSION_EU
+s32 D_80040E88[] = {
+#endif
     0x5000F, 0xF00FF, 0, 5,
     256,
 };
+#if VERSION_US
 s32 D_80040AA8[] = {
+#elif VERSION_EU
+s32 D_80040E9C[] = {
+#endif
     0x50013, 71, 0, 10,
     261,
 };
+#if VERSION_US
 s32 D_80040ABC[] = {
+#elif VERSION_EU
+s32 D_80040EB0[] = {
+#endif
     0x5001A, 0x500C6, 0x40000, 14,
     261,
 };
+#if VERSION_US
 s32 D_80040AD0[] = {
+#elif VERSION_EU
+s32 D_80040EC4[] = {
+#endif
     0x5001E, 0x80047, 0xC0000, 18,
     261,
 };
+#if VERSION_US
 s32 D_80040AE4[] = {
+#elif VERSION_EU
+s32 D_80040ED8[] = {
+#endif
     0x50025, 0xA00FF, 0xE0000, 21,
     256,
 };
+#if VERSION_US
 s32 D_80040AF8[] = {
+#elif VERSION_EU
+s32 D_80040EEC[] = {
+#endif
     0x50027, 0xA00C6, 0xA0000, 25,
     261,
 };
+#if VERSION_US
 s32 D_80040B0C[] = {
+#elif VERSION_EU
+s32 D_80040F00[] = {
+#endif
     0x8050037, 128, 0, 27,
     266,
 };
+#if VERSION_US
 s32 D_80040B20[] = {
+#elif VERSION_EU
+s32 D_80040F14[] = {
+#endif
     0x3050037, 4, 0, 28,
     266,
 };
+#if VERSION_US
 s32 D_80040B34[] = {
+#elif VERSION_EU
+s32 D_80040F28[] = {
+#endif
     0x7050037, 64, 0, 27,
     266,
 };
+#if VERSION_US
 s32 D_80040B48[] = {
+#elif VERSION_EU
+s32 D_80040F3C[] = {
+#endif
     0x2050037, 2, 0, 28,
     266,
 };
+#if VERSION_US
 s32 D_80040B5C[] = {
+#elif VERSION_EU
+s32 D_80040F50[] = {
+#endif
     0x5002C, 0xA00C6, 0xD0000, 30,
     266,
 };
+#if VERSION_US
 s32 D_80040B70[] = {
+#elif VERSION_EU
+s32 D_80040F64[] = {
+#endif
     0x50032, 198, 0, 35,
     296,
 };
+#if VERSION_US
 s32 D_80040B84[] = {
+#elif VERSION_EU
+s32 D_80040F78[] = {
+#endif
     0x50037, 198, 0, 40,
     266,
 };
+#if VERSION_US
 s32 D_80040B98[] = {
+#elif VERSION_EU
+s32 D_80040F8C[] = {
+#endif
     0x5000A, 255, 0, 8,
     256,
 };
+#if VERSION_US
 s32 D_80040BAC[] = {
+#elif VERSION_EU
+s32 D_80040FA0[] = {
+#endif
     0x5000F, 255, 0, 12,
     256,
 };
+#if VERSION_US
 s32 D_80040BC0[] = {
+#elif VERSION_EU
+s32 D_80040FB4[] = {
+#endif
     0x50014, 0xFFFB0039, 0x50000, 18,
     261,
 };
+#if VERSION_US
 s32 D_80040BD4[] = {
+#elif VERSION_EU
+s32 D_80040FC8[] = {
+#endif
     0x50018, 255, 0, 20,
     256,
 };
+#if VERSION_US
 s32 D_80040BE8[] = {
+#elif VERSION_EU
+s32 D_80040FDC[] = {
+#endif
     0x5001F, 0x70039, 0xE0000, 25,
     261,
 };
+#if VERSION_US
 s32 D_80040BFC[] = {
+#elif VERSION_EU
+s32 D_80040FF0[] = {
+#endif
     0x50022, 0x80039, 0xD0000, 30,
     261,
 };
+#if VERSION_US
 s32 D_80040C10[] = {
+#elif VERSION_EU
+s32 D_80041004[] = {
+#endif
     0x5050032, 16, 0, 39,
     266,
 };
+#if VERSION_US
 s32 D_80040C24[] = {
+#elif VERSION_EU
+s32 D_80041018[] = {
+#endif
     0x1050032, 1, 0, 38,
     266,
 };
+#if VERSION_US
 s32 D_80040C38[] = {
+#elif VERSION_EU
+s32 D_8004102C[] = {
+#endif
     0x6050032, 32, 0, 37,
     266,
 };
+#if VERSION_US
 s32 D_80040C4C[] = {
+#elif VERSION_EU
+s32 D_80041040[] = {
+#endif
     0x4050032, 8, 0, 38,
     266,
 };
+#if VERSION_US
 s32 D_80040C60[] = {
+#elif VERSION_EU
+s32 D_80041054[] = {
+#endif
     0x5002A, 0xA00FF, 0x80000, 34,
     261,
 };
+#if VERSION_US
 s32 D_80040C74[] = {
+#elif VERSION_EU
+s32 D_80041068[] = {
+#endif
     0x5002D, 57, 0, 44,
     266,
 };
+#if VERSION_US
 s32 D_80040C88[] = {
+#elif VERSION_EU
+s32 D_8004107C[] = {
+#endif
     0x50032, 57, 0, 48,
     266,
 };
+#if VERSION_US
 s32 D_80040C9C[] = {
+#elif VERSION_EU
+s32 D_80041090[] = {
+#endif
     0x2000A, 255, 0, 7,
     261,
 };
+#if VERSION_US
 s32 D_80040CB0[] = {
+#elif VERSION_EU
+s32 D_800410A4[] = {
+#endif
     0x2000F, 255, 0, 10,
     266,
 };
+#if VERSION_US
 s32 D_80040CC4[] = {
+#elif VERSION_EU
+s32 D_800410B8[] = {
+#endif
     0x20014, 0xFFFD0039, 0x50000, 15,
     271,
 };
+#if VERSION_US
 s32 D_80040CD8[] = {
+#elif VERSION_EU
+s32 D_800410CC[] = {
+#endif
     0x20019, 57, 0, 18,
     276,
 };
+#if VERSION_US
 s32 D_80040CEC[] = {
+#elif VERSION_EU
+s32 D_800410E0[] = {
+#endif
     0x2001C, 198, 0, 22,
     281,
 };
+#if VERSION_US
 s32 D_80040D00[] = {
+#elif VERSION_EU
+s32 D_800410F4[] = {
+#endif
     0x20022, 0x70039, 0xD0000, 25,
     286,
 };
+#if VERSION_US
 s32 D_80040D14[] = {
+#elif VERSION_EU
+s32 D_80041108[] = {
+#endif
     0x802002D, 0xA0080, 0xE0000, 28,
     296,
 };
+#if VERSION_US
 s32 D_80040D28[] = {
+#elif VERSION_EU
+s32 D_8004111C[] = {
+#endif
     0x302002D, 4, 0, 29,
     296,
 };
+#if VERSION_US
 s32 D_80040D3C[] = {
+#elif VERSION_EU
+s32 D_80041130[] = {
+#endif
     0x702002D, 0xA0040, 0x30000, 27,
     296,
 };
+#if VERSION_US
 s32 D_80040D50[] = {
+#elif VERSION_EU
+s32 D_80041144[] = {
+#endif
     0x102002D, 1, 0, 30,
     296,
 };
+#if VERSION_US
 s32 D_80040D64[] = {
+#elif VERSION_EU
+s32 D_80041158[] = {
+#endif
     0x202002D, 2, 0, 29,
     296,
 };
+#if VERSION_US
 s32 D_80040D78[] = {
+#elif VERSION_EU
+s32 D_8004116C[] = {
+#endif
     0x402002D, 8, 0, 30,
     296,
 };
+#if VERSION_US
 s32 D_80040D8C[] = {
+#elif VERSION_EU
+s32 D_80041180[] = {
+#endif
     0x602002D, 32, 0, 28,
     296,
 };
+#if VERSION_US
 s32 D_80040DA0[] = {
+#elif VERSION_EU
+s32 D_80041194[] = {
+#endif
     0x502002D, 16, 0, 30,
     296,
 };
+#if VERSION_US
 s32 D_80040DB4[] = {
+#elif VERSION_EU
+s32 D_800411A8[] = {
+#endif
     0x2002A, 0x800FF, 0x80000, 28,
     286,
 };
+#if VERSION_US
 s32 D_80040DC8[] = {
+#elif VERSION_EU
+s32 D_800411BC[] = {
+#endif
     0x2002D, 198, 0, 35,
     291,
 };
+#if VERSION_US
 s32 D_80040DDC[] = {
+#elif VERSION_EU
+s32 D_800411D0[] = {
+#endif
     0x20032, 57, 0, 40,
     296,
 };
+#if VERSION_US
 s32 D_80040DF0[] = {
+#elif VERSION_EU
+s32 D_800411E4[] = {
+#endif
     0x60003, 0xA00FF, 1,
 };
+#if VERSION_US
 s32 D_80040DFC[] = {
+#elif VERSION_EU
+s32 D_800411F0[] = {
+#endif
     0x60005, 0x1400FF, 1,
 };
+#if VERSION_US
 s32 D_80040E08[] = {
+#elif VERSION_EU
+s32 D_800411FC[] = {
+#endif
     0x60002, 0xA00FF, 2,
 };
+#if VERSION_US
 s32 D_80040E14[] = {
+#elif VERSION_EU
+s32 D_80041208[] = {
+#endif
     0x60004, 0x1400FF, 2,
 };
+#if VERSION_US
 s32 D_80040E20[] = {
+#elif VERSION_EU
+s32 D_80041214[] = {
+#endif
     0x60003, 0xA00FF, 3,
 };
+#if VERSION_US
 s32 D_80040E2C[] = {
+#elif VERSION_EU
+s32 D_80041220[] = {
+#endif
     0x60004, 0x1400FF, 3,
 };
+#if VERSION_US
 s32 D_80040E38[] = {
+#elif VERSION_EU
+s32 D_8004122C[] = {
+#endif
     0x60002, 0xA00FF, 4,
 };
+#if VERSION_US
 s32 D_80040E44[] = {
+#elif VERSION_EU
+s32 D_80041238[] = {
+#endif
     0x60004, 0x1400FF, 4,
 };
+#if VERSION_US
 s32 D_80040E50[] = {
+#elif VERSION_EU
+s32 D_80041244[] = {
+#endif
     0x60003, 0xA00FF, 5,
 };
+#if VERSION_US
 s32 D_80040E5C[] = {
+#elif VERSION_EU
+s32 D_80041250[] = {
+#endif
     0x60005, 0x1400FF, 5,
 };
+#if VERSION_US
 s32 D_80040E68[] = {
+#elif VERSION_EU
+s32 D_8004125C[] = {
+#endif
     0x60014, 255, 0,
 };
+#if VERSION_US
 s32 D_80040E74[] = {
+#elif VERSION_EU
+s32 D_80041268[] = {
+#endif
     0x6001E, 255, 0,
 };
+#if VERSION_US
 s32 D_80040E80[] = {
+#elif VERSION_EU
+s32 D_80041274[] = {
+#endif
     0x60003, 0x1400FF, 8,
 };
+#if VERSION_US
 s32 D_80040E8C[] = {
+#elif VERSION_EU
+s32 D_80041280[] = {
+#endif
     0x60002, 0x1400FF, 9,
 };
+#if VERSION_US
 s32 D_80040E98[] = {
+#elif VERSION_EU
+s32 D_8004128C[] = {
+#endif
     0x60002, 0x1400FF, 10,
 };
+#if VERSION_US
 s32 D_80040EA4[] = {
+#elif VERSION_EU
+s32 D_80041298[] = {
+#endif
     0x60002, 0x1400FF, 11,
 };
+#if VERSION_US
 s32 D_80040EB0[] = {
+#elif VERSION_EU
+s32 D_800412A4[] = {
+#endif
     0x60003, 0x1400FF, 12,
 };
+#if VERSION_US
 s32 D_80040EBC[] = {
+#elif VERSION_EU
+s32 D_800412B0[] = {
+#endif
     0x60003, 0x1400FF, 13,
 };
+#if VERSION_US
 s32 D_80040EC8[] = {
+#elif VERSION_EU
+s32 D_800412BC[] = {
+#endif
     0x60003, 0x1400FF, 14,
 };
+#if VERSION_US
 s32 D_80040ED4[] = {
+#elif VERSION_EU
+s32 D_800412C8[] = {
+#endif
     0x60002, 0x2800FF, 17,
 };
+#if VERSION_US
 s32 D_80040EE0[] = {
+#elif VERSION_EU
+s32 D_800412D4[] = {
+#endif
     0x60002, 0x2800FF, 18,
 };
+#if VERSION_US
 s32 D_80040EEC[] = {
+#elif VERSION_EU
+s32 D_800412E0[] = {
+#endif
     0x60002, 0x2800FF, 20,
 };
+#if VERSION_US
 s32 D_80040EF8[] = {
+#elif VERSION_EU
+s32 D_800412EC[] = {
+#endif
     0x60002, 0x2800FF, 19,
 };
+#if VERSION_US
 s32 D_80040F04[] = {
+#elif VERSION_EU
+s32 D_800412F8[] = {
+#endif
     0x60003, 0x2800FF, 21,
 };
+#if VERSION_US
 s32 D_80040F10[] = {
+#elif VERSION_EU
+s32 D_80041304[] = {
+#endif
     0x1080005, 255, 0,
 };
+#if VERSION_US
 s32 D_80040F1C[] = {
+#elif VERSION_EU
+s32 D_80041310[] = {
+#endif
     0x2080004, 0x2000FF, 0,
 };
+#if VERSION_US
 s32 D_80040F28[] = {
+#elif VERSION_EU
+s32 D_8004131C[] = {
+#endif
     0x3080003, 0x4000FF, 0,
 };
+#if VERSION_US
 s32 D_80040F34[] = {
+#elif VERSION_EU
+s32 D_80041328[] = {
+#endif
     0x4080003, 255, 0,
 };
+#if VERSION_US
 s32 D_80040F40[] = {
+#elif VERSION_EU
+s32 D_80041334[] = {
+#endif
     0x5080004, 255, 0,
 };
+#if VERSION_US
 s32 D_80040F4C[] = {
+#elif VERSION_EU
+s32 D_80041340[] = {
+#endif
     0x6080002, 255, 0,
 };
+#if VERSION_US
 s32 D_80040F58[] = {
+#elif VERSION_EU
+s32 D_8004134C[] = {
+#endif
     0x7080000, 255, 0,
 };
+#if VERSION_US
 s32 D_80040F64[] = {
+#elif VERSION_EU
+s32 D_80041358[] = {
+#endif
     0x8080000, 0x500FF, 0,
 };
+#if VERSION_US
 s32 D_80040F70[] = {
+#elif VERSION_EU
+s32 D_80041364[] = {
+#endif
     0x8080000, 0xA00FF, 0,
 };
+#if VERSION_US
 s32 D_80040F7C[] = {
+#elif VERSION_EU
+s32 D_80041370[] = {
+#endif
     0x9080000, 0xA00FF, 0,
 };
+#if VERSION_US
 s32 D_80040F88[] = {
+#elif VERSION_EU
+s32 D_8004137C[] = {
+#endif
     0x9080000, 0x1400FF, 0,
 };
+#if VERSION_US
 s32 D_80040F94[] = {
+#elif VERSION_EU
+s32 D_80041388[] = {
+#endif
     0xA080002, 0x2000FF, 0,
 };
+#if VERSION_US
 s32 D_80040FA0[] = {
+#elif VERSION_EU
+s32 D_80041394[] = {
+#endif
     0xA080004, 0x4000FF, 0,
 };
+#if VERSION_US
 s32 D_80040FAC[] = {
+#elif VERSION_EU
+s32 D_800413A0[] = {
+#endif
     0xB080003, 255, 0,
 };
+#if VERSION_US
 s32 D_80040FB8[] = {
+#elif VERSION_EU
+s32 D_800413AC[] = {
+#endif
     0xB080005, 255, 0,
 };
+#if VERSION_US
 s32 D_80040FC4[] = {
+#elif VERSION_EU
+s32 D_800413B8[] = {
+#endif
     0xC080002, 0xA00FF, 0,
 };
+#if VERSION_US
 s32 D_80040FD0[] = {
+#elif VERSION_EU
+s32 D_800413C4[] = {
+#endif
     0xC080005, 0x1400FF, 0,
 };
+#if VERSION_US
 s32 D_80040FDC[] = {
+#elif VERSION_EU
+s32 D_800413D0[] = {
+#endif
     0xD080000, 0xA00FF, 0,
 };
+#if VERSION_US
 s32 D_80040FE8[] = {
+#elif VERSION_EU
+s32 D_800413DC[] = {
+#endif
     0xD080001, 0x1400FF, 0,
 };
+#if VERSION_US
 s32 D_80040FF4[] = {
+#elif VERSION_EU
+s32 D_800413E8[] = {
+#endif
     0xE080000, 0x1000FF, 0,
 };
+#if VERSION_US
 s32 D_80041000[] = {
+#elif VERSION_EU
+s32 D_800413F4[] = {
+#endif
     0xE080001, 0x2000FF, 0,
 };
+#if VERSION_US
 s32 D_8004100C[] = {
+#elif VERSION_EU
+s32 D_80041400[] = {
+#endif
     0xF080000, 255, 0,
 };
+#if VERSION_US
 s32 D_80041018[] = {
+#elif VERSION_EU
+s32 D_8004140C[] = {
+#endif
     0xF080000, 255, 0,
 };
+#if VERSION_US
 s32 D_80041024[] = {
+#elif VERSION_EU
+s32 D_80041418[] = {
+#endif
     0x10080003, 0x800FF, 0,
 };
+#if VERSION_US
 s32 D_80041030[] = {
+#elif VERSION_EU
+s32 D_80041424[] = {
+#endif
     0x10080005, 0x1000FF, 0,
 };
+#if VERSION_US
 s32 D_8004103C[] = {
+#elif VERSION_EU
+s32 D_80041430[] = {
+#endif
     0x10080007, 0x1800FF, 0,
 };
+#if VERSION_US
 s32 D_80041048[] = {
+#elif VERSION_EU
+s32 D_8004143C[] = {
+#endif
     0x10080002, 0x800FF, 0,
 };
+#if VERSION_US
 s32 D_80041054[] = {
+#elif VERSION_EU
+s32 D_80041448[] = {
+#endif
     0x10080004, 0x1000FF, 0,
 };
+#if VERSION_US
 s32 D_80041060[] = {
+#elif VERSION_EU
+s32 D_80041454[] = {
+#endif
     0x10080006, 0x1800FF, 0,
 };
+#if VERSION_US
 s32 D_8004106C[] = {
+#elif VERSION_EU
+s32 D_80041460[] = {
+#endif
     0x10080002, 0x800FF, 0,
 };
+#if VERSION_US
 s32 D_80041078[] = {
+#elif VERSION_EU
+s32 D_8004146C[] = {
+#endif
     0x10080004, 0x1000FF, 0,
 };
+#if VERSION_US
 s32 D_80041084[] = {
+#elif VERSION_EU
+s32 D_80041478[] = {
+#endif
     0x10080006, 0x1800FF, 0,
 };
+#if VERSION_US
 s32 D_80041090[] = {
+#elif VERSION_EU
+s32 D_80041484[] = {
+#endif
     0x10080002, 0x800FF, 0,
 };
+#if VERSION_US
 s32 D_8004109C[] = {
+#elif VERSION_EU
+s32 D_80041490[] = {
+#endif
     0x10080004, 0x1000FF, 0,
 };
+#if VERSION_US
 s32 D_800410A8[] = {
+#elif VERSION_EU
+s32 D_8004149C[] = {
+#endif
     0x10080006, 0x1800FF, 0,
 };
+#if VERSION_US
 s32 D_800410B4[] = {
+#elif VERSION_EU
+s32 D_800414A8[] = {
+#endif
     0x10080003, 0x800FF, 0,
 };
+#if VERSION_US
 s32 D_800410C0[] = {
+#elif VERSION_EU
+s32 D_800414B4[] = {
+#endif
     0x10080005, 0x1000FF, 0,
 };
+#if VERSION_US
 s32 D_800410CC[] = {
+#elif VERSION_EU
+s32 D_800414C0[] = {
+#endif
     0x10080007, 0x1800FF, 0,
 };
+#if VERSION_US
 s32 D_800410D8[] = {
+#elif VERSION_EU
+s32 D_800414CC[] = {
+#endif
     0x10080003, 0x800FF, 0,
 };
+#if VERSION_US
 s32 D_800410E4[] = {
+#elif VERSION_EU
+s32 D_800414D8[] = {
+#endif
     0x10080005, 0x1000FF, 0,
 };
+#if VERSION_US
 s32 D_800410F0[] = {
+#elif VERSION_EU
+s32 D_800414E4[] = {
+#endif
     0x10080007, 0x1800FF, 0,
 };
+#if VERSION_US
 s32 D_800410FC[] = {
+#elif VERSION_EU
+s32 D_800414F0[] = {
+#endif
     0x10080003, 0x800FF, 0,
 };
+#if VERSION_US
 s32 D_80041108[] = {
+#elif VERSION_EU
+s32 D_800414FC[] = {
+#endif
     0x10080005, 0x1000FF, 0,
 };
+#if VERSION_US
 s32 D_80041114[] = {
+#elif VERSION_EU
+s32 D_80041508[] = {
+#endif
     0x10080007, 0x1800FF, 0,
 };
+#if VERSION_US
 s32 D_80041120[] = {
+#elif VERSION_EU
+s32 D_80041514[] = {
+#endif
     0x20001, 0x40003, 0x60005, 0x80007,
     0xA0009, 0xC000B, 0xE000D, 0x10000F,
     0x120011, 0x140013, 0x160015, 0x180017,
@@ -1936,7 +3443,11 @@ s32 D_80041120[] = {
     0x2A0029, 0x18B0168, 0x18D018C, 0x18F018E,
     0x1910190, 402,
 };
+#if VERSION_US
 s32 D_80041188[] = {
+#elif VERSION_EU
+s32 D_8004157C[] = {
+#endif
     0x2C002B, 0x2E002D, 0x30002F, 0x320031,
     0x340033, 0x360035, 0x380037, 0x3A0039,
     0x3C003B, 0x3E003D, 0x40003F, 0x420041,
@@ -1949,7 +3460,11 @@ s32 D_80041188[] = {
     0x1810180, 0x1830182, 0x1850184, 0x1870186,
     0x1890188, 394,
 };
+#if VERSION_US
 s32 D_80041230[] = {
+#elif VERSION_EU
+s32 D_80041624[] = {
+#endif
     0x5D005C, 0x5F005E, 0x610060, 0x630062,
     0x650064, 0x670066, 0x690068, 0x6B006A,
     0x6D006C, 0x6F006E, 0x710070, 0x730072,
@@ -1967,7 +3482,11 @@ s32 D_80041230[] = {
     0xCD00CC, 0xCF00CE, 0xD100D0, 0xD300D2,
     0xD500D4, 214,
 };
+#if VERSION_US
 s32 D_80041328[] = {
+#elif VERSION_EU
+s32 D_8004171C[] = {
+#endif
     0xD800D7, 0xDA00D9, 0xDC00DB, 0xDE00DD,
     0xE000DF, 0xE200E1, 0xE400E3, 0xE600E5,
     0xE800E7, 0xEA00E9, 0xEC00EB, 0xEE00ED,
@@ -1979,7 +3498,11 @@ s32 D_80041328[] = {
     0x1180117, 0x11A0119, 0x11C011B, 0x11E011D,
     0x120011F, 0x1220121, 291,
 };
+#if VERSION_US
 s32 D_800413C4[] = {
+#elif VERSION_EU
+s32 D_800417B8[] = {
+#endif
     0x1250124, 0x1270126, 0x1290128, 0x12B012A,
     0x12D012C, 0x12F012E, 0x1310130, 0x1330132,
     0x1350134, 0x1370136, 0x1390138, 0x13B013A,
@@ -1989,6 +3512,7 @@ s32 D_800413C4[] = {
     0x1550154, 0x1570156, 0x1590158, 0x15B015A,
     0x15D015C, 0x15F015E, 0x1610160, 0x1630162,
 };
+#if VERSION_US
 s32 ITEM_DATA[] = {
     0x1650164, 0x1670166, 0, 0,
     0, 7425, 0, 0,
@@ -2294,6 +3818,313 @@ s32 ITEM_DATA[] = {
     0, 7425, 0, 0,
     7425,
 };
+#elif VERSION_EU
+s32 ITEM_DATA[] = {
+    0x1650164, 0x1670166, 0, 0,
+    0, 7425, 0, 0,
+    7425, 0, 0, 7425,
+    0, 0, 7425, 0,
+    0, 7425, 0, 0,
+    7425, 0, 0, 7425,
+    0, 0, 7425, 0,
+    0, 7425, 0, 0,
+    7425, 0, 0, 7425,
+    0, 0, 7425, 0,
+    0, 7425, 0, 0,
+    7425, 0, 0, 7425,
+    0, 0, 7425, 0,
+    0, 7425, 0, 0,
+    7425, 0, 0, 7425,
+    0, 0, 7425, 0,
+    0, 7425, 0, 0,
+    7425, 0, 0, 7425,
+    0, 0, 7425, 0,
+    0, 7425, 0, 0,
+    7425, 0, 0, 7425,
+    0, 0, 7425, 0,
+    0, 7425, 0, 0,
+    7425, 0, 0, 7425,
+    0, 0, 7425, 0,
+    0, 7425, 0, 0,
+    7425, 0, 0, 7425,
+    0, 0, 7425, 0,
+    0, 7425, 0, 0,
+    7425, 0, 0, 7425,
+    0, 0, 7425, 0,
+    0, 7425, 0, 0,
+    7425, (s32)D_8005CB54, 0x6000C, 6402,
+    (s32)D_8005CB58, 0x3C0078, 6402, (s32)D_8005CB5C,
+    0x820104, 6402, (s32)D_8005CB60, 0xC80000,
+    6402, (s32)D_8005CB64, 0x96012C0, 6658,
+    (s32)D_8005CB68, 0xBB81770, 6658, (s32)D_8005CB6C,
+    0x4E209C4, 6658, (s32)D_8005CB70, 0x3E807D0,
+    6658, (s32)D_8005CB74, 0x4B00960, 6658,
+    (s32)D_8005CB78, 0x41A0834, 6658, (s32)D_8005CB7C,
+    0x79E0F3C, 6658, (s32)D_8005CB80, 0xFA01F4,
+    6658, (s32)D_8005CB84, 0x47E08FC, 6658,
+    (s32)D_8005CB88, 0x44C0898, 6658, (s32)D_8005CB8C,
+    0x44C0898, 6658, (s32)D_8005CB90, 0x3840708,
+    6658, (s32)D_8005CB94, 0x3B6076C, 6658,
+    (s32)D_8005CB98, 0x5140A28, 6658, (s32)D_8005CB9C,
+    0x5780AF0, 6658, (s32)D_8005CBA0, 0x1900000,
+    6658, (s32)D_8005CBA4, 0x2BC0000, 6658,
+    (s32)D_8005CBA8, 0x3E80000, 6658, (s32)D_8005CBAC,
+    0x6400000, 6658, (s32)D_8005CBB0, 0xA0014,
+    6914, (s32)D_8005CBB4, 0x90012, 6914,
+    (s32)D_8005CBB8, 0x180030, 6914, (s32)D_8005CBBC,
+    0x230046, 6914, (s32)D_8005CBC0, 0xFA01F4,
+    6914, (s32)D_8005CBC4, 0x4B00960, 6914,
+    (s32)D_8005CBC8, 0x320064, 6914, (s32)D_8005CBCC,
+    0x16002D, 6914, (s32)D_8005CBD0, 0x140028,
+    6914, (s32)D_8005CBD4, 0x2D005A, 6914,
+    (s32)D_8005CBD8, 0x25804B0, 6914, (s32)D_8005CBDC,
+    0x2A0055, 6914, (s32)D_8005CBE0, 0x200041,
+    6914, (s32)D_8005CBE4, 0x25004B, 6914,
+    (s32)D_8005CBE8, 0x230046, 6914, (s32)D_8005CBEC,
+    0x2D005A, 6914, (s32)D_8005CBF0, 0x2F005F,
+    6914, (s32)D_8005CBF4, 0x320064, 6914,
+    (s32)D_8005CBF8, 0x280050, 6914, (s32)D_8005CBFC,
+    0x140000, 6914, (s32)D_8005CC00, 0x640000,
+    6914, (s32)D_8005CC04, 0xA0000, 6914,
+    (s32)D_8005CC08, 0xF0000, 6914, (s32)D_8005CC0C,
+    0x500000, 6914, (s32)D_8005CC10, 0x140000,
+    6914, (s32)D_8005CC14, 0, 7170,
+    (s32)D_80040244, 0x6400C8, 515, (s32)D_80040258,
+    0xFA01F4, 515, (s32)D_8004026C, 0x1F403E8,
+    515, (s32)D_80040280, 0x4E209C4, 515,
+    (s32)D_80040294, 0x9C41388, 515, (s32)D_800402A8,
+    0x128E251C, 515, (s32)D_800402BC, 0x7530EA60,
+    515, (s32)D_800402D0, 0x1D4C3A98, 515,
+    (s32)D_800402E4, 0x2AF855F0, 515, (s32)D_800402F8,
+    0x3A987530, 515, (s32)D_8004030C, 0,
+    515, (s32)D_80040320, 0, 515,
+    (s32)D_80040334, 0, 515, (s32)D_80040348,
+    0, 515, (s32)D_8004035C, 0x6400C8,
+    771, (s32)D_80040370, 0xFA01F4, 771,
+    (s32)D_80040384, 0x1F403E8, 771, (s32)D_80040398,
+    0x4E209C4, 771, (s32)D_800403AC, 0x9C41388,
+    771, (s32)D_800403C0, 0x128E251C, 771,
+    (s32)D_800403D4, 0x7530EA60, 771, (s32)D_800403E8,
+    0x1D4C3A98, 771, (s32)D_800403FC, 0x2AF855F0,
+    771, (s32)D_80040410, 0x3A987530, 771,
+    (s32)D_80040424, 0, 771, (s32)D_80040438,
+    0, 771, (s32)D_8004044C, 0,
+    771, (s32)D_80040460, 0, 771,
+    (s32)D_80040474, 0x4E209C4, 1027, (s32)D_80040488,
+    0x5DC0000, 1027, (s32)D_8004049C, 0x9C41388,
+    1027, (s32)D_800404B0, 0x128E251C, 1027,
+    (s32)D_800404C4, 0x7530EA60, 1027, (s32)D_800404D8,
+    0x1D4C3A98, 1027, (s32)D_800404EC, 0x2AF855F0,
+    1027, (s32)D_80040500, 0x3A987530, 1027,
+    (s32)D_80040514, 0, 1027, (s32)D_80040528,
+    0, 1027, (s32)D_8004053C, 0,
+    1027, (s32)D_80040550, 0, 1027,
+    (s32)D_80040564, 0x4E209C4, 1283, (s32)D_80040578,
+    0x5DC0000, 1283, (s32)D_8004058C, 0x9C41388,
+    1283, (s32)D_800405A0, 0x128E251C, 1283,
+    (s32)D_800405B4, 0x7530EA60, 1283, (s32)D_800405C8,
+    0x7530EA60, 1283, (s32)D_800405DC, 0x1D4C3A98,
+    1283, (s32)D_800405F0, 0x2AF855F0, 1283,
+    (s32)D_80040604, 0x3A987530, 1283, (s32)D_80040618,
+    0, 1283, (s32)D_8004062C, 0,
+    1283, (s32)D_80040640, 0, 1283,
+    (s32)D_80040654, 0, 1283, (s32)D_80040668,
+    0x4E209C4, 1539, (s32)D_8004067C, 0x5DC0000,
+    1539, (s32)D_80040690, 0x9C41388, 1539,
+    (s32)D_800406A4, 0x128E251C, 1539, (s32)D_800406B8,
+    0x7530EA60, 1539, (s32)D_800406CC, 0x1D4C3A98,
+    1539, (s32)D_800406E0, 0x2AF855F0, 1539,
+    (s32)D_800406F4, 0x3A987530, 1539, (s32)D_80040708,
+    0, 1539, (s32)D_8004071C, 0,
+    1539, (s32)D_80040730, 0, 1539,
+    (s32)D_80040744, 0, 1539, (s32)D_80040758,
+    0x6400C8, 1795, (s32)D_8004076C, 0xFA01F4,
+    1795, (s32)D_80040780, 0x1F403E8, 1795,
+    (s32)D_80040794, 0x4E209C4, 1795, (s32)D_800407A8,
+    0x9C41388, 1795, (s32)D_800407BC, 0x128E251C,
+    1795, (s32)D_800407D0, 0x7530EA60, 1795,
+    (s32)D_800407E4, 0x1D4C3A98, 1795, (s32)D_800407F8,
+    0x2AF855F0, 1795, (s32)D_8004080C, 0x3A987530,
+    1795, (s32)D_80040820, 0x4B0096, 2051,
+    (s32)D_80040834, 0xC80190, 2051, (s32)D_80040848,
+    0x1900320, 2051, (s32)D_8004085C, 0x3E807D0,
+    2051, (s32)D_80040870, 0x8CA1194, 2051,
+    (s32)D_80040884, 0x109A2134, 2051, (s32)D_80040898,
+    0x1B5836B0, 2051, (s32)D_800408AC, 0x27104E20,
+    2051, (s32)D_800408C0, 0x36B06D60, 2051,
+    (s32)D_800408D4, 0x3E807D0, 2563, (s32)D_800408E8,
+    0x4E20000, 2563, (s32)D_800408FC, 0x8CA1194,
+    2563, (s32)D_80040910, 0x109A2134, 2563,
+    (s32)D_80040924, 0x1B5836B0, 2563, (s32)D_80040938,
+    0x27104E20, 2563, (s32)D_8004094C, 0x36B06D60,
+    2563, (s32)D_80040960, 0x3E807D0, 2819,
+    (s32)D_80040974, 0x4E20000, 2819, (s32)D_80040988,
+    0x8CA1194, 2819, (s32)D_8004099C, 0x109A2134,
+    2819, (s32)D_800409B0, 0x1B5836B0, 2819,
+    (s32)D_800409C4, 0x27104E20, 2819, (s32)D_800409D8,
+    0x36B06D60, 2819, (s32)D_800409EC, 0x4B0096,
+    3075, (s32)D_80040A00, 0xC80190, 3075,
+    (s32)D_80040A14, 0x1900320, 3075, (s32)D_80040A28,
+    0x3E807D0, 3075, (s32)D_80040A3C, 0x8CA1194,
+    3075, (s32)D_80040A50, 0x109A2134, 3075,
+    (s32)D_80040A64, 0x1B5836B0, 3075, (s32)D_80040A78,
+    0x27104E20, 3075, (s32)D_80040A8C, 0x36B06D60,
+    3075, (s32)D_80040AA0, 0x4E209C4, 3331,
+    (s32)D_80040AB4, 0x5DC0000, 3331, (s32)D_80040AC8,
+    0x9C41388, 3331, (s32)D_80040ADC, 0x128E251C,
+    3331, (s32)D_80040AF0, 0x7530EA60, 3331,
+    (s32)D_80040B04, 0x1D4C3A98, 3331, (s32)D_80040B18,
+    0x2AF855F0, 3331, (s32)D_80040B2C, 0x3A987530,
+    3331, (s32)D_80040B40, 0x4E209C4, 3587,
+    (s32)D_80040B54, 0x5DC0000, 3587, (s32)D_80040B68,
+    0x9C41388, 3587, (s32)D_80040B7C, 0x128E251C,
+    3587, (s32)D_80040B90, 0x7530EA60, 3587,
+    (s32)D_80040BA4, 0x1D4C3A98, 3587, (s32)D_80040BB8,
+    0x2AF855F0, 3587, (s32)D_80040BCC, 0x3A987530,
+    3587, (s32)D_80040BE0, 0x140028, 3844,
+    (s32)D_80040BF4, 0x320064, 3844, (s32)D_80040C08,
+    0x7D00FA, 3844, (s32)D_80040C1C, 0x12C0258,
+    3844, (s32)D_80040C30, 0x1C20384, 3844,
+    (s32)D_80040C44, 0x2BC0578, 3844, (s32)D_80040C58,
+    0x1D4C3A98, 3844, (s32)D_80040C6C, 0x1D4C3A98,
+    3844, (s32)D_80040C80, 0x5780AF0, 3844,
+    (s32)D_80040C94, 0x6400C80, 3844, (s32)D_80040CA8,
+    0xEA61D4C, 3844, (s32)D_80040CBC, 0x1E003C,
+    4100, (s32)D_80040CD0, 0x410082, 4100,
+    (s32)D_80040CE4, 0x96012C, 4100, (s32)D_80040CF8,
+    0x226044C, 4100, (s32)D_80040D0C, 0x4E209C4,
+    4100, (s32)D_80040D20, 0x6D60DAC, 4100,
+    (s32)D_80040D34, 0x23284650, 4100, (s32)D_80040D48,
+    0xAF015E0, 4100, (s32)D_80040D5C, 0xD481A90,
+    4100, (s32)D_80040D70, 0x11942328, 4100,
+    (s32)D_80040D84, 0x280050, 4356, (s32)D_80040D98,
+    0x4B0096, 4356, (s32)D_80040DAC, 0x1130226,
+    4356, (s32)D_80040DC0, 0x2EE05DC, 4356,
+    (s32)D_80040DD4, 0x3840708, 4356, (s32)D_80040DE8,
+    0x8341068, 4356, (s32)D_80040DFC, 0x2AF855F0,
+    4356, (s32)D_80040E10, 0x2AF855F0, 4356,
+    (s32)D_80040E24, 0x2AF855F0, 4356, (s32)D_80040E38,
+    0x2AF855F0, 4356, (s32)D_80040E4C, 0xDAC1B58,
+    4356, (s32)D_80040E60, 0xEA61D4C, 4356,
+    (s32)D_80040E74, 0x157C2AF8, 4356, (s32)D_80040E88,
+    0x230046, 4612, (s32)D_80040E9C, 0x5000A0,
+    4612, (s32)D_80040EB0, 0xFA01F4, 4612,
+    (s32)D_80040EC4, 0x28A0514, 4612, (s32)D_80040ED8,
+    0x3E807D0, 4612, (s32)D_80040EEC, 0x9C41388,
+    4612, (s32)D_80040F00, 0x4A389470, 4612,
+    (s32)D_80040F14, 0x4A389470, 4612, (s32)D_80040F28,
+    0x4A389470, 4612, (s32)D_80040F3C, 0x4A389470,
+    4612, (s32)D_80040F50, 0x109A2134, 4612,
+    (s32)D_80040F64, 0x17702EE0, 4612, (s32)D_80040F78,
+    0x251C4A38, 4612, (s32)D_80040F8C, 0x4B0096,
+    4868, (s32)D_80040FA0, 0xAF015E, 4868,
+    (s32)D_80040FB4, 0x17702EE, 4868, (s32)D_80040FC8,
+    0x35206A4, 4868, (s32)D_80040FDC, 0x76C0ED8,
+    4868, (s32)D_80040FF0, 0xCB21964, 4868,
+    (s32)D_80041004, 0x61A8C350, 4868, (s32)D_80041018,
+    0x61A8C350, 4868, (s32)D_8004102C, 0x61A8C350,
+    4868, (s32)D_80041040, 0x61A8C350, 4868,
+    (s32)D_80041054, 0x157C2AF8, 4868, (s32)D_80041068,
+    0x23284650, 4868, (s32)D_8004107C, 0x30D461A8,
+    4868, (s32)D_80041090, 0x280050, 5124,
+    (s32)D_800410A4, 0x4B0096, 5124, (s32)D_800410B8,
+    0x1130226, 5124, (s32)D_800410CC, 0x2EE05DC,
+    5124, (s32)D_800410E0, 0x3840708, 5124,
+    (s32)D_800410F4, 0x8341068, 5124, (s32)D_80041108,
+    0x2AF855F0, 5124, (s32)D_8004111C, 0x2AF855F0,
+    5124, (s32)D_80041130, 0x2AF855F0, 5124,
+    (s32)D_80041144, 0x2AF855F0, 5124, (s32)D_80041158,
+    0x2AF855F0, 5124, (s32)D_8004116C, 0x2AF855F0,
+    5124, (s32)D_80041180, 0x2AF855F0, 5124,
+    (s32)D_80041194, 0x2AF855F0, 5124, (s32)D_800411A8,
+    0xDAC1B58, 5124, (s32)D_800411BC, 0xEA61D4C,
+    5124, (s32)D_800411D0, 0x157C2AF8, 5124,
+    (s32)D_800411E4, 0x1F403E8, 5381, (s32)D_800411F0,
+    0x5DC0BB8, 5381, (s32)D_800411FC, 0x1C20384,
+    5381, (s32)D_80041208, 0x4E209C4, 5381,
+    (s32)D_80041214, 0x25804B0, 5381, (s32)D_80041220,
+    0x6400C80, 5381, (s32)D_8004122C, 0x1900320,
+    5381, (s32)D_80041238, 0x3E807D0, 5381,
+    (s32)D_80041244, 0x2EE05DC, 5381, (s32)D_80041250,
+    0x9C41388, 5381, (s32)D_8004125C, 0x2EE05DC,
+    5381, (s32)D_80041268, 0x5DC0BB8, 5381,
+    (s32)D_80041274, 0x15E02BC, 5381, (s32)D_80041280,
+    0xC80190, 5381, (s32)D_8004128C, 0xFA01F4,
+    5381, (s32)D_80041298, 0x96012C, 5381,
+    (s32)D_800412A4, 0x12C0258, 5381, (s32)D_800412B0,
+    0x15E02BC, 5381, (s32)D_800412BC, 0x15E02BC,
+    5381, (s32)D_800412C8, 0xFA01F4, 5381,
+    (s32)D_800412D4, 0xFA01F4, 5381, (s32)D_800412E0,
+    0xFA01F4, 5381, (s32)D_800412EC, 0x1F403E8,
+    5381, (s32)D_800412F8, 0x25804B0, 5381,
+    (s32)D_80041304, 0x1F40000, 5637, (s32)D_80041310,
+    0x1F40000, 5637, (s32)D_8004131C, 0x1F40000,
+    5637, (s32)D_80041328, 0x1F40000, 5637,
+    (s32)D_80041334, 0x3E80000, 5637, (s32)D_80041340,
+    0, 5637, (s32)D_8004134C, 0,
+    5637, (s32)D_80041358, 0x1F40000, 5637,
+    (s32)D_80041364, 0x3E80000, 5637, (s32)D_80041370,
+    0x1F40000, 5637, (s32)D_8004137C, 0x3E80000,
+    5637, (s32)D_80041388, 0x1F40000, 5637,
+    (s32)D_80041394, 0x3E80000, 5637, (s32)D_800413A0,
+    0x1F40000, 5637, (s32)D_800413AC, 0x3E80000,
+    5637, (s32)D_800413B8, 0x1F40000, 5637,
+    (s32)D_800413C4, 0x3E80000, 5637, (s32)D_800413D0,
+    0x1F40000, 5637, (s32)D_800413DC, 0x3E80000,
+    5637, (s32)D_800413E8, 0x1F40000, 5637,
+    (s32)D_800413F4, 0x3E80000, 5637, (s32)D_80041400,
+    0x1F40000, 5637, (s32)D_8004140C, 0x3E80000,
+    5637, (s32)D_80041418, 0x1F40000, 5637,
+    (s32)D_80041424, 0x3E80000, 5637, (s32)D_80041430,
+    0x7D00000, 5637, (s32)D_8004143C, 0x1F40000,
+    5637, (s32)D_80041448, 0x3E80000, 5637,
+    (s32)D_80041454, 0x7D00000, 5637, (s32)D_80041460,
+    0x1F40000, 5637, (s32)D_8004146C, 0x3E80000,
+    5637, (s32)D_80041478, 0x7D00000, 5637,
+    (s32)D_80041484, 0x1F40000, 5637, (s32)D_80041490,
+    0x3E80000, 5637, (s32)D_8004149C, 0x7D00000,
+    5637, (s32)D_800414A8, 0x1F40000, 5637,
+    (s32)D_800414B4, 0x3E80000, 5637, (s32)D_800414C0,
+    0x7D00000, 5637, (s32)D_800414CC, 0x1F40000,
+    5637, (s32)D_800414D8, 0x3E80000, 5637,
+    (s32)D_800414E4, 0x7D00000, 5637, (s32)D_800414F0,
+    0x1F40000, 5637, (s32)D_800414FC, 0x3E80000,
+    5637, (s32)D_80041508, 0x7D00000, 5637,
+    0, 0, 7425, (s32)D_8005CC18,
+    0, 7170, (s32)D_8005CC1C, 0,
+    7170, (s32)D_8005CC20, 0, 7170,
+    (s32)D_8005CC24, 0, 7170, (s32)D_8005CC28,
+    0, 7170, (s32)D_8005CC2C, 0,
+    7170, (s32)D_8005CC30, 0, 7170,
+    (s32)D_8005CC34, 0, 7170, (s32)D_8005CC38,
+    0, 7170, (s32)D_8005CC3C, 0,
+    7170, (s32)D_8005CC40, 0, 7170,
+    (s32)D_8005CC44, 0, 7170, (s32)D_8005CC48,
+    0, 7170, (s32)D_8005CC4C, 0,
+    7170, (s32)D_8005CC50, 0, 7170,
+    (s32)D_8005CC54, 0, 7170, (s32)D_8005CC58,
+    0, 7170, (s32)D_8005CC5C, 0,
+    7170, (s32)D_8005CC60, 0, 7170,
+    (s32)D_8005CC64, 0, 7170, (s32)D_8005CC68,
+    0, 7170, (s32)D_8005CC6C, 0,
+    7170, (s32)D_8005CC70, 0, 7170,
+    (s32)D_8005CC74, 0, 7170, (s32)D_8005CC78,
+    0, 7170, (s32)D_8005CC7C, 0,
+    7170, (s32)D_8005CC80, 0, 7170,
+    (s32)D_8005CC84, 0, 7170, (s32)D_8005CC88,
+    0, 7170, (s32)D_8005CC8C, 0,
+    7170, (s32)D_8005CC90, 0, 7170,
+    (s32)D_8005CC94, 0, 7170, (s32)D_8005CC98,
+    0, 7170, (s32)D_8005CC9C, 0,
+    7170, 0, 0, 7425,
+    0, 0, 7425, 0,
+    0, 7425, 0, 0,
+    7425, 0, 0, 7425,
+    0, 0, 7425, 0,
+    0, 7425, 0, 0,
+    7425,
+};
+#endif
 s32 D_80042728[] = {
     1, -1, -1, 0,
     0, 0, 0, 0,
@@ -2313,6 +4144,7 @@ u8 ITEM_TYPE_CATEGORIES[] = {
     0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D,
     0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63, 0x63, 0x00,
 };
+#if VERSION_US
 s32 ITEM_LISTS[] = {
     (s32)D_80041120, (s32)D_80041188, (s32)D_80041230, (s32)D_80041328,
     (s32)D_800413C4, 0x3C0000, 0x16E0202, 0x1010101,
@@ -2815,14 +4647,526 @@ s32 ITEM_LISTS[] = {
     0x10101, 0x1052C02, 0x2EE0000, 0x17F0203,
     0x7F010101, 0x3902007F, 265,
 };
+#elif VERSION_EU
+s32 ITEM_LISTS[] = {
+    (s32)D_80041514, (s32)D_8004157C, (s32)D_80041624, (s32)D_8004171C,
+    (s32)D_800417B8, 0x3C0000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x202003C, 0x101016E,
+    0x10101, 0x1053902, 0x3C0000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x202003C,
+    0x101016E, 0x10101, 0x1053902, 0x3C0000,
+    0x16E0202, 0x1010101, 0x39020001, 261,
+    0x202003C, 0x101016E, 0x10101, 0x1053902,
+    0x3C0000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x202003C, 0x101016E, 0x10101,
+    0x1053902, 0x640000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x2020064, 0x101016E,
+    0x10101, 0x1053902, 0x640000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x2020064,
+    0x101016E, 0x10101, 0x1053902, 0x640000,
+    0x16E0202, 0x1010101, 0x39020001, 261,
+    0x2020064, 0x101016E, 0x10101, 0x1053902,
+    0x640000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x2020064, 0x101016E, 0x10101,
+    0x1053902, 0x820000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x2020064, 0x101016E,
+    0x10101, 0x1053902, 0x640000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x20200A0,
+    0x101016E, 0x10101, 0x1053902, 0xA00000,
+    0x16E0202, 0x1010101, 0x39020001, 261,
+    0x20200A0, 0x101016E, 0x10101, 0x1053902,
+    0xA00000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x20200A0, 0x101016E, 0x10101,
+    0x1053902, 0xA00000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x20200A0, 0x101016E,
+    0x10101, 0x1053902, 0xA00000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x20200A0,
+    0x101016E, 0x10101, 0x1053902, 0xC80000,
+    0x16E0202, 0x1010101, 0x39020001, 261,
+    0x2020082, 0x101016E, 0x10101, 0x1053902,
+    0xA00000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x20200A0, 0x101016E, 0x10101,
+    0x1053902, 0xF00000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x20200F0, 0x101016E,
+    0x10101, 0x1053902, 0xF00000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x20200F0,
+    0x101016E, 0x10101, 0x1053902, 0xF00000,
+    0x16E0202, 0x1010101, 0x39020001, 261,
+    0x20200F0, 0x101016E, 0x10101, 0x1053902,
+    0xF00000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x20200F0, 0x101016E, 0x10101,
+    0x1053902, 0xC80000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x20200C8, 0x101016E,
+    0x10101, 0x1053902, 0xF00000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x2020140,
+    0x101016E, 0x10101, 0x1053902, 0x1400000,
+    0x16E0202, 0x1010101, 0x39020001, 261,
+    0x2020140, 0x101016E, 0x10101, 0x1053902,
+    0x1400000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x20200F0, 0x101016E, 0x10101,
+    0x1053902, 0x1400000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x2020190, 0x101016E,
+    0x10101, 0x1053902, 0x1900000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x2020190,
+    0x101016E, 0x10101, 0x1053902, 0x4B0014,
+    0x27F0202, 0x1010130, 0x19020001, 0x14010B,
+    0x2020050, 0x1010164, 0x3C010B, 0x10B3902,
+    0x640014, 0x17F0202, 0x1010101, 0x39020001,
+    0x1E010B, 0x2030064, 0x120027F, 0x10101,
+    0x10B1902, 0x780016, 0x17F0202, 0x1010101,
+    0x39020001, 0x1E010B, 0x2030064, 0x120027F,
+    0x10101, 0x10B1902, 0x64001E, 0x47F0203,
+    0x1010120, 0x2C020001, 0x1E010B, 0x2030064,
+    0x120057F, 0x10101, 0x10B1702, 0x640028,
+    0x1640202, 0x1090101, 0x33020001, 0x26040B,
+    0x20200C8, 0x1010164, 0x3C010B, 0x10B3902,
+    0xC80028, 0x17F0202, 0x10A0101, 0x40020028,
+    0x3C010B, 0x203012C, 0x130027F, 0x10101,
+    0x10B4002, 0x12C003C, 0x27F0203, 0x1010130,
+    0x22020001, 0x28010B, 0x20200B4, 0x130067F,
+    0x10101, 0x10B2C02, 0x12C003C, 0x27F0203,
+    0x1010130, 0x3F020001, 0x2A010B, 0x20200B4,
+    0x130057F, 0x10101, 0x10B3902, 0xF00028,
+    0x17F0202, 0x50080101, 0x27020050, 0x24010B,
+    0x20200C8, 0x101017F, 0x10101, 0x10B3902,
+    0xB4002C, 0x67F0202, 0x1010130, 0x2C020001,
+    0x50010B, 0x2020078, 0x1400564, 0x10109,
+    0x30B3902, 0x8C004E, 0x1640202, 0x1090101,
+    0x3F020001, 0x50030B, 0x202008C, 0x1010164,
+    0x10109, 0x30B3902, 0x1F4005A, 0x77F0203,
+    0x1010140, 0x3F020001, 0x5A010B, 0x20301F4,
+    0x140077F, 0x10101, 0x10B3F02, 0x8C0054,
+    0x1640202, 0x1090101, 0x3F020001, 0x5A030B,
+    0x20301F4, 0x140027F, 0x10101, 0x10B4002,
+    0x12C0050, 0x17F0202, 0x1010401, 0x39020001,
+    0x70010B, 0x20300FA, 0x140017F, 0x15806,
+    0x10B3902, 0x12C005A, 0x87F0203, 0x11A0140,
+    0x26020020, 0x4E010B, 0x20200F0, 0x140077F,
+    0x10101, 0x10B3F02, 0x1F4005A, 0x67F0203,
+    0x1010140, 0x2E020001, 0x5A010B, 0x20301F4,
+    0x140087F, 0x10101, 0x10B4002, 0x190008C,
+    0x17F0202, 0x1010301, 0x1D020001, 0x88010B,
+    0x2020190, 0x501017F, 0x10101, 0x10B4002,
+    0x1400094, 0x17F0202, 0x7F050101, 0x3F02007F,
+    0x8C010B, 0x20201E0, 0x101017F, 0x10101,
+    0x10B4002, 0x1F40096, 0x17F0202, 0x1010101,
+    0x40020001, 0x8C010B, 0x2020140, 0x101017F,
+    0x60010A, 0x10B4002, 0x1E00096, 0x17F0203,
+    0x1010448, 0x39020001, 0x8C010B, 0x2020190,
+    0x301017F, 0x10101, 0x10B3902, 0x2580096,
+    0x47F0203, 0x1010148, 0x2A020001, 0x82010B,
+    0x2020154, 0x101017F, 0x7F7F02, 0x10B2602,
+    0x1A4008C, 0x87F0202, 0x1010140, 0x40020001,
+    0xB4010B, 0x2020280, 0x101017F, 0x10101,
+    0x10B4002, 0x2BC00D2, 0x87F0203, 0x1010148,
+    0x40020001, 0xC8010B, 0x20201E0, 0x140077F,
+    0x10101, 0x10B4002, 0x19000C8, 0x16E0202,
+    0x68060101, 0x39020001, 0xC8010B, 0x4040000,
+    0x1000164, 0x10115, 0x10B3902, 0x19000FA,
+    0x17F0202, 0x68030101, 0x3B020068, 0x118010B,
+    0x20201F4, 0x301017F, 0x10101, 0x10B4002,
+    0x12C00FA, 0x1640202, 0x1090101, 0x3F020001,
+    0x10E030B, 0x2030320, 0x148087F, 0x10101,
+    0x10B4002, 0x5A0012, 0x26E0202, 0x1010120,
+    0x19042101, 0x200106, 0x2020082, 0x140026E,
+    0x22010101, 0x1064005, 0x5A0012, 0x46E0202,
+    0x1010120, 0x2C0B2701, 0x200106, 0x2020082,
+    0x140046E, 0x28010101, 0x1062C0B, 0x5A0012,
+    0x56E0202, 0x1010120, 0x1D0E2A01, 0x300106,
+    0x20200A0, 0x140056E, 0x2B010101, 0x1061D0E,
+    0x5A0012, 0x66E0202, 0x1010120, 0x2C402D01,
+    0x200106, 0x20200A0, 0x140066E, 0x2E010101,
+    0x1062C10, 0x8C001A, 0x76E0202, 0x1010120,
+    0x3E113001, 0x300106, 0x20200A0, 0x140076E,
+    0x31010101, 0x1063E11, 0x4B0012, 0x16E0202,
+    0x48020101, 0x1A130050, 0x240106, 0x20200C8,
+    0x101016E, 0x605002, 0x1061A13, 0x4B0012,
+    0x16E0202, 0x50030101, 0x1A140050, 0x340106,
+    0x20200B4, 0x101016E, 0x606003, 0x1061A14,
+    0x4B0012, 0x16E0202, 0x50040101, 0x1B150050,
+    0x400106, 0x20200F0, 0x101016E, 0x7F7F04,
+    0x1061B15, 0x640030, 0x16E0202, 0x10A0101,
+    0x1E2E0028, 0x600106, 0x20200F0, 0x101016E,
+    0x40010A, 0x1061E2E, 0x64001E, 0x1640202,
+    0x1090101, 0x39020001, 0x3C0308, 0x20200F0,
+    0x1010164, 0x10109, 0x3083902, 0x8C0014,
+    0x1640202, 0x10B0101, 0x3B000028, 0x360106,
+    0x20200DC, 0x1010164, 0x40010B, 0x1063B00,
+    0x3C0012, 0x16E0202, 0x400C0101, 0x3A1F0001,
+    0x360106, 0x20200F0, 0x101016E, 0x1600C,
+    0x1063A1F, 0x640000, 0x1640202, 0x64080140,
+    0x271C0040, 262, 0x2020064, 0x1400164,
+    0x406408, 0x106271C, 0x820018, 0x16E0202,
+    0x1010801, 0x2B2C0001, 0x120106, 0x2020064,
+    0x701016E, 0x10101, 0x1061E2B, 0xA0001E,
+    0x16E0202, 0x1010A01, 0x39023601, 0x280106,
+    0x20200C8, 0x201016E, 0x35010101, 0x1062C0B,
+    0xD20030, 0x16E0202, 0x1010B01, 0x1E2D0001,
+    0x380106, 0x20200DC, 0x301016E, 0x10101,
+    0x1061E2A, 0x640014, 0x26E0203, 0x1010110,
+    0x19042101, 0x300109, 0x203012C, 0x120026E,
+    0x21010101, 0x1094005, 0x1F40048, 0x26E0203,
+    0x1010130, 0x40052201, 0xB40109, 0x20302BC,
+    0x140026E, 0x22010101, 0x1091403, 0x320019,
+    0x2640203, 0x1090110, 0x19042101, 0x3C030D,
+    0x2030096, 0x1200264, 0x21010109, 0x30D1403,
+    0xFA005A, 0x2640203, 0x1090130, 0x40052201,
+    0xC8030D, 0x203015E, 0x1400264, 0x22010109,
+    0x30D1403, 0x96001E, 0x36E0203, 0x1010118,
+    0x2E082401, 265, 0x203012C, 0x128036E,
+    0x10101, 0x1092E08, 0x12C0048, 0x36E0203,
+    0x1010130, 0x2E082501, 265, 0x20301F4,
+    0x140036E, 0x10101, 0x1092E08, 0x640014,
+    0x46E0203, 0x1010110, 0x2C0B2701, 0x300109,
+    0x20300C8, 0x120046E, 0x27010101, 0x1092A0A,
+    0xFA003C, 0x46E0203, 0x1010128, 0x2A0C2801,
+    0x480109, 0x203012C, 0x130046E, 0x28010101,
+    0x1092A0A, 0x640014, 0x56E0203, 0x1010110,
+    0x1D0E2A01, 0x1E0109, 0x20300C8, 0x118056E,
+    0x2B010101, 0x109260D, 0x1F40048, 0x56E0203,
+    0x1010130, 0x1D0E2B01, 0x140109, 0x2030064,
+    0x110066E, 0x2D010101, 0x1092C40, 0xC8001E,
+    0x66E0203, 0x1010118, 0x2C102D01, 0x300109,
+    0x203012C, 0x120066E, 0x2E010101, 0x1092C10,
+    0x1F40048, 0x66E0203, 0x1010130, 0x2E0F2E01,
+    0x380109, 0x2030190, 0x120076E, 0x30010101,
+    0x1093F12, 0x1C20040, 0x76E0203, 0x1010128,
+    0x40413001, 0x480109, 0x20301F4, 0x130076E,
+    0x31010101, 0x1093F12, 0x2580078, 0x76E0203,
+    0x1010140, 0x40413101, 0x140109, 0x2030064,
+    0x110086E, 0x33010101, 0x1091906, 0x12C0030,
+    0x86E0203, 0x1010120, 0x40073301, 0x780109,
+    0x2030258, 0x140086E, 0x34010101, 0x109143F,
+    0x2BC00B4, 0x86E0203, 0x1010148, 0x40073401,
+    0x3C0109, 0x2030096, 0x1200864, 0x33010109,
+    0x30D1D3E, 0xC80046, 0x8640203, 0x1090128,
+    0x1D3E3301, 0x96030D, 0x203012C, 0x1400864,
+    0x34010109, 0x30D4007, 0x15E00C8, 0x8640203,
+    0x1090148, 0x143F3401, 0x12030D, 0x203003C,
+    0x101016E, 0x504802, 0x1091A13, 0x168005A,
+    0x16E0203, 0x70020101, 0x1A13007F, 0x120109,
+    0x203003C, 0x101016E, 0x505003, 0x1091A14,
+    0x12C005A, 0x16E0203, 0x60030101, 0x1A140060,
+    0x280109, 0x20300B4, 0x101016E, 0x505004,
+    0x1091B15, 0x168005A, 0x16E0203, 0x7F040101,
+    0x1B15007F, 0x280109, 0x20300B4, 0x101016E,
+    0x505005, 0x1093216, 0xF0003C, 0x16E0203,
+    0x60050101, 0x32160060, 0x320109, 0x2030096,
+    0x101016E, 0x14806, 0x109321A, 0x15E00A0,
+    0x16E0203, 0x60060101, 0x321A0001, 0x120109,
+    0x2030064, 0x101016E, 0x405008, 0x109271C,
+    0x1F40048, 0x16E0203, 0x64080101, 0x271C007F,
+    0x100109, 0x3040008, 0x1000164, 0x8010F,
+    0x10A1F21, 0x20004A, 0x1640304, 0x10F0100,
+    0x1F210020, 0x78010A, 0x304007F, 0x1000164,
+    0x7F010F, 0x10A1F21, 0x2000BC, 0x1640404,
+    0x10F0100, 0x1F210020, 0xF0010A, 0x4040040,
+    0x1000164, 0x40010F, 0x10A1F21, 0x10052,
+    0x1640304, 0x1100100, 0x1F210001, 0x8010A,
+    0x3040000, 0x1000164, 0x10111, 0x10A1F22,
+    12, 0x1640404, 0x1110100, 0x1F220001,
+    0x8010A, 0x3040000, 0x1000164, 0x10112,
+    0x10A1F22, 12, 0x1640404, 0x1120100,
+    0x1F220001, 0xF010A, 0x3040000, 0x1000164,
+    0x10113, 0x10A1F22, 25, 0x1640404,
+    0x1130100, 0x1F220001, 0x14010A, 0x3040000,
+    0x1000164, 0x10114, 0x10A1F22, 37,
+    0x1640404, 0x1140100, 0x1F220001, 0x2A010A,
+    0x3050000, 0x1000164, 0x300116, 0x10A1F24,
+    84, 0x1640405, 0x1160100, 0x1F240040,
+    0x2A010A, 0x3050000, 0x1000164, 0x300117,
+    0x10A1F26, 84, 0x1640405, 0x1170100,
+    0x1F260040, 0x30010A, 0x3050000, 0x1000164,
+    0x200118, 0x10A1F28, 96, 0x1640405,
+    0x1180100, 0x1F280030, 266, 0x2050000,
+    0x1000164, 0x18011A, 0x1093125, 39,
+    0x1640205, 0x11B0100, 0x31270018, 0x4E0110,
+    0x2050000, 0x1000164, 0x30011B, 0x1103127,
+    41, 0x1640205, 0x11C0100, 0x31290010,
+    0x520110, 0x2050000, 0x1000164, 0x20011C,
+    0x1103129, 19, 0x1640305, 0x1190100,
+    0x272F0050, 0x31010A, 0x3050000, 0x1000164,
+    0x7F0119, 0x10A272F, 0, 0x1640205,
+    0x500D0100, 0x31170018, 266, 0x2050000,
+    0x1000164, 0x18500E, 0x1093118, 100,
+    0x2640106, 0x1010100, 0x39022240, 0x64010F,
+    0x1060000, 0x1000364, 0x25400101, 0x10F3902,
+    100, 0x4640106, 0x1010100, 0x39022840,
+    0x64010F, 0x1060000, 0x1000564, 0x2B400101,
+    0x10F3902, 100, 0x6640106, 0x1010100,
+    0x39022E40, 0x64010F, 0x1060000, 0x1000764,
+    0x31400101, 0x10F3902, 100, 0x8640106,
+    0x1010100, 0x39023440, 271, 0x2020032,
+    0x101016E, 0x10101, 0x1053902, 0x320000,
+    0x16E0202, 0x1010101, 0x39020001, 261,
+    0x2020035, 0x120036E, 0x10101, 0x1052D02,
+    0x3C0000, 0x36E0202, 0x1010120, 0x2D020001,
+    261, 0x2020082, 0x101016E, 0x10101,
+    0x1053302, 0x2D0000, 0x66E0202, 0x1010120,
+    0x2C020001, 261, 0x2020050, 0x101016E,
+    0x10101, 0x1053902, 0x3C0000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x2020035,
+    0x120066E, 0x10101, 0x1052C02, 0x460000,
+    0x16E0202, 0x1010101, 0x39020001, 261,
+    0x2020030, 0x101016E, 0x504802, 0x1052602,
+    0x500000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x202009E, 0x124086E, 0x10101,
+    0x1054002, 0x640000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x20200B4, 0x101016E,
+    0x10101, 0x1053902, 0x640000, 0x16E0202,
+    0x1010101, 0x3A020001, 261, 0x2020053,
+    0x120026E, 0x10101, 0x1054002, 0x530000,
+    0x26E0202, 0x1010120, 0x40020001, 261,
+    0x202006E, 0x101016E, 0x10101, 0x1053902,
+    0x820000, 0x16E0202, 0x1010101, 0x3D020001,
+    261, 0x2020062, 0x120036E, 0x10101,
+    0x1052D02, 0x690000, 0x86E0202, 0x1010120,
+    0x1B020001, 261, 0x202010E, 0x130086E,
+    0x10101, 0x1054002, 0xB40000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x2020096,
+    0x101016E, 0x10101, 0x1053902, 0xAD0000,
+    0x36E0202, 0x1010124, 0x2D020001, 261,
+    0x2020154, 0x101016E, 0x10101, 0x1053902,
+    0xFA0000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x20200F0, 0x128036E, 0x10101,
+    0x1052D02, 0x1520000, 0x36E0202, 0x1010140,
+    0x2D020001, 261, 0x2020122, 0x101016E,
+    0x10101, 0x1053902, 0xFA0000, 0x16E0202,
+    0x1010101, 0x3D020001, 261, 0x2020080,
+    0x124036E, 0x10101, 0x1052D02, 0x1180000,
+    0x16E0202, 0x1010101, 0x39020001, 261,
+    0x20200FA, 0x101016E, 0x10101, 0x1053902,
+    0xFA0000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x202010E, 0x101016E, 0x10101,
+    0x1053902, 0x1EA0000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x202012C, 0x101016E,
+    0x7F5002, 0x1051B02, 0x7A0000, 0x66E0202,
+    0x50050128, 0x2C020040, 261, 0x202010E,
+    0x101016E, 0x10101, 0x1053902, 0xE10000,
+    0x76E0202, 0x50030128, 0x3F020060, 261,
+    0x20200FF, 0x140076E, 0x10101, 0x1053F02,
+    0xD20000, 0x66E0202, 0x1010128, 0x2C020001,
+    261, 0x20200D2, 0x128076E, 0x10101,
+    0x1053E02, 0x1220000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x2020083, 0x128066E,
+    0x605003, 0x1052C02, 0xE10000, 0x86E0202,
+    0x1010128, 0x1A020001, 261, 0x20200E9,
+    0x128086E, 0x10101, 0x1053F02, 0x1860000,
+    0x86E0202, 0x1010140, 0x3F020001, 261,
+    0x2020186, 0x140086E, 0x10101, 0x1054002,
+    0x1400000, 0x16E0202, 0x1010101, 0x3D020001,
+    261, 0x2020140, 0x101016E, 0x10101,
+    0x1053B02, 0x17F0000, 0x76E0202, 0x1010140,
+    0x40020001, 261, 0x2020154, 0x101016E,
+    0x10101, 0x1053A02, 0x1070000, 0x76E0202,
+    0x1010140, 0x40020001, 261, 0x2020154,
+    0x101016E, 0x10101, 0x1053902, 0x10E0000,
+    0x86E0202, 0x1010130, 0x40020001, 261,
+    0x202019A, 0x101016E, 0x10101, 0x1053902,
+    0x1E00000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x2020186, 0x101016E, 0x10101,
+    0x1053902, 0x1AE0000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x2020190, 0x101016E,
+    0x10101, 0x1051B02, 0x1900000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x202012C,
+    0x101016E, 0x606002, 0x1053902, 0x1860000,
+    0x16E0202, 0x1010101, 0x40020001, 261,
+    0x2020134, 0x138076E, 0x10101, 0x1054002,
+    0x19A0000, 0x16E0202, 0x1010101, 0x3F020001,
+    261, 0x20201F4, 0x101016E, 0x10101,
+    0x1053902, 0xEC0000, 0x3640202, 0x1090138,
+    0x40020001, 517, 0x2020170, 0x140036E,
+    0x10101, 0x1052D02, 0x12C0000, 0x66E0202,
+    0x1010138, 0x1B020001, 261, 0x2020125,
+    0x138036E, 0x10101, 0x1052D02, 0x1340000,
+    0x26E0202, 0x1010138, 0x19020001, 261,
+    0x202014A, 0x138086E, 0x10101, 0x1054002,
+    0x19A0000, 0x16E0202, 0x1010101, 0x3B020001,
+    261, 0x2020159, 0x140076E, 0x10101,
+    0x1053E02, 0x1590000, 0x26E0202, 0x1010140,
+    0x40020001, 261, 0x2020159, 0x140026E,
+    0x10101, 0x1054002, 0x1CC0000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x2020159,
+    0x140046E, 0x10101, 0x1052A02, 0x1680000,
+    0x46E0202, 0x1010140, 0x2C020001, 261,
+    0x20201FE, 0x140077F, 0x40010A, 0x1053F02,
+    0x1E00000, 0x46E0202, 0x10A0140, 0x2A020040,
+    261, 0x2020195, 0x148026E, 0x10101,
+    0x1053F02, 0x1E00000, 0x16E0202, 0x1010101,
+    0x3A020001, 261, 0x20201E0, 0x101016E,
+    0x10101, 0x1053902, 0x1260000, 0x16E0202,
+    0x50050101, 0x32020060, 261, 0x2020170,
+    0x140076E, 0x10101, 0x1053E02, 0x1EA0000,
+    0x16E0202, 0x1010101, 0x3B020001, 261,
+    0x2020168, 0x140036E, 0x10101, 0x1052D02,
+    0x1E00000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x20201EA, 0x101016E, 0x10101,
+    0x1053902, 0x1EA0000, 0x16E0202, 0x1010101,
+    0x3F020001, 261, 0x20201BB, 0x160076E,
+    0x10101, 0x1054002, 0x21C0000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x20201F4,
+    0x101017F, 0x10101, 0x1053902, 0x1F40000,
+    0x16E0202, 0x1010101, 0x39020001, 261,
+    0x20201EA, 0x101016E, 0x10101, 0x1053D02,
+    0x1F40000, 0x16E0202, 0x1010101, 0x3B020001,
+    261, 0x20201F4, 0x101016E, 0x10101,
+    0x1053D02, 0x2580000, 0x16E0202, 0x1010101,
+    0x2C020001, 261, 0x2020186, 0x148026E,
+    0x10101, 0x1053F02, 0x18E0000, 0x66E0202,
+    0x1010148, 0x2C020001, 261, 0x20201CA,
+    0x160086E, 0x10101, 0x1053F02, 0x1250000,
+    0x7640202, 0x1090148, 0x3F020001, 517,
+    0x2020258, 0x101016E, 0x10101, 0x1053B02,
+    0x2620000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x202021C, 0x101016E, 0x10101,
+    0x1053B02, 0x1C20000, 0x26E0202, 0x1010160,
+    0x3F020001, 261, 0x20201CA, 0x160086E,
+    0x10101, 0x1054002, 0x8C0000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x202015E,
+    0x101016E, 0x10101, 0x1053902, 0x820000,
+    0x16E0202, 0x1010101, 0x39020001, 261,
+    0x202009C, 0x101016E, 0x604802, 0x1052602,
+    0x10E0000, 0x16E0202, 0x10A0101, 0x39020040,
+    261, 0x202017C, 0x101016E, 0x10101,
+    0x1053902, 0x17C0000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x20200F0, 0x101016E,
+    0x505008, 0x1052702, 0x1590000, 0x26E0202,
+    0x1010140, 0x40020001, 261, 0x2020104,
+    0x101016E, 0x10101, 0x1053902, 0x13B0000,
+    0x86E0202, 0x1010138, 0x40020001, 261,
+    0x202010E, 0x101016E, 0x10101, 0x1053902,
+    0x19A0000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x20201A4, 0x101016E, 0x10101,
+    0x1053D02, 0x1900000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x2020208, 0x101016E,
+    0x10101, 0x1053902, 0x1D60000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x202017F,
+    0x140066E, 0x10101, 0x1052C02, 0x2120000,
+    0x16E0202, 0x1010101, 0x39020001, 261,
+    0x202017F, 0x140076E, 0x10101, 0x1054002,
+    0xD80000, 0x16E0202, 0x11B0101, 0x3D020010,
+    261, 0x20201B8, 0x101016E, 0x10101,
+    0x1051A02, 0x1680000, 0x46E0202, 0x1010140,
+    0x2A020001, 261, 0x2020168, 0x140026E,
+    0x10101, 0x1051A02, 0x1260000, 0x16E0202,
+    0x11B0101, 0x3D020010, 261, 0x20201C2,
+    0x101016E, 0x10101, 0x1053D02, 0x1680000,
+    0x86E0202, 0x1010140, 0x3B020001, 261,
+    0x2020177, 0x140076E, 0x10101, 0x1054002,
+    0x1720000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x20201C2, 0x101016E, 0x10101,
+    0x1053902, 0x2120000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x202019A, 0x101016E,
+    0x10101, 0x1053902, 0x1CC0000, 0x16E0202,
+    0x60080101, 0x27020060, 261, 0x2020208,
+    0x101016E, 0x10101, 0x1053902, 0x1700000,
+    0x66E0202, 0x1010140, 0x1B020001, 261,
+    0x202018E, 0x140036E, 0x10101, 0x1052D02,
+    0x18E0000, 0x26E0202, 0x1010148, 0x19020001,
+    261, 0x2020170, 0x140076E, 0x10101,
+    0x1053E02, 0x18E0000, 0x26E0202, 0x1010148,
+    0x40020001, 261, 0x2020186, 0x148046E,
+    0x10101, 0x1052A02, 0x24E0000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x202024E,
+    0x101016E, 0x10101, 0x1053902, 0x21C0000,
+    0x16E0202, 0x1010101, 0x39020001, 0x640105,
+    0x20201F4, 0x100017F, 0x10101, 0x10C4002,
+    200, 0x17F0404, 0x7F240100, 0x3902007F,
+    0xA0010C, 0x2020168, 0x130077F, 0x10101,
+    0x10C4002, 0x35200F0, 0x17F0202, 0x1010100,
+    0x40020001, 0xFA010C, 0x2020244, 0x300017F,
+    0x10101, 0x10C4002, 0x2580140, 0x27F0203,
+    0x1010148, 0x40020001, 0x104010C, 0x20203E7,
+    0x100017F, 0x10101, 0x10C4002, 0xAA0000,
+    0x16E0202, 0x1010101, 0x3B020001, 261,
+    0x2020066, 0x101016E, 0x585002, 0x1093902,
+    0x850000, 0x1640202, 0x10B0101, 0x39020030,
+    261, 0x20300BE, 0x120026E, 0x10101,
+    0x1094002, 0x1160000, 0x76E0202, 0x1010138,
+    0x40020001, 0x460105, 0x20300B9, 0x1280764,
+    0x14006, 0x1094002, 0x1160000, 0x86E0202,
+    0x1010140, 0x40020001, 261, 0x20300DE,
+    0x101016E, 0x18011A, 0x1093102, 0x730000,
+    0x7640202, 0x1090138, 0x3F020001, 1029,
+    0x20200A1, 0x1010164, 0x10109, 0x4053902,
+    20, 0x17F0205, 0x60070100, 0x39020001,
+    265, 0x2050000, 0x100017F, 0x8011D,
+    0x10A2702, 0x1520000, 0x87F0202, 0x1230140,
+    0x3F020001, 261, 0x20200A9, 0x140086E,
+    0x14806, 0x1064002, 0x1700000, 0x76E0202,
+    0x1010140, 0x40020001, 261, 0x2020170,
+    0x140036E, 0x10101, 0x1093902, 0x2440000,
+    0x16E0202, 0x1010101, 0x3B020001, 261,
+    0x20201B3, 0x1010150, 0x10109, 0x20B3902,
+    0x1E80000, 0x76E0202, 0x1010160, 0x40020001,
+    261, 0x3050008, 0x1000164, 0x8011E,
+    0x10A1F02, 0x28A0000, 0x67F0202, 0x10A0140,
+    0x39020060, 265, 0x202026C, 0x101016E,
+    0x10101, 0x1053B02, 0x1460000, 0x56E0202,
+    0x10B0140, 0x3902003C, 262, 0x202026C,
+    0x101016E, 0x10101, 0x1053902, 0x26C0000,
+    0x67F0203, 0x1010148, 0x2C020001, 265,
+    0x2030136, 0x148017F, 0x1011F, 0x10A3902,
+    0xAE0000, 0x7500202, 0x1090160, 0x40020001,
+    1029, 0x20201F4, 0x101016E, 0x10101,
+    0x1053902, 0x1FE0000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x2020258, 0x101016E,
+    0x10101, 0x1053902, 0x2440000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x2020208,
+    0x101016E, 0x10101, 0x1053902, 0x14A0000,
+    0x16E0202, 0x1010101, 0x39020001, 261,
+    0x20200DC, 0x101016E, 0x10101, 0x1053902,
+    0xF00000, 0x16E0202, 0x1010101, 0x39020001,
+    261, 0x2020136, 0x101016E, 0x10101,
+    0x1053902, 0x14A0000, 0x16E0202, 0x1010101,
+    0x39020001, 261, 0x202014A, 0x101016E,
+    0x10101, 0x1053902, 0x1540000, 0x16E0202,
+    0x1010101, 0x39020001, 261, 0x202014A,
+    0x101016E, 0x10101, 0x1053902, 0x780000,
+    0x16E0202, 0x30200101, 0x39020002, 261,
+    0x20200AA, 0x101016E, 0x23020, 0x1053902,
+    0xDC0000, 0x16E0202, 0x38210101, 0x39020003,
+    261, 0x2020140, 0x101016E, 0x33821,
+    0x1053902, 0x1A40000, 0x16E0202, 0x40210101,
+    0x39020006, 261, 0x20201D6, 0x101016E,
+    0x64021, 0x1053902, 0x2080000, 0x16E0202,
+    0x48220101, 0x39020008, 261, 0x2020208,
+    0x101016E, 0x84822, 0x1053902, 0x1740000,
+    0x1640202, 0x40030101, 0x3902007F, 261,
+    0x2030174, 0x101016E, 0x20400D, 0x1093102,
+    0xC60000, 0x17F0202, 0x11D0101, 0x27020008,
+    0x500105, 0x20300A0, 0x140027F, 0x10101,
+    0x10C3F02, 0xA00050, 0x77F0203, 0x1010140,
+    0x40020001, 0x1E0010C, 0x2030320, 0x17F027F,
+    0x7F7F1A, 0x10C4002, 0x2BC0000, 0x17F0202,
+    0x1010101, 0x40020001, 265, 0x2020384,
+    0x1010164, 0x10101, 0x1053902, 0x2EE0000,
+    0x17F0202, 0x1010101, 0x40020001, 265,
+    0x20302EE, 0x17F057F, 0x10101, 0x1051D02,
+    0x2EE0000, 0x17F0202, 0x1010101, 0x3902007F,
+    262, 0x20302EE, 0x101017F, 0x7F7F01,
+    0x1093902, 0x1360000, 0x37F0203, 0x1010148,
+    0x2E020001, 261, 0x2030136, 0x148067F,
+    0x10101, 0x1052C02, 0x2EE0000, 0x17F0203,
+    0x7F010101, 0x3902007F, 265,
+};
+#endif
 s32 CD_READER[] = {
     0, 0, 0, 0,
     0, 0,
 };
+#if VERSION_US
 s32 D_80044728[] = {
+#elif VERSION_EU
+s32 D_80044B1C[] = {
+#endif
     0, 0,
 };
+#if VERSION_US
 s32 D_80044730[] = {
+#elif VERSION_EU
+s32 D_80044B24[] = {
+#endif
     0, 0, 0, (s32)isCdReading,
     (s32)readFile,
 };
@@ -2902,6 +5246,7 @@ s32 FILE_CACHE_LOAD[] = {
 s32 FILE_CACHE_GET_ENTRY[] = {
     (s32)getFileEntry, (s32)getArchiveEntry, (s32)markCachedFiles, (s32)touchMarkedFiles,
 };
+#if VERSION_US
 s32 FILE_SECTORS[] = {
     1611, 3244, 3810, 2180,
     2446, 2978, 2712, 3544,
@@ -3734,10 +6079,918 @@ u16 FILE_SECTOR_COUNTS[] = {
 s32 FILE_TABLE[] = {
     (s32)fileExists, (s32)getFileSectorCount, (s32)getFileSector, (s32)getFilePos,
 };
+#elif VERSION_EU
+s32 FILE_SECTORS[] = {
+    1731, 3630, 4223, 2301,
+    2641, 3319, 2987, 3895,
+    3631, 4224, 2302, 2642,
+    3320, 2988, 3896, 3632,
+    4225, 2303, 2643, 3321,
+    2989, 3897, 3633, 4226,
+    2304, 2645, 3322, 2990,
+    3899, 3636, 4229, 2307,
+    2648, 3325, 2993, 3902,
+    3638, 4232, 2310, 2651,
+    3328, 2996, 3905, 3639,
+    4233, 2311, 2652, 3329,
+    2997, 3906, 3640, 4235,
+    2313, 2654, 3331, 2999,
+    3908, 3641, 4236, 2314,
+    2655, 3332, 3000, 3909,
+    3642, 4237, 2315, 2656,
+    3333, 3001, 3910, 3643,
+    4238, 2316, 2657, 3334,
+    3002, 3911, 3644, 4240,
+    2318, 2659, 3336, 3004,
+    3913, 3715, 4327, 2412,
+    2755, 3419, 3097, 4003,
+    3716, 4328, 2413, 2756,
+    3420, 3098, 4004, 3717,
+    4329, 2414, 2757, 3421,
+    3099, 4005, 3722, 4337,
+    2422, 2765, 3429, 3106,
+    4013, 3725, 4341, 2426,
+    2769, 3433, 3110, 4017,
+    3726, 4342, 2427, 2770,
+    3434, 3111, 4018, 3727,
+    4343, 2428, 2771, 3435,
+    3112, 4019, 3729, 4345,
+    2430, 2773, 3437, 3114,
+    4021, 3730, 4346, 2431,
+    2774, 3438, 3115, 4022,
+    3731, 4347, 2432, 2775,
+    3439, 3116, 4023, 3732,
+    4348, 2433, 2776, 3440,
+    3117, 4024, 3735, 4352,
+    2437, 2780, 3444, 3121,
+    4028, 3738, 4355, 2440,
+    2783, 3447, 3124, 4031,
+    3739, 4356, 2441, 2784,
+    3448, 3125, 4032, 3740,
+    4358, 2443, 2786, 3450,
+    3127, 4034, 3741, 4360,
+    2445, 2788, 3452, 3129,
+    4036, 3742, 4361, 2446,
+    2789, 3453, 3130, 4037,
+    3757, 4380, 2465, 2808,
+    3470, 3148, 4055, 3771,
+    4398, 2483, 2826, 3486,
+    3165, 4072, 3788, 4419,
+    2504, 2848, 3505, 3185,
+    4091, 3802, 4437, 2522,
+    2867, 3521, 3202, 4108,
+    3815, 4453, 2538, 2883,
+    3535, 3218, 4123, 3831,
+    4474, 2559, 2904, 3554,
+    3239, 4143, 3850, 4498,
+    2583, 2928, 3575, 3262,
+    4166, 3870, 4522, 2607,
+    2952, 3597, 3285, 4189,
+    3876, 4523, 2616, 2961,
+    3606, 3294, 4198, 3891,
+    4524, 2637, 2983, 3626,
+    3315, 4219, 3646, 4242,
+    2320, 2661, 3338, 3006,
+    3915, 3657, 4257, 2336,
+    2677, 3352, 3022, 3930,
+    3665, 4266, 2345, 2687,
+    3360, 3031, 3939, 3668,
+    4271, 2350, 2692, 3364,
+    3036, 3943, 3678, 4285,
+    2364, 2706, 3376, 3049,
+    3956, 3682, 4290, 2369,
+    2711, 3380, 3054, 3961,
+    3688, 4297, 2376, 2718,
+    3386, 3061, 3968, 3694,
+    4304, 2383, 2725, 3392,
+    3068, 3975, 3701, 4314,
+    2393, 2735, 3401, 3078,
+    3984, 3707, 4322, 2401,
+    2744, 3408, 3086, 3992,
+    3710, 4326, 2405, 2748,
+    3412, 3090, 3996, 15623,
+    4583, 486, 769, 16183,
+    18705, 557, 560, 610,
+    688, 709, 21748, 21839,
+    21895, 21999, 22026, 22056,
+    22147, 22211, 22979, 23649,
+    23857, 23964, 24073, 21763,
+    21853, 21907, 22008, 22035,
+    22067, 22167, 22220, 22989,
+    23677, 23863, 23967, 24076,
+    715, 724, 4608, 4643,
+    4707, 4734, 4756, 4778,
+    4806, 4833, 4859, 4887,
+    4927, 4970, 5274, 5429,
+    5784, 5795, 25936, 6307,
+    27980, 6431, 29082, 6506,
+    30537, 6625, 30827, 6654,
+    31133, 6676, 31765, 6744,
+    32123, 6779, 32287, 6815,
+    32649, 6856, 33011, 6877,
+    33229, 6922, 33535, 6969,
+    33762, 7004, 34324, 7032,
+    41181, 7413, 43783, 7479,
+    47069, 7611, 48511, 7645,
+    50577, 7748, 52119, 7798,
+    0x10BBB, 8551, 0x1209D, 8744,
+    0x209F4, 11154, 0x20A7C, 11169,
+    0x20B55, 11194, 730, 685,
+    692, 15983, 748, 678,
+    782, 795, 972, 987,
+    994, 1016, 1023, 1027,
+    1034, 1039, 1041, 1047,
+    1050, 1054, 1065, 1073,
+    1075, 1132, 1141, 1155,
+    1160, 1171, 1174, 1233,
+    1258, 1494, 1501, 1505,
+    808, 1193, 835, 1166,
+    1229, 1267, 847, 15062,
+    15224, 15296, 16301, 16644,
+    16904, 16929, 17411, 17505,
+    17755, 17852, 18083, 18875,
+    19120, 23233, 24113, 23244,
+    24117, 868, 889, 903,
+    953, 964, 977, 980,
+    985, 991, 16617, 21948,
+    23177, 21954, 23188, 22726,
+    22737, 1263, 22105, 1003,
+    1006, 22117, 57725, 7946,
+    1298, 1169, 49633, 7689,
+    1334, 0x109C5, 8527, 1300,
+    16017, 22262, 17079, 22833,
+    23326, 23932, 24546, 22277,
+    22841, 23337, 23935, 24555,
+    1013, 0x12779, 8813, 0x125C7,
+    1015, 8792, 1226, 22319,
+    22327, 50035, 7714, 0x14C65,
+    9136, 1206, 1326, 18150,
+    18184, 22360, 22367, 0x16E09,
+    9447, 19216, 22408, 22416,
+    15774, 19244, 0x14E97, 9159,
+    0x10847, 1313, 1021, 15510,
+    1025, 1029, 1030, 1032,
+    8483, 15266, 63609, 8137,
+    15657, 18110, 22460, 22470,
+    16678, 1733, 24842, 1751,
+    22519, 22536, 15311, 15539,
+    15397, 15556, 15593, 15577,
+    15693, 15712, 15732, 15754,
+    16161, 15089, 15133, 16369,
+    1036, 18732, 16322, 22637,
+    22645, 0x163D4, 9363, 17207,
+    0x15483, 9236, 15441, 23079,
+    23094, 15106, 16263, 1037,
+    25032, 25099, 25199, 25294,
+    25637, 25721, 2261, 2268,
+    21385, 21386, 21395, 21397,
+    24809, 24814, 16343, 16401,
+    33120, 6889, 1052, 0x158BD,
+    9270, 1317, 16451, 15183,
+    22576, 22592, 16477, 1038,
+    15470, 21368, 21370, 16213,
+    1040, 15961, 16870, 39577,
+    7333, 1123, 16055, 0x1DC89,
+    10639, 1440, 15833, 35550,
+    7103, 1085, 17570, 0x17819,
+    9554, 1338, 16425, 17811,
+    34596, 7060, 1081, 31911,
+    6768, 1046, 54321, 7838,
+    1179, 1049, 1063, 15493,
+    19333, 16098, 6778, 6403,
+    21415, 4527, 4530, 1071,
+    22674, 22867, 22926, 23127,
+    22684, 22882, 22938, 23138,
+    17689, 7794, 7474, 15670,
+    17340, 8774, 6616, 15905,
+    6990, 18213, 16817, 17114,
+    16235, 17138, 23283, 23294,
+    15424, 16134, 5127, 5196,
+    5060, 5051, 5070, 5079,
+    5089, 5117, 5098, 5108,
+    5136, 5151, 5158, 5144,
+    5165, 5182, 5175, 5189,
+    5206, 5220, 5215, 5224,
+    4962, 5005, 5914, 5899,
+    5928, 5940, 5955, 17159,
+    16278, 17382, 25388, 25459,
+    25811, 5979, 17183, 17482,
+    17279, 17255, 5257, 5572,
+    5574, 5576, 5476, 5463,
+    5469, 5456, 5441, 5449,
+    5416, 5422, 5410, 5304,
+    5308, 5290, 5294, 5266,
+    5235, 10620, 6274, 7930,
+    11120, 9431, 6479, 6788,
+    9529, 8506, 7317, 5648,
+    7397, 1074, 1079, 17300,
+    6893, 7045, 7088, 7826,
+    8470, 11172, 17639, 22774,
+    22789, 19429, 17324, 6350,
+    27338, 6371, 1083, 6577,
+    29895, 6592, 1087, 6764,
+    17662, 7229, 37913, 7247,
+    1107, 6690, 31423, 6711,
+    1089, 7190, 37591, 7206,
+    1097, 7141, 36489, 7155,
+    1092, 18585, 17734, 5378,
+    5386, 5364, 5349, 5371,
+    5356, 5335, 5318, 5345,
+    5314, 5323, 23904, 23917,
+    23907, 23920, 0x12024, 8727,
+    1254, 0x1282F, 8845, 1270,
+    15640, 17593, 1091, 1095,
+    1105, 1113, 18275, 17052,
+    5557, 5565, 5551, 5533,
+    5545, 5526, 5530, 5490,
+    5497, 5483, 5399, 8564,
+    0x10D25, 8568, 1235, 23996,
+    24017, 24000, 24020, 16077,
+    15864, 5504, 5655, 5658,
+    5651, 5625, 5639, 5577,
+    5600, 5585, 5592, 8666,
+    0x11A1E, 8681, 1249, 17524,
+    15206, 16501, 6670, 8611,
+    0x1115C, 8619, 1243, 8170,
+    0x10113, 8175, 1211, 18906,
+    7490, 44625, 7503, 1146,
+    7537, 45467, 7555, 1150,
+    1119, 1121, 24038, 24059,
+    24133, 24166, 24202, 24041,
+    24062, 24136, 24169, 24205,
+    8932, 0x13281, 8943, 1278,
+    17614, 17547, 15792, 24241,
+    24272, 24299, 24244, 24275,
+    24302, 9184, 0x15049, 9202,
+    1305, 9063, 0x141C1, 9068,
+    1288, 4670, 4673, 4694,
+    4702, 6645, 6736, 6844,
+    6870, 6881, 6955, 7022,
+    7606, 7634, 7682, 7708,
+    7730, 8123, 8811, 9129,
+    9150, 9232, 9258, 9339,
+    8546, 8730, 11156, 5806,
+    5716, 5722, 5737, 5698,
+    5705, 5690, 5679, 5683,
+    5673, 5676, 5660, 5670,
+    24330, 24359, 24378, 24397,
+    24432, 24455, 24334, 24362,
+    24381, 24400, 24435, 24458,
+    5774, 8986, 0x13AB7, 9014,
+    1283, 5894, 21462, 21464,
+    21469, 21472, 1126, 1128,
+    8016, 60247, 8031, 1198,
+    9086, 0x14583, 9096, 1291,
+    17006, 5653, 5883, 5642,
+    5628, 5645, 5632, 5636,
+    5612, 5621, 5516, 5568,
+    5327, 16116, 15353, 17882,
+    19190, 16711, 0x1840E, 9660,
+    9684, 1345, 5510, 18798,
+    19571, 19641, 18368, 19738,
+    5617, 5607, 19799, 19885,
+    20099, 20122, 7166, 37040,
+    7180, 1130, 23021, 24477,
+    23038, 24482, 19914, 19779,
+    19819, 20260, 24946, 25543,
+    19593, 20202, 20168, 18991,
+    19688, 19715, 20284, 19843,
+    20464, 20414, 20954, 21205,
+    1137, 20983, 21054, 18764,
+    17446, 19396, 17786, 20148,
+    20919, 12950, 12952, 20795,
+    18945, 16002, 20881, 23595,
+    23605, 21021, 20827, 8713,
+    1144, 1148, 1153, 1158,
+    21095, 21173, 15242, 17710,
+    18417, 16945, 15410, 15886,
+    9369, 0x166FF, 9388, 1329,
+    21788, 23378, 21799, 23390,
+    1164, 19979, 20003, 20027,
+    20051, 20075, 19308, 15814,
+    15927, 17232, 1168, 9715,
+    0x187E4, 9726, 1349, 9890,
+    0x19984, 9895, 1366, 9991,
+    0x1A43A, 9996, 10011, 0x1A5EC,
+    10016, 1377, 1383, 19868,
+    20326, 20441, 10021, 0x1A6C5,
+    10029, 1385, 0x1BA13, 10267,
+    10264, 1407, 10058, 0x1AA27,
+    10074, 1389, 10127, 0x1AF81,
+    10141, 1394, 6514, 29398,
+    6542, 1170, 10191, 0x1B493,
+    10200, 1398, 6441, 28531,
+    6469, 1173, 10358, 0x1C3C7,
+    10372, 1416, 6680, 31278,
+    6686, 1177, 6658, 30988,
+    6666, 1182, 0x19C7A, 15166,
+    20312, 15323, 19539, 9910,
+    9924, 1370, 10420, 0x1C670,
+    10429, 10280, 0x1BB55, 10310,
+    1411, 1423, 23824, 23831,
+    6549, 29714, 6574, 1184,
+    6771, 32017, 6775, 1189,
+    1196, 16523, 6750, 31838,
+    6758, 1203, 6713, 31604,
+    6734, 1209, 6630, 30682,
+    6640, 1213, 6859, 32830,
+    6867, 6819, 32468, 6840,
+    6783, 32205, 6784, 1214,
+    1218, 1223, 19762, 18325,
+    5013, 5044, 5037, 5713,
+    5524, 5868, 6072, 7873,
+    7885, 1228, 16741, 7110,
+    35901, 7125, 1231, 9877,
+    0x1981A, 9885, 1364, 9837,
+    0x193DC, 9845, 9864, 0x196B0,
+    9872, 9851, 0x19546, 9859,
+    1358, 1360, 1362, 8578,
+    0x10F02, 8587, 1238, 55923,
+    1234, 7035, 34460, 7042,
+    1237, 9598, 0x17A73, 9611,
+    1341, 7067, 35101, 7081,
+    1241, 26637, 6342, 6315,
+    1247, 6929, 33390, 6949,
+    1252, 6378, 27659, 6396,
+    1261, 7008, 34043, 7018,
+    1265, 6596, 30216, 6612,
+    1269, 16795, 15605, 16554,
+    7392, 41020, 7394, 7251,
+    38184, 7271, 7342, 40208,
+    7358, 7137, 36353, 7139,
+    7210, 37752, 7225, 1275,
+    1281, 1286, 1290, 1295,
+    10226, 0x1B789, 10233, 1402,
+    1299, 5841, 9278, 0x15A80,
+    9280, 1319, 19275, 16769,
+    16843, 20373, 20345, 9953,
+    0x19F4C, 9968, 1372, 23428,
+    23440, 19662, 19615, 20395,
+    17028, 16037, 18249, 7436,
+    42482, 7450, 1303, 7296,
+    39016, 7310, 1308, 7483,
+    44204, 7486, 1315, 7514,
+    45046, 7525, 1322, 7576,
+    46268, 7585, 1324, 8798,
+    0x126A0, 8805, 1332, 7851,
+    55122, 7861, 1336, 7718,
+    50306, 7724, 1340, 7812,
+    53220, 7813, 1343, 7901,
+    56824, 7914, 1347, 7974,
+    58986, 7988, 1351, 7695,
+    49834, 7702, 1353, 1356,
+    8071, 61928, 8083, 1359,
+    8534, 0x10AC0, 8539, 1361,
+    8488, 0x10910, 8501, 1363,
+    8596, 0x1102F, 8602, 1365,
+    8555, 0x10C70, 8560, 1368,
+    8179, 0x10254, 8184, 1371,
+    8754, 0x12332, 8764, 1375,
+    9075, 0x143A2, 9079, 1382,
+    9026, 0x13E3C, 9051, 1387,
+    8960, 0x1369C, 8970, 1392,
+    9139, 0x14D7E, 9146, 1396,
+    9108, 0x148F4, 9118, 1400,
+    9167, 0x14F70, 9176, 1404,
+    9288, 0x15C43, 9300, 1409,
+    9406, 0x16A84, 9413, 1414,
+    9564, 0x17946, 9588, 1419,
+    9695, 0x185F9, 9704, 1421,
+    9737, 0x18A01, 9748, 1425,
+    1426, 9482, 0x17311, 9495,
+    1428, 9861, 0x195FB, 9862,
+    1430, 9847, 0x19491, 9849,
+    1432, 9887, 0x198CF, 9888,
+    1434, 9874, 0x19765, 9875,
+    1435, 8640, 0x115BD, 8646,
+    1436, 8878, 0x12D58, 8899,
+    1438, 10439, 0x1C833, 10448,
+    1443, 10542, 0x1D234, 10556,
+    1445, 21435, 21436, 1447,
+    1449, 16974, 19033, 18444,
+    18494, 7132, 36217, 7134,
+    1452, 9900, 0x19AFF, 9905,
+    1455, 10001, 0x1A513, 10006,
+    1457, 9931, 0x19DE3, 9946,
+    1459, 10041, 0x1A876, 10046,
+    1461, 9975, 0x1A1C3, 9985,
+    1463, 10272, 0x1BAB4, 10275,
+    10486, 10210, 0x1B60E, 10216,
+    0x1CCF9, 10245, 0x1B8CE, 10252,
+    10495, 10161, 0x1B20A, 10171,
+    1466, 10096, 0x1ACB0, 10106,
+    8820, 24511, 24515, 10401,
+    0x1C63F, 10418, 21441, 10457,
+    0x1C9F6, 10468, 21444, 10570,
+    0x1D46C, 10573, 19161, 10580,
+    0x1D52E, 10584, 18302, 5856,
+    6013, 6067, 6040, 18028,
+    18681, 20564, 18835, 1469,
+    1472, 1475, 1478, 1481,
+    1485, 1487, 1489, 1491,
+    10656, 0x1DF8C, 10672, 1507,
+    10381, 0x1C503, 10393, 1510,
+    10320, 0x1BF8E, 10348, 1515,
+    10575, 0x1D4CD, 10578, 1519,
+    10735, 0x1E5B1, 10759, 1524,
+    11248, 0x21475, 11256, 1527,
+    10770, 0x1E756, 10778, 1531,
+    10824, 0x1EC1D, 10835, 1535,
+    20531, 20755, 10713, 0x1E420,
+    10721, 1537, 10601, 0x1D90D,
+    10603, 1542, 10806, 0x1EA8C,
+    10815, 1546, 11729, 0x22645,
+    11730, 1574, 11732, 0x22736,
+    11733, 11736, 0x2287B, 11737,
+    11740, 0x22A11, 11741, 11744,
+    0x22BA7, 11745, 1581, 1590,
+    1599, 1608, 11527, 0x219A3,
+    11551, 1550, 10789, 0x1E8FB,
+    10797, 1552, 7621, 47790,
+    7624, 1556, 7658, 49072,
+    7669, 1558, 11717, 0x22493,
+    11720, 1568, 11723, 0x2256C,
+    11726, 20699, 9211, 0x15266,
+    9223, 10850, 0x1ED63, 10859,
+    7760, 51348, 7778, 11014,
+    0x1FC2D, 11027, 9630, 0x17F7B,
+    9641, 10837, 0x1ECC0, 10848,
+    10879, 0x1F019, 10888, 16578,
+    18464, 10989, 0x1F9B6, 10996,
+    11032, 0x1FD28, 11050, 11059,
+    0x20049, 11077, 11103, 0x206DB,
+    11110, 13128, 14414, 10908,
+    0x1F2CF, 10923, 14513, 11653,
+    0x21FE0, 11664, 14541, 11579,
+    0x21BFD, 11596, 19079, 8691,
+    0x11D21, 8703, 10966, 11260,
+    0x2154E, 11278, 10973, 11668,
+    0x22149, 11698, 11196, 11706,
+    0x223A2, 11713, 11206, 9308,
+    0x15E06, 9321, 11216, 8571,
+    0x10E20, 8575, 11233, 11558,
+    0x21A94, 11575, 17914, 11631,
+    0x21E9F, 11648, 17946, 6972,
+    33656, 6987, 14081, 8816,
+    0x127D4, 8818, 14097, 17974,
+    0x1F73F, 18004, 14117, 11514,
+    0x21867, 11520, 14132, 11086,
+    0x2036A, 11093, 14156, 18055,
+    18648, 21287, 18344, 20633,
+    18390, 0x20C1E, 18529, 14174,
+    18558, 0x21057, 18624, 14196,
+    19362, 19931, 19465, 20662,
+    19503, 20599, 19961, 20488,
+    24650, 24701, 24658, 24710,
+    10689, 0x1E28F, 10699, 14216,
+    21307, 20229, 20513, 1617,
+    5985, 5999, 5023, 6107,
+    6070, 20732, 8148, 64710,
+    8159, 14243, 7275, 38455,
+    7289, 11601, 0x21D3E, 11625,
+    9245, 0x156A0, 9249, 10937,
+    0x1F507, 10952, 14265, 14285,
+    14308, 14339, 20861, 21140,
+    21240, 21245, 13530, 21250,
+    13539, 14364, 8409, 8384,
+    14391, 21256, 21262, 7366,
+    40839, 7389, 21268, 21275,
+    21281, 8188, 8286, 21332,
+    10513, 0x1CFFC, 10529, 13484,
+    21421, 21423, 13548, 13251,
+    11465, 11301, 11501, 14433,
+    9799, 0x18FFD, 9818, 14456,
+    15034, 13512, 9758, 0x18C1E,
+    9778, 14471, 8411, 0x10395,
+    8434, 8440, 0x105EE, 8463,
+    14497, 13104, 13246, 13084,
+    13162, 13194, 13200, 13215,
+    13303, 14564, 6116, 6128,
+    6140, 5880, 5882, 14580,
+    14605, 21483, 21485, 21571,
+    21573, 12967, 12899, 21453,
+    21454, 24582, 24588, 13006,
+    2242, 13181, 13372, 5816,
+    6154, 6115, 6114, 14629,
+    23484, 6099, 12916, 14645,
+    14670, 14677, 14703, 14718,
+    14725, 14735, 14747, 14765,
+    14775, 14786, 14803, 14813,
+    14825, 14844, 14853, 14864,
+    14877, 14886, 14897, 14913,
+    14938, 14950, 14968, 23539,
+    13407, 14969, 23499, 23554,
+    14981, 14998, 13443, 13708,
+    5772, 5778, 5781, 6158,
+    6169, 6180, 6184, 6185,
+    13498, 13606, 13617, 13166,
+    13225, 13267, 13276, 13295,
+    13016, 12926, 13031, 12940,
+    13556, 13117, 13138, 13170,
+    13258, 13280, 0x22D8F, 0x24EFF,
+    0x27527, 0x28BB7, 0x2A627, 0x2AF8F,
+    0x2BD5F, 15018, 0x24057, 0x2CEFF,
+    0x3F2FD, 13065, 1995, 2045,
+    2095, 2145, 2195, 13516,
+    13584, 13587, 13590, 13593,
+    13600, 13286, 13315, 13299,
+    13565, 13312, 13569, 13519,
+    13523, 13526, 13575, 13581,
+    13631, 13479, 13093, 13079,
+    13360, 13145, 13176, 13230,
+    13487, 6190, 0x36B4B, 0x32A41,
+    13235, 13191, 13369, 13239,
+    13114, 13156, 13648, 13651,
+    13654, 13657, 13660, 13663,
+    13666, 13669, 13672, 13675,
+    13678, 13681, 13684, 13687,
+    13690, 13693, 13696, 13699,
+    13702, 13705, 13711, 13714,
+    13717, 13720, 13723, 24605,
+    24610, 6191, 13489, 13493,
+    13726, 13255, 13731, 13735,
+    13737, 13738, 13741, 13744,
+    14012, 13746, 13749, 13751,
+    13754, 13757, 13760, 13764,
+    13766, 13768, 13770, 13776,
+    13780, 13782, 13784, 13786,
+    13788, 13789, 13791, 13798,
+    13802, 13807, 13812, 13816,
+    13820, 13826, 13832, 13836,
+    13843, 13846, 13849, 13851,
+    13856, 13860, 13864, 13868,
+    13871, 13874, 13877, 13878,
+    13880, 13886, 13895, 13901,
+    13906, 13910, 13916, 13920,
+    13925, 13931, 13935, 13939,
+    13944, 13951, 13956, 13962,
+    13976, 13984, 13987, 13990,
+    13993, 13997, 14002, 14004,
+    14006, 13635, 21639, 21695,
+    13347, 13330, 13338, 13351,
+    12880, 12868, 13640, 13644,
+    13325, 6200, 6206, 6211,
+    6216, 6228, 6233, 6239,
+    11383, 6222, 24755, 24769,
+    6253, 13207, 14039, 14058,
+    6254, 14029, 13037, 2290,
+    21677, 0x2E937, 21418, 21416,
+    11749, 1619, 11782, 1621,
+    1623, 1625, 1629, 1631,
+    1632, 1634, 1635, 1636,
+    1637, 1638, 1639, 1640,
+    1642, 1646, 1647, 1648,
+    1650, 1651, 1654, 1656,
+    1658, 1660, 1662, 1664,
+    1665, 1666, 1667, 1669,
+    1671, 1675, 1677, 1680,
+    1682, 1683, 1685, 1686,
+    1687, 1688, 1690, 1692,
+    1693, 1695, 1698, 1699,
+    1702, 1704, 1706, 1708,
+    1712, 1715, 1721, 1725,
+    11854, 11790, 11881, 11810,
+    11817, 11886, 11845, 11895,
+    11900, 11908, 11912, 11918,
+    11922, 11943, 11945, 11953,
+    11959, 11963, 11966, 11967,
+    11971, 11998, 12002, 12014,
+    12017, 12024, 12028, 12056,
+    12062, 12075, 12078, 12092,
+    12096, 12106, 12109, 12125,
+    12133, 12156, 12159, 12175,
+    12198, 12203, 12207, 12220,
+    12231, 12249, 12269, 12274,
+    12283, 12294, 12307, 12314,
+    12326, 12320, 12330, 12348,
+    12360, 12364, 12378, 12390,
+    12402, 12414, 12430, 12446,
+    12474, 12489, 12528, 12542,
+    12553, 12558, 12562, 12585,
+    12591, 12604, 12609, 12630,
+    12637, 12642, 12646, 12670,
+    12677, 12694, 12698, 12715,
+    12720, 12744, 12750, 12767,
+    12772, 12783, 12787, 12817,
+    12825, 12832, 12836, 12839,
+    12842, 12845, 12848, 12849,
+    12851, 12852, 12855, 12856,
+    12859, 12860, 12863, 12864,
+    0x3AC55, 21655,
+};
+u16 FILE_SECTOR_COUNTS[] = {
+    0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001,
+    0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001,
+    0x0001, 0x0001, 0x0002, 0x0001, 0x0001, 0x0002, 0x0003, 0x0003,
+    0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0002, 0x0003, 0x0003,
+    0x0003, 0x0003, 0x0003, 0x0003, 0x0001, 0x0001, 0x0001, 0x0001,
+    0x0001, 0x0001, 0x0001, 0x0001, 0x0002, 0x0002, 0x0002, 0x0002,
+    0x0002, 0x0002, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001,
+    0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001,
+    0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001,
+    0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002,
+    0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0001, 0x0001, 0x0001,
+    0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001,
+    0x0001, 0x0001, 0x0001, 0x0005, 0x0008, 0x0008, 0x0008, 0x0008,
+    0x0007, 0x0008, 0x0003, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004,
+    0x0004, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001,
+    0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0002,
+    0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0001, 0x0001,
+    0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001,
+    0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001,
+    0x0001, 0x0001, 0x0001, 0x0003, 0x0004, 0x0004, 0x0004, 0x0004,
+    0x0004, 0x0004, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003,
+    0x0003, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001,
+    0x0001, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0001,
+    0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0001, 0x0001,
+    0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x000F, 0x0013, 0x0013,
+    0x0013, 0x0011, 0x0012, 0x0012, 0x000E, 0x0012, 0x0012, 0x0012,
+    0x0010, 0x0011, 0x0011, 0x0011, 0x0015, 0x0015, 0x0016, 0x0013,
+    0x0014, 0x0013, 0x000E, 0x0012, 0x0012, 0x0013, 0x0010, 0x0011,
+    0x0011, 0x000D, 0x0010, 0x0010, 0x0010, 0x000E, 0x0010, 0x000F,
+    0x0010, 0x0015, 0x0015, 0x0015, 0x0013, 0x0015, 0x0014, 0x0013,
+    0x0018, 0x0018, 0x0018, 0x0015, 0x0017, 0x0017, 0x0014, 0x0018,
+    0x0018, 0x0018, 0x0016, 0x0017, 0x0017, 0x0006, 0x0001, 0x0009,
+    0x0009, 0x0009, 0x0009, 0x0009, 0x000F, 0x0001, 0x0015, 0x0016,
+    0x0014, 0x0015, 0x0015, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002,
+    0x0002, 0x0002, 0x000B, 0x000F, 0x0010, 0x0010, 0x000E, 0x0010,
+    0x000F, 0x0008, 0x0009, 0x0009, 0x000A, 0x0008, 0x0009, 0x0009,
+    0x0003, 0x0005, 0x0005, 0x0005, 0x0004, 0x0005, 0x0004, 0x000A,
+    0x000E, 0x000E, 0x000E, 0x000C, 0x000D, 0x000D, 0x0004, 0x0005,
+    0x0005, 0x0005, 0x0004, 0x0005, 0x0005, 0x0006, 0x0007, 0x0007,
+    0x0007, 0x0006, 0x0007, 0x0007, 0x0006, 0x0007, 0x0007, 0x0007,
+    0x0006, 0x0007, 0x0007, 0x0007, 0x000A, 0x000A, 0x000A, 0x0009,
+    0x000A, 0x0009, 0x0006, 0x0008, 0x0008, 0x0009, 0x0007, 0x0008,
+    0x0008, 0x0003, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004, 0x0004,
+    0x0005, 0x0001, 0x0007, 0x0007, 0x0007, 0x0007, 0x0007, 0x0011,
+    0x0013, 0x0047, 0x000D, 0x001E, 0x001B, 0x0003, 0x0032, 0x0044,
+    0x0004, 0x0006, 0x000F, 0x000E, 0x000C, 0x0009, 0x0009, 0x000B,
+    0x0014, 0x0009, 0x000A, 0x001C, 0x0006, 0x0003, 0x0003, 0x0018,
+    0x0029, 0x0028, 0x0011, 0x0014, 0x0025, 0x002B, 0x0029, 0x001F,
+    0x0092, 0x0028, 0x001C, 0x0024, 0x0009, 0x0006, 0x0023, 0x001B,
+    0x001B, 0x0016, 0x0016, 0x001C, 0x001B, 0x001A, 0x001C, 0x0028,
+    0x0023, 0x0023, 0x0010, 0x000C, 0x000B, 0x000B, 0x02BD, 0x0008,
+    0x0227, 0x000A, 0x013C, 0x0008, 0x0091, 0x0005, 0x00A1, 0x0004,
+    0x0091, 0x0004, 0x0049, 0x0006, 0x0052, 0x0004, 0x00B5, 0x0004,
+    0x00B5, 0x0003, 0x006D, 0x0004, 0x00A1, 0x0007, 0x0079, 0x0003,
+    0x0119, 0x0004, 0x0088, 0x0003, 0x0515, 0x0017, 0x01A5, 0x0004,
+    0x02D1, 0x000A, 0x0231, 0x000D, 0x0303, 0x000C, 0x044D, 0x000E,
+    0x00B5, 0x0004, 0x0295, 0x000A, 0x0088, 0x0002, 0x00D9, 0x0003,
+    0x00C9, 0x0002, 0x0012, 0x0003, 0x0011, 0x0013, 0x0015, 0x0007,
+    0x000D, 0x000D, 0x0005, 0x0004, 0x0009, 0x0005, 0x0002, 0x0002,
+    0x0002, 0x0001, 0x0005, 0x0002, 0x0002, 0x0009, 0x0006, 0x0001,
+    0x0004, 0x0005, 0x0003, 0x0003, 0x0004, 0x0002, 0x0003, 0x0001,
+    0x0003, 0x0007, 0x0004, 0x0002, 0x001B, 0x0003, 0x000C, 0x0002,
+    0x0002, 0x0002, 0x0015, 0x001B, 0x0012, 0x000F, 0x0015, 0x0022,
+    0x0019, 0x0010, 0x0023, 0x0013, 0x001F, 0x001E, 0x001B, 0x001F,
+    0x0029, 0x000B, 0x0004, 0x0026, 0x000F, 0x0015, 0x000E, 0x0032,
+    0x000B, 0x0008, 0x0003, 0x0005, 0x0002, 0x0003, 0x001B, 0x0006,
+    0x000B, 0x002C, 0x002C, 0x000B, 0x0024, 0x0002, 0x000C, 0x0003,
+    0x0007, 0x001D, 0x04ED, 0x001C, 0x0001, 0x0001, 0x00C9, 0x0006,
+    0x0002, 0x00FB, 0x0007, 0x0003, 0x0014, 0x000F, 0x0023, 0x0008,
+    0x000B, 0x0003, 0x0009, 0x0029, 0x0019, 0x0028, 0x001C, 0x001A,
+    0x0002, 0x005B, 0x0003, 0x00D9, 0x0001, 0x0006, 0x0002, 0x0008,
+    0x0020, 0x010F, 0x0004, 0x0119, 0x0003, 0x0003, 0x0003, 0x0022,
+    0x001D, 0x0007, 0x0028, 0x0508, 0x0023, 0x001C, 0x0008, 0x002B,
+    0x0012, 0x001F, 0x00D9, 0x0008, 0x00C9, 0x0002, 0x0002, 0x001D,
+    0x0002, 0x0001, 0x0002, 0x0002, 0x0005, 0x001E, 0x044D, 0x000B,
+    0x000D, 0x0028, 0x000A, 0x0030, 0x0021, 0x0012, 0x0068, 0x00F4,
+    0x0011, 0x0027, 0x000C, 0x0011, 0x000D, 0x0015, 0x000C, 0x0010,
+    0x0013, 0x0014, 0x0016, 0x0014, 0x0016, 0x0011, 0x0021, 0x0020,
+    0x0001, 0x0020, 0x0015, 0x0008, 0x001C, 0x032B, 0x0006, 0x0019,
+    0x021D, 0x0009, 0x001D, 0x000F, 0x0020, 0x001B, 0x000F, 0x0001,
+    0x0043, 0x0064, 0x005F, 0x005E, 0x0054, 0x005A, 0x0007, 0x0016,
+    0x0001, 0x0009, 0x0002, 0x0011, 0x0005, 0x001C, 0x001A, 0x0018,
+    0x006D, 0x0004, 0x0002, 0x01C3, 0x0008, 0x0002, 0x001A, 0x0017,
+    0x0010, 0x002C, 0x0018, 0x0001, 0x0017, 0x0002, 0x000E, 0x0016,
+    0x0001, 0x0016, 0x0022, 0x0277, 0x0009, 0x0003, 0x0016, 0x0303,
+    0x0011, 0x0003, 0x001F, 0x015F, 0x0007, 0x0002, 0x0017, 0x012D,
+    0x000A, 0x0002, 0x001A, 0x0029, 0x01F9, 0x0007, 0x0002, 0x006A,
+    0x0003, 0x0001, 0x0321, 0x000D, 0x0003, 0x0001, 0x0002, 0x0011,
+    0x001D, 0x0012, 0x0001, 0x001C, 0x0001, 0x0003, 0x0034, 0x0002,
+    0x000A, 0x000F, 0x000C, 0x000B, 0x0029, 0x002B, 0x0028, 0x0026,
+    0x0015, 0x0004, 0x0005, 0x0017, 0x002A, 0x0012, 0x0009, 0x0016,
+    0x000E, 0x0024, 0x001A, 0x0018, 0x001C, 0x0015, 0x000B, 0x001F,
+    0x0011, 0x001B, 0x0009, 0x000A, 0x000A, 0x0009, 0x0009, 0x000A,
+    0x0009, 0x000A, 0x000A, 0x0009, 0x0008, 0x0007, 0x0007, 0x0007,
+    0x000A, 0x0007, 0x0007, 0x0007, 0x0009, 0x0004, 0x0005, 0x000B,
+    0x0008, 0x0008, 0x000E, 0x000F, 0x000C, 0x000F, 0x0018, 0x0018,
+    0x0017, 0x001D, 0x0047, 0x0054, 0x0075, 0x0006, 0x0018, 0x0017,
+    0x0015, 0x0018, 0x0009, 0x0002, 0x0002, 0x0001, 0x0007, 0x0006,
+    0x0007, 0x0007, 0x0008, 0x0007, 0x0006, 0x0007, 0x0006, 0x0004,
+    0x0006, 0x0004, 0x000A, 0x0008, 0x0016, 0x0013, 0x0021, 0x0010,
+    0x0022, 0x0010, 0x001B, 0x001B, 0x0019, 0x0015, 0x0010, 0x0003,
+    0x0010, 0x0001, 0x0002, 0x0018, 0x001D, 0x000F, 0x000F, 0x000C,
+    0x000D, 0x0016, 0x0017, 0x000F, 0x002B, 0x0024, 0x0010, 0x0015,
+    0x0141, 0x0007, 0x0002, 0x000F, 0x0141, 0x0004, 0x0002, 0x0004,
+    0x001B, 0x0012, 0x010F, 0x0004, 0x0006, 0x0015, 0x00B5, 0x0002,
+    0x0002, 0x0010, 0x00A1, 0x0004, 0x0008, 0x000E, 0x0227, 0x000B,
+    0x0003, 0x0027, 0x0015, 0x0008, 0x000D, 0x0007, 0x0007, 0x0007,
+    0x0008, 0x000A, 0x0005, 0x0004, 0x0004, 0x0004, 0x0003, 0x0003,
+    0x0009, 0x000B, 0x0079, 0x0003, 0x0004, 0x0529, 0x0021, 0x0005,
+    0x0011, 0x0015, 0x0001, 0x0002, 0x0002, 0x0006, 0x001B, 0x001B,
+    0x0008, 0x0003, 0x0006, 0x000C, 0x0006, 0x0004, 0x0003, 0x0007,
+    0x0007, 0x0007, 0x000B, 0x0004, 0x00FB, 0x0003, 0x0002, 0x0004,
+    0x0003, 0x0010, 0x0011, 0x0015, 0x0016, 0x0006, 0x0003, 0x0002,
+    0x0002, 0x0003, 0x0003, 0x0008, 0x0007, 0x0007, 0x0008, 0x000F,
+    0x0303, 0x000A, 0x0003, 0x0017, 0x0012, 0x0016, 0x0006, 0x0008,
+    0x0461, 0x0015, 0x0004, 0x0005, 0x0141, 0x0004, 0x0002, 0x0027,
+    0x000D, 0x01A5, 0x000B, 0x0002, 0x0012, 0x0321, 0x0015, 0x0003,
+    0x0002, 0x0002, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0011,
+    0x000A, 0x001D, 0x0020, 0x0023, 0x000B, 0x041B, 0x0011, 0x0003,
+    0x0019, 0x0017, 0x0016, 0x0003, 0x0003, 0x0003, 0x001B, 0x0017,
+    0x001B, 0x0012, 0x021D, 0x0009, 0x0003, 0x0005, 0x01E1, 0x0007,
+    0x0002, 0x0003, 0x0015, 0x0008, 0x0005, 0x0009, 0x0008, 0x000C,
+    0x0007, 0x0008, 0x000E, 0x000A, 0x0005, 0x000B, 0x0007, 0x0006,
+    0x0012, 0x000E, 0x0002, 0x0007, 0x0009, 0x0004, 0x000C, 0x0018,
+    0x0005, 0x000E, 0x000D, 0x000A, 0x0006, 0x000F, 0x0023, 0x0007,
+    0x0008, 0x0008, 0x0004, 0x0007, 0x0003, 0x0003, 0x000A, 0x0003,
+    0x0004, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0018, 0x000F,
+    0x000F, 0x001F, 0x0013, 0x0012, 0x0004, 0x001C, 0x0385, 0x000C,
+    0x0003, 0x0005, 0x0002, 0x0005, 0x0003, 0x000B, 0x0002, 0x0002,
+    0x000F, 0x0691, 0x0028, 0x0005, 0x000A, 0x0371, 0x000C, 0x0004,
+    0x0016, 0x0002, 0x000B, 0x0003, 0x0004, 0x0003, 0x0004, 0x0003,
+    0x0005, 0x0004, 0x0008, 0x0004, 0x0008, 0x0012, 0x002C, 0x0020,
+    0x001A, 0x001E, 0x01EB, 0x0018, 0x000B, 0x0002, 0x0006, 0x0025,
+    0x0016, 0x0015, 0x0016, 0x0018, 0x0004, 0x0005, 0x0014, 0x001D,
+    0x0017, 0x001A, 0x000E, 0x0227, 0x000A, 0x0002, 0x0011, 0x0005,
+    0x0028, 0x001C, 0x0011, 0x0014, 0x0018, 0x0018, 0x0056, 0x005E,
+    0x0016, 0x001B, 0x0022, 0x002A, 0x001B, 0x0017, 0x001C, 0x0019,
+    0x0018, 0x001B, 0x001D, 0x0023, 0x0004, 0x0026, 0x0029, 0x0022,
+    0x0024, 0x0021, 0x0019, 0x0014, 0x0023, 0x0002, 0x0007, 0x0020,
+    0x002E, 0x000F, 0x0026, 0x000A, 0x002B, 0x0021, 0x0022, 0x000E,
+    0x0002, 0x0002, 0x0002, 0x0002, 0x002D, 0x0020, 0x0018, 0x0018,
+    0x001B, 0x001D, 0x000E, 0x0013, 0x0013, 0x0385, 0x0012, 0x0003,
+    0x000B, 0x000C, 0x0027, 0x0025, 0x0002, 0x0018, 0x0018, 0x0018,
+    0x0018, 0x0018, 0x0019, 0x0013, 0x0022, 0x0017, 0x0001, 0x000B,
+    0x021D, 0x000B, 0x0002, 0x0005, 0x017B, 0x0005, 0x0002, 0x0005,
+    0x00D9, 0x0005, 0x0005, 0x00D9, 0x0005, 0x0005, 0x0002, 0x0011,
+    0x0013, 0x0017, 0x0008, 0x01B1, 0x000C, 0x0002, 0x00A1, 0x0005,
+    0x0003, 0x0002, 0x0010, 0x0289, 0x0016, 0x0003, 0x000E, 0x0289,
+    0x0014, 0x0002, 0x001C, 0x013C, 0x0007, 0x0001, 0x0009, 0x017B,
+    0x000A, 0x0002, 0x001C, 0x0227, 0x000A, 0x0001, 0x000E, 0x013C,
+    0x0009, 0x0003, 0x0006, 0x0091, 0x0004, 0x0002, 0x0008, 0x0091,
+    0x0004, 0x0002, 0x0169, 0x0011, 0x000E, 0x001E, 0x0020, 0x000E,
+    0x0007, 0x0001, 0x0009, 0x01C3, 0x000A, 0x001E, 0x0439, 0x000A,
+    0x0003, 0x0002, 0x0007, 0x0019, 0x0019, 0x00B5, 0x0003, 0x0005,
+    0x0004, 0x006A, 0x0003, 0x0004, 0x0002, 0x001F, 0x0008, 0x0049,
+    0x0006, 0x0003, 0x0015, 0x00A1, 0x0002, 0x0002, 0x000A, 0x0091,
+    0x0005, 0x0001, 0x0008, 0x00B5, 0x0003, 0x0015, 0x00B5, 0x0004,
+    0x0001, 0x0052, 0x0004, 0x0004, 0x0005, 0x0003, 0x0011, 0x0013,
+    0x000A, 0x0007, 0x0007, 0x0003, 0x0002, 0x000C, 0x001B, 0x000C,
+    0x0010, 0x0001, 0x001C, 0x000F, 0x013C, 0x0007, 0x0002, 0x0008,
+    0x00B5, 0x0002, 0x0001, 0x0008, 0x00B5, 0x0002, 0x0008, 0x00B5,
+    0x0002, 0x0008, 0x00B5, 0x0002, 0x0001, 0x0001, 0x0001, 0x0009,
+    0x012D, 0x0009, 0x0003, 0x0385, 0x0001, 0x0007, 0x0088, 0x0003,
+    0x0001, 0x000D, 0x0508, 0x0013, 0x0002, 0x000E, 0x01C1, 0x0007,
+    0x0002, 0x02BD, 0x0008, 0x001B, 0x0002, 0x0014, 0x0091, 0x0006,
+    0x0002, 0x0012, 0x0141, 0x0007, 0x0002, 0x000A, 0x0119, 0x0004,
+    0x0002, 0x0010, 0x0141, 0x0004, 0x0001, 0x0016, 0x0012, 0x0018,
+    0x0002, 0x00A1, 0x0003, 0x0014, 0x010F, 0x0004, 0x0010, 0x0277,
+    0x0008, 0x0002, 0x0088, 0x0002, 0x000F, 0x00A1, 0x0004, 0x0003,
+    0x0002, 0x0002, 0x0001, 0x0003, 0x0007, 0x0145, 0x000C, 0x0002,
+    0x0001, 0x000F, 0x0002, 0x01C3, 0x0008, 0x0003, 0x0021, 0x001A,
+    0x001B, 0x0016, 0x001C, 0x000F, 0x0277, 0x0007, 0x0003, 0x000C,
+    0x002B, 0x001A, 0x001A, 0x0013, 0x0018, 0x0012, 0x001A, 0x000E,
+    0x0515, 0x0018, 0x0002, 0x000E, 0x0231, 0x0007, 0x0005, 0x0003,
+    0x01A5, 0x0004, 0x0002, 0x000B, 0x01A5, 0x000C, 0x0002, 0x0009,
+    0x0321, 0x0015, 0x0002, 0x0007, 0x00D9, 0x0006, 0x0002, 0x000A,
+    0x0321, 0x000C, 0x0002, 0x0006, 0x010F, 0x0006, 0x0001, 0x0001,
+    0x044D, 0x000D, 0x0002, 0x000D, 0x0385, 0x0010, 0x0002, 0x000E,
+    0x04ED, 0x001C, 0x0002, 0x0007, 0x00C9, 0x0006, 0x0003, 0x0002,
+    0x000C, 0x0691, 0x0028, 0x0001, 0x0005, 0x00FB, 0x0007, 0x0001,
+    0x000D, 0x00B5, 0x0005, 0x0001, 0x0006, 0x012D, 0x0009, 0x0001,
+    0x0005, 0x00B5, 0x0004, 0x0002, 0x0005, 0x0141, 0x0004, 0x0001,
+    0x000A, 0x0295, 0x000A, 0x0002, 0x0004, 0x01E1, 0x0007, 0x0001,
+    0x0019, 0x0385, 0x000C, 0x0002, 0x000A, 0x041B, 0x0010, 0x0002,
+    0x0007, 0x0119, 0x0004, 0x0002, 0x000A, 0x0371, 0x000B, 0x0002,
+    0x0009, 0x00D9, 0x0008, 0x0003, 0x000C, 0x01C3, 0x0008, 0x0002,
+    0x0007, 0x0385, 0x0012, 0x0002, 0x0018, 0x012D, 0x000A, 0x0002,
+    0x0009, 0x01EB, 0x000B, 0x0002, 0x000B, 0x021D, 0x000A, 0x0001,
+    0x0002, 0x000D, 0x0508, 0x0022, 0x0002, 0x0001, 0x00B5, 0x0002,
+    0x0002, 0x0002, 0x00B5, 0x0002, 0x0002, 0x0001, 0x00B5, 0x0002,
+    0x0001, 0x0001, 0x00B5, 0x0002, 0x0001, 0x0006, 0x0461, 0x0014,
+    0x0002, 0x0015, 0x0529, 0x0021, 0x0002, 0x0009, 0x01C3, 0x0009,
+    0x0002, 0x000E, 0x0238, 0x000E, 0x0002, 0x0001, 0x0005, 0x0002,
+    0x0003, 0x0020, 0x002E, 0x0014, 0x0023, 0x0002, 0x0088, 0x0003,
+    0x0003, 0x0005, 0x017B, 0x0005, 0x0002, 0x0005, 0x00D9, 0x0005,
+    0x0002, 0x000F, 0x0169, 0x0007, 0x0002, 0x0005, 0x01B1, 0x000C,
+    0x0002, 0x000A, 0x0277, 0x0006, 0x0003, 0x0003, 0x00A1, 0x0005,
+    0x0009, 0x0006, 0x017B, 0x000A, 0x0303, 0x0007, 0x0145, 0x000C,
+    0x0012, 0x000A, 0x0289, 0x0014, 0x0003, 0x000A, 0x02D1, 0x0015,
+    0x0019, 0x0004, 0x001E, 0x0011, 0x0031, 0x0002, 0x0003, 0x000B,
+    0x0303, 0x0012, 0x0009, 0x0003, 0x0061, 0x0002, 0x001D, 0x0004,
+    0x03DF, 0x0011, 0x0017, 0x000C, 0x001B, 0x0003, 0x001B, 0x001B,
+    0x0018, 0x0023, 0x0028, 0x0003, 0x0003, 0x0003, 0x0003, 0x0004,
+    0x0002, 0x0002, 0x0002, 0x0003, 0x0010, 0x0303, 0x0011, 0x0003,
+    0x000C, 0x013C, 0x0008, 0x0005, 0x001C, 0x0439, 0x000A, 0x0004,
+    0x0003, 0x0061, 0x0002, 0x0005, 0x0018, 0x01A5, 0x000B, 0x0003,
+    0x0008, 0x00D9, 0x0004, 0x0004, 0x0008, 0x01A5, 0x000B, 0x0004,
+    0x000B, 0x00A3, 0x0002, 0x0002, 0x0021, 0x0028, 0x0008, 0x0191,
+    0x000E, 0x0005, 0x0002, 0x037C, 0x0011, 0x0004, 0x0009, 0x0191,
+    0x0009, 0x0004, 0x0001, 0x00F1, 0x0002, 0x0007, 0x0001, 0x0145,
+    0x0003, 0x0001, 0x0196, 0x0003, 0x0001, 0x0196, 0x0003, 0x0001,
+    0x01E7, 0x0004, 0x0009, 0x0009, 0x0009, 0x0009, 0x0018, 0x00F1,
+    0x0007, 0x0002, 0x0008, 0x0191, 0x0009, 0x0004, 0x0003, 0x02D1,
+    0x000A, 0x0002, 0x000B, 0x0231, 0x000D, 0x000A, 0x0003, 0x00D9,
+    0x0003, 0x0006, 0x0003, 0x00D9, 0x0003, 0x0021, 0x000C, 0x021D,
+    0x0009, 0x0009, 0x02B6, 0x0014, 0x0012, 0x0303, 0x0010, 0x000D,
+    0x00FB, 0x0005, 0x000B, 0x0493, 0x0013, 0x000B, 0x00A3, 0x0002,
+    0x0009, 0x02B6, 0x0014, 0x0027, 0x001E, 0x0007, 0x0277, 0x0012,
+    0x0012, 0x0321, 0x0009, 0x0012, 0x0321, 0x0009, 0x0007, 0x0319,
+    0x000A, 0x000A, 0x0013, 0x000F, 0x0238, 0x000E, 0x001C, 0x000B,
+    0x0169, 0x0004, 0x0017, 0x0011, 0x0141, 0x0005, 0x0029, 0x000C,
+    0x0303, 0x000A, 0x0007, 0x0012, 0x0319, 0x0017, 0x0010, 0x001E,
+    0x0259, 0x0008, 0x000A, 0x0007, 0x00F1, 0x0004, 0x000A, 0x000D,
+    0x05CE, 0x0012, 0x0011, 0x0004, 0x00E2, 0x0003, 0x000F, 0x0011,
+    0x0169, 0x0004, 0x0020, 0x0011, 0x0141, 0x0005, 0x001C, 0x000F,
+    0x006A, 0x0003, 0x0010, 0x0002, 0x005B, 0x0002, 0x0014, 0x001E,
+    0x0277, 0x0018, 0x000F, 0x0006, 0x013C, 0x0007, 0x0018, 0x0007,
+    0x0371, 0x000A, 0x0012, 0x001C, 0x0021, 0x0014, 0x0018, 0x001D,
+    0x001B, 0x0439, 0x001D, 0x0016, 0x001B, 0x041E, 0x0018, 0x0014,
+    0x0022, 0x001E, 0x0026, 0x0025, 0x0024, 0x0022, 0x0012, 0x0019,
+    0x0008, 0x0009, 0x002A, 0x002C, 0x000A, 0x0191, 0x000E, 0x001B,
+    0x0019, 0x001F, 0x0012, 0x0002, 0x000E, 0x000E, 0x000E, 0x0007,
+    0x0002, 0x0017, 0x000B, 0x044D, 0x000B, 0x0016, 0x000E, 0x0231,
+    0x0007, 0x0018, 0x0161, 0x0006, 0x0004, 0x021D, 0x0009, 0x000F,
+    0x0238, 0x000E, 0x0014, 0x0017, 0x001F, 0x0019, 0x0014, 0x0021,
+    0x0005, 0x0005, 0x0009, 0x0006, 0x0009, 0x001B, 0x0002, 0x0019,
+    0x0017, 0x0006, 0x0006, 0x0017, 0x00B5, 0x0003, 0x0007, 0x0006,
+    0x0006, 0x0062, 0x0062, 0x0023, 0x0010, 0x0238, 0x000D, 0x0003,
+    0x0002, 0x000C, 0x0008, 0x0004, 0x0024, 0x0052, 0x000D, 0x0017,
+    0x0013, 0x03DF, 0x0013, 0x000F, 0x0014, 0x0004, 0x0014, 0x03DF,
+    0x0015, 0x001A, 0x0017, 0x0259, 0x0006, 0x0017, 0x0259, 0x0007,
+    0x0010, 0x000A, 0x0005, 0x0009, 0x0004, 0x0006, 0x0007, 0x000A,
+    0x0009, 0x0010, 0x000C, 0x000C, 0x000E, 0x0002, 0x0001, 0x0019,
+    0x0018, 0x0002, 0x0056, 0x0002, 0x0042, 0x0027, 0x0011, 0x0001,
+    0x0008, 0x0006, 0x0010, 0x000A, 0x0012, 0x000A, 0x0023, 0x0019,
+    0x0004, 0x0001, 0x0001, 0x0010, 0x000F, 0x0008, 0x000A, 0x0019,
+    0x0007, 0x001A, 0x000F, 0x0007, 0x000A, 0x000C, 0x0012, 0x000A,
+    0x000B, 0x0011, 0x000A, 0x000C, 0x0013, 0x0009, 0x000B, 0x000D,
+    0x0009, 0x000B, 0x0010, 0x0019, 0x000C, 0x0012, 0x0001, 0x000F,
+    0x0024, 0x000C, 0x0027, 0x0028, 0x0011, 0x0014, 0x0024, 0x0003,
+    0x0002, 0x0003, 0x0003, 0x000B, 0x000B, 0x0004, 0x0001, 0x0005,
+    0x000E, 0x000B, 0x000E, 0x0004, 0x0005, 0x0009, 0x0004, 0x0004,
+    0x000F, 0x000E, 0x0006, 0x000A, 0x0009, 0x000B, 0x0007, 0x0006,
+    0x0009, 0x0006, 0x12C8, 0x2628, 0x1690, 0x1A70, 0x0968, 0x0DD0,
+    0x11A0, 0x0010, 0x0EA8, 0x1A38, 0x46A8, 0x000E, 0x0032, 0x0032,
+    0x0032, 0x0032, 0x002F, 0x0003, 0x0003, 0x0003, 0x0003, 0x0007,
+    0x0006, 0x0009, 0x000A, 0x0004, 0x0004, 0x0003, 0x0006, 0x0004,
+    0x0003, 0x0004, 0x0006, 0x0003, 0x0004, 0x0005, 0x000B, 0x0005,
+    0x0009, 0x000B, 0x0005, 0x0005, 0x0002, 0x0001, 0x410A, 0x410A,
+    0x0004, 0x0003, 0x0003, 0x0007, 0x0003, 0x0006, 0x0003, 0x0003,
+    0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003,
+    0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003,
+    0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0005,
+    0x0027, 0x0009, 0x0004, 0x0005, 0x0005, 0x0003, 0x0004, 0x0002,
+    0x0001, 0x0003, 0x0003, 0x0002, 0x0011, 0x0003, 0x0002, 0x0003,
+    0x0003, 0x0003, 0x0004, 0x0002, 0x0002, 0x0002, 0x0006, 0x0004,
+    0x0002, 0x0002, 0x0002, 0x0002, 0x0001, 0x0002, 0x0007, 0x0004,
+    0x0005, 0x0005, 0x0004, 0x0004, 0x0006, 0x0006, 0x0004, 0x0007,
+    0x0003, 0x0003, 0x0002, 0x0005, 0x0004, 0x0004, 0x0004, 0x0003,
+    0x0003, 0x0003, 0x0001, 0x0002, 0x0006, 0x0009, 0x0006, 0x0005,
+    0x0004, 0x0006, 0x0004, 0x0005, 0x0006, 0x0004, 0x0004, 0x0005,
+    0x0007, 0x0005, 0x0006, 0x000E, 0x0008, 0x0003, 0x0003, 0x0003,
+    0x0004, 0x0005, 0x0002, 0x0002, 0x0006, 0x0005, 0x0010, 0x0032,
+    0x0004, 0x0008, 0x0009, 0x0009, 0x0012, 0x000C, 0x0004, 0x0004,
+    0x0005, 0x0006, 0x0005, 0x0005, 0x0006, 0x0005, 0x0006, 0x000E,
+    0x0052, 0x0006, 0x000E, 0x0027, 0x0001, 0x0008, 0x0013, 0x0017,
+    0x0001, 0x000A, 0x001C, 0x0009, 0x0012, 0x410A, 0x0003, 0x0002,
+    0x0021, 0x0002, 0x0008, 0x0002, 0x0002, 0x0004, 0x0002, 0x0001,
+    0x0002, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0002,
+    0x0004, 0x0001, 0x0001, 0x0002, 0x0001, 0x0003, 0x0002, 0x0002,
+    0x0002, 0x0002, 0x0002, 0x0001, 0x0001, 0x0001, 0x0002, 0x0002,
+    0x0004, 0x0002, 0x0003, 0x0002, 0x0001, 0x0002, 0x0001, 0x0001,
+    0x0001, 0x0002, 0x0002, 0x0001, 0x0002, 0x0003, 0x0001, 0x0003,
+    0x0002, 0x0002, 0x0002, 0x0004, 0x0003, 0x0006, 0x0004, 0x0005,
+    0x001B, 0x0014, 0x0005, 0x0007, 0x001C, 0x0009, 0x0009, 0x0005,
+    0x0008, 0x0004, 0x0006, 0x0004, 0x0015, 0x0002, 0x0008, 0x0006,
+    0x0004, 0x0003, 0x0001, 0x0004, 0x001B, 0x0004, 0x000C, 0x0003,
+    0x0007, 0x0004, 0x001C, 0x0006, 0x000D, 0x0003, 0x000E, 0x0004,
+    0x000A, 0x0003, 0x0010, 0x0008, 0x0017, 0x0003, 0x0010, 0x0017,
+    0x0005, 0x0004, 0x000D, 0x000B, 0x0012, 0x0014, 0x0005, 0x0009,
+    0x000B, 0x000D, 0x0007, 0x0006, 0x0004, 0x0006, 0x0012, 0x000C,
+    0x0004, 0x000E, 0x000C, 0x000C, 0x000C, 0x0010, 0x0010, 0x001C,
+    0x000F, 0x0027, 0x000E, 0x000B, 0x0005, 0x0004, 0x0017, 0x0006,
+    0x000D, 0x0005, 0x0015, 0x0007, 0x0005, 0x0004, 0x0018, 0x0007,
+    0x0011, 0x0004, 0x0011, 0x0005, 0x0018, 0x0006, 0x0011, 0x0005,
+    0x000B, 0x0004, 0x001E, 0x0008, 0x0007, 0x0004, 0x0003, 0x0003,
+    0x0003, 0x0003, 0x0001, 0x0002, 0x0001, 0x0003, 0x0001, 0x0003,
+    0x0001, 0x0003, 0x0001, 0x0004, 0x46A8, 0x0016,
+};
+s32 FILE_TABLE = (s32)fileExists;
+s32 D_80048744[] = {
+    (s32)getFileSectorCount, (s32)getFileSector, (s32)getFilePos,
+};
+#endif
 s32 MEMCARD[] = {
     0, 0, 0,
 };
+#if VERSION_US
 s32 D_80047F20[] = {
+#elif VERSION_EU
+s32 D_8004875C[] = {
+#endif
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
@@ -3749,7 +7002,11 @@ s32 D_80047F20[] = {
     0, 0, 0, 0,
     0, 0,
 };
+#if VERSION_US
 s32 D_80047FB8[] = {
+#elif VERSION_EU
+s32 D_800487F4[] = {
+#endif
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
@@ -3789,7 +7046,11 @@ s32 D_80047FB8[] = {
     0, 0, 0, 0,
     0, 0, 0, 0,
 };
+#if VERSION_US
 s32 D_80048218[] = {
+#elif VERSION_EU
+s32 D_80048A54[] = {
+#endif
     0, 0, 0, 0,
     0, 0, 0, 0,
     0,
@@ -3810,6 +7071,7 @@ s32 PENDING_FLAG_10[] = {
     0, (s32)checkConditions, (s32)applyAction, (s32)checkCondition,
     (s32)applyActions, (s32)updateModeFlags,
 };
+#if VERSION_US
 u8 SPECIAL_CONDITIONS[] = {
     0x3A, 0x00, 0x00, 0x00, 0x10, 0x00, 0x01, 0x10,
     0x01, 0x02, 0x10, 0x02, 0x10, 0x11, 0x00, 0x12,
@@ -3856,6 +7118,56 @@ u8 SPECIAL_CONDITIONS[] = {
     0x73, 0x40, 0x02, 0x72, 0x40, 0x03, 0x13, 0x50,
     0x00, 0xFF, 0x00, 0x00,
 };
+#elif VERSION_EU
+u8 SPECIAL_CONDITIONS[] = {
+    0x3A, 0x00, 0x00, 0x96, 0x01, 0x00, 0x00, 0x10,
+    0x00, 0x01, 0x10, 0x01, 0x02, 0x10, 0x02, 0x10,
+    0x11, 0x00, 0x12, 0x11, 0x01, 0x11, 0x11, 0x02,
+    0x0B, 0x11, 0x03, 0x0D, 0x11, 0x04, 0x0C, 0x11,
+    0x05, 0x0F, 0x11, 0x06, 0x0E, 0x11, 0x07, 0x42,
+    0x12, 0x00, 0x44, 0x12, 0x01, 0x43, 0x12, 0x02,
+    0x47, 0x12, 0x03, 0x46, 0x12, 0x04, 0x45, 0x12,
+    0x05, 0x49, 0x12, 0x06, 0x48, 0x12, 0x07, 0x37,
+    0x13, 0x00, 0x39, 0x13, 0x01, 0x38, 0x13, 0x02,
+    0x31, 0x13, 0x03, 0x32, 0x13, 0x04, 0x33, 0x13,
+    0x05, 0x35, 0x13, 0x06, 0x34, 0x13, 0x07, 0x4A,
+    0x14, 0x00, 0x4C, 0x14, 0x01, 0x4B, 0x14, 0x02,
+    0x4F, 0x14, 0x03, 0x4E, 0x14, 0x04, 0x4D, 0x14,
+    0x05, 0x51, 0x14, 0x06, 0x50, 0x14, 0x07, 0x25,
+    0x15, 0x00, 0x26, 0x15, 0x01, 0x27, 0x15, 0x02,
+    0x28, 0x15, 0x03, 0x29, 0x15, 0x04, 0x2E, 0x16,
+    0x00, 0x30, 0x16, 0x01, 0x2F, 0x16, 0x02, 0x2A,
+    0x16, 0x03, 0x2B, 0x16, 0x04, 0x2C, 0x16, 0x05,
+    0x36, 0x16, 0x06, 0x2D, 0x16, 0x07, 0x95, 0x17,
+    0x00, 0x53, 0x18, 0x00, 0x55, 0x19, 0x00, 0x74,
+    0x20, 0x00, 0x75, 0x20, 0x01, 0x76, 0x20, 0x02,
+    0x77, 0x20, 0x03, 0x78, 0x20, 0x04, 0x79, 0x20,
+    0x05, 0x7A, 0x20, 0x06, 0x7B, 0x20, 0x07, 0x7C,
+    0x20, 0x08, 0x7D, 0x20, 0x09, 0x8B, 0x21, 0x00,
+    0x8C, 0x21, 0x01, 0x8D, 0x21, 0x02, 0x8E, 0x21,
+    0x03, 0x8F, 0x21, 0x04, 0x90, 0x21, 0x05, 0x91,
+    0x21, 0x06, 0x92, 0x21, 0x07, 0x7E, 0x22, 0x00,
+    0x7F, 0x22, 0x01, 0x80, 0x22, 0x02, 0x81, 0x22,
+    0x03, 0x82, 0x22, 0x04, 0x83, 0x22, 0x05, 0x84,
+    0x22, 0x06, 0x85, 0x22, 0x07, 0x86, 0x22, 0x08,
+    0x87, 0x22, 0x09, 0x06, 0x30, 0x00, 0x03, 0x30,
+    0x01, 0x0A, 0x30, 0x02, 0x07, 0x30, 0x03, 0x04,
+    0x30, 0x04, 0x05, 0x30, 0x05, 0x09, 0x30, 0x06,
+    0x14, 0x30, 0x07, 0x08, 0x30, 0x08, 0x3F, 0x30,
+    0x09, 0x40, 0x30, 0x0A, 0x41, 0x30, 0x0B, 0x93,
+    0x30, 0x0C, 0x94, 0x30, 0x0D, 0x15, 0x30, 0x0E,
+    0x16, 0x30, 0x0F, 0x17, 0x30, 0x10, 0x18, 0x30,
+    0x11, 0x19, 0x30, 0x12, 0x1A, 0x30, 0x13, 0x1C,
+    0x30, 0x14, 0x1D, 0x30, 0x15, 0x21, 0x30, 0x16,
+    0x1E, 0x30, 0x17, 0x1F, 0x30, 0x18, 0x20, 0x30,
+    0x19, 0x22, 0x30, 0x1A, 0x23, 0x30, 0x1B, 0x24,
+    0x30, 0x1C, 0x3B, 0x30, 0x1D, 0x3C, 0x30, 0x1E,
+    0x3D, 0x30, 0x1F, 0x3E, 0x30, 0x20, 0x71, 0x40,
+    0x00, 0x70, 0x40, 0x01, 0x73, 0x40, 0x02, 0x72,
+    0x40, 0x03, 0x54, 0x41, 0x00, 0x13, 0x50, 0x00,
+    0xFF, 0x00, 0x00, 0x00,
+};
+#endif
 s32 MONEY_REQUIRED[] = {
     800, 1600, 2700, 4000,
     6000, 8700, 11500, 17500,
@@ -3894,14 +7206,22 @@ s32 GAME[] = {
     0, 0, 0, 0,
     0,
 };
+#if VERSION_US
 u16 D_8004852C[] = {
+#elif VERSION_EU
+u16 D_80048D78[] = {
+#endif
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 };
 s32 PLAYER_NAME[] = {
     0, 0, 0, 0,
     0, 0,
 };
+#if VERSION_US
 s32 D_80048554[] = {
+#elif VERSION_EU
+s32 D_80048DA0[] = {
+#endif
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
@@ -4513,6 +7833,7 @@ u16 PARTNER_STATS[] = {
 };
 s32 GAME_PROGRESS = 0;
 s32 PARTY_SET = 0;
+#if VERSION_US
 s32 FLAGS_02[] = {
     0, 0, 0, 0,
     0, 0, 0, 0,
@@ -4525,12 +7846,25 @@ s32 FLAGS_40[] = {
     0, 0, 0, 0,
     0, 0, 0,
 };
+#elif VERSION_EU
+s32 FLAGS_02[] = {
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+};
+#endif
 s32 GAME_MODE = 0;
 s32 GAME_NEXT_MODE = 0;
 s32 GAME_PREV_MODE = 0;
 s32 GAME_MODE_ARG[] = {
     0, 0,
 };
+#if VERSION_US
 s32 GAME_CLEAR_TEMP_FLAGS[] = {
     0, 0, 0, 0,
     0, 0, 0, 0,
@@ -4543,6 +7877,29 @@ s32 GAME_FUNCS[] = {
     (s32)setPartnerSlots, (s32)listPartnerEntries, (s32)addPartnerEntry, (s32)getPartnerEntry,
     (s32)setPartnerEntry, (s32)getPartnerStats, (s32)resetPlayTime, (s32)updatePlayTime,
 };
+#elif VERSION_EU
+s32 GAME_CLEAR_TEMP_FLAGS[] = {
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0,
+};
+s32 GAME_FUNCS = (s32)newGame;
+s32 D_8004B434 = (s32)commitMode;
+s32 D_8004B438[] = {
+    (s32)getMode, (s32)getModeArg, (s32)requestMode,
+};
+s32 D_8004B444 = (s32)isModeChangePending;
+s32 D_8004B448[] = {
+    (s32)getPrevMode, (s32)getPartyMember, (s32)setParty,
+};
+s32 D_8004B454[] = {
+    (s32)addCards, (s32)giveStarterDeck, (s32)getPartyPartner, (s32)setStat,
+    (s32)addStat, (s32)computeStats, (s32)getPartnerSlots, (s32)setPartnerSlots,
+    (s32)listPartnerEntries, (s32)addPartnerEntry, (s32)getPartnerEntry, (s32)setPartnerEntry,
+    (s32)getPartnerStats, (s32)resetPlayTime,
+};
+s32 D_8004B48C = (s32)updatePlayTime;
+#endif
 u8 STARTER_PARTIES[] = {
     0x00, 0x06, 0x07, 0x02, 0x03, 0x06, 0x01, 0x05,
     0x07, 0x00, 0x00, 0x00,
@@ -4573,12 +7930,32 @@ u16 EQUIP_SET_BONUSES[] = {
     0x0000, 0x000A, 0x000A, 0x0014, 0x000A, 0x0000, 0x000A, 0x0000,
     0x0000, 0x0014, 0x0000, 0x000A, 0x0000, 0x000A, 0x0000, 0x0014,
 };
+#if VERSION_US
 s32 HEAP[] = {
     0, 0, 0, (s32)initHeap,
     (s32)freeMem, (s32)freeMemByTag, (s32)allocMem, (s32)allocMemHigh,
     (s32)allocMemZeroed, (s32)zeroMem, (s32)fillMem, (s32)lockMem,
     (s32)func_80017878,
 };
+#elif VERSION_EU
+s32 HEAP = 0;
+s32 D_8004B5E0[] = {
+    0, 0, (s32)initHeap,
+};
+s32 D_8004B5EC[] = {
+    (s32)freeMem, (s32)freeMemByTag,
+};
+s32 D_8004B5F4[] = {
+    (s32)allocMem, (s32)allocMemHigh,
+};
+s32 D_8004B5FC = (s32)allocMemZeroed;
+s32 D_8004B600[] = {
+    (s32)zeroMem, (s32)fillMem,
+};
+s32 D_8004B608[] = {
+    (s32)lockMem, (s32)func_80017878,
+};
+#endif
 s32 TASK_REGISTRY[] = {
     0, 0, 0, 0,
     0, 0, 0, 0,
@@ -4607,19 +7984,40 @@ s32 TASK_REGISTRY[] = {
     0, 0, 0, 0,
     0, 0, 0, 0,
 };
+#if VERSION_US
 s32 TASK_FUNCS[] = {
     (s32)clearTaskRegistry, (s32)registerTask, (s32)unregisterTask, (s32)findTask,
     (s32)findNextTask, (s32)runChildTasks, (s32)runTask, (s32)killTask,
 };
+#elif VERSION_EU
+s32 TASK_FUNCS = (s32)clearTaskRegistry;
+s32 D_8004B7B4 = (s32)registerTask;
+s32 D_8004B7B8 = (s32)unregisterTask;
+s32 D_8004B7BC[] = {
+    (s32)findTask, (s32)findNextTask,
+};
+s32 D_8004B7C4 = (s32)runChildTasks;
+s32 D_8004B7C8[] = {
+    (s32)runTask, (s32)killTask,
+};
+#endif
 s32 PAD = 0;
+#if VERSION_US
 s32 D_8004AF7C[] = {
+#elif VERSION_EU
+s32 D_8004B7D4[] = {
+#endif
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
     0,
 };
+#if VERSION_US
 s32 D_8004AFC0[] = {
+#elif VERSION_EU
+s32 D_8004B818[] = {
+#endif
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
@@ -4677,7 +8075,11 @@ s32 D_8004AFC0[] = {
     0, 0, 0, 0,
     0, 0, 0, 0,
 };
+#if VERSION_US
 s32 D_8004B340[] = {
+#elif VERSION_EU
+s32 D_8004BB98[] = {
+#endif
     0, 0, 0, 0,
     0, 0,
 };
@@ -5208,6 +8610,7 @@ u16 RANDOM_TABLE[] = {
     0x086B, 0x008C, 0x0234, 0x0DD6, 0x08FF, 0x0A94, 0x055E, 0x0BF2,
     0x0399, 0x0B39, 0x0953, 0x067B, 0x04C9, 0x0E40, 0x0549, 0x07BD,
 };
+#if VERSION_US
 s32 RANDOM[] = {
     0, (s32)seedRandom, (s32)random,
 };
@@ -5222,8 +8625,28 @@ s32 D_8004D3B8[] = {
     8192, 0, 8192, 0,
     4096, 0, 0, 0,
 };
+#elif VERSION_EU
+s32 RANDOM = 0;
+s32 D_8004DC08 = (s32)seedRandom;
+s32 D_8004DC0C[] = {
+    (s32)random, 0, 0, 0,
+    0, 4096, 0, 4096,
+    0, 4096, 0, 0,
+    0, 8192, 0, 4096,
+    0, 4096, 0, 0,
+    0, 4096, 0, 8192,
+    0, 4096, 0, 0,
+    0, 8192, 0, 8192,
+    0, 4096, 0, 0,
+    0,
+};
+#endif
 s32 TEXT_CODE_HANDLERS = (s32)textCodeDefault;
+#if VERSION_US
 s32 D_8004D44C[] = {
+#elif VERSION_EU
+s32 D_8004DCA4[] = {
+#endif
     (s32)textCodeNewLine, (s32)textCodeWaitButton, (s32)textCodePageBreak, (s32)textCodeIgnore,
     (s32)textCodeInsert, (s32)textCodePause, (s32)textCodeDefault, (s32)textCodePlayerName,
     (s32)textCodeDefault, 0,
@@ -5232,20 +8655,39 @@ s32 TEXT_WAIT_BUTTONS[] = {
     13, 12, 13, 14,
     15,
 };
+#if VERSION_US
 s32 CURSOR_FRAMES = (s32)D_8005C478;
 s32 D_8004D48C[] = {
     (s32)D_8005C474, (s32)D_8005C470, (s32)D_8005C46C, (s32)D_8005C470,
 };
+#elif VERSION_EU
+s32 CURSOR_FRAMES = (s32)D_8005CCDC;
+s32 D_8004DCE4[] = {
+    (s32)D_8005CCD8, (s32)D_8005CCD4, (s32)D_8005CCD0, (s32)D_8005CCD4,
+};
+#endif
 u16 TALK_BOX_LAYOUTS[] = {
     0x0003, 0x0000,
 };
+#if VERSION_US
 u16 D_8004D4A0[] = {
+#elif VERSION_EU
+u16 D_8004DCF8[] = {
+#endif
     0x0000, 0xFFF0, 0x0000, 0xFFB6,
 };
+#if VERSION_US
 u16 D_8004D4A8[] = {
+#elif VERSION_EU
+u16 D_8004DD00[] = {
+#endif
     0x0010, 0xFFB6, 0x0010, 0xFFB6, 0x0006, 0xFFB9, 0x0006, 0xFFC6,
 };
+#if VERSION_US
 u16 D_8004D4B8[] = {
+#elif VERSION_EU
+u16 D_8004DD10[] = {
+#endif
     0x0010, 0xFFDA, 0x0005, 0x0000, 0x0000, 0x0000, 0x0000, 0x000C,
     0x0010, 0x000C, 0x0010, 0x000C, 0x0006, 0x000F, 0x0006, 0x001C,
     0x0010, 0x0030, 0x0004, 0x0000, 0xFFF0, 0xFFF0, 0xFFE6, 0xFFB6,
@@ -5254,6 +8696,7 @@ u16 D_8004D4B8[] = {
     0xFFF6, 0x000C, 0x007D, 0x000C, 0xFFEC, 0x000F, 0xFFEC, 0x001C,
     0x007D, 0x0030,
 };
+#if VERSION_US
 s32 D_8004D51C[] = {
     255, 0, 0, 0,
     0, 0, 3839, (s32)D_8004DD4C,
@@ -5262,15 +8705,35 @@ s32 D_8004D51C[] = {
     (s32)D_8004DB64, 0x7200EA, 2559, (s32)D_8004FAE4,
     (s32)D_800504C8, (s32)D_8004D7B8, (s32)D_8004DB64, 0x7200EA,
 };
+#elif VERSION_EU
+s32 D_8004DD74[] = {
+    255, 0, 0, 0,
+    0, 0, 3839, (s32)D_8004E5A4,
+    (s32)D_8004EF88, (s32)D_8004E010, (s32)D_8004E3BC, 0x7200EA,
+    3071, (s32)D_8004F470, (s32)D_8004FE54, (s32)D_8004E010,
+    (s32)D_8004E3BC, 0x7200EA, 2559, (s32)D_8005033C,
+    (s32)D_80050D20, (s32)D_8004E010, (s32)D_8004E3BC, 0x7200EA,
+};
+#endif
+#if VERSION_US
 s32 D_8004D57C[] = {
+#elif VERSION_EU
+s32 D_8004DDD4[] = {
+#endif
     1, 2, 3, 2,
     5, 3, 3, 2,
     3, 2, 0,
 };
+#if VERSION_US
 s32 FONT = (s32)D_8004D51C;
 s32 D_8004D5AC = (s32)D_8004D57C;
+#elif VERSION_EU
+s32 FONT = (s32)D_8004DD74;
+s32 D_8004DE04 = (s32)D_8004DDD4;
+#endif
 s32 FONT_LOAD = (s32)loadFont;
 s32 FONT_DECODE = (s32)decodeChar;
+#if VERSION_US
 s32 GFX[] = {
     0, 0, 0, 0,
     0, 0, 0, 0,
@@ -5300,14 +8763,74 @@ s32 GFX_FUNCS[] = {
     (s32)destroyLayer, (s32)setDisplayMode, (s32)setDisplayArea, (s32)getLayer,
     (s32)moveLayer, (s32)getFrameCount, (s32)getTime, (s32)getFrameTime,
 };
+#elif VERSION_EU
+s32 GFX[] = {
+    0, 0,
+};
+s32 D_8004DE18[] = {
+    0, 0,
+};
+s32 D_8004DE20[] = {
+    0, 0,
+};
+s32 D_8004DE28[] = {
+    0, 0,
+};
+s32 D_8004DE30[] = {
+    0, 0, 0, 0,
+    0,
+};
+s32 D_8004DE44 = 0;
+s32 D_8004DE48[] = {
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0,
+};
+s32 GFX_FUNCS[] = {
+    (s32)resetGraphics, (s32)allocPrimBuffers,
+};
+s32 D_8004DF68 = (s32)getPrim;
+s32 D_8004DF6C[] = {
+    (s32)setPrim, (s32)freePrimBuffers, (s32)startVSyncCallback, (s32)drawFrame,
+    (s32)createLayer, (s32)destroyLayer, (s32)setDisplayMode, (s32)setDisplayArea,
+};
+s32 D_8004DF8C[] = {
+    (s32)getLayer, (s32)moveLayer, (s32)getFrameCount,
+};
+s32 D_8004DF98[] = {
+    (s32)getTime, (s32)getFrameTime,
+};
+#endif
 u16 OT_LENGTHS[] = {
     0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080, 0x0100,
     0x0200, 0x0400, 0x0800, 0x1000,
 };
+#if VERSION_US
 s32 CARD_IMAGE_FILES[] = {
     2023, 2024, 2025, 2026,
     2027,
 };
+#elif VERSION_EU
+s32 CARD_IMAGE_FILES[] = {
+    2038, 2039, 2040, 2041,
+    2042,
+};
+#endif
 s32 CARD_KINDS[] = {
     0, 1, 1, 1,
     2, 1, 1, 2,
@@ -5315,7 +8838,11 @@ s32 CARD_KINDS[] = {
     1, 1, 2, 0,
     0,
 };
+#if VERSION_US
 u16 D_8004D7B8[] = {
+#elif VERSION_EU
+u16 D_8004E010[] = {
+#endif
     0x0000, 0x0000, 0x0001, 0x0001, 0x0002, 0x0002, 0x0003, 0x0003,
     0x824F, 0x0004, 0x8250, 0x0005, 0x8251, 0x0006, 0x8252, 0x0007,
     0x8253, 0x0008, 0x8254, 0x0009, 0x8255, 0x000A, 0x8256, 0x000B,
@@ -5376,7 +8903,11 @@ u16 D_8004D7B8[] = {
     0x8394, 0x00E4, 0x8145, 0x00E5, 0x8148, 0x00E6, 0x8149, 0x00E7,
     0x815B, 0x00E8, 0x8160, 0x00E9, 0xFFFF, 0x0000,
 };
+#if VERSION_US
 u16 D_8004DB64[] = {
+#elif VERSION_EU
+u16 D_8004E3BC[] = {
+#endif
     0x0000, 0x0000, 0x8140, 0x0001, 0x8141, 0x0002, 0x8142, 0x0003,
     0x8143, 0x0004, 0x8144, 0x0005, 0x8145, 0x0006, 0x8146, 0x0007,
     0x8147, 0x0008, 0x8148, 0x0009, 0x8149, 0x000A, 0x814F, 0x000B,
@@ -5409,6 +8940,7 @@ u16 D_8004DB64[] = {
     0x00FF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x00FF, 0x0000,
     0x0000, 0x0000, 0x0000, 0x0000,
 };
+#if VERSION_US
 s32 D_8004DD4C[] = {
     0x30126001, 0x10C08E8, 0x10C0600, 0xE8301268,
     0x10C08, 0x70010C06, 0x8E83012, 0x600010C,
@@ -6195,10 +9727,795 @@ s32 D_80050B04[] = {
     563, 562, 0x2320000, 0x2330000,
     0x2320001, 0,
 };
+#elif VERSION_EU
+s32 D_8004E5A4[] = {
+    0x30126001, 0x10C08E8, 0x10C0600, 0xE8301268,
+    0x10C08, 0x70010C06, 0x8E83012, 0x600010C,
+    0x1578010C, 0xC08E830, 0xC060001, 0x30158001,
+    0x10C08E8, 0x10C0600, 0xE8301588, 0x10C08,
+    0x90010C06, 0x8E83015, 0x600010C, 0x1598010C,
+    0xC08E830, 0xC060001, 0x3015A001, 0x10C08E8,
+    0x10C0600, 0xE83015A8, 0x10C08, 0xB0010C06,
+    0x8E83015, 0x600010C, 0x15B8010C, 0xC08E830,
+    0xC060001, 0x3015C001, 0x10C08E8, 0x10C0600,
+    0xE83015C8, 0x10C08, 0xD0010C06, 0x8E83015,
+    0x600010C, 0x15D8010C, 0xC08E830, 0xC060001,
+    0x3015E001, 0x10C08E8, 0x10C0600, 0xE83015E8,
+    0x10C08, 0x20010C06, 0x4E8303F, 0x300010C,
+    0x15F0010C, 0xC08E830, 0xC060001, 0x301E0001,
+    0x10C08E8, 0x10C0600, 0xE8301E08, 0x10C08,
+    0x10010C06, 0x8E8301E, 0x600010C, 0x1E18010C,
+    0xC08E830, 0xC060001, 0x301E2001, 0x10C08E8,
+    0x10C0600, 0xE8301E28, 0x10C08, 0x30010C06,
+    0x8E8301E, 0x600010C, 0x1E38010C, 0xC08E830,
+    0xC060001, 0x301E4001, 0x10C08E8, 0x10C0600,
+    0xE8301E48, 0x10C08, 0x50010C06, 0x8E8301E,
+    0x600010C, 0x1E58010C, 0xC08E830, 0xC060001,
+    0x301E6001, 0x10C08E8, 0x10C0600, 0xE8301E68,
+    0x10C08, 0x70010C06, 0x8E8301E, 0x600010C,
+    0x2178010C, 0xC08E830, 0xC060001, 0x30218001,
+    0x10C08E8, 0x10C0500, 0xE8302188, 0x10C08,
+    0x90010C05, 0x8E83021, 0x500010C, 0x2198010C,
+    0xC08E830, 0xC050001, 0x3021A001, 0x10C08E8,
+    0x10C0500, 0xE83021A8, 0x10C08, 0xB0010C05,
+    0x8E83021, 0x601010C, 0x21B8010C, 0xC08E830,
+    0xC050001, 0x303F2401, 0x10C04E8, 0x10C0200,
+    0xE830B97C, 0x1010C04, 0xC0010C04, 0x8E83021,
+    0x500010C, 0x3EF8000C, 0xC04E830, 0xC030001,
+    0x3021C801, 0x10C08E8, 0x10C0600, 0xE83021D0,
+    0x10C08, 0xD8010C05, 0x8E83021, 0x500010C,
+    0x21E0010C, 0xC08E830, 0xC050101, 0x3021E801,
+    0x10C08E8, 0x10C0501, 0xE83078D4, 0x10C04,
+    0xF0010C04, 0x8E83021, 0x500010C, 0x47CC010C,
+    0xC04E830, 0xC040001, 0x302A0001, 0x10C08E8,
+    0x10C0600, 0xE8302A08, 0x10C08, 0x10010C05,
+    0x8E8302A, 0x600010C, 0x2A18010C, 0xC08E830,
+    0xC050001, 0x302A2001, 0x10C08E8, 0x10C0501,
+    0xE8302A28, 0x10C08, 0xD8000C05, 0xCE8304A,
+    0x800020C, 0x4AE4000C, 0xC0CE830, 0xC090001,
+    0x304AF000, 0x20C0CE8, 0xC0800, 0xE8304C00,
+    0x10C0C, 0xC000C09, 0xCE8304C, 0x600020C,
+    0x4C18000C, 0xC0CE830, 0xC070001, 0x304C2400,
+    0x20C0CE8, 0xC0800, 0xE8304C30, 0x10C0C,
+    0x3C000C09, 0xCE8304C, 0x900010C, 0x4D9C000C,
+    0xC0CE830, 0xC090001, 0x304DA800, 0x10C0CE8,
+    0xC0A00, 0xE8304E48, 0x10C0C, 0x54000C0A,
+    0xCE83054, 0x900010C, 0x5460000C, 0xC0CE830,
+    0xC090001, 0x30546C00, 0x20C0CE8, 0xC0600,
+    0xE8305478, 0x20C0C, 0x84000C08, 0xCE83054,
+    0x900010C, 0x5690000C, 0xC0CE830, 0xC0A0001,
+    0x3056B400, 0x10C0CE8, 0xC0800, 0xE83056C0,
+    0x10C0C, 0xCC000C09, 0xCE83056, 0x800010C,
+    0x56D8000C, 0xC0CE830, 0xC0A0001, 0x3056E400,
+    0x10C0CE8, 0xC0800, 0xE83056F0, 0x10C0C,
+    3080, 0xCE83058, 0x800010C, 0x580C000C,
+    0xC0CE830, 0xC090001, 0x30581800, 0x10C0CE8,
+    0xC0900, 0xE8305824, 0x10C0C, 0x30000C09,
+    0xCE83058, 0x900010C, 0x583C000C, 0xC0CE830,
+    0xC090001, 0x30599C00, 0x10C0CE8, 0xC0900,
+    0xE83059A8, 0x10C0C, 0x48000C09, 0xCE8305A,
+    0x800010C, 0x6054000C, 0xC0CE830, 0xC090001,
+    0x30606000, 0x20C0CE8, 0xC0700, 0xE830606C,
+    0x10C0C, 0x78000C09, 0xCE83060, 0xA00010C,
+    0x6084000C, 0xC0CE830, 0xC090001, 0x30629000,
+    0x10C0CE8, 0xC0900, 0xE83062B4, 0x10C0C,
+    0xC0000C08, 0xCE83062, 0xA00010C, 0x62CC000C,
+    0xC0CE830, 0xC0A0001, 0x3062D800, 0x10C0CE8,
+    0xC0900, 0xE83062E4, 0x10C0C, 0xF0000C0A,
+    0xCE83062, 0xA00010C, 0x6400000C, 0xC0CE830,
+    0xC0A0001, 0x30640C00, 0x10C0CE8, 0xC0900,
+    0xE8306418, 0x10C0C, 0x24000C0A, 0xCE83064,
+    0xB00010C, 0x6430000C, 0xC0CE830, 0xC0A0001,
+    0x30643C00, 0x10C0CE8, 0xC0A00, 0xE830659C,
+    0x10C0C, 0xA800090A, 0xCE83065, 0xA00010C,
+    0x6648000C, 0xC0CE830, 0xC0A0001, 0x306C5400,
+    0x10C0CE8, 0xC0A00, 0xE8306C60, 0x10C0C,
+    0x6C000C0A, 0xCE8306C, 0xA00010C, 0x6C78000C,
+    0xC0CE830, 0xC0A0001, 0x306C8400, 0x10C0CE8,
+    0xC0900, 0xE8306E90, 0x10C0C, 0xB4000C0A,
+    0xCE8306E, 0xA00010C, 0x6EC0000C, 0xC0CE830,
+    0xC090001, 0x306ECC00, 0x10C0CE8, 0xC0A00,
+    0xE8306ED8, 0x10C0C, 0xE4000C0A, 0xCE8306E,
+    0xA00010C, 0x6EF0000C, 0xC0CE830, 0xC090001,
+    0x30700000, 0x20C0CE8, 0xC0800, 0xE830700C,
+    0x10C0C, 0x18000C0A, 0xCE83070, 0x700020C,
+    0x7024000C, 0xC0CE830, 0xC0A0001, 0x30703000,
+    0x20C0CE8, 0xC0800, 0xE830703C, 0x10C0C,
+    0x9C000C09, 0xCE83071, 0x900010C, 0x71A8000C,
+    0xC0CE830, 0xC070002, 0x30724800, 0x10C0CE8,
+    0xC0900, 0xE8307854, 0x10C0C, 0x60000C0A,
+    0xCE83078, 0x900010C, 0x786C000C, 0xC0CE830,
+    0xC070002, 0x30787800, 0x10C0CE8, 0xC0A00,
+    0xE8307884, 0x10C0C, 0x90000C09, 0xCE8307A,
+    0xA00010C, 0x7AB4000C, 0xC0CE830, 0xC080002,
+    0x307AC000, 0x10C0CE8, 0xC0A00, 0xE8307ACC,
+    0x20C0C, 0xD8000C07, 0xCE8307A, 0x900010C,
+    0x7AE4000C, 0xC0CE830, 0xC070002, 0x307AF000,
+    0x10C0CE8, 0xC0900, 0xE8307C00, 0x20C0C,
+    0xC000C07, 0xCE8307C, 0xA00010C, 0x7C18000C,
+    0xC0CE830, 0xC080002, 0x307C2400, 0x10C0CE8,
+    0xC0A00, 0xE8307C30, 0x10C0C, 0x3C000C09,
+    0xCE8307C, 0xA00010C, 0x7D9C000C, 0xC0CE830,
+    0xC0A0001, 0x307DA800, 0x10C0CE8, 0xC0A00,
+    0xE8307E48, 0x10C0C, 0x54000C09, 0xCE83084,
+    0xA00010C, 0x8460000C, 0xC0CE830, 0xC0A0001,
+    0x30846C00, 0x10C0CE8, 0xC0A00, 0xE8308478,
+    0x10C0C, 0x84000C09, 0xCE83084, 0x900010C,
+    0x8690000C, 0xC0CE830, 0xC0A0001, 0x3086B400,
+    0x10C0CE8, 0x10C0A00, 0xE830C958, 0x10C0C,
+    0xB8010C0A, 0xCE83053, 0xA00010C, 0x53DC010C,
+    0xC0CE830, 0xC0A0001, 0x3053D001, 0x10C0CE8,
+    0x10C0A00, 0xE83053E8, 0x10C0C, 3082,
+    0xCE83088, 0xA00010C, 0x880C000C, 0xC0CE830,
+    0xC090001, 0x30881800, 0x10C0CE8, 0xC0A00,
+    0xE8308824, 0x10C0C, 0x30000C08, 0xCE83088,
+    0xA00010C, 0x883C000C, 0xC0CE830, 0xC0A0001,
+    0x30899C00, 0x10C0CE8, 0xC0A00, 0xE83089A8,
+    0x10C0C, 0x48000C07, 0xCE8308A, 0x900010C,
+    0x9054000C, 0xC0CE830, 0xC0A0001, 0x30906000,
+    0x10C0CE8, 0xC0A00, 0xE830906C, 0x10C0C,
+    0x30010C0A, 0x8E8302A, 0x500020C, 0x2A38010C,
+    0xC08E830, 0xC060002, 0x30907800, 0x10C0CE8,
+    0xC0A00, 0xE8309084, 0x10C0C, 0x90000C0A,
+    0xCE83092, 0x900010C, 0x92B4000C, 0xC0CE830,
+    0xC090001, 0x30570001, 0x10C0CE8, 0x10C0700,
+    0xE830570C, 0x10C0C, 0xB4000C09, 0xCE830AA,
+    0xA00010C, 0xE658010C, 0xC0CE830, 0xC0A0001,
+    0x3047D001, 0x10C0CE8, 0xC0800, 0xE8309400,
+    0x10C0C, 0xC000C09, 0xCE83094, 0x900010C,
+    0x9418000C, 0xC0CE830, 0xC090001, 0x30942400,
+    0x10C0CE8, 0xC0A00, 0xE8309430, 0x10C0C,
+    0x3C000C0A, 0xCE83094, 0xA00010C, 0x959C000C,
+    0xC0CE830, 0xC0A0001, 0x3095A800, 0x10C0CE8,
+    0xC0A00, 0xE8309648, 0x10C0C, 0x54000C09,
+    0xCE8309C, 0xA00010C, 0x9C60000C, 0xC0CE830,
+    0xC0A0001, 0x309C6C00, 0x10C0CE8, 0xC0A00,
+    0xE8309C78, 0x10C0C, 0x84000C07, 0xCE8309C,
+    0xA00010C, 0x9E90000C, 0xC0CE830, 0xC080001,
+    0x309EB400, 0x10C0CE8, 0x10C0A00, 0xE83053C4,
+    0x20C0C, 0x58010C07, 0xCE830F2, 0xA00010C,
+    0xF318000C, 0xC0CE830, 0xC080002, 0x30F32400,
+    0x10C0CE8, 0x10C0A00, 0xE830C1D4, 0x20C0C,
+    3078, 0xCE830A0, 0x800010C, 0xA00C000C,
+    0xC0CE830, 0xC090001, 0x30A01800, 0x20C0CE8,
+    0xC0700, 0xE830A024, 0x10C0C, 0x30000C0A,
+    0xCE830A0, 0x800010C, 0xA03C000C, 0xC0CE830,
+    0xC080001, 0x30A19C00, 0x20C0CE8, 0xC0700,
+    0xE830A1A8, 0x10C0C, 0x48000C09, 0xCE830A2,
+    0x800010C, 0xA854000C, 0xC0CE830, 0xC090001,
+    0x30A86000, 0x10C0CE8, 0x10C0A00, 0xE8300988,
+    3080, 0xA0010C07, 0x8E83009, 0x700010C,
+    0x9CC8010C, 0xC04E830, 0xC040001, 0x3009B001,
+    0x20C08E8, 0xC0500, 0xE8303C60, 0x10C0C,
+    3078,
+};
+s32 D_8004EF88[] = {
+    0x303C8400, 0xC08E8, 0xC0600, 0xE83020F4,
+    3080, 0xF4000C07, 0x8E8302C, 0x700000C,
+    0x978010C, 0xC08E830, 0xC070100, 0x30098001,
+    0xC08E8, 0x10C0700, 0xE8300988, 3080,
+    0x90010C07, 0x8E83009, 0x700000C, 0x998010C,
+    0xC08E830, 0xC070100, 0x3009A001, 0x10C08E8,
+    0x10C0700, 0xE8309CC8, 0x10C04, 0x3C010C04,
+    0x4E83054, 0x400010C, 0x9A8010C, 0xC08E830,
+    0xC070002, 0x3009B001, 0x20C08E8, 0x10C0500,
+    0xE83009B8, 0x20C08, 0xC0010C05, 0x8E83009,
+    0x600020C, 0x9C8010C, 0xC08E830, 0xC060002,
+    0x303C6000, 0x10C0CE8, 0xC0600, 0xE8303C6C,
+    0x10C0C, 0xA4010C0C, 0x8E830CD, 0x700010C,
+    0x9D0010C, 0xC08E830, 0xC040002, 0x30537801,
+    0x10C04E8, 0x10C0400, 0xE830A8F8, 0x10C04,
+    0x1C010C04, 0x4E83099, 0x400010C, 0x8D1C010C,
+    0xC04E830, 0xC040001, 0x3009D801, 0x10C08E8,
+    0x10C0800, 0xE83009E0, 0x20C08, 0xE8010C05,
+    0xCE03009, 0xB00010C, 0xF208010C, 0xC08E830,
+    0xC070001, 0x30120001, 0x10C08E8, 0x10C0600,
+    0xE8301208, 0x10C08, 0x10010C06, 0x8E83012,
+    0x700000C, 0x1218010C, 0xC08E830, 0xC070000,
+    0x30122001, 0xC08E8, 0x10C0700, 0xE8301228,
+    3080, 0x78000C07, 0xCE8303C, 0xC00010C,
+    0x3EEC000C, 0xC0CE830, 0xC0C0001, 0x303E9000,
+    0x10C0C99, 0xC0C00, 0x98303EBC, 0x10C0C,
+    0xC8000C0C, 0xC97303E, 0xC00010C, 0x3ED4000C,
+    0xC0C9630, 0xC0C0001, 0x303EE000, 0x10C0C95,
+    0x10C0C00, 0xE8301230, 0x10C08, 0x38010C0C,
+    0x8E83012, 0x800010C, 0x419C000C, 0xC0C9430,
+    0xC0C0001, 0x3041A800, 0x10C0C93, 0xC0C00,
+    0x92304854, 0x10C0C, 0x60000C0C, 0xCE03048,
+    0xB00010C, 0x486C000C, 0xC0C9130, 0xC0C0001,
+    0x30487800, 0x10C0C90, 0xC0C00, 0xE0304884,
+    0x10C0C, 0x90000C0B, 0xC8F304A, 0xC00010C,
+    0x4AB4000C, 0xC0CE030, 0xC0B0001, 0x304AC000,
+    0x10C0C8E, 0xC0C00, 0x8D304ACC, 0x10C0C,
+    0x40010C0C, 0x8E83012, 0x700010C, 0x1248010C,
+    0xC08E830, 0xC070001, 0x30125001, 0x10C08E8,
+    0x10C0800, 0xE8301258, 0x10C08, 0xC8010C08,
+    0x4E83087, 0x400000C, 0xF338000C, 0xC08E830,
+    0xC060000, 0x30A86C00, 0xC08E8, 0xC0500,
+    0xE830A874, 3080, 0x7C000C06, 0x8E830A8,
+    0x700000C, 0x14F4000C, 0xC08E830, 0xC060000,
+    0x303F2801, 0xC08E8, 0x10C0600, 0xE830CDBC,
+    3080, 0xF4010C06, 0x8E83009, 0x600000C,
+    0xAC00000C, 0xC08E830, 0xC060000, 0x30C99C01,
+    0xC08E8, 0x10C0600, 0xE830B580, 3080,
+    0xAC010C06, 0x8E830CD, 0x600000C, 0xCDC4010C,
+    0xC08E830, 0xC060000, 0x30C99401, 0xC08E8,
+    0x10C0600, 0xE830C1C4, 3080, 0x78010C06,
+    0x8E830F1, 0x500000C, 0xAC10000C, 0xC08E830,
+    0xC050000, 0x30D97801, 0xC08E8, 0x10C0600,
+    0xE8309CC0, 3080, 0x10C05, 0x8E830F2,
+    0x600000C, 0xF340000C, 0xC08E830, 0xC050000,
+    0x30A63801, 0xC08E8, 0x10C0500, 0xE830C1B4,
+    3080, 0x40010C05, 0x8E830AF, 0x500000C,
+    0xA850010C, 0xC08E830, 0xC050000, 0x30B45001,
+    0xC08E8, 0x10C0500, 0xE8303F38, 3080,
+    0xA4010C05, 0x8E83097, 0x600000C, 0x3F10010C,
+    0xC08E830, 0xC060000, 0x303F0801, 0xC08E8,
+    0x10C0600, 0xE830AF48, 3080, 0x80010C06,
+    0x8E830C1, 0x600000C, 0xA3A4010C, 0xC08E830,
+    0xC060000, 0x30CDCC01, 0xC08E8, 0x10C0600,
+    0xE83087C0, 3080, 0xA4010C06, 0x8E8308B,
+    0x500000C, 0xF210010C, 0xC08E830, 0xC050000,
+    0x30C1A401, 0xC08E8, 0x10C0600, 0xE830CDB4,
+    3080, 0x30010C06, 0x8E8303F, 0x600000C,
+    0xE578010C, 0xC08E830, 0xC060000, 0x30C05001,
+    0xC08E8, 0x10C0600, 0xE830CD78, 3080,
+    0xCC010C06, 0x8E830C1, 0x500000C, 0xEA50010C,
+    0xC08E830, 0xC060000, 0x30DE5001, 0xC08E8,
+    0x10C0600, 0xE8303F00, 3080, 0x8000C05,
+    0x8E830AC, 0x600000C, 0x3F18010C, 0xC08E830,
+    0xC060000, 0x30C1AC01, 0xC08E8, 0x10C0600,
+    0xE830C1BC, 3080, 0x18010C06, 0x8E830F2,
+    0x500000C, 0x9CCC010C, 0xC08E830, 0xC060000,
+    0x3087CC01, 0xC08E8, 0xC0600, 0xE830F330,
+    3080, 3077,
+};
+s32 D_8004F470[] = {
+    0x302A5801, 0x10908D8, 0x10A0600, 0xD8302A60,
+    0x10908, 0x68010A04, 0x8D8302A, 0x6000109,
+    0x2A70010A, 0x908D830, 0xA060001, 0x302D7801,
+    0x10908D8, 0x10A0600, 0xD8302D80, 0x10908,
+    0x88010A06, 0x8D8302D, 0x6000109, 0x2D90010A,
+    0x908D830, 0xA060001, 0x302D9801, 0x10908D8,
+    0x10A0600, 0xD8302DA0, 0x10908, 0xA8010A06,
+    0x8D8302D, 0x5000109, 0x2DB0010A, 0x908D830,
+    0xA050001, 0x302DB801, 0x10908D8, 0x10A0500,
+    0xD8302DC0, 0x10908, 0xC8010A05, 0x8D8302D,
+    0x5000109, 0x2DD0010A, 0x908D830, 0xA050001,
+    0x302DD801, 0x10908D8, 0x10A0500, 0xD8302DE0,
+    0x10908, 0xE8010A05, 0x8D8302D, 0x4000109,
+    0x2DF0010A, 0x908D830, 0xA050001, 0x30334001,
+    0x10908D8, 0x10A0500, 0xD8303348, 0x10908,
+    0x50010A05, 0x8D83033, 0x6000109, 0x3358010A,
+    0x908D830, 0xA050001, 0x30336001, 0x10908D8,
+    0x10A0500, 0xD8303368, 0x10908, 0x70010A05,
+    0x8D83033, 0x5000109, 0x3600010A, 0x908D830,
+    0xA050001, 0x30360801, 0x10908D8, 0x10A0500,
+    0xD8303610, 0x10908, 0x18010A06, 0x8D83036,
+    0x5000109, 0x3620010A, 0x908D830, 0xA060001,
+    0x30362801, 0x10908D8, 0x10A0600, 0xD8303630,
+    0x10908, 0x38010A05, 0x8D83036, 0x6000109,
+    0x3678010A, 0x908D830, 0xA050001, 0x30368001,
+    0x10908D8, 0x10A0500, 0xD8303688, 0x10908,
+    0x90010A05, 0x8D83036, 0x5000109, 0x3698010A,
+    0x908D830, 0xA050001, 0x3036A001, 0x10908D8,
+    0x10A0500, 0xD83036A8, 0x10908, 0xB0010A05,
+    0x8D83036, 0x5000109, 0x36B8010A, 0x908D830,
+    0xA050001, 0x3036C001, 0x908D8, 0x10A0300,
+    0xD83036C8, 0x1010908, 0xD0010A04, 0x8D83036,
+    0x5000109, 0x36D8010A, 0x908D830, 0xA030000,
+    0x3036E001, 0x10908D8, 0x10A0600, 0xD83036E8,
+    0x10908, 0xF0010A05, 0x8D83036, 0x5000109,
+    0x3C40010A, 0x908D830, 0xA050001, 0x303C4801,
+    0x10908D8, 0x10A0500, 0xD8303C50, 0x10908,
+    0x58010A04, 0x8D8303C, 0x5000109, 0x3C60010A,
+    0x908D830, 0xA050001, 0x303C6801, 0x10908D8,
+    0x10A0500, 0xD8303C70, 0x10908, 0xD4010A06,
+    0x8D8308D, 0x6000109, 0x8DF4010A, 0x908D830,
+    0xA060001, 0x30C46401, 0x10908D8, 0x10A0500,
+    0xD8308DEC, 0x10908, 0x24000A05, 0xCD830AC,
+    0x7000209, 0xAC30000A, 0x90CD830, 0xA090002,
+    0x30AC3C00, 0x2090CD8, 0xA0700, 0xD830AD9C,
+    0x2090C, 0xA8000A09, 0xCD830AD, 0x6000209,
+    0xAE48000A, 0x90CD830, 0xA070002, 0x30B45400,
+    0x2090CD8, 0xA0800, 0xD830B460, 0x2090C,
+    0x6C000A09, 0xCD830B4, 0x8000209, 0xB478000A,
+    0x90CD830, 0xA090002, 0x30B51800, 0x2090CD8,
+    0xA0900, 0xD830B524, 0x2090C, 0x30000A09,
+    0xCD830B5, 0x8000209, 0xB53C000A, 0x90CD830,
+    0xA080002, 0x30B18400, 0x2090CD8, 0xA0500,
+    0xD830B690, 0x2090C, 0x9C000A08, 0xCD830B6,
+    0x9000209, 0xB6A8000A, 0x90CD830, 0xA090002,
+    0x30B6B400, 0x2090CD8, 0xA0800, 0xD830B748,
+    0x2090C, 2568, 0xCD830B8, 0x8000209,
+    0xB80C000A, 0x90CD830, 0xA080002, 0x30BD5400,
+    0x2090CD8, 0xA0700, 0xD830BD60, 0x2090C,
+    0x6C000A07, 0xCD830BD, 0x9000209, 0xBD78000A,
+    0x90CD830, 0xA090002, 0x30BE1800, 0x2090CD8,
+    0xA0900, 0xD830BE24, 0x2090C, 0x30000A09,
+    0xCD830BE, 0x9000209, 0xBE3C000A, 0x90CD830,
+    0xA090002, 0x30BA8400, 0x2090CD8, 0xA0900,
+    0xD830BF90, 0x2090C, 0x9C000A09, 0xCD830BF,
+    0x8000209, 0xBFA8000A, 0x90CD830, 0xA090002,
+    0x30BFB400, 0x2090CD8, 0xA0700, 0xD830C048,
+    0x2090C, 2569, 0xCD830C1, 0x9000209,
+    0xC10C000A, 0x90CD830, 0xA090002, 0x30C65400,
+    0x2090CD8, 0xA0900, 0xD830C660, 0x2090C,
+    0x6C000A07, 0xCD830C6, 0x8000209, 0xC678000A,
+    0x90CD830, 0xA090002, 0x30C71800, 0x2090CD8,
+    0xA0900, 0xD830C724, 0x2090C, 0x30000A09,
+    0xCD830C7, 0x9000209, 0xC73C000A, 0x90CD830,
+    0xA090002, 0x30C38400, 0x2090CD8, 0xA0900,
+    0xD830C890, 0x2090C, 0x9C000A09, 0xCD830C8,
+    0x9000209, 0xC8A8000A, 0x90CD830, 0xA090002,
+    0x30C8B400, 0x2090CD8, 0xA0900, 0xD830C948,
+    0x2090C, 2569, 0xCD830CA, 0x9000209,
+    0xCA0C000A, 0x90CD830, 0xA090002, 0x30CF5400,
+    0x2090CD8, 0xA0900, 0xD830CF60, 0x2090C,
+    0x6C000A09, 0xCD830CF, 0x9000209, 0xCF78000A,
+    0x90CD830, 0xA090002, 0x30D01800, 0x2090CD8,
+    0xA0900, 0xD830D024, 0x2090C, 0x30000A09,
+    0xCD830D0, 0x9000209, 0xD03C000A, 0x90CD830,
+    0xA080002, 0x30CC8400, 0x2090CD8, 0xA0900,
+    0xD830D190, 0x2090C, 0x9C000A09, 0xCD830D1,
+    0x9000209, 0xD1A8000A, 0x90CD830, 0xA080002,
+    0x30D1B400, 0x2090CD8, 0xA0800, 0xD830D248,
+    0x2090C, 2569, 0xCD830D3, 0x7000209,
+    0xD30C000A, 0x90CD830, 0xA090002, 0x30D85400,
+    0x2090CD8, 0xA0700, 0xD830D860, 0x2090C,
+    0x6C000A09, 0xCD830D8, 0x8000209, 0xD878000A,
+    0x90CD830, 0xA070002, 0x30D91800, 0x2090CD8,
+    0xA0900, 0xD830D924, 0x2090C, 0x30000A09,
+    0xCD830D9, 0x9000209, 0xD93C000A, 0x90CD830,
+    0xA080002, 0x30D58400, 0x2090CD8, 0xA0900,
+    0xD830DA90, 0x2090C, 0x9C000A09, 0xCD830DA,
+    0x9000209, 0xDAA8000A, 0x90CD830, 0xA070002,
+    0x30DAB400, 0x2090CD8, 0xA0900, 0xD830DB48,
+    0x2090C, 2567, 0xCD830DC, 0x8000209,
+    0xDC0C000A, 0x90CD830, 0xA070002, 0x30E15400,
+    0x2090CD8, 0xA0800, 0xD830E160, 0x2090C,
+    0x6C000A08, 0xCD830E1, 0x9000209, 0xE178000A,
+    0x90CD830, 0xA080002, 0x30E21800, 0x2090CD8,
+    0xA0900, 0xD830E224, 0x2090C, 0x30000A08,
+    0xCD830E2, 0x9000209, 0xE23C000A, 0x90CD830,
+    0xA090002, 0x30DE8400, 0x2090CD8, 0xA0900,
+    0xD830E390, 0x2090C, 0x9C000A08, 0xCD830E3,
+    0x9000209, 0xE3A8000A, 0x90CD830, 0xA090002,
+    0x30E3B400, 0x2090CD8, 0xA0900, 0xD830E448,
+    0x2090C, 2568, 0xCD830E5, 0x8000209,
+    0xE50C000A, 0x90CD830, 0xA090002, 0x30EA5400,
+    0x2090CD8, 0xA0900, 0xD830EA60, 0x2090C,
+    0x6C000A09, 0xCD830EA, 0x9000209, 0xEA78000A,
+    0x90CD830, 0xA090002, 0x30A88400, 0x2090CD8,
+    0x10A0900, 0xD830B8E0, 0x2090C, 0xBC010A09,
+    0xCD830B8, 0x9000209, 0xB8D4010A, 0x90CD830,
+    0xA090002, 0x30C68801, 0x2090CD8, 0xA0900,
+    0xD830EC90, 0x2090C, 0x9C000A08, 0xCD830EC,
+    0x9000209, 0xECA8000A, 0x90CD830, 0xA090002,
+    0x30ECB400, 0x2090CD8, 0xA0900, 0xD830ED48,
+    0x2090C, 2567, 0xCD830EE, 0x8000209,
+    0xEE0C000A, 0x90CD830, 0xA080002, 0x30B8B001,
+    0x2090CD8, 0x10A0900, 0xD83084DC, 0x2090C,
+    0x88010A09, 0xCD830CF, 0x6000209, 0x456C010A,
+    0x90CD830, 0xA060002, 0x30B8A401, 0x2090CD8,
+    0x10A0900, 0xD830B8C8, 0x2090C, 0x48010A09,
+    0xCD83045, 0x8000209, 0x4554010A, 0x90CD830,
+    0xA080002, 0x30456001, 0x2090CD8, 0xA0800,
+    0xD830F590, 0x2090C, 0x9C000A09, 0xCD830F5,
+    0x9000209, 0xF5A8000A, 0x90CD830, 0xA090002,
+    0x30F5B400, 0x2090CD8, 0xA0800, 0xD830F648,
+    0x2090C, 0x10A08, 0xCD83000, 0x8000209,
+    0xC010A, 0x90CD830, 0xA080002, 0x30001801,
+    0x2090CD8, 0x10A0900, 0xD8300024, 0x2090C,
+    0x30010A09, 0xCD83000, 0x9000209, 0x3C010A,
+    0x90CD830, 0xA090002, 0x30004801, 0x2090CD8,
+    0x10A0900, 0xD8300054, 0x2090C, 0x60010A09,
+    0xCD83000, 0x9000209, 0x6C010A, 0x90CD830,
+    0xA090002, 0x30007801, 0x2090CD8, 0x10A0800,
+    0xD8300084, 0x2090C, 0x90010A07, 0xCD83000,
+    0x9000209, 0x9C010A, 0x90CD830, 0xA080002,
+    0x3000A801, 0x2090CD8, 0x10A0900, 0xD83000B4,
+    0x2090C, 0xC0010A08, 0xCD83000, 0x9000209,
+    0xCC010A, 0x90CD830, 0xA080002, 0x3000D801,
+    0x2090CD8, 0x10A0900, 0xD83000E4, 0x2090C,
+    0xF0010A06, 0xCD83000, 0x8000209, 0x900010A,
+    0x90CD830, 0xA080002, 0x30090C01, 0x2090CD8,
+    0x10A0700, 0xD8300918, 0x2090C, 0x24010A09,
+    0xCD83009, 0x7000209, 0x930010A, 0x90CD830,
+    0xA080002, 0x30093C01, 0x2090CD8, 0x10A0600,
+    0xD8300948, 0x2090C, 0x54010A08, 0xCD83009,
+    0x7000209, 0x960010A, 0x90CD830, 0xA080002,
+    0x30096C01, 0x2090CD8, 0x10A0900, 0xD8304B3C,
+    0x10904, 0xB4000A04, 0x8D83041, 0x6000109,
+    0xB07C010A, 0x904D830, 0xA040001, 0x302A4001,
+    0x10908D8, 0xA0500, 0xD830AC18, 0x1090C,
+    2567,
+};
+s32 D_8004FE54[] = {
+    0x30A51C01, 0x904D8, 0xFF0A0400, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 0x30AE1C01,
+    0x10904D8, 0x10A0400, 0xD8304B3C, 0x10904,
+    0xFF0A04, 0, 0, 65280,
+    0, 0, 0x3041B400, 0x10908D8,
+    0x10A0600, 0xD830B07C, 0x10904, 0xFF0A04,
+    0, 0, 65280, 0,
+    0, 0x302A4001, 0x10908D8, 0x10A0500,
+    0xD83084D4, 0x10908, 0xFF0A05, 0,
+    0, 65280, 0, 0,
+    0x30AC1800, 0x1090CD8, 0xFF0A0700, 0,
+    0, 0x8C000000, 0x4D8303E, 0x4000109,
+    65290, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0x48010000, 0x8D8302A, 0x5000109, 0x2A50010A,
+    0x908D830, 0xA050001, 255, 0,
+    0x1000000, 0xD83093C0, 0x10908, 0xFF0A05,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xC8010000,
+    0x4D83093, 0x2000109, 0x5670010A, 0x908D830,
+    0xA050001, 0x30566801, 0x10908D8, 0x10A0500,
+    0xD830CDD4, 0x10908, 0xCC010A05, 0x8D83093,
+    0x6000109, 0xF430010A, 0x908D830, 0xA050001,
+    0x30F42801, 0x10908D8, 0x10A0500, 0xD8308DDC,
+    0x10908, 0xD4010A05, 0x8D8309F, 0x6000109,
+    0x84E8010A, 0x908D830, 0xA050001, 0x30AFAC01,
+    0x10908D8, 0x10A0500, 0xD830B238, 0x10908,
+    0x50010A05, 0x8D83056, 0x5000109, 0x4540010A,
+    0x908D830, 0xA050001, 0x30564001, 0x10908D8,
+    0x10A0500, 0xD830F650, 0x10908, 0x50010A05,
+    0x8D830CC, 0x5000109, 0x96F4010A, 0x908D830,
+    0xA050001, 0x309FEC01, 0x10908D8, 0x10A0500,
+    0xD830D550, 0x10908, 0x88010A05, 0x8D830D8,
+    0x5000109, 0x9F50010A, 0x908D830, 0xA050001,
+    0x30D68001, 0x10908D8, 0x10A0500, 0xD830F440,
+    0x10908, 0xA4010A05, 0x8D830AF, 0x5000109,
+    0x9FE4010A, 0x908D830, 0xA040000, 0x30566001,
+    0x10908D8, 0x10A0400, 0xD83096EC, 0x10908,
+    0xE4010A03, 0x8D83096, 0x5000109, 0x6FF4010A,
+    0x908D830, 0xA050001, 0x3096DC01, 0x10908D8,
+    0x10A0500, 0xD8309FF4, 0x10908, 0xE4010A05,
+    0x8D8308D, 0x5000109, 0xCDDC010A, 0x908D830,
+    0xA050001, 0x30F44801, 0x10908D8, 0x10A0500,
+    0xD830C474, 0x10908, 0xB4010A05, 0x8D830AF,
+    0x5000109, 0xF420010A, 0x908D830, 0xA040000,
+    0x30F43801, 0x10908D8, 0x10A0500, 0xD830C46C,
+    0x10908, 0x48010A05, 0x8D83056, 0x5000109,
+    0xE100010A, 0x908D830, 0xA050001, 0x30E10801,
+    0x10908D8, 0x10A0500, 0xD830E110, 0x10908,
+    0x18010A05, 0x8D830E1, 0x3000109, 0x96D4010A,
+    0x908D830, 0xA050001, 0x30E32001, 0x10908D8,
+    0x10A0500, 0xD830E328, 2312, 0x30010A04,
+    0x8D830E3, 0x5000109, 0xE338010A, 0x908D830,
+    0xA050001, 0x30E34001, 0x10908D8, 0x10A0500,
+    0xD830E348, 0x10908, 0x58010A05, 0x8D83056,
+    0x4000009, 0xCD80010A, 0x908D830, 0xA050001,
+    0x309FDC01, 0x10908D8, 0x10A0500, 0xD830AFBC,
+    0x10904, 2563,
+};
+s32 D_8005033C[] = {
+    0x30F70800, 0x10808D0, 0x80600, 0xD030F710,
+    0x10808, 0x38000806, 0x8D030EB, 0x6000108,
+    0x3F780108, 0x808D030, 0x8060001, 0x303F8001,
+    0x10808D0, 0x1080600, 0xD0303F88, 0x10808,
+    0x90010806, 0x8D0303F, 0x6000108, 0x3F980108,
+    0x808D030, 0x8060001, 0x303FA001, 0x10808D0,
+    0x1080600, 0xD0303FA8, 0x10808, 0xD8010806,
+    0x8D030A8, 0x6000108, 0x3FE80108, 0x808D030,
+    0x8060001, 0x30A8C801, 0x10808D0, 0x1080600,
+    0xD030A8C0, 0x10808, 0xF4010806, 0x8D03047,
+    0x6000108, 0xB0E80108, 0x808D030, 0x8060001,
+    0x30A8E801, 0x10808D0, 0x1080600, 0xD0303FB0,
+    0x10808, 0xF0010806, 0x8D0303F, 0x4000108,
+    0xD0EC0108, 0x808D030, 0x8060001, 0x30D0F401,
+    0x10808D0, 0x1080600, 0xD0303FB8, 0x10808,
+    0xC0010806, 0x8D0303F, 0x7000108, 0xA8E00108,
+    0x808D030, 0x8060001, 0x30A8D001, 0x10808D0,
+    0x1080600, 0xD0303FC8, 0x10808, 0xF4010806,
+    0x8D030C8, 0x6000108, 0x4FF40108, 0x808D030,
+    0x8060001, 0x30A8F001, 0x10808D0, 0x1080600,
+    0xD0303FE0, 0x10808, 0xC0010806, 0x8D030B0,
+    0x6000108, 0xEB280008, 0x808D030, 0x8060001,
+    0x30B0F001, 0x10808D0, 0x1080700, 0xD03057F4,
+    0x10808, 0xC8010806, 0x8D030B0, 0x6000108,
+    0xD5980108, 0x808D030, 0x8060001, 0x303FD001,
+    0x10808D0, 0x1080600, 0xD030C8EC, 0x10808,
+    0xE0010806, 0x8D030B0, 0x6000108, 0xD8900108,
+    0x808D030, 0x8060001, 0x304E4001, 0x10808D0,
+    0x1080600, 0xD0304E58, 0x10808, 0xD8010806,
+    0x8D030B0, 0x6000108, 0xEA000108, 0x808D030,
+    0x8060001, 0x30EA0801, 0x10808D0, 0x1080400,
+    0xD030EA10, 0x10808, 0x18010806, 0x8D030EA,
+    0x6000108, 0xD5E40108, 0x808D030, 0x8040001,
+    0x304E6001, 0x10808D0, 0x1080600, 0xD030B0D0,
+    0x10808, 0x20010806, 0x8D030EC, 0x6000108,
+    0xEC280108, 0x808D030, 0x8060001, 0x30EC3001,
+    0x10808D0, 0x1080600, 0xD030EC38, 0x10808,
+    0x40010806, 0x8D030EC, 0x6000108, 0xEC480108,
+    0x808D030, 0x8060001, 0x304E6801, 0x10808D0,
+    0x80600, 0xD030EB40, 0x10808, 0x30000806,
+    0x8D030EB, 0x6000108, 0x67F40108, 0x808D030,
+    0x8060001, 0x304E7001, 0x10808D0, 0x1080600,
+    0xD0303FD8, 0x10808, 0xFF0806, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 0xEB180000, 0x808D030,
+    0x8070000, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 0xEB200000,
+    0x808D030, 0x8060000, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0x1000000, 0xD0305FF4, 2056, 0xFF0807,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 0x304E5001,
+    0x10808D0, 0xFF080600, 0, 0,
+    0,
+};
+s32 D_80050D20[] = {
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0x48010000, 0x8D0304E, 0x4000008, 65288,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 0x304E5001, 0x10808D0, 0xFF080600,
+    0, 0, 0, 0x8D030F7,
+    0x5000008, 65288, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0x1000000, 0xD030CDE4, 0x10808, 0xFF0806,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0xFF0000, 0, 0,
+    65280, 0, 0, 255,
+    0, 0xFF000000, 0, 0,
+    0xFF0000, 0, 0, 65280,
+    0, 0, 255, 0,
+    0xFF000000, 0, 0, 0xFF0000,
+    0, 0, 65280, 0,
+    0, 255, 0, 0xFF000000,
+    0, 0, 0xFF0000, 0,
+    0, 65280, 0, 0,
+    255, 0, 0xFF000000, 0,
+    0, 0,
+};
+s32 D_80051208[] = {
+    384, 371, 0x1730000, 0x1800000,
+    0x1730001, 0x1730002, 0,
+};
+s32 D_80051224[] = {
+    375, 362, 0x16A0000, 0x1770000,
+    0x16A0001, 0,
+};
+s32 D_8005123C[] = {
+    1138, 1136, 0x4700000, 0x4720000,
+    0x4700001, 0,
+};
+s32 D_80051254[] = {
+    376, 363, 0x16B0000, 0x1780000,
+    0x16B0001, 0,
+};
+s32 D_8005126C[] = {
+    377, 364, 0x16C0000, 0x1790000,
+    0x16C0001, 0,
+};
+s32 D_80051284[] = {
+    529, 527, 0x20F0000, 0x2110000,
+    0x20F0001, 0,
+};
+s32 D_8005129C[] = {
+    378, 365, 0x16D0000, 0x17A0000,
+    0x16D0001, 0,
+};
+s32 D_800512B4[] = {
+    379, 366, 0x16E0000, 0x17B0000,
+    0x16E0001, 0,
+};
+s32 D_800512CC[] = {
+    380, 367, 0x16F0000, 0x17C0000,
+    0x16F0001, 0,
+};
+s32 D_800512E4[] = {
+    537, 534, 0x2160000, 0x2190000,
+    0x2160001, 0,
+};
+s32 D_800512FC[] = {
+    381, 368, 0x1700000, 0x17D0000,
+    0x1700001, 0,
+};
+s32 D_80051314[] = {
+    382, 369, 0x1710000, 0x17E0000,
+    0x1710001, 0,
+};
+s32 D_8005132C[] = {
+    555, 549, 0x2250000, 0x22B0000,
+    0x2250001, 0,
+};
+#endif
+#if VERSION_US
 s32 D_80050B1C[] = {
+#elif VERSION_EU
+s32 D_80051344[] = {
+#endif
     568, 567, 0x2370000, 0x2380000,
     0x2370001, 0,
 };
+#if VERSION_US
 s32 D_80050B34[] = {
     588, 587, 0x24B0000, 0x24C0000,
     0x24B0001, 0,
@@ -6255,10 +10572,85 @@ s32 D_80050C6C[] = {
     704, 700, 0x2BC0000, 0x2C00000,
     0x2BC0001, 0,
 };
+#elif VERSION_EU
+s32 D_8005135C[] = {
+    578, 577, 0x2410000, 0x2420000,
+    0x2410001, 0,
+};
+s32 D_80051374[] = {
+    583, 582, 0x2460000, 0x2470000,
+    0x2460001, 0,
+};
+s32 D_8005138C[] = {
+    603, 602, 0x25A0000, 0x25B0000,
+    0x25A0001, 0,
+};
+s32 D_800513A4[] = {
+    609, 608, 0x2600000, 0x2610000,
+    0x2600001, 0,
+};
+s32 D_800513BC[] = {
+    665, 664, 0x2980000, 0x2990000,
+    0x2980001, 0,
+};
+s32 D_800513D4[] = {
+    628, 627, 0x2730000, 0x2740000,
+    0x2730001, 0,
+};
+s32 D_800513EC[] = {
+    716, 712, 0x2C80000, 0x2CC0000,
+    0x2C80001, 0,
+};
+s32 D_80051404[] = {
+    532, 531, 0x2130000, 0x2140000,
+    0x2130001, 0,
+};
+s32 D_8005141C[] = {
+    820, 819, 0x3330000, 0x3340000,
+    0x3330001, 0,
+};
+s32 D_80051434[] = {
+    556, 551, 0x2270000, 0x22C0000,
+    0x2270001, 0,
+};
+s32 D_8005144C[] = {
+    717, 713, 0x2C90000, 0x2CD0000,
+    0x2C90001, 0,
+};
+s32 D_80051464[] = {
+    718, 714, 0x2CA0000, 0x2CE0000,
+    0x2CA0001, 0,
+};
+s32 D_8005147C[] = {
+    383, 370, 0x1720000, 0x17F0000,
+    0x1720001, 0,
+};
+s32 D_80051494[] = {
+    1080, 1078, 0x4360000, 0x4380000,
+    0x4360001, 0,
+};
+s32 D_800514AC[] = {
+    636, 635, 0x27B0000, 0x27C0000,
+    0x27B0001, 0,
+};
+s32 D_800514C4[] = {
+    719, 715, 0x2CB0000, 0x2CF0000,
+    0x2CB0001, 0,
+};
+s32 D_800514DC[] = {
+    530, 528, 0x2100000, 0x2120000,
+    0x2100001, 0,
+};
+#endif
+#if VERSION_US
 s32 D_80050C84[] = {
+#elif VERSION_EU
+s32 D_800514F4[] = {
+#endif
     515, 513, 0x2010000, 0x2030000,
     0x2010001, 0,
 };
+#if VERSION_US
 s32 D_80050C9C[] = {
     500, 498, 0x1F20000, 0x1F40000,
     0x1F20001, 0,
@@ -6442,6 +10834,187 @@ s32 SOUND_BANK_FILES[] = {
 s32 SOUND_HEAD_BUFFERS[] = {
     (s32)D_8005C4D0, (s32)D_8006A4D0, (s32)D_800744D0,
 };
+#elif VERSION_EU
+s32 D_8005150C[] = {
+    735, 734, 0x2DE0000, 0x2DF0000,
+    0x2DE0001, 0,
+};
+s32 D_80051524[] = {
+    557, 552, 0x2280000, 0x22D0000,
+    0x2280001, 0,
+};
+s32 D_8005153C[] = {
+    1139, 1137, 0x4710000, 0x4730000,
+    0x4710001, 0,
+};
+s32 D_80051554[] = {
+    1376, 1375, 0x55F0000, 0x5600000,
+    0x55F0001, 0,
+};
+s32 D_8005156C[] = {
+    1994, 1964, 0x7AC0000, 0x7CA0000,
+    0x7AC0001, 0,
+};
+s32 D_80051584[] = {
+    1995, 1991, 0x7C70000, 0x7CB0000,
+    0x7C70001, 0,
+};
+s32 D_8005159C[] = {
+    1116, 1115, 0x45B0000, 0x45C0000,
+    0x45B0001, 0,
+};
+s32 D_800515B4[] = {
+    1227, 1226, 0x4CA0000, 0x4CB0000,
+    0x4CA0001, 0,
+};
+s32 D_800515CC[] = {
+    385, 372, 0x1740000, 0x1810000,
+    0x1740001, 0,
+};
+s32 D_800515E4[] = {
+    864, 862, 0x35E0000, 0x3600000,
+    0x35E0001, 0,
+};
+s32 D_800515FC[] = {
+    865, 863, 0x35F0000, 0x3610000,
+    0x35F0001, 0,
+};
+s32 D_80051614[] = {
+    558, 553, 0x2290000, 0x22E0000,
+    0x2290001, 0,
+};
+s32 D_8005162C[] = {
+    386, 373, 0x1750000, 0x1820000,
+    0x1750001, 0,
+};
+s32 D_80051644[] = {
+    897, 895, 0x37F0000, 0x3810000,
+    0x37F0001, 0,
+};
+s32 D_8005165C[] = {
+    898, 896, 0x3800000, 0x3820000,
+    0x3800001, 0,
+};
+s32 D_80051674[] = {
+    943, 938, 0x3AA0000, 0x3AF0000,
+    0x3AA0001, 0,
+};
+s32 D_8005168C[] = {
+    944, 939, 0x3AB0000, 0x3B00000,
+    0x3AB0001, 0,
+};
+s32 D_800516A4[] = {
+    387, 374, 0x1760000, 0x1830000,
+    0x1760001, 0,
+};
+s32 D_800516BC[] = {
+    516, 514, 0x2020000, 0x2040000,
+    0x2020001, 0,
+};
+s32 D_800516D4[] = {
+    945, 940, 0x3AC0000, 0x3B10000,
+    0x3AC0001, 0,
+};
+s32 D_800516EC[] = {
+    946, 941, 0x3AD0000, 0x3B20000,
+    0x3AD0001, 0,
+};
+s32 D_80051704[] = {
+    947, 942, 0x3AE0000, 0x3B30000,
+    0x3AE0001, 0,
+};
+s32 D_8005171C[] = {
+    958, 955, 0x3BB0000, 0x3BE0000,
+    0x3BB0001, 0,
+};
+s32 D_80051734[] = {
+    959, 956, 0x3BC0000, 0x3BF0000,
+    0x3BC0001, 0,
+};
+s32 D_8005174C[] = {
+    960, 957, 0x3BD0000, 0x3C00000,
+    0x3BD0001, 0,
+};
+s32 D_80051764[] = {
+    1014, 1008, 0x3F00000, 0x3F60000,
+    0x3F00001, 0,
+};
+s32 D_8005177C[] = {
+    1015, 1009, 0x3F10000, 0x3F70000,
+    0x3F10001, 0,
+};
+s32 D_80051794[] = {
+    1016, 1010, 0x3F20000, 0x3F80000,
+    0x3F20001, 0,
+};
+s32 D_800517AC[] = {
+    1017, 1011, 0x3F30000, 0x3F90000,
+    0x3F30001, 0,
+};
+s32 D_800517C4[] = {
+    1018, 1012, 0x3F40000, 0x3FA0000,
+    0x3F40001, 0,
+};
+s32 D_800517DC[] = {
+    1019, 1013, 0x3F50000, 0x3FB0000,
+    0x3F50001, 0,
+};
+s32 D_800517F4[] = {
+    1081, 1079, 0x4370000, 0x4390000,
+    0x4370001, 0,
+};
+s32 D_8005180C[] = {
+    1594, 1593, 0x6390000, 0x63A0000,
+    0x6390001, 0,
+};
+s32 D_80051824[] = {
+    559, 554, 0x22A0000, 0x22F0000,
+    0x22A0001, 0,
+};
+s32 D_8005183C[] = {
+    1954, 1953, 0x7A10000, 0x7A20000,
+    0x7A10001, 0,
+};
+s32 D_80051854[] = {
+    2104, 2103, 0x8370000, 0x8380000,
+    0x8370001, 0,
+};
+s32 D_8005186C[] = {
+    1842, 1840, 0x7300000, 0x7320000,
+    0x7300001, 0,
+};
+s32 D_80051884[] = {
+    1843, 1841, 0x7310000, 0x7330000,
+    0x7310001, 0,
+};
+s32 D_8005189C[] = {
+    2203, 2202, 0x89A0001, 0x89B0000,
+    0x89A0000, 0,
+};
+s32 SOUND_BANK_FILES[] = {
+    0, (s32)D_80051208, (s32)D_80051224, (s32)D_8005123C,
+    (s32)D_80051254, (s32)D_8005126C, (s32)D_80051284, (s32)D_8005129C,
+    (s32)D_800512B4, (s32)D_800512CC, (s32)D_800512E4, (s32)D_800512FC,
+    (s32)D_80051314, (s32)D_8005132C, (s32)D_80051344, (s32)D_8005135C,
+    (s32)D_80051374, (s32)D_8005138C, (s32)D_800513A4, (s32)D_800513BC,
+    (s32)D_800513D4, (s32)D_800513EC, (s32)D_80051404, (s32)D_8005141C,
+    (s32)D_80051434, (s32)D_8005144C, (s32)D_80051464, (s32)D_8005147C,
+    (s32)D_80051494, (s32)D_800514AC, (s32)D_800514C4, (s32)D_800514DC,
+    (s32)D_800514F4, (s32)D_8005150C, (s32)D_80051524, (s32)D_8005153C,
+    (s32)D_80051554, (s32)D_8005156C, (s32)D_80051584, (s32)D_8005159C,
+    (s32)D_800515B4, (s32)D_800515CC, (s32)D_800515E4, (s32)D_800515FC,
+    (s32)D_80051614, (s32)D_8005162C, (s32)D_80051644, (s32)D_8005165C,
+    (s32)D_80051674, (s32)D_8005168C, (s32)D_800516A4, (s32)D_800516BC,
+    (s32)D_800516D4, (s32)D_800516EC, (s32)D_80051704, (s32)D_8005171C,
+    (s32)D_80051734, (s32)D_8005174C, (s32)D_80051764, (s32)D_8005177C,
+    (s32)D_80051794, (s32)D_800517AC, (s32)D_800517C4, (s32)D_800517DC,
+    (s32)D_800517F4, (s32)D_8005180C, (s32)D_80051824, (s32)D_8005183C,
+    (s32)D_80051854, (s32)D_8005186C, (s32)D_80051884, (s32)D_8005189C,
+};
+s32 SOUND_HEAD_BUFFERS[] = {
+    (s32)D_8005CD38, (s32)D_8006AD38, (s32)D_80074D38,
+};
+#endif
 s32 SOUND_SPU_ADDRS[] = {
     4112, 0x49C10, 0x62410,
 };

@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%202-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%204-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -22,8 +22,9 @@ World 3*, and the European one, *Digimon World 2003*, both build from this
 source tree and match byte for byte. The USA release is the one being
 decompiled; the European one, the most complete release, is where the work
 is heading next: it is split into the USA release's files and carries its
-names, and builds the PsyQ libraries and a few files from the same C, but is
-splat's disassembly otherwise.
+names, and builds the PsyQ libraries, the executable's game code and data
+and a few overlay files from the same C, but is splat's disassembly
+otherwise.
 
 This repository does not contain any game data. You need your own copy of the
 game to build it.
@@ -40,14 +41,13 @@ badges above are always current:
 
 | Part | Functions in C | Code | Data |
 |---|---|---|---|
-| Executable, game code | 343 / 346 | 95.04 % | 99.67 % |
+| Executable, game code | 344 / 346 | 95.60 % | 99.67 % |
 | The 21 overlays | 295 / 1,697 | 7.30 % | 37.15 % |
 | The 238 stages | 815 / 1,374 | 35.88 % | 0 % |
-| **Total** | **1,453 / 3,417** | **19.18 %** | **23.86 %** |
+| **Total** | **1,454 / 3,417** | **19.21 %** | **23.86 %** |
 
-- The executable's game code is all C but three functions:
-  `spriteDrawerDraw` and `convertText` (`graphics.c`) and `drawTalkBoxArrow`
-  (`text_window.c`). Its data is C too, in `src/main/data/`, until it moves
+- The executable's game code is all C but two functions,
+  `spriteDrawerDraw` and `convertText` (`graphics.c`). Its data is C too, in `src/main/data/`, until it moves
   next to the code that uses it.
 - The PsyQ 4.7 libraries linked into the executable are decompiled too, one
   file per library object: 480 of their 563 functions are C, and the 71 Sony
@@ -61,9 +61,10 @@ badges above are always current:
   same source, so one match often repeats across stages.
 - The European version, the default one and the one decomp.dev shows first,
   is split into the USA version's files, with the USA names, and builds the
-  275 PsyQ files, `game3_2`, `SOUNDTST` and `STDWTITL`'s `libpress`
-  from the USA version's C. The rest of its executable, 21 overlays and 293
-  stages is splat's disassembly, so its report counts it as still to do.
+  275 PsyQ files, the executable's game code and data (the same 344 of 346
+  functions as the USA version), `SOUNDTST` and `STDWTITL`'s `libpress` from
+  the USA version's C. The rest of its executable, 21 overlays and 293 stages
+  is splat's disassembly, so its report counts it as still to do.
 
 Progress is measured by [objdiff](https://github.com/encounter/objdiff), with
 one unit per C file, and tracked on
@@ -80,20 +81,21 @@ above counts them: fake matches, then the other two kinds together.
 | Kind | Count | Marker |
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
-| Unused frame locals | 2 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 0 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 1,976 | `INCLUDE_ASM` |
+| Unused frame locals | 3 | `/* unused, but it is in the original stack frame */` |
+| Form-dependent matches | 1 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 1,975 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
   that exists only to shape the code. There are none so far.
 - An unused frame local is a local that the code never touches, kept because
   the original's stack frame has room for it: without it, the frame is
-  smaller than the original's. Both are in PsyQ objects (`libgs_gs_107`,
-  `libgs_gs_131`).
+  smaller than the original's. Two are in PsyQ objects (`libgs_gs_107`,
+  `libgs_gs_131`), one in the game's `drawTalkBoxArrow`.
 - A form-dependent match is C that matches in one of several equivalent
   forms only: an extra block, an `if` without braces, a copy of a variable, a
-  type, or one version's own form of a loop.
+  type, or one version's own form of a loop. The one so far is a copy of a
+  variable in `drawTalkBoxArrow`.
 - The functions still in assembly are not in the badge: they are the work
   left, in the game and in PsyQ.
 
@@ -188,7 +190,7 @@ One source tree builds every version, one at a time, picked with `VERSION`
 | `VERSION` | Release | Executable (SHA-1) | Disc image (SHA-1) | Overlays | Stages | C |
 |---|---|---|---|---|---|---|
 | `us` | *Digimon World 3*, USA, SLUS-01436 | `SLUS_014.36` (`444653259f78ddb483fd22af72cce9276f42f214`) | `Digimon World 3 (USA).bin` (`f0b022f9be53cbce14640abd8f01beaadcb35208`) | 21 | 238 | yes |
-| `eu` | *Digimon World 2003*, Europe, SLES-03936 | `SLES_039.36` (`d1b7e4d646e3a9c2b88fdb25d20b5f7116bbb06d`) | `Digimon World 2003 (Europe).bin` (`457cb233349ba841e03b33d8060f8fbcadd45cb3`) | 21 | 293 | PsyQ, 3 files |
+| `eu` | *Digimon World 2003*, Europe, SLES-03936 | `SLES_039.36` (`d1b7e4d646e3a9c2b88fdb25d20b5f7116bbb06d`) | `Digimon World 2003 (Europe).bin` (`457cb233349ba841e03b33d8060f8fbcadd45cb3`) | 21 | 293 | PsyQ, the game code and data, 2 overlay files |
 
 - `mk/version/<version>.mk` has each version's settings: the release's name,
   the executable's name, the disc directory, the overlays, where they load
@@ -208,8 +210,9 @@ One source tree builds every version, one at a time, picked with `VERSION`
 - The C sees `VERSION_US` and `VERSION_EU`, each 0 or 1
   (`include/version.h`), and so does the assembly (`--defsym`). Code tests
   them with `#if VERSION_EU`, never `#ifdef`; CONTRIBUTING.md has the rules.
-- `us` builds every C file under `src/`. `eu` builds the ones that match
-  unchanged (`C_SRC`); the rest of its executable and overlays is split into
+- `us` builds every C file under `src/`. `eu` builds the ones it shares so
+  far (`C_SRC`), with `#if VERSION_EU` blocks where its code or data differ;
+  the rest of its executable and overlays is split into
   the USA version's files as asm segments, so its asm lands at the same paths
   (`asm/eu/main/system.s` for `asm/us/main/system.s`), and each stage is its
   rodata, code and data as asm. The European release has the USA one's 21
@@ -223,7 +226,7 @@ One source tree builds every version, one at a time, picked with `VERSION`
 
 | | |
 |---|---|
-| Game code | GCC 2.8.1 (`-O2 -G0`; `-G8` for `system.c`, `game3_2.c`, `graphics.c` and `sound.c`) + ASPSX 2.86, emulated with [maspsx](https://github.com/mkst/maspsx) |
+| Game code | GCC 2.8.1 (`-O2 -G0`; `-G8` for `inn.c`, `system.c`, `memcard.c`, `game3.c`, `game3_2.c`, `graphics.c` and `sound.c`) + ASPSX 2.86, emulated with [maspsx](https://github.com/mkst/maspsx) |
 | SDK | PsyQ 4.7: GCC 2.7.2 (`-O2`, binary-patched), some objects a patched GCC 2.8.1 |
 | Splitting | [splat](https://github.com/ethteck/splat) 0.50.0 |
 | Diffing | [objdiff](https://github.com/encounter/objdiff) 3.8.1, [decomp.dev](https://decomp.dev) |
@@ -237,7 +240,11 @@ One source tree builds every version, one at a time, picked with `VERSION`
 - Four files read their small variables through `$gp`, so they are built with
   `-G8` in both GCC and maspsx (`SDATA_LIMIT` in the Makefile). Those
   variables are declared `static` in the C; maspsx emits them as common
-  symbols that resolve to their definitions. The rest of the game uses `-G0`.
+  symbols that resolve to their definitions. `inn.c`, `memcard.c` and
+  `game3.c` are built with `-G8` too: the European version reads
+  `LANGUAGE`, a small extern, as the assembler's macro, its address loaded
+  again for every read. The rest of the game uses
+  `-G0`.
 - The PsyQ libraries were built with GCC 2.7.2, whose ASPSX moved the
   instruction before each `j $31` into its delay slot:
   `tools/aspsx_reorder.py` post-processes them to do the same.

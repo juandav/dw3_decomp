@@ -2,8 +2,23 @@
 __SN_ENTRY_POINT = 0x80010E90; // type:func
 
 // The same functions as us's, which tools/match_versions.py can't pair by
-// their code: eu's picks the save file name by the language
-setSaveFileName = 0x800148C0; // type:func
+// their code: eu's picks the save file name by the language (its size, or
+// splat ends it at its first jr $ra, before the cases of its jump table)
+setSaveFileName = 0x800148C0; // type:func size:0x70
+
+// us's names that tools/match_versions.py can't pair: data that only
+// system.c's and graphics.c's code reads, through $gp
+BOOT_IMAGE_RECT = 0x8005CCB4;
+ROOT_TASK = 0x8005CCBC;
+FLIP_PENDING = 0x8005CD00;
+
+// The European version's own names
+// the language picked in CNTY_SEL (TEXT_FILE())
+LANGUAGE = 0x8005CCA8; // version-only
+// nonzero: 60 Hz, NTSC (main, the vsync callback, drawFrame, fadeOutSound)
+NTSC_MODE = 0x8005CCAC; // version-only
+// nonzero: setDisplayMode moves the display areas 0x18 lines down
+SHIFT_PAL_SCREEN = 0x8005CCB0; // version-only
 
 // names from us (tools/match_versions.py --seed): the same function or datum
 OVERLAY_ADDRESS = 0x800100C4;
@@ -782,8 +797,8 @@ PLAYER_NAME = 0x80048D88;
 PARTNER_STATS = 0x8004949C;
 GAME_PROGRESS = 0x8004B370;
 PARTY_SET = 0x8004B374;
-FLAGS_02 = 0x8004B378;
-FLAGS_40 = 0x8004B3DE;
+// one C object with FLAGS_40 (FLAGS_02 + 0x66 here, an odd offset)
+FLAGS_02 = 0x8004B378; // size:0x80
 GAME_MODE = 0x8004B3F8;
 GAME_NEXT_MODE = 0x8004B3FC;
 GAME_PREV_MODE = 0x8004B400;
@@ -814,7 +829,7 @@ CARD_IMAGE_FILES = 0x8004DFB8;
 CARD_KINDS = 0x8004DFCC;
 SOUND_BANK_FILES = 0x800518B4;
 SOUND_STATE = 0x800519EC;
-SOUND = 0x80055C34;
+SOUND = 0x80055C34; // size:0x1C
 SOUND_CONTROL = 0x80055C5C;
 MODE_ENTRY_POINTS = 0x80055C70;
 MODE_OVERLAY_FILES = 0x80055CCC;
@@ -1361,3 +1376,33 @@ PATCH_GTE_RA = 0x80081438;
 INIT_GEOM_RA = 0x80056898;
 PAD_ENABLE_FUNC = 0x80082868;
 PAD_DISABLE_FUNC = 0x8008286C;
+func_80012698 = 0x800126A8;
+func_8001350C = 0x80013534;
+func_80013590 = 0x800135B8;
+PAGE_STATS = 0x8003EF00;
+FIELD_MENU_OPTIONS = 0x8003EF14;
+FIELD_MENU_SPRITES = 0x8003EF44;
+D_80042728 = 0x80042B1C;
+FILE_CACHE_UPDATE = 0x80044F48;
+PAD_INIT = 0x8004BBB0;
+FONT_LOAD = 0x8004DE08;
+FIELD_MENU_EXTRA = 0x8005CCF4;
+SAVE_FILE_NAME_JP = 0x800100CC;
+SAVE_FILE_NAMES = 0x800100E4;
+func_80015490 = 0x80015528;
+func_80015584 = 0x8001561C;
+func_80015A34 = 0x80015D4C;
+func_80015D90 = 0x800160A8;
+func_8001602C = 0x80016378;
+func_8008AEB4 = 0x8008B770;
+func_8008B2C4 = 0x8008BFA4;
+func_8008B320 = 0x8008C000;
+D_8009A6EC = 0x8009B6A4;
+FONT_DECODE = 0x8004DE0C;
+SOUND_HEAD_BUFFERS = 0x800519D4;
+SOUND_SPU_ADDRS = 0x800519E0;
+
+// One C object each in src/main/data/game.c, as in us: splat's labels inside
+// them would not land on their addresses
+D_80048D78 = 0x80048D78; // size:0x10
+D_80048DA0 = 0x80048DA0; // size:0x6FC

@@ -9,9 +9,21 @@ static TextTools *TEXT_TOOLS;
 static TimLoader *TIM_LOADER;
 
 void vsyncCallback(void) {
+#if VERSION_US
     GFX.timeCounter += 0x100;
     GFX.frameTimeCounter += 0x100;
     GAME.playFrames += 0x100;
+#elif VERSION_EU
+    if (NTSC_MODE) {
+        GFX.timeCounter += 0x100;
+        GFX.frameTimeCounter += 0x100;
+        GAME.playFrames += 0x100;
+    } else {
+        GFX.timeCounter += 0x133;
+        GFX.frameTimeCounter += 0x133;
+        GAME.playFrames += 0x133;
+    }
+#endif
     if (GFX.vsyncFunc != NULL) {
         GFX.vsyncFunc(GFX.vsyncArg);
     }
@@ -64,7 +76,15 @@ void drawFrame(s32 draw) {
         }
     }
     GFX.buffer = GFX.buffer == 0;
+#if VERSION_US
     GFX.frameCounter += 0x100;
+#elif VERSION_EU
+    if (NTSC_MODE) {
+        GFX.frameCounter += 0x100;
+    } else {
+        GFX.frameCounter += 0x133;
+    }
+#endif
     GFX.frameCount = GFX.frameCounter >> 8;
     GFX.time = GFX.timeCounter >> 8;
     GFX.frameTime = GFX.frameTimeCounter >> 8;
@@ -151,6 +171,12 @@ void setDisplayMode(s32 w, s32 h, s32 hires, s32 interlace) {
         SetDefDispEnv(&GFX.disp[0], 0, 0, w, h);
         SetDefDispEnv(&GFX.disp[1], 0, 256, w, h);
     }
+#if VERSION_EU
+    if (SHIFT_PAL_SCREEN) {
+        GFX.disp[0].screen.y = 0x18;
+        GFX.disp[1].screen.y = 0x18;
+    }
+#endif
     GsInit3D();
     SetGeomOffset(0, 0);
 }
@@ -727,7 +753,9 @@ s32 measureText(TextBuffer *text, TextStyle *style, s32 spacing) {
     s32 op;
     s32 n;
     Glyph *g;
+#if VERSION_US
     s32 len;
+#endif
 
     if (text->data == NULL) {
         return 0;
@@ -774,11 +802,13 @@ s32 measureText(TextBuffer *text, TextStyle *style, s32 spacing) {
             case 5:
                 w += measureText(&text[text->data[pos + 2]], style, (s16)spacing);
                 break;
+#if VERSION_US
             case 8:
                 for (len = 0; (u8)GAME.name[len] != 0; len++) {
                 }
                 w += len * 11;
                 break;
+#endif
             }
             pos += FONT.codeLengths[op];
             break;

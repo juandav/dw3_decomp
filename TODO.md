@@ -15,8 +15,9 @@ commit `45827a6`.
 stages. The executable and the overlays are split into the USA version's
 files (`tools/split_version.py`), so their asm lands at the USA paths, and
 their functions carry the USA names (`tools/match_versions.py --seed`). The
-European C is the PsyQ libraries and three game files built from the USA
-version's C. The stages are still one asm segment each.
+European C is the PsyQ libraries, the executable's game code and data and two
+overlay files built from the USA version's C. The stages are still one asm
+segment each.
 
 - [x] Pair the European functions with the USA ones
   (`tools/match_versions.py`, which writes `build/eu/version_pairs.txt`):
@@ -39,27 +40,34 @@ version's C. The stages are still one asm segment each.
   used a `D_` name of the USA version that the European asm has at another
   address: those data have real names now (`_spu_rev_startaddr`,
   `_spu_RQ`, `PAD_SIO_REGS`, `MCRD_READ_RETRIES`...).
-- [ ] The other game files need `#if VERSION_EU` blocks or a copy of their
-  own. Their code differs in length (the European executable picks the save
-  file name by language: `setSaveFileName`), or loads other file numbers: the
-  disc's files are numbered differently, so `text_window` loads `0x286`
-  where the USA version loads `0x277`, and `SHOCKTST` `0xBE` for `0xC5`.
-- [ ] 27 USA names are still missing in the European files, mostly data
-  that code which differs reads (`SAVE_FILE_NAMES`, `ROOT_TASK`,
-  `STDWTITL_movies`...), and a few European functions have no confident
-  pair: 2 in `CARDGAME`, 6 in `FIGHTSTG`, 1 in `STGDGLAB`.
+- [x] Build the executable's game code and data for `eu` too, with
+  `#if VERSION_EU` blocks where they differ: the language (`LANGUAGE`, set
+  by `CNTY_SEL`) picks the text files (`TEXT_FILE()`), the save file name and
+  whether the buttons swap; 50 Hz (`NTSC_MODE`) changes the clocks, the
+  sound's tick and fades and the video mode; the disc's files are numbered
+  differently (`FILE_MENU_SPRITES`, `FILE_FONT`); `GAME` has 8 more bytes of
+  flags. Its data is `data_to_c.py`'s output for `asm/eu/` where it differs.
+  The European executable's game code is the USA one's 344 of 346 functions.
+- [ ] The overlays' files need `#if VERSION_EU` blocks or a copy of their
+  own: `SHOCKTST` loads `0xBE` for `0xC5`.
+- [ ] 12 USA names are still missing in the European overlays' files, data
+  that code which differs reads (`STDWTITL_movies`, `STAGSLCT_entryNames`,
+  `SHOCKTST_menuRows`...), and a few European functions have no confident
+  pair: 2 in `CARDGAME`, 6 in `FIGHTSTG`, 1 in `STGDGLAB`. The executable
+  has them all but `FLAGS_40`, which the European `GAME.flags` has at an odd
+  offset, inside `FLAGS_02` (`FLAGS_02 + 0x66`, in `game_state.h`).
 - [ ] The stages: 233 of the USA version's 238 are 8 bytes longer in the
   European version, the other 5 more, and their functions only have
   splat's names, so the European ones get none.
   Give each stage the USA version has a C file in both versions, and write
   C for the 55 European stages, `WSTAG920`-`974`.
-- [ ] `game3_2` is C in the European version, but its unit in the report is
-  `game3`'s, which isn't, so it doesn't count yet.
+- [x] `game3_2` is C in the European version, but its unit in the report is
+  `game3`'s: it counts now that `game3.c` is built for `eu` too.
 
 ## The USA executable
 
-- [ ] 3 game functions left: `spriteDrawerDraw` and `convertText`
-  (`graphics.c`) and `drawTalkBoxArrow` (`text_window.c`).
+- [ ] 2 game functions left: `spriteDrawerDraw` and `convertText`
+  (`graphics.c`).
 - [ ] Rodata still behind `INCLUDE_RODATA`: 6 strings and tables in
   `text_window.c` and 2 in `system.c`, which the C could define once their
   users are all C.

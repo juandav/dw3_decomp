@@ -34,9 +34,9 @@ The folder is relative to `asm/<version>/`, so the function above is
    differing instructions marked `**`. Relocated fields are masked, so a
    different symbol name doesn't count as a difference. Set `UNIT=wstag210`
    (any part of the path) when several units have a function of that name, as
-   the stages do; `VERSION` picks the version. For a `-G8` file
-   (`system.c`, `game3_2.c`, `graphics.c`, `sound.c`), pass the same flags as
-   the Makefile: `CFLAGS='-O2 -G8 -fsigned-char -fno-builtin
+   the stages do; `VERSION` picks the version. For a `-G8` file (`inn.c`,
+   `system.c`, `memcard.c`, `game3.c`, `game3_2.c`, `graphics.c`, `sound.c`), pass the
+   same flags as the Makefile: `CFLAGS='-O2 -G8 -fsigned-char -fno-builtin
    -fdollars-in-identifiers' MASPSXFLAGS='--aspsx-version=2.86 -G8'`. For
    PsyQ code, `CC1=bin/gcc-2.7.2-psx/cc1` (plus `RERUN=1` or `GCC28=1` for the
    objects in `PSYQ_RERUN_CSE` or `PSYQ_GCC28`); the docstring of
@@ -138,8 +138,8 @@ or 1; the assembly gets the same names from `--defsym`.
   version, its `#if` blocks name only the versions that build it from C.
 - Each version lists the C files it builds in `mk/version/<version>.mk`
   (`C_SRC`), and the Makefile builds nothing else. `us` builds every C file
-  under `src/`; `eu` the ones that match unchanged so far (the PsyQ
-  libraries, `game3_2`, `SOUNDTST`, `STDWTITL`'s `libpress`). The rest of
+  under `src/`; `eu` the ones it shares so far (the PsyQ libraries, the
+  executable's game code and data, `SOUNDTST`, `STDWTITL`'s `libpress`). The rest of
   `eu`'s executable and overlays is split into the USA files as asm
   segments with the same names (`tools/split_version.py`).
 - To build a file for `eu` too: add it to `eu`'s `C_SRC`, make its segments
@@ -218,7 +218,11 @@ does:
 - A file `X_2.c` is the second half of an original object that the splat
   config splits in two; the report counts both halves as the unit `X`.
 - The executable's data is in `src/main/data/` until it moves to the module
-  that defines it.
+  that defines it. Its European tables differ all over (file numbers,
+  screen positions, overlay addresses) and splat names them at other
+  addresses: they are `data_to_c.py`'s output for `asm/eu/` next to the USA
+  ones, in `#if VERSION_US`/`#elif VERSION_EU` blocks for the objects that
+  differ. Give a table the same name in both versions when you name it.
 
 ## Names
 

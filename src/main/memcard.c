@@ -1,5 +1,6 @@
 #include "game.h"
 
+#if VERSION_US
 const char SAVE_FILE_NAME_JP[24] = "BISLPS-99999DMW3-JPN";
 
 const char SAVE_FILE_NAMES[6][24] = {
@@ -15,6 +16,45 @@ const char SAVE_FILE_NAMES[6][24] = {
 void setSaveFileName(void) {
     MEMCARD.fileName = (char *)SAVE_FILE_NAMES[0];
 }
+#elif VERSION_EU
+const char SAVE_FILE_NAME_JP[24] = "BISLPS-03446DMW3-JPN";
+
+const char SAVE_FILE_NAMES[2][24] = {
+    "BASLUS-01436DMW3-USA",
+    "BESLES-03936DMW3-EUR",
+};
+
+/*
+ * The save file name by the language: the Japanese, US or European
+ * release's, the same for each European language
+ */
+void setSaveFileName(void) {
+    switch (LANGUAGE) {
+    default:
+    case 0:
+        MEMCARD.fileName = (char *)SAVE_FILE_NAME_JP;
+        break;
+    case 1:
+        MEMCARD.fileName = (char *)SAVE_FILE_NAMES[0];
+        break;
+    case 2:
+        MEMCARD.fileName = (char *)SAVE_FILE_NAMES[1];
+        break;
+    case 3:
+        MEMCARD.fileName = (char *)SAVE_FILE_NAMES[1];
+        break;
+    case 4:
+        MEMCARD.fileName = (char *)SAVE_FILE_NAMES[1];
+        break;
+    case 5:
+        MEMCARD.fileName = (char *)SAVE_FILE_NAMES[1];
+        break;
+    case 6:
+        MEMCARD.fileName = (char *)SAVE_FILE_NAMES[1];
+        break;
+    }
+}
+#endif
 
 /* The save file header: title (Shift-JIS), icon CLUT and 1-3 icon frames */
 void setSaveHeader(char *title, CardClut *clut, s32 count, s32 *icons) {

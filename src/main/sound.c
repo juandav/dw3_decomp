@@ -98,7 +98,12 @@ void fadeOutSound(s32 packed) {
     s32 slot = findSoundBank(id);
 
     if (slot != -1 && !stopped) {
+#if VERSION_US
         SsSepSetDecrescendo(SOUND_STATE.banks[slot].seqs[seq], sep, 0x80, 0x3C);
+#elif VERSION_EU
+        /* one second, in frames */
+        SsSepSetDecrescendo(SOUND_STATE.banks[slot].seqs[seq], sep, 0x80, NTSC_MODE ? 0x3C : 0x32);
+#endif
         if (SOUND_STATE.music == packed) {
             SOUND_STATE.music = 0;
         }
@@ -224,7 +229,15 @@ void initSound(void) {
     s32 i;
 
     SsSetTableSize(SOUND_STATE.seqTable, 6, 16);
+#if VERSION_US
     SsSetTickMode(0x1000);
+#elif VERSION_EU
+    if (NTSC_MODE) {
+        SsSetTickMode(0x1000);
+    } else {
+        SsSetTickMode(0x1032); /* SS_NOTICK, 50 ticks a second */
+    }
+#endif
     SsStart2();
     SsSetMVol(0x7F, 0x7F);
     SsSetSerialAttr(0, 0, 1);
