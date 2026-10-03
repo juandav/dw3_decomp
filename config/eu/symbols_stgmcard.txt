@@ -1,12 +1,12 @@
 // STGMCARD.PRO's own symbols, which only its splat config reads
 
 // names from the C of the modules this version builds (tools/version_symbols.py)
-func_80082468 = 0x80082CD0; // type:func
-func_80082560 = 0x80082DC8; // type:func
-func_8008258C = 0x80082DF4; // type:func
-func_80082614 = 0x80082E7C; // type:func
-func_80082758 = 0x80082FC0; // type:func
-func_8008280C = 0x80083074; // type:func
+STGMCARD_updateScene = 0x80082CD0; // type:func
+STGMCARD_start = 0x80082DC8; // type:func
+STGMCARD_startFader = 0x80082DF4; // type:func
+STGMCARD_drawFader = 0x80082E7C; // type:func
+STGMCARD_updateFader = 0x80082FC0; // type:func
+STGMCARD_createFader = 0x80083074; // type:func
 func_80082850 = 0x800830B8; // type:func
 func_80082878 = 0x800830E0; // type:func
 func_80082904 = 0x8008316C; // type:func
@@ -42,10 +42,10 @@ func_80087174 = 0x80087B08; // type:func
 func_80087284 = 0x80087C18; // type:func
 func_8008743C = 0x80087DF0; // type:func
 func_800874AC = 0x80087E78; // type:func
-func_80087510 = 0x80087EDC; // type:func
-func_800875A4 = 0x80087F70; // type:func
-func_80087610 = 0x80087FDC; // type:func
-func_80087650 = 0x8008801C; // type:func
+STGMCARD_startFade = 0x80087EDC; // type:func
+STGMCARD_updateFade = 0x80087F70; // type:func
+STGMCARD_startLerp = 0x80087FDC; // type:func
+STGMCARD_updateLerp = 0x8008801C; // type:func
 D_800876BC = 0x80088088;
 D_80087838 = 0x80088204;
 D_80087918 = 0x800882E4;

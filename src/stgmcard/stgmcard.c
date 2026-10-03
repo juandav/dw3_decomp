@@ -1,18 +1,112 @@
-#include "common.h"
+#include "stgmcard.h"
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80082468);
+Task *func_80087174(void);
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80082560);
+void STGMCARD_updateScene(MemCardScene *task, Task **children) {
+    RECT rect;
+    Layer *layer;
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_8008258C);
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        GFX.funcs.reset();
+        GFX.funcs.allocPrimBuffers(0x5000);
+        GFX.funcs.setDisplayMode(0x140, 0xF0, 0, 0);
+        rect.x = 0;
+        rect.y = 0;
+        rect.w = 0x140;
+        rect.h = 0xF0;
+        layer = GFX.funcs.createLayer(&rect, 2, 0x1000);
+        layer->setBgColor(layer, 0, 0, 0);
+        children[0] = (Task *)func_80087174();
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80082614);
+Task *STGMCARD_start(void) {
+    return createTask(STGMCARD_updateScene, sizeof(MemCardScene), 4);
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80082758);
+void STGMCARD_startFader(ScreenFade *task, s32 fadeIn, s32 duration) {
+    task->setState(task, TASK_RUN);
+    task->substate = 1;
+    task->fadeIn = fadeIn;
+    if (fadeIn == 0) {
+        task->level = 0;
+        task->levelStep = 0xFF00 / duration;
+    } else {
+        task->level = 0xFF00;
+        task->levelStep = -(0xFF00 / duration);
+    }
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_8008280C);
+void STGMCARD_drawFader(ScreenFade *task) {
+    Layer *layer = GFX.funcs.getLayer(task->layerId);
+    u_long *ot = (u_long *)layer->getOtEntry(layer, task->depth);
+    POLY_F4 *poly = GFX.funcs.getPrim();
+    DR_TPAGE *mode;
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80082850);
+    setlen(poly, 5);
+    poly->code = 0x2A;
+    poly->r0 = poly->g0 = poly->b0 = task->level >> 8;
+    poly->x0 = poly->x2 = 0;
+    poly->x1 = poly->x3 = 320;
+    poly->y0 = poly->y1 = 0;
+    poly->y2 = poly->y3 = 256;
+    addPrim(ot, poly);
+    mode = (DR_TPAGE *)(poly + 1);
+    setlen(mode, 1);
+    mode->code[0] = 0xE1000245;
+    addPrim(ot, mode);
+    GFX.funcs.setPrim(mode + 1);
+}
+
+void STGMCARD_updateFader(ScreenFade *task) {
+    switch (task->state) {
+    case 0:
+    default:
+        task->nextState(task);
+        break;
+    case 1:
+        if (task->substate == 0) {
+            break;
+        }
+        task->level += task->levelStep;
+        if (task->fadeIn == 0) {
+            if (task->level > 0xFF00) {
+                task->level = 0xFF00;
+                task->state = 2;
+            }
+        } else if (task->level < 0) {
+            task->level = 0;
+            task->state = 2;
+        }
+        /* fallthrough */
+    case 2:
+        STGMCARD_drawFader(task);
+        break;
+    case 3:
+        break;
+    }
+}
+
+ScreenFade *STGMCARD_createFader(void) {
+    ScreenFade *task = createTask(STGMCARD_updateFader, sizeof(ScreenFade), 0);
+
+    task->start = STGMCARD_startFader;
+    task->layerId = 0x1000;
+    task->depth = 0;
+    return task;
+}
+
+void func_80082850(Task *task) {
+    task->setSubstate(task, 1);
+}
 
 INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80082878);
 
@@ -82,21 +176,72 @@ INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_8008743C);
 
 INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_800874AC);
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80087510);
+void STGMCARD_startFade(PanelAnim *fade, s32 fadeIn) {
+    fade->active = 1;
+    if (fadeIn != 0) {
+        SOUND.playSound(0x40019);
+        fade->level = 0;
+        fade->step = 0x1000 / fade->duration;
+    } else {
+        SOUND.playSound(0x4001A);
+        fade->level = 0x1000;
+        fade->step = -((0x1000 / fade->duration) * 2);
+    }
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_800875A4);
+s32 STGMCARD_updateFade(PanelAnim *fade) {
+    if (fade->active == 0) {
+        return 1;
+    }
+    fade->level += fade->step;
+    if (fade->step > 0) {
+        if (fade->level > 0x1000) {
+            fade->level = 0x1000;
+            fade->active = 0;
+            return 1;
+        }
+    } else if (fade->level < 0) {
+        fade->level = 0;
+        fade->active = 0;
+        return 1;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80087610);
+void STGMCARD_startLerp(MenuLerp *lerp, s32 from, s32 to, s32 frames) {
+    if (from != to) {
+        lerp->duration = frames;
+        lerp->fixed = from << 8;
+        lerp->value = from;
+        lerp->target = to;
+        lerp->active = 1;
+        lerp->step = ((to - from) << 8) / lerp->duration;
+    }
+}
 
-INCLUDE_ASM("stgmcard/nonmatchings/stgmcard", func_80087650);
+s32 STGMCARD_updateLerp(MenuLerp *lerp) {
+    if (lerp->active == 0) {
+        return 1;
+    }
+    lerp->fixed += lerp->step;
+    lerp->value = lerp->fixed >> 8;
+    if (lerp->step > 0) {
+        if (lerp->target < lerp->value) {
+            lerp->value = lerp->target;
+            lerp->active = 0;
+            return 1;
+        }
+    } else if (lerp->value < lerp->target) {
+        lerp->value = lerp->target;
+        lerp->active = 0;
+        return 1;
+    }
+    return 0;
+}
 
 void func_80087284();
 void func_8008743C();
 void func_800874AC();
-void func_80087510();
-void func_800875A4();
-void func_80087610();
-void func_80087650();
 extern s32 D_80087DD4[];
 extern s32 D_80087DF4[];
 extern s32 D_80087E74[];
@@ -239,10 +384,10 @@ s32 D_80087DAC[] = {
 s32 D_80087DB8 = (s32)func_80087284;
 s32 D_80087DBC = (s32)func_8008743C;
 s32 D_80087DC0 = (s32)func_800874AC;
-s32 D_80087DC4 = (s32)func_80087510;
-s32 D_80087DC8 = (s32)func_800875A4;
-s32 D_80087DCC = (s32)func_80087610;
-s32 D_80087DD0 = (s32)func_80087650;
+s32 D_80087DC4 = (s32)STGMCARD_startFade;
+s32 D_80087DC8 = (s32)STGMCARD_updateFade;
+s32 D_80087DCC = (s32)STGMCARD_startLerp;
+s32 D_80087DD0 = (s32)STGMCARD_updateLerp;
 s32 D_80087DD4[] = {
     0x2D6B0000, 0x469320E7, 0x71C85167, 0x3A0F635A,
     0x28C473DD, 0x185944, 0x71C87E8D, 0x7E587E13,

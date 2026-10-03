@@ -1,0 +1,12 @@
+// STGMCARD.PRO's own symbols
+
+STGMCARD_updateScene = 0x80082468; // type:func
+STGMCARD_start = 0x80082560; // type:func
+STGMCARD_startFader = 0x8008258C; // type:func
+STGMCARD_drawFader = 0x80082614; // type:func
+STGMCARD_updateFader = 0x80082758; // type:func
+STGMCARD_createFader = 0x8008280C; // type:func
+STGMCARD_startFade = 0x80087510; // type:func
+STGMCARD_updateFade = 0x800875A4; // type:func
+STGMCARD_startLerp = 0x80087610; // type:func
+STGMCARD_updateLerp = 0x80087650; // type:func
