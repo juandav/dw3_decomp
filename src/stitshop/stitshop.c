@@ -230,7 +230,14 @@ void func_8008B728(ItemShop *shop) {
     win->money->setRightAlign(win->money, 1);
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B77C);
+ItemShop *func_8008B77C(void) {
+    ItemShop *shop = createTask(func_8008B614, sizeof(ItemShop), sizeof(ItemShopWindows));
+
+    shop->showMoney = func_8008B728;
+    shop->layer = 0x1000;
+    shop->shop = GAME_FUNCS.getModeArg();
+    return shop;
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B7E0);
 
