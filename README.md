@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%2071-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%2077-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -43,12 +43,12 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 346 / 346 | 100.00 % | 99.97 % |
 | | USA | 346 / 346 | 100.00 % | 99.97 % |
-| The 21 overlays | Europe | 1,534 / 1,702 | 76.13 % | 83.80 % |
-| | USA | 1,532 / 1,697 | 76.31 % | 83.42 % |
+| The 21 overlays | Europe | 1,540 / 1,702 | 76.88 % | 85.52 % |
+| | USA | 1,538 / 1,697 | 77.07 % | 85.13 % |
 | The stages (293 and 238) | Europe | 1,590 / 1,590 | 100.00 % | 99.27 % |
 | | USA | 1,369 / 1,369 | 100.00 % | 99.15 % |
-| **Total** | **Europe** | **3,470 / 3,638** | **83.68 %** | **97.54 %** |
-| | **USA** | **3,247 / 3,412** | **83.16 %** | **97.20 %** |
+| **Total** | **Europe** | **3,476 / 3,638** | **84.19 %** | **97.74 %** |
+| | **USA** | **3,253 / 3,412** | **83.70 %** | **97.43 %** |
 
 - The executable's game code is all C. Its data is C too, in
   `src/main/data/`, until it moves next to the code that uses it.
@@ -92,8 +92,8 @@ above counts them: fake matches, then the other two kinds together.
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 6 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 65 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 166 | `INCLUDE_ASM` |
+| Form-dependent matches | 71 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 160 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -104,7 +104,7 @@ above counts them: fake matches, then the other two kinds together.
   `libgs_gs_131`), one in the game's `drawTalkBoxArrow`.
 - A form-dependent match is C that matches in one of several equivalent
   forms only: an extra block, an `if` without braces, a copy of a variable, a
-  type, or one version's own form of a loop. The sixty-five so far are a copy
+  type, or one version's own form of a loop. The seventy-one so far are a copy
   of a variable in `drawTalkBoxArrow`, an unsigned compare in STGMCARD's
   `func_80082E28`, a variable that holds two values in STCRDDEK's
   `STCRDDEK_drawDeckCards`, a counter set before a call in
@@ -118,15 +118,16 @@ above counts them: fake matches, then the other two kinds together.
   stats read as `*(totals.stats + i)` in its `func_80083ADC`, `s16` copies
   of two stats in its `func_80085E30`, a counter that
   holds an icon too in its `func_800878C0`, the same `u32` copy in STPLNMET's
-  `STPLNMET_updateKeyboard`, five spots in STSTATUS and one in STCRDSHP (a
-  copy, a cast, a temporary or a pointer), a `cards++` written in the `for`
+  `STPLNMET_updateKeyboard`, seven spots in STSTATUS and one in STCRDSHP (a
+  copy, a cast, a temporary, a pointer, a pointer sum or `for` initializers), a `cards++` written in the `for`
   in STCRDSHP's `STCRDSHP_createGrid` and `STCRDSHP_drawCards` (which also
   writes its digits' x as `dx + 0x27 + x`), five spots in STGDGLAB and three
   in STITSHOP (loops with counters of their own, a reused variable, an
   index from a later member, range tests written out, a function of its own
-  or a copy), six spots in STFGTREP and five
+  or a copy), six spots in STFGTREP and eleven
   in WFIGHTMN (a variable, a case or a statement of its own, a pointer sum,
-  a statement written in both branches or a counter set before a call),
+  a statement written in both branches, a counter set before a call, a
+  variable reused, a pointer, an offset from a pointer or a `while (1)`),
   eleven spots in CARDGAME (a loop or state variable of its
   own, an empty case, or a statement written twice), the do-while of
   `COUNTDOWN_BORROW`, the statement macro of the timed stages' countdown,
@@ -174,9 +175,9 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `STGTRAIN` | `0x80082448` | 87 / 94 | the gyms: a partner trains a stat, gaining some and losing others, with its sprites and the result windows |
 | `STITSHOP` | `0x80082448` | 68 / 69 | the item shop, where the player buys and sells items and equips what was bought on a partner |
 | `STPLNMET` | `0x80082448` | 53 / 53 | the player's name entry (mode 0x500), with a copy of `STDGNAME`'s keyboard |
-| `STSTATUS` | `0x80082448` | 101 / 123 | the screens the field menu opens (`STSTATUS_screens`), such as the item list and the equipment |
-| `WFIGHTMN` | `0x800A4CA4` | 39 / 42 | the battle's sub-overlay, which `FIGHTSTG` loads (file 0x1FA) for a normal battle: it checks the party and its equipment and ends the battle |
-| `WFIGHTTS` | `0x800A4CA4` | 12 / 14 | the debug battle test, which `FIGHTSTG` loads (file 0x1FB) in place of `WFIGHTMN`: lists of fighters, motions, effects and stages |
+| `STSTATUS` | `0x80082448` | 105 / 123 | the screens the field menu opens (`STSTATUS_screens`), such as the item list and the equipment |
+| `WFIGHTMN` | `0x800A4CA4` | 41 / 42 | the battle's sub-overlay, which `FIGHTSTG` loads (file 0x1FA) for a normal battle: it checks the party and its equipment and ends the battle |
+| `WFIGHTTS` | `0x800A4CA4` | 13 / 14 | the debug battle test, which `FIGHTSTG` loads (file 0x1FB) in place of `WFIGHTMN`: lists of fighters, motions, effects and stages |
 | `WSTAG###` (238) | `0x800A4CA4` | 1,369 / 1,369 | the stages: small programs that load on top of `FIELDSTG` and call into it |
 
 `SMDLDATA`, `SDIGIEDT`, `SFSTDATA` and `WSTAG260` hold no code and aren't

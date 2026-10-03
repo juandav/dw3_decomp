@@ -112,7 +112,8 @@ typedef struct StatusScreen4 {
     /* 0x05C */ s32 count; /* party members */
     /* 0x060 */ u8 unk60[0x70 - 0x60];
     /* 0x070 */ s32 unk70;
-    /* 0x074 */ u8 unk74[0x7C - 0x74];
+    /* 0x074 */ s32 option; /* the options' cursor */
+    /* 0x078 */ u8 unk78[0x7C - 0x78];
     /* 0x07C */ s32 member; /* in the party */
     /* 0x080 */ u8 unk80[0x88 - 0x80];
     /* 0x088 */ PanelAnim pageFades[3];
@@ -129,7 +130,10 @@ typedef struct StatusScreen4Windows {
     /* 0x8C */ TextWindow *help2;
     /* 0x90 */ TextWindow *options[2];
     /* 0x98 */ Cursor *cursor;
-    /* 0x9C */ u8 unk9C[0xB4 - 0x9C];
+    /* 0x9C */ TextWindow *unk9C;
+    /* 0xA0 */ TextWindow *unkA0;
+    /* 0xA4 */ TextWindow *slotTitle;
+    /* 0xA8 */ TextWindow *slots[3]; /* the partner's getPartnerSlots entries */
     /* 0xB4 */ TextWindow *equipTitle;
     /* 0xB8 */ TextWindow *equip[6];
     /* 0xD0 */ TextWindow *values[13]; /* the stats of D_80099B58 */

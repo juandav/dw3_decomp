@@ -48,10 +48,13 @@ void func_800A5538(s32 digimon);
 void func_800A5878(void);
 void func_800A61C8(void);
 s32 func_800A9840(u8 id, s32 damage);
+Task *func_800A120C(void);
 BattleTask *func_800A9040(u8 actor, s32 id);
 void func_800A99F0(u8 side);
 void func_800A9960(u8 side, s32 damage);
 extern s32 D_800A9CC4[][2];
+extern s32 D_800A9B60[][3];
+extern s32 D_800A9BD8[][4];
 
 void WFIGHTMN_updateMenu();
 extern void (*WFIGHTMN_states[])(BattleMenu *task, BattleMenuChildren *children);
@@ -1087,7 +1090,170 @@ void func_800A7CB8(BattleMenu *task, BattleMenuChildren *children) {
     }
 }
 
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn_2", func_800A7DB0);
+/* A fighter falls (?): case 0 takes its event off the queue, shows message
+   0x50 or 0x51 and clears its status; case 1 looks for the side's next
+   fighter standing. The player's side picks one (func_80092154(4)), the
+   enemy's brings in the first; with none left the battle ends (0x53 lost,
+   0x52 won). Case 5 brings in the enemy's second fighter in battle kind 4. */
+void func_800A7DB0(BattleMenu *task, BattleMenuChildren *children) {
+    QueuedEvent *action;
+    QueuedEvent *event;
+    BattleFighter *unit;
+    BattleFighter *enemy;
+    BattleFighter *fighter;
+    s32 index;
+    BattleTableEntry *entry;
+    BattleModels *models;
+    s32 side;
+    s32 slot;
+    s32 i;
+
+    switch (task->step) {
+    case 0:
+    default:
+        action = &D_800A25F0.events[D_800A25F0.curIndex];
+        children->task = func_80099400();
+        if (action->args[0] != 0 && D_800A32BE == 4) {
+            task->args[0] = 0x8B;
+            children->task->show(children->task, 1, task->args);
+            task->setStep(task, 5);
+            return;
+        }
+        D_800A25F0.funcs.remove((EventKey *)&action->args[0]);
+        side = action->args[0] >> 4;
+        fighter = D_800A31E8.fighters[side] + D_800A31E8.active[side];
+        if (side == 0) {
+            if (fighter->unk1B != 0) {
+                fighter->unk1B = 0;
+#if VERSION_US
+                task->args[0] = 0x15;
+                task->args[1] = 1;
+                task->args[2] = 0;
+                task->args[3] = D_800A31E8.active[0];
+                D_800A25F0.funcs.pushFirst((BattleEvent *)task->args);
+#elif VERSION_EU
+                func_8009C0B0();
+#endif
+            }
+            task->args[0] = 0x50;
+            task->args[1] = 0;
+        } else {
+            task->args[0] = 0x51;
+            task->args[1] = 0x10;
+        }
+        children->task->show(children->task, 2, task->args);
+        fighter->unkE = 0;
+        fighter->flags = 0;
+        fighter->unk1F = 0;
+        fighter->unk1E = 0;
+        fighter->unk1D = 0;
+        task->step++;
+        break;
+    case 1:
+        if (children->task == NULL) {
+            /* event and not action, and unit for the search too: the
+               match depends on both, which give the registers */
+            event = &D_800A25F0.events[D_800A25F0.curIndex];
+            slot = -1;
+            unit = D_800A31E8.fighters[event->args[0] >> 4];
+            for (i = 0; i < 3; i++) {
+                if (unit[i].id != 0 && unit[i].hp != 0) {
+                    slot = i;
+                    break;
+                }
+            }
+            if (slot != -1) {
+                if (event->args[0] == 0) {
+                    func_80092154(4);
+                    task->step = 2;
+                } else {
+                    unit = D_800A31E8.fighters[1] + slot;
+                    task->step = 3;
+                    task->args[0] = slot;
+                    task->args[1] = D_800A31E8.active[1];
+                    D_800A31E8.active[1] = slot;
+                    children->task = func_80086780(unit->id, 1, func_800A9840(0x10, 0));
+                    D_800A31E8.active[1] = task->args[1];
+                }
+                break;
+            }
+            children->task = func_80099400();
+            if (event->args[0] == 0) {
+                func_8009B634(2);
+                SOUND.playSound(0x60040008);
+                task->args[0] = 0x53;
+                task->setSubstate(task, 2);
+                children->unk18 = func_800A120C();
+            } else {
+                func_8009B634(1);
+                if (D_800A32BE != 6) {
+                    SOUND.playSound(0x6004001E);
+                }
+                task->args[0] = 0x52;
+                task->setSubstate(task, 0x18);
+                task->args[1] = GFX_FUNCS.getTime();
+                task->args[2] = 100;
+                models = TASK_FUNCS.find(0x14, -1, -1);
+                models->get(models, 0)->motion = 0xD;
+            }
+            children->task->show(children->task, 1, task->args);
+        }
+        break;
+    case 2:
+        if (func_800921B8() == 0) {
+            task->setSubstate(task, 5);
+            task->step = 1;
+        }
+        break;
+    case 3:
+        if (children->task->unk50 != 0) {
+            D_800A31E8.active[1] = task->args[0];
+            task->step++;
+        }
+        break;
+    case 4:
+        if (children->task == NULL) {
+            /* through a pointer: the match depends on it, which loads
+               active[1] from the address of fighters[1] */
+            enemy = D_800A31E8.fighters[1];
+            entry = D_800A2584((enemy + D_800A31E8.active[1])->id);
+            children->task = func_80099400();
+            task->args[0] = entry->nameId;
+            children->task->show(children->task, 0xD, task->args);
+            task->setSubstate(task, 2);
+        }
+        break;
+    case 5:
+        switch (task->counter) {
+        case 0:
+        default:
+            if (children->task == NULL) {
+                D_800A31E8.unkD6 = 5;
+                D_800A31E8.active[1] = 1;
+                children->task = func_80086780(D_800A31E8.fighters[1][1].id, 1, 0);
+                D_800A31E8.active[1] = 0;
+                task->counter++;
+            }
+            break;
+        case 1:
+            if (children->task->unk50 != 0) {
+                D_800A31E8.fighters[1][0] = D_800A31E8.fighters[1][1];
+                D_800A31E8.active[1] = 0;
+                D_800A31E8.fighters[1][1].id = 0;
+                task->counter++;
+            }
+            break;
+        case 2:
+            index = D_800A25F0.funcs.first(3);
+            if (index >= 0) {
+                D_800A25F0.events[index].time = 0;
+            }
+            task->setSubstate(task, 2);
+            break;
+        }
+        break;
+    }
+}
 
 void func_800A83D8(BattleMenu *task, BattleMenuChildren *children) {
     QueuedEvent *action = &D_800A25F0.events[D_800A25F0.curIndex];
@@ -1162,7 +1328,93 @@ void func_800A8610(BattleMenu *task, BattleMenuChildren *children) {
     }
 }
 
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn_2", func_800A86E0);
+/* The enemy's third fighter comes in (battle kind 6), takes the first's
+   place, and technique 440 is made from 443 with D_800A31E8.unkD8's kind
+   (unkA, from D_800A9B60) and unk7 (from D_800A9BD8) before message 0x16
+   names it (?) */
+void func_800A86E0(BattleMenu *task, BattleMenuChildren *children) {
+    Unk800427D6 *tech;
+    Unk800427D6 *dst;
+    s32 id;
+    s32 i;
+
+    switch (task->step) {
+    case 0:
+    default:
+        D_800A31E8.unkD6 = 6;
+        D_800A31E8.active[1] = 2;
+        children->task = func_80086780(D_800A31E8.fighters[1][2].id, 1, 0);
+        D_800A31E8.active[1] = 0;
+        task->step++;
+        break;
+    case 1:
+        if (children->task->unk50 != 0) {
+            D_800A31E8.fighters[1][0] = D_800A31E8.fighters[1][2];
+            D_800A31E8.active[1] = 0;
+            D_800A31E8.fighters[1][2].id = 0;
+            task->step++;
+        }
+        break;
+    case 2:
+        if (children->task == NULL) {
+            /* dst[3] and not D_800427D6[443]: the match depends on it */
+            dst = &D_800427D6[440];
+            id = D_800A31E8.unkD8;
+            *dst = dst[3];
+            if (id != 0) {
+                tech = &D_800427D6[id];
+                if (tech->unk10 != 5 && tech->unk10 != 12) {
+                    if (tech->unkA >= 2 && !(tech->unkA == 9 || tech->unkA == 10) && tech->unkA != 12) {
+                        dst->unkA = tech->unkA;
+                        dst->unkC = tech->unkC;
+                        dst->unkB = tech->unkB;
+                        for (i = 0; D_800A9B60[i][0] != -1; i++) {
+                            if (D_800A9B60[i][0] == tech->unkA) {
+                                dst->unkE = D_800A9B60[i][1];
+                                dst->unkF = D_800A9B60[i][2];
+                                dst->unkD = 0;
+                                break;
+                            }
+                        }
+                    }
+                    if (tech->unk7 >= 2) {
+                        dst->unk7 = tech->unk7;
+                        dst->unk8 = tech->unk8;
+                        if (dst->unkA < 2) {
+                            /* while (1), not for (;;): the match depends on it,
+                               which leaves the loop's test at its top */
+                            i = 0;
+                            while (1) {
+                                if (D_800A9BD8[i][0] == tech->unk7) {
+                                    dst->unkE = D_800A9BD8[i][1];
+                                    dst->unkF = D_800A9BD8[i][2];
+                                    dst->unkD = D_800A9BD8[i][3];
+                                    break;
+                                }
+                                i++;
+                            }
+                        }
+                    }
+                }
+                children->task = func_80099400();
+                task->args[0] = D_800A31E8.unkD8;
+                children->task->show(children->task, 0x16, task->args);
+                task->step = 3;
+            } else {
+                task->step = 4;
+            }
+        }
+        break;
+    case 3:
+        if (children->task == NULL) {
+            task->step++;
+        }
+        break;
+    case 4:
+        task->setSubstate(task, 2);
+        break;
+    }
+}
 
 void func_800A8A64(BattleMenu *task) {
     BattleEvent request;
