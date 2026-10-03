@@ -169,15 +169,15 @@ own.
 
 ## Overlays
 
-- [ ] 1,403 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,408 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`, `STPLNMET`, `STDGNAME`. Mostly: `STCRDABM` (28 / 29),
   `STCRDDEK` (53 / 55), `SHOCKTST` (15 / 17), `STAGSLCT` (6 / 8),
   `FIELDSTG` (195 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
   `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (85 / 94),
   `STITSHOP` (50 / 69), `CARDGAME` (303 / 306), `STGMCARD` (44 / 45),
   `STSTATUS` (101 / 123), `STFGTREP` (35 / 36). Started: `STGDGLAB`
-  (44 / 70), `STCRDSHP` (33 / 45), `WFIGHTTS` (9 / 14), `WFIGHTMN`
-  (33 / 42), `FIGHTSTG` (159 / 310).
+  (44 / 70), `STCRDSHP` (33 / 45), `WFIGHTTS` (10 / 14), `WFIGHTMN`
+  (37 / 42), `FIGHTSTG` (159 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_buildCardList` (2 diffs) and `STCRDDEK_createScreenWindows`
     (3) differ in the order of two loads and a register.
@@ -207,14 +207,12 @@ own.
   battle test's list of 12 and 3 windows) puts the right and left handlers
   before the pad code, which only gotos into a `do {} while (0)` around
   the whole pad handling reproduce, a forced form; `func_800A6954` is the
-  same kind of list (about 200 diffs), and `func_800A764C`,
-  `func_800A7BE8` and `func_800A5A54` haven't been tried. `WFIGHTMN`:
-  `func_800A6AC8` (1 diff, the operands of an `addu`), `func_800A83D8`
-  (`v0`/`v1` swapped), `func_800A6778` (11), `func_800A7DB0` (21, case 1's
+  same kind of list (about 200 diffs), and `func_800A764C` and
+  `func_800A7BE8` haven't been tried. `WFIGHTMN`:
+  `func_800A6778` (11), `func_800A7DB0` (21, case 1's
   registers), `func_800A86E0` (145); `func_800A5538` and `func_800A6E6C`
   only match with forced forms (a copy of a pointer kept for nothing, the
-  permuter's empty loops); the main task `func_800A5ACC` and
-  `func_800A9040` haven't been tried. `STFGTREP`: `func_80085A38` (the
+  permuter's empty loops). `STFGTREP`: `func_80085A38` (the
   Digimon a partner learns, 14 diffs: the id and the counter of the needs
   loop swap `s1` and `s2`, whatever the declarations' order). `STGMCARD`:
   `func_800844DC` (2,366 instructions) hasn't been tried.

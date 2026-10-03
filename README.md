@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%2042-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%2046-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -43,12 +43,12 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 346 / 346 | 100.00 % | 99.97 % |
 | | USA | 346 / 346 | 100.00 % | 99.97 % |
-| The 21 overlays | Europe | 1,404 / 1,702 | 56.96 % | 82.35 % |
-| | USA | 1,403 / 1,697 | 56.98 % | 81.98 % |
+| The 21 overlays | Europe | 1,409 / 1,702 | 58.12 % | 82.35 % |
+| | USA | 1,408 / 1,697 | 58.15 % | 81.98 % |
 | The stages (293 and 238) | Europe | 1,297 / 1,590 | 70.55 % | 99.27 % |
 | | USA | 1,231 / 1,369 | 82.83 % | 99.15 % |
-| **Total** | **Europe** | **3,047 / 3,638** | **62.99 %** | **97.36 %** |
-| | **USA** | **2,980 / 3,412** | **65.49 %** | **97.01 %** |
+| **Total** | **Europe** | **3,052 / 3,638** | **63.78 %** | **97.36 %** |
+| | **USA** | **2,985 / 3,412** | **66.33 %** | **97.01 %** |
 
 - The executable's game code is all C. Its data is C too, in
   `src/main/data/`, until it moves next to the code that uses it.
@@ -89,9 +89,9 @@ above counts them: fake matches, then the other two kinds together.
 | Kind | Count | Marker |
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
-| Unused frame locals | 3 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 39 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 589 | `INCLUDE_ASM` |
+| Unused frame locals | 4 | `/* unused, but it is in the original stack frame */` |
+| Form-dependent matches | 42 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 584 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -164,8 +164,8 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `STITSHOP` | `0x80082448` | 50 / 69 | the item shop, where the player buys and sells items and equips what was bought on a partner |
 | `STPLNMET` | `0x80082448` | 53 / 53 | the player's name entry (mode 0x500), with a copy of `STDGNAME`'s keyboard |
 | `STSTATUS` | `0x80082448` | 101 / 123 | the screens the field menu opens (`STSTATUS_screens`), such as the item list and the equipment |
-| `WFIGHTMN` | `0x800A4CA4` | 33 / 42 | the battle's sub-overlay, which `FIGHTSTG` loads (file 0x1FA) for a normal battle: it checks the party and its equipment and ends the battle |
-| `WFIGHTTS` | `0x800A4CA4` | 9 / 14 | the debug battle test, which `FIGHTSTG` loads (file 0x1FB) in place of `WFIGHTMN`: lists of fighters, motions, effects and stages |
+| `WFIGHTMN` | `0x800A4CA4` | 37 / 42 | the battle's sub-overlay, which `FIGHTSTG` loads (file 0x1FA) for a normal battle: it checks the party and its equipment and ends the battle |
+| `WFIGHTTS` | `0x800A4CA4` | 10 / 14 | the debug battle test, which `FIGHTSTG` loads (file 0x1FB) in place of `WFIGHTMN`: lists of fighters, motions, effects and stages |
 | `WSTAG###` (238) | `0x800A4CA4` | 815 / 1,374 | the stages: small programs that load on top of `FIELDSTG` and call into it |
 
 `SMDLDATA`, `SDIGIEDT`, `SFSTDATA` and `WSTAG260` hold no code and aren't

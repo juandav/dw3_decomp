@@ -84,10 +84,7 @@ typedef struct BattleTask {
     TASK_HEADER(BattleTask);
     /* 0x50 */ s32 unk50;
     /* 0x54 */ s32 unk54;
-    /* 0x58 */ s32 unk58;
-    /* 0x5C */ s32 unk5C;
-    /* 0x60 */ s32 unk60;
-    /* 0x64 */ s32 unk64;
+    /* 0x58 */ s32 hits[4]; /* 0 a hit, 3 a miss; [3] how it ended: 1 hit, 2 knocked out, 3 missed */
     /* 0x68 */ s32 unk68;
     /* 0x6C */ s32 unk6C;
     /* 0x70 */ s32 unk70;
@@ -122,7 +119,7 @@ typedef struct BattleModels {
     /* 0x188 */ BattleModel *(*get)(struct BattleModels *task, s32 id);
     /* 0x18C */ void (*setId)(struct BattleModels *task, s32 id, s32 newId);
     /* 0x190 */ s32 (*getFighter)(struct BattleModels *task, s32 id);
-    /* 0x194 */ void (*face)(struct BattleModels *task, s32 id, s32 side);
+    /* 0x194 */ void (*face)(struct BattleModels *task, s32 id); /* ids under 0x10 are one side */
     /* 0x198 */ void (*setIdleMotion)(struct BattleModels *task, s32 id, s32 motion);
 } BattleModels;
 
@@ -133,11 +130,21 @@ typedef struct BattleMenu {
     /* 0x70 */ s32 unk70;
 } BattleMenu;
 
+/* FIGHTSTG's func_800919EC's task (its Unk800911C8), registered with id
+   0x12 */
+typedef struct Unk800919EC {
+    TASK_HEADER(Unk800919EC);
+    /* 0x050 */ u8 unk50[0xA8];
+    /* 0x0F8 */ void (*unkF8)(struct Unk800919EC *task, void *arg1); /* copies 0x34 bytes from arg1 */
+    /* 0x0FC */ void (*unkFC)();
+    /* 0x100 */ void *(*unk100)(struct Unk800919EC *task);
+} Unk800919EC;
+
 /* The battle menu's children */
 typedef struct BattleMenuChildren {
     /* 0x00 */ Task *loader;
     /* 0x04 */ BattleCommands *commands;
-    /* 0x08 */ void *unk8;
+    /* 0x08 */ Unk800919EC *unk8;
     /* 0x0C */ Task *lights;
     /* 0x10 */ Task *stage;
     /* 0x14 */ BattleModels *models;
@@ -148,10 +155,44 @@ typedef struct BattleMenuChildren {
 /* Points to getDigimon, whatever its name says */
 extern DigimonData *(*ON_PARTNER_ENTRY_ADDED)(s32 id);
 
+/* A side's stats as FIGHTSTG works them out (FIGHTSTG's BattleStats) */
+typedef struct BattleStats {
+    /* 0x00 */ s32 unk0[2];
+    /* 0x08 */ s16 unk8[0xE];
+    /* 0x24 */ u8 unk24;
+    /* 0x25 */ u8 unk25;
+    /* 0x26 */ u8 unk26[2];
+    /* 0x28 */ u8 unk28[3];
+    /* 0x2B */ u8 unk2B;
+    /* 0x2C */ u8 unk2C;
+    /* 0x2D */ u8 unk2D[3];
+    /* 0x30 */ u8 unk30[0x10];
+} BattleStats;
+
+/* FIGHTSTG's BattleAction (D_800A317C): what the action being carried out
+   does */
+typedef struct ActionResult {
+    /* 0x00 */ s16 unk0[0xE];
+    /* 0x1C */ u8 unk1C;
+    /* 0x1D */ u8 unk1D[3];
+    /* 0x20 */ u8 unk20;
+    /* 0x24 */ s32 unk24; /* an entry of D_800427D6 */
+    /* 0x28 */ s32 damage; /* per hit */
+    /* 0x2C */ s32 unk2C;
+    /* 0x30 */ u8 hits[4]; /* whether each hit lands */
+    /* 0x34 */ s16 unk34;
+    /* 0x36 */ s16 unk36;
+    /* 0x38 */ u8 unk38[0x28]; /* by D_800427D6's unkA */
+    /* 0x60 */ s32 unk60[2];
+    /* 0x68 */ void (*unk68)();
+} ActionResult;
+
 /* FIGHTSTG's D_800A3308: its battle functions from 0x80, the ones WFIGHTMN
    calls */
 typedef struct BattleFuncs {
-    /* 0x00 */ u8 unk0[0x8C];
+    /* 0x00 */ BattleStats stats[2];
+    /* 0x80 */ BattleStats *(*getStats)(s32 side, s32 arg1, s32 unit);
+    /* 0x84 */ s32 (*unk84[2])();
     /* 0x8C */ s32 (*getDamage)(s32 *actor); /* of the action actor is in */
     /* 0x90 */ s32 (*unk90[2])();
     /* 0x98 */ s32 (*getHeal)(u8 actor, s32 unit, s32 arg2);
@@ -167,6 +208,30 @@ typedef struct BattleFuncs {
     /* 0xE8 */ s32 (*unkE8)();
 } BattleFuncs;
 
+/* A battle table entry as WFIGHTMN reads it (FIGHTSTG's BattleTableEntry) */
+typedef struct EnemyInfo {
+    /* 0x00 */ s16 id;
+    /* 0x02 */ s16 item; /* what the enemy may leave */
+    /* 0x04 */ s16 itemChance; /* in 1024ths, less one */
+    /* 0x06 */ s16 name; /* its text */
+} EnemyInfo;
+
+/* FIGHTSTG's func_8008A22C: the fade at the end of a battle */
+typedef struct BattleEnd {
+    TASK_HEADER(BattleEnd);
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ u8 unk58[0xC];
+    /* 0x64 */ void (*start)(struct BattleEnd *task, s32 arg1, s32 duration);
+} BattleEnd;
+
+BattleEnd *func_8008A22C(void);
+void func_8009C0B0(void);
+
+extern EnemyInfo *(*D_800A2584)(s32 id);
+/* How the battle ended: 1 won (mode 0x1400 follows, for the report), 2 requests
+   mode 0xE00 and anything else goes back to the field */
+extern u8 D_800A30E4;
 extern Battle D_800A31E8;
 extern BattleFuncs D_800A3308;
 extern BattleActions D_800A25F0;
