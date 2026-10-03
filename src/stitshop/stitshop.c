@@ -15,6 +15,7 @@ void func_800894EC(ShopInfo *info, void *win, s32 arg);
 void func_80089774(ShopInfo *info, void *win, s32 arg);
 void func_8008988C(ShopInfo *info, void *win, s32 arg);
 void func_8008A5E8();
+void func_800884A4(s16 *p, s32 stat, s32 delta);
 void func_8008AF88(ItemShop *shop, ItemShopWindows *win);
 extern s32 D_8008C16C[];
 ItemShop *func_8008B77C(void);
@@ -341,9 +342,106 @@ ShopItemList *func_80088094(Task *dialog, s32 type, s32 selling) {
     return list;
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80088150);
+void func_80088150(s32 partner, s16 *out) {
+    s16 *equip;
+    s32 i;
+    s32 j;
+    ItemInfo *info;
+    ShopItemData *data;
+    u8 type;
+    u8 stat;
+    s32 amount;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800884A4);
+    GameState *save = &GAME;
+    PartnerStats *d;
+
+    *(ShopStatBlock *)out = *(ShopStatBlock *)&save->partners[partner].level;
+    d = &PARTNER_STATS[partner];
+    equip = d->equip;
+    for (i = 0; i < 6; i++) {
+        if (equip[i] > 0) {
+            info = GET_ITEM[0](equip[i]);
+            type = info->type;
+            data = (ShopItemData *)info->data;
+            if ((u8)(type - 2) < 13) {
+                out[6] += data->weapon.atk;
+                if (out[6] >= 1000) {
+                    out[6] = 999;
+                }
+                for (j = 0; j < 2; j++) {
+                    stat = *(j + data->weapon.stats);
+                    amount = data->weapon.amounts[j];
+                    if (stat != 0) {
+                        func_800884A4(out, stat, (s16)amount);
+                    }
+                }
+            } else if ((u8)(type - 15) < 6) {
+                out[7] += data->armor.def;
+                if (out[7] >= 1000) {
+                    out[7] = 999;
+                }
+                for (j = 0; j < 2; j++) {
+                    stat = *(j + data->armor.stats);
+                    amount = data->armor.amounts[j];
+                    if (stat != 0) {
+                        func_800884A4(out, stat, (s16)amount);
+                    }
+                }
+            } else if ((u8)(type - 21) < 4) {
+                stat = data->acc.stat;
+                amount = data->acc.amount;
+                if (stat != 0) {
+                    func_800884A4(out, stat, (s16)amount);
+                }
+            } else {
+                continue;
+            }
+            out[11] += data->weapon.unk0;
+            if (out[11] >= 1000) {
+                out[11] = 999;
+            }
+        }
+    }
+    out[6] -= out[19];
+    if (out[6] < 0) {
+        out[6] = 0;
+    }
+    out[7] -= out[20];
+    if (out[7] < 0) {
+        out[7] = 0;
+    }
+    out[10] -= out[21];
+    if (out[10] < 0) {
+        out[10] = 0;
+    }
+}
+
+void func_800884A4(s16 *p, s32 stat, s32 delta) {
+    s32 i;
+    s16 value;
+
+    if (stat == 7) {
+        for (i = 0; i < 6; i++) {
+            value = p[i + 6] + delta;
+            p[i + 6] = value;
+            if (value >= 1000) {
+                p[i + 6] = 999;
+            }
+        }
+    } else if (stat - 1 < 6U) {
+        value = p[stat + 5] + delta;
+        p[stat + 5] = value;
+        if (value >= 1000) {
+            p[stat + 5] = 999;
+        }
+    } else if (stat - 8 < 7U) {
+        value = p[stat + 4] + delta;
+        p[stat + 4] = value;
+        if (value >= 1000) {
+            p[stat + 4] = 999;
+        }
+    }
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80088578);
 

@@ -176,6 +176,34 @@ typedef struct ItemShopFuncs {
     /* 0x28 */ void (*equip)(s32 partner, s32 slot, s32 item, s32 fromBag);
 } ItemShopFuncs;
 
+/* A partner's stats, copied whole (as main's computeStats does) */
+typedef struct ShopStatBlock {
+    s16 v[22];
+} ShopStatBlock;
+
+typedef union ShopItemData {
+    struct {
+        /* 0x0 */ s16 unk0;
+        /* 0x2 */ s16 unk2[2];
+        /* 0x6 */ u16 amounts[2];
+        /* 0xA */ s16 atk;
+        /* 0xC */ u8 stats[2];
+    } weapon;
+    struct {
+        /* 0x0 */ s16 unk0;
+        /* 0x2 */ s16 unk2[2];
+        /* 0x6 */ u16 amounts[2];
+        /* 0xA */ u8 stats[2];
+        /* 0xC */ s16 def;
+    } armor;
+    struct {
+        /* 0x0 */ s16 unk0;
+        /* 0x2 */ s16 unk2[2];
+        /* 0x6 */ u16 amount;
+        /* 0x8 */ u8 stat;
+    } acc;
+} ShopItemData;
+
 extern ShopList STITSHOP_shops[31];
 extern ItemShopFuncs STITSHOP_funcs;
 
