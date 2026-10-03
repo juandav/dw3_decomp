@@ -1,5 +1,11 @@
 #include "stcrdshp.h"
 
+void initCardDrawer(CardDrawer *obj);
+void STCRDSHP_drawCards(CardPackGrid *grid, s32 previous);
+void STCRDSHP_drawTurningSlots(CardPackGrid *grid);
+void STCRDSHP_updateHiding(CardPackGrid *grid);
+Task *func_80088334(void);
+
 INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800827A4);
 
 INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80082A60);
@@ -18,29 +24,214 @@ INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800849F4);
 
 INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80084A94);
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80084ADC);
+void STCRDSHP_startFader(ScreenFade *task, s32 fadeIn, s32 duration) {
+    task->setState(task, TASK_RUN);
+    task->substate = 1;
+    task->fadeIn = fadeIn;
+    if (fadeIn == 0) {
+        task->level = 0;
+        task->levelStep = 0xFF00 / duration;
+    } else {
+        task->level = 0xFF00;
+        task->levelStep = -(0xFF00 / duration);
+    }
+}
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80084B64);
+void STCRDSHP_drawFader(ScreenFade *task) {
+    Layer *layer = GFX.funcs.getLayer(task->layerId);
+    u_long *ot = (u_long *)layer->getOtEntry(layer, task->depth);
+    POLY_F4 *poly = GFX.funcs.getPrim();
+    DR_TPAGE *mode;
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80084CA8);
+    setlen(poly, 5);
+    poly->code = 0x2A;
+    poly->r0 = poly->g0 = poly->b0 = task->level >> 8;
+    poly->x0 = poly->x2 = 0;
+    poly->x1 = poly->x3 = 320;
+    poly->y0 = poly->y1 = 0;
+    poly->y2 = poly->y3 = 256;
+    addPrim(ot, poly);
+    mode = (DR_TPAGE *)(poly + 1);
+    setlen(mode, 1);
+    mode->code[0] = 0xE1000245;
+    addPrim(ot, mode);
+    GFX.funcs.setPrim(mode + 1);
+}
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80084D5C);
+void STCRDSHP_updateFader(ScreenFade *task) {
+    switch (task->state) {
+    case 0:
+    default:
+        task->nextState(task);
+        break;
+    case 1:
+        if (task->substate == 0) {
+            break;
+        }
+        task->level += task->levelStep;
+        if (task->fadeIn == 0) {
+            if (task->level > 0xFF00) {
+                task->level = 0xFF00;
+                task->state = 2;
+            }
+        } else if (task->level < 0) {
+            task->level = 0;
+            task->state = 2;
+        }
+        /* fallthrough */
+    case 2:
+        STCRDSHP_drawFader(task);
+        break;
+    case 3:
+        break;
+    }
+}
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80084DA0);
+ScreenFade *STCRDSHP_createFader(void) {
+    ScreenFade *task = createTask(STCRDSHP_updateFader, sizeof(ScreenFade), 0);
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80084E58);
+    task->start = STCRDSHP_startFader;
+    task->layerId = 0x1000;
+    task->depth = 0;
+    return task;
+}
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80084EB0);
+void STCRDSHP_loadIcons(CardPackGrid *grid) {
+    CardDrawer icon;
+    s32 *cards;
+    s32 i;
+    s32 card;
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80084ED8);
+    initCardDrawer(&icon);
+    icon.setImagePos(0x140, 0x100);
+    icon.setClutPos(0x300, 0x100);
+    cards = grid->cards;
+    for (i = 0; i < 6; i++) {
+        card = *cards;
+        if (card <= 0 || card >= CARD_PACK_IDS) {
+            break;
+        }
+        cards++;
+        icon.setCard(card);
+        icon.setCell(0, i);
+        icon.loadImage();
+    }
+}
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800852D4);
+void STCRDSHP_setCards(CardPackGrid *grid, s32 *cards) {
+    s32 i;
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80085400);
+    for (i = 0; i < 6; i++) {
+        grid->prevCards[i] = grid->cards[i];
+        grid->cards[i] = cards[i];
+    }
+    grid->turned = 0;
+    grid->frame = 0;
+    grid->setState(grid, 2);
+}
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800854C8);
+void STCRDSHP_hideCards(CardPackGrid *grid) {
+    grid->setSubstate(grid, 1);
+}
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80085704);
+INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", STCRDSHP_drawCards);
+
+void STCRDSHP_drawTurningSlots(CardPackGrid *grid) {
+    SpriteDrawer sprite;
+    s32 i;
+    s32 col;
+    s32 row;
+
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(grid->layer, grid->depth - 1);
+    sprite.setTexture(0x280, 0);
+    for (i = 0; i < grid->turned; i++) {
+        col = i % 6;
+        row = i / 6;
+        sprite.setClutRow(grid->frame);
+        sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 6, col * 42 + 0x23, row * 54 + 0x44);
+    }
+}
+
+void STCRDSHP_updateHiding(CardPackGrid *grid) {
+    switch (grid->substate) {
+    case 0:
+        break;
+    case 1:
+        if (grid->shown != 0) {
+            grid->shown--;
+            grid->nextSubstate(grid);
+            grid->counter = GFX_FUNCS.getTime();
+        } else {
+            grid->state = 3;
+        }
+        break;
+    case 2:
+        if (GFX_FUNCS.getTime() - grid->counter >= 2) {
+            grid->substate = 1;
+        }
+        break;
+    }
+}
+
+void STCRDSHP_updateGrid(CardPackGrid *grid) {
+    switch (grid->state) {
+    case 0:
+    default:
+        grid->nextState(grid);
+        STCRDSHP_setCards(grid, grid->cards);
+        break;
+    case 1:
+        STCRDSHP_updateHiding(grid);
+        STCRDSHP_drawCards(grid, 0);
+        break;
+    case 2:
+        switch (grid->substate) {
+        case 0:
+        default:
+            if (++grid->turned < 6) {
+                grid->nextSubstate(grid);
+                grid->counter = GFX_FUNCS.getTime();
+            } else {
+                grid->turned = 6;
+                grid->substate = 2;
+            }
+            SOUND.playSound(0x800460BD);
+            break;
+        case 1:
+            if (GFX_FUNCS.getTime() - grid->counter >= 2) {
+                grid->substate = grid->step;
+            }
+            break;
+        case 2:
+            STCRDSHP_loadIcons(grid);
+            grid->shown = 6;
+            grid->time = GFX_FUNCS.getTime();
+            grid->nextSubstate(grid);
+            SOUND.playSound(0x4001C);
+            break;
+        case 3:
+            if (GFX.funcs.getTime() - grid->time >= 2) {
+                grid->time = GFX.funcs.getTime();
+                if (++grid->frame >= 11) {
+                    grid->state = 1;
+                }
+            }
+            break;
+        }
+        STCRDSHP_drawTurningSlots(grid);
+        if (grid->substate < 3) {
+            STCRDSHP_drawCards(grid, 1);
+        } else {
+            STCRDSHP_drawCards(grid, 0);
+        }
+        break;
+    case 3:
+        break;
+    }
+}
+
+INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", STCRDSHP_createGrid);
 
 INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_8008579C);
 
@@ -54,9 +245,35 @@ INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800870F4);
 
 INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_8008724C);
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800872A4);
+void STCRDSHP_updateScene(Task *task, Task **children) {
+    RECT rect;
+    Layer *layer;
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_8008739C);
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        GFX.funcs.reset();
+        GFX.funcs.allocPrimBuffers(0xF000);
+        GFX.funcs.setDisplayMode(0x140, 0xF0, 0, 0);
+        rect.x = 0;
+        rect.y = 0;
+        rect.w = 0x140;
+        rect.h = 0xF0;
+        layer = GFX.funcs.createLayer(&rect, 3, 0x1000);
+        layer->setBgColor(layer, 0, 0, 0);
+        children[0] = (Task *)func_80088334();
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
+
+Task *STCRDSHP_start(void) {
+    return createTask(STCRDSHP_updateScene, sizeof(Task), 4);
+}
 
 INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800873C8);
 
@@ -78,13 +295,68 @@ INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800884A4);
 
 INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80088554);
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800885F4);
+void STCRDSHP_startFade(PanelAnim *fade, s32 fadeIn) {
+    fade->active = 1;
+    if (fadeIn != 0) {
+        SOUND.playSound(0x40019);
+        fade->level = 0;
+        fade->step = 0x1000 / fade->duration;
+    } else {
+        SOUND.playSound(0x4001A);
+        fade->level = 0x1000;
+        fade->step = -((0x1000 / fade->duration) * 2);
+    }
+}
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80088688);
+s32 STCRDSHP_updateFade(PanelAnim *fade) {
+    if (fade->active == 0) {
+        return 1;
+    }
+    fade->level += fade->step;
+    if (fade->step > 0) {
+        if (fade->level > 0x1000) {
+            fade->level = 0x1000;
+            fade->active = 0;
+            return 1;
+        }
+    } else if (fade->level < 0) {
+        fade->level = 0;
+        fade->active = 0;
+        return 1;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800886F4);
+void STCRDSHP_startLerp(MenuLerp *lerp, s32 from, s32 to, s32 frames) {
+    if (from != to) {
+        lerp->duration = frames;
+        lerp->fixed = from << 8;
+        lerp->value = from;
+        lerp->target = to;
+        lerp->active = 1;
+        lerp->step = ((to - from) << 8) / lerp->duration;
+    }
+}
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80088734);
+s32 STCRDSHP_updateLerp(MenuLerp *lerp) {
+    if (lerp->active == 0) {
+        return 1;
+    }
+    lerp->fixed += lerp->step;
+    lerp->value = lerp->fixed >> 8;
+    if (lerp->step > 0) {
+        if (lerp->target < lerp->value) {
+            lerp->value = lerp->target;
+            lerp->active = 0;
+            return 1;
+        }
+    } else if (lerp->value < lerp->target) {
+        lerp->value = lerp->target;
+        lerp->active = 0;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800887A0);
 
@@ -92,10 +364,6 @@ INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_8008887C);
 
 void func_800884A4();
 void func_80088554();
-void func_800885F4();
-void func_80088688();
-void func_800886F4();
-void func_80088734();
 void func_800887A0();
 void func_8008887C();
 extern s32 D_8008C1EC[];
@@ -650,9 +918,9 @@ s32 D_8008C174[] = {
 };
 s32 D_8008C1CC = (s32)func_800884A4;
 s32 D_8008C1D0 = (s32)func_80088554;
-s32 D_8008C1D4 = (s32)func_800885F4;
+s32 D_8008C1D4 = (s32)STCRDSHP_startFade;
 s32 D_8008C1D8[] = {
-    (s32)func_80088688, (s32)func_800886F4, (s32)func_80088734,
+    (s32)STCRDSHP_updateFade, (s32)STCRDSHP_startLerp, (s32)STCRDSHP_updateLerp,
 };
 s32 D_8008C1E4 = (s32)func_800887A0;
 s32 D_8008C1E8 = (s32)func_8008887C;

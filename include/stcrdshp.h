@@ -15,4 +15,35 @@ typedef struct CardPack {
 
 extern CardPack STCRDSHP_packs[];
 
+/* The cards are drawn from 315 ids (1-314) */
+#define CARD_PACK_IDS 315
+
+/* The sprite sheet of the screen */
+#if VERSION_US
+#define FILE_CARDSHOP_SPRITES 0x62E
+#elif VERSION_EU
+#define FILE_CARDSHOP_SPRITES 0x63E
+#endif
+
+/* Draws the six cards drawn from a pack, and turns them over */
+typedef struct CardPackGrid {
+    TASK_HEADER(CardPackGrid);
+    /* 0x50 */ Task *owner;
+    /* 0x54 */ s32 layer;
+    /* 0x58 */ s32 depth;
+    /* 0x5C */ s32 unk5C;
+    /* 0x60 */ s32 unk60;
+    /* 0x64 */ s32 shown;  /* cards drawn */
+    /* 0x68 */ s32 turned; /* slots turned so far */
+    /* 0x6C */ s32 time;
+    /* 0x70 */ s32 frame;
+    /* 0x74 */ s32 unk74;
+    /* 0x78 */ s32 unk78;
+    /* 0x7C */ s32 cards[6];
+    /* 0x94 */ s32 prevCards[6]; /* the cards being turned */
+    /* 0xAC */ u8 unkAC[0x10];
+    /* 0xBC */ void (*setCards)(struct CardPackGrid *grid, s32 *cards);
+    /* 0xC0 */ void (*hide)(struct CardPackGrid *grid);
+} CardPackGrid;
+
 #endif
