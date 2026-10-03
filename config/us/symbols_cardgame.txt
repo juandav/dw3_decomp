@@ -1,1 +1,63 @@
 D_800A494C = 0x800A494C; // size:0x18
+
+// helpers
+CARDGAME_interpolate = 0x80092DC8; // type:func
+
+// the mode's task
+CARDGAME_updateScene = 0x80094DF0; // type:func
+CARDGAME_start = 0x80095020; // type:func
+CARDGAME_screenRect = 0x800A483C;
+CARDGAME_createBattle = 0x800A2144; // type:func
+
+// the screen fader (CardFader)
+CARDGAME_drawFader = 0x800A21DC; // type:func
+CARDGAME_stepFader = 0x800A238C; // type:func
+CARDGAME_setFaderColor = 0x800A244C; // type:func
+CARDGAME_startFade = 0x800A245C; // type:func
+CARDGAME_isFadeDone = 0x800A24A8; // type:func
+CARDGAME_killFader = 0x800A24B4; // type:func
+CARDGAME_tickFader = 0x800A24C0; // type:func
+CARDGAME_createFader = 0x800A2580; // type:func
+CARDGAME_fadeRect = 0x800A4C58;
+
+// reads the files into the file cache (CardPreloader)
+CARDGAME_tickPreloader = 0x8009C494; // type:func
+CARDGAME_startPreloader = 0x8009C5FC; // type:func
+CARDGAME_preloadFiles = 0x800A4AB4;
+
+// the battle screen (CardScreen)
+CARDGAME_getHandOffset = 0x8009784C; // type:func
+CARDGAME_addSprite = 0x8009B464; // type:func
+CARDGAME_setSpriteScaleTarget = 0x8009B7EC; // type:func
+CARDGAME_setSpriteScale = 0x8009B858; // type:func
+CARDGAME_scaleSprite = 0x8009B88C; // type:func
+CARDGAME_setSpriteMove = 0x8009B8B4; // type:func
+CARDGAME_clearPanelFlags = 0x8009BCF8; // type:func
+CARDGAME_removeSprite = 0x8009BD50; // type:func
+CARDGAME_getCardColor = 0x8009BEB4; // type:func
+CARDGAME_setSpriteCard = 0x8009BF10; // type:func
+CARDGAME_setPanelValue = 0x8009BA34; // type:func
+CARDGAME_setPanelFlags = 0x8009BBA0; // type:func
+CARDGAME_dealSprites = 0x8009BDE8; // type:func
+CARDGAME_loadCardImage = 0x8009C004; // type:func
+CARDGAME_loadCardImages = 0x8009C0B0; // type:func
+CARDGAME_createScreen = 0x8009C264; // type:func
+CARDGAME_updateScreen = 0x8009AAFC; // type:func
+
+// the marker and the deck window
+CARDGAME_drawMarker = 0x8009504C; // type:func
+CARDGAME_updateMarker = 0x800951A8; // type:func
+CARDGAME_setMarkerPos = 0x80095338; // type:func
+CARDGAME_setMarkerFast = 0x80095344; // type:func
+CARDGAME_closeMarker = 0x80095354; // type:func
+CARDGAME_createMarker = 0x80095374; // type:func
+CARDGAME_drawDeckWindow = 0x800953E4; // type:func
+CARDGAME_updateDeckWindow = 0x8009560C; // type:func
+CARDGAME_setDeckWindowBlink = 0x800959EC; // type:func
+CARDGAME_closeDeckWindow = 0x800959FC; // type:func
+CARDGAME_createDeckWindow = 0x80095A1C; // type:func
+CARDGAME_deckCountOffsets = 0x800A4844;
+CARDGAME_drawNumber = 0x80095C88; // type:func
+CARDGAME_windowLayouts = 0x800A4868;
+CARDGAME_setSlot = 0x8009F538; // type:func
+CARDGAME_addCard = 0x8009F618; // type:func

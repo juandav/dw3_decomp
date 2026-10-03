@@ -102,3 +102,9 @@ C_SRC += src/main/data/game.c src/main/data/game_2.c src/main/data/game_3.c src/
 
 # menus
 C_SRC += src/stitshop/stitshop.c src/stgdglab/stgdglab.c src/ststatus/ststatus.c
+
+# cardgame
+C_SRC += src/cardgame/cardgame.c
+C_SRC += src/cardgame/cardgame_2.c
+C_SRC += src/cardgame/cardgame_3.c
+C_SRC += src/cardgame/cardgame_4.c

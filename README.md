@@ -55,7 +55,7 @@ badges above are always current:
   code, not the game's, so like other PSX decomps they are built and compared
   but left out of the progress.
 - `CNTY_SEL` and `SOUNDTST` are all C, and `STDWTITL`, `STDGNAME`,
-  `STCRDABM` and `SHOCKTST` mostly. `CARDGAME`, `FIGHTSTG`, `STSTATUS` and
+  `STCRDABM`, `SHOCKTST` and `CARDGAME` mostly. `FIGHTSTG`, `STSTATUS` and
   the other large overlays are still almost all assembly.
 - 64 of the 238 stages are all C. Many stages share functions built from the
   same source, so one match often repeats across stages.
@@ -83,7 +83,7 @@ above counts them: fake matches, then the other two kinds together.
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 3 | `/* unused, but it is in the original stack frame */` |
 | Form-dependent matches | 1 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 1840 | `INCLUDE_ASM` |
+| Functions still in assembly | 1,637 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -120,7 +120,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 
 | Overlay | Loads at (us) | Functions in C (us) | What it runs |
 |---|---|---|---|
-| `CARDGAME` | `0x80082448` | 0 / 306 | not identified yet; `WFIGHTMN` and `WFIGHTTS` load on top of it |
+| `CARDGAME` | `0x80082448` | 203 / 306 | the card battle (mode `0x700`): the decks, the cards in play and the battle screen; `WFIGHTMN` and `WFIGHTTS` load on top of it |
 | `CNTY_SEL` | `0x80082448` | 26 / 26 | the country select screen |
 | `FIELDSTG` | `0x80082448` | 108 / 222 | the field mode, where the player walks around the map; the stages load on top of it |
 | `FIGHTSTG` | `0x80082448` | 2 / 310 | not identified yet |

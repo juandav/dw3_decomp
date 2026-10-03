@@ -92,16 +92,16 @@ segment each.
 
 ## Overlays
 
-- [ ] 431 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 634 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`. Mostly: `STCRDABM` (27 / 29), `STDGNAME` (29 / 32), `SHOCKTST`
-  (15 / 17), `STAGSLCT` (6 / 8), `STDWTITL` (65 / 93), `STITSHOP` (50 / 69).
-  Started: `FIELDSTG` (108 / 222), `STGDGLAB` (44 / 70), `STSTATUS`
-  (42 / 123), `STCRDDEK` (6 / 55), `STGTRAIN` (3 / 94), `FIGHTSTG`
-  (2 / 310). Not started: `CARDGAME` (306), `STPLNMET` (53), `STCRDSHP` (45),
+  (15 / 17), `STAGSLCT` (6 / 8), `STDWTITL` (65 / 93), `STITSHOP` (50 / 69),
+  `CARDGAME` (203 / 306). Started: `FIELDSTG` (108 / 222), `STGDGLAB`
+  (44 / 70), `STSTATUS` (42 / 123), `STCRDDEK` (6 / 55), `STGTRAIN` (3 / 94),
+  `FIGHTSTG` (2 / 310). Not started: `STPLNMET` (53), `STCRDSHP` (45),
   `STGMCARD` (45), `WFIGHTMN` (42), `STFGTREP` (36), `WFIGHTTS` (14).
-- [ ] Find out what `CARDGAME`, `FIGHTSTG`, `STCRDSHP`, `STFGTREP`,
-  `STGMCARD`, `STGTRAIN`, `STPLNMET`, `WFIGHTMN` and `WFIGHTTS` run, and say
-  it in their header and the README. Check `STGDGLAB`'s guess (the partners'
+- [ ] Find out what `FIGHTSTG`, `STCRDSHP`, `STFGTREP`, `STGMCARD`,
+  `STGTRAIN`, `STPLNMET`, `WFIGHTMN` and `WFIGHTTS` run, and say it in their
+  header and the README. Check `STGDGLAB`'s guess (the partners'
   digivolutions) against its strings.
   `STAGSLCT`'s menu of every scene of the game may help.
 - [ ] Name the overlays' functions: only `CNTY_SEL`, `SHOCKTST`,
@@ -110,8 +110,8 @@ segment each.
   overlays' symbol files are empty or hold a few `D_` entries, so `FIELDSTG`
   and `STDGNAME`, much of which is C, are still `func_`.
 - [ ] Overlay data: 37 % of it is C. `INCLUDE_RODATA` is left in `SHOCKTST`
-  (7), `FIGHTSTG` (5), `SOUNDTST` (4), `STAGSLCT` (3), `CARDGAME` and
-  `FIELDSTG` (2 each) and `WFIGHTTS` (1).
+  (7), `FIGHTSTG` (5), `SOUNDTST` (4), `STAGSLCT` (3), `FIELDSTG` (2),
+  `CARDGAME` and `WFIGHTTS` (1 each).
 
 ## Stages
 
