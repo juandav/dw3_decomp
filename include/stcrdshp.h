@@ -186,7 +186,7 @@ typedef struct CardShopFuncs {
     /* 0x10 */ void (*startLerp)(MenuLerp *lerp, s32 from, s32 to, s32 frames);
     /* 0x14 */ s32 (*updateLerp)(MenuLerp *lerp);
     /* 0x18 */ struct CardShopStock *(*getStock)(s32 shop);
-    /* 0x1C */ s32 (*getPrice)(s32 card);
+    /* 0x1C */ s16 (*getPrice)(s32 card);
 } CardShopFuncs;
 
 extern CardShopTitle STCRDSHP_titles[];
@@ -195,7 +195,7 @@ extern CardShopStock STCRDSHP_stocks[];
 extern CardPrice STCRDSHP_prices[];
 
 CardShopStock *STCRDSHP_getStock(s32 shop);
-s32 STCRDSHP_getPrice(s32 card);
+s16 STCRDSHP_getPrice(s32 card);
 void STCRDSHP_loadFiles(void);
 s32 STCRDSHP_filesLoading(void);
 void STCRDSHP_startFade(PanelAnim *fade, s32 fadeIn);

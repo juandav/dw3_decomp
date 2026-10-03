@@ -135,13 +135,13 @@ own.
 
 ## Overlays
 
-- [ ] 1,526 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,532 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`. Mostly: `STCRDABM` (28 / 29),
   `STCRDDEK` (53 / 55), `SHOCKTST` (15 / 17), `STAGSLCT` (6 / 8),
   `FIELDSTG` (209 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
   `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (87 / 94),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
-  `STSTATUS` (101 / 123), `STCRDSHP` (37 / 45).
+  `STSTATUS` (101 / 123), `STCRDSHP` (43 / 45).
   Started: `WFIGHTTS` (13 / 14), `WFIGHTMN` (39 / 42), `FIGHTSTG`
   (205 / 310).
 - [ ] The small overlays' last functions:
@@ -228,20 +228,23 @@ own.
   and `func_80092C38` (about 76 diffs); `func_8008AB58` and `func_8008B440`
   are still split asm, and the rest are large. `STCRDSHP`: `func_800870F4` (1 diff: the original
   copies the quotient of the count by 6 into another register for the
-  `addu` of the pages count) and `STCRDSHP_createGrid` (3 diffs: the
-  original schedules `i++` before a load). `func_80083BEC` (the states of
+  `addu` of the pages count; computing the remainder first, as in
+  `pages = buy->count % 6 != 0; buy->pages = pages + buy->count / 6;`,
+  gets the copy, but then the `addu`'s operands come out swapped, and
+  writing `buy->count / 6 + pages` ties the sum to the quotient's
+  register instead). `func_80083BEC` (the states of
   the screen that opens a pack) is down to 2 diffs: in case 52 the
   original loads `open->page` into `a1` where ours ties it to `v1`, the
   register of `page * 8`. What got it there: case 4 keeps the old page in
   `first` and writes `last` as `(first + 1) * 8 - 1` (which CSE doesn't
   merge with `first * 8`), case 52 needs a variable of its own for the
-  last row, and case 11 a variable for `RANDOM.next() % 16`.
-  `STCRDSHP_drawCards`, `func_800832DC`, `func_800859A4`, `func_80085E44`
-  and `func_800864BC` are still to try. `STITSHOP`: `func_80089104`
+  last row, and case 11 a variable for `RANDOM.next() % 16`; the page
+  goes through `a1` in the original whatever variable holds it.
+  `STITSHOP`: `func_80089104`
   (3 diffs: the order in which the loop initializes its `x` induction
-  variables). `STGDGLAB`: `func_8008C234` (4 diffs: the original's
+  variables). `STGDGLAB`: `func_8008C234` (4 diffs: our
   scheduler moves the `skillCount = 6` store after the argument moves of
-  the call to `func_8008BB78`; no variable, label or order changes it, nor
+  the call to `func_8008BB78`, where the original keeps it before them; no variable, label or order changes it, nor
   the permuter). `STCRDSHP` is three objects, like
   `STSTATUS`'s ten: GCC aligns a jump table to 8 bytes, and the original's
   tables only line up at its object boundaries.
