@@ -7,11 +7,40 @@
 
 #include "cardgame.h"
 
+s32 func_800A2838(CardBattle *battle, s32 side, s32 mask);
+void func_800A30FC(CardBattle *battle, s32 arg1, s32 arg2, s32 arg3);
+s32 func_800A322C(CardBattle *battle);
+
 INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800A25E8);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800A2838);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800A2C94);
+void func_800A2C94(CardBattle *battle, s32 side) {
+    s32 best = 0xFFF;
+    s32 bestIndex = 0;
+    s8 *flags;
+    s32 i;
+    s32 value;
+
+    if (side == 1) {
+        flags = &battle->unk446[6];
+    } else {
+        flags = battle->unk446;
+    }
+    for (i = 0; i < battle->players[side].slotCount; i++) {
+        if (flags[i] != 0) {
+            value = func_800A2838(battle, side, 1 << i);
+            if (best >= value) {
+                best = value;
+                flags[bestIndex] = 0;
+                bestIndex = i;
+                flags[i] = 1;
+            } else {
+                flags[i] = 0;
+            }
+        }
+    }
+}
 
 s32 func_800A2DA0(CardBattle *battle, s32 side) {
     s32 found = 0;
@@ -95,7 +124,60 @@ s32 func_800A3398(CardBattle *battle, s32 id) {
     return value;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800A33F4);
+s32 func_800A33F4(CardBattle *battle, s32 arg1, s32 id) {
+    s32 done = 0;
+
+    switch (id) {
+    case 0x27:
+        if (func_800A322C(battle)) {
+            done = 1;
+        }
+        break;
+    case 0x07:
+    case 0x09:
+    case 0x1A:
+    case 0x37:
+    case 0x39:
+        func_800A2C94(battle, 0);
+        if (func_800A2DA0(battle, 0)) {
+            done = 1;
+        }
+        break;
+    case 0x15:
+    case 0x2E:
+        func_800A30FC(battle, 0, 30, 0);
+        func_800A2C94(battle, 0);
+        if (func_800A2DA0(battle, 0)) {
+            done = 1;
+        }
+        break;
+    case 0x38:
+        func_800A30FC(battle, 0, 10, 0);
+        func_800A2C94(battle, 0);
+        if (func_800A2DA0(battle, 0)) {
+            done = 1;
+        }
+        break;
+    case 0x28:
+        if (func_800A2DA0(battle, 1)) {
+            done = 1;
+        }
+        break;
+    case 0x03:
+    case 0x0F:
+    case 0x3A:
+    case 0x3B:
+        if (battle->players[1].slotCount != 0) {
+            battle->unk560.unk20[battle->unk560.unk15].unk6 = battle->players[1].slots[0].order;
+            done = 1;
+        }
+        break;
+    default:
+        done = 1;
+        break;
+    }
+    return done;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame_2", func_800A34FC);
 

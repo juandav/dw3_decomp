@@ -60,8 +60,13 @@ extern CardFadeColor D_800A4BD8[];
 void CARDGAME_setSlot(CardBattle *battle, s32 side, s32 card, s32 index);
 void CARDGAME_addCard(CardBattle *battle, s32 side, s32 card);
 void func_8009F664(CardBattle *battle, s32 side);
+void func_8009D578(CardBattle *battle, CardBattleItems *items);
+void func_80083AB0(CardBattle *battle, CardScreen *screen);
+s32 func_800A0A5C(CardBattle *battle, CardBattleItems *items);
+u8 func_800A1084(CardBattle *battle, CardBattleItems *items);
+s32 func_800A150C(CardBattle *battle, CardBattleItems *items);
 void func_800A1E04();
-void func_800A2838();
+s32 func_800A2838(CardBattle *battle, s32 side, s32 mask);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800835C4);
 
@@ -359,7 +364,20 @@ s32 func_800869BC(CardBattle *battle, s32 arg1, CardPile *pile) {
     return ok;
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80086A10);
+void func_80086A10(CardBattle *battle, CardScreen *screen, CardPile *pile, s32 add, s32 card) {
+    CardDrawer drawer;
+
+    initCardDrawer(&drawer);
+    drawer.setCard(battle->cards[card] + 1);
+    if (drawer.card[0] < 6) {
+        if (add) {
+            pile->unkC[drawer.card[0] - 1] += drawer.card[5];
+        } else {
+            pile->unkC[drawer.card[0] - 1] -= drawer.card[5];
+        }
+        screen->setPanelValue(screen, pile->unk11, drawer.card[0] - 1, pile->unkC[drawer.card[0] - 1]);
+    }
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80086B0C);
 
@@ -2815,7 +2833,40 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A1084);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A150C);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A1CFC);
+s32 func_800A1CFC(CardBattle *battle, CardBattleItems *items) {
+    s32 done = 0;
+
+    func_8009D53C(battle);
+    func_8009D578(battle, items);
+    func_8009D470(battle, items);
+    switch (battle->unk2F4) {
+    case 0:
+    default:
+        if (func_800A0A5C(battle, items)) {
+            done = 1;
+        }
+        break;
+    case 1:
+        func_80083AB0(battle, items->screen);
+        break;
+    case 2:
+        if (func_800A1084(battle, items)) {
+            battle->unk2F4 = 0;
+        }
+        break;
+    case 3:
+        switch (func_800A150C(battle, items)) {
+        case 1:
+            battle->unk2F4 = 1;
+            break;
+        case 2:
+            done = 1;
+            break;
+        }
+        break;
+    }
+    return done;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A1E04);
 
