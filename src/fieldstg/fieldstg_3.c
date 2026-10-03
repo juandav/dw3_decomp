@@ -382,10 +382,11 @@ void func_80084D0C(Unk80084D0C *task) {
     }
 }
 
-void func_80085240(s32 arg0) {
+Unk80084D0C *func_80085240(s32 arg0) {
     Unk80084D0C *task = createTask(func_80084D0C, sizeof(Unk80084D0C), 0);
 
     task->kind = arg0;
+    return task;
 }
 
 s32 func_80085278(Unk80085278 *anim, AnimFrame *frames, s32 depth) {
@@ -458,12 +459,13 @@ void func_80085350(Unk80085350 *task) {
     }
 }
 
-void func_80085588(s32 arg0, s32 arg1, s32 arg2) {
+Unk80085350 *func_80085588(s32 arg0, s32 arg1, s32 arg2) {
     Unk80085350 *task = createTask(func_80085350, sizeof(Unk80085350), 0);
 
     task->x = arg0;
     task->y = arg1;
     task->set = arg2;
+    return task;
 }
 
 StreamTask *func_800855E0(StreamPool *pool) {
@@ -707,11 +709,12 @@ Point *func_800863F4(Unk80086144 *arg0) {
     return &D_8009A938;
 }
 
-void func_80086418(s32 arg0) {
+Unk80086144 *func_80086418(s32 arg0) {
     Unk80086144 *task = createTaskWithId(func_80086144, sizeof(Unk80086144), 0x7C, 4);
 
     task->unk64 = arg0;
     task->unk130 = func_800863F4;
+    return task;
 }
 
 void func_80086460(s32 id, s32 level) {

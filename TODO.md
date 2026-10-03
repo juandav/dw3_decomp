@@ -136,26 +136,24 @@ own.
 
 ## Overlays
 
-- [ ] 1,532 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
-  `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`. Mostly: `STCRDABM` (28 / 29),
-  `STCRDDEK` (53 / 55), `SHOCKTST` (15 / 17), `STAGSLCT` (6 / 8),
-  `FIELDSTG` (209 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
-  `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (87 / 94),
+- [ ] 1,539 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+  `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`, `STCRDABM`. Mostly:
+  `STCRDDEK` (54 / 55), `SHOCKTST` (16 / 17), `STAGSLCT` (7 / 8),
+  `FIELDSTG` (211 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
+  `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (88 / 94),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
   `STSTATUS` (105 / 123), `STCRDSHP` (43 / 45).
   Started: `WFIGHTTS` (13 / 14), `WFIGHTMN` (41 / 42), `FIGHTSTG`
   (205 / 310).
 - [ ] The small overlays' last functions:
-  - `STCRDDEK_buildCardList` (2 diffs) and `STCRDDEK_createScreenWindows`
-    (3) differ in the order of two loads and a register.
+  - `STCRDDEK_createScreenWindows` (3 diffs): the `unk5C` loop's counter
+    gets `s2` where the original has `s3`, the register of the other loops'
+    counter.
   - `STAGSLCT_showBiosVersion` matches only with an empty `do {} while (0)`
-    that ends a CSE block, a fake match; `STAGSLCT_updateStageSelect`
-    (0x10A4 bytes) is still to try.
-  - `SHOCKTST_playAllPatterns`: the original reloads `task->playing` where
-    ours keeps it in a register. `SHOCKTST_convertText` (173 diffs): the
+    that ends a CSE block, a fake match.
+  - `SHOCKTST_convertText` (173 diffs): the
     original keeps both `times + 2` and `powers + 2` as induction variables
     and doesn't hoist the parser's constants.
-  - `STCRDABM_showCardInfo` (0x42C bytes) is still to try.
   - `FIELDSTG` (five objects, `fieldstg.c` to `fieldstg_5.c`):
     `func_800896C0`, the field's battle transition (the screen breaks into
     30 tiles that slide off in a spiral), matches in both versions only with
@@ -169,8 +167,9 @@ own.
     for nothing; `func_8008EC74` differs in its block layout,
     `func_80085EEC` is a near miss too, and `func_80090450` matches in Europe
     but swaps `s4` and `s5` in the USA. `func_8008A154` (the field's
-    update, which runs the transition), `func_8008AEDC` and `func_8008F184`
-    (0xCB0 to 0x1104 bytes) are still to try.
+    update, which creates the characters and runs the transition) has the
+    right code but 80 diffs of registers; the permuter only got closer with
+    an empty `do {} while (0)`, a fake match.
 - [ ] `FIGHTSTG`'s blocked functions: `func_8009C764`, `func_8009C8EC` and
   `func_8009C998` differ only in registers and the order of a few loads (the
   permuter finds nothing natural); `func_800877D4` and `func_800A0FDC` are
@@ -264,7 +263,7 @@ own.
   `D_8008C4D4` in the loop and spills `clutX`; ours keeps both in
   registers). `func_80087E34`, `func_80088CFC` and `func_800867A0` were
   tried without a match (register allocation; `func_800867A0` is closest
-  in Europe); `func_800828E8` (the largest) hasn't been tried.
+  in Europe).
 - [ ] Check `STFGTREP`'s guess (the report after a battle) against its
   texts, and `STGDGLAB`'s (the partners' digivolutions) against its
   strings.
@@ -281,10 +280,12 @@ own.
   overlay is C. objdiff counts a section only when all of it
   matches, so the `.rodata` of the overlays with functions still in asm
   doesn't count yet. `INCLUDE_RODATA` is left in `SHOCKTST` (7),
-  `FIGHTSTG` (4), `STAGSLCT` (3), `FIELDSTG` (1) and the European
-  `SOUNDTST` (1). `WFIGHTTS`'s strings are a `const char` array whose
-  padding after each table's last string is what the assembler left there,
-  in both versions. The European `CNTY_SEL` `.data`
+  `FIGHTSTG` (4), `FIELDSTG` and the European `STAGSLCT` and `SOUNDTST`
+  (1 each). `STAGSLCT`'s texts are C, but the European overlay pads its
+  cursor, `"＞"`, with 0x39 where the build gives 0 (as `SOUNDTST` pads its
+  own with 0x2D, below), so that one stays asm. `WFIGHTTS`'s strings are a
+  `const char` array whose padding after each table's last string is what
+  the assembler left there, in both versions. The European `CNTY_SEL` `.data`
   stays at 98.95 % in the report: the file ends 3 bytes into its last
   word, which splat's object leaves out.
 - [x] `SOUNDTST`'s texts are string literals in its lists, which GCC puts

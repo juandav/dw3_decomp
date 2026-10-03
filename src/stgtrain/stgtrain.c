@@ -108,7 +108,171 @@ void func_800828B8(TrainSprite *sprite, s32 paused) {
     }
 }
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_800828E8);
+/*
+ * The animated sprite's update: state 1 advances the animation, unless it
+ * is paused, and draws the frame's sprite, its parts from the last to the
+ * first, as sprites or, scaled and rotated about the pivot, as quads.
+ * The match depends on frame holding the animation before its frames.
+ */
+void func_800828E8(TrainSprite *sprite) {
+    SVECTOR out;
+    SVECTOR in[4];
+    TrainAnimFrame *frame;
+    u8 *p;
+    TrainSpritePart *part;
+    s32 n;
+    s32 count;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 state;
+    u16 info;
+    u16 w;
+    u16 h;
+    u16 tpage;
+    u16 prevTpage;
+    u16 clut;
+    s32 transform;
+    u8 u;
+    u8 v;
+    s32 x;
+    s32 y;
+    void *prim;
+
+    state = sprite->state;
+    switch (state) {
+    case 0:
+    default:
+        sprite->nextState(sprite);
+        sprite->frameTime = GFX.funcs.getTime();
+        break;
+    case 1:
+        if (sprite->bank == NULL) {
+            break;
+        }
+        if (sprite->anim == NULL) {
+            break;
+        }
+        frame = (TrainAnimFrame *)sprite->anim;
+        frame = ((TrainAnim *)frame)->frames;
+        frame += sprite->frame;
+        if (sprite->flags >= 0 && GFX.funcs.getTime() - sprite->frameTime > frame->duration) {
+            sprite->frameTime = GFX.funcs.getTime();
+            if (++sprite->frame >= sprite->frameCount - 1) {
+                sprite->frame = sprite->frameCount - 1;
+                sprite->flags = 1;
+            }
+            frame = (TrainAnimFrame *)sprite->anim;
+            frame = ((TrainAnim *)frame)->frames;
+            frame += sprite->frame;
+        }
+        p = (u8 *)sprite->bank;
+        p += sprite->bankOffset;
+        count = frame->sprite;
+        for (i = 0; i < count; i++) {
+            n = *(s32 *)p;
+            p += sizeof(s32);
+            for (j = 0; j < n; j++) {
+                p += sizeof(TrainSpritePart);
+            }
+        }
+        tpage = 0;
+        prevTpage = 0;
+        transform = 0;
+        if (sprite->transformed) {
+            if (sprite->scale.vx == 0 && sprite->scale.vy == 0) {
+                break;
+            }
+            if (sprite->scale.vx == 0x1000 && sprite->scale.vy == 0x1000) {
+                sprite->transformed = 0;
+            } else {
+                transform = 1;
+                RotMatrixYXZ_gte(&sprite->rotation, &sprite->matrix);
+                ScaleMatrix(&sprite->matrix, &sprite->scale);
+            }
+        }
+        sprite->layer = GFX.funcs.getLayer(sprite->layerId);
+        sprite->ot = (u_long *)sprite->layer->getOtEntry(sprite->layer, sprite->depth);
+        prim = GFX.funcs.getPrim();
+        n = *(s32 *)p;
+        p += sizeof(s32);
+        for (i = 0; i < n; i++) {
+            p += sizeof(TrainSpritePart);
+        }
+        part = (TrainSpritePart *)p;
+        for (i = 0; i < n; i++) {
+            part--;
+            info = part->tpage;
+            clut = getClut(sprite->clutX + (info & 0x1F) * 16, sprite->clutY + ((part->clut & 0x7FC0) >> 6));
+            tpage = getTPage(info >> 7, info >> 5, sprite->imageX + (info & 0x1F) * 64, sprite->imageY);
+            u = part->u;
+            x = part->x;
+            y = part->y;
+            v = part->v;
+            w = part->w;
+            h = part->h;
+            if (!transform) {
+                if (i == 0) {
+                    prevTpage = tpage;
+                }
+                if (prevTpage != tpage) {
+                    SetDrawTPage(prim, 0, 1, prevTpage);
+                    addPrim(sprite->ot, prim);
+                    prim = (DR_TPAGE *)prim + 1;
+                    prevTpage = tpage;
+                }
+                setSprt((SPRT *)prim);
+                if ((s16)part->clut & 0x8000) {
+                    setSemiTrans((SPRT *)prim, 1);
+                }
+                setRGB0((SPRT *)prim, 0x80, 0x80, 0x80);
+                ((SPRT *)prim)->x0 = x + (frame->x + sprite->x);
+                ((SPRT *)prim)->y0 = y + (frame->y + sprite->y);
+                ((SPRT *)prim)->u0 = u;
+                ((SPRT *)prim)->v0 = v;
+                ((SPRT *)prim)->w = w;
+                ((SPRT *)prim)->h = h;
+                ((SPRT *)prim)->clut = clut;
+                addPrim(sprite->ot, prim);
+                prim = (SPRT *)prim + 1;
+            } else {
+                setPolyFT4((POLY_FT4 *)prim);
+                if ((s16)part->clut & 0x8000) {
+                    setSemiTrans((POLY_FT4 *)prim, 1);
+                }
+                setRGB0((POLY_FT4 *)prim, 0x80, 0x80, 0x80);
+                in[0].vx = in[2].vx = x + (frame->x + sprite->x) - sprite->pivotX;
+                in[1].vx = in[3].vx = in[0].vx + w;
+                in[0].vy = in[1].vy = y + (frame->y + sprite->y) - sprite->pivotY;
+                in[2].vy = in[3].vy = in[0].vy + h;
+                in[0].vz = in[1].vz = in[2].vz = in[3].vz = 0;
+                for (k = 0; k < 4; k++) {
+                    ApplyMatrixSV(&sprite->matrix, &in[k], &out);
+                    (&((POLY_FT4 *)prim)->x0)[k * 4] = out.vx + sprite->pivotX;
+                    (&((POLY_FT4 *)prim)->y0)[k * 4] = out.vy + sprite->pivotY;
+                }
+                ((POLY_FT4 *)prim)->u0 = ((POLY_FT4 *)prim)->u2 = u;
+                ((POLY_FT4 *)prim)->u1 = ((POLY_FT4 *)prim)->u3 = w + u - 1;
+                ((POLY_FT4 *)prim)->v0 = ((POLY_FT4 *)prim)->v1 = v;
+                ((POLY_FT4 *)prim)->v2 = ((POLY_FT4 *)prim)->v3 = h + v - 1;
+                ((POLY_FT4 *)prim)->tpage = tpage;
+                ((POLY_FT4 *)prim)->clut = clut;
+                addPrim(sprite->ot, prim);
+                prim = (POLY_FT4 *)prim + 1;
+            }
+        }
+        if (!transform) {
+            SetDrawTPage(prim, 0, 1, tpage);
+            addPrim(sprite->ot, prim);
+            prim = (DR_TPAGE *)prim + 1;
+        }
+        GFX.funcs.setPrim(prim);
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 /* Creates an animated sprite */
 TrainSprite *func_80083018(void) {

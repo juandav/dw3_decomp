@@ -403,7 +403,29 @@ void STCRDDEK_showListCard(DeckEditor *task, DeckEditorChildren *children, s32 s
     }
 }
 
-INCLUDE_ASM("stcrddek/nonmatchings/stcrddek", STCRDDEK_buildCardList);
+/* Lists the cards owned but not in the deck: owned holds each card's copies
+   left over, list the cards that have some (listCount of them) */
+void STCRDDEK_buildCardList(DeckEditor *task) {
+    s32 i;
+    s32 n;
+    s16 *cards;
+
+    for (i = 0; i < 315; i++) {
+        task->list[i] = 0;
+        task->owned[i] = GAME.cards[i];
+    }
+    cards = GAME.decks[task->deck].cards;
+    for (n = 0; n < 40; n++, cards++) {
+        task->owned[*cards]--;
+    }
+    task->listCount = 0;
+    for (i = 0, n = 0; i < 315; i++) {
+        if (task->owned[i] > 0) {
+            task->list[n++] = i;
+            task->listCount++;
+        }
+    }
+}
 
 void STCRDDEK_drawEditor(DeckEditor *task) {
     SpriteDrawer sprite;

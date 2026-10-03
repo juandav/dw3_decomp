@@ -25,7 +25,7 @@ typedef struct FieldMap {
     /* 0x40 */ void (*setFile)(s32 index, s32 file); /* func_80091B78 */
     /* 0x44 */ s32 (*getCell)(s32 index, struct Point *pos); /* func_80091BC0 */
     /* 0x48 */ void (*unk48)(struct Point *pos, s32 scale, s32 index, struct Point *out);
-    /* 0x4C */ void (*unk4C)(s32 arg0, s32 scale, s32 index, struct Point *out);
+    /* 0x4C */ void (*unk4C)(struct Point *pos, s32 scale, s32 index, struct Point *out);
     /* 0x50 */ void (*unk50)(s32 arg0); /* func_80091B90: sets GAME.unk26D8 if GAME.clearTempFlags */
     /* 0x54 */ void (*unk54)(s32 arg0); /* func_80091BB4: sets GAME.unk26D8 */
     /* 0x58 */ s32 (*unk58)(struct Point *pos); /* func_80091D3C: 0 where a character or an object stands */

@@ -22,7 +22,8 @@
 /* A frame of a sprite animation */
 typedef struct TrainAnimFrame {
     /* 0x0 */ s16 sprite; /* into the sprite bank */
-    /* 0x2 */ s16 duration;
+    /* 0x2 */ u8 duration; /* in ticks of GFX.funcs.getTime */
+    /* 0x3 */ u8 unk3;
     /* 0x4 */ s16 x;
     /* 0x6 */ s16 y;
 } TrainAnimFrame;
@@ -33,6 +34,20 @@ typedef struct TrainAnim {
     /* 0x2 */ s16 frameCount;
     /* 0x4 */ TrainAnimFrame frames[1];
 } TrainAnim;
+
+/* A part of a sprite: a rectangle of a texture page. A sprite is a count
+   and its parts, and the bank's sprites follow each other. */
+typedef struct TrainSpritePart {
+    /* 0x00 */ u8 u;
+    /* 0x01 */ u8 v;
+    /* 0x02 */ u8 x;
+    /* 0x03 */ u8 y;
+    /* 0x04 */ u16 clut; /* bits 6-14: the CLUT's row; bit 15: semi-transparent */
+    /* 0x06 */ u16 tpage; /* bits 0-4: the page's column, 64 pixels each; 5-8: getTPage's abr and tp */
+    /* 0x08 */ u16 w;
+    /* 0x0A */ u16 h;
+    /* 0x0C */ u8 unkC[8];
+} TrainSpritePart;
 
 /* A sprite bank, as the animated sprite reads it */
 typedef struct TrainSpriteBank {

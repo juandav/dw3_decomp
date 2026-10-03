@@ -1123,7 +1123,7 @@ void func_80091B78(s32 index, s32 value);
 void func_80091B90(s32 arg0);
 void func_80091BB4(s32 arg0);
 void func_80091F4C(Point *pos, s32 scale, s32 index, Point *out);
-void func_8009204C(s32 arg0, s32 scale, s32 index, Point *out);
+void func_8009204C(Point *pos, s32 scale, s32 index, Point *out);
 #if VERSION_EU
 extern s32 D_800940A4[];
 extern s32 D_800940B0[];

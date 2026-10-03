@@ -134,6 +134,15 @@ typedef struct PartnerStats {
     /* 0x3CC */ u8 unk3CC[0x10];
 } PartnerStats;
 
+/* An enemy of a battle (FIELDSTG's encounter table points to these) */
+typedef struct BattleEnemy {
+    /* 0x0 */ s32 fighter; /* 0 for none */
+    /* 0x4 */ s16 level;
+    /* 0x6 */ s16 hp;
+    /* 0x8 */ s16 mp;
+    /* 0xA */ s16 unkA;
+} BattleEnemy;
+
 typedef struct Unk80042728 {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
@@ -141,17 +150,10 @@ typedef struct Unk80042728 {
     /* 0x0C */ s32 unkC; /* the battle's fight stage */
     /* 0x10 */ s32 unk10; /* the battle (BattleResult.battle) */
     /* 0x14 */ s32 unk14; /* the battle's music */
-    /* 0x18 */ struct {
-        s32 fighter; /* 0 for none */
-        s16 level;
-        s16 hp;
-        s16 mp;
-        s16 unkA;
-    } enemies[3];
+    /* 0x18 */ BattleEnemy enemies[3];
     /* 0x3C */ u8 unk3C; /* a chance that WFIGHTMN scales by level */
-    /* 0x3D */ u8 unk3D[6];
-    /* 0x43 */ u8 unk43; /* FIGHTSTG's func_800A0400 gives 0 for side 0 when set */
-    /* 0x44 */ u8 unk44[8];
+    /* 0x3D */ u8 unk3D;
+    /* 0x3E */ u8 unk3E[12]; /* FIGHTSTG's func_800A0400 gives 0 for side 0 when [5] is set */
     /* 0x4C */ s32 unk4C; /* 1: the battle always gives unk50 */
     /* 0x50 */ s32 unk50;
     /* 0x54 */ void (*clearUnk58)(void);

@@ -193,7 +193,31 @@ s32 SHOCKTST_playPattern(ShockTest *task, ShockTestWindows *win, s32 pattern) {
     return 0;
 }
 
-INCLUDE_ASM("shocktst/nonmatchings/shocktst", SHOCKTST_playAllPatterns);
+/*
+ * Plays the patterns from task->playing to task->count in turn, the next one
+ * once a pattern ends or both motors stop, and returns 1 after the last. The
+ * match depends on the reset being written in both branches.
+ */
+s32 SHOCKTST_playAllPatterns(ShockTest *task, ShockTestWindows *win) {
+    do {
+        SHOCKTST_showPattern(task, win, task->playing);
+        if (SHOCKTST_playPattern(task, win, task->playing) == 0) {
+            if (task->motors[0] != -1 || task->motors[1] != -1) {
+                SHOCKTST_showTimers(task, win, task->playing);
+                return 0;
+            }
+            task->timers[0] = task->timers[1] = 0;
+            task->motors[0] = task->motors[1] = 0;
+            task->playing++;
+        } else {
+            task->timers[0] = task->timers[1] = 0;
+            task->motors[0] = task->motors[1] = 0;
+            task->playing++;
+        }
+    } while (task->playing < task->count);
+    SHOCKTST_showPattern(task, win, task->pattern);
+    return 1;
+}
 
 s32 SHOCKTST_moveCursor(ShockTest *task, ShockTestWindows *win) {
     if (((PAD.getPressed(0) >> PAD.getButtonBit(0, PAD_LEFT)) & 1) ||
