@@ -313,7 +313,25 @@ void func_8008BA08(ShopLerp *lerp, s32 from, s32 to, s32 frames) {
     }
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BA48);
+s32 func_8008BA48(ShopLerp *lerp) {
+    if (lerp->active == 0) {
+        return 1;
+    }
+    lerp->fixed += lerp->step;
+    lerp->value = lerp->fixed >> 8;
+    if (lerp->step > 0) {
+        if (lerp->target < lerp->value) {
+            lerp->value = lerp->target;
+            lerp->active = 0;
+            return 1;
+        }
+    } else if (lerp->value < lerp->target) {
+        lerp->value = lerp->target;
+        lerp->active = 0;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BAB4);
 
