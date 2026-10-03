@@ -80,6 +80,13 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AB04);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AB58);
 
+#if VERSION_EU
+/* The European splat cuts func_8008AB58 and func_8008B440 where the names
+ * config/eu/symbols.txt gives three FIELDSTG functions for the executable
+ * fall */
+INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AEB4);
+#endif
+
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AF7C);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B1B8);
@@ -87,6 +94,11 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B1B8);
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B38C);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B440);
+
+#if VERSION_EU
+INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B2C4);
+INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B320);
+#endif
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B628);
 

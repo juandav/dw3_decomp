@@ -101,4 +101,4 @@ C_SRC += src/main/inn.c src/main/system.c src/main/memcard.c src/main/game3.c sr
 C_SRC += src/main/data/game.c src/main/data/game_2.c src/main/data/game_3.c src/main/data/game_bss.c
 
 # menus
-C_SRC += src/stitshop/stitshop.c src/stgdglab/stgdglab.c
+C_SRC += src/stitshop/stitshop.c src/stgdglab/stgdglab.c src/ststatus/ststatus.c
