@@ -18,7 +18,29 @@ Unk80086180 *func_80086780(s32 id, s32 side, s32 arg2) {
     return task;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_800867F0);
+void func_800867F0(Task *task, Task **children) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        if (GAME_FUNCS.getModeArg()) {
+            OVERLAY_FUNCS->loadSubOverlay(FILE_WFIGHTTS);
+            D_80042728.unkC = func_80086084();
+            children[0] = WFIGHTTS_start();
+        } else {
+            OVERLAY_FUNCS->loadSubOverlay(FILE_WFIGHTMN);
+            children[0] = WFIGHTMN_start();
+        }
+        D_800A31E8.unkE8(0);
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+        D_800A31E8.unkE4();
+        break;
+    case 2:
+    case TASK_KILL:
+        break;
+    }
+}
 
 void func_800868E0(void) {
     createTask(func_800867F0, sizeof(Task), sizeof(Task *));
@@ -170,7 +192,64 @@ void func_80087ACC(s32 arg0, s32 arg1) {
     task->unk5C = arg1;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_80087B14);
+/* The enemy func_80087CE4's task targets: task->target's, or one of the
+   others at random (not the active one), -1 for none */
+s32 func_80087B14(Unk80087CE4 *task) {
+    BattleFighter *enemies = D_800A31E8.fighters[1];
+    s32 found[2];
+    s32 count;
+    s32 active;
+    s32 i;
+
+    switch (task->target) {
+    case -2:
+        if (enemies[0].id == enemies[D_800A31E8.active[1]].id) {
+            break;
+        }
+        if (enemies[0].hp != 0) {
+            return 0;
+        }
+        break;
+    case -3:
+        if (enemies[1].id == enemies[D_800A31E8.active[1]].id) {
+            break;
+        }
+        if (enemies[1].hp != 0) {
+            return 1;
+        }
+        break;
+    case -4:
+        if (enemies[2].id == enemies[D_800A31E8.active[1]].id) {
+            break;
+        }
+        if (enemies[2].hp != 0) {
+            return 2;
+        }
+        break;
+    default:
+        count = 0;
+        found[0] = -1;
+        found[1] = -1;
+        active = D_800A31E8.active[1];
+        for (i = 0; i < 3; i++) {
+            enemies = &D_800A31E8.fighters[1][i];
+            if (active != i && enemies->id != 0 && enemies->hp != 0) {
+                found[count++] = i;
+            }
+        }
+        /* the match depends on case 0 and on reusing enemies */
+        switch (count) {
+        case 0:
+            break;
+        case 1:
+            return found[0];
+        case 2:
+            return found[RANDOM.next() & 1];
+        }
+        break;
+    }
+    return -1;
+}
 
 INCLUDE_RODATA("fightstg/nonmatchings/fightstg_3", D_800824C8);
 
@@ -182,12 +261,77 @@ void func_80088380(void) {
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_800883AC);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_800888C8);
+s32 func_800888C8(u8 kind) {
+    BattleFighter *enemy = &D_800A31E8.fighters[1][D_800A31E8.active[1]];
+    s32 value = 0;
+    BattleTableEntry *entry = D_800A2584(enemy->id);
+
+    switch (kind) {
+    case 1:
+        value = 1;
+        break;
+    case 2:
+        value = entry->unk8[1];
+        break;
+    case 3:
+        value = entry->unk8[2];
+        break;
+    case 4:
+        value = -1;
+        break;
+    case 5:
+        value = -2;
+        break;
+    case 6:
+        value = -3;
+        break;
+    case 7:
+        value = -4;
+        break;
+    case 8:
+        value = -5;
+        break;
+    }
+    return value;
+}
 
 void func_80088994(void) {
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_8008899C);
+/* a layer callback; the match depends on taking the task as void * */
+void func_8008899C(void *arg, Layer *layer) {
+    SpriteAnim *task = arg;
+    ShortVec3 screen;
+    SpriteDrawer drawer;
+
+    if (task->pos.vz != 0x7FFF && task->pos.vz != -1) {
+        D_800A31E8.project(layer, &task->pos, &screen);
+    } else {
+        screen.x = task->pos.vx;
+        screen.y = task->pos.vy;
+        if (task->pos.vz != 0x7FFF) {
+            screen.z = 0xFFF;
+        } else {
+            screen.z = 0;
+        }
+    }
+    screen.x += task->x;
+    screen.y += task->y;
+    initSpriteDrawer(&drawer);
+    drawer.setLayer(layer, screen.z);
+    drawer.setTexture(task->texPos.x, task->texPos.y);
+    if (task->scale.both != 0x10001000) {
+        drawer.setScale(task->scale.v[0], task->scale.v[1], 0);
+    }
+    if (task->clutRow != 0) {
+        drawer.setClutRow(task->clutRow);
+    }
+    if (task->rot.both != 0 || task->rotZ != 0) {
+        drawer.setRotation(task->rot.v[0], task->rot.v[1], task->rotZ);
+    }
+    drawer.setPivot(screen.x, screen.y);
+    drawer.draw(FILE_CACHE.getEntry(task->sheet), task->frame, screen.x, screen.y);
+}
 
 void FIGHTSTG_updateSpriteAnim(SpriteAnim *task) {
     s16 *data;
@@ -220,21 +364,21 @@ void FIGHTSTG_updateSpriteAnim(SpriteAnim *task) {
             task->y = *data++;
         }
         if (task->flags & 0x10) {
-            task->scaleX = *data++;
+            task->scale.v[0] = *data++;
         }
         if (task->flags & 0x20) {
-            task->scaleY = *data++;
+            task->scale.v[1] = *data++;
         }
         if (task->flags & 0x40) {
-            task->rotX = *data++;
+            task->rot.v[0] = *data++;
         }
         if (task->flags & 0x80) {
-            task->rotY = *data++;
+            task->rot.v[1] = *data++;
         }
         if (task->flags & 0x100) {
             task->rotZ = *data;
         }
-        if (task->scaleX != 0 && task->scaleY != 0) {
+        if (task->scale.v[0] != 0 && task->scale.v[1] != 0) {
             Layer *layer = GFX_FUNCS.getLayer(task->layerId);
 
             layer->addCallback(layer, func_8008899C, task);

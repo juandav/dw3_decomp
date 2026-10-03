@@ -15,6 +15,13 @@ D_800A3308 = 0x800A4580; // size:0xF0
 // the six ids that the European version's func_8008F5D4 clears
 FIGHTSTG_clearIds = 0x800A3438; // size:0x18 version-only
 
+// the sub-overlays' functions FIGHTSTG calls
+WFIGHTTS_start = 0x800A7A60; // type:func
+WFIGHTMN_start = 0x800A9FF0; // type:func
+func_800A9040 = 0x800AA1F0; // type:func
+func_800A9A40 = 0x800AABF0; // type:func
+func_800A57A8 = 0x800A6920; // type:func
+
 // us's data, the same at other addresses
 D_800A1238 = 0x800A2498; // size:0x20
 D_800A1258 = 0x800A24B8; // size:0x60
@@ -63,7 +70,8 @@ D_800A32E0 = 0x800A4558; // size:0x28
 D_800A33F4 = 0x800A4670; // size:0x24
 D_800A3418 = 0x800A4694; // size:0x8
 D_800A3420 = 0x800A469C; // size:0xC
-D_800A3430 = 0x800A46D0; // size:0x8
+D_800A3430 = 0x800A46D0; // size:0x4
+D_800A3434 = 0x800A46D4; // size:0x4
 D_800A3438 = 0x800A46D8; // size:0x34
 D_800A346C = 0x800A470C; // size:0x4
 D_800A3470 = 0x800A4710; // size:0x8

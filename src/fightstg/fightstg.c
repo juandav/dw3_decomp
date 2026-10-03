@@ -167,9 +167,112 @@ void FIGHTSTG_saveBlendPose(Model *model) {
     }
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_800831D4);
+/* Model.setMotion: lays out the motion's keyframes */
+void func_800831D4(Model *model, s32 motion, s32 restart) {
+    MotionStep *step;
+    s32 count;
+    s32 n;
+    s32 i;
+    s32 to;
+    s32 from;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_800833B0);
+    if (restart != 1 && model->motion == motion) {
+        return;
+    }
+    model->motion = motion;
+    model->keyframe = 1;
+    model->motionDone = 0;
+    model->unk9C = 0;
+    step = (MotionStep *)FILE_CACHE.getArchiveEntry(motion - 1, FILE_CACHE.getEntry(model->motionFile));
+    count = 0;
+    while (step->index != 0x7FFF) {
+        n = step->count;
+        if (n == 0) {
+            model->keyframes[count] = step->frame;
+            model->unkD24[count] = step->unk6;
+            count++;
+            break;
+        }
+        if (step->unk6 == 0) {
+            to = step[1].frame;
+            if (to == -1) {
+                to = model->unk88[model->control->idleMotion];
+                model->unk9C = 1;
+            }
+            if (step->index != 0) {
+                from = step[-1].unk6;
+            } else {
+                from = 0xFFFF;
+            }
+            for (i = 0; i < n; i++) {
+                model->unk19A4[count] = from;
+                model->unkD24[count] = to;
+                model->keyframes[count] = (((i + 1) << 12) / (n + 1)) | 0x8000;
+                count++;
+            }
+        } else {
+            for (i = 0; i < n; i++) {
+                model->keyframes[count] = step->frame + i;
+                model->unkD24[count] = 0;
+                count++;
+            }
+        }
+        step++;
+    }
+    model->keyframeCount = count;
+    model->keyframe = 1;
+}
+
+/* Steps a model's motion by the frames gone by, blending into a new pose
+   where a keyframe has 0x8000, and starts the idle motion when it ends */
+void func_800833B0(Model *model) {
+    s32 key = model->keyframe;
+    ModelBone *bone;
+    s32 i;
+
+    if (model->motionDone == 0) {
+        if (model->keyframes[key] & 0x8000) {
+            if (model->unk90 != model->unkD24[key]) {
+                model->unk90 = model->unkD24[key];
+                if (model->unk19A4[key] != 0xFFFF) {
+                    bone = model->bones;
+                    for (i = 1, bone++; i < model->boneCount; i++, bone++) {
+                        func_80082D74(model, bone, model->unk19A4[key]);
+                    }
+                }
+                FIGHTSTG_saveBlendPose(model);
+            }
+            model->unk84 = model->unkD24[key];
+            model->unk98 = model->keyframes[key] & 0x7FFF;
+            model->unk94 = 1;
+        } else {
+            model->unk90 = 0;
+            model->unk84 = model->keyframes[key];
+            model->unk94 = 0;
+        }
+        model->keyframe += D_800A31E8.frames;
+        if (model->keyframe >= model->keyframeCount) {
+            model->keyframe = model->keyframeCount - 1;
+        }
+        key = model->keyframe;
+        switch (model->keyframes[key]) {
+        case 0x8000:
+            model->keyframe = model->unkD24[key];
+            break;
+        case 0xFFFF:
+            model->motionDone = 1;
+            model->control->motionDone = 1;
+            break;
+        }
+    } else {
+        model->unk90 = 0;
+        model->unk94 = 0;
+        if (model->unk60 != 0 && model->unk9C != 0) {
+            model->control->motion = model->control->idleMotion + 1;
+            func_800831D4(model, model->control->idleMotion + 1, 0);
+        }
+    }
+}
 
 void func_8008358C(Model *model, Mesh **children) {
     TimLoader loader;
@@ -1375,9 +1478,8 @@ u8 D_800A2294[] = {
     0x7E, 0x6E, 0x0E, 0x7E, 0x7C, 0x0F, 0x7E, 0x8A,
     0x10, 0x7E, 0x98, 0x11, 0x7E, 0xA6, 0x12, 0x00,
 };
-s32 D_800A22BC[] = {
-    1, 14, 69, 14,
-    -1, 0, 0, 0,
+Unk8009A214 D_800A22BC = {
+    1, 14, 69, 14, -1, 0, 0, 0,
 };
 s32 D_800A22DC[] = {
     1, 14, 69, 14,
@@ -1447,7 +1549,7 @@ s32 D_800A2588[] = {
 EventQueue D_800A25F0 = {
     { { 0 } }, { 0 }, 0, 0, 0, 0,
     {
-        0, FIGHTSTG_pushEvent, FIGHTSTG_pushEventFirst, FIGHTSTG_popEvent,
+        0, 0, FIGHTSTG_pushEvent, FIGHTSTG_pushEventFirst, FIGHTSTG_popEvent,
         FIGHTSTG_findFirstEvent, FIGHTSTG_findNextEvent, FIGHTSTG_findEvent, FIGHTSTG_removeEvents,
         func_8009AEA4,
     },
@@ -1514,14 +1616,11 @@ u16 D_800A46A8[] = {
     0xFFFF, 0x0000, 0x0000, 0x0000,
 };
 #endif
-s32 D_800A3430[] = {
-    0, 0,
-};
+s32 D_800A3430 = 0; /* the partner's idle motion while stage 0x1D is up */
+s32 D_800A3434 = 0;
 CameraView D_800A3438 = { 0 };
 s32 D_800A346C = 0;
-u16 D_800A3470[] = {
-    0x0000, 0x0000, 0x0000, 0x0000,
-};
+RECT D_800A3470 = { 0 }; /* func_800933EC's layer */
 DR_MOVE D_800A3478[4] = { { 0 } };
 u_long D_800A34D8[2] = { 0 };
 BattleEvent D_800A34E0 = { 0 };
