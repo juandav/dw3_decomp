@@ -3,6 +3,9 @@
 
 #include "ststatus.h"
 
+/* One button of pad 1, held down */
+#define PAD_HELD(button) ((PAD.getHeld(0) >> PAD.getButtonBit(0, button)) & 1)
+
 void func_8009205C(StatusPanel0 *panel, StatusPanel0Windows *windows);
 s32 func_800919B8(StatusPanel0 *panel, StatusPanel0Windows *windows);
 void func_80092440(StatusPanel0 *panel);
@@ -105,7 +108,77 @@ void func_800917EC(StatusPanel0 *panel, StatusPanel0Windows *windows) {
     windows->pageCount->setRightAlign(windows->pageCount, 1);
 }
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus_7", func_800919B8);
+/* Moves the item list's cursor: L1 and R1 turn the pages; returns whether
+   it moved */
+s32 func_800919B8(StatusPanel0 *panel, StatusPanel0Windows *windows) {
+    s32 page;
+    s32 cursor;
+    s32 first;
+    s32 last;
+
+    page = panel->page;
+    cursor = panel->cursor;
+    if ((!PAD_HELD(PAD_R1) && PAD_PRESSED(PAD_L1)) || (!PAD_HELD(PAD_R1) && PAD_REPEATED(PAD_L1))) {
+        panel->page--;
+        if (panel->page < 0) {
+            panel->page = 0;
+        }
+    } else if ((!PAD_HELD(PAD_L1) && PAD_PRESSED(PAD_R1)) || (!PAD_HELD(PAD_L1) && PAD_REPEATED(PAD_R1))) {
+        panel->page++;
+        if (panel->page > panel->pageCount - 1) {
+            panel->page = panel->pageCount - 1;
+        }
+    }
+    if (page != panel->page) {
+        SOUND.playSound(0x8004513E);
+        panel->cursor = panel->page * 16;
+        /* the column is always 0: the match depends on computing it */
+        windows->cursor->setPos(windows->cursor, (panel->cursor % 2) * 0x83 + 0x1E, (panel->cursor % 16) / 2 * 14 + 0x25);
+        func_800917EC(panel, windows);
+        return 1;
+    }
+    first = page * 16;
+    /* the match depends on this form, which CSE doesn't share with first */
+    last = (page + 1) * 16 - 1;
+    if (last > panel->count - 1) {
+        last = panel->count - 1;
+    }
+    if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
+        panel->cursor -= 2;
+        if (panel->cursor < first) {
+            panel->cursor = first;
+        }
+    } else if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
+        panel->cursor += 2;
+        if (panel->cursor > last) {
+            panel->cursor = last;
+        }
+    }
+    if (PAD_PRESSED(PAD_LEFT) || PAD_REPEATED(PAD_LEFT)) {
+        if (!PAD_HELD(PAD_DOWN)) {
+            panel->cursor--;
+            if (panel->cursor < first) {
+                panel->cursor = first;
+            }
+        }
+    } else if (PAD_PRESSED(PAD_RIGHT) || PAD_REPEATED(PAD_RIGHT)) {
+        if (!PAD_HELD(PAD_UP)) {
+            panel->cursor++;
+            if (panel->cursor > last) {
+                panel->cursor = last;
+            }
+        }
+    }
+    if (cursor != panel->cursor) {
+        SOUND.playSound(0x8004513E);
+        windows->cursor->setPos(windows->cursor, (panel->cursor % 2) * 0x83 + 0x1E, (panel->cursor % 16) / 2 * 14 + 0x25);
+        panel->screen->item = panel->items[panel->cursor];
+        func_8008E668(panel->screen, 1);
+        func_8008E828(panel->screen, 1);
+        return 1;
+    }
+    return 0;
+}
 
 /* The item list's update: fades in, lets an item be chosen, fades out */
 void func_8009205C(StatusPanel0 *panel, StatusPanel0Windows *windows) {

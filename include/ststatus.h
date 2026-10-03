@@ -68,15 +68,22 @@ typedef struct StatusScreen0 {
     /* 0x054 */ s32 layer;
     /* 0x058 */ s32 depth;
     /* 0x05C */ s32 count; /* party members */
-    /* 0x060 */ u8 unk60[0x70 - 0x60];
+    /* 0x060 */ s32 frames[3]; /* of the partners' portraits */
+    /* 0x06C */ s32 frameTime;
     /* 0x070 */ s32 option;
     /* 0x074 */ u8 unk74[4];
     /* 0x078 */ s32 item; /* the chosen one */
     /* 0x07C */ s32 unk7C;
     /* 0x080 */ s32 itemShown;
-    /* 0x084 */ u8 unk84[0x3B0 - 0x84];
+    /* 0x084 */ u16 items[0x194]; /* of the chosen option's list */
+    /* 0x3AC */ s32 itemCount;
     /* 0x3B0 */ s32 member; /* the one an item is used on */
-    /* 0x3B4 */ u8 unk3B4[0x3CC - 0x3B4];
+    /* 0x3B4 */ s32 cursorShown;
+    /* 0x3B8 */ s32 cursorFrame;
+    /* 0x3BC */ s32 cursorTime;
+    /* 0x3C0 */ s32 blink; /* the help arrow */
+    /* 0x3C4 */ s32 blinkFrame;
+    /* 0x3C8 */ s32 blinkTime;
     /* 0x3CC */ PanelAnim pageFades[3];
     /* 0x3FC */ PanelAnim fades[2];
     /* 0x41C */ PanelAnim fades2[2];
@@ -100,7 +107,7 @@ typedef struct StatusScreen0Windows {
     /* 0xC4 */ TextWindow *equipped; /* how many of the item are equipped */
     /* 0xC8 */ TextWindow *ownedLabel;
     /* 0xCC */ TextWindow *owned;
-    /* 0xD0 */ u8 unkD0[0xD4 - 0xD0];
+    /* 0xD0 */ struct StatusPanel0 *panel; /* func_80092B0C's, while open */
 } StatusScreen0Windows;
 
 /* The field menu's fifth screen (func_8008DEA4) */
@@ -110,12 +117,14 @@ typedef struct StatusScreen4 {
     /* 0x054 */ s32 layer;
     /* 0x058 */ s32 depth;
     /* 0x05C */ s32 count; /* party members */
-    /* 0x060 */ u8 unk60[0x70 - 0x60];
+    /* 0x060 */ s32 frames[3]; /* of the partners' portraits */
+    /* 0x06C */ s32 frameTime;
     /* 0x070 */ s32 unk70;
     /* 0x074 */ s32 option; /* the options' cursor */
-    /* 0x078 */ u8 unk78[0x7C - 0x78];
+    /* 0x078 */ s32 cursorShown;
     /* 0x07C */ s32 member; /* in the party */
-    /* 0x080 */ u8 unk80[0x88 - 0x80];
+    /* 0x080 */ s32 cursorFrame;
+    /* 0x084 */ s32 cursorTime;
     /* 0x088 */ PanelAnim pageFades[3];
     /* 0x0B8 */ PanelAnim fades[2];
     /* 0x0D8 */ PanelAnim panelFades[6];
@@ -139,8 +148,19 @@ typedef struct StatusScreen4Windows {
     /* 0xD0 */ TextWindow *values[13]; /* the stats of D_80099B58 */
     /* 0x104 */ TextWindow *unk104;
     /* 0x108 */ TextWindow *unk108;
-    /* 0x10C */ TextWindow *unk10C;
+    /* 0x10C */ void *panel; /* func_8008AB04's or func_800879C8's, while open */
 } StatusScreen4Windows;
+
+/* Moves a value towards a target in fixed point */
+typedef struct StatusLerp {
+    /* 0x00 */ s32 duration;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 value;
+    /* 0x0C */ s32 fixed; /* value << 8 */
+    /* 0x10 */ s32 target;
+    /* 0x14 */ s32 step;
+    /* 0x18 */ s32 active;
+} StatusLerp;
 
 /* A panel of the fifth screen (func_8008AB04) */
 typedef struct StatusPanel4A {
@@ -151,15 +171,13 @@ typedef struct StatusPanel4A {
     /* 0x5C */ s32 slot; /* the cursors' rows */
     /* 0x60 */ s32 option;
     /* 0x64 */ s32 tech; /* the list's row */
-    /* 0x68 */ u8 unk68[4];
+    /* 0x68 */ s32 techCount; /* the entry's techniques */
     /* 0x6C */ s32 fromEntry; /* the list shows the slot's techniques, not the partner's */
     /* 0x70 */ s32 member;
     /* 0x74 */ s16 slots[4]; /* getPartnerSlots */
     /* 0x7C */ s32 slotCount; /* the slots holding an entry (4 on) */
     /* 0x80 */ s32 listShown;
-    /* 0x84 */ u8 unk84[0x8C - 0x84];
-    /* 0x8C */ s32 scroll; /* added to the list's y */
-    /* 0x90 */ u8 unk90[0xA0 - 0x90];
+    /* 0x84 */ StatusLerp scroll; /* its value is added to the list's y */
     /* 0xA0 */ s32 blink; /* the help arrow */
     /* 0xA4 */ s32 blinkFrame;
     /* 0xA8 */ s32 time;
@@ -196,9 +214,11 @@ typedef struct StatusPanel4B {
     /* 0x064 */ s32 cursor; /* the list's row */
     /* 0x068 */ s32 count; /* items */
     /* 0x06C */ s32 scroll; /* the first one shown */
-    /* 0x070 */ u8 unk70[8];
+    /* 0x070 */ s32 arrowShown; /* the scroll arrows blink */
+    /* 0x074 */ s32 arrowTime;
     /* 0x078 */ s16 items[0x194]; /* those that fit the slot, -1: remove */
-    /* 0x3A0 */ u8 unk3A0[0x6CC - 0x3A0];
+    /* 0x3A0 */ s16 owned[0x194]; /* listItems' result, sorted into items */
+    /* 0x6C8 */ s32 showSlot; /* draw the slot's item icon */
     /* 0x6CC */ PanelAnim panels[4];
 } StatusPanel4B;
 
@@ -217,7 +237,8 @@ typedef struct StatusPanel4BWindows {
     /* 0x8C */ TextWindow *kind;
     /* 0x90 */ TextWindow *slotTitle;
     /* 0x94 */ TextWindow *slotItem;
-    /* 0x98 */ u8 unk98[0xA4 - 0x98];
+    /* 0x98 */ ScrollBar *scrollBar; /* for more than 8 items */
+    /* 0x9C */ u8 unk9C[0xA4 - 0x9C];
 } StatusPanel4BWindows;
 
 /* A list of the first screen (func_80092B0C) */
@@ -255,17 +276,6 @@ typedef struct StatusPanel0Windows {
     /* 0x5C */ u8 unk5C[0x6C - 0x5C];
 } StatusPanel0Windows;
 
-/* Moves a value towards a target in fixed point */
-typedef struct StatusLerp {
-    /* 0x00 */ s32 duration;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 value;
-    /* 0x0C */ s32 fixed; /* value << 8 */
-    /* 0x10 */ s32 target;
-    /* 0x14 */ s32 step;
-    /* 0x18 */ s32 active;
-} StatusLerp;
-
 /* The screens' helpers (STSTATUS_data.funcs) */
 typedef struct StatusFuncs {
     /* 0x00 */ void (*loadFiles)(void);
@@ -275,7 +285,7 @@ typedef struct StatusFuncs {
     /* 0x10 */ void (*startLerp)(StatusLerp *lerp, s32 from, s32 to, s32 frames);
     /* 0x14 */ s32 (*updateLerp)(StatusLerp *lerp);
     /* 0x18 */ s32 *(*getList)(s32 list, s32 index);
-    /* 0x1C */ void (*listItems)(s32 list, u16 *out); /* 6, 7: special lists */
+    /* 0x1C */ s32 (*listItems)(s32 list, u16 *out); /* 6, 7: special lists; returns the count */
     /* 0x20 */ s32 (*canEquip)(s32 partner, s32 slot, s32 item);
     /* 0x24 */ void (*equip)(s32 partner, s32 slot, s32 item);
 } StatusFuncs;
@@ -355,7 +365,17 @@ typedef struct StatusScreen9 {
     /* 0x54 */ s32 layer;
     /* 0x58 */ s32 depth;
     /* 0x5C */ s32 count; /* party members */
-    /* 0x60 */ u8 unk60[0x94 - 0x60];
+    /* 0x60 */ s32 frames[3]; /* of the partners' portraits */
+    /* 0x6C */ s32 frameTime;
+    /* 0x70 */ s32 arrowShown; /* the swap's arrow */
+    /* 0x74 */ s32 arrowFrame;
+    /* 0x78 */ s32 arrowTime;
+    /* 0x7C */ s32 cursorShown;
+    /* 0x80 */ s32 cursor;
+    /* 0x84 */ s32 first; /* the members to swap */
+    /* 0x88 */ s32 second;
+    /* 0x8C */ s32 cursorFrame;
+    /* 0x90 */ s32 cursorTime;
     /* 0x94 */ PanelAnim pageFades[3];
     /* 0xC4 */ PanelAnim fades[2];
     /* 0xE4 */ PanelAnim fade;
@@ -381,7 +401,9 @@ extern StatusTech D_800427E8[];
 
 /* What getPartnerEntry gives */
 typedef struct StatusPartnerEntry {
-    /* 0x0 */ u8 unk0[8];
+    /* 0x0 */ u8 unk0[2];
+    /* 0x2 */ s8 level;
+    /* 0x3 */ u8 unk3[5];
     /* 0x8 */ s16 techs[6]; /* the low 13 bits */
 } StatusPartnerEntry;
 
@@ -414,13 +436,19 @@ typedef struct StatusScreen8 {
     /* 0x054 */ s32 layer;
     /* 0x058 */ s32 depth;
     /* 0x05C */ s32 count; /* party members */
-    /* 0x060 */ u8 unk60[0x7C - 0x60];
+    /* 0x060 */ s32 frames[3]; /* of the partners' portraits */
+    /* 0x06C */ s32 frameTime;
+    /* 0x070 */ s32 cursorFrame;
+    /* 0x074 */ s32 cursorTime;
+    /* 0x078 */ s32 memberShown; /* the user's cursor */
     /* 0x07C */ s32 member; /* who uses the technique */
-    /* 0x080 */ s32 unk80;
+    /* 0x080 */ s32 targetShown; /* the target's cursor */
     /* 0x084 */ s32 target;
     /* 0x088 */ s32 cursor;
     /* 0x08C */ StatusTechRow rows[3];
-    /* 0x188 */ u8 unk188[0x194 - 0x188];
+    /* 0x188 */ s32 blink; /* the help arrow */
+    /* 0x18C */ s32 blinkFrame;
+    /* 0x190 */ s32 blinkTime;
     /* 0x194 */ PanelAnim pageFades[3];
     /* 0x1C4 */ PanelAnim fades[2];
     /* 0x1E4 */ PanelAnim fade;
@@ -458,6 +486,9 @@ typedef struct StatusData {
 } StatusData;
 
 extern StatusData STSTATUS_data;
+extern s32 D_80099C64[]; /* the sprites of the technique counts */
+extern s32 D_80099AF8[]; /* the item list of each equipment slot */
+extern s32 D_80099B10[]; /* the stats the fifth screen's panel shows */
 extern s32 D_80099B58[]; /* the stats screen 4 shows */
 extern s32 D_80099C8C[]; /* the map cursor's frames */
 
@@ -473,7 +504,8 @@ s32 STSTATUS_updateFade(PanelAnim *fade);
 void STSTATUS_startLerp(StatusLerp *lerp, s32 from, s32 to, s32 frames);
 s32 STSTATUS_updateLerp(StatusLerp *lerp);
 s32 *func_80099270(s32 list, s32 index);
-void STSTATUS_listItems(s32 list, u16 *out);
+s32 STSTATUS_listItems(s32 list, u16 *out);
+ScrollBar *STSTATUS_createScrollBar(void);
 s32 STSTATUS_canEquip(s32 partner, s32 slot, s32 item);
 void STSTATUS_equip(s32 partner, s32 slot, s32 item);
 s32 STSTATUS_isLateGame(void);
@@ -503,7 +535,7 @@ StatusPanel4A *func_8008AB04(StatusScreen4 *screen);
 StatusPanel0 *func_80092B0C(StatusScreen0 *screen, s32 list, s32 arg2);
 void STSTATUS_drawFader(ScreenFade *task);
 void func_80085BD8(StatusPanel4B *panel, StatusPanel4BWindows *windows);
-void func_80086B28(StatusPanel4B *panel, void *children);
+void func_80086B28(StatusPanel4B *panel, StatusPanel4BWindows *windows);
 void func_800864B0(StatusPanel4B *panel);
 s32 func_8009930C(u16 *out);
 void func_8008340C(StatusScreen1 *screen);

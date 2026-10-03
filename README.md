@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%2098-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20118-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -43,12 +43,12 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 346 / 346 | 100.00 % | 100.00 % |
 | | USA | 346 / 346 | 100.00 % | 100.00 % |
-| The 21 overlays | Europe | 1,594 / 1,702 | 81.55 % | 89.15 % |
-| | USA | 1,590 / 1,697 | 81.59 % | 93.93 % |
+| The 21 overlays | Europe | 1,611 / 1,702 | 87.84 % | 90.11 % |
+| | USA | 1,607 / 1,697 | 87.92 % | 94.89 % |
 | The stages (293 and 238) | Europe | 1,590 / 1,590 | 100.00 % | 100.00 % |
 | | USA | 1,369 / 1,369 | 100.00 % | 100.00 % |
-| **Total** | **Europe** | **3,530 / 3,638** | **87.38 %** | **98.70 %** |
-| | **USA** | **3,305 / 3,412** | **86.91 %** | **99.19 %** |
+| **Total** | **Europe** | **3,547 / 3,638** | **91.69 %** | **98.82 %** |
+| | **USA** | **3,322 / 3,412** | **91.41 %** | **99.32 %** |
 
 - The executable's game code is all C, and its rodata. Its data is C too,
   in `src/main/data/`, until it moves next to the code that uses it.
@@ -58,8 +58,8 @@ current:
   code, not the game's, so like other PSX decomps they are built and compared
   but left out of the progress.
 - `CNTY_SEL`, `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STFGTREP` and `STCRDABM`
-  are all C, `CARDGAME` all but one function, and `STCRDDEK`, `STDWTITL`,
-  `SHOCKTST`, `STGTRAIN`, `STSTATUS`, `FIELDSTG` and `FIGHTSTG` mostly. The
+  are all C, `CARDGAME` and `STSTATUS` all but one function, and `STCRDDEK`, `STDWTITL`,
+  `SHOCKTST`, `STGTRAIN`, `FIELDSTG` and `FIGHTSTG` mostly. The
   other large overlays are still mostly assembly.
 - The stages are all C, the 238 USA ones and the 55 of the European version
   alone. Many stages share functions built from the same source, so one
@@ -90,9 +90,9 @@ above counts them: fake matches, then the other two kinds together.
 | Kind | Count | Marker |
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
-| Unused frame locals | 6 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 92 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 101 | `INCLUDE_ASM` |
+| Unused frame locals | 7 | `/* unused, but it is in the original stack frame */` |
+| Form-dependent matches | 111 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 84 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -100,10 +100,11 @@ above counts them: fake matches, then the other two kinds together.
 - An unused frame local is a local that the code never touches, kept because
   the original's stack frame has room for it: without it, the frame is
   smaller than the original's. Two are in PsyQ objects (`libgs_gs_107`,
-  `libgs_gs_131`), one in the game's `drawTalkBoxArrow`.
+  `libgs_gs_131`), one in the game's `drawTalkBoxArrow`, one in STSTATUS's
+  `func_8008CC5C` and three in WFIGHTTS.
 - A form-dependent match is C that matches in one of several equivalent
   forms only: an extra block, an `if` without braces, a copy of a variable, a
-  type, or one version's own form of a loop. The ninety-two so far are a copy
+  type, or one version's own form of a loop. The hundred and eleven so far are a copy
   of a variable in `drawTalkBoxArrow`, an unsigned compare in STGMCARD's
   `func_80082E28`, a variable that holds two values in STCRDDEK's
   `STCRDDEK_drawDeckCards`, a counter set before a call in
@@ -118,8 +119,11 @@ above counts them: fake matches, then the other two kinds together.
   of two stats in its `func_80085E30`, a counter that
   holds an icon too in its `func_800878C0`, a frame pointer that holds the
   animation first in its `func_800828E8`, the same `u32` copy in STPLNMET's
-  `STPLNMET_updateKeyboard`, seven spots in STSTATUS and one in STCRDSHP (a
-  copy, a cast, a temporary, a pointer, a pointer sum or `for` initializers), a `cards++` written in the `for`
+  `STPLNMET_updateKeyboard`, twenty-six spots in STSTATUS and one in STCRDSHP (a
+  copy, a cast, a temporary, a pointer, a pointer sum, `for` initializers, a
+  variable of its own for a loop or a case, a statement written in both
+  branches, a list indexed rather than walked, the order of a sum's terms, a
+  test of another field or two calls in place of a conditional argument), a `cards++` written in the `for`
   in STCRDSHP's `STCRDSHP_createGrid` and `STCRDSHP_drawCards` (which also
   writes its digits' x as `dx + 0x27 + x`), five spots in STGDGLAB and three
   in STITSHOP (loops with counters of their own, a reused variable, an
@@ -183,7 +187,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `STGTRAIN` | `0x80082448` | 88 / 94 | the gyms: a partner trains a stat, gaining some and losing others, with its sprites and the result windows |
 | `STITSHOP` | `0x80082448` | 68 / 69 | the item shop, where the player buys and sells items and equips what was bought on a partner |
 | `STPLNMET` | `0x80082448` | 53 / 53 | the player's name entry (mode 0x500), with a copy of `STDGNAME`'s keyboard |
-| `STSTATUS` | `0x80082448` | 105 / 123 | the screens the field menu opens (`STSTATUS_screens`), such as the item list and the equipment |
+| `STSTATUS` | `0x80082448` | 122 / 123 | the screens the field menu opens (`STSTATUS_screens`), such as the item list and the equipment |
 | `WFIGHTMN` | `0x800A4CA4` | 41 / 42 | the battle's sub-overlay, which `FIGHTSTG` loads (file 0x1FA) for a normal battle: it checks the party and its equipment and ends the battle |
 | `WFIGHTTS` | `0x800A4CA4` | 13 / 14 | the debug battle test, which `FIGHTSTG` loads (file 0x1FB) in place of `WFIGHTMN`: lists of fighters, motions, effects and stages |
 | `WSTAG###` (238) | `0x800A4CA4` | 1,369 / 1,369 | the stages: small programs that load on top of `FIELDSTG` and call into it |

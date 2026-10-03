@@ -3,6 +3,9 @@
 
 #include "ststatus.h"
 
+/* One button of pad 1, held down */
+#define PAD_HELD(button) ((PAD.getHeld(0) >> PAD.getButtonBit(0, button)) & 1)
+
 void func_80085BD8(StatusPanel4B *panel, StatusPanel4BWindows *windows) {
     s32 i;
 
@@ -137,9 +140,350 @@ void func_80086368(StatusPanel4B *panel, StatusPanel4BWindows *windows, s32 show
     }
 }
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus_3", func_800864B0);
+/* Draws the equipment panels: the partner's equipment, the list of items
+   that fit the slot and the slot's item */
+void func_800864B0(StatusPanel4B *panel) {
+    SpriteDrawer sprite;
+    PartnerStats *stats;
+    s32 level;
+    s32 item;
+    s32 index;
+    s32 i;
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus_3", func_80086B28);
+    stats = (PartnerStats *)GAME_FUNCS.getPartnerStats(panel->partner);
+    initSpriteDrawer(&sprite);
+    if (panel->panels[0].level != 0) {
+        sprite.setTexture(0x140, 0);
+        sprite.setLayerId(panel->layer, 6);
+        level = panel->panels[0].level;
+        if (level != 0x1000) {
+            sprite.setScale(level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0x19);
+        }
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](FILE_MENU_SPRITES << 16), 0x18, 0x22, 0xD);
+    }
+    sprite.setLayerId(panel->layer, panel->depth);
+    level = panel->panels[1].level;
+    if (level != 0) {
+        if (level != 0x1000) {
+            sprite.setScale(level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0x58);
+        } else {
+            sprite.setScale(0x1000, 0x1000, 0x1000);
+            sprite.setTexture(0x140, 0);
+            for (i = 0; i < 6; i++) {
+                item = stats->equip[i];
+                if (item > 0) {
+                    sprite.draw(FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16), ITEM_FUNCS->getCategory(item), 0xB2, i * 14 + 0x31);
+                }
+            }
+        }
+        sprite.setTexture(0x280, 0x100);
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](FILE_STATUS_SPRITES << 16), 0x2A, 0x9D, 0x28);
+    }
+    level = panel->panels[2].level;
+    if (level != 0) {
+        if (level != 0x1000) {
+            sprite.setScale(level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0x89);
+        } else {
+            sprite.setScale(0x1000, 0x1000, 0x1000);
+            for (i = 0; i < 8; i++) {
+                index = panel->scroll + i;
+                if (index < panel->count) {
+                    item = panel->items[index];
+                    if (item == -1 || item > 0) {
+                        sprite.setTexture(0x280, 0x100);
+                        sprite.draw(FILE_CACHE.getEntry(FILE_STATUS_SPRITES << 16), 0x31, 0x91, i * 14 + 0x4B);
+                        if (item > 0) {
+                            sprite.setTexture(0x140, 0);
+                            sprite.draw(FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16), ITEM_FUNCS->getCategory(item), 0x91, i * 14 + 0x4B);
+                        }
+                    }
+                }
+            }
+            if (panel->count > 8) {
+                if (GFX.funcs.getTime() - panel->arrowTime >= 9) {
+                    panel->arrowTime = GFX.funcs.getTime();
+                    panel->arrowShown = 1 - panel->arrowShown;
+                }
+                sprite.setTexture(0x280, 0x100);
+                if (panel->arrowShown) {
+                    if (panel->scroll > 0) {
+                        sprite.draw(FILE_CACHE_GET_ENTRY[0](FILE_STATUS_SPRITES << 16), 0x32, 0x126, 0x45);
+                    }
+                    if (panel->scroll < panel->count - 8) {
+                        sprite.draw(FILE_CACHE_GET_ENTRY[0](FILE_STATUS_SPRITES << 16), 0x33, 0x126, 0xB3);
+                    }
+                }
+            }
+        }
+        sprite.setTexture(0x280, 0x100);
+        sprite.draw(FILE_CACHE.getEntry(FILE_STATUS_SPRITES << 16), 0x2B, 0x77, 0x39);
+        if (panel->panels[2].level != 0x1000) {
+            sprite.setPivot(0, 0xD3);
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_STATUS_SPRITES << 16), 0x20, 0, 0xC2);
+    }
+    level = panel->panels[3].level;
+    if (level != 0) {
+        if (level != 0x1000) {
+            sprite.setScale(level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0x20);
+        } else {
+            sprite.setScale(0x1000, 0x1000, 0x1000);
+            if (panel->showSlot) {
+                item = *(stats->equip + panel->slot); /* the match depends on this form */
+                if (item > 0) {
+                    sprite.setTexture(0x140, 0);
+                    sprite.draw(FILE_CACHE_GET_ENTRY[0](FILE_MENU_SPRITES << 16), ITEM_FUNCS->getCategory(item), 0xB2, 0x23);
+                }
+            }
+        }
+        sprite.setTexture(0x280, 0x100);
+        sprite.draw(FILE_CACHE_GET_ENTRY[0](FILE_STATUS_SPRITES << 16), 0x2C, 0xA0, 0x11);
+    }
+}
+
+/* The equipment panel's steps: a slot is chosen, then an item from the list
+   of those that fit it, the ones the partner can equip first */
+void func_80086B28(StatusPanel4B *panel, StatusPanel4BWindows *windows) {
+    s32 oldSlot;
+    s32 oldCursor;
+    s32 oldScroll;
+    s32 count;
+    s32 n;
+    s32 item;
+    s32 i;
+
+    switch (panel->substate) {
+    case 0:
+    default:
+        STSTATUS_data.funcs.startFade(&panel->panels[0], 1);
+        panel->substate++;
+        break;
+    case 1:
+        if (STSTATUS_data.funcs.updateFade(&panel->panels[0])) {
+            windows->title->setString(windows->title, FILE_CACHE.load(TEXT_FILE(0xB1)), 0x3F);
+            STSTATUS_data.funcs.startFade(&panel->panels[1], 1);
+            panel->substate++;
+        }
+        break;
+    case 2:
+        if (STSTATUS_data.funcs.updateFade(&panel->panels[1])) {
+            func_80085DC0(panel, windows, 1);
+            windows->cursor->setVisible(windows->cursor, 1);
+            panel->substate++;
+        }
+        break;
+    case 3:
+        oldSlot = panel->slot;
+        if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
+            panel->slot--;
+            if (panel->slot < 0) {
+                panel->slot = 0;
+            }
+        } else if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
+            panel->slot++;
+            if (panel->slot >= 6) {
+                panel->slot = 5;
+            }
+        }
+        if (oldSlot != panel->slot) {
+            SOUND.playSound(0x8004513E);
+            windows->cursor->setPos(windows->cursor, 0xA5, panel->slot * 14 + 0x31);
+        } else if (PAD_PRESSED(PAD_CROSS)) {
+            SOUND.playSound(0x8004503C);
+            n = 1;
+            count = STSTATUS_data.funcs.listItems(D_80099AF8[panel->slot], (u16 *)panel->owned);
+            for (i = 0; i < count; i++) {
+                if (STSTATUS_data.funcs.canEquip(panel->partner, panel->slot, panel->owned[i])) {
+                    panel->items[n++] = panel->owned[i];
+                }
+            }
+            for (i = 0; i < count; i++) {
+                if (!STSTATUS_data.funcs.canEquip(panel->partner, panel->slot, panel->owned[i])) {
+                    panel->items[n++] = panel->owned[i];
+                }
+            }
+            panel->count = count + 1;
+            panel->items[0] = -1;
+            panel->substate = 10;
+        }
+        if (PAD_PRESSED(PAD_TRIANGLE)) {
+            SOUND.playSound(0x800450BD);
+            panel->substate = 0x32;
+        }
+        break;
+    case 10:
+        STSTATUS_data.funcs.startFade(&panel->panels[1], 0);
+        func_80085DC0(panel, windows, 0);
+        windows->cursor->setVisible(windows->cursor, 0);
+        panel->cursor = 0;
+        panel->scroll = 0;
+        panel->substate++;
+        break;
+    case 12:
+        if (STSTATUS_data.funcs.updateFade(&panel->panels[0])) {
+            STSTATUS_data.funcs.startFade(&panel->panels[3], 1);
+            panel->substate++;
+        }
+        break;
+    case 13:
+        if (STSTATUS_data.funcs.updateFade(&panel->panels[3])) {
+            panel->showSlot = 1;
+            func_80086368(panel, windows, 1);
+            STSTATUS_data.funcs.startFade(&panel->panels[2], 1);
+            panel->substate++;
+        }
+        break;
+    case 14:
+        if (STSTATUS_data.funcs.updateFade(&panel->panels[2])) {
+            func_80086010(panel, windows, 1);
+            windows->listCursor->setPos(windows->listCursor, 0x89, 0x4B);
+            windows->listCursor->setVisible(windows->listCursor, 1);
+            panel->screen->func_8008BA38(panel->screen, panel->slot, 0);
+            if (panel->count >= 9) {
+                windows->scrollBar = STSTATUS_createScrollBar();
+                windows->scrollBar->setX(windows->scrollBar, 0x125, 0xC);
+                windows->scrollBar->setRange(windows->scrollBar, 0x4E, 0xB3);
+                windows->scrollBar->setCount(windows->scrollBar, 8, panel->count);
+                windows->scrollBar->setPos(windows->scrollBar, 0);
+            }
+            panel->substate++;
+        }
+        break;
+    case 15:
+        oldCursor = panel->cursor;
+        oldScroll = panel->scroll;
+        if (panel->count >= 9) {
+            if ((!PAD_HELD(PAD_R1) && PAD_PRESSED(PAD_L1)) || (!PAD_HELD(PAD_R1) && PAD_REPEATED(PAD_L1))) {
+                panel->scroll -= 8;
+                if (panel->scroll < 0) {
+                    panel->scroll = 0;
+                }
+            } else if ((!PAD_HELD(PAD_L1) && PAD_PRESSED(PAD_R1)) || (!PAD_HELD(PAD_L1) && PAD_REPEATED(PAD_R1))) {
+                panel->scroll += 8;
+                if (panel->scroll > panel->count - 8) {
+                    panel->scroll = panel->count - 8;
+                }
+            }
+        }
+        if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
+            panel->cursor--;
+            if (panel->cursor < 0) {
+                panel->cursor = 0;
+                panel->scroll--;
+                if (panel->scroll < 0) {
+                    panel->scroll = 0;
+                }
+            }
+        } else if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
+            if (panel->count < 8) {
+                panel->cursor++;
+                if (panel->cursor > panel->count - 1) {
+                    panel->cursor = panel->count - 1;
+                }
+            } else {
+                panel->cursor++;
+                if (panel->cursor >= 8) {
+                    panel->cursor = 7;
+                    panel->scroll++;
+                    if (panel->scroll > panel->count - 8) {
+                        panel->scroll = panel->count - 8;
+                    }
+                }
+            }
+        }
+        if (oldCursor != panel->cursor) {
+            SOUND.playSound(0x8004513E);
+            windows->listCursor->setPos(windows->listCursor, 0x86, panel->cursor * 14 + 0x4B);
+#if VERSION_US
+            if (windows->scrollBar != NULL) {
+                windows->scrollBar->setPos(windows->scrollBar, panel->cursor + panel->scroll);
+            }
+#endif
+        }
+        if (oldScroll != panel->scroll) {
+            SOUND.playSound(0x8004513E);
+            func_80086010(panel, windows, 1);
+            if (windows->scrollBar != NULL) {
+#if VERSION_US
+                /* the USA version's bar follows the chosen item, the European one the page */
+                windows->scrollBar->setPos(windows->scrollBar, panel->cursor + panel->scroll);
+#else
+                windows->scrollBar->setPos(windows->scrollBar, panel->scroll);
+#endif
+            }
+        }
+        item = panel->items[panel->cursor + panel->scroll];
+        if (oldCursor != panel->cursor || oldScroll != panel->scroll) {
+            if (STSTATUS_data.funcs.canEquip(panel->partner, panel->slot, item)) {
+                panel->screen->func_8008BA38(panel->screen, panel->slot, item);
+            } else {
+                panel->screen->func_8008BA38(panel->screen, -1, 0);
+            }
+            func_80085EE4(panel, windows, item);
+        } else if (PAD_PRESSED(PAD_CROSS)) {
+            if (STSTATUS_data.funcs.canEquip(panel->partner, panel->slot, item)) {
+                STSTATUS_data.funcs.equip(panel->partner, panel->slot, item);
+                panel->substate = 0x14;
+                panel->showSlot = 0;
+                panel->screen->func_8008BA38(panel->screen, panel->slot, item);
+                if (windows->scrollBar != NULL) {
+                    windows->scrollBar->state = 3;
+                }
+                SOUND.playSound(0x8004503C);
+            }
+        } else if (PAD_PRESSED(PAD_TRIANGLE)) {
+            SOUND.playSound(0x800450BD);
+            panel->screen->func_8008BA38(panel->screen, -1, 0);
+            panel->substate = 0x14;
+            panel->showSlot = 0;
+            if (windows->scrollBar != NULL) {
+                windows->scrollBar->state = 3;
+            }
+        }
+        break;
+    case 0x14:
+        STSTATUS_data.funcs.startFade(&panel->panels[2], 0);
+        func_80086010(panel, windows, 0);
+        windows->listCursor->setVisible(windows->listCursor, 0);
+        panel->substate++;
+        break;
+    case 0x15:
+        if (STSTATUS_data.funcs.updateFade(&panel->panels[2])) {
+            STSTATUS_data.funcs.startFade(&panel->panels[3], 0);
+            func_80086368(panel, windows, 0);
+            panel->substate++;
+        }
+        break;
+    case 0x16:
+        if (STSTATUS_data.funcs.updateFade(&panel->panels[3])) {
+            panel->substate = 0;
+        }
+        break;
+    case 0x32:
+        STSTATUS_data.funcs.startFade(&panel->panels[1], 0);
+        func_80085DC0(panel, windows, 0);
+        windows->cursor->setVisible(windows->cursor, 0);
+        panel->substate++;
+        break;
+    case 11:
+    case 0x33:
+        if (STSTATUS_data.funcs.updateFade(&panel->panels[1])) {
+            windows->title->setVisible(windows->title, 0);
+            STSTATUS_data.funcs.startFade(&panel->panels[0], 0);
+            panel->substate++;
+        }
+        break;
+    case 0x34:
+        if (STSTATUS_data.funcs.updateFade(&panel->panels[0])) {
+            panel->state = 3;
+        }
+        break;
+    }
+}
 
 void func_80087914(StatusPanel4B *panel, void *children) {
     switch (panel->state) {
