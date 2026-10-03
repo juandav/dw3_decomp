@@ -67,7 +67,8 @@ typedef struct DigimonData {
 /* An item (ITEM_DATA, GET_ITEM) */
 typedef struct ItemInfo {
     /* 0x0 */ u8 *data;
-    /* 0x4 */ u8 unk4[4];
+    /* 0x4 */ u16 price;
+    /* 0x6 */ u16 sellPrice; /* 0: cannot be sold */
     /* 0x8 */ u8 unk8;
     /* 0x9 */ u8 type; /* 2-14 weapons, 15-20 armour, 21-24 accessories */
     /* 0xA */ u8 unkA[2];
@@ -247,6 +248,14 @@ extern GameFuncs GAME_FUNCS;
 extern Unk80042728 D_80042728;
 extern ItemInfo ITEM_DATA[];
 extern struct ItemInfo *(*GET_ITEM[])(s32 item);
+/* GET_ITEM's entries, each with its own type */
+typedef struct ItemFuncs {
+    /* 0x0 */ struct ItemInfo *(*get)(s32 item); /* getItem */
+    /* 0x4 */ u8 (*getCategory)(s32 item); /* getItemCategory */
+    /* 0x8 */ s32 (*isKind)(s32 item, s32 kind); /* ItemInfo.unk8 == kind */
+    /* 0xC */ s32 (*list)(s32 type, u16 *out); /* listItems */
+} ItemFuncs;
+#define ITEM_FUNCS ((ItemFuncs *)GET_ITEM)
 extern u8 ITEM_TYPE_CATEGORIES[];
 extern s32 MONEY_REQUIRED[];
 extern u8 SPECIAL_CONDITIONS[];

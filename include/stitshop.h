@@ -30,11 +30,119 @@ typedef struct ItemShop {
 
 /* The children of the shop */
 typedef struct ItemShopWindows {
-    /* 0x00 */ void *unk0;
-    /* 0x04 */ void *unk4;
+    /* 0x00 */ TextWindow *title; /* the shop's name */
+    /* 0x04 */ TextWindow *help;
     /* 0x08 */ TextWindow *money;
-    /* 0x0C */ void *unkC[6];
+    /* 0x0C */ TextWindow *moneyLabel;
+    /* 0x10 */ TextWindow *buy;
+    /* 0x14 */ TextWindow *sell;
+    /* 0x18 */ Cursor *cursor;
+    /* 0x1C */ Task *dialog; /* ShopBuy or ShopSell */
+    /* 0x20 */ ScreenFade *fade;
 } ItemShopWindows;
+
+/* The panel with the selected item's details (func_8008AB04) */
+typedef struct ShopInfo {
+    TASK_HEADER(ShopInfo);
+    /* 0x050 */ s32 layer;
+    /* 0x054 */ s32 depth;
+    /* 0x058 */ s32 selling;
+    /* 0x05C */ s32 page; /* 0: the description, 1: the partners' stats */
+    /* 0x060 */ u8 unk60[0x1E4 - 0x60];
+    /* 0x1E4 */ s32 item;
+    /* 0x1E8 */ s32 unk1E8;
+    /* 0x1EC */ s32 unk1EC;
+    /* 0x1F0 */ s32 shown;
+    /* 0x1F4 */ PanelAnim panels[4];
+    /* 0x234 */ void (*showItem)(struct ShopInfo *info, s32 item, s32 arg);
+    /* 0x238 */ void (*close)(struct ShopInfo *info);
+    /* 0x23C */ void (*setArrowVisible)(struct ShopInfo *info, s32 visible);
+    /* 0x240 */ void (*turnPage)(struct ShopInfo *info);
+    /* 0x244 */ void (*func_8008AAB0)(struct ShopInfo *info, s32 arg);
+} ShopInfo;
+
+/* The list of the items to buy or sell (func_80088094) */
+typedef struct ShopItemList {
+    TASK_HEADER(ShopItemList);
+    /* 0x050 */ struct Task *dialog; /* ShopBuy or ShopSell */
+    /* 0x054 */ s32 layer;
+    /* 0x058 */ s32 depth;
+    /* 0x05C */ s32 selling; /* 0: the shop's items, 1: the bag's */
+    /* 0x060 */ s32 type; /* the shop, or the item type to sell */
+    /* 0x064 */ s16 items[0x194]; /* the bag's items that can be sold */
+    /* 0x38C */ s16 bag[0x194];
+    /* 0x6B4 */ u16 *shopItems;
+    /* 0x6B8 */ s32 cursorStill;
+    /* 0x6BC */ s32 selection;
+    /* 0x6C0 */ s32 count;
+    /* 0x6C4 */ s32 unk6C4[4];
+    /* 0x6D4 */ s32 pageSize;
+    /* 0x6D8 */ s32 unk6D8[4];
+    /* 0x6E8 */ void (*start)(struct ShopItemList *list);
+    /* 0x6EC */ void (*close)(struct ShopItemList *list);
+    /* 0x6F0 */ s16 (*getSelected)(struct ShopItemList *list);
+    /* 0x6F4 */ void (*showCursor)(struct ShopItemList *list, s32 visible);
+    /* 0x6F8 */ void (*freezeCursor)(struct ShopItemList *list, s32 frozen);
+    /* 0x6FC */ void (*refresh)(struct ShopItemList *list);
+    /* 0x700 */ void (*listBag)(struct ShopItemList *list);
+} ShopItemList;
+
+/* The dialog to buy an item (func_800850A8) */
+typedef struct ShopBuy {
+    TASK_HEADER(ShopBuy);
+    /* 0x50 */ void (*showItem)(struct ShopBuy *buy, s32 item, s32 arg);
+    /* 0x54 */ struct ItemShop *shop;
+    /* 0x58 */ s32 layer;
+    /* 0x5C */ s32 depth;
+    /* 0x60 */ s32 item;
+    /* 0x64 */ s32 quantity;
+    /* 0x68 */ s32 max;
+    /* 0x6C */ s32 blink;
+    /* 0x70 */ s32 blinkTime;
+    /* 0x74 */ s32 choice;
+    /* 0x78 */ s32 unk78[4];
+    /* 0x88 */ PanelAnim panels[4];
+} ShopBuy;
+
+typedef struct ShopBuyWindows {
+    /* 0x00 */ ShopItemList *list;
+    /* 0x04 */ ShopInfo *info;
+    /* 0x08 */ TextWindow *quantityLabel;
+    /* 0x0C */ TextWindow *times;
+    /* 0x10 */ TextWindow *quantity;
+    /* 0x14 */ TextWindow *total;
+    /* 0x18 */ TextWindow *yes;
+    /* 0x1C */ TextWindow *no;
+    /* 0x20 */ Cursor *cursor;
+} ShopBuyWindows;
+
+/* The dialog to sell an item (func_80086AD8) */
+typedef struct ShopSell {
+    TASK_HEADER(ShopSell);
+    /* 0x50 */ void (*showItem)(struct ShopSell *sell, s32 item, s32 arg);
+    /* 0x54 */ struct ItemShop *shop;
+    /* 0x58 */ s32 layer;
+    /* 0x5C */ s32 depth;
+    /* 0x60 */ s32 type;
+    /* 0x64 */ s32 unk64;
+    /* 0x68 */ s32 quantity;
+    /* 0x6C */ s32 unk6C[4];
+    /* 0x7C */ PanelAnim panels[5];
+} ShopSell;
+
+typedef struct ShopSellWindows {
+    /* 0x00 */ ShopItemList *list;
+    /* 0x04 */ ShopInfo *info;
+    /* 0x08 */ Cursor *cursor;
+    /* 0x0C */ TextWindow *types[4];
+    /* 0x1C */ TextWindow *quantityLabel;
+    /* 0x20 */ TextWindow *times;
+    /* 0x24 */ TextWindow *quantity;
+    /* 0x28 */ TextWindow *unk28;
+    /* 0x2C */ TextWindow *total;
+    /* 0x30 */ TextWindow *unk30;
+    /* 0x34 */ TextWindow *unk34;
+} ShopSellWindows;
 
 /* Moves a value towards a target in fixed point */
 typedef struct ShopLerp {

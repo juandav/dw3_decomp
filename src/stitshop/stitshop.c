@@ -1,6 +1,20 @@
 #include "stitshop.h"
 
 Cursor *createCursor(s16 layerId, s32 depth, s16 x, s16 y);
+void func_800830DC(ShopBuy *buy, ShopBuyWindows *win);
+void func_8008361C(ShopBuy *buy, ShopBuyWindows *win);
+void func_80085254(ShopSell *sell, ShopSellWindows *win);
+void func_80085684(ShopSell *sell, ShopSellWindows *win);
+void func_80086CE4(ShopItemList *list, void *win, s32 arg);
+void func_800875AC();
+void func_80087D5C(ShopItemList *list, s32 frozen);
+void func_80087E00(ShopItemList *list, s32 visible);
+void func_80087FD0(ShopItemList *list);
+void func_80088960(ShopInfo *info, void *win, s32 arg);
+void func_800894EC(ShopInfo *info, void *win, s32 arg);
+void func_80089774(ShopInfo *info, void *win, s32 arg);
+void func_8008988C(ShopInfo *info, void *win, s32 arg);
+void func_8008A5E8();
 ItemShop *func_8008B77C(void);
 void func_8008B614();
 void func_8008B7E0(void);
@@ -116,21 +130,84 @@ ScreenFade *func_80082D5C(void) {
     return task;
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082DA4);
+void func_80082DA4(ShopBuy *buy, ShopBuyWindows *win) {
+    win->quantityLabel = createTextWindow(buy->layer, 1, 0xB9, 0x3A);
+    win->times = createTextWindow(buy->layer, 1, 0x103, 0x54);
+    win->quantity = createTextWindow(buy->layer, 1, 0x11E, 0x54);
+    win->total = createTextWindow(buy->layer, 1, 0x9A, 0x2C);
+    win->yes = createTextWindow(buy->layer, 1, 0xC5, 0x49);
+    win->no = createTextWindow(buy->layer, 1, 0xC5, 0x59);
+    win->cursor = createCursor(buy->layer, buy->depth - 1, 0xB8, 0x49);
+    win->cursor->setVisible(win->cursor, 0);
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082E90);
+void func_80082E90(ShopBuy *buy, ShopBuyWindows *win, s32 show) {
+    if (show) {
+        win->quantityLabel->setString(win->quantityLabel, FILE_CACHE.load(TEXT_FILE(0x72)), 0x11);
+        win->times->setString(win->times, FILE_CACHE.load(TEXT_FILE(0x72)), 8);
+        win->quantity->setNumber(win->quantity, 0, buy->quantity);
+        win->quantity->setRightAlign(win->quantity, 1);
+    } else {
+        win->quantityLabel->setVisible(win->quantityLabel, 0);
+        win->times->setVisible(win->times, 0);
+        win->quantity->setVisible(win->quantity, 0);
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082F94);
+void func_80082F94(ShopBuy *buy, ShopBuyWindows *win, s32 show) {
+    if (show) {
+        win->total->setString(win->total, FILE_CACHE.load(TEXT_FILE(0x72)), 0x12);
+        win->total->setNumber(win->total, 1, GET_ITEM[0](buy->item)->price * buy->quantity);
+        win->yes->setString(win->yes, FILE_CACHE.load(TEXT_FILE(0x72)), 0x13);
+        win->no->setString(win->no, FILE_CACHE.load(TEXT_FILE(0x72)), 0x14);
+    } else {
+        win->total->setVisible(win->total, 0);
+        win->yes->setVisible(win->yes, 0);
+        win->no->setVisible(win->no, 0);
+    }
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800830DC);
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008361C);
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80084FCC);
+void func_80084FCC(ShopBuy *buy, ShopBuyWindows *win) {
+    switch (buy->state) {
+    case TASK_INIT:
+    default:
+        buy->nextState(buy);
+        func_80082DA4(buy, win);
+        buy->panels[0].duration = 10;
+        buy->panels[1].duration = 10;
+        buy->panels[2].duration = 10;
+        buy->panels[3].duration = 10;
+        buy->quantity = 1;
+        break;
+    case TASK_RUN:
+        func_8008361C(buy, win);
+        func_800830DC(buy, win);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80085070);
+void func_80085070(ShopBuy *buy, s32 item, s32 arg) {
+    ShopBuyWindows *win = buy->children;
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800850A8);
+    win->info->showItem(win->info, item, arg);
+}
+
+ShopBuy *func_800850A8(ItemShop *shop) {
+    ShopBuy *buy = createTask(func_80084FCC, sizeof(ShopBuy), sizeof(ShopBuyWindows));
+
+    buy->showItem = func_80085070;
+    buy->layer = 0x1000;
+    buy->depth = 4;
+    buy->shop = shop;
+    return buy;
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_800850FC);
 
