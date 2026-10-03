@@ -151,14 +151,14 @@ own.
 
 ## Overlays
 
-- [ ] 1,607 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,614 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`, `STCRDABM`. Mostly:
   `STCRDDEK` (54 / 55), `SHOCKTST` (16 / 17), `STAGSLCT` (7 / 8),
   `FIELDSTG` (211 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
   `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (88 / 94),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
   `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
-  `WFIGHTMN` (41 / 42), `FIGHTSTG` (250 / 310).
+  `WFIGHTMN` (41 / 42), `FIGHTSTG` (257 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_createScreenWindows` (3 diffs): the `unk5C` loop's counter
     gets `s2` where the original has `s3`, the register of the other loops'
@@ -216,11 +216,8 @@ own.
   in their registers, and `func_80093E4C`, which reads the stats through
   `D_800A2294`'s offsets, gets a giv split the original doesn't have. Still
   to try: `func_8008C0BC`, `func_8008C8F0`, `func_8008CFFC`,
-  `func_8008E3C8`, `func_8008EAF8`, `func_80090290`, `func_80090908`,
-  `func_80091A58` and Europe's `func_800A1048`. `fightstg.c` defines
-  `D_800A310C` as a `u16` array where `func_8009AEA4` reads it as
-  `EventDelay`s, and `D_800A2274` as an `s32` array where
-  `func_800937FC` reads an `Unk8009A214`.
+  `func_8008E3C8`, `func_8008EAF8`, `func_80090290`, `func_80090908`
+  and `func_80091A58`.
 - [ ] The battle menus' near misses. `WFIGHTTS`: `func_800A6954` (the
   Digimon list, 14 windows a side; its cursors and scrolls are
   `D_800A8268[2]` and `D_800A8270[2]`, two scalars each in the C for now)

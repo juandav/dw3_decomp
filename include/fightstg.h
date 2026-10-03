@@ -23,6 +23,20 @@ Task *WFIGHTMN_start(void);
 Task *WFIGHTTS_start(void);
 struct BattleTask *func_800A9040(u8 actor, s32 id);
 
+/* The images of a Digimon's change (func_80089458): entry 5 */
+#if VERSION_EU
+#define FILE_CHANGE 0x8A2
+#elif VERSION_US
+#define FILE_CHANGE 0x891
+#endif
+
+/* What fighter 0x1D2's entrance (func_80086180) loads */
+#if VERSION_EU
+#define FILE_ENTRANCE_1D2 0x6E2
+#elif VERSION_US
+#define FILE_ENTRANCE_1D2 0x6D3
+#endif
+
 /* Draws one bone of a Model (func_8008588C), from the parts of an archive */
 typedef struct Mesh {
     TASK_HEADER(Mesh);
@@ -208,6 +222,13 @@ typedef struct EffectModel {
 #define FILE_BATTLE_TABLE 0x1CF
 #endif
 
+/* What an enemy does: its target (func_800888C8) when the condition holds */
+typedef struct BattleTableAction {
+    /* 0x0 */ u8 target;
+    /* 0x1 */ u8 condition;
+    /* 0x2 */ s16 conditionArg;
+} BattleTableAction;
+
 typedef struct BattleTableEntry {
     /* 0x00 */ s16 id;
     /* 0x02 */ s16 item; /* what the enemy may leave */
@@ -217,7 +238,9 @@ typedef struct BattleTableEntry {
     /* 0x0E */ s16 stats[5]; /* scaled by the enemy's unkA / 16 */
     /* 0x18 */ s16 resist[12];
     /* 0x30 */ u8 unk30;
-    /* 0x31 */ u8 unk31[0x15];
+    /* 0x31 */ u8 unk31;
+    /* 0x32 */ BattleTableAction actions[3]; /* the first whose condition holds (func_800883AC) */
+    /* 0x3E */ u8 unk3E[8];
 } BattleTableEntry;
 
 /* The fighters' file, which D_800A32E0.funcs reads */
@@ -508,10 +531,13 @@ typedef struct SpriteAnim {
    creators set */
 typedef struct Unk80087870 {
     TASK_HEADER(Unk80087870);
-    /* 0x50 */ u8 unk50[8];
+    /* 0x50 */ struct Models *models;
+    /* 0x54 */ struct BattleCamera *camera;
     /* 0x58 */ s32 unk58;
     /* 0x5C */ s32 unk5C;
-    /* 0x60 */ u8 unk60[0x10];
+    /* 0x60 */ s32 unk60;
+    /* 0x64 */ s32 sheet; /* its file in the high half */
+    /* 0x68 */ Vec2 texPos;
 } Unk80087870;
 
 typedef struct Unk8008C0BC {
@@ -734,9 +760,54 @@ typedef struct BattleMessage {
     /* 0x8 */ s32 value;
 } BattleMessage;
 
+/* A partner Digimon's change (func_80089F74): key1 the new Digimon, key2 the
+   side. The stage and two clipped layers wipe the scene away and back. */
+typedef struct Unk80089458 {
+    TASK_HEADER(Unk80089458);
+    /* 0x50 */ struct Models *models;
+    /* 0x54 */ struct BattleCamera *camera;
+    /* 0x58 */ struct FightStage *stage;
+    /* 0x5C */ s32 idleMotion; /* the old Digimon's */
+    /* 0x60 */ RECT clip0; /* layer 0x1004's */
+    /* 0x68 */ RECT clip1; /* layer 0x1003's */
+    /* 0x70 */ s32 file; /* the new Digimon's model's */
+} Unk80089458;
+
+typedef struct Unk80089458Children {
+    /* 0x00 */ struct Unk80092350 *fade;
+    /* 0x04 */ Task *unk4;
+    /* 0x08 */ struct SpriteEffect *effects[4];
+} Unk80089458Children;
+
+/* A shot of func_8008690C's camera */
+typedef struct CameraShot {
+    /* 0x0 */ s16 time; /* -1 ends the list */
+    /* 0x2 */ s16 substate;
+} CameraShot;
+
+/* A camera (func_80087304) that goes through lists of shots (D_800A1258), the
+   next list picked at random (D_800A12B8) */
+typedef struct Unk8008690C {
+    TASK_HEADER(Unk8008690C);
+    /* 0x50 */ struct BattleCamera *camera;
+    /* 0x54 */ struct CameraView *view;
+    /* 0x58 */ struct Models *models;
+    /* 0x5C */ s16 list;
+    /* 0x5E */ s16 shot;
+    /* 0x60 */ s16 ry; /* where the turn of substate 1 is */
+    /* 0x62 */ s16 turned;
+    /* 0x64 */ s32 time;
+    /* 0x68 */ s32 speed;
+} Unk8008690C;
+
+/* A fighter's entrance (func_80086780): key1 its Digimon, key2 its side */
 typedef struct Unk80086180 {
     TASK_HEADER(Unk80086180);
-    /* 0x50 */ u8 unk50[0x14];
+    /* 0x50 */ s32 done;
+    /* 0x54 */ struct Models *models;
+    /* 0x58 */ struct BattleCamera *camera;
+    /* 0x5C */ struct FightStage *stage;
+    /* 0x60 */ s32 file; /* its model's */
     /* 0x64 */ s32 unk64;
 } Unk80086180;
 
@@ -854,6 +925,29 @@ typedef struct BattleCamera {
     /* 0x100 */ CameraView *(*getEnemyView)(struct BattleCamera *task);
     /* 0x104 */ CameraView *(*getFighterView)(struct BattleCamera *task, s32 id, s32 camera);
 } BattleCamera;
+
+/* The European version's camera (func_800A246C): one of three lists of shots
+   (D_800A46A8) picked at random, then back to the enemy's view */
+typedef struct Unk800A1FE0 {
+    TASK_HEADER(Unk800A1FE0);
+    /* 0x50 */ struct BattleCamera *camera;
+    /* 0x54 */ struct CameraView *view;
+    /* 0x58 */ struct Models *models;
+    /* 0x5C */ s16 list;
+    /* 0x5E */ s16 shot;
+    /* 0x60 */ s16 ry; /* where the turn of substate 6 starts */
+    /* 0x62 */ s16 rx;
+    /* 0x64 */ s32 unk64;
+    /* 0x68 */ s32 time;
+    /* 0x6C */ s32 unk6C;
+    /* 0x70 */ struct CameraView to; /* where substates 4 and 5 fade to */
+} Unk800A1FE0;
+
+/* The camera's turn around the fighters (func_800A1048) */
+typedef struct Unk800A1048 {
+    TASK_HEADER(Unk800A1048);
+    /* 0x50 */ BattleCamera *camera;
+} Unk800A1048;
 
 /* CameraView and BattleCamera by the names WFIGHTTS still uses, until it
    moves to them: unkF8, unkFC and unk100 are set, fade and getEnemyView */
@@ -1199,7 +1293,7 @@ Model *func_80083F10(s32 file, s32 motionFile, Vec2 texPos, ModelControl *contro
 void func_800867F0();
 s32 func_80086084(void);
 void func_8008690C();
-void func_80087CE4(Unk80087CE4 *task, Task **children);
+void func_80087CE4(Unk80087CE4 *task, Unk80097F8C **children);
 void func_8008BD10();
 void func_80090098(Unk80090098 *task, Unk80097F8C **children);
 void func_8009B5F8(s32 arg0);
@@ -1289,6 +1383,11 @@ extern u_long D_800A34D8[2]; /* their OT */
 struct Unk80094278 *func_80094754(s32 arg0, s32 arg1, s32 arg2);
 s32 func_800961DC(Unk800967A4 *task, s32 index, s32 member);
 extern u16 D_800A235C[];
+extern CameraShot D_800A1258[4][6];
+extern u8 D_800A12B8[8][3];
+#if VERSION_EU
+extern CameraShot D_800A46A8[3][3];
+#endif
 void func_80098004(Unk80097F8C *task, Unk80097F8CWindows *w, s32 side, s32 index);
 void func_80098428(Unk80097F8C *task, Unk80097F8CWindows *w, BattleMessage *msg);
 void func_80099444(Unk800999E4 *task);
