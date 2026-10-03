@@ -8,11 +8,11 @@
 
 #include "fightstg.h"
 
-/* A list to pick from (func_800A6954, func_800A6ECC) */
+/* The fighters' and the cameras' lists (func_800A6954, func_800A6ECC) */
 typedef struct BattleTestList {
     TASK_HEADER(BattleTestList);
-    /* 0x50 */ s32 *unk50;
-    /* 0x54 */ s32 *done; /* set to 0 when it starts */
+    /* 0x50 */ s32 *side; /* 0 the partner, 1 the enemy, -1 for none */
+    /* 0x54 */ s32 *pick; /* set to 0 when it starts */
 } BattleTestList;
 
 /* WFIGHTTS_stageList's task */
@@ -21,10 +21,40 @@ typedef struct BattleTestStageList {
     /* 0x50 */ s32 *result; /* the stage picked, 1-55, or -1 */
 } BattleTestStageList;
 
+/* A fighter's motions, in func_800A764C's list */
+typedef struct BattleTestMotionList {
+    /* 0x00 */ s32 motions[0x3E]; /* the ones the fighter has */
+    /* 0xF8 */ s32 count;
+    /* 0xFC */ s32 shown; /* up to 14 */
+} BattleTestMotionList;
+
+/* A fighter's effects, in func_800A7BE8's list: each one plus 1, or just a
+   0 for a fighter without any */
+typedef struct BattleTestEffectList {
+    /* 0x00 */ s32 effects[0x13];
+    /* 0x4C */ s32 count;
+    /* 0x50 */ s32 shown; /* up to 14 */
+} BattleTestEffectList;
+
+/* Where func_800A764C's and func_800A7BE8's lists are: the fighters they
+   were made for, the list LEFT and RIGHT pick and the lists' cursors and
+   scrolls */
+typedef struct BattleTestCursors {
+    /* 0x00 */ s32 fighter[2];
+    /* 0x08 */ s32 side;
+    /* 0x0C */ s32 cursor[2];
+    /* 0x14 */ s32 scroll[2];
+} BattleTestCursors;
+
+/* func_800A764C's and func_800A7BE8's windows, by list */
+typedef struct BattleTestWindows {
+    /* 0x00 */ TextWindow *windows[2][14];
+} BattleTestWindows;
+
 /* func_800A764C's task */
 typedef struct BattleTestMotions {
     TASK_HEADER(BattleTestMotions);
-    /* 0x050 */ u8 unk50[0x200];
+    /* 0x050 */ BattleTestMotionList lists[2]; /* the partner's, the enemy's */
     /* 0x250 */ s32 *side;
     /* 0x254 */ s32 *motion; /* the motion picked */
 } BattleTestMotions;
@@ -32,7 +62,7 @@ typedef struct BattleTestMotions {
 /* func_800A7BE8's task */
 typedef struct BattleTestEffects {
     TASK_HEADER(BattleTestEffects);
-    /* 0x50 */ u8 unk50[0xA8];
+    /* 0x50 */ BattleTestEffectList lists[2]; /* the partner's, the enemy's */
     /* 0xF8 */ s32 *side;
     /* 0xFC */ s32 *effect; /* the effect picked */
 } BattleTestEffects;

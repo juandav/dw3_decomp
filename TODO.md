@@ -169,14 +169,14 @@ own.
 
 ## Overlays
 
-- [ ] 1,408 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
-  `SOUNDTST`, `STPLNMET`, `STDGNAME`. Mostly: `STCRDABM` (28 / 29),
+- [ ] 1,412 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+  `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`. Mostly: `STCRDABM` (28 / 29),
   `STCRDDEK` (53 / 55), `SHOCKTST` (15 / 17), `STAGSLCT` (6 / 8),
   `FIELDSTG` (195 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
   `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (85 / 94),
-  `STITSHOP` (50 / 69), `CARDGAME` (303 / 306), `STGMCARD` (44 / 45),
+  `STITSHOP` (50 / 69), `CARDGAME` (303 / 306),
   `STSTATUS` (101 / 123), `STFGTREP` (35 / 36). Started: `STGDGLAB`
-  (44 / 70), `STCRDSHP` (33 / 45), `WFIGHTTS` (10 / 14), `WFIGHTMN`
+  (44 / 70), `STCRDSHP` (33 / 45), `WFIGHTTS` (12 / 14), `WFIGHTMN`
   (37 / 42), `FIGHTSTG` (159 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_buildCardList` (2 diffs) and `STCRDDEK_createScreenWindows`
@@ -207,15 +207,26 @@ own.
   battle test's list of 12 and 3 windows) puts the right and left handlers
   before the pad code, which only gotos into a `do {} while (0)` around
   the whole pad handling reproduce, a forced form; `func_800A6954` is the
-  same kind of list (about 200 diffs), and `func_800A764C` and
-  `func_800A7BE8` haven't been tried. `WFIGHTMN`:
+  same kind of list, down to 31 diffs (the steps in `a3`/`t0` and `s1`/`s2`
+  swapped, around `SCROLL[1] + 0x37 + j`). `WFIGHTMN`:
   `func_800A6778` (11), `func_800A7DB0` (21, case 1's
-  registers), `func_800A86E0` (145); `func_800A5538` and `func_800A6E6C`
-  only match with forced forms (a copy of a pointer kept for nothing, the
-  permuter's empty loops). `STFGTREP`: `func_80085A38` (the
-  Digimon a partner learns, 14 diffs: the id and the counter of the needs
-  loop swap `s1` and `s2`, whatever the declarations' order). `STGMCARD`:
-  `func_800844DC` (2,366 instructions) hasn't been tried.
+  registers), `func_800A86E0` (85, register allocation); `func_800A5538`
+  and `func_800A6E6C` only match with forced forms (a copy of a pointer
+  kept for nothing, the permuter's empty loops). `STFGTREP`:
+  `func_80085A38` (the Digimon a partner learns, 14 diffs: the id and the
+  counter of the needs loop swap `s1` and `s2`, whatever the declarations'
+  order).
+- [ ] `WFIGHTMN` keeps its own copies of `FIGHTSTG`'s types
+  (`include/wfightmn.h`, and `Unk800427D6` in `wfightmn_2.c`). Sharing
+  `include/fightstg.h`'s takes more than adding to it: its `Battle`
+  (`unkD8` is `u8[4]` where WFIGHTMN reads an `s16` and an `s8`),
+  `BattleStats` (`s16`s where WFIGHTMN reads bytes at 0x24-0x2D) and
+  `Unk800427D6` lay the same bytes out differently, `BattleFighter`,
+  `BattleAction` (WFIGHTMN's `ActionResult`) and `Battle800A3308`
+  (`BattleFuncs`) have unnamed fields WFIGHTMN names (`hp`, `damage`,
+  `getStats`, ...), and the `D_800A25F0` that FIGHTSTG sees as an
+  `EventQueue` WFIGHTMN reads as `BattleActions`, with one more function
+  after the queue's.
 - [ ] The field menu's near misses. `STSTATUS`: `func_8008340C` and
   `func_80084D14` (41 diffs each, register allocation), `func_80097F2C`
   (`s0`/`s1` swapped; the permuter only finds a forced form),
