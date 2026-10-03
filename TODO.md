@@ -68,23 +68,28 @@ own.
   other 5 also have longer functions (`WSTAG210`, `220`, `270`, `280`) or
   one more (`WSTAG780`). Each USA stage builds from its C file in both
   versions, its functions with the USA names
-  (`config/eu/stages/<stage>.txt`): 1,289 of the European stages' 1,590
-  functions are C, and 301 `INCLUDE_ASM` are left: every stage's setup
-  function (293) and 8 that read `GAME`.
+  (`config/eu/stages/<stage>.txt`): 1,297 of the European stages' 1,590
+  functions are C, and 293 `INCLUDE_ASM` are left: every stage's setup
+  function.
 - [ ] The setup functions (the one that fills `D_800990B4` and loads the
   stage's text file) don't match in the European version from the USA C:
   the language load (`LANGUAGE`) sits after the store to `0x14`, before
   the `0x1C` and `0x44` ones, while the two-instruction constants and the
-  call's arguments are loaded at the very top. No order of the statements,
-  `DEBUG_LOG` placement, local or inline function tried gives it (the
-  closest is 33 instructions off, in `WSTAG310`); find the source form,
-  then it applies to all 293.
-- [ ] 8 functions read `GAME` fields that sit 8 bytes later in the European
-  version (from `unk26DC`, `unk26E8`): `WSTAG745`/`746` `func_800A4CA4`,
-  `WSTAG795` `func_800A50F8`/`func_800A5240`, `WSTAG800`
-  `func_800A5404`/`func_800A554C`, `WSTAG810` `func_800A58F0`/
-  `func_800A5954`. They need the European `GAME` layout in
-  `include/dw3/game_state.h`, `GAME` `0x26CC` as a `u8 timer[4]` and the
+  call's arguments are loaded at the very top. The scheduling it needs is
+  known: the stores up to `0x1C` and the one to `0x44` must come before
+  the others, as if they could alias, while the constants move freely
+  (`DEBUG_LOG` stops both). A store to `0x44` through a pointer GCC's
+  alias analysis can't follow gives exactly that, but costs a second base
+  register; making every store `volatile` gives it too, but then the last
+  store can't fill the call's delay slot. No natural C found yet: no order
+  of the statements, `DEBUG_LOG` placement or replacement, local, inline
+  function, loop, cast or compiler flag tried gives it (the closest is 33
+  instructions off, in `WSTAG310`). Once found, it applies to all 293.
+- [x] The 8 functions that read `GAME` fields 8 bytes later in the European
+  version (`countdown`, `unk26DC`, `unk26E8`) are C in both: `WSTAG745`/
+  `746` `func_800A4CA4`, `WSTAG795` `func_800A50F8`/`func_800A5240`,
+  `WSTAG800` `func_800A5404`/`func_800A554C`, `WSTAG810` `func_800A58F0`/
+  `func_800A5954`, with `GAME.countdown` (`u8 [4]`, `0x26CC`) and the
   `StageInfo` fields `0x50`-`0x60`.
 - [ ] The setup functions of 100 USA stages are C in the USA version only
   (`#if VERSION_US`, `INCLUDE_ASM` in the European one).
@@ -165,9 +170,15 @@ own.
 
 ## Stages
 
-- [ ] 1,223 of the 1,369 functions of the USA stages are C, and 98 of the
-  238 stages are all C; 146 `INCLUDE_ASM` are left: 138 setup functions
-  (the form of the other 100 doesn't fit them) and the 8 that read `GAME`.
+- [ ] 1,231 of the 1,369 functions of the USA stages are C, and 100 of the
+  238 stages are all C; 138 `INCLUDE_ASM` are left, all setup functions
+  (the form of the other 100 doesn't fit them). 50 are plain setups like
+  the matched ones, 39 of them with a one-instruction constant at `0x2C`:
+  there the first call's arguments are loaded first after `DEBUG_LOG`,
+  above that constant, which the C form can't do (`WSTAG235` is 4
+  instructions off with the `0x34` store moved up). 37 more check
+  `GAME_PROGRESS` after the calls, and 51 also copy `unk38` (34 of them
+  with the `GAME_PROGRESS` check).
 - [x] A stage's jump tables come from its C (`c-rodata` in `stages.txt`);
   `head-word` keeps a first word before them in asm, as GCC would align a
   C constant there (`WSTAG924`).
