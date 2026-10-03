@@ -210,10 +210,7 @@ typedef struct SpriteDrawer {
     /* 0x3C */ s32 scaleY;
     /* 0x40 */ s32 scaleZ;
     /* 0x44 */ u8 unk44[4];
-    /* 0x48 */ s16 rotX;
-    /* 0x4A */ s16 rotY;
-    /* 0x4C */ s16 rotZ;
-    /* 0x4E */ u8 unk4E[2];
+    /* 0x48 */ SVECTOR rot;
     /* 0x50 */ MATRIX matrix;
     /* 0x70 */ void (*bind)(); /* (drawer) */
     /* 0x74 */ void (*setTexture)(); /* (x, y) */
@@ -228,6 +225,24 @@ typedef struct SpriteDrawer {
     /* 0x98 */ void (*setFollowScroll)(); /* (on) */
     /* 0x9C */ void (*setColor)(); /* (CVECTOR *) */
 } SpriteDrawer;
+
+/*
+ * One part of a sprite sheet, a rectangle of its texture. A sheet starts with
+ * three offsets from its start: to its parts, to the list of its frame ids
+ * (bytes) and to its first frame, followed by those of the other frames. A
+ * frame is three s16, the part count, a CLUT row added to the parts' and the
+ * semi-transparency rate (-1: opaque), then an s16 part index, x and y for
+ * each part; they are drawn from the last to the first.
+ */
+typedef struct SpritePart {
+    /* 0x0 */ s16 u;
+    /* 0x2 */ s16 v;
+    /* 0x4 */ s16 w;
+    /* 0x6 */ s16 h;
+    /* 0x8 */ s16 clutX; /* added to the drawer's CLUT position */
+    /* 0xA */ s16 clutY;
+    /* 0xC */ s16 mode; /* 0: 4-bit texture, 1: 8-bit, with the drawer's other CLUT */
+} SpritePart;
 
 /* One frame of a sprite animation; frame 0xFF ends it (or loops it) */
 typedef struct AnimFrame {
@@ -293,7 +308,7 @@ void spriteDrawerSetTexture();
 void spriteDrawerSetAltClut();
 void spriteDrawerSetClutRow();
 void spriteDrawerSetLayer(Layer *layer, s32 arg1);
-void spriteDrawerDraw();
+void spriteDrawerDraw(s32 *sheet, s32 frame, s32 x, s32 y);
 void spriteDrawerSetScale();
 void spriteDrawerSetRotation(s16 x, s16 y, s16 z);
 void spriteDrawerSetPivot();
@@ -303,7 +318,7 @@ void bindTextTools(TextTools *obj);
 s32 getString(s32 *table, s32 index);
 s32 measureText();
 void initTextTools(TextTools *obj);
-void convertText();
+void convertText(void *buf, void *text, s32 mode);
 void bindTimLoader(TimLoader *obj);
 void timLoaderSetImagePos();
 void timLoaderSetClutPos();

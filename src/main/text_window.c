@@ -1,5 +1,22 @@
 #include "game.h"
 
+/* The debug messages, in Shift-JIS */
+/* "Null message was passed" */
+const char STR_NULL_MESSAGE[] = "\x82\x6D\x82\x95\x82\x8C\x82\x8C\x83\x81\x83\x62\x83\x5A\x81\x5B"
+                                "\x83\x57\x82\xAA\x82\xED\x82\xBD\x82\xB3\x82\xEA\x82\xDC\x82\xB5\x82\xBD";
+/* "Digit: the message's work number is not supported" */
+const char STR_BAD_DIGIT_BUFFER[] = "\x82\x63\x82\x89\x82\x87\x82\x89\x82\x94\x81\x46\x83\x81\x83\x62"
+                                    "\x83\x5A\x81\x5B\x83\x57\x82\xCC\x83\x8F\x81\x5B\x83\x4E\x82\xCE"
+                                    "\x82\xF1\x82\xB2\x82\xA4\x82\xAA\x82\xDD\x82\xBD\x82\xA2\x82\xA8\x82\xA4";
+/* "ExtMess: the message's work number is not supported" */
+const char STR_BAD_EXT_BUFFER[] = "\x82\x64\x82\x98\x82\x94\x82\x6C\x82\x85\x82\x93\x82\x93\x81\x46"
+                                  "\x83\x81\x83\x62\x83\x5A\x81\x5B\x83\x57\x82\xCC\x83\x8F\x81\x5B"
+                                  "\x83\x4E\x82\xCE\x82\xF1\x82\xB2\x82\xA4\x82\xAA\x82\xDD\x82\xBD"
+                                  "\x82\xA2\x82\xA8\x82\xA4";
+/* "The message is not set" */
+const char STR_MESSAGE_NOT_SET[] = "\x83\x81\x83\x62\x83\x5A\x81\x5B\x83\x57\x82\xAA\x82\xB9\x82\xC1"
+                                   "\x82\xC4\x82\xA2\x82\xB3\x82\xEA\x82\xC4\x82\xA2\x82\xDC\x82\xB9\x82\xF1";
+
 void setTextBuffer(TextWindow *obj, TextBuffer *buf, char *text) {
     s16 len;
     s16 cap;
@@ -122,14 +139,6 @@ void textWindowSetSubString(TextWindow *obj, char *text, s32 id, s32 index) {
     }
     obj->text[index].sjis = 0;
 }
-
-INCLUDE_RODATA("main/nonmatchings/text_window", STR_NULL_MESSAGE);
-
-INCLUDE_RODATA("main/nonmatchings/text_window", STR_BAD_DIGIT_BUFFER);
-
-INCLUDE_RODATA("main/nonmatchings/text_window", STR_BAD_EXT_BUFFER);
-
-INCLUDE_RODATA("main/nonmatchings/text_window", STR_MESSAGE_NOT_SET);
 
 void textWindowDraw(TextWindow *obj) {
     TextDraw wait;
@@ -1302,7 +1311,8 @@ typedef struct Order4 {
     s32 next[4];
 } Order4;
 
-extern Order4 OUTLINE_ORDER;
+/* The corner of the box each corner's side of the outline goes to */
+const Order4 OUTLINE_ORDER = {{1, 3, 0, 2}};
 
 void drawZoomBox(ZoomBox *task) {
     Layer *layer = GFX_FUNCS.getLayer(task->layerId);
@@ -1439,7 +1449,8 @@ typedef struct Delays3 {
     s32 frames[3];
 } Delays3;
 
-extern Delays3 ZOOM_BOX_DELAYS;
+/* The frames before each of the three zoom boxes of an opening or closing */
+const Delays3 ZOOM_BOX_DELAYS = {{0, 2, 4}};
 
 void updateTalkBox(TalkBox *task, TalkBoxChildren *children) {
     Delays3 delays;
@@ -1634,7 +1645,3 @@ s16 decodeChar(u8 *s, u8 mode, TextStyle *font) {
     }
     return 0x300;
 }
-
-INCLUDE_RODATA("main/nonmatchings/text_window", OUTLINE_ORDER);
-
-INCLUDE_RODATA("main/nonmatchings/text_window", ZOOM_BOX_DELAYS);

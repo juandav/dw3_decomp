@@ -512,21 +512,9 @@ s8 D_80086EEC[][7][15][2] = {
     },
 };
 
-#if VERSION_US
-extern GlyphMap D_8004D7B8[];
-extern GlyphMap D_8004DB64[];
-#elif VERSION_EU
-extern GlyphMap D_8004E010[];
-extern GlyphMap D_8004E3BC[];
-#endif
-
 TextStyle D_80086FC0 = {
     0xFF, 14, {0}, (s32)D_80085D78, (s32)D_8008675C,
-#if VERSION_US
-    D_8004D7B8, D_8004DB64,
-#elif VERSION_EU
-    D_8004E010, D_8004E3BC,
-#endif
+    FONT_GLYPH_MAP, FONT_ICON_MAP,
     234, 114,
 };
 
@@ -919,11 +907,7 @@ s32 D_80087E7C[] = {
 
 TextStyle D_80088364 = {
     0xFF, 14, {0}, (s32)D_80087498, (s32)D_80087E7C,
-#if VERSION_US
-    D_8004D7B8, D_8004DB64,
-#elif VERSION_EU
-    D_8004E010, D_8004E3BC,
-#endif
+    FONT_GLYPH_MAP, FONT_ICON_MAP,
     234, 114,
 };
 

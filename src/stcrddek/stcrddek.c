@@ -162,13 +162,6 @@ INCLUDE_ASM("stcrddek/nonmatchings/stcrddek", func_800898D8);
 
 extern s32 D_8008995C[];
 extern s32 D_8008A340[];
-#if VERSION_US
-extern u16 D_8004D7B8[];
-extern u16 D_8004DB64[];
-#elif VERSION_EU
-extern u16 D_8004E010[];
-extern u16 D_8004E3BC[];
-#endif
 void func_800895F8();
 void func_800896F8();
 void func_80089798();
@@ -740,13 +733,8 @@ s32 D_8008AAD0[] = {
     255,
 };
 s32 D_8008ABA4[] = {
-    3839, (s32)D_8008995C, (s32)D_8008A340,
-#if VERSION_US
-    (s32)D_8004D7B8, (s32)D_8004DB64,
-#elif VERSION_EU
-    (s32)D_8004E010, (s32)D_8004E3BC,
-#endif
-    0x7200EA,
+    3839, (s32)D_8008995C, (s32)D_8008A340, (s32)FONT_GLYPH_MAP,
+    (s32)FONT_ICON_MAP, 0x7200EA,
 };
 s32 D_8008ABBC[] = {
     7, 8, 9, 10,

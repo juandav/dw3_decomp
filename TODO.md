@@ -48,7 +48,7 @@ own.
   sound's tick and fades and the video mode; the disc's files are numbered
   differently (`FILE_MENU_SPRITES`, `FILE_FONT`); `GAME` has 8 more bytes of
   flags. Its data is `data_to_c.py`'s output for `asm/eu/` where it differs.
-  The European executable's game code is the USA one's 344 of 346 functions.
+  The European executable's game code is the USA one's 346 functions.
 - [x] Build every overlay's USA C for the European version too, functions
   and data, with `#if VERSION_US`/`#elif VERSION_EU` where the discs
   differ: file numbers (`SHOCKTST` loads `0xBE` for `0xC5`), the language
@@ -99,11 +99,13 @@ own.
 
 ## The USA executable
 
-- [ ] 2 game functions left: `spriteDrawerDraw` and `convertText`
-  (`graphics.c`).
-- [ ] Rodata still behind `INCLUDE_RODATA`: 6 strings and tables in
-  `text_window.c` and 2 in `system.c`, which the C could define once their
-  users are all C.
+- [x] The game code is all C: `spriteDrawerDraw` and `convertText`
+  (`graphics.c`) were the last.
+- [ ] Rodata still behind `INCLUDE_RODATA`: `OVERLAY_ADDRESS` and
+  `SUB_OVERLAY_ADDRESS` in `system.c`. The original has the two pointers in
+  `.rodata` and reads them with `lui`/`lw`, but `system.c` is built with
+  `-G8`, so GCC puts a 4-byte `const` it defines in `.sdata` and reads it
+  through `$gp`. `text_window.c`'s strings and tables are C.
 - [ ] 9 game functions still have splat's name: `func_80012698`,
   `func_8001350C`, `func_80013590`, `func_80015490`, `func_80015584`,
   `func_80015A34`, `func_80015D90`, `func_8001602C` and `func_80017878`.
@@ -119,7 +121,15 @@ own.
 - [ ] 12 of the 563 PsyQ functions are still `INCLUDE_ASM`, in 8 objects
   (`libmcrd_libmcrd` 3 and the rest 2 or fewer), all compiled code; 166
   are still named `func_`. What Sony wrote in assembly (71 functions, 56
-  objects) is `.s` sources in `src/main/psyq/`.
+  objects) is `.s` sources in `src/main/psyq/`. Closest attempts:
+  `func_80021FC0` (`libpad_pdtapres`, the byte to send at the pad's
+  position: `cmd`, or `0x42` when it is 0, then the actuator table or the
+  data) has the right shape at 32 diffs, but our cross-jumping makes the
+  `0x4D` case jump into the default case's `return p->data[i]`, where the
+  original lets both jump to case 0's final `lbu`. `MemCardOpen` (a retry
+  loop around `MemCardAccept`, with the error path between the loop and
+  the success path) is at 64 diffs: ours keeps the constant 3 in a register
+  in the loop, the original `&D_80082068`, which it stores through.
 - [ ] 9 `INCLUDE_RODATA`: `libgpu_sys` 4, `libcd_bios_1` 3 and
   `libmcrd_libmcrd` 2 (two strings that `MemCardOpen`, still asm, reads).
 
