@@ -2,6 +2,7 @@
 
 STITSHOP_shops = 0x8008C6E0; // size:0xF8
 STITSHOP_funcs = 0x8008C7D8; // size:0x2C
+STITSHOP_changePos = 0x8008C0E4; // size:0x30
 STITSHOP_startFader = 0x80082ADC; // type:func
 STITSHOP_drawFader = 0x80082B64; // type:func
 STITSHOP_updateFader = 0x80082CA8; // type:func
@@ -24,3 +25,5 @@ STITSHOP_startLerp = 0x8008BA08; // type:func
 STITSHOP_updateLerp = 0x8008BA48; // type:func
 STITSHOP_getShopItems = 0x8008BAB4; // type:func
 STITSHOP_canEquip = 0x8008BAF8; // type:func
+STITSHOP_equip = 0x8008BE2C; // type:func
+STITSHOP_compareEquip = 0x8008BB3C; // type:func

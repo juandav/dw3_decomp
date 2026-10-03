@@ -102,6 +102,8 @@ C_SRC += src/main/data/game.c src/main/data/game_2.c src/main/data/game_3.c src/
 
 # menus
 C_SRC += src/stitshop/stitshop.c src/stgdglab/stgdglab.c src/ststatus/ststatus.c
+# stgdglab's other objects
+C_SRC += $(addprefix src/stgdglab/, stgdglab_2.c stgdglab_3.c stgdglab_4.c stgdglab_5.c)
 # ststatus's other objects
 C_SRC += $(addprefix src/ststatus/, ststatus_2.c ststatus_3.c ststatus_4.c ststatus_5.c ststatus_6.c ststatus_7.c ststatus_8.c ststatus_9.c ststatus_10.c)
 

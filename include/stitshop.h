@@ -81,6 +81,27 @@ typedef struct ShopInfo {
     /* 0x244 */ void (*func_8008AAB0)(struct ShopInfo *info, s32 arg);
 } ShopInfo;
 
+/* A partner's rows of the details panel's second page */
+typedef struct ShopInfoPartner {
+    /* 0x00 */ TextWindow *name;
+    /* 0x04 */ TextWindow *stats[2];
+    /* 0x0C */ TextWindow *changes[8];
+} ShopInfoPartner;
+
+typedef struct ShopInfoWindows {
+    /* 0x00 */ TextWindow *name;
+    /* 0x04 */ TextWindow *equippedLabel;
+    /* 0x08 */ TextWindow *equipped; /* GAME.equippedItems */
+    /* 0x0C */ TextWindow *ownedLabel;
+    /* 0x10 */ TextWindow *owned; /* GAME.items */
+    /* 0x14 */ TextWindow *priceLabel;
+    /* 0x18 */ TextWindow *price;
+    /* 0x1C */ TextWindow *desc;
+    /* 0x20 */ TextWindow *kind; /* the weapons' */
+    /* 0x24 */ ShopInfoPartner partners[3];
+    /* 0xA8 */ TextWindow *unkA8;
+} ShopInfoWindows;
+
 /* The list of the items to buy or sell (STITSHOP_createItemList) */
 typedef struct ShopItemList {
     TASK_HEADER(ShopItemList);
@@ -91,16 +112,19 @@ typedef struct ShopItemList {
     /* 0x060 */ s32 type; /* the shop, or the item type to sell */
     /* 0x064 */ s16 items[0x194]; /* the bag's items that can be sold */
     /* 0x38C */ s16 bag[0x194];
-    /* 0x6B4 */ u16 *shopItems;
+    /* 0x6B4 */ s16 *shopItems;
     /* 0x6B8 */ s32 active;
     /* 0x6BC */ s32 selection;
     /* 0x6C0 */ s32 count;
-    /* 0x6C4 */ s32 unk6C4[4];
+    /* 0x6C4 */ s32 page;
+    /* 0x6C8 */ s32 pages;
+    /* 0x6CC */ s32 clutRow; /* the arrows' blink */
+    /* 0x6D0 */ s32 blinkTime;
     /* 0x6D4 */ s32 pageSize;
-    /* 0x6D8 */ s32 unk6D8[4];
+    /* 0x6D8 */ PanelAnim panel;
     /* 0x6E8 */ void (*start)(struct ShopItemList *list);
     /* 0x6EC */ void (*close)(struct ShopItemList *list);
-    /* 0x6F0 */ s16 (*getSelected)(struct ShopItemList *list);
+    /* 0x6F0 */ s32 (*getSelected)(struct ShopItemList *list);
     /* 0x6F4 */ void (*showCursor)(struct ShopItemList *list, s32 visible);
     /* 0x6F8 */ void (*freezeCursor)(struct ShopItemList *list, s32 frozen);
     /* 0x6FC */ void (*refresh)(struct ShopItemList *list);
@@ -130,7 +154,10 @@ typedef struct ShopBuy {
     /* 0x6C */ s32 blink;
     /* 0x70 */ s32 blinkTime;
     /* 0x74 */ s32 choice;
-    /* 0x78 */ s32 unk78[4];
+    /* 0x78 */ s32 partner; /* the one the marker is over */
+    /* 0x7C */ s32 markerShown;
+    /* 0x80 */ s32 markerFrame; /* the marker's clut row, 0-7 */
+    /* 0x84 */ s32 markerTime;
     /* 0x88 */ PanelAnim panels[4];
 } ShopBuy;
 
@@ -156,7 +183,10 @@ typedef struct ShopSell {
     /* 0x60 */ s32 type;
     /* 0x64 */ s32 unk64;
     /* 0x68 */ s32 quantity;
-    /* 0x6C */ s32 unk6C[4];
+    /* 0x6C */ s32 max;
+    /* 0x70 */ s32 blink; /* the quantity's arrows are shown */
+    /* 0x74 */ s32 blinkTime;
+    /* 0x78 */ s32 unk78;
     /* 0x7C */ PanelAnim panels[5];
 } ShopSell;
 
@@ -188,7 +218,7 @@ typedef struct ShopLerp {
 /* A shop: the items it sells */
 typedef struct ShopList {
     /* 0x0 */ s32 count;
-    /* 0x4 */ u16 *items;
+    /* 0x4 */ s16 *items;
 } ShopList;
 
 /* The shop's helpers (STITSHOP_funcs) */
@@ -200,7 +230,7 @@ typedef struct ItemShopFuncs {
     /* 0x10 */ s32 (*updateFade)(PanelAnim *fade);
     /* 0x14 */ void (*startLerp)(ShopLerp *lerp, s32 from, s32 to, s32 frames);
     /* 0x18 */ s32 (*updateLerp)(ShopLerp *lerp);
-    /* 0x1C */ u16 *(*getShopItems)(s32 shop);
+    /* 0x1C */ s16 *(*getShopItems)(s32 shop);
     /* 0x20 */ s32 (*canEquip)(s32 partner, s32 item);
     /* 0x24 */ s32 (*compareEquip)(s32 partner, s32 item);
     /* 0x28 */ void (*equip)(s32 partner, s32 slot, s32 item, s32 fromBag);
@@ -210,6 +240,11 @@ typedef struct ItemShopFuncs {
 typedef struct ShopStatBlock {
     s16 v[22];
 } ShopStatBlock;
+
+/* A partner's equipment, copied whole (PartnerStats.equip) */
+typedef struct ShopEquipSet {
+    s16 items[6];
+} ShopEquipSet;
 
 typedef union ShopItemData {
     struct {

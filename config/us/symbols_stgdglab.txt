@@ -1,7 +1,6 @@
 // STGDGLAB.PRO: the partner lab
 
-STGDGLAB_funcs = 0x8008F5B4; // size:0x20
-STGDGLAB_tables = 0x8008F58C; // size:0x28
+STGDGLAB_data = 0x8008F58C; // size:0x48
 STGDGLAB_startFader = 0x80082804; // type:func
 STGDGLAB_drawFader = 0x8008288C; // type:func
 STGDGLAB_updateFader = 0x800829D0; // type:func
