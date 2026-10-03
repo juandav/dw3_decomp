@@ -1,5 +1,11 @@
 D_800A494C = 0x800A494C; // size:0x18
 
+// the mode's task
+CARDGAME_updateScene = 0x80094DF0; // type:func
+CARDGAME_start = 0x80095020; // type:func
+CARDGAME_screenRect = 0x800A483C;
+CARDGAME_createBattle = 0x800A2144; // type:func
+
 // the screen fader (CardFader)
 CARDGAME_drawFader = 0x800A21DC; // type:func
 CARDGAME_stepFader = 0x800A238C; // type:func

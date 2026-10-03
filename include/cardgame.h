@@ -5,6 +5,20 @@
 
 #include "game.h"
 
+/* CARDGAME's own pictures, a TIM archive */
+#if VERSION_US
+#define FILE_CARDGAME_TIMS 0x24E
+#elif VERSION_EU
+#define FILE_CARDGAME_TIMS 0x25D
+#endif
+
+/* The card battle (CARDGAME_createBattle) */
+typedef struct CardBattle {
+    TASK_HEADER(CardBattle);
+    /* 0x050 */ u8 unk50[0x2B3];
+    /* 0x303 */ u8 result; /* 2 once the battle is over */
+} CardBattle;
+
 /* Fades the screen to a colour: a POLY_F4 over it, blended (blend is the
    semi-transparency rate) */
 typedef struct CardFader {

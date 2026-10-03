@@ -1,6 +1,9 @@
 #include "cardgame.h"
 
+extern RECT CARDGAME_screenRect;
 extern RECT CARDGAME_fadeRect;
+
+CardBattle *CARDGAME_createBattle(s32 arg);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800835C4);
 
@@ -272,9 +275,55 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80094550);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800946EC);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80094DF0);
+/* The mode's task: sets up the display and starts the battle, then returns
+   to the field once it is over (or to mode 0x1500 when the mode's low
+   bits are set) */
+void CARDGAME_updateScene(Task *task, CardBattle **items) {
+    TimLoader tim;
+    Layer *layer;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80095020);
+    switch (task->state) {
+    case 0:
+    default:
+        GFX.funcs.reset();
+        GFX.funcs.allocPrimBuffers(0xA000);
+        GFX.funcs.setDisplayMode(0x140, 0xF0, 0, 0);
+        initTimLoader(&tim);
+        tim.setImagePos(0x280, 0);
+        tim.loadArchive(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16));
+        tim.setImagePos(0x340, 0);
+        tim.loadArchive(FILE_CACHE.getEntry(FILE_CARDGAME_TIMS << 16 | 1));
+        layer = GFX.funcs.createLayer(&CARDGAME_screenRect, 3, 0x100);
+        layer->setBgColor(layer, 0x1F, 0x1F, 0x1F);
+        items[0] = CARDGAME_createBattle(GAME_FUNCS.getModeArg());
+        task->nextState(task);
+        break;
+    case 1:
+        if (items[0]->result == 2) {
+            task->setState(task, 2);
+            items[0]->setState(items[0], 3);
+        }
+        break;
+    case 2:
+        switch (task->substate) {
+        case 0:
+        default:
+            GAME.funcs.requestMode((GAME.funcs.getMode() & 0xF) ? 0x1500 : GAME.fieldMode, 0);
+            task->nextSubstate(task);
+            break;
+        case 1:
+            break;
+        }
+        break;
+    case 3:
+        break;
+    }
+}
+
+/* The mode's entry point (MODE_ENTRY_POINTS) */
+Task *CARDGAME_start(void) {
+    return createTask(CARDGAME_updateScene, sizeof(Task), 4);
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009504C);
 
@@ -570,7 +619,7 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A1CFC);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A1E04);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A2144);
+INCLUDE_ASM("cardgame/nonmatchings/cardgame", CARDGAME_createBattle);
 
 /* Draws the fader over RECT, in layer 0x100 */
 void CARDGAME_drawFader(CardFader *fader, RECT rect) {
@@ -1089,9 +1138,7 @@ s32 D_800A4814[] = {
 u16 D_800A482C[] = {
     0x0082, 0x00BF, 0x0082, 0x001D, 0x0082, 0x00CB, 0x0082, 0x0011,
 };
-s32 D_800A483C[] = {
-    0, 0xF00140,
-};
+RECT CARDGAME_screenRect = {0, 0, 320, 240};
 u16 D_800A4844[] = {
     0x0024, 0x0014, 0x0047, 0x0014, 0x006A, 0x0014, 0x008D, 0x0014,
     0x00B0, 0x0014, 0x00D3, 0x0014,
