@@ -283,7 +283,24 @@ void func_8008B908(PanelAnim *fade, s32 fadeIn) {
     }
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008B99C);
+s32 func_8008B99C(PanelAnim *fade) {
+    if (fade->active == 0) {
+        return 1;
+    }
+    fade->level += fade->step;
+    if (fade->step > 0) {
+        if (fade->level > 0x1000) {
+            fade->level = 0x1000;
+            fade->active = 0;
+            return 1;
+        }
+    } else if (fade->level < 0) {
+        fade->level = 0;
+        fade->active = 0;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BA08);
 
