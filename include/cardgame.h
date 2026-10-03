@@ -30,27 +30,50 @@ typedef struct CardPlayer {
     /* 0x02 */ CardSlot slots[8];
 } CardPlayer;
 
-/* An entry of CardSide.unk24 */
+/* An entry of CardSide.unk20 */
 typedef struct CardSideEntry {
-    /* 0x0 */ u8 unk0;
-    /* 0x1 */ u8 unk1[7];
+    /* 0x0 */ s16 unk0;
+    /* 0x2 */ s16 unk2;
+    /* 0x4 */ u8 unk4;
+    /* 0x5 */ u8 unk5;
+    /* 0x6 */ u8 unk6;
+    /* 0x7 */ u8 unk7;
 } CardSideEntry;
+
+/* A message of the card battle (D_800A4C20) */
+typedef struct CardBattleMessage {
+    /* 0x0 */ u16 text; /* for CardBattle.unk421 */
+    /* 0x2 */ u16 unk2;
+} CardBattleMessage;
+
+/* An entry of CardBattle.unk30A */
+typedef struct CardBattle30A {
+    /* 0x0 */ s8 unk0;
+    /* 0x1 */ s8 unk1;
+} CardBattle30A;
 
 /* Each player's side of a card battle (CardBattle.sides) */
 typedef struct CardSide {
     /* 0x00 */ u8 unk0[0x14];
     /* 0x14 */ u8 unk14;
-    /* 0x15 */ s8 unk15; /* the entries of unk24 in use */
-    /* 0x16 */ u8 unk16[0xE];
-    /* 0x24 */ CardSideEntry unk24[2];
-    /* 0x34 */ u8 unk34[8];
+    /* 0x15 */ s8 unk15; /* the entries of unk20 in use */
+    /* 0x16 */ u8 unk16[6];
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ CardSideEntry unk20[3];
+    /* 0x38 */ u8 unk38[4];
     /* 0x3C */ s16 unk3C;
     /* 0x3E */ s16 unk3E;
     /* 0x40 */ s16 unk40;
     /* 0x42 */ s16 unk42;
     /* 0x44 */ s16 unk44;
     /* 0x46 */ s16 unk46;
-    /* 0x48 */ u8 unk48[0x58];
+    /* 0x48 */ u8 unk48;
+    /* 0x49 */ u8 unk49[4];
+    /* 0x4D */ u8 unk4D;
+    /* 0x4E */ u8 unk4E;
+    /* 0x4F */ u8 unk4F;
+    /* 0x50 */ s16 unk50;
+    /* 0x52 */ u8 unk52[0x4E];
     /* 0xA0 */ u8 unkA0[0x28];
 } CardSide;
 
@@ -70,16 +93,33 @@ typedef struct CardBattle {
     /* 0x050 */ s16 cards[80]; /* card ids, minus one */
     /* 0x0F0 */ u8 unkF0[0x1F8];
     /* 0x2E8 */ u8 arg; /* the mode argument */
-    /* 0x2E9 */ u8 unk2E9[0xB];
+    /* 0x2E9 */ u8 unk2E9;
+    /* 0x2EA */ s16 unk2EA;
+    /* 0x2EC */ s32 unk2EC;
+    /* 0x2F0 */ s32 unk2F0;
     /* 0x2F4 */ u8 unk2F4;
     /* 0x2F5 */ u8 unk2F5;
-    /* 0x2F6 */ u8 unk2F6[3];
+    /* 0x2F6 */ u8 unk2F6;
+    /* 0x2F7 */ u8 unk2F7;
+    /* 0x2F8 */ u8 unk2F8;
     /* 0x2F9 */ u8 unk2F9;
-    /* 0x2FA */ u8 unk2FA[9];
+    /* 0x2FA */ u8 unk2FA[2];
+    /* 0x2FC */ s32 unk2FC;
+    /* 0x300 */ u8 unk300;
+    /* 0x301 */ u8 unk301;
+    /* 0x302 */ u8 unk302;
     /* 0x303 */ u8 result; /* 2 once the battle is over */
-    /* 0x304 */ u8 unk304[4];
+    /* 0x304 */ u8 unk304;
+    /* 0x305 */ u8 unk305;
+    /* 0x306 */ u8 unk306;
+    /* 0x307 */ u8 unk307;
     /* 0x308 */ u8 slotCount; /* the slots added so far */
-    /* 0x309 */ u8 unk309[0x118];
+    /* 0x309 */ u8 unk309;
+    /* 0x30A */ CardBattle30A unk30A[40];
+    /* 0x35A */ u8 unk35A[0xC1];
+    /* 0x41B */ u8 unk41B;
+    /* 0x41C */ u8 unk41C;
+    /* 0x41D */ u8 unk41D[4];
     /* 0x421 */ u8 unk421;
     /* 0x422 */ u8 stepState; /* 1 when a step starts */
     /* 0x423 */ u8 unk423;
@@ -97,7 +137,13 @@ typedef struct CardBattle {
     /* 0x46F */ s8 unk46F[40];
     /* 0x497 */ u8 unk497;
     /* 0x498 */ CardBattle498 unk498;
-    /* 0x4AD */ u8 unk4AD[0xB3];
+    /* 0x4AD */ u8 unk4AD[0x33];
+    /* 0x4E0 */ s16 unk4E0; /* a score the computer player adds up */
+    /* 0x4E2 */ s16 unk4E2;
+    /* 0x4E4 */ s16 unk4E4;
+    /* 0x4E8 */ s32 unk4E8;
+    /* 0x4EC */ s32 unk4EC;
+    /* 0x4F0 */ u8 unk4F0[0x70];
     /* 0x560 */ CardSide sides[2];
     /* 0x6F0 */ u8 unk6F0[0x3C];
     /* 0x72C */ CardPlayer players[2];

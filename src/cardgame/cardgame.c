@@ -21,6 +21,12 @@ void func_80098E28(CardScreen *screen, CardScreenItems *items);
 void func_80098EB4(CardScreen *screen, CardScreenItems *items);
 void func_8009AA1C(CardScreen *screen, CardScreenItems *items);
 void func_8009DCDC();
+extern CardBattleMessage D_800A4C20[];
+extern s16 D_800A4748[2][3][4][2];
+s32 func_80089504(CardBattle *battle);
+s32 func_80089548(CardBattle *battle);
+void func_8008B0D4(CardBattle *battle, s32 arg1, s32 arg2, s32 arg3);
+void func_8008E8B0(CardBattle *battle, s32 arg1, s32 arg2, s32 arg3);
 void func_8009DE0C(CardBattle *battle, void *arg1, s32 arg2, s32 arg3);
 void func_8009DF5C();
 void CARDGAME_setSlot(CardBattle *battle, s32 side, s32 card, s32 index);
@@ -31,19 +37,48 @@ void func_800A2838();
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800835C4);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800836D8);
+void func_800836D8(CardBattle *battle, s32 side, s32 value, s32 score) {
+    if (battle->sides[0].unk20[battle->sides[0].unk15 - 1].unk4 == value) {
+        battle->unk4E0 += score;
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80083714);
+void func_80083714(CardBattle *battle, s32 side, s32 value, s32 score) {
+    if (value >= battle->sides[side].unk46) {
+        battle->unk4E0 += score;
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80083758);
+void func_80083758(CardBattle *battle, s32 side, s32 value, s32 score) {
+    if (value < battle->sides[side].unk46) {
+        battle->unk4E0 += score;
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008379C);
+void func_8008379C(CardBattle *battle, s32 side, s32 score) {
+    if (battle->sides[side].unk44 > 0) {
+        battle->unk4E0 += score;
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800837DC);
+void func_800837DC(CardBattle *battle, s32 side, s32 score) {
+    if (battle->players[side].slotCount < 6) {
+        battle->unk4E0 += score;
+    }
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80083820);
+s32 func_80083820(CardBattle *battle) {
+    battle->unk424 -= GFX.funcs.getFrameTime();
+    return battle->unk424 <= 0;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80083860);
+void func_80083860(CardBattle *battle, s32 arg1, s32 which) {
+    if (which == 0) {
+        battle->unk440 = battle->sides[0].unk40;
+    } else {
+        battle->unk440 = battle->unk41C;
+    }
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80083880);
 
@@ -59,7 +94,13 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800856C8);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80085760);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80085820);
+s16 func_80085820(s32 a, s32 b, s32 c) {
+#if VERSION_US
+    return D_800A4748[0][a][b][c];
+#elif VERSION_EU
+    return D_800A4748[SHIFT_PAL_SCREEN][a][b][c];
+#endif
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008584C);
 
@@ -67,7 +108,13 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80085AA8);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80085B20);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800860CC);
+void func_800860CC(CardBattle *battle, CardScreen *screen) {
+    screen->unkE0C[1].unkE = 0;
+    screen->unkE0C[1].unk10 = 0;
+    screen->unkE0C[2].unk10 = 0;
+    screen->unkE0C[3].unk10 = 0;
+    screen->unkE0C[4].unk10 = 0;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800860E4);
 
@@ -113,25 +160,48 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80088F10);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80089028);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800894F8);
+void func_800894F8(CardBattle *battle) {
+    battle->unk423 = 1;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80089504);
+s32 func_80089504(CardBattle *battle) {
+    s32 n;
+
+    if (battle->players[0].slotCount > battle->players[1].slotCount) {
+        n = battle->players[0].slotCount;
+    } else {
+        n = battle->players[1].slotCount;
+    }
+    if (n < 3) {
+        n = 3;
+    }
+    return n * 8 + 14;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80089548);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80089698);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008A378);
+void func_8008A378(CardBattle *battle, s32 arg1, s32 arg2) {
+    battle->unk438 = arg2;
+    battle->unk423 = 1;
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008A388);
+s32 func_8008A388(CardBattle *battle) {
+    return func_80089504(battle);
+}
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008A3A8);
+s32 func_8008A3A8(CardBattle *battle) {
+    return func_80089548(battle);
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008A3C8);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008B0D4);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008B29C);
+void func_8008B29C(CardBattle *battle, s32 arg1, s32 arg2) {
+    func_8008B0D4(battle, arg1, arg2, 0);
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008B2BC);
 
@@ -175,7 +245,10 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008D350);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008D3D8);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008D4C4);
+s32 func_8008D4C4(CardBattle *battle, s32 arg1, s32 duration) {
+    battle->unk424 += GFX.funcs.getFrameTime();
+    return duration < battle->unk424;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008D510);
 
@@ -185,7 +258,9 @@ INCLUDE_RODATA("cardgame/nonmatchings/cardgame", D_80082C94);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008D9B0);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008DBC8);
+void func_8008DBC8(CardBattle *battle) {
+    battle->stepState = 1;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008DBD4);
 
@@ -193,23 +268,46 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008E21C);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008E4A0);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008E68C);
+void func_8008E68C(CardBattle *battle, s32 arg1, s32 side) {
+    battle->stepState = 1;
+    battle->unk424 = 0;
+    battle->unk428 = battle->sides[side].unk46;
+    battle->unk42C = battle->sides[side].unk42;
+    battle->unk430 = 0;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008E6CC);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008E8B0);
+void func_8008E8B0(CardBattle *battle, s32 arg1, s32 arg2, s32 arg3) {
+    battle->unk430 = arg3;
+    battle->unk434 = arg2;
+    battle->unk423 = 1;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008E8C4);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008EB08);
+void func_8008EB08(CardBattle *battle, s32 arg1) {
+    func_8008E8B0(battle, arg1, -0x80, 0x10);
+    battle->unk438 = 0;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008EB38);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008ED28);
+void func_8008ED28(CardBattle *battle, CardScreen *screen) {
+    battle->unk424 = 0;
+    battle->stepState = 1;
+    screen->unkEA8(screen, battle->sides[0].unk15 - 2);
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008ED68);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008EF20);
+s32 func_8008EF20(CardBattle *battle) {
+    s32 card = battle->sides[0].unk20[battle->sides[0].unk15 - 1].unk0;
+
+    battle->unk305++;
+    battle->unk304 = card + 1;
+    return 1;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008EF50);
 
@@ -219,7 +317,13 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008F4E0);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008F630);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008FD44);
+void func_8008FD44(CardBattle *battle, s32 arg1, s32 side) {
+    battle->unk424 = 0;
+    battle->unk434 = 0;
+    battle->unk428 = battle->sides[side].unk42;
+    battle->unk42C = battle->sides[side].unk44;
+    battle->stepState = 1;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8008FD84);
 
@@ -340,7 +444,7 @@ void func_800941D0(CardBattle *battle, CardScreen *screen, s32 arg2) {
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80094224);
 
 void func_80094380(CardBattle *battle, CardScreen *screen, s32 force) {
-    if (battle->sides[0].unk24[battle->sides[0].unk15 - 1].unk0 == 0 || force) {
+    if (battle->sides[0].unk20[battle->sides[0].unk15 - 1].unk4 == 0 || force) {
         battle->sides[0].unk15--;
         screen->unkEC4(screen);
         battle->unk498.unk1 = 2;
@@ -368,7 +472,7 @@ s32 func_800943FC(CardBattle *battle, CardScreen *screen) {
 }
 
 void func_80094468(CardBattle *battle, CardScreen *screen, s32 force) {
-    if (battle->sides[0].unk24[battle->sides[0].unk15 - 1].unk0 == 0 || force) {
+    if (battle->sides[0].unk20[battle->sides[0].unk15 - 1].unk4 == 0 || force) {
         screen->unkEC8(screen);
         battle->unk498.unk5 = 1;
         battle->unk498.unk1 = 1;
@@ -1917,9 +2021,21 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A0908);
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A096C);
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A0A0C);
+void func_800A0A0C(CardBattle *battle) {
+    s32 i = battle->unk2F6;
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A0A40);
+    battle->unk2F4 = 1;
+    battle->unk421 = D_800A4C20[i].text;
+    battle->unk2F7 = D_800A4C20[i].unk2;
+}
+
+void func_800A0A40(CardBattle *battle) {
+    battle->sides[0].unk4D = 0;
+    battle->sides[1].unk4D = 1;
+    battle->result = 0;
+    battle->unk302 = 1;
+    battle->unk2F8 = 1;
+}
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_800A0A5C);
 
@@ -2427,13 +2543,18 @@ u8 D_800A3CF8[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
-u16 D_800A4748[] = {
-    0x0082, 0x00D4, 0x0082, 0x0067, 0x0082, 0x00BF, 0x00FD, 0x00BF,
-    0x0082, 0x001D, 0x0082, 0x0061, 0x0082, 0x0008, 0x00FD, 0x0008,
-    0x0082, 0x00A5, 0x0086, 0x0031, 0x0082, 0x0090, 0x00FD, 0x0090,
-    0x0082, 0x00E0, 0x0082, 0x0073, 0x0082, 0x00CB, 0x00FD, 0x00CB,
-    0x0082, 0x0011, 0x0082, 0x0055, 0x0082, 0xFFFC, 0x00FD, 0xFFFC,
-    0x0082, 0x00A5, 0x0086, 0x0031, 0x0082, 0x0090, 0x00FD, 0x0090,
+/* three sets of four positions, then the same moved for SHIFT_PAL_SCREEN */
+s16 D_800A4748[2][3][4][2] = {
+    {
+        {{0x82, 0xD4}, {0x82, 0x67}, {0x82, 0xBF}, {0xFD, 0xBF}},
+        {{0x82, 0x1D}, {0x82, 0x61}, {0x82, 0x08}, {0xFD, 0x08}},
+        {{0x82, 0xA5}, {0x86, 0x31}, {0x82, 0x90}, {0xFD, 0x90}},
+    },
+    {
+        {{0x82, 0xE0}, {0x82, 0x73}, {0x82, 0xCB}, {0xFD, 0xCB}},
+        {{0x82, 0x11}, {0x82, 0x55}, {0x82, -4}, {0xFD, -4}},
+        {{0x82, 0xA5}, {0x86, 0x31}, {0x82, 0x90}, {0xFD, 0x90}},
+    },
 };
 s32 D_800A47A8[] = {
     0, 6, 12, 0,
@@ -2632,12 +2753,9 @@ u16 D_800A4C0C[] = {
 u8 D_800A4C18[] = {
     0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
 };
-u8 D_800A4C20[] = {
-    0x00, 0x00, 0x00, 0x00, 0xA6, 0x00, 0x02, 0x00,
-    0xA0, 0x00, 0x03, 0x00, 0xA1, 0x00, 0x04, 0x00,
-    0xA2, 0x00, 0x05, 0x00, 0xA3, 0x00, 0x06, 0x00,
-    0xA4, 0x00, 0x07, 0x00, 0xA5, 0x00, 0x08, 0x00,
-    0xA0, 0x00, 0x03, 0x00, 0xA0, 0x00, 0x03, 0x00,
+CardBattleMessage D_800A4C20[] = {
+    {0x00, 0}, {0xA6, 2}, {0xA0, 3}, {0xA1, 4}, {0xA2, 5},
+    {0xA3, 6}, {0xA4, 7}, {0xA5, 8}, {0xA0, 3}, {0xA0, 3},
 };
 u16 D_800A4C48[] = {
     0x0082, 0x00BF, 0x0082, 0x001D, 0x0082, 0x00CB, 0x0082, 0x0011,
