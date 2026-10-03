@@ -5,6 +5,7 @@ extern TrainGain D_8008B80C[];
 extern TrainGain D_8008B86C[];
 extern TrainGain *D_8008B95C[];
 extern TrainGain D_8008B998[];
+extern s32 D_8008B9E0[]; /* the points each intensity of a training costs */
 extern s32 D_8008B9EC[14][16][2];
 extern TrainFile D_8008C344[];
 extern TrainCursor D_8008C800;
@@ -1047,7 +1048,79 @@ void func_80086258(TrainResult *result, TrainResultWindows *win) {
     win->cursor->setVisible(win->cursor, 0);
 }
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_80086340);
+/*
+ * Draws the training result: the blinking arrow, a mark for each try (0x45
+ * worked, 0x46 failed) and the four panels.
+ */
+void func_80086340(TrainResult *result) {
+    SpriteDrawer sprite;
+    s32 i;
+
+    if (result->unkE4 != 0) {
+        initSpriteDrawer(&sprite);
+        sprite.setLayerId(0x1002, 3);
+        sprite.setTexture(0x140, 0);
+        if (GFX.funcs.getTime() - result->unkEC >= 4) {
+            result->unkEC = GFX.funcs.getTime();
+            result->unkE8++;
+            if (result->unkE8 >= 5) {
+                result->unkE8 = 0;
+            }
+        }
+        sprite.setClutRow(result->unkE8);
+        sprite.draw(FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16), 0xA, 0x124, 0xCD);
+    }
+    initSpriteDrawer(&sprite);
+    sprite.setTexture(0x240, 0x100);
+    sprite.setLayerId(result->layerId, result->depth);
+    if (result->unkD4 != 0) {
+        if (GFX.funcs.getTime() - result->unkE0 >= 3) {
+            result->unkE0 = GFX.funcs.getTime();
+            result->unkDC = 1 - result->unkDC;
+        }
+        sprite.setClutRow(result->unkDC + 1);
+    }
+    for (i = 0; i < 5; i++) {
+        if (result->unkD8 != 0 && i == 3) {
+            sprite.setClutRow(3);
+        }
+        if (result->trained[i] == 1) {
+            sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x45, i * 0x11 + 0x80, 0x58);
+        } else if (result->trained[i] == 0) {
+            sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x46, i * 0x11 + 0x80, 0x58);
+        }
+    }
+    sprite.setClutRow(0);
+    if (result->panels[0].level != 0) {
+        if (result->panels[0].level != 0x1000) {
+            sprite.setScale(result->panels[0].level, result->panels[0].level, 0x1000);
+            sprite.setPivot(0xCF, 0x7F);
+        }
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x28, 0x72, 0x4B);
+    }
+    if (result->panels[1].level != 0) {
+        if (result->panels[1].level != 0x1000) {
+            sprite.setScale(result->panels[1].level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0xCD);
+        }
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x23, 0x46, 0xBA);
+    }
+    sprite.setLayerId(0x1002, result->depth);
+    if (result->panels[2].level != 0) {
+        if (result->panels[2].level != 0x1000) {
+            sprite.setScale(result->panels[2].level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0x7B);
+        }
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x26, 0x85, 0x70);
+    }
+    if (result->panels[3].level != 0) {
+        if (result->panels[3].level != 0x1000) {
+            sprite.setScale(result->panels[3].level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0x9F);
+        }
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x1D, 0x82, 0x8B);
+    }
+}
 
 INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_800867A0);
 
@@ -1157,7 +1230,93 @@ void func_8008778C(TrainSession *session, TrainSessionWindows *win) {
     win->cursor->setVisible(win->cursor, 0);
 }
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_800878C0);
+/*
+ * Draws a training session: the training's icon, its panels and the cursor
+ * over the three columns.
+ */
+void func_800878C0(TrainSession *session) {
+    SpriteDrawer sprite;
+    s32 i;
+
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(session->layerId, session->depth);
+    sprite.setTexture(0x240, 0x100);
+    if (session->panels[2].level != 0) {
+        if (session->panels[2].level != 0x1000) {
+            sprite.setScale(session->panels[2].level, session->panels[2].level, 0x1000);
+            sprite.setPivot(0xA6, 0x26);
+        }
+        if (GFX.funcs.getTime() - session->iconTime >= 0x10) {
+            session->iconTime = GFX.funcs.getTime();
+            session->iconFrame++;
+            if (session->iconFrame >= 4) {
+                session->iconFrame = 0;
+            }
+        }
+        /* the match depends on i holding the icon too */
+        i = D_8008C4D4.trainings[session->screen->unk78].icons[session->iconFrame];
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_FILE_SPRITES << 16), i, 0x94, 0x14);
+    }
+    if (session->panels[3].level != 0) {
+        if (session->panels[3].level != 0x1000) {
+            sprite.setScale(session->panels[3].level, session->panels[3].level, 0x1000);
+            sprite.setPivot(0xCE, 0x2F);
+        }
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x2A, 0xBC, 0x26);
+    }
+    if (session->panels[1].level != 0) {
+        sprite.setScale(session->panels[1].level, 0x1000, 0x1000);
+        if (session->panels[1].level != 0x1000) {
+            sprite.setPivot(0x140, 0x26);
+        }
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x25, 0x8F, 0xF);
+    }
+    if (session->panels[0].level != 0) {
+        if (session->panels[0].level != 0x1000) {
+            sprite.setScale(session->panels[0].level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0x4E);
+        }
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x26, 0x85, 0x43);
+    }
+    if (session->cursorShown != 0) {
+        if (GFX.funcs.getTime() - session->cursorTime >= 0xB) {
+            session->cursorTime = GFX.funcs.getTime();
+            session->cursorClut++;
+            if (session->cursorClut >= 4) {
+                session->cursorClut = 0;
+            }
+        }
+        sprite.setClutRow(session->cursorClut);
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x29, session->unk5C * 40 + 0x94, 0x63);
+        sprite.setClutRow(0);
+    }
+    if (session->panels[6].level != 0) {
+        if (session->panels[6].level != 0x1000) {
+            sprite.setScale(session->panels[6].level, session->panels[6].level, 0x1000);
+        }
+        for (i = 0; i < 3; i++) {
+            if (session->panels[6].level != 0x1000) {
+                sprite.setPivot(i * 40 + 0xA6, 0x6C);
+            }
+            sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x2A, i * 40 + 0x94, 0x63);
+        }
+    }
+    if (session->panels[5].level != 0) {
+        sprite.setScale(session->panels[5].level, 0x1000, 0x1000);
+        sprite.setPivot(0x140, 0x6C);
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x27, 0x82, 0x5E);
+    }
+    if (session->panels[7].level != 0) {
+        sprite.setScale(session->panels[7].level, 0x1000, 0x1000);
+        sprite.setPivot(0x140, 0x8D);
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x27, 0x82, 0x7F);
+    }
+    if (session->panels[4].level != 0) {
+        sprite.setScale(session->panels[4].level, 0x1000, 0x1000);
+        sprite.setPivot(0x140, 0x72);
+        sprite.draw(FILE_CACHE.getEntry(STGTRAIN_SPRITES), 0x1D, 0x82, 0x5E);
+    }
+}
 
 INCLUDE_ASM("stgtrain/nonmatchings/stgtrain", func_80087E34);
 

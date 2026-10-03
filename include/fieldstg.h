@@ -9,11 +9,20 @@
  */
 
 #include "game.h"
+#include "field_map.h"
 
 typedef struct Point {
     s32 x;
     s32 y;
 } Point;
+
+/* A step of func_800896C0's spiral: one coordinate of a tile moves by dir
+ * until it passes limit */
+typedef struct TileMove {
+    /* 0x0 */ s32 *value;
+    /* 0x4 */ s32 dir; /* 1, -1, or 0 at the end */
+    /* 0x8 */ s32 limit;
+} TileMove;
 
 /*
  * A character on the field (func_80090450): the player (kind 0) and the
@@ -27,9 +36,11 @@ typedef struct Actor {
     /* 0x060 */ s32 dir;
     /* 0x064 */ s32 unk64;
     /* 0x068 */ s32 unk68;
-    /* 0x06C */ s32 unk6C[2];
+    /* 0x06C */ struct ActorImage *image;
+    /* 0x070 */ struct FieldImage *unk70;
     /* 0x074 */ s32 unk74;
-    /* 0x078 */ s32 unk78[2];
+    /* 0x078 */ s32 unk78;
+    /* 0x07C */ s32 unk7C;
     /* 0x080 */ s32 unk80; /* width, in tiles */
     /* 0x084 */ s32 unk84;
     /* 0x088 */ s32 unk88;
@@ -39,20 +50,25 @@ typedef struct Actor {
     /* 0x098 */ s32 unk98;
     /* 0x09C */ s32 unk9C; /* a file and index, or 0 */
     /* 0x0A0 */ s32 unkA0;
-    /* 0x0A4 */ s32 unkA4[6];
+    /* 0x0A4 */ s32 unkA4; /* the set unkA8 was loaded for */
+    /* 0x0A8 */ s32 unkA8[5]; /* the set's animations, for the directions 0 to 4 */
     /* 0x0BC */ s32 unkBC;
-    /* 0x0C0 */ s32 unkC0[2];
+    /* 0x0C0 */ s32 unkC0; /* set to reload the frame's image */
+    /* 0x0C4 */ s32 unkC4;
     /* 0x0C8 */ s16 unkC8; /* a sound voice, or -1 */
     /* 0x0CA */ s16 unkCA;
     /* 0x0CC */ s32 unkCC;
     /* 0x0D0 */ s32 unkD0;
-    /* 0x0D4 */ s32 unkD4[5];
-    /* 0x0E8 */ s32 unkE8;
+    /* 0x0D4 */ s32 unkD4[4]; /* the frame's image, the one loaded, and two values */
+    /* 0x0E4 */ s16 unkE4; /* the loaded image's width in pixels */
+    /* 0x0E6 */ s16 unkE6; /* and its height */
+    /* 0x0E8 */ s32 unkE8; /* the animation ended */
     /* 0x0EC */ s32 unkEC;
     /* 0x0F0 */ s32 unkF0;
     /* 0x0F4 */ s32 unkF4;
     /* 0x0F8 */ s32 unkF8;
-    /* 0x0FC */ s32 unkFC[2];
+    /* 0x0FC */ s32 unkFC;
+    /* 0x100 */ s32 unk100;
     /* 0x104 */ struct Trail *trail; /* a follower's: the leader's steps */
     /* 0x108 */ void (*unk108)(struct Actor *);
     /* 0x10C */ s32 unk10C;
@@ -91,13 +107,6 @@ typedef struct Trail {
     /* 0x00C */ TrailStep steps[64];
 } Trail;
 
-/* What a StreamTask reads its sprites from (func_80086858) */
-typedef struct StreamSource {
-    /* 0x00 */ u8 unk0[0x78];
-    /* 0x78 */ s32 *(*unk78)(struct StreamSource *source);
-    /* 0x7C */ void (*unk7C)(struct StreamSource *source, void *buffer, s32 size);
-} StreamSource;
-
 /* A sprite of a StreamTask's frame */
 typedef struct StreamSprite {
     /* 0x00 */ s32 visible;
@@ -127,12 +136,12 @@ typedef struct StreamTask {
     /* 0x080 */ s32 clutY;
     /* 0x084 */ StreamSprite sprites[3][5];
     /* 0x228 */ s32 slot;
-    /* 0x22C */ StreamSource *source;
+    /* 0x22C */ Decompressor *source; /* what it reads its sprites from (func_80086858) */
     /* 0x230 */ s32 *unk230;
     /* 0x234 */ void (*seek)(struct StreamTask *task, s32 frame, s32 size);
     /* 0x238 */ s32 (*isLoaded)(struct StreamTask *task);
     /* 0x23C */ void (*draw)(struct StreamTask *task, Layer *layer, s32 x, s32 y);
-    /* 0x240 */ void (*setSource)(struct StreamTask *task, s32 slot, StreamSource *source);
+    /* 0x240 */ void (*setSource)(struct StreamTask *task, s32 slot, Decompressor *source);
     /* 0x244 */ s32 (*getFrame)(struct StreamTask *task);
     /* 0x248 */ s32 (*unk248)(struct StreamTask *task);
     /* 0x24C */ void (*unk24C)(struct StreamTask *task);
@@ -145,9 +154,22 @@ typedef struct StreamPool {
     /* 0x04 */ StreamTask *tasks[30];
 } StreamPool;
 
+/* Where an actor's frames go in VRAM: one of the records after the
+   FieldImage (Actor.image) */
+typedef struct ActorImage {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 w;
+    /* 0x6 */ s16 h;
+    /* 0x8 */ s16 u;
+    /* 0xA */ s16 v;
+    /* 0xC */ s16 clutX;
+    /* 0xE */ s16 clutY;
+} ActorImage;
+
 /* The image of the field's effects (FieldState.unk28) */
 typedef struct FieldImage {
-    /* 0x00 */ u8 unk0[0x10];
+    /* 0x00 */ ActorImage shadow; /* the actors' shadow (func_8008E7E0) */
     /* 0x10 */ s16 x; /* in VRAM */
     /* 0x12 */ s16 y;
     /* 0x14 */ s16 w;
@@ -161,11 +183,11 @@ typedef struct FieldImage {
 /* An entry of the table FieldState.unk24 (func_80084B80) */
 typedef struct Unk80084B80Entry {
     /* 0x00 */ s32 id;
-    /* 0x04 */ s32 unk4;
+    /* 0x04 */ s16 *script; /* func_80084654's, or NULL */
     /* 0x08 */ s32 text; /* a file and index, the file counted from
                             TEXT_FILE(1); or 0 */
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ s32 unk10;
+    /* 0x0C */ struct Task *(*start)(void); /* without a script */
+    /* 0x10 */ void (*end)(void); /* or NULL */
 } Unk80084B80Entry;
 
 /*
@@ -184,9 +206,8 @@ typedef struct FieldState {
     /* 0x20 */ struct Unk800990D4 *unk20;
     /* 0x24 */ struct Unk80084B80Entry *unk24; /* up to the first id -1 */
     /* 0x28 */ FieldImage *unk28;
-    /* 0x2C */ s32 unk2C;
-    /* 0x30 */ s32 unk30;
-    /* 0x34 */ s32 unk34;
+    /* 0x2C */ Vec2 unk2C; /* where the player starts */
+    /* 0x34 */ s32 unk34; /* and its direction */
     /* 0x38 */ CVECTOR unk38;
     /* 0x3C */ s32 unk3C;
     /* 0x40 */ s32 unk40;
@@ -198,12 +219,11 @@ typedef struct FieldState {
     /* 0x58 */ s32 unk58;
     /* 0x5C */ s32 unk5C;
     /* 0x60 */ s32 unk60;
-    /* 0x64 */ s32 unk64;
-    /* 0x68 */ s32 unk68;
-    /* 0x6C */ s32 unk6C;
+    /* 0x64 */ Vec2 unk64; /* where the player starts without a mode argument */
+    /* 0x6C */ s32 unk6C; /* and its direction */
     /* 0x70 */ void (*init)(void);
     /* 0x74 */ s32 (*unk74)(s32 index);
-    /* 0x78 */ u8 (*unk78)(s32 index);
+    /* 0x78 */ s32 (*unk78)(s32 index);
     /* 0x7C */ void *(*unk7C)(u8 *list, s32 id);
 } FieldState;
 
@@ -285,23 +305,29 @@ typedef struct Unk800990D4 {
     /* 0x0C */ BattleList *battles[4];
 } Unk800990D4;
 
-/* The task of func_80084654 (func_80084B80) */
+/*
+ * An event (func_80084654, made by func_80084B80): it runs a script of
+ * 16-bit words, each command a word of its kind << 8 | its variant followed
+ * by its arguments, until a command waits; or, without a script, a task of
+ * its own (start) until it ends.
+ */
 typedef struct Unk80084654 {
     TASK_HEADER(Unk80084654);
-    /* 0x050 */ s32 unk50;
-    /* 0x054 */ s32 unk54;
-    /* 0x058 */ s32 unk58;
-    /* 0x05C */ s32 unk5C;
-    /* 0x060 */ u8 unk60[4];
+    /* 0x050 */ s32 event; /* its id */
+    /* 0x054 */ s16 *pc;
+    /* 0x058 */ struct Task *(*start)(void);
+    /* 0x05C */ void (*end)(void);
+    /* 0x060 */ s32 wait; /* frames left of a wait command */
     /* 0x064 */ struct {
-        s32 id;
-        s32 value;
-    } entries[30];
+        s32 id; /* 0 ends the list */
+        struct Actor *actor;
+    } entries[30]; /* the characters, held while the event runs */
 } Unk80084654;
 
 /* The children of an Unk80084654 */
 typedef struct Unk80084654Children {
-    /* 0x00 */ u8 unk0[0x10];
+    /* 0x00 */ struct Task *task; /* start's */
+    /* 0x04 */ struct Unk800882D8 *boxes[3]; /* the script's message boxes */
     /* 0x10 */ s32 scripts[10]; /* func_80091730's tasks */
 } Unk80084654Children;
 
@@ -338,16 +364,23 @@ typedef struct Unk80086144 {
         s32 unk8;
     } unk74[12];
     /* 0x104 */ MapTile *unk104;
-    /* 0x108 */ u8 unk108[30];
-    /* 0x126 */ u8 unk126[0xA];
+    /* 0x108 */ u8 unk108[30]; /* by the slots around the view, their tiles */
+    /* 0x126 */ u8 unk126[2];
+    /* 0x128 */ s32 unk128; /* the tile column of the slots' left edge */
+    /* 0x12C */ s32 unk12C; /* their top row */
     /* 0x130 */ Point *(*unk130)(struct Unk80086144 *);
 } Unk80086144;
 
 /* The task of func_80084D0C (func_80085240) */
 typedef struct Unk80084D0C {
     TASK_HEADER(Unk80084D0C);
-    /* 0x50 */ s32 unk50;
-    /* 0x54 */ u8 unk54[0x18];
+    /* 0x50 */ s32 kind; /* 0: file 0x88C (0x87B in the USA), 1: file 0x88D (0x87C) */
+    /* 0x54 */ s32 frame;
+    /* 0x58 */ s32 index; /* into the animation */
+    /* 0x5C */ s32 timer;
+    /* 0x60 */ s32 frame2; /* kind 1's second animation */
+    /* 0x64 */ s32 index2;
+    /* 0x68 */ s32 timer2;
 } Unk80084D0C;
 
 /* An animation of an Unk80085350 (func_80085278) */
@@ -381,6 +414,14 @@ typedef struct Unk80085350 {
 #define FIELD_EXIT_FILES 0x3B9
 #elif VERSION_EU
 #define FIELD_EXIT_FILES 0x3C9
+#endif
+
+/* The two animations of func_80084D0C, kind 0's file and kind 1's after it:
+   the discs number their files differently */
+#if VERSION_US
+#define FIELD_ANIM_FILE 0x87B
+#elif VERSION_EU
+#define FIELD_ANIM_FILE 0x88C
 #endif
 
 typedef struct Unk80087FDCEntry {
@@ -421,16 +462,20 @@ typedef struct Box {
 
 /* An object of a map (FieldState.unk10, 0x12 bytes), up to unk2 0 */
 typedef struct MapObject {
-    /* 0x00 */ u8 unk0;
+    /* 0x00 */ u8 unk0; /* drawn */
     /* 0x01 */ u8 id;
-    /* 0x02 */ u8 unk2;
+    /* 0x02 */ u8 unk2; /* how far off the view it is still drawn; 0 ends the list */
     /* 0x03 */ u8 depth;
     /* 0x04 */ u8 frame;
-    /* 0x05 */ u8 unk5[4];
+    /* 0x05 */ u8 anim; /* 1 cycles the frame, 2 the CLUT row, 3 the row back and forth */
+    /* 0x06 */ u8 animFirst;
+    /* 0x07 */ u8 animLast;
+    /* 0x08 */ u8 animDelay;
     /* 0x09 */ u8 clutRow;
     /* 0x0A */ s16 x;
     /* 0x0C */ s16 y;
-    /* 0x0E */ u8 unkE[4];
+    /* 0x0E */ s16 unkE; /* drawn sorted at this depth, or 0 */
+    /* 0x10 */ s16 animTime; /* in 1/256 frames; bit 15: going back */
 } MapObject;
 
 /* The task of func_8008878C (func_80088BE4) */
@@ -476,8 +521,12 @@ typedef struct Unk800882D8 {
 typedef struct Unk8008B450 {
     TASK_HEADER(Unk8008B450);
     /* 0x50 */ Actor *actor;
-    /* 0x54 */ s32 unk54;
-    /* 0x58 */ u8 unk58[0x1C];
+    /* 0x54 */ s16 *dest; /* the tile it lands on, at [1] and [2] */
+    /* 0x58 */ Task *from; /* the nearest task with id 0x17 */
+    /* 0x5C */ Point start;
+    /* 0x64 */ Point dist;
+    /* 0x6C */ s32 negX;
+    /* 0x70 */ s32 negY;
 } Unk8008B450;
 
 /* The task of func_8008B9D8 (func_8008BBD4) */
@@ -528,7 +577,10 @@ typedef struct Unk8008C388 {
 typedef struct Unk8008C59C {
     TASK_HEADER(Unk8008C59C);
     /* 0x50 */ Point pos;
-    /* 0x58 */ u8 unk58[0x10];
+    /* 0x58 */ s32 row; /* of FIELDSTG_gaugeRows */
+    /* 0x5C */ s32 cursor; /* along the row, 0-0x3000 */
+    /* 0x60 */ s32 speed;
+    /* 0x64 */ s32 back; /* the cursor goes back */
 } Unk8008C59C;
 
 /* The task of func_8008CC4C (id 0x10, func_8008CF0C) */
@@ -553,9 +605,17 @@ typedef struct Unk8008CC4C {
 /* The task of func_800834A0 (func_80083930) */
 typedef struct Unk800834A0 {
     TASK_HEADER(Unk800834A0);
-    /* 0x50 */ u8 unk50[8];
-    /* 0x58 */ s16 unk58;
-    /* 0x5A */ u8 unk5A[0x12];
+    /* 0x50 */ struct MapObject *left; /* the map object 3 */
+    /* 0x54 */ struct MapObject *right; /* the map object 2 */
+    /* 0x58 */ s16 unk58; /* raised: the objects and the player are 0x7F lower */
+    /* 0x5A */ s16 time;
+    /* 0x5C */ s16 shake; /* the index into D_80095E84 */
+    /* 0x5E */ s16 unk5E;
+    /* 0x60 */ s16 leftY; /* the positions when the move started */
+    /* 0x62 */ s16 rightY;
+    /* 0x64 */ s32 playerY;
+    /* 0x68 */ s16 leftBaseY; /* the objects' positions on the map */
+    /* 0x6A */ s16 rightBaseY;
 } Unk800834A0;
 
 /* The task of func_800842C8 (func_800844B8) */
@@ -591,21 +651,37 @@ typedef struct Unk800870D4Box {
     /* 0x14 */ s32 from;
     /* 0x18 */ s32 to;
     /* 0x1C */ s32 speed;
+    /* 0x20 */ s32 unk20;
 } Unk800870D4Box;
 
+/* The area name banner (func_800870D4) */
 typedef struct Unk800870D4 {
     TASK_HEADER(Unk800870D4);
-    /* 0x050 */ u8 unk50[0x170];
+    /* 0x050 */ Unk800870D4Box boxes[10];
+    /* 0x1B8 */ RECT clip; /* the layer's, closing on state 2 */
 } Unk800870D4;
 
+/* A yes/no question of the story (func_80083998) */
 typedef struct ChoiceTask {
     TASK_HEADER(ChoiceTask);
-    /* 0x50 */ s32 type;
+    /* 0x50 */ s32 type; /* D_80095E98's */
     /* 0x54 */ s32 selection;
-    /* 0x58 */ s32 unk58[2];
-    /* 0x60 */ s32 scale;
-    /* 0x64 */ s32 unk64;
+    /* 0x58 */ Tween tween; /* the panel's width */
 } ChoiceTask;
+
+typedef struct ChoiceChildren {
+    /* 0x00 */ TextWindow *title;
+    /* 0x04 */ TextWindow *options[2];
+    /* 0x0C */ Cursor *cursor;
+    /* 0x10 */ Unk80084654 *event;
+} ChoiceChildren;
+
+/* A question of a ChoiceTask */
+typedef struct ChoiceText {
+    /* 0x0 */ s32 text; /* the file counted from TEXT_FILE(1) << 16 | its
+                           entry: the question, then the answers */
+    /* 0x4 */ s16 events[2]; /* func_80084B80's, for each answer */
+} ChoiceText;
 
 void func_80082F1C(Task *task);
 void func_80083998();
@@ -618,6 +694,7 @@ void func_8008DB60(Actor *);
 void func_8008E1A4(Actor *);
 Unk800876E4 *func_800878A4(s32 arg0, s32 arg1, s32 arg2);
 void func_80090154(void);
+void func_800901D4(void);
 Actor *func_800914F0(s32 id);
 void func_8008E768(Actor *actor, s32 arg1);
 void func_8008DD9C(Actor *);
@@ -639,15 +716,26 @@ StreamTask *func_80086B54(s32 size, s32 file);
 void func_80085EEC(Unk80086144 *task);
 void func_80085A78(Unk80086144 *task, StreamPool *pool);
 void func_80085650(Unk80086144 *task, StreamPool *pool);
+void func_80086D20(Task *task, AreaNameWindows *windows);
+Cursor *createCursor(s16 layerId, s32 depth, s16 x, s16 y);
+struct Unk800882D8 *func_800883F4(Actor *actor, s32 arg1, s32 arg2, s32 arg3);
+void func_8008AEB4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+void func_8008CF44(s32 arg0, s32 arg1);
+void func_8008C23C(void);
+void func_8008D07C(s32 arg0);
+void func_8008CFF4(s32 arg0, s32 arg1, s32 arg2);
 StreamTask *func_800855E0(StreamPool *pool);
 void func_800857DC(Layer *layer, s32 x, s32 y, s32 level);
+void func_80086460(s32 id, s32 level);
 void func_800882D8(Unk800882D8 *task, void **box);
 void func_8008B450(Unk8008B450 *task);
 void func_8008D3F0(Actor *actor, s32 pad);
 Actor *func_8008D4C4(Point *pos);
 void func_8008BCAC(Unk8008BFE8 *task, Unk8008BFE8Children *children);
-void func_8008E7E0();
+void func_8008E7E0(void *arg, void *arg2);
 void func_8008EC74(Actor *actor);
+void func_8008D710(Actor *actor);
+struct Unk8008BFE8 *func_8008BFE8(s32 count);
 void func_8008F184(Actor *actor, Unk80089320 **children);
 void func_8008BC30(Unk8008BFE8 *task);
 s32 func_8008D0C0(Actor *actor, s32 x, s32 y, Point offset);
@@ -669,7 +757,7 @@ void func_80087D28(Unk80087FDC *task);
 void func_8008926C();
 void func_8008C388();
 void func_8008CC4C(Unk8008CC4C *task);
-void func_8008C59C();
+void func_8008C59C(Unk8008C59C *task);
 void func_80086144();
 void func_800870D4();
 void func_8008878C();
@@ -680,31 +768,6 @@ void func_8008B9D8(Unk8008B9D8 *task);
 void func_8008CA3C(Unk8008CC4C *task);
 void func_800834A0();
 
-/*
- * The field's map and the functions that read it (the stages see it as
- * FieldFuncs). The map is a tree of cells: a grid of 128-pixel cells, then
- * levels of 64, 32, 16 and 8 pixels, each cell four of the next level's, then
- * a byte for each pixel of the 8x8 blocks.
- */
-typedef struct FieldMap {
-    /* 0x00 */ s32 files[8]; /* the file entry of each map, set by setFile */
-    /* 0x20 */ s32 width; /* of the grid, in cells */
-    /* 0x24 */ s32 height;
-    /* 0x28 */ u8 *grid;
-    /* 0x2C */ u8 *cells64;
-    /* 0x30 */ s16 *cells32;
-    /* 0x34 */ s16 *cells16;
-    /* 0x38 */ s16 *cells8;
-    /* 0x3C */ u8 *pixels;
-    /* 0x40 */ void (*setFile)(s32 index, s32 file); /* func_80091B78 */
-    /* 0x44 */ s32 (*getCell)(s32 index, Point *pos); /* func_80091BC0 */
-    /* 0x48 */ void (*unk48)(Point *pos, s32 scale, s32 index, Point *out);
-    /* 0x4C */ void (*unk4C)(s32 arg0, s32 scale, s32 index, Point *out);
-    /* 0x50 */ void (*unk50)(s32 arg0);
-    /* 0x54 */ void (*unk54)(s32 arg0);
-    /* 0x58 */ s32 (*unk58)(Point *pos); /* func_80091D3C: 0 where a character or an object stands */
-} FieldMap;
-
 extern Point D_8009A938;
 extern u8 *D_8009A940;
 extern s32 D_8009A944;
@@ -713,6 +776,10 @@ extern Point D_80096398[]; /* VRAM position of each StreamTask slot's image */
 extern s32 D_8009638C[]; /* depth of each layer of a StreamTask's sprites */
 extern Point D_8009A76C[][8]; /* a direction's vector, scaled by 4096 */
 extern u8 D_8009A92C[];
+extern Point FIELDSTG_tiles[5][6]; /* func_800896C0's 64x40 tiles of the screen */
+extern TileMove FIELDSTG_tileMoves[];
+extern s32 D_8009AA38; /* func_800896C0's file requests, 0 to 2 */
+extern RECT D_8009AA40;
 s32 func_80091AA8(s32 index);
 s32 func_80091BC0(s32, Point *);
 extern FieldState D_800990B4;
@@ -740,13 +807,16 @@ extern s32 D_80096FF4[];
 extern void (*FIELDSTG_initFuncs[])(void);
 
 extern u8 D_80099758[];
-extern FieldMap D_8009A70C;
 extern u8 D_80096E94[][5]; /* the probes of each direction (func_8008D2A0) */
 extern Point D_80096EBC[]; /* a probe's position */
 extern u8 D_80096F3C[][2]; /* a probe's offset: bit 0 set, bit 7 negative */
 extern u8 *D_80096DAC[]; /* func_8008C388's animation for each direction */
 extern s32 D_80096DCC[]; /* and its depth offset */
 extern ProgressEvent D_80095F18[];
+extern u8 *FIELDSTG_gaugeRows[];
+extern AnimFrame D_80096028[]; /* func_80084D0C's animations */
+extern AnimFrame D_80096074[];
+extern AnimFrame D_800960A0[];
 extern AnimFrame *D_800961E4[][4]; /* func_80085350's animations */
 extern s32 D_8009A6F4[]; /* how much each area lowers GAME.unk30, the steps to the next battle */
 extern s32 D_8009A768; /* the frame D_8009AA4C was filled in */
@@ -758,5 +828,14 @@ extern s16 D_80096F9C[][2]; /* the actors that stand for other actors: {key, key
 extern u8 D_80096920[][9]; /* animations: (frame, time) pairs up to 0xFF */
 extern s32 FIELDSTG_fileEntries[];
 extern ScriptTimer D_8009A424;
+extern s16 D_80095E84[]; /* func_800834A0's shakes, up to 1000 */
+extern s16 D_8009A934; /* the voice of func_80082F84's held sound */
+extern ChoiceText D_80095E98[16];
+extern void (*D_80098B70)(Tween *tween, s32 in); /* func_80091298 */
+extern s32 (*D_80098B74)(Tween *tween); /* func_8009132C */
+extern Unk800870D4Box D_800967B8[10]; /* func_800870D4's boxes */
+extern u8 D_80096204[]; /* func_80085EEC's slot layouts: [layout][quadrant][row][column] */
+extern u8 D_8009636C[][2]; /* the layout and its flips for each direction */
+extern u8 D_8009637C[][4]; /* the slots' offset in tiles, by quadrant: x, flipped x, y, flipped y */
 
 #endif /* FIELDSTG_H */

@@ -169,11 +169,11 @@ own.
 
 ## Overlays
 
-- [ ] 1,458 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,474 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`. Mostly: `STCRDABM` (28 / 29),
   `STCRDDEK` (53 / 55), `SHOCKTST` (15 / 17), `STAGSLCT` (6 / 8),
-  `FIELDSTG` (195 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
-  `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (85 / 94),
+  `FIELDSTG` (209 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
+  `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (87 / 94),
   `STITSHOP` (50 / 69), `CARDGAME` (303 / 306),
   `STSTATUS` (101 / 123), `STFGTREP` (35 / 36). Started: `STGDGLAB`
   (44 / 70), `STCRDSHP` (33 / 45), `WFIGHTTS` (13 / 14), `WFIGHTMN`
@@ -189,9 +189,21 @@ own.
     original keeps both `times + 2` and `powers + 2` as induction variables
     and doesn't hoist the parser's constants.
   - `STCRDABM_showCardInfo` (0x42C bytes) is still to try.
-  - `FIELDSTG`: `func_80091124`, `func_80091AA8`, `func_8008D4C4` and
-    `func_80085650` are close but the permuter found no match; the other 23
-    (0x198 to 0xFD0 bytes) are still to try.
+  - `FIELDSTG` (five objects, `fieldstg.c` to `fieldstg_5.c`):
+    `func_800896C0`, the field's battle transition (the screen breaks into
+    30 tiles that slide off in a spiral), matches in both versions only with
+    an empty `do {} while (0)` between `speed` and `move`: its loop notes
+    stop the second scheduler from moving the load of `GFX.buffer` up into
+    the load delay of `task->counter`'s. A `DEBUG_LOG()` there would be the
+    stages' convention, but nothing else hints at a print, so it stays asm.
+    `func_80091124`, `func_80091AA8`, `func_8008D4C4` and `func_80085650`
+    are close but the permuter found no match; `func_8008DB60` and
+    `func_8008DFE0` only match with the permuter's copy of a variable kept
+    for nothing; `func_8008EC74` differs in its block layout,
+    `func_80085EEC` is a near miss too, and `func_80090450` matches in Europe
+    but swaps `s4` and `s5` in the USA. `func_8008A154` (the field's
+    update, which runs the transition), `func_8008AEDC` and `func_8008F184`
+    (0xCB0 to 0x1104 bytes) are still to try.
 - [ ] `FIGHTSTG`'s blocked functions: `func_8009C764`, `func_8009C8EC` and
   `func_8009C998` differ only in registers and the order of a few loads (the
   permuter finds nothing natural); `func_800877D4` and `func_800A0FDC` are
@@ -261,8 +273,9 @@ own.
   permuter's best reuses a variable), `func_800859F4` (15, `s0`/`s2`
   swapped) and `func_8008B35C` (the RLEN loader: the original reloads
   `D_8008C4D4` in the loop and spills `clutX`; ours keeps both in
-  registers). The rest are large: `func_800828E8`, `func_80086340`,
-  `func_800867A0`, `func_800878C0`, `func_80087E34` and `func_80088CFC`.
+  registers). `func_80087E34`, `func_80088CFC` and `func_800867A0` were
+  tried without a match (register allocation; `func_800867A0` is closest
+  in Europe); `func_800828E8` (the largest) hasn't been tried.
 - [ ] Check `STFGTREP`'s guess (the report after a battle) against its
   texts, and `STGDGLAB`'s (the partners' digivolutions) against its
   strings.

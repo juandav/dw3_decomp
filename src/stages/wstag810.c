@@ -354,7 +354,7 @@ StageEffect *func_800A5894(s32 x, s32 y, s32 frame) {
 /* Puts back the first background when GAME.unk26DC is set, and clears it */
 s32 func_800A58F0(void) {
     if (GAME.unk26DC != 0) {
-        D_8009A70C.unk40(7, STAGE_FILE << 16 | 3);
+        D_8009A70C.setFile(7, STAGE_FILE << 16 | 3);
         D_800990B4.unk14 = D_800A6968;
         GAME.unk26DC = 0;
     }
@@ -364,7 +364,7 @@ s32 func_800A58F0(void) {
 /* Switches to the second background when GAME.unk26DC is clear, and sets it */
 s32 func_800A5954(void) {
     if (GAME.unk26DC == 0) {
-        D_8009A70C.unk40(7, STAGE_FILE << 16 | 4);
+        D_8009A70C.setFile(7, STAGE_FILE << 16 | 4);
         D_800990B4.unk14 = D_800A6C68;
         GAME.unk26DC = 0x20;
     }

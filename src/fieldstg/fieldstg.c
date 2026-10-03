@@ -1,3 +1,12 @@
+/* The first object of FIELDSTG.PRO, and the overlay's data. FIELDSTG.PRO was
+   at least five objects: each one's jump tables are aligned to 8 from the
+   start of its own rodata, and the tables at 0x800824C4, 0x80082598,
+   0x800825CC and 0x800825E0 (USA) each start right where the one before
+   ends, 4 bytes past a multiple of 8 from the start of the object before, so
+   each one starts a new object. Where each object's code starts is only
+   known to be between the function with the last jump table of the object
+   before and the one with its first; the data is all here. */
+
 #include "fieldstg.h"
 
 void func_80082F1C(Task *task) {
@@ -16,3190 +25,161 @@ void func_80082F1C(Task *task) {
     }
 }
 
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80082F84);
+/*
+ * The field's commands (0x337 to 0x386) that the stage overlays send: the
+ * field task's substate, map objects 100 to 105 hidden or shown, and
+ * sounds, three of which are held to be keyed off later.
+ */
+void func_80082F84(Task *task, s32 command) {
+    MapObject *object;
+    Task *field;
+    s32 n;
+
+    if (task == NULL) {
+        return;
+    }
+    n = 0;
+    if (command == 0x337) {
+        task->setSubstate(task, 1);
+    }
+    switch (command) {
+    case 0x34A:
+        n++;
+    case 0x339:
+        n++;
+    case 0x338:
+        n++;
+        field = TASK_FUNCS.find(0x16, -1, -1);
+        field->setSubstate(field, n);
+        break;
+    }
+    switch (command) {
+    case 0x34D ... 0x352:
+        for (object = (MapObject *)D_800990B4.unk10; object->unk2 != 0; object++) {
+            if (object->id == command - 0x2E9) {
+                object->unk0 = 0;
+            }
+        }
+        break;
+    case 0x353 ... 0x358:
+        for (object = (MapObject *)D_800990B4.unk10; object->unk2 != 0; object++) {
+            if (object->id == command - 0x2EF) {
+                object->unk0 = 1;
+            }
+        }
+        break;
+    }
+    switch (command) {
+    case 0x372:
+        func_8008D07C(1);
+        break;
+    case 0x373:
+        func_8008D07C(0);
+        break;
+    }
+    if (command == 0x376) {
+        func_8008C23C();
+    }
+    switch (command) {
+    case 0x365:
+        SOUND.playSound(0xB80001);
+        break;
+    case 0x368:
+        SOUND.playSound(0x80E8383C);
+        break;
+    case 0x369:
+        SOUND.playSound(0x60040002);
+        break;
+    case 0x36A:
+        SOUND.playSound(0xA40006);
+        break;
+    case 0x36B:
+        SOUND.playSound(0x805458BD);
+        break;
+    case 0x36C:
+        SOUND.playSound(0x800410BD);
+        break;
+    case 0x36D:
+        SOUND.playSound(0x803C503C);
+        break;
+    case 0x36E:
+        SOUND.playSound(0x01100000);
+        break;
+    case 0x36F:
+        SOUND.playSound(0x01100002);
+        break;
+    case 0x374:
+        SOUND.playSound(0x700001);
+        break;
+    case 0x375:
+        SOUND.playSound(0x40015);
+        break;
+    case 0x377:
+        SOUND.playSound(0x8004113E);
+        break;
+    case 0x378:
+        SOUND.playSound(0x8110303C);
+        break;
+    case 0x379:
+        SOUND.playSound(0x81103240);
+        break;
+    case 0x37A:
+        SOUND.playSound(0x4001D);
+        break;
+    case 0x37C:
+        SOUND.playSound(0x440001);
+        break;
+    case 0x37D:
+        SOUND.playSound(0x340004);
+        break;
+    case 0x37E:
+        SOUND.playSound(0x40013);
+        break;
+    case 0x37F:
+        SOUND.playSound(0x800429BF);
+        break;
+    case 0x380:
+        SOUND.playSound(0x800430BD);
+        break;
+    case 0x381:
+        SOUND.playSound(0x80042DC7);
+        break;
+    case 0x383:
+        SOUND.playSound(0x8004103C);
+        break;
+    }
+    switch (command) {
+    case 0x366:
+        D_8009A934 = SOUND.playSound(0xA10C703C);
+        break;
+    case 0x370:
+        D_8009A934 = SOUND.playSound(0xA0045EC9);
+        break;
+    case 0x382:
+        D_8009A934 = SOUND.playSound(0xA054583C);
+        break;
+    case 0x384:
+        D_8009A934 = SOUND.playSound(0xA0042FCB);
+        break;
+    }
+    switch (command) {
+    case 0x367:
+        SOUND.keyOff(0xA10C703C, D_8009A934);
+        break;
+    case 0x371:
+        SOUND.keyOff(0xA0045EC9, D_8009A934);
+        break;
+    case 0x385:
+        SOUND.keyOff(0xA0042FCB, D_8009A934);
+        break;
+    case 0x386:
+        SOUND.keyOff(0xA054583C, D_8009A934);
+        break;
+    }
+}
 
 void func_80083470(void) {
     createTaskWithId(func_80082F1C, sizeof(Task), 0, 0x32D);
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800834A0);
-
-void func_800838BC(Unk800834A0 *task, s32 arg1) {
-    if (task != NULL) {
-        switch (arg1) {
-        case 0x348:
-            task->setState(task, 2);
-            task->unk58 = 0;
-            break;
-        case 0x349:
-            task->setState(task, 2);
-            task->unk58 = 1;
-            break;
-        }
-    }
-}
-
-Unk800834A0 *func_80083930(s32 id) {
-    Unk800834A0 *task = createTaskWithId(func_800834A0, sizeof(Unk800834A0), 0, id);
-
-    if (FLAGS_00.checkCondition(0x1C3D, 1)) {
-        task->unk58 = 1;
-    } else {
-        task->unk58 = 0;
-    }
-    return task;
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80083998);
-
-void func_80083F8C(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 0;
-}
-
-void func_80083FBC(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 1;
-}
-
-void func_80083FF0(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 2;
-}
-
-void func_80084024(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 3;
-}
-
-void func_80084058(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 4;
-}
-
-void func_8008408C(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 5;
-}
-
-void func_800840C0(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 6;
-}
-
-void func_800840F4(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 7;
-}
-
-void func_80084128(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 8;
-}
-
-void func_8008415C(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 9;
-}
-
-void func_80084190(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 10;
-}
-
-void func_800841C4(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 11;
-}
-
-void func_800841F8(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 12;
-}
-
-void func_8008422C(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 13;
-}
-
-void func_80084260(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 14;
-}
-
-void func_80084294(void) {
-    ChoiceTask *task = createTask(func_80083998, sizeof(ChoiceTask), 0x14);
-    task->type = 15;
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800842C8);
-
-Unk800842C8 *func_800844B8(s32 arg0) {
-    Unk800842C8 *task = createTask(func_800842C8, sizeof(Unk800842C8), 8);
-
-    task->unk50 = arg0;
-    FIELDSTG_initFuncs[0]();
-    return task;
-}
-
-s32 func_80084514(Unk80084654 *arg0, s32 id) {
-    s32 i;
-
-    if (id < 0x320) {
-        for (i = 0; i < 30; i++) {
-            if (arg0->entries[i].id == 0) {
-                break;
-            }
-            if (arg0->entries[i].id == id) {
-                return arg0->entries[i].value;
-            }
-        }
-    }
-    return 0;
-}
-
-s32 func_80084558(Unk80084654 *task, s16 *op, Unk80084654Children *children) {
-    s32 id = op[1];
-    s32 arg1 = op[2];
-    s32 arg2 = op[3];
-    Actor *actor;
-    s32 target;
-    s32 i;
-
-    if (id < 0x320) {
-        actor = (Actor *)func_80084514(task, id);
-        if (actor != NULL) {
-            actor->unk148(actor, arg1, arg2);
-        }
-    } else {
-        target = (s32)TASK_FUNCS.find(id, -1, -1);
-        if (target == 0) {
-            for (i = 0; i < 10; i++) {
-                if (children->scripts[i] == 0) {
-                    children->scripts[i] = func_80091730(id);
-                    if (children->scripts[i] != 0) {
-                        target = children->scripts[i];
-                    }
-                    break;
-                }
-            }
-        }
-        if (target != 0) {
-            func_80091774(target, id, arg1, arg2);
-        }
-    }
-    return 4;
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80084654);
-
-Unk80084654 *func_80084B80(s32 id) {
-    Unk80084654 *task = createTask(func_80084654, sizeof(Unk80084654), 0x38);
-    Unk80084B80Entry *entry;
-    Task *other;
-    s32 text;
-
-    for (entry = D_800990B4.unk24; entry->id != -1; entry++) {
-        if (entry->id == id) {
-            task->unk50 = id;
-            task->unk54 = entry->unk4;
-            task->unk58 = entry->unkC;
-            task->unk5C = entry->unk10;
-            D_800990B4.unk48 = text = entry->text;
-            if (text != 0) {
-                D_800990B4.unk48 = text + (TEXT_FILE(1) << 16);
-                FILE_CACHE.request(entry->text >> 16);
-            }
-            D_800990B4.unk58 = 1;
-            if (id < 8000 || id >= 9000) {
-                other = TASK_FUNCS.find(5, -1, 0);
-                if (other != NULL && other->state == 1) {
-                    other->setSubstate(other, 1);
-                }
-            }
-            break;
-        }
-    }
-    if (D_800990B4.unk58 == 0) {
-        task->setState(task, 3);
-    }
-    return task;
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80084D0C);
-
-void func_80085240(s32 arg0) {
-    Unk80084D0C *task = createTask(func_80084D0C, sizeof(Unk80084D0C), 0);
-
-    task->unk50 = arg0;
-}
-
-s32 func_80085278(Unk80085278 *anim, AnimFrame *frames, s32 depth) {
-    AnimFrame *frame = &frames[anim->anim.index];
-    s32 elapsed = GFX_FUNCS.getFrameTime();
-
-    if (elapsed > 4) {
-        elapsed = 4;
-    }
-    if (depth == 0) {
-        anim->anim.timer -= elapsed;
-    }
-    if (anim->anim.timer <= 0) {
-        frame++;
-        anim->anim.index++;
-        anim->anim.timer += frame->duration;
-        if (frame->frame == 0xFF) {
-            return 0xFF;
-        }
-        func_80085278(anim, frames, depth + 1);
-    }
-    return frame->frame;
-}
-
-void func_80085350(Unk80085350 *task) {
-    Layer *layer = GFX_FUNCS.getLayer(0x1002);
-    SpriteDrawer sprite;
-    s32 i;
-    s32 j;
-    s32 frame;
-
-    switch (task->state) {
-        default:
-        case 0:
-            for (i = 0; i < 4; i++) {
-                task->anims[i].active = 1;
-                task->anims[i].anim.index = 0;
-                task->anims[i].anim.timer = D_800961E4[task->set][i][0].duration;
-            }
-            task->nextState(task);
-            break;
-        case 1:
-            for (j = 0; j < 4; j++) {
-                if (task->anims[j].active != 0) {
-                    frame = func_80085278(&task->anims[j], D_800961E4[task->set][j], 0);
-                    switch (frame) {
-                        case 0x12C:
-                            break;
-                        case 0xFF:
-                            task->anims[j].active = 0;
-                            break;
-                        default:
-                            initSpriteDrawer(&sprite);
-                            sprite.setTexture(0x240, 0x100);
-                            sprite.setLayer(layer, 0);
-                            sprite.setClutRow(0);
-                            sprite.draw(FILE_CACHE.getEntry(FIELD_SPRITES_FILE << 16 | 1), frame, task->x, task->y);
-                            break;
-                    }
-                }
-            }
-            if (task->anims[0].active == 0 && task->anims[1].active == 0 && task->anims[2].active == 0
-                && task->anims[3].active == 0) {
-                task->setState(task, 3);
-            }
-            break;
-        case 2:
-        case 3:
-            break;
-    }
-}
-
-void func_80085588(s32 arg0, s32 arg1, s32 arg2) {
-    Unk80085350 *task = createTask(func_80085350, sizeof(Unk80085350), 0);
-
-    task->x = arg0;
-    task->y = arg1;
-    task->set = arg2;
-}
-
-StreamTask *func_800855E0(StreamPool *pool) {
-    s32 i;
-    s32 oldest = GFX_FUNCS.getTime();
-    StreamTask *found = pool->tasks[0];
-
-    for (i = 0; i < 30; i++) {
-        if (pool->tasks[i]->time <= oldest) {
-            oldest = pool->tasks[i]->time;
-            found = pool->tasks[i];
-        }
-    }
-    return found;
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80085650);
-
-void func_800857DC(Layer *layer, s32 x, s32 y, s32 level) {
-    Point scroll;
-    SPRT *prim;
-    u_long *ot;
-    s32 i;
-    s32 shade;
-
-    ot = (u_long *)layer->getOtEntry(layer, 0);
-    shade = level >> 8;
-    layer->getScroll(layer, &scroll);
-    prim = GFX_FUNCS.getPrim();
-    for (i = 0; i < 4; i++) {
-        SetSprt(prim);
-        if (shade != 0xFF) {
-            SetSemiTrans(prim, 1);
-        }
-        prim->r0 = prim->g0 = prim->b0 = shade;
-        prim->x0 = x - scroll.x + ((i & 1) << 6);
-        prim->y0 = y - scroll.y + ((i << 5) & 0x40);
-        prim->u0 = D_800990B4.unk28->u;
-        prim->v0 = D_800990B4.unk28->v;
-        prim->w = 0x40;
-        prim->h = 0x40;
-        prim->clut = GetClut(D_800990B4.unk28->clutX, D_800990B4.unk28->clutY);
-        addPrim(ot, prim);
-        prim++;
-        SetDrawTPage((DR_TPAGE *)prim, 0, 1, GetTPage(0, 1, D_800990B4.unk28->x, D_800990B4.unk28->y));
-        addPrim(ot, prim);
-        prim = (SPRT *)((DR_TPAGE *)prim + 1);
-    }
-    GFX_FUNCS.setPrim(prim);
-}
-
-StreamTask *func_80085A00(StreamPool *pool, s32 frame) {
-    s32 i;
-    StreamTask *task;
-
-    for (i = 0; i < 30; i++) {
-        task = pool->tasks[i];
-        if (task->getFrame(task) == frame) {
-            return task;
-        }
-    }
-    return NULL;
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80085A78);
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80085EEC);
-
-void func_80086144(Unk80086144 *task, StreamPool *pool) {
-    s32 *header;
-    s32 count;
-    s32 i;
-    s32 j;
-    Layer *layer;
-
-    switch (task->state) {
-    case 0:
-    default:
-        switch (task->substate) {
-        case 0:
-        default:
-            if (CD_READER.isBusy() == 0) {
-                task->unk54 = HEAP.alloc(0x800, 2);
-                CD_READER.read(task->unk64, 0, 1, task->unk54, NULL);
-                task->nextSubstate(task);
-            }
-            break;
-        case 1:
-            if (CD_READER.isBusy() != 1) {
-                header = task->unk54;
-                task->unk68 = header[1];
-                task->unk6C = header[2];
-                task->unk70 = header[3] / 2048;
-                count = task->unk68 * task->unk6C;
-                task->unk104 = HEAP.alloc(count * sizeof(MapTile), 2);
-                for (j = 0; j < count; j++) {
-                    task->unk104[j].unk0 = ((u16 *)header)[j + 8];
-                    task->unk104[j].unk4 = ((u16 *)header)[j + 8] >> 11;
-                }
-                HEAP.free(task->unk54);
-                task->unk54 = NULL;
-                for (i = 0; i < 30; i++) {
-                    pool->tasks[i] = func_80086B54(task->unk70 << 11, task->unk64);
-                }
-                for (i = 0; i < 12; i++) {
-                    task->unk74[i].unk0 = -1;
-                    task->unk74[i].unk4 = 0;
-                }
-                pool->decompressor = createDecompressor();
-                task->nextState(task);
-            }
-            break;
-        }
-        break;
-    case 1:
-        layer = GFX_FUNCS.getLayer(0x1002);
-        layer->getScroll(layer, &task->scroll);
-        func_80085EEC(task);
-        func_80085A78(task, pool);
-        func_80085650(task, pool);
-        break;
-    case 2:
-        break;
-    case 3:
-        if (task->unk54 != NULL) {
-            HEAP.free(task->unk54);
-        }
-        if (task->unk104 != NULL) {
-            HEAP.free(task->unk104);
-        }
-        break;
-    }
-}
-
-Point *func_800863F4(Unk80086144 *arg0) {
-    D_8009A938.x = arg0->unk68 << 7;
-    D_8009A938.y = arg0->unk6C << 7;
-    return &D_8009A938;
-}
-
-void func_80086418(s32 arg0) {
-    Unk80086144 *task = createTaskWithId(func_80086144, sizeof(Unk80086144), 0x7C, 4);
-
-    task->unk64 = arg0;
-    task->unk130 = func_800863F4;
-}
-
-void func_80086460(s32 id, s32 level) {
-    Layer *layer = GFX_FUNCS.getLayer(id);
-    s32 x;
-    s32 y;
-
-    if (layer != NULL) {
-        for (y = 0; y < 0xF0; y += 0x80) {
-            for (x = 0; x < 0x140; x += 0x80) {
-                func_800857DC(layer, x, y, level);
-            }
-        }
-    }
-}
-
-void func_800864E8(StreamTask *task) {
-    task->time = GFX_FUNCS.getTime();
-}
-
-void func_80086518(StreamTask *task, s32 frame, s32 size) {
-    if (task->frame != frame) {
-        task->frame = frame;
-        task->loaded = 0;
-        task->unk70 = -1;
-        task->sector = frame * task->frameSectors + 1;
-        CD_READER.read(task->file, task->sector, size, task->buffer, &task->loaded);
-        task->unk54 = 0;
-    }
-    func_800864E8(task);
-}
-
-s32 func_800865A0(StreamTask *task) {
-    return task->loaded;
-}
-
-void func_800865AC(StreamTask *task, Layer *layer, s32 x, s32 y) {
-    Point scroll;
-    SPRT *prim;
-    u_long *ot;
-    s32 i;
-    s32 j;
-
-    layer->getScroll(layer, &scroll);
-    prim = GFX_FUNCS.getPrim();
-    for (i = 0; i < 3; i++) {
-        ot = (u_long *)layer->getOtEntry(layer, D_8009638C[i]);
-        for (j = 0; j < 5; j++) {
-            if (task->sprites[i][j].visible) {
-                SetSprt(prim);
-                if (i == 2 || D_800990B4.unk38.cd != 0) {
-                    prim->r0 = D_800990B4.unk38.r;
-                    prim->g0 = D_800990B4.unk38.g;
-                    prim->b0 = D_800990B4.unk38.b;
-                } else {
-                    prim->r0 = 0x80;
-                    prim->g0 = 0x80;
-                    prim->b0 = 0x80;
-                }
-                prim->x0 = task->sprites[i][j].x + x - scroll.x;
-                prim->y0 = task->sprites[i][j].y + y - scroll.y;
-                prim->w = task->sprites[i][j].w;
-                prim->h = task->sprites[i][j].h;
-                prim->clut = getClut(task->clutX, task->clutY);
-                prim->u0 = task->sprites[i][j].u;
-                prim->v0 = task->imageY + task->sprites[i][j].v;
-                addPrim(ot, prim);
-                prim++;
-            }
-        }
-        SetDrawTPage((DR_TPAGE *)prim, 0, 1, GetTPage(1, 0, task->imageX, task->imageY));
-        addPrim(ot, prim);
-        prim = (SPRT *)((DR_TPAGE *)prim + 1);
-    }
-    GFX_FUNCS.setPrim(prim);
-    func_800864E8(task);
-}
-
-void func_80086858(StreamTask *task, s32 slot, StreamSource *source) {
-    task->slot = slot;
-    task->source = source;
-    source->unk7C(source, task->buffer, 0x2800);
-    task->setSubstate(task, 1);
-}
-
-void func_800868AC(StreamTask *task) {
-    TimLoader loader;
-    s32 i;
-    s32 j;
-    s32 count;
-    s32 *data = task->unk230;
-    s32 slot = task->slot;
-    s16 *p = (s16 *)(data + 1);
-
-    for (i = 0; i < 3; i++) {
-        count = *(s32 *)p;
-        p += 2;
-        for (j = 0; j < count; j++) {
-            task->sprites[i][j].visible = 1;
-            task->sprites[i][j].x = *p++;
-            task->sprites[i][j].y = *p++;
-            task->sprites[i][j].u = *p++;
-            task->sprites[i][j].v = *p++;
-            task->sprites[i][j].w = *p++;
-            task->sprites[i][j].h = *p++;
-        }
-        for (; j < 5; j++) {
-            task->sprites[i][j].visible = 0;
-        }
-    }
-    task->unk70 = slot;
-    task->imageX = D_80096398[slot].x;
-    task->imageY = D_80096398[slot].y;
-    task->clutX = 0;
-    task->clutY = slot + 0xF0;
-    initTimLoader(&loader);
-    loader.setImagePos(task->imageX, task->imageY);
-    loader.setClutPos(task->clutX, task->clutY);
-    loader.load(FILE_CACHE.getArchiveEntry(0, (s32)data));
-    func_800864E8(task);
-}
-
-void func_80086A3C(StreamTask *task) {
-    task->unk70 = -1;
-}
-
-s32 func_80086A48(StreamTask *task) {
-    return task->unk70;
-}
-
-s32 func_80086A54(StreamTask *task) {
-    return task->frame;
-}
-
-void func_80086A60(StreamTask *task) {
-    switch (task->state) {
-    case 0:
-    default:
-        task->nextState(task);
-        break;
-    case 1:
-        switch (task->substate) {
-        case 0:
-            break;
-        case 1:
-            task->unk230 = task->source->unk78(task->source);
-            if (task->unk230 != NULL) {
-                func_800868AC(task);
-                task->setSubstate(task, 0);
-            }
-            break;
-        }
-        if (task->unk54 == 0 && task->loaded != 0) {
-            task->unk54 = GFX_FUNCS.getTime();
-        }
-        break;
-    case 2:
-        break;
-    case 3:
-        HEAP.free(task->buffer);
-        break;
-    }
-}
-
-StreamTask *func_80086B54(s32 size, s32 file) {
-    StreamTask *task = createTask(func_80086A60, sizeof(StreamTask), 0);
-
-    task->seek = func_80086518;
-    task->draw = func_800865AC;
-    task->setSource = func_80086858;
-    task->getFrame = func_80086A54;
-    task->isLoaded = func_800865A0;
-    task->unk248 = func_80086A48;
-    task->unk24C = func_80086A3C;
-    task->updateTime = func_800864E8;
-    task->file = file;
-    task->frameSectors = size / 2048;
-    task->buffer = HEAP.allocHigh(size, 2);
-    task->frame = -1;
-    task->unk70 = -1;
-    task->loaded = 1;
-    return task;
-}
-
-void func_80086C4C(Task *task, Task **children) {
-    s32 mode;
-
-    switch (task->state) {
-        default:
-        case 0:
-            mode = GAME.funcs.getMode();
-            if (GAME.unk26D4 != mode) {
-                GAME.unk26D4 = mode;
-                GAME.clearTempFlags = 1;
-#if VERSION_EU
-                GAME.unk26F8 = 0x10;
-#endif
-            } else {
-                GAME.clearTempFlags = 0;
-            }
-            children[0] = func_8008ADE8();
-            task->nextState(task);
-            break;
-        case 1:
-        case 2:
-        case 3:
-            break;
-    }
-}
-
-void func_80086CF4(void) {
-    createTask(func_80086C4C, sizeof(Task), 0xC);
-}
-
-void func_80086D20(Task *task, AreaNameWindows *windows) {
-    s16 mode = GAME_FUNCS.getMode();
-    s32 i;
-
-    for (i = 0; D_800963F8[i].mode != 0; i++) {
-        if (D_800963F8[i].mode == mode) {
-            windows->area = createTextWindow(0x1003, 1, 0x80, 0x1A);
-            windows->area->setString(windows->area, FILE_CACHE.load(TEXT_FILE(0xAA)), D_800963F8[i].area);
-            windows->area->setTypeDelay(windows->area, 5);
-            windows->place = createTextWindow(0x1003, 1, 0x28, 0x44);
-            windows->place->setString(windows->place, FILE_CACHE.load(TEXT_FILE(0xB8)), D_800963F8[i].place);
-            windows->place->setTypeDelay(windows->place, 5);
-            break;
-        }
-    }
-}
-
-/* Stretches a box toward from-to along one axis. The match depends on each
-   case having its own variables. */
-void func_80086E64(Unk800870D4 *task, Unk800870D4Box *box) {
-    switch (box->stretch) {
-    case 1: {
-        s32 start = box->pos.vx;
-        s32 end = start + box->size.vx;
-        s32 from = box->from;
-        s32 to = box->to;
-        s32 speed = box->speed;
-
-        if (start < from) {
-            start += speed;
-            if (start > from) {
-                start = from;
-            }
-        } else if (start > from) {
-            start -= speed;
-            if (start < from) {
-                start = from;
-            }
-        }
-        if (end < to) {
-            end += speed;
-            if (end > to) {
-                end = to;
-            }
-        } else if (end > to) {
-            end -= speed;
-            if (end < to) {
-                end = to;
-            }
-        }
-        box->pos.vx = start;
-        box->size.vx = end - start;
-        if (start == from && end == to) {
-            box->stretch = 0;
-        }
-        break;
-    }
-    case 2: {
-        s32 start = box->pos.vy;
-        s32 end = start + box->size.vy;
-        s32 from = box->from;
-        s32 to = box->to;
-        s32 speed = box->speed;
-
-        if (start < from) {
-            start += speed;
-            if (start > from) {
-                start = from;
-            }
-        } else if (start > from) {
-            start -= speed;
-            if (start < from) {
-                start = from;
-            }
-        }
-        if (end < to) {
-            end += speed;
-            if (end > to) {
-                end = to;
-            }
-        } else if (end > to) {
-            end -= speed;
-            if (end < to) {
-                end = to;
-            }
-        }
-        box->pos.vy = start;
-        box->size.vy = end - start;
-        if (start == from && end == to) {
-            box->stretch = 0;
-        }
-        break;
-    }
-    }
-}
-
-void func_80086FB4(Unk800870D4 *task, u_long *ot, DVECTOR pos, DVECTOR size, s32 color) {
-    POLY_F4 *poly = GFX.funcs.getPrim();
-
-    setlen(poly, 5);
-    *(s32 *)&poly->r0 = color;
-    poly->code = 0x28;
-    poly->x0 = pos.vx;
-    poly->x1 = pos.vx + size.vx;
-    poly->x2 = pos.vx;
-    poly->x3 = pos.vx + size.vx;
-    poly->y0 = pos.vy;
-    poly->y1 = pos.vy;
-    poly->y2 = pos.vy + size.vy;
-    poly->y3 = pos.vy + size.vy;
-    addPrim(ot, poly);
-    GFX.funcs.setPrim(poly + 1);
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800870D4);
-
-Task *func_800874C8(s32 arg0) {
-    Task *task = createTaskWithId(func_800870D4, sizeof(Unk800870D4), 8, 9);
-
-    task->key1 = arg0;
-    D_800990B4.unk54 = 1;
-    return task;
-}
-
-s32 func_80087510(Unk800876E4 *task) {
-    task->time -= GFX_FUNCS.getFrameTime();
-    if (task->time < 0) {
-        task->frame += 2;
-        if (D_80096920[task->key2][task->frame] == 0xFF) {
-            task->frame = 0;
-        }
-        task->time = D_80096920[task->key2][task->frame + 1];
-    }
-    return D_80096920[task->key2][task->frame];
-}
-
-void func_800875DC(Unk800876E4 *task) {
-    SpriteDrawer sprite;
-    Point pos;
-    s32 frame;
-
-    pos.x = task->actor->tile.x;
-    pos.y = task->actor->tile.y - (task->actor->unk64 >> 8);
-    initSpriteDrawer(&sprite);
-    sprite.setLayerId(0x1002, 1);
-    sprite.setTexture(0x200, 0x100);
-    if (task->substate == 2) {
-        frame = func_80087510(task);
-        sprite.draw(FILE_CACHE_GET_ENTRY[0](FIELD_SPRITES_FILE << 16), frame, pos.x, pos.y - 0x1B);
-    }
-    sprite.draw(FILE_CACHE_GET_ENTRY[0](FIELD_SPRITES_FILE << 16), task->unk60 >> 2, pos.x, pos.y - 0x1B);
-}
-
-void func_800876E4(Unk800876E4 *task) {
-    switch (task->state) {
-        default:
-        case 0:
-            if (task->actor == NULL) {
-                task->actor = TASK_FUNCS.find(5, -1, 0);
-                if (task->actor == NULL) {
-                    break;
-                }
-            }
-            if (task->key1 == 0) {
-                task->unk54 = 0xC8;
-                task->unk58 = 0xD4;
-                task->unk5C = 0xDC;
-            } else {
-                task->unk54 = 0x104;
-                task->unk58 = 0x10C;
-                task->unk5C = 0x114;
-            }
-            if (task->key2 != 1) {
-                SOUND.playSound(0x40007);
-            }
-            task->nextState(task);
-            /* fallthrough */
-        case 1:
-            if (D_800990B4.unk50 != 0) {
-                break;
-            }
-            switch (task->substate) {
-                default:
-                case 0:
-                    task->unk60 = task->unk54;
-                    task->nextSubstate(task);
-                    /* fallthrough */
-                case 1:
-                    task->unk60 += GFX_FUNCS.getFrameTime();
-                    if (task->unk60 >= task->unk58) {
-                        task->unk60 = task->unk58;
-                        task->nextSubstate(task);
-                    }
-                    break;
-                case 2:
-                    break;
-            }
-            func_800875DC(task);
-            break;
-        case 2:
-            task->unk60 += GFX_FUNCS.getFrameTime();
-            if (task->unk60 >= task->unk5C) {
-                task->unk60 = task->unk5C;
-                task->setState(task, 3);
-            }
-            func_800875DC(task);
-            break;
-        case 3:
-            break;
-    }
-}
-
-Unk800876E4 *func_800878A4(s32 arg0, s32 arg1, s32 arg2) {
-    Unk800876E4 *task = createTaskWithId(func_800876E4, sizeof(Unk800876E4), 0, arg2);
-    task->key1 = arg0;
-    task->key2 = arg1;
-    return task;
-}
-
-void func_800878F0(s32 arg0) {
-    func_800878A4(0, 0, arg0);
-}
-
-void func_80087918(Unk800876E4 *task, s32 command, s32 id) {
-    if (task != NULL) {
-        switch (command) {
-        case 0x325:
-            task->key2 = 0;
-            break;
-        case 0x327:
-            task->key2 = 1;
-            break;
-        case 0x326:
-            task->setState(task, 2);
-            break;
-        }
-        if (command == 0x325 || command == 0x327) {
-            task->actor = TASK_FUNCS.find(5, id, -1);
-        }
-    }
-}
-
-s32 func_800879E8(Unk80087FDC *task) {
-    Actor *actor = task->actor;
-    Point tile;
-    u32 cell;
-    s32 type;
-
-    tile = actor->tile;
-    cell = (u8)D_8009A70C.getCell(7, &tile);
-    if (cell == 0) {
-        return 0;
-    }
-    task->dir = cell >> 5;
-    task->index = cell & 0x1F;
-    task->entry = &task->entries[task->index];
-    type = task->entry->type;
-    switch (type) {
-    case 5:
-    case 6:
-    case 8:
-    case 9:
-    case 10:
-    case 11:
-    case 12:
-    case 13:
-    case 14:
-        return 1;
-    }
-    return D_80096984[task->dir][actor->dir] != 0;
-}
-
-s32 func_80087ACC(Unk80087FDC *task, Unk80087FDCChildren *children) {
-#if VERSION_EU
-    s32 arg;
-#endif
-
-    if (task->entry->conditions[0][0] != 0xFFFF
-        && FLAGS_00.checkCondition(task->entry->conditions[0][0], task->entry->conditions[0][1]) == 0) {
-        return 0;
-    }
-    if (task->entry->conditions[1][0] != 0xFFFF
-        && FLAGS_00.checkCondition(task->entry->conditions[1][0], task->entry->conditions[1][1]) == 0) {
-        return 0;
-    }
-    switch (task->entry->type) {
-        case 5:
-            task->actor->unk78[0] = task->entry->unkA;
-            GAME.unk26E0 = task->entry->unkA;
-            return 0;
-        case 6:
-            D_8009A70C.unk54(task->entry->unkA);
-            return 0;
-        case 8:
-            if (children->script == NULL) {
-                children->script = func_80084B80(task->entry->unkA);
-            }
-            return 0;
-        case 11:
-            task->actor->unk150(task->actor, task->dir);
-            return 0;
-        case 12:
-            task->actor->unk154(task->actor);
-            return 0;
-        case 13:
-            task->actor->unk158(task->actor, &task->entry->unkA);
-            return 0;
-    }
-#if VERSION_US
-    if (children->anim != NULL) {
-        children->anim->setState(children->anim, 1);
-        return 1;
-    }
-    switch (task->entry->type) {
-        default:
-            children->anim = func_800878A4(0, 0, 6);
-            break;
-        case 2:
-        case 3:
-            children->anim = func_800878A4(0, 2, 6);
-            break;
-        case 4:
-            children->anim = func_800878A4(0, 4, 6);
-            break;
-        case 7:
-            children->anim = func_800878A4(0, 5, 6);
-            break;
-        case 1:
-            if (task->dir == 4) {
-                children->anim = func_800878A4(0, 10, 6);
-            } else {
-                children->anim = func_800878A4(0, (task->dir >> 1) + 6, 6);
-            }
-            break;
-    }
-#elif VERSION_EU
-    /* the European version restarts a running animation on the new row */
-    switch (task->entry->type) {
-        default:
-            arg = 0;
-            break;
-        case 2:
-        case 3:
-            arg = 2;
-            break;
-        case 4:
-            arg = 4;
-            break;
-        case 7:
-            arg = 5;
-            break;
-        case 1:
-            if (task->dir == 4) {
-                arg = 10;
-            } else {
-                arg = (task->dir >> 1) + 6;
-            }
-            break;
-    }
-    if (children->anim != NULL) {
-        children->anim->setState(children->anim, 1);
-        children->anim->key2 = arg;
-        children->anim->frame = 0;
-        children->anim->time = 0;
-    } else {
-        children->anim = func_800878A4(0, arg, 6);
-    }
-#endif
-    return 1;
-}
-
-const Point D_80082624 = {0, 0};
-
-void func_80087D28(Unk80087FDC *task) {
-    MapObject *object;
-    s32 id;
-
-    switch (task->entry->type) {
-        case 1:
-            task->actor->unk110(task->actor, task->dir);
-            func_8008AEB4(task->entry->unkA, -1, task->entry->unkC << 8, task->entry->unkE << 8, task->entry->unk10);
-            if (task->entry->unk12 != 0) {
-                object = (MapObject *)D_800990B4.unk10;
-                id = task->entry->unk12;
-                for (; object->unk2 != 0; object++) {
-                    if (object->id == id) {
-                        object->unk0 = 0;
-                    }
-                }
-            }
-            GAME.unk44 = task->entry->unk14;
-            GAME.unk46 = task->entry->unk16;
-            break;
-        case 14:
-            task->actor->unk158(task->actor, &task->entry->unkA);
-            func_8008AE18(task->entry->unkA, -1, task->entry->unkC << 8, task->entry->unkE << 8, task->entry->unk10,
-                          0x3C);
-            break;
-        case 2:
-            task->actor->unk114(task->actor, task->dir, task->entry->unkC, task->entry->unkE,
-                                (task->entry->unkA - 1) * 16);
-            break;
-        case 3:
-            task->actor->unk118(task->actor, task->dir == 1 ? 5 : 3, task->entry->unkC, task->entry->unkE,
-                                (task->entry->unkA - 1) * 16);
-            break;
-        case 4:
-            task->actor->unk11C(task->actor, task->dir, D_80082624, task->entry->unkA * 16);
-            break;
-        case 7:
-            task->actor->unk120(task->actor, task->dir, (Point){task->entry->unkA, task->entry->unkC});
-            break;
-        case 10:
-            task->actor->unk124(task->actor, &task->entry->unkA, 0);
-            break;
-        case 9:
-            task->actor->unk124(task->actor, &task->entry->unkA, 1);
-            break;
-    }
-}
-
-void func_80087FDC(Unk80087FDC *task, Unk80087FDCChildren *children) {
-    task->entries = D_800990B4.unk14;
-    switch (task->state) {
-        default:
-        case 0:
-            task->actor = TASK_FUNCS.find(5, -1, 0);
-            if (task->actor != NULL) {
-                task->nextState(task);
-            }
-            break;
-        case 1:
-            if (D_800990B4.unk58 != 0 || D_800990B4.unk54 != 0) {
-                break;
-            }
-            switch (task->substate) {
-                default:
-                case 0:
-                    if (func_800879E8(task) != 0 && func_80087ACC(task, children) != 0) {
-                        task->nextSubstate(task);
-                    }
-                    break;
-                case 1:
-                    if (func_800879E8(task) == 0) {
-                        task->setSubstate(task, 0);
-                        children->anim->setState(children->anim, 2);
-                    } else if ((PAD.getPressed(0) & 0x2000) && D_800990B4.unk54 == 0) {
-                        children->anim->setState(children->anim, 3);
-                        func_80087D28(task);
-                        task->nextSubstate(task);
-                    }
-                    break;
-                case 2:
-                    if (task->actor->substate < 5) {
-                        task->setSubstate(task, 0);
-                    }
-                    break;
-            }
-            break;
-        case 2:
-        case 3:
-            break;
-    }
-}
-
-void func_800881A0(s32 arg0) {
-    Unk80087FDC *task = createTask(func_80087FDC, sizeof(Unk80087FDC), 8);
-
-    task->unk50 = arg0;
-}
-
-void func_800881D8(Unk800882D8 *task, Point *out) {
-    Point pos;
-
-    pos.x = task->actor->tile.x;
-    pos.y = task->actor->tile.y;
-    if (task->actor->key1 == 0xD6) {
-        pos.y -= 0x15;
-    }
-    D_8009A434[0](&pos);
-    if (task->unk58 == 2 || task->unk58 == 3) {
-        pos.x -= 0xB;
-    } else {
-        pos.x += 0xB;
-    }
-    if (task->unk58 == 0 || task->unk58 == 2) {
-        pos.y -= 0x13;
-    } else {
-        pos.y -= 7;
-    }
-    *out = pos;
-}
-
-void func_800882D8(Unk800882D8 *task, void **box) {
-    Point pos;
-    Point newPos;
-    TalkBox *talkBox;
-
-    switch (task->state) {
-    case 0:
-    default:
-        if (task->unk5C != 0) {
-            *box = createMessageBox(0x1004, task->text, task->unk54);
-        } else {
-            func_800881D8(task, &pos);
-            *box = createTalkBox(0x1004, pos.x, pos.y, task->text, task->unk54, task->unk58);
-        }
-        task->nextState(task);
-        break;
-    case 1:
-        if (*box == NULL) {
-            task->setState(task, 3);
-        } else if (task->unk5C == 0) {
-            func_800881D8(task, &newPos);
-            talkBox = *box;
-            talkBox->setPos(talkBox, newPos.x, newPos.y);
-        }
-        break;
-    case 2:
-    case 3:
-        break;
-    }
-}
-
-Unk800882D8 *func_800883F4(Actor *actor, s32 arg1, s32 arg2, s32 arg3) {
-    Unk800882D8 *task = createTask(func_800882D8, sizeof(Unk800882D8), 4);
-
-    task->actor = actor;
-    task->unk54 = arg1;
-    task->unk58 = arg2;
-    task->unk5C = arg3;
-    task->text = FILE_CACHE_GET_ENTRY[0](D_800990B4.unk48);
-    return task;
-}
-
-Unk800882D8 *func_8008848C(Actor *actor, s32 arg1) {
-    Unk800882D8 *task = createTask(func_800882D8, sizeof(Unk800882D8), 4);
-    Point pos;
-
-    task->actor = actor;
-    task->unk54 = arg1;
-    task->text = (s32)FILE_CACHE_LOAD[0](D_800990B4.unk44);
-    pos = actor->tile;
-    D_8009A434[0](&pos);
-    switch (actor->dir) {
-        case 0:
-        case 1:
-        case 2:
-        case 6:
-        case 7:
-        default:
-            if (pos.x >= 0xA0) {
-                task->unk58 = 0;
-            } else {
-                task->unk58 = 2;
-            }
-            break;
-        case 3:
-        case 4:
-        case 5:
-            if (pos.x >= 0xA0) {
-                task->unk58 = 1;
-            } else {
-                task->unk58 = 3;
-            }
-            break;
-    }
-    switch (task->unk58) {
-        case 0:
-            if (pos.y < 0x79) {
-                task->unk58 = 1;
-            }
-            break;
-        case 2:
-            if (pos.y < 0x79) {
-                task->unk58 = 3;
-            }
-            break;
-        case 1:
-            if (pos.y >= 0xAC) {
-                task->unk58 = 0;
-            }
-            break;
-        case 3:
-            if (pos.y >= 0xAC) {
-                task->unk58 = 2;
-            }
-            break;
-    }
-    task->unk5C = 0;
-    return task;
-}
-
-void func_80088640(Unk8008878C *task, Layer *layer, s32 index) {
-    MapObject *object = &task->unk54[index];
-    SpriteDrawer sprite;
-
-    if (task->state == 1) {
-        initSpriteDrawer(&sprite);
-        sprite.setAltClut(0, 0x1F0);
-        sprite.setLayer(layer, object->depth);
-        if (object->id != 0xFF) {
-            sprite.setTexture(0x140, 0x100);
-            sprite.setClutRow(object->clutRow);
-            if (D_800990B4.unk38.cd != 0) {
-                sprite.setColor(&D_800990B4.unk38);
-            }
-            sprite.draw(FILE_CACHE_GET_ENTRY[0](task->unk50), object->frame, object->x, object->y);
-        } else {
-            sprite.setTexture(0x200, 0x100);
-            sprite.setClutRow(object->clutRow);
-            sprite.draw(FILE_CACHE_GET_ENTRY[0](FIELD_SPRITES_FILE << 16), object->frame, object->x, object->y);
-        }
-    }
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008878C);
-
-void func_80088BE4(s32 arg0, MapObject *arg1) {
-    Unk8008878C *task = createTask(func_8008878C, sizeof(Unk8008878C), 4);
-
-    task->unk54 = arg1;
-    task->unk50 = arg0;
-}
-
-void *func_80088C2C(void) {
-    u8 *entry = D_8009A940;
-    s32 found = 0;
-
-    for (; entry[2] != 0; entry += 0x12) {
-        if (entry[1] == D_8009A944) {
-            found = 1;
-            break;
-        }
-    }
-    D_8009A940 = entry + 0x12;
-    if (found) {
-        return entry;
-    }
-    return NULL;
-}
-
-void func_80088C9C(s32 arg0) {
-    D_8009A944 = arg0;
-    D_8009A940 = D_800990B4.unk10;
-    func_80088C2C();
-}
-
-void func_80088CD0(void) {
-    s32 mode = GAME_FUNCS.getMode();
-    s32 found = 0;
-    s32 i;
-
-    for (i = 0; D_800969C4[i] != 0; i++) {
-        if (D_800969C4[i] == (s16)mode) {
-            found = 1;
-            break;
-        }
-    }
-    if (found) {
-        FILE_CACHE_REQUEST(TEXT_FILE(0x5D));
-    }
-}
-
-void func_80088D5C(void) {
-    Unk80087FDCEntry *entry = D_800990B4.unk14;
-    s32 loadFile3 = 0;
-    s32 loadFile0 = 0;
-    s32 loadFile1 = 0;
-
-    for (; entry->type != 0; entry++) {
-        switch (entry->type) {
-        case 2:
-        case 3:
-            loadFile3 = 1;
-            break;
-        case 4:
-            loadFile0 = 1;
-            break;
-        case 7:
-            loadFile1 = 1;
-            break;
-        }
-    }
-    if (loadFile3) {
-        FILE_CACHE_REQUEST(FIELD_EXIT_FILES + 3);
-    }
-    if (loadFile0) {
-        FILE_CACHE_REQUEST(FIELD_EXIT_FILES);
-    }
-    if (loadFile1) {
-        FILE_CACHE_REQUEST(FIELD_EXIT_FILES + 1);
-    }
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80088E4C);
-
-void func_8008926C(Task *task) {
-    switch (task->state) {
-    case 0:
-    default:
-        task->nextState(task);
-        task->substate = task->key2;
-    case 1:
-        if (func_80088E4C(task) != 0) {
-            task->setState(task, 3);
-        }
-        break;
-    case 2:
-    case 3:
-        break;
-    }
-}
-
-void func_800892E8(s32 arg0) {
-    Task *task = createTask(func_8008926C, 0x54, 0);
-
-    task->key2 = arg0;
-}
-
-void func_80089320(Unk80089320 *task) {
-    SpriteDrawer sprite;
-    Point pos;
-    u8 (*anim)[2];
-    Actor *actor;
-    s32 step;
-    s32 time;
-
-    switch (task->state) {
-    default:
-    case 0:
-        task->nextState(task);
-    case 1:
-        if (task->step == 0) {
-            task->anim = D_80096A7C[task->substate];
-            task->animStep = 0;
-            task->animTime = 0;
-            switch (task->substate) {
-            case 1:
-            case 3:
-                SOUND.playSound(0x40009);
-                break;
-            }
-            task->nextStep(task);
-        }
-        if (task->actor != NULL && task->actor->state == 1) {
-            step = task->animStep;
-            time = task->animTime;
-            time += GFX_FUNCS.getFrameTime();
-            anim = task->anim;
-            if (anim[step][1] < time) {
-                time -= anim[step][1];
-                step++;
-                if (anim[step][0] == 0xFF) {
-                    step = anim[step][1];
-                }
-                task->frame = anim[step][0];
-                task->animStep = step;
-            }
-            task->animTime = time;
-            actor = task->actor;
-            switch (actor->substate) {
-            case 0x45:
-                if (actor->unk8C != 0) {
-                    pos.x = actor->tile.x + D_80096A8C[D_80096ACC][0];
-                } else {
-                    pos.x = actor->tile.x - D_80096A8C[D_80096ACC][0];
-                }
-                pos.y = actor->tile.y + D_80096A8C[D_80096ACC][1];
-                if (D_80096A8C[D_80096ACC + 1][0] != 0) {
-                    D_80096ACC++;
-                }
-                break;
-            case 0x44:
-                if (D_80096ACC == 0) {
-                    D_80096ACC = 0xE;
-                }
-                if (actor->unk8C != 0) {
-                    pos.x = actor->tile.x + D_80096A8C[D_80096ACC][0];
-                } else {
-                    pos.x = actor->tile.x - D_80096A8C[D_80096ACC][0];
-                }
-                pos.y = actor->tile.y + D_80096A8C[D_80096ACC][1];
-                if (D_80096ACC != 1) {
-                    D_80096ACC--;
-                }
-                break;
-            default:
-                pos.x = actor->tile.x;
-                D_80096ACC = 0;
-                pos.y = actor->tile.y;
-                break;
-            }
-            initSpriteDrawer(&sprite);
-            sprite.setTexture(0x200, 0x100);
-            sprite.setLayerId(0x1002, 2);
-            sprite.draw(FILE_CACHE_GET_ENTRY[0](FIELD_SPRITES_FILE << 16), task->frame, pos.x, pos.y);
-        }
-        break;
-    case 2:
-    case 3:
-        break;
-    }
-}
-
-Unk80089320 *func_80089668(Actor *actor) {
-    Unk80089320 *task;
-
-    if (GAME_FUNCS.getMode() < 0x2D7) {
-        task = createTaskWithId(func_80089320, sizeof(Unk80089320), 0, 0x16);
-        task->actor = actor;
-        return task;
-    }
-    return NULL;
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_800896C0);
-
-void func_80089D28(FieldTask *task, FieldChildren *children) {
-    Vec2 clip;
-    Layer *layer;
-    Actor *actor;
-    Actor *player;
-    s32 width;
-    s32 height;
-
-    switch (task->substate) {
-    default:
-    case 0:
-        FILE_CACHE.markCached();
-        player = TASK_FUNCS.find(5, -1, 0);
-        if (player != NULL && player->tile.x != 0) {
-            task->unk6C = 1;
-        } else {
-            task->unk6C = 0;
-        }
-        task->width = 0x140;
-        task->fade = 0;
-        task->height = 0xF0;
-        task->nextSubstate(task);
-    case 1:
-        layer = GFX_FUNCS.getLayer(0x1002);
-        layer->setBgColor(layer, 1, 1, 1);
-        task->width -= 10;
-        task->height -= 7;
-        if (task->width <= 0) {
-            layer->setBgColor(layer, 0, 0, 0);
-            task->width = 0;
-            task->height = 0;
-            task->nextSubstate(task);
-        }
-        actor = TASK_FUNCS.find(5, -1, 0);
-        layer->getScroll(layer, &clip);
-        if (task->unk6C != 0) {
-            clip.x = actor->tile.x - clip.x;
-            clip.y = actor->tile.y - clip.y;
-        } else {
-            clip.x = 0xA0;
-            clip.y = 0x78;
-        }
-        clip.x -= task->width / 2;
-        if (clip.x < 0) {
-            clip.x = 0;
-        }
-        clip.y -= task->height / 2;
-        if (clip.y < 0) {
-            clip.y = 0;
-        }
-        layer->setClipPos(layer, clip.x, clip.y);
-        width = task->width;
-        height = task->height;
-        if (clip.x + width > 0x140) {
-            width = 0x140 - clip.x;
-        }
-        if (clip.y + height > 0xF0) {
-            height = 0xF0 - clip.y;
-        }
-        layer->setClipSize(layer, width, height);
-        func_80086460(0x1001, task->fade);
-        if (task->fade != 0x8000) {
-            task->fade += 0x400;
-        }
-        break;
-    case 2:
-        layer = GFX_FUNCS.getLayer(0x1001);
-        switch (task->step) {
-        default:
-        case 0:
-            task->width = 0;
-            task->height = 0;
-            task->step++;
-        case 1:
-            break;
-        }
-        task->width += 8;
-        layer->setClipPos(layer, task->width, task->height);
-        layer->setClipSize(layer, (0xA0 - task->width) * 2, (0x78 - task->height) * 2);
-        if (task->width > 0xA0) {
-            GAME.funcs.requestMode(task->unk5C, task->unk60);
-            GAME.fieldMode = GAME.funcs.getMode();
-            GAME.fieldPos = children->player->pos;
-            GAME.fieldDir = children->player->dir;
-            task->nextSubstate(task);
-        }
-        func_80086460(0x1001, 0x8000);
-        break;
-    case 3:
-        break;
-    }
-}
-
-s32 func_8008A0F4(void) {
-    if (GAME.funcs.getMode() == 0x22D) {
-        return 1;
-    }
-    return GAME.funcs.getMode() == 0x2DE;
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008A154);
-
-Task *func_8008ADE8(void) {
-    return createTaskWithId(func_8008A154, 0x80, 0x7C, 7);
-}
-
-void func_8008AE18(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
-    FieldTask *task = TASK_FUNCS.find(7, -1, -1);
-
-    if (task != NULL) {
-        task->unk5C = arg0;
-        task->unk60 = arg1;
-        task->unk68 = arg5;
-        task->setState(task, 2);
-        D_800990B4.unk64 = arg2;
-        D_800990B4.unk68 = arg3;
-        D_800990B4.unk6C = arg4;
-    }
-}
-
-void func_8008AEB4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    func_8008AE18(arg0, arg1, arg2, arg3, arg4, 0);
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008AEDC);
-
-s32 func_8008B258(void) {
-    Battle *battle = D_800990B4.unk20->battles[3]->battles[5];
-
-    D_80042728.unkC = battle->unk4;
-    D_80042728.unk14 = battle->unk8;
-    func_8008AEDC(battle->unk0);
-    FLAGS_00.applyAction(0xF, 1);
-    return 0;
-}
-
-void func_8008B2C4(s32 index) {
-    FieldChildren *children = ((Task *)TASK_FUNCS.find(7, -1, -1))->children;
-
-    children->unkC = func_80084B80(D_80096C38[index]);
-}
-
-void func_8008B320(void) {
-    FieldTask *task = TASK_FUNCS.find(7, -1, -1);
-    FieldChildren *children = task->children;
-
-    D_800990B4.unk50 = 1;
-    D_800990B4.unk58 = 1;
-    children->unk10 = createInn(0x1002);
-    task->setSubstate(task, 2);
-}
-
-void func_8008B398(s32 arg0, Point *pos, s32 arg2) {
-    FieldTask *task = TASK_FUNCS.find(7, -1, -1);
-
-    task->unk70 = arg0;
-    task->unk74.x = pos->x;
-    task->unk74.y = pos->y;
-    task->unk7C = arg2;
-    task->setSubstate(task, 3);
-}
-
-s32 func_8008B410(s32 angle, s32 radius) {
-    return rsin(angle >> 2) * radius / 4096;
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008B450);
-
-Unk8008B450 *func_8008B930(Actor *actor, s32 arg1) {
-    Unk8008B450 *task = createTask(func_8008B450, sizeof(Unk8008B450), 0);
-
-    task->actor = actor;
-    task->unk54 = arg1;
-    if (GAME.funcs.getMode() == 0x26C) {
-#if VERSION_US
-        func_800A4EE8();
-#elif VERSION_EU
-        func_800A6024();
-#endif
-    }
-    if (GAME.funcs.getMode() == 0x2D4) {
-#if VERSION_US
-        func_800A4EE8();
-#elif VERSION_EU
-        func_800A6024();
-#endif
-    }
-    return task;
-}
-
-void func_8008B9D8(Unk8008B9D8 *task) {
-    SpriteDrawer sprite;
-    s32 dx;
-    s32 dy;
-    s32 sprites;
-
-    switch (task->state) {
-        default:
-        case 0:
-            dx = task->from.x - task->to.x;
-            if (dx < 0) {
-                dx = -dx;
-            }
-            dy = task->from.y - task->to.y;
-            if (dy < 0) {
-                dy = -dy;
-            }
-            if (dx < 0x80 && dy < 0x80) {
-                task->speed = 3;
-                task->frame = 0x52;
-            } else if (dx < 0x100 && dy < 0x100) {
-                task->speed = 6;
-                task->frame = 0x51;
-            } else {
-                task->speed = 0xC;
-                task->frame = 0x50;
-            }
-            task->nextState(task);
-            /* fallthrough */
-        case 1:
-            sprites = FILE_CACHE_GET_ENTRY[0](FIELD_SPRITES_FILE << 16 | 1);
-            initSpriteDrawer(&sprite);
-            sprite.setLayerId(0x1002, 0);
-            sprite.setTexture(0x240, 0x100);
-            sprite.setFollowScroll(0);
-            sprite.setClutRow(task->time / task->speed % 10);
-            sprite.draw(sprites, task->frame, 0xF8, 0xA8);
-            sprite.draw(sprites, 0x4F, 0xF8, 0xA8);
-            task->time += GFX_FUNCS.getFrameTime();
-            if (task->time >= 0x78) {
-                task->setState(task, 3);
-            }
-            break;
-        case 2:
-        case 3:
-            break;
-    }
-}
-
-Unk8008B9D8 *func_8008BBD4(Point from, Point to) {
-    Unk8008B9D8 *task = createTask(func_8008B9D8, sizeof(Unk8008B9D8), 0);
-
-    task->from = from;
-    task->to = to;
-    return task;
-}
-
-void func_8008BC30(Unk8008BFE8 *task) {
-    s32 index = RANDOM.next() % task->count;
-
-    GAME.unk26E4 = index;
-    task->entries[index].unk10 = 1;
-    task->pos = task->entries[index].pos;
-}
-
-void func_8008BCAC(Unk8008BFE8 *task, Unk8008BFE8Children *children) {
-    MapObject *objects;
-    s32 step;
-    s32 time;
-    s32 i;
-
-    switch (task->state) {
-    default:
-    case 0:
-        FILE_CACHE_REQUEST(FIELD_EXIT_FILES + 2);
-        task->nextState(task);
-        break;
-    case 1:
-        break;
-    case 2:
-        if (task->substate == 0) {
-            children->unk0 = func_8008C564(task->unk5C);
-            task->nextSubstate(task);
-        } else if (task->substate != 0x80) {
-            if (task->substate < 0x14) {
-                task->substate = task->substate + GFX_FUNCS.getFrameTime() + 1;
-            } else {
-                if (task->unk5C == 0) {
-                    if (task->entries[task->unk58].unk10 != 0) {
-                        if ((RANDOM.next() & 0x7F) < 0x66) {
-                            D_8009A6EC[0](3);
-                        } else {
-                            D_8009A6EC[0](6);
-                        }
-                        func_8008BC30(task);
-                    } else {
-                        if (children->unk4 != NULL) {
-                            children->unk4->destroy(children->unk4);
-                        }
-                        children->unk4 = func_8008BBD4(task->pos, task->entries[task->unk58].pos);
-                    }
-                }
-                task->setSubstate(task, 0x80);
-            }
-        }
-        step = task->step;
-        time = task->counter;
-        time += GFX_FUNCS.getFrameTime();
-        if (D_80096D14[step][1] < time) {
-            time -= D_80096D14[step][1];
-            step++;
-            if (D_80096D14[step][0] == 0xFF) {
-                task->setState(task, 1);
-                return;
-            }
-            task->entries[task->unk58].unk0 = D_80096D14[step][0];
-            task->step = step;
-        }
-        task->counter = time;
-        objects = (MapObject *)D_800990B4.unk10;
-        for (i = 0; i < task->count; i++) {
-            if (task->entries[i].unk0 != 0) {
-                if (task->unk58 == i) {
-                    objects[task->entries[i].unk4].frame = task->entries[i].unk0;
-                } else {
-                    objects[task->entries[i].unk4].frame = 0x38;
-                }
-            }
-        }
-        break;
-    case 3:
-        if (task->entries != NULL) {
-            HEAP.free(task->entries);
-        }
-        break;
-    }
-}
-
-Unk8008BFE8 *func_8008BFE8(s32 count) {
-    Unk8008BFE8 *task = createTaskWithId(func_8008BCAC, sizeof(Unk8008BFE8), 8, 0xB);
-    MapObject *object;
-    s32 i;
-    s32 n;
-    s32 index;
-
-    task->count = count;
-    object = (MapObject *)D_800990B4.unk10;
-    task->entries = HEAP.alloc(count * sizeof(Unk8008BFE8Entry), 2);
-    i = 0;
-    n = 0;
-    for (; object->y != 0; object++, i++) {
-        if (object->id == 0xFF) {
-            task->entries[n].pos.x = object->x;
-            task->entries[n].pos.y = object->y;
-            task->entries[n].unk4 = i;
-            task->entries[n].unk0 = 0x38;
-            task->entries[n].unk10 = 0;
-            n++;
-        }
-    }
-    if (n != 0) {
-        if (GAME.clearTempFlags != 0) {
-            func_8008BC30(task);
-        } else {
-            index = GAME.unk26E4;
-            task->entries[index].unk10 = 1;
-            task->pos = task->entries[index].pos;
-        }
-    }
-    return task;
-}
-
-Unk8008BFE8 *func_8008C160(Point *pos, s32 select) {
-    Unk8008BFE8 *task = TASK_FUNCS.find(0xB, -1, -1);
-    s32 i;
-
-    if (task != NULL) {
-        for (i = 0; i < task->count; i++) {
-            if (pos->x >= task->entries[i].pos.x - 10 && task->entries[i].pos.x + 10 >= pos->x
-                && pos->y >= task->entries[i].pos.y - 10 && task->entries[i].pos.y + 10 >= pos->y) {
-                if (select) {
-                    task->unk58 = i;
-                    task->unk5C = 0;
-                }
-                return task;
-            }
-        }
-    }
-    return NULL;
-}
-
-void func_8008C23C(void) {
-    Unk8008BFE8 *task = TASK_FUNCS.find(0xB, -1, -1);
-    s32 i;
-
-    if (task != NULL) {
-        for (i = 0; i < task->count; i++) {
-            if (task->entries[i].pos.x >= 1000) {
-                task->unk58 = i;
-                task->unk5C = 1;
-                task->setState(task, 2);
-            }
-        }
-    }
-}
-
-void func_8008C2F4(Unk8008C388 *task, Layer *layer) {
-    SpriteDrawer sprite;
-
-    if (task->state == 1) {
-        initSpriteDrawer(&sprite);
-        sprite.setTexture(0x200, 0x100);
-        sprite.setLayer(layer, 4);
-        sprite.draw(FILE_CACHE_GET_ENTRY[0](FIELD_SPRITES_FILE << 16), task->frame, task->x, task->y);
-    }
-}
-
-void func_8008C388(Unk8008C388 *task) {
-    Layer *layer = GFX_FUNCS.getLayer(0x1002);
-    Actor *actor;
-    s32 step;
-    s32 time;
-    u8 *anim;
-
-    switch (task->state) {
-        default:
-        case 0:
-            if (task->key1 != 0) {
-                actor = TASK_FUNCS.find(5, 0x11B, -1);
-            } else {
-                actor = TASK_FUNCS.find(5, -1, 0);
-            }
-            if (actor == NULL) {
-                break;
-            }
-            task->x = actor->tile.x;
-            task->y = actor->tile.y;
-            task->dir = actor->dir;
-            task->anim = D_80096DAC[task->dir];
-            task->nextState(task);
-            SOUND.playSound(0x80045C44);
-            /* fallthrough */
-        case 1:
-            step = task->step;
-            time = task->counter;
-            time += GFX_FUNCS.getFrameTime();
-            anim = task->anim;
-            if (anim[step * 2 + 1] < time) {
-                time -= anim[step * 2 + 1];
-                step++;
-                if (anim[step * 2] == 0xFF) {
-                    task->setState(task, 3);
-                    break;
-                }
-                task->frame = anim[step * 2];
-                task->step = step;
-            }
-            task->counter = time;
-            if (task->frame != 0) {
-                layer->addSortedCallback(layer, func_8008C2F4, task, task->y + D_80096DCC[task->dir], 0);
-            }
-            break;
-        case 2:
-        case 3:
-            break;
-    }
-}
-
-Unk8008C388 *func_8008C564(s32 arg0) {
-    Unk8008C388 *task = createTask(func_8008C388, sizeof(Unk8008C388), 0);
-
-    task->key1 = arg0;
-    return task;
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008C59C);
-
-Unk8008C59C *func_8008C9F8(Point pos) {
-    Unk8008C59C *task = createTask(func_8008C59C, sizeof(Unk8008C59C), 0);
-
-    task->pos = pos;
-    return task;
-}
-
-void func_8008CA3C(Unk8008CC4C *task) {
-    Layer *layer = GFX_FUNCS.getLayer(0x1002);
-    Unk80086144 *map;
-    Point *size;
-    s32 x;
-    s32 y;
-    s32 shake;
-
-    x = task->unk54.x - 0xA0;
-    y = task->unk54.y - 0x8C;
-    if (task->hasBounds == 0) {
-        map = TASK_FUNCS.find(4, -1, -1);
-        if (map != NULL) {
-            if (map->state == 1) {
-                size = map->unk130(map);
-                task->bounds = *size;
-                task->hasBounds = 1;
-            }
-        } else if (GAME_FUNCS.getMode() != 0x2DE) {
-            task->bounds.x = 0x7FFF;
-            task->bounds.y = 0x7FFF;
-        } else {
-            task->bounds.x = 0x500;
-            task->bounds.y = 0x400;
-        }
-    }
-    if (x < 0) {
-        x = 0;
-    }
-    if (y < 0) {
-        y = 0;
-    }
-    if (task->bounds.x - 0x140 < x) {
-        x = task->bounds.x - 0x140;
-    }
-    if (task->bounds.y - 0xF0 < y) {
-        y = task->bounds.y - 0xF0;
-    }
-    shake = 0;
-    if (task->shaking != 0) {
-        task->shake = (task->shake + 1) & 3;
-        shake = task->shake + 1;
-        if (task->voice == -1) {
-            task->voice = SOUND_STATE.playSound(0xA00431BF);
-        }
-    } else if (task->voice != -1) {
-        SOUND_STATE.keyOff(0xA00431BF, task->voice);
-        task->voice = -1;
-    }
-    layer->setScroll(layer, (D_80096E6C[shake].x + x) << 8, (D_80096E6C[shake].y + y) << 8);
-}
-
-void func_8008CC4C(Unk8008CC4C *task) {
-    Point delta;
-    Point sign;
-
-    switch (task->state) {
-        default:
-        case 0:
-            task->unk50 = TASK_FUNCS.find(5, -1, 0);
-            task->unk80 = 1;
-            if (task->unk50 != NULL) {
-                task->nextState(task);
-            }
-            break;
-        case 1:
-            switch (task->substate) {
-                case 0:
-                    task->unk54.x = task->unk50->tile.x;
-                    task->unk54.y = task->unk50->tile.y - (task->unk50->unk64 >> 8);
-                    if ((task->step == 0) & (task->unk80 == 0)) {
-                        task->nextStep(task);
-                    }
-                    break;
-                case 1:
-                    task->unk54.x = task->unk88;
-                    task->unk54.y = task->unk8C;
-                    if ((task->step == 0) & (task->unk80 == 0)) {
-                        task->nextStep(task);
-                    }
-                    break;
-            }
-            if (task->step == 1) {
-                sign.x = 1;
-                sign.y = 1;
-                delta.x = task->unk54.x - task->unk68.x;
-                if (delta.x < 0) {
-                    sign.x = -1;
-                    delta.x = -delta.x;
-                }
-                delta.y = task->unk54.y - task->unk68.y;
-                if (delta.y < 0) {
-                    sign.y = -1;
-                    delta.y = -delta.y;
-                }
-                if (delta.x != 0 && delta.y != 0) {
-                    if (delta.x > 4) {
-                        delta.x /= 4;
-                    } else if (delta.x > 2) {
-                        delta.x /= 2;
-                    } else {
-                        delta.x = 1;
-                    }
-                    task->unk54.x = task->unk68.x += delta.x * sign.x;
-                    if (delta.y > 4) {
-                        delta.y /= 4;
-                    } else if (delta.y > 2) {
-                        delta.y /= 2;
-                    } else {
-                        delta.y = 1;
-                    }
-                    task->unk54.y = task->unk68.y += delta.y * sign.y;
-                } else {
-                    task->nextStep(task);
-                }
-            }
-            func_8008CA3C(task);
-            break;
-        case 2:
-            break;
-        case 3:
-            if (task->voice != -1) {
-                SOUND_STATE.keyOff(0xA00431BF, task->voice);
-                task->voice = -1;
-            }
-            break;
-    }
-}
-
-void func_8008CF0C(void) {
-    Unk8008CC4C *task = createTaskWithId(func_8008CC4C, sizeof(Unk8008CC4C), 0, 0x10);
-
-    task->voice = -1;
-}
-
-void func_8008CF44(s32 arg0, s32 arg1) {
-    Unk8008CC4C *task = TASK_REGISTRY.funcs.find(0x10, -1, -1);
-
-    if (task != NULL) {
-        task->unk7C = 0;
-        task->unk80 = arg0;
-        task->unk84 = arg1;
-        task->unk50 = TASK_REGISTRY.funcs.find(5, arg1, -1);
-        task->unk68 = task->unk54;
-        task->setSubstate(task, 0);
-    }
-}
-
-void func_8008CFF4(s32 arg0, s32 arg1, s32 arg2) {
-    Unk8008CC4C *task = TASK_FUNCS.find(0x10, -1, -1);
-
-    if (task != NULL) {
-        task->unk7C = 0;
-        task->unk80 = arg0;
-        task->unk88 = arg1;
-        task->unk8C = arg2;
-        task->unk68 = task->unk54;
-        task->setSubstate(task, 1);
-    }
-}
-
-void func_8008D07C(s32 arg0) {
-    Unk8008CC4C *task = TASK_FUNCS.find(0x10, -1, -1);
-
-    if (task != NULL) {
-        task->shaking = arg0;
-    }
-}
-
-s32 func_8008D0C0(Actor *actor, s32 x, s32 y, Point offset) {
-    s32 blocked = 0;
-    Point pos;
-    u8 cell;
-
-    pos.x = (actor->pos.x >> 8) + x;
-    pos.y = (actor->pos.y >> 8) + y;
-    cell = D_8009A70C.unk58(&pos);
-    if (cell != 0) {
-        cell = D_8009A70C.getCell(GAME.unk26D8, &pos);
-    }
-    if (actor->unk64 != 0 && cell != 1) {
-        switch (cell) {
-        case 2:
-            if (actor->unk64 < 0x2000) {
-                cell = 0;
-            }
-            break;
-        case 3:
-            if (actor->unk64 < 0x3000) {
-                cell = 0;
-            }
-            break;
-        case 4:
-            if (actor->unk64 < 0x4000) {
-                cell = 0;
-            }
-            break;
-        case 5:
-            if (actor->unk64 < 0x5000) {
-                cell = 0;
-            }
-            break;
-        case 6:
-            if (actor->unk64 < 0x6000) {
-                cell = 0;
-            }
-            break;
-        }
-        switch (cell) {
-        case 18:
-            if (actor->unk64 > 0x6000) {
-                cell = 0;
-            }
-            break;
-        case 19:
-            if (actor->unk64 > 0x5000) {
-                cell = 0;
-            }
-            break;
-        case 20:
-            if (actor->unk64 > 0x4000) {
-                cell = 0;
-            }
-            break;
-        case 21:
-            if (actor->unk64 > 0x3000) {
-                cell = 0;
-            }
-            break;
-        case 22:
-            if (actor->unk64 > 0x2000) {
-                cell = 0;
-            }
-            break;
-        }
-        if (cell == 0) {
-            blocked = 1;
-        }
-    }
-    if (cell == 0) {
-        actor->pos.x -= offset.x;
-        actor->pos.y -= offset.y;
-    }
-    return blocked;
-}
-
-s32 func_8008D2A0(Actor *actor) {
-    s32 blocked = 0;
-    s32 i;
-    u8 probe;
-    u8 *sign;
-    Point offset;
-
-    for (i = 0; i < 5; i++) {
-        probe = D_80096E94[actor->dir][i];
-        sign = D_80096F3C[probe];
-        offset.x = (sign[0] & 1) * actor->unk68 / 2;
-        if (sign[0] & 0x80) {
-            offset.x = -offset.x;
-        }
-        offset.y = (sign[1] & 1) * actor->unk68 / 4;
-        if (sign[1] & 0x80) {
-            offset.y = -offset.y;
-        }
-        if (func_8008D0C0(actor, D_80096EBC[probe].x, D_80096EBC[probe].y, offset)) {
-            blocked = 1;
-        }
-    }
-    return blocked;
-}
-
-void func_8008D3F0(Actor *actor, s32 pad) {
-    if (pad != 0 && D_800990B4.unk50 == 0) {
-        actor->dir = D_80096F5C[pad];
-        if (actor->unkBC != 0) {
-            if (actor->substate != 2) {
-                actor->setSubstate(actor, 2);
-            }
-        } else if (actor->substate != 3) {
-            actor->setSubstate(actor, 3);
-        }
-    } else {
-        if (actor->substate == 2) {
-            actor->setSubstate(actor, 1);
-        }
-        if (actor->substate == 3) {
-            actor->setSubstate(actor, 4);
-        }
-    }
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008D4C4);
-
-s32 func_8008D580(Actor *actor, Point *pos) {
-    Actor *target;
-    s32 i;
-    s32 result;
-
-    target = func_8008D4C4(pos);
-    result = 0;
-    if (target != NULL && target->state == 1) {
-        if (target->key1 != 0x180) {
-            if (target->key1 != 0x181) {
-                if (target->key1 != 0x182) {
-                    for (i = 0; D_80096F9C[i][0] != 0; i++) {
-                        if (target->key1 == D_80096F9C[i][0]) {
-                            target = TASK_FUNCS.find(5, D_80096F9C[i][1], -1);
-                            break;
-                        }
-                    }
-                    switch (target->key1) {
-                        case 0x148:
-                        case 0x15F:
-                        case 0x160:
-                            if (target->substate != 0x4E) {
-                                target->setSubstate(target, 0x4E);
-                                result = 1;
-                                target->unk88 = (s32)actor;
-                                actor->setSubstate(actor, 0x4D);
-                                actor->unk108 = NULL;
-                            }
-                            break;
-                        default:
-                            target->setSubstate(target, 0x4A);
-                            target->unk88 = (s32)actor;
-                            actor->setSubstate(actor, actor->unk84 != 0 ? 0x4C : 1);
-                            actor->unk108 = NULL;
-                            result = D_800990B4.unk60 = 1;
-                            break;
-                    }
-                }
-            }
-        }
-    }
-    return result;
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008D710);
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008DB60);
-
-void func_8008DCF8(Actor *actor) {
-    s32 held = PAD.getHeld(0);
-
-    if (held & (1 << PAD_UP)) {
-        if (actor->substate != 0x41) {
-            actor->setSubstate(actor, 0x41);
-        }
-    } else if (held & (1 << PAD_DOWN)) {
-        if (actor->substate != 0x42) {
-            actor->setSubstate(actor, 0x42);
-        }
-    } else if (actor->substate != 0x40) {
-        actor->setSubstate(actor, 0x40);
-    }
-}
-
-void func_8008DD9C(Actor *actor) {
-    Trail *trail;
-    Actor *leader;
-
-    if (actor->trail->leader == NULL) {
-        actor->trail->leader = TASK_FUNCS.find(5, -1, 0);
-    }
-    leader = actor->trail->leader;
-    if (leader != NULL) {
-        trail = actor->trail;
-        switch (leader->substate) {
-            case 2:
-            case 3:
-            case 5:
-            case 0x4F:
-            case 0x50:
-                trail->steps[trail->head].x = leader->pos.x;
-                trail->steps[trail->head].y = leader->pos.y;
-                trail->steps[trail->head].dir = leader->dir;
-                trail->head = (trail->head + 1) & 0x3F;
-                actor->pos.x = trail->steps[trail->tail].x;
-                actor->pos.y = trail->steps[trail->tail].y;
-                actor->dir = trail->steps[trail->tail].dir;
-                trail->tail = (trail->tail + 1) & 0x3F;
-                break;
-        }
-        switch (leader->substate) {
-            case 2:
-            case 3:
-            case 5:
-                if (actor->substate != 3) {
-                    actor->setSubstate(actor, 3);
-                }
-                break;
-            case 0x4F:
-                if (actor->substate != 1) {
-                    actor->setSubstate(actor, 1);
-                }
-                break;
-            default:
-                if (actor->substate == 3) {
-                    actor->setSubstate(actor, 4);
-                }
-                break;
-        }
-        actor->unk78[0] = leader->unk78[0];
-    }
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008DFE0);
-
-void func_8008E1A4(Actor *actor) {
-    s32 x;
-    s32 y;
-    s32 tx;
-    s32 ty;
-    s32 pad;
-
-    if (actor->unkEC != 0) {
-        x = actor->pos.x >> 8;
-        y = actor->pos.y >> 8;
-        tx = actor->unkF0;
-        ty = actor->unkF4;
-        if (x >> 1 != tx >> 1 || y >> 1 != ty >> 1) {
-            pad = 0;
-            if (x < tx) {
-                pad = 1 << PAD_RIGHT;
-            } else if (x > tx) {
-                pad = 1 << PAD_LEFT;
-            }
-            if (y < ty) {
-                pad |= 1 << PAD_DOWN;
-            } else if (y > ty) {
-                pad |= 1 << PAD_UP;
-            }
-            actor->unkBC = 1;
-            func_8008D3F0(actor, pad >> 4);
-        } else {
-            actor->pos.x = actor->unkF0 << 8;
-            actor->unkEC = 0;
-            actor->pos.y = actor->unkF4 << 8;
-            actor->dir = actor->unkF8;
-            actor->setSubstate(actor, 1);
-        }
-    }
-}
-
-void func_8008E284(Actor *actor, s32 arg1, s32 arg2, s32 arg3) {
-    actor->unkEC = 1;
-    actor->unkF0 = arg1;
-    actor->unkF4 = arg2;
-    actor->unkF8 = arg3;
-}
-
-s32 func_8008E29C(Actor *actor) {
-    return actor->unkEC;
-}
-
-void func_8008E2A8(Actor *actor) {
-    actor->unk108 = func_8008E1A4;
-}
-
-void func_8008E2B8(Actor *actor) {
-    switch (actor->key2) {
-    case 0:
-        actor->unk108 = func_8008DB60;
-        actor->unkBC = 0;
-        break;
-    case 1:
-        actor->unk108 = NULL;
-        break;
-    case 2:
-    case 4:
-    case 8:
-        actor->unk108 = func_8008DD9C;
-        break;
-    }
-}
-
-void func_8008E318(Actor *actor, s32 dir) {
-    actor->unk108 = NULL;
-    actor->setSubstate(actor, 5);
-    actor->dir = dir;
-}
-
-void func_8008E358(Actor *actor, s32 dir) {
-    if (actor->substate != 0x4F) {
-        actor->unk108 = NULL;
-        actor->setSubstate(actor, 0x4F);
-        actor->dir = dir;
-    }
-}
-
-void func_8008E3A4(Actor *actor) {
-    if (actor->substate == 0x4F) {
-        actor->setSubstate(actor, 0x50);
-    }
-}
-
-void func_8008E3DC(Actor *actor, s32 dir, s32 x, s32 y, s32 arg4) {
-    actor->unk108 = NULL;
-    actor->setSubstate(actor, 0x43);
-    actor->dir = dir;
-    actor->pos.x = x << 8;
-    actor->pos.y = y << 8;
-    actor->unk90 = 0;
-    actor->unk94 = arg4 << 8;
-    if (dir != 5) {
-        actor->unk8C = 1;
-    } else {
-        actor->unk8C = 0;
-    }
-    func_80090154();
-    D_800990B4.unk60 = 1;
-}
-
-void func_8008E488(Actor *actor, s32 dir, s32 x, s32 y, s32 arg4) {
-    actor->unk108 = NULL;
-    actor->setSubstate(actor, 0x44);
-    actor->dir = dir;
-    actor->pos.x = x << 8;
-    actor->pos.y = y << 8;
-    actor->unk90 = actor->unk94 = arg4 << 8;
-    if (dir != 5) {
-        actor->unk8C = 1;
-    } else {
-        actor->unk8C = 0;
-    }
-    actor->unk74 = 0;
-    func_80090154();
-    D_800990B4.unk60 = 1;
-}
-
-void func_8008E534(Actor *actor, s32 dir, Point pos, s32 arg4) {
-    s32 value;
-
-    actor->unk108 = NULL;
-    actor->setSubstate(actor, 0x47);
-    actor->dir = dir;
-    if (dir != 7) {
-        actor->unk8C = 0;
-    } else {
-        actor->unk8C = 1;
-    }
-    value = arg4 << 8;
-    actor->unk94 = value;
-    actor->unk74 = 0;
-    actor->unk90 = value;
-    func_80090154();
-    D_800990B4.unk60 = 1;
-}
-
-void func_8008E5B8(Actor *actor, s32 dir, Point offset) {
-    void **children;
-    Actor *other;
-    Point pos;
-    s32 i;
-
-    D_800990B4.unk58 = 1;
-    actor->unk108 = NULL;
-    actor->setSubstate(actor, 0x48);
-    actor->dir = dir;
-    for (i = 0; i < 3; i++) {
-        other = TASK_REGISTRY.funcs.find(5, -1, D_80096FDC[i]);
-        if (other != NULL) {
-            other->dir = dir;
-        }
-    }
-    children = actor->children;
-    pos.x = actor->tile.x + offset.x;
-    pos.y = actor->tile.y + offset.y;
-    children[2] = func_8008C9F8(pos);
-}
-
-void func_8008E698(Actor *actor, s32 arg1, s32 arg2) {
-    actor->unk108 = NULL;
-    actor->setSubstate(actor, 1);
-    actor->dir = 0;
-    D_800990B4.unk58 = 1;
-    func_8008B398(arg2, &actor->tile, arg1);
-}
-
-void func_8008E700(Actor *actor, s32 arg1) {
-    void **children;
-
-    actor->unk108 = func_8008E1A4;
-    actor->setSubstate(actor, 1);
-    actor->dir = 0;
-    D_800990B4.unk58 = 1;
-    children = actor->children;
-    children[2] = func_8008B930(actor, arg1);
-}
-
-void func_8008E768(Actor *actor, s32 arg1) {
-    actor->unkA0 = arg1;
-    actor->unkCC = 0;
-    actor->unkD0 = 0;
-    actor->unkE8 = 0;
-}
-
-void func_8008E77C(Actor *actor, s32 arg1, s32 dir) {
-    actor->unkEC = 0;
-    actor->setSubstate(actor, 0);
-    actor->dir = dir;
-    func_8008E768(actor, arg1);
-}
-
-s32 func_8008E7D4(Actor *actor) {
-    return actor->unkE8;
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008E7E0);
-
-void func_8008EC6C(Actor *actor, s32 arg1) {
-    actor->dir = arg1;
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008EC74);
-
-void func_8008F014(Actor *actor) {
-    actor->unk108 = func_8008DB60;
-    actor->unk90 = 0;
-}
-
-void func_8008F028(Task *task, s32 arg1, s32 arg2) {
-    if (task->key2 == 0) {
-        if (arg1 != 0) {
-            if ((task->counter & 7) == 0) {
-                if (task->key1 != 0x146) {
-                    if (task->key1 != 0x147) {
-                        SOUND.playSound(0x8004583C);
-                    }
-                } else if ((task->counter & 0x1F) == 0) {
-                    SOUND.playSound(0x80045FCB);
-                }
-                if (arg2 != 0) {
-                    D_8009A6E8();
-                }
-            }
-        } else if ((task->counter & 0x1F) == 0) {
-            SOUND.playSound(0x8004583C);
-        }
-        task->counter++;
-    }
-}
-
-void func_8008F11C(Task *task) {
-    if (task->key2 == 0) {
-        if ((task->counter & 0xF) == 0) {
-            SOUND.playSound(0x800458BD);
-        }
-        task->counter++;
-    }
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_8008F184);
-
-void func_80090154(void) {
-    s32 i;
-    Actor *actor;
-
-    for (i = 0; i < 3; i++) {
-        actor = TASK_REGISTRY.funcs.find(5, -1, D_80096FE8[i]);
-        if (actor != NULL) {
-            actor->unk108 = func_8008DFE0;
-        }
-    }
-}
-
-void func_800901D4(void) {
-    s32 i;
-    Actor *actor;
-
-    for (i = 0; i < 3; i++) {
-        actor = TASK_REGISTRY.funcs.find(5, -1, D_80096FF4[i]);
-        if (actor != NULL) {
-            actor->unk108 = func_8008DD9C;
-        }
-    }
-}
-
-void func_80090254(Actor *actor, Point *out) {
-    Point *delta = &D_80097000[actor->dir];
-
-    out->x = actor->tile.x + delta->x;
-    out->y = actor->tile.y + delta->y;
-}
-
-void func_80090294(Actor *actor, Unk80089320 **children) {
-    Layer *layer;
-
-    switch (actor->state) {
-        default:
-        case 0:
-            if (actor->unk9C == 0 || FILE_CACHE.isLoading(actor->unk9C >> 16) == 0) {
-                if (actor->key2 == 0) {
-                    *children = func_80089668(actor);
-                }
-                actor->nextState(actor);
-            }
-            break;
-        case 1:
-            if ((actor->key2 & 0xE) || D_800990B4.unk54 == 0) {
-                if (actor->unk108 != NULL) {
-                    actor->unk108(actor);
-                }
-            }
-            func_8008F184(actor, children);
-            actor->tile.x = actor->pos.x >> 8;
-            actor->tile.y = (actor->pos.y - actor->unk90) >> 8;
-            if (actor->unk9C != 0) {
-                func_8008EC74(actor);
-                if (actor->tile.x + actor->tile.y != 0) {
-                    layer = GFX_FUNCS.getLayer(0x1002);
-                    layer->addSortedCallback(layer, func_8008E7E0, actor, actor->tile.y, 0);
-                }
-            }
-            break;
-        case 2:
-            break;
-        case 3:
-            GAME.unk26EC = actor->unk64;
-            if (actor->unkC8 != -1) {
-                SOUND.keyOff(0xA0045F4A, actor->unkC8);
-            }
-            if (actor->trail != NULL) {
-                HEAP.free(actor->trail);
-            }
-            break;
-    }
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80090450);
-
-void func_80090864(void) {
-    FLAGS_00.applyAction(0x707E, 1);
-    FLAGS_00.applyAction(0x8B19, 1);
-    FLAGS_00.applyAction(0x400, 1);
-}
-
-void func_800908C4(void) {
-    FLAGS_00.applyAction(0x400, 1);
-}
-
-void func_800908F0(void) {
-    FLAGS_00.applyAction(0x707E, 1);
-    FLAGS_00.applyAction(0x8B1F, 1);
-    FLAGS_00.applyAction(0x401, 1);
-}
-
-void func_80090950(void) {
-    FLAGS_00.applyAction(0x401, 1);
-}
-
-void func_8009097C(void) {
-    FLAGS_00.applyAction(0x707F, 1);
-    FLAGS_00.applyAction(0x8B1A, 1);
-    FLAGS_00.applyAction(0x402, 1);
-}
-
-void func_800909DC(void) {
-    FLAGS_00.applyAction(0x402, 1);
-}
-
-void func_80090A08(void) {
-    FLAGS_00.applyAction(0x707F, 1);
-    FLAGS_00.applyAction(0x8B20, 1);
-    FLAGS_00.applyAction(0x403, 1);
-}
-
-void func_80090A68(void) {
-    FLAGS_00.applyAction(0x403, 1);
-}
-
-void func_80090A94(void) {
-    FLAGS_00.applyAction(0x7080, 1);
-    FLAGS_00.applyAction(0x8489, 1);
-    FLAGS_00.applyAction(0x404, 1);
-}
-
-void func_80090AF4(void) {
-    FLAGS_00.applyAction(0x404, 1);
-}
-
-void func_80090B20(void) {
-    FLAGS_00.applyAction(0x7080, 1);
-    FLAGS_00.applyAction(0x8495, 1);
-    FLAGS_00.applyAction(0x405, 1);
-}
-
-void func_80090B80(void) {
-    FLAGS_00.applyAction(0x405, 1);
-}
-
-void func_80090BAC(void) {
-    FLAGS_00.applyAction(0x7081, 1);
-    FLAGS_00.applyAction(0x847C, 1);
-    FLAGS_00.applyAction(0x406, 1);
-}
-
-void func_80090C0C(void) {
-    FLAGS_00.applyAction(0x406, 1);
-}
-
-void func_80090C38(void) {
-    FLAGS_00.applyAction(0x7081, 1);
-    FLAGS_00.applyAction(0x8462, 1);
-    FLAGS_00.applyAction(0x407, 1);
-}
-
-void func_80090C98(void) {
-    FLAGS_00.applyAction(0x407, 1);
-}
-
-void func_80090CC4(void) {
-    FLAGS_00.applyAction(0x7082, 1);
-    FLAGS_00.applyAction(0x8ADE, 1);
-    FLAGS_00.applyAction(0x408, 1);
-}
-
-void func_80090D24(void) {
-    FLAGS_00.applyAction(0x408, 1);
-}
-
-void func_80090D50(void) {
-    FLAGS_00.applyAction(0x7082, 1);
-    FLAGS_00.applyAction(0x8AE8, 1);
-    FLAGS_00.applyAction(0x409, 1);
-}
-
-void func_80090DB0(void) {
-    FLAGS_00.applyAction(0x409, 1);
-}
-
-void func_80090DDC(void) {
-    FLAGS_00.applyAction(0x7083, 1);
-    FLAGS_00.applyAction(0x8AF4, 1);
-    FLAGS_00.applyAction(0x40A, 1);
-}
-
-void func_80090E3C(void) {
-    FLAGS_00.applyAction(0x40A, 1);
-}
-
-void func_80090E68(void) {
-    FLAGS_00.applyAction(0x7083, 1);
-    FLAGS_00.applyAction(0x8AF3, 1);
-    FLAGS_00.applyAction(0x40B, 1);
-}
-
-void func_80090EC8(void) {
-    FLAGS_00.applyAction(0x40B, 1);
-}
-
-void func_80090EF4(void) {
-    FLAGS_00.applyAction(0x7084, 1);
-    FLAGS_00.applyAction(0x8B01, 1);
-    FLAGS_00.applyAction(0x40C, 1);
-}
-
-void func_80090F54(void) {
-    FLAGS_00.applyAction(0x40C, 1);
-}
-
-void func_80090F80(void) {
-    FLAGS_00.applyAction(0x7085, 1);
-    FLAGS_00.applyAction(0x8B0D, 1);
-    FLAGS_00.applyAction(0x40D, 1);
-}
-
-void func_80090FE0(void) {
-    FLAGS_00.applyAction(0x40D, 1);
-}
-
-void func_8009100C(void) {
-    FLAGS_00.applyAction(0x7086, 1);
-    FLAGS_00.applyAction(0x8B02, 1);
-    FLAGS_00.applyAction(0x40E, 1);
-}
-
-void func_8009106C(void) {
-    FLAGS_00.applyAction(0x40E, 1);
-}
-
-void func_80091098(void) {
-    FLAGS_00.applyAction(0x7087, 1);
-    FLAGS_00.applyAction(0x8B0F, 1);
-    FLAGS_00.applyAction(0x40F, 1);
-}
-
-void func_800910F8(void) {
-    FLAGS_00.applyAction(0x40F, 1);
-}
-
-INCLUDE_RODATA("fieldstg/nonmatchings/fieldstg", D_80082E88);
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091124);
-
-void func_80091298(Tween *tween, s32 in) {
-    tween->active = 1;
-    if (in) {
-        SOUND.playSound(0x40019);
-        tween->value = 0;
-        tween->step = 0x1000 / tween->duration;
-    } else {
-        SOUND.playSound(0x4001A);
-        tween->value = 0x1000;
-        tween->step = -(0x1000 / tween->duration * 2);
-    }
-}
-
-s32 func_8009132C(Tween *tween) {
-    if (tween->active == 0) {
-        return 1;
-    }
-    tween->value += tween->step;
-    if (tween->step > 0) {
-        if (tween->value > 0x1000) {
-            tween->value = 0x1000;
-            tween->active = 0;
-            return 1;
-        }
-    } else if (tween->value < 0) {
-        tween->value = 0;
-        tween->active = 0;
-        return 1;
-    }
-    return 0;
-}
-
-s32 func_80091398(s32 index) {
-    return FIELDSTG_fileEntries[index];
-}
-
-u8 func_800913B4(s32 index) {
-    return D_80099758[index];
-}
-
-void func_800913CC(void) {
-    StageEntry *entry;
-    s32 mode;
-
-#if VERSION_US
-    entry = D_800998E4;
-#elif VERSION_EU
-    if (GAME_PROGRESS != 0x2D) {
-        entry = D_8009A884;
-    } else {
-        entry = D_800998E4;
-    }
-#endif
-    mode = GAME_FUNCS.getMode();
-    HEAP.zero(&D_800990B4, 100);
-    while (1) {
-        if (entry->mode == mode) {
-            D_800990B4.stageFile = entry->file;
-            D_800990B4.stageInit = entry->init;
-            break;
-        }
-        if ((++entry)->mode == 0) {
-            break;
-        }
-    }
-    if (entry->mode == 0) {
-        while (1) {
-        }
-    }
-}
-
-void *func_80091490(u8 *list, s32 id) {
-    s32 i;
-
-    for (i = 0; i < 30; i++) {
-        if (*(s32 *)(list + 4) == id) {
-            return list;
-        }
-        list += 0x1C;
-    }
-    return NULL;
-}
-
-void func_800914C0(void) {
-    HEAP.zero(&D_8009A424, 8);
-}
-
-Actor *func_800914F0(s32 arg0) {
-    return TASK_FUNCS.find(5, arg0, -1);
-}
-
-void func_80091520(s32 time, s32 *pc) {
-    if (time != 0 && D_8009A424.active == 0) {
-        D_8009A424.active = 1;
-        D_8009A424.time = time;
-    }
-    D_8009A424.time -= GFX_FUNCS.getFrameTime();
-    if (D_8009A424.time <= 0) {
-        D_8009A424.time = 0;
-        D_8009A424.active = 0;
-        (*pc)++;
-    }
-}
-
-void func_800915B0(s32 id, s32 *pc) {
-    Actor *actor = func_800914F0(id);
-
-    if (actor->unk138(actor) != 0) {
-        (*pc)++;
-    }
-}
-
-void func_800915FC(s32 id, s32 *pc) {
-    Actor *actor = func_800914F0(id);
-
-    if (actor->unk140(actor) == 0) {
-        (*pc)++;
-    }
-}
-
-void func_80091648(Point *pos) {
-    Point scroll;
-    Layer *layer = GFX_FUNCS.getLayer(0x1002);
-
-    layer->getScroll(layer, &scroll);
-    pos->x -= scroll.x;
-    pos->y -= scroll.y;
-}
-
-void func_800916B4(void) {
-    Actor *actor = func_800914F0(1);
-
-    if (actor == NULL) {
-        actor = func_800914F0(2);
-    }
-    actor->unk10C = 0;
-}
-
-ScriptCommand *func_800916E8(s32 id) {
-    ScriptCommand *cmd;
-
-    for (cmd = D_8009A448; cmd->id != 0; cmd++) {
-        if (cmd->id == id) {
-            return cmd;
-        }
-    }
-    return NULL;
-}
-
-s32 func_80091730(s32 id) {
-    ScriptCommand *cmd = func_800916E8(id);
-    s32 ret = 0;
-
-    if (cmd != NULL) {
-        ret = cmd->create(id);
-    }
-    return ret;
-}
-
-void func_80091774(s32 arg0, s32 id, s32 arg2, s32 arg3) {
-    ScriptCommand *cmd = func_800916E8(id);
-
-    if (cmd != NULL && cmd->handle != NULL) {
-        cmd->handle(arg0, arg2, arg3);
-    }
-}
-
-void func_800917D8(void) {
-    s32 value = RANDOM.next() % 2304;
-
-    if (value < 0x100) {
-        GAME.unk30 = value;
-    } else {
-        GAME.unk30 = (value + 0x100) / 2;
-    }
-}
-
-void func_80091854(void) {
-    Actor *actor = TASK_FUNCS.find(5, -1, 0);
-    Point tile;
-    s32 area;
-    s32 index;
-    Battle *battle;
-
-    tile = actor->tile;
-    area = (u8)D_8009A70C.getCell(4, &tile) - 1;
-    index = RANDOM.next() & 7;
-    battle = D_800990B4.unk20->battles[area]->battles[index];
-    D_80042728.unkC = battle->unk4;
-    D_80042728.unk14 = battle->unk8;
-    func_8008AEDC(battle->unk0);
-}
-
-void func_80091910(void) {
-    Actor *actor;
-    Point tile;
-    s32 area;
-    s32 rate;
-
-    if (D_8009A70C.files[4] != 0 && D_800990B4.unk20 != NULL && D_800990B4.unk5C == 0 &&
-        D_800990B4.unk58 == 0 && D_800990B4.unk60 == 0 && D_800990B4.unk54 == 0) {
-        actor = TASK_FUNCS.find(5, -1, 0);
-        tile = actor->tile;
-        area = (u8)D_8009A70C.getCell(4, &tile);
-        if (area != 0) {
-            area--;
-            rate = D_8009A6F4[D_800990B4.unk20->battles[area]->count];
-            GAME.unk30 -= rate;
-            if (GAME.unk30 <= 0) {
-                if (D_80042728.unk0 != 0) {
-                    func_80091854();
-                }
-                func_800917D8();
-            }
-        }
-    }
-}
-
-void func_80091A4C(s32 index) {
-    Battle *battle;
-
-    if (D_800990B4.unk20 != NULL) {
-        battle = D_800990B4.unk20->battles[3]->battles[index];
-        D_80042728.unkC = battle->unk4;
-        D_80042728.unk14 = battle->unk8;
-        func_8008AEDC(battle->unk0);
-    }
-}
-
-INCLUDE_ASM("fieldstg/nonmatchings/fieldstg", func_80091AA8);
-
-void func_80091B78(s32 index, s32 value) {
-    D_8009A70C.files[index] = value;
-}
-
-void func_80091B90(s32 arg0) {
-    if (GAME.clearTempFlags != 0) {
-        GAME.unk26D8 = arg0;
-    }
-}
-
-void func_80091BB4(s32 arg0) {
-    GAME.unk26D8 = arg0;
-}
-
-s32 func_80091BC0(s32 index, Point *pos) {
-    s32 x;
-    s32 y;
-    s32 i;
-
-    if (func_80091AA8(index) == 0) {
-        return 1;
-    }
-    y = pos->y;
-    x = pos->x;
-    /* the match depends on the * 4 being a statement of its own */
-    i = D_8009A70C.grid[y / 128 * D_8009A70C.width + x / 128];
-    i *= 4;
-    if (y & 0x40) {
-        i += 2;
-    }
-    i = D_8009A70C.cells64[(x & 0x40) ? i + 1 : i];
-    i *= 4;
-    if (y & 0x20) {
-        i += 2;
-    }
-    i = D_8009A70C.cells32[(x & 0x20) ? i + 1 : i];
-    i *= 4;
-    if (y & 0x10) {
-        i += 2;
-    }
-    i = D_8009A70C.cells16[(x & 0x10) ? i + 1 : i];
-    i *= 4;
-    if (y & 8) {
-        i += 2;
-    }
-    i = D_8009A70C.cells8[(x & 8) ? i + 1 : i];
-    return D_8009A70C.pixels[i * 64 + (y & 7) * 8 + (x & 7)];
-}
-
-/* Whether nothing stands at pos: no character's box (gathered once a frame)
-   and no object. The match depends on the boxes' variables being local to
-   their blocks. */
-s32 func_80091D3C(Point *pos) {
-    s32 frame = GFX_FUNCS.getFrameCount();
-    Actor *actor;
-    s32 i;
-
-    if (frame != D_8009A768) {
-        actor = TASK_REGISTRY.funcs.find(5, -1, 1);
-        for (i = 0; actor != NULL; i++) {
-            s32 width = actor->unk80;
-
-            D_8009AA4C[i].left = actor->tile.x - width;
-            D_8009AA4C[i].right = actor->tile.x + width;
-            width /= 2;
-            D_8009AA4C[i].top = actor->tile.y - width;
-            D_8009AA4C[i].bottom = actor->tile.y + width;
-            actor = TASK_REGISTRY.funcs.findNext();
-        }
-        D_8009AB8C = i;
-        D_8009A768 = frame;
-    }
-    for (i = 0; i < D_8009AB8C; i++) {
-        if (pos->x >= D_8009AA4C[i].left && D_8009AA4C[i].right >= pos->x && pos->y >= D_8009AA4C[i].top
-            && D_8009AA4C[i].bottom >= pos->y) {
-            s32 dx = pos->x - D_8009AA4C[i].left;
-            s32 dy = pos->y - D_8009AA4C[i].top;
-            s32 width = D_8009AA4C[i].right - D_8009AA4C[i].left;
-            s32 height = D_8009AA4C[i].bottom - D_8009AA4C[i].top;
-            s32 halfWidth = width / 2;
-            s32 halfHeight = height / 2;
-            s32 ratio = width / height;
-
-            if (halfWidth < dx) {
-                dx = halfWidth - (dx - halfWidth);
-            }
-            if (halfHeight < dy) {
-                dy = halfHeight - (dy - halfHeight);
-            }
-            if (dx >= halfWidth - dy * ratio) {
-                return 0;
-            }
-        }
-    }
-    return func_8008C160(pos, 0) == NULL;
-}
-
-void func_80091F4C(Point *pos, s32 scale, s32 index, Point *out) {
-    s32 cell = (u8)func_80091BC0(GAME.unk26D8, pos);
-    s32 row = cell & 0xF;
-    s32 dir;
-    s32 sign;
-
-    row -= row != 0;
-    dir = (cell & 0x10) ? D_8009A92C[index] : index;
-    sign = (cell & 0x10) ? -1 : 1;
-    out->x = D_8009A76C[row][dir].x * scale * sign / 4096;
-    out->y = D_8009A76C[row][dir].y * scale / 4096;
-}
-
-void func_8009204C(s32 arg0, s32 scale, s32 index, Point *out) {
-    out->x = D_8009A76C[0][index].x * scale / 4096;
-    out->y = D_8009A76C[0][index].y * scale / 4096;
 }
 
 /*
@@ -3752,35 +732,6 @@ extern AnimFrame D_80096174[];
 extern AnimFrame D_800961B4[];
 extern AnimFrame D_80096160[];
 extern AnimFrame D_80096194[];
-extern s32 D_8009AA08[];
-extern s32 D_8009A9D8[];
-extern s32 D_8009A9A8[];
-extern s32 D_8009A978[];
-extern s32 D_8009A94C[];
-extern s32 D_8009A954[];
-extern s32 D_8009A95C[];
-extern s32 D_8009A964[];
-extern s32 D_8009A96C;
-extern s32 D_8009A970[];
-extern s32 D_8009A9A0[];
-extern s32 D_8009A9D0[];
-extern s32 D_8009AA00[];
-extern s32 D_8009AA34;
-extern s32 D_8009AA2C[];
-extern s32 D_8009AA24[];
-extern s32 D_8009AA1C[];
-extern s32 D_8009AA10[];
-extern s32 D_8009A9E0[];
-extern s32 D_8009A9B0[];
-extern s32 D_8009A984[];
-extern s32 D_8009A98C[];
-extern s32 D_8009A994;
-extern s32 D_8009A998[];
-extern s32 D_8009A9C8[];
-extern s32 D_8009A9FC;
-extern s32 D_8009A9F4[];
-extern s32 D_8009A9E8[];
-extern s32 D_8009A9BC;
 extern u8 D_80096D2C[];
 extern u8 D_80096D3C[];
 extern u8 D_80096D4C[];
@@ -4139,10 +1090,43 @@ void func_80082F84();
 void func_80091910();
 s32 func_80091BC0(s32, Point *);
 s32 func_80091D3C(Point *pos);
+void func_80083F8C(void), func_80083FBC(void), func_80083FF0(void), func_80084024(void);
+void func_80084058(void), func_8008408C(void), func_800840C0(void), func_800840F4(void);
+void func_80084128(void), func_8008415C(void), func_80084190(void), func_800841C4(void);
+void func_800841F8(void), func_8008422C(void), func_80084260(void), func_80084294(void);
+void func_80090864(void), func_800908C4(void), func_800908F0(void), func_80090950(void);
+void func_8009097C(void), func_800909DC(void), func_80090A08(void), func_80090A68(void);
+void func_80090A94(void), func_80090AF4(void), func_80090B20(void), func_80090B80(void);
+void func_80090BAC(void), func_80090C0C(void), func_80090C38(void), func_80090C98(void);
+void func_80090CC4(void), func_80090D24(void), func_80090D50(void), func_80090DB0(void);
+void func_80090DDC(void), func_80090E3C(void), func_80090E68(void), func_80090EC8(void);
+void func_80090EF4(void), func_80090F54(void), func_80090F80(void), func_80090FE0(void);
+void func_8009100C(void), func_8009106C(void), func_80091098(void), func_800910F8(void);
+void func_800913CC(void), func_800914C0(void), func_800916B4(void), func_800917D8(void);
+void func_80091854(void);
+void func_800838BC(Unk800834A0 *task, s32 arg1);
+Unk800834A0 *func_80083930(s32 id);
+Unk800842C8 *func_800844B8(s32 arg0);
+void func_800878F0(s32 arg0);
+void func_80087918(Unk800876E4 *task, s32 command, s32 id);
+void func_80091298(Tween *tween, s32 in);
+s32 func_8009132C(Tween *tween);
+s32 func_80091398(s32 index);
+s32 func_800913B4(s32 index);
+void *func_80091490(u8 *list, s32 id);
+void func_80091520(s32 time, s32 *pc);
+void func_800915B0(s32 id, s32 *pc);
+void func_800915FC(s32 id, s32 *pc);
+void func_80091648(Point *pos);
+void func_80091A4C(s32 index);
+void func_80091B78(s32 index, s32 value);
+void func_80091B90(s32 arg0);
+void func_80091BB4(s32 arg0);
+void func_80091F4C(Point *pos, s32 scale, s32 index, Point *out);
+void func_8009204C(s32 arg0, s32 scale, s32 index, Point *out);
 #if VERSION_EU
 extern s32 D_800940A4[];
 extern s32 D_800940B0[];
-extern s32 D_80096E4C[];
 #endif
 
 s32 D_800920A8[] = {
@@ -7054,31 +4038,46 @@ s32 D_800939E0[] = {
     0,
 };
 #endif
-u16 D_80095E84[] = {
-    0x0001, 0x0002, 0x0001, 0x0000, 0xFFFF, 0xFFFE, 0xFFFF, 0x0000,
-    0x03E8, 0x0000,
+s16 D_80095E84[] = {
+    1, 2, 1, 0, -1, -2, -1, 0, 1000, 0,
 };
 #if VERSION_US
-s32 D_80095E98[] = {
-    0x1120002, 0x5360535, 0x1120005, 0x53B053A,
-    0x1120009, 0x540053F, 0x112000D, 0x5450544,
-    0x1120011, 0x54A0549, 0x1120015, 0x54F054E,
-    0x1120019, 0x5540553, 0x112001D, 0x5590558,
-    0x1120021, 0x55E055D, 0x1120025, 0x5630562,
-    0x1120029, 0x5680567, 0x112002D, 0x56D056C,
-    0x1120031, 0x5720571, 0x1120035, 0x5770576,
-    0x1120039, 0x57C057B, 0x112003D, 0x5810580,
+ChoiceText D_80095E98[16] = {
+    {0x1120002, {0x535, 0x536}},
+    {0x1120005, {0x53A, 0x53B}},
+    {0x1120009, {0x53F, 0x540}},
+    {0x112000D, {0x544, 0x545}},
+    {0x1120011, {0x549, 0x54A}},
+    {0x1120015, {0x54E, 0x54F}},
+    {0x1120019, {0x553, 0x554}},
+    {0x112001D, {0x558, 0x559}},
+    {0x1120021, {0x55D, 0x55E}},
+    {0x1120025, {0x562, 0x563}},
+    {0x1120029, {0x567, 0x568}},
+    {0x112002D, {0x56C, 0x56D}},
+    {0x1120031, {0x571, 0x572}},
+    {0x1120035, {0x576, 0x577}},
+    {0x1120039, {0x57B, 0x57C}},
+    {0x112003D, {0x580, 0x581}},
 };
 #elif VERSION_EU
-s32 D_80095E98[] = {
-    0x1190002, 0x5360535, 0x1190005, 0x53B053A,
-    0x1190009, 0x540053F, 0x119000D, 0x5450544,
-    0x1190011, 0x54A0549, 0x1190015, 0x54F054E,
-    0x1190019, 0x5540553, 0x119001D, 0x5590558,
-    0x1190021, 0x55E055D, 0x1190025, 0x5630562,
-    0x1190029, 0x5680567, 0x119002D, 0x56D056C,
-    0x1190031, 0x5720571, 0x1190035, 0x5770576,
-    0x1190039, 0x57C057B, 0x119003D, 0x5810580,
+ChoiceText D_80095E98[16] = {
+    {0x1190002, {0x535, 0x536}},
+    {0x1190005, {0x53A, 0x53B}},
+    {0x1190009, {0x53F, 0x540}},
+    {0x119000D, {0x544, 0x545}},
+    {0x1190011, {0x549, 0x54A}},
+    {0x1190015, {0x54E, 0x54F}},
+    {0x1190019, {0x553, 0x554}},
+    {0x119001D, {0x558, 0x559}},
+    {0x1190021, {0x55D, 0x55E}},
+    {0x1190025, {0x562, 0x563}},
+    {0x1190029, {0x567, 0x568}},
+    {0x119002D, {0x56C, 0x56D}},
+    {0x1190031, {0x571, 0x572}},
+    {0x1190035, {0x576, 0x577}},
+    {0x1190039, {0x57B, 0x57C}},
+    {0x119003D, {0x580, 0x581}},
 };
 #endif
 ProgressEvent D_80095F18[] = {
@@ -7100,22 +4099,22 @@ ProgressEvent D_80095F18[] = {
     {39, 0x40F, 0x707D, 0x57E, 0x57F},
     {-1, 0, 0, 0, 0},
 };
-u16 D_80096028[] = {
-    0x0000, 0x0001, 0x0000, 0x000D, 0x0001, 0x000E, 0x0002, 0x000F,
-    0x0003, 0x000E, 0x0000, 0x000D, 0x0001, 0x000E, 0x0002, 0x000F,
-    0x0003, 0x000E, 0x0000, 0x0006, 0x0001, 0x0006, 0x0002, 0x0006,
-    0x0004, 0x0007, 0x0005, 0x0005, 0x0006, 0x0004, 0x0007, 0x0004,
-    0x0008, 0x0004, 0x0009, 0x0004, 0xFFFF, 0xFFFF,
+AnimFrame D_80096028[] = {
+    {0, 1}, {0, 13}, {1, 14}, {2, 15},
+    {3, 14}, {0, 13}, {1, 14}, {2, 15},
+    {3, 14}, {0, 6}, {1, 6}, {2, 6},
+    {4, 7}, {5, 5}, {6, 4}, {7, 4},
+    {8, 4}, {9, 4}, {-1, -1},
 };
-u16 D_80096074[] = {
-    0x0000, 0x0001, 0x0001, 0x0008, 0x0002, 0x0006, 0x0003, 0x0004,
-    0x0004, 0x0004, 0x0003, 0x0004, 0x0004, 0x0004, 0x0003, 0x0006,
-    0x0004, 0x0004, 0x0003, 0x0004, 0xFFFF, 0x0007,
+AnimFrame D_80096074[] = {
+    {0, 1}, {1, 8}, {2, 6}, {3, 4},
+    {4, 4}, {3, 4}, {4, 4}, {3, 6},
+    {4, 4}, {3, 4}, {-1, 7},
 };
-u16 D_800960A0[] = {
-    0x0000, 0x0001, 0x0009, 0x0012, 0x0005, 0x0004, 0x0006, 0x0005,
-    0x0007, 0x0004, 0x0008, 0x0004, 0x0006, 0x0004, 0x0007, 0x0004,
-    0x0008, 0x0004, 0xFFFF, 0x0005,
+AnimFrame D_800960A0[] = {
+    {0, 1}, {9, 18}, {5, 4}, {6, 5},
+    {7, 4}, {8, 4}, {6, 4}, {7, 4},
+    {8, 4}, {-1, 5},
 };
 AnimFrame D_800960C8[] = {
     {0, 4}, {1, 4}, {2, 4}, {3, 4},
@@ -7200,13 +4199,15 @@ u8 D_80096204[] = {
     0x00, 0x01, 0x0A, 0x19, 0x11, 0x06, 0x07, 0x09,
     0x0B, 0x1C, 0x14, 0x16, 0x18, 0x1A, 0x1B, 0x1D,
 };
-u8 D_8009636C[] = {
-    0x00, 0x01, 0x02, 0x01, 0x01, 0x00, 0x02, 0x00,
-    0x00, 0x00, 0x02, 0x02, 0x01, 0x02, 0x02, 0x03,
+u8 D_8009636C[][2] = {
+    {0x00, 0x01}, {0x02, 0x01}, {0x01, 0x00}, {0x02, 0x00},
+    {0x00, 0x00}, {0x02, 0x02}, {0x01, 0x02}, {0x02, 0x03},
 };
-u8 D_8009637C[] = {
-    0x02, 0x01, 0x02, 0x01, 0x01, 0x01, 0x02, 0x01,
-    0x02, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+u8 D_8009637C[][4] = {
+    {0x02, 0x01, 0x02, 0x01},
+    {0x01, 0x01, 0x02, 0x01},
+    {0x02, 0x01, 0x01, 0x01},
+    {0x01, 0x01, 0x01, 0x01},
 };
 s32 D_8009638C[] = {
     7, 3, 11,
@@ -7467,30 +4468,17 @@ AreaName D_800963F8[] = {
     {21, 134, 750},
     {0, 0, 0},
 };
-s32 D_800967B8[] = {
-    0, 0x290140, 0x10000, 0xFFE400,
-    1, 124, 320, 8,
-    0, 0, 0x570000, 320,
-    0xFFE400, 2, 86, 88,
-    2, 0, 0, 0,
-    0xF00002, 0xFFE400, 1, 31,
-    32, 2, 0, 0,
-    0, 0xF00001, 0xFFE400, 1,
-    13, 14, 2, 0,
-    0, 227, 1, 0xFFE400,
-    2, 0, 240, 16,
-    0, 0, 0x280140, 0x30000,
-    0xC83E3E, 1, 124, 320,
-    8, 0, 0, 0x570000,
-    320, 0xC83E3E, 2, 81,
-    93, 2, 0, 0,
-    0, 0xF00008, 0xC83E3E, 1,
-    27, 36, 2, 0,
-    0, 0x10007D, 116, 0x800000,
-    2, 16, 47, 2,
-    0, 0, 0x570000, 320,
-    0x800000, 2, 66, 97,
-    2, 0,
+Unk800870D4Box D_800967B8[10] = {
+    {0, {320, 41}, {0, 1}, 0xFFE400, 1, 124, 320, 8, 0},
+    {0, {0, 87}, {320, 0}, 0xFFE400, 2, 86, 88, 2, 0},
+    {0, {0, 0}, {2, 240}, 0xFFE400, 1, 31, 32, 2, 0},
+    {0, {0, 0}, {1, 240}, 0xFFE400, 1, 13, 14, 2, 0},
+    {0, {227, 0}, {1, 0}, 0xFFE400, 2, 0, 240, 16, 0},
+    {0, {320, 40}, {0, 3}, 0xC83E3E, 1, 124, 320, 8, 0},
+    {0, {0, 87}, {320, 0}, 0xC83E3E, 2, 81, 93, 2, 0},
+    {0, {0, 0}, {8, 240}, 0xC83E3E, 1, 27, 36, 2, 0},
+    {0, {125, 16}, {116, 0}, 0x800000, 2, 16, 47, 2, 0},
+    {0, {0, 87}, {320, 0}, 0x800000, 2, 66, 97, 2, 0},
 };
 u8 D_80096920[][9] = {
     {0x00, 0x3C, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
@@ -7562,30 +4550,37 @@ s16 D_80096A8C[][2] = {
     {-17, -20}, {-16, -22}, {-16, -22}, {0, 0},
 };
 s32 D_80096ACC = 0;
-s32 D_80096AD0[] = {
-    (s32)D_8009AA08, -1, 192, (s32)D_8009A9D8,
-    -1, 128, (s32)D_8009A9A8, -1,
-    64, (s32)D_8009A978, -1, 0,
-    (s32)D_8009A94C, 1, 40, (s32)D_8009A954,
-    1, 80, (s32)D_8009A95C, 1,
-    120, (s32)D_8009A964, 1, 160,
-    (s32)&D_8009A96C, 1, 200, (s32)D_8009A970,
-    1, 64, (s32)D_8009A9A0, 1,
-    128, (s32)D_8009A9D0, 1, 192,
-    (s32)D_8009AA00, 1, 256, (s32)&D_8009AA34,
-    -1, 160, (s32)D_8009AA2C, -1,
-    120, (s32)D_8009AA24, -1, 80,
-    (s32)D_8009AA1C, -1, 40, (s32)D_8009AA10,
-    -1, 192, (s32)D_8009A9E0, -1,
-    128, (s32)D_8009A9B0, -1, 64,
-    (s32)D_8009A984, 1, 80, (s32)D_8009A98C,
-    1, 120, (s32)&D_8009A994, 1,
-    160, (s32)D_8009A998, 1, 128,
-    (s32)D_8009A9C8, 1, 192, (s32)&D_8009A9FC,
-    -1, 120, (s32)D_8009A9F4, -1,
-    80, (s32)D_8009A9E8, -1, 192,
-    (s32)&D_8009A9BC, 1, 120, 0,
-    0, 0,
+TileMove FIELDSTG_tileMoves[] = {
+    {&FIELDSTG_tiles[4][0].x, -1, 192},
+    {&FIELDSTG_tiles[3][0].x, -1, 128},
+    {&FIELDSTG_tiles[2][0].x, -1, 64},
+    {&FIELDSTG_tiles[1][0].x, -1, 0},
+    {&FIELDSTG_tiles[0][0].y, 1, 40},
+    {&FIELDSTG_tiles[0][1].y, 1, 80},
+    {&FIELDSTG_tiles[0][2].y, 1, 120},
+    {&FIELDSTG_tiles[0][3].y, 1, 160},
+    {&FIELDSTG_tiles[0][4].y, 1, 200},
+    {&FIELDSTG_tiles[0][5].x, 1, 64},
+    {&FIELDSTG_tiles[1][5].x, 1, 128},
+    {&FIELDSTG_tiles[2][5].x, 1, 192},
+    {&FIELDSTG_tiles[3][5].x, 1, 256},
+    {&FIELDSTG_tiles[4][5].y, -1, 160},
+    {&FIELDSTG_tiles[4][4].y, -1, 120},
+    {&FIELDSTG_tiles[4][3].y, -1, 80},
+    {&FIELDSTG_tiles[4][2].y, -1, 40},
+    {&FIELDSTG_tiles[4][1].x, -1, 192},
+    {&FIELDSTG_tiles[3][1].x, -1, 128},
+    {&FIELDSTG_tiles[2][1].x, -1, 64},
+    {&FIELDSTG_tiles[1][1].y, 1, 80},
+    {&FIELDSTG_tiles[1][2].y, 1, 120},
+    {&FIELDSTG_tiles[1][3].y, 1, 160},
+    {&FIELDSTG_tiles[1][4].x, 1, 128},
+    {&FIELDSTG_tiles[2][4].x, 1, 192},
+    {&FIELDSTG_tiles[3][4].y, -1, 120},
+    {&FIELDSTG_tiles[3][3].y, -1, 80},
+    {&FIELDSTG_tiles[3][2].x, -1, 192},
+    {&FIELDSTG_tiles[2][2].y, 1, 120},
+    {NULL, 0, 0},
 };
 #if VERSION_US
 s16 D_80096C38[] = {
@@ -7716,21 +4711,21 @@ s32 D_80096E34[] = {
 s32 D_80096E40[] = {
     0, 0xAAAAA555, 0xAAAAAAAA,
 };
-#if VERSION_US
-s32 D_80096E4C[] = {
-    (s32)D_80096DEC, (s32)D_80096DF8, (s32)D_80096E04, (s32)D_80096E10,
-    (s32)D_80096E1C, (s32)D_80096E28, (s32)D_80096E34, (s32)D_80096E40,
-};
-#elif VERSION_EU
-s32 D_80096E4C[] = {
+#if VERSION_EU
+s32 FIELDSTG_gaugeRow8[] = {
     0, 0, 0,
 };
-s32 D_80097B14[] = {
-    (s32)D_80096DEC, (s32)D_80096DF8, (s32)D_80096E04, (s32)D_80096E10,
-    (s32)D_80096E1C, (s32)D_80096E28, (s32)D_80096E34, (s32)D_80096E40,
-    (s32)D_80096E4C,
-};
 #endif
+/* The rows of func_8008C59C's gauges, 2 bits a cell. The USA version has no
+   row 8 (for GAME.unk26F8 used up) and reads past the table, a null
+   pointer */
+u8 *FIELDSTG_gaugeRows[] = {
+    (u8 *)D_80096DEC, (u8 *)D_80096DF8, (u8 *)D_80096E04, (u8 *)D_80096E10,
+    (u8 *)D_80096E1C, (u8 *)D_80096E28, (u8 *)D_80096E34, (u8 *)D_80096E40,
+#if VERSION_EU
+    (u8 *)FIELDSTG_gaugeRow8,
+#endif
+};
 Point D_80096E6C[] = {
     {0, 0},
     {-1, -1},
@@ -9142,8 +6137,8 @@ s32 D_80098AF4[] = {
     0, 0,
 };
 void (*FIELDSTG_initFuncs[])(void) = {func_80091124};
-s32 D_80098B70 = (s32)func_80091298;
-s32 D_80098B74 = (s32)func_8009132C;
+void (*D_80098B70)(Tween *tween, s32 in) = func_80091298;
+s32 (*D_80098B74)(Tween *tween) = func_8009132C;
 #if VERSION_US
 s32 D_80098B78[] = {
     1320, 0x800A4CA4, 0x1120040, 0,
@@ -9322,11 +6317,11 @@ s32 D_80098B78[] = {
 FieldState D_800990B4 = {
     0, 0, 0, 0,
     0, 0, 0, 0,
+    0, 0, 0, {0, 0},
+    0, {0}, 0,
     0, 0, 0, 0,
-    0, 0, {0}, 0,
     0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
+    0, {0, 0}, 0,
     func_800913CC, func_80091398, func_800913B4, func_80091490,
 };
 #if VERSION_US
@@ -10414,99 +7409,14 @@ Point D_8009A76C[][8] = {
 u8 D_8009A92C[] = {
     0x00, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01,
 };
-u16 D_8009A934[] = {
-    0x0000, 0x0000,
-};
+s16 D_8009A934 = 0;
 Point D_8009A938 = {0, 0};
 u8 *D_8009A940 = NULL;
 s32 D_8009A944 = 0;
-s32 D_8009A948 = 0;
-s32 D_8009A94C[] = {
-    0, 0,
-};
-s32 D_8009A954[] = {
-    0, 0,
-};
-s32 D_8009A95C[] = {
-    0, 0,
-};
-s32 D_8009A964[] = {
-    0, 0,
-};
-s32 D_8009A96C = 0;
-s32 D_8009A970[] = {
-    0, 0,
-};
-s32 D_8009A978[] = {
-    0, 0, 0,
-};
-s32 D_8009A984[] = {
-    0, 0,
-};
-s32 D_8009A98C[] = {
-    0, 0,
-};
-s32 D_8009A994 = 0;
-s32 D_8009A998[] = {
-    0, 0,
-};
-s32 D_8009A9A0[] = {
-    0, 0,
-};
-s32 D_8009A9A8[] = {
-    0, 0,
-};
-s32 D_8009A9B0[] = {
-    0, 0, 0,
-};
-s32 D_8009A9BC = 0;
-s32 D_8009A9C0[] = {
-    0, 0,
-};
-s32 D_8009A9C8[] = {
-    0, 0,
-};
-s32 D_8009A9D0[] = {
-    0, 0,
-};
-s32 D_8009A9D8[] = {
-    0, 0,
-};
-s32 D_8009A9E0[] = {
-    0, 0,
-};
-s32 D_8009A9E8[] = {
-    0, 0, 0,
-};
-s32 D_8009A9F4[] = {
-    0, 0,
-};
-s32 D_8009A9FC = 0;
-s32 D_8009AA00[] = {
-    0, 0,
-};
-s32 D_8009AA08[] = {
-    0, 0,
-};
-s32 D_8009AA10[] = {
-    0, 0, 0,
-};
-s32 D_8009AA1C[] = {
-    0, 0,
-};
-s32 D_8009AA24[] = {
-    0, 0,
-};
-s32 D_8009AA2C[] = {
-    0, 0,
-};
-s32 D_8009AA34 = 0;
-s32 D_8009AA38[] = {
-    0, 0,
-};
-u16 D_8009AA40[] = {
-    0x0000, 0x0000, 0x0000, 0x0000,
-};
+Point FIELDSTG_tiles[5][6] = {{{0}}};
+s32 D_8009AA38 = 0;
+s32 D_8009AA3C = 0;
+RECT D_8009AA40 = {0, 0, 0, 0};
 #if VERSION_US
 u16 D_8009AA48[] = {
     0x0000, 0x0000,

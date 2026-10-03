@@ -8,6 +8,7 @@
  */
 
 #include "game.h"
+#include "field_map.h"
 
 /* The task a stage starts (see its start function) */
 typedef struct StageTask {
@@ -81,14 +82,6 @@ typedef struct StageInfo {
             c[0]--;          \
         }                    \
     } while (0)
-
-/* FIELDSTG functions the stages call through a table */
-typedef struct FieldFuncs {
-    /* 0x00 */ void (*unk0[16])();
-    /* 0x40 */ void (*unk40)(s32 arg0, s32 id);
-    /* 0x44 */ void (*unk44[3])();
-    /* 0x50 */ void (*unk50)(s32 arg0);
-} FieldFuncs;
 
 /* A point of a list (what its six halfwords are isn't known yet) */
 typedef struct StagePoint {
@@ -810,7 +803,6 @@ extern s32 LANGUAGE; /* 2-5 */
 #endif
 
 extern StageInfo D_800990B4;
-extern FieldFuncs D_8009A70C;
 
 /* FIELDSTG functions the stages call */
 void *func_80084B80(s32 id); /* creates the task of an event object */

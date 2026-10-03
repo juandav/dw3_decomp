@@ -94,7 +94,7 @@ typedef struct TrainTotals {
     /* 0x0C */ s16 stats[6];
     /* 0x18 */ s16 resistances[7];
     /* 0x26 */ s16 boosted[3]; /* stats 0, 1 and 4 are shown in another colour */
-    /* 0x2C */ s16 unk2C[2];
+    /* 0x2C */ s32 unk2C; /* TrainResult keeps its yes/no cursor here */
 } TrainTotals;
 
 /* The training screen's main task (func_800854FC) */
@@ -170,8 +170,13 @@ typedef struct TrainSession {
     /* 0x050 */ TrainScreen *screen;
     /* 0x054 */ s32 layerId;
     /* 0x058 */ s32 depth;
-    /* 0x05C */ s32 unk5C;
-    /* 0x060 */ u8 unk60[0x18];
+    /* 0x05C */ s32 unk5C; /* the cursor's column, from the screen's unk7C */
+    /* 0x060 */ s32 cursorClut;
+    /* 0x064 */ s32 cursorTime;
+    /* 0x068 */ s32 cursorShown;
+    /* 0x06C */ s32 unk6C;
+    /* 0x070 */ s32 iconFrame;
+    /* 0x074 */ s32 iconTime;
     /* 0x078 */ PanelAnim panels[8];
     /* 0x0F8 */ void (*finish)(struct TrainSession *session);
 } TrainSession;
@@ -253,7 +258,8 @@ typedef struct TrainResult {
     /* 0x0E4 */ s32 unkE4;
     /* 0x0E8 */ s32 unkE8;
     /* 0x0EC */ s32 unkEC;
-    /* 0x0F0 */ s32 unkF0;
+    /* 0x0F0 */ s16 unkF0; /* the slot of the bonus try's sound */
+    /* 0x0F2 */ s16 unkF2;
     /* 0x0F4 */ PanelAnim panels[4];
 } TrainResult;
 
