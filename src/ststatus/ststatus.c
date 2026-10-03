@@ -18,6 +18,24 @@ s32 func_80099984(void);
 s32 func_800999AC(void);
 void func_800999CC(s32 *out);
 
+void func_80084204(StatusScreen *screen, void *children);
+void func_800859E0(StatusScreen *screen, void *children);
+void func_800911E4(StatusScreen0 *screen, void *children);
+void func_8009576C(StatusScreen *screen, void *children);
+void func_80097460(StatusScreen *screen, void *children);
+void func_8008DCF0(StatusScreen4 *screen, void *children);
+void func_8008AA00(StatusPanel4A *panel, void *children);
+void func_80087914(StatusPanel4B *panel, void *children);
+void func_80092974(StatusPanel0 *panel, void *children);
+void func_800845C8(StatusWidget *widget, void *children);
+void func_800843FC(StatusWidget *widget);
+void func_8008BA38(StatusScreen4 *screen);
+void func_8008E668(StatusScreen0 *screen, s32 arg);
+void func_8008E828(StatusScreen0 *screen, s32 arg);
+StatusWidget *func_8008467C(void);
+StatusPanel4B *func_800879C8(StatusScreen4 *screen);
+StatusPanel4A *func_8008AB04(StatusScreen4 *screen);
+StatusPanel0 *func_80092B0C(StatusScreen0 *screen, s32 arg1, s32 arg2);
 extern s32 FIELD_MENU_CHOICE[2];
 extern Task *(*D_80099C9C[2][7])(FieldMenuScreen *menu, s32 extra);
 extern s32 *D_8009A254[][5];
@@ -66,7 +84,14 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800839B0);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80084204);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800843B4);
+Task *func_800843B4(FieldMenuScreen *menu, s32 extra) {
+    StatusScreen *screen = createTask(func_80084204, 0xD4, 0xA0);
+
+    screen->layer = 0x1000;
+    screen->depth = 6;
+    screen->menu = menu;
+    return (Task *)screen;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800843FC);
 
@@ -74,7 +99,14 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80084484);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800845C8);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008467C);
+StatusWidget *func_8008467C(void) {
+    StatusWidget *widget = createTask(func_800845C8, sizeof(StatusWidget), 0);
+
+    widget->func_800843FC = func_800843FC;
+    widget->layer = 0x1000;
+    widget->depth = 0;
+    return widget;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800846C0);
 
@@ -88,7 +120,14 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800852B8);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800859E0);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80085B90);
+Task *func_80085B90(FieldMenuScreen *menu, s32 extra) {
+    StatusScreen *screen = createTask(func_800859E0, 0xD4, 0x9C);
+
+    screen->layer = 0x1000;
+    screen->depth = 6;
+    screen->menu = menu;
+    return (Task *)screen;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80085BD8);
 
@@ -106,7 +145,15 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80086B28);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80087914);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800879C8);
+StatusPanel4B *func_800879C8(StatusScreen4 *screen) {
+    StatusPanel4B *panel = createTask(func_80087914, sizeof(StatusPanel4B), 0xA4);
+
+    panel->layer = 0x1000;
+    panel->depth = 4;
+    panel->screen = screen;
+    panel->partner = GAME_FUNCS.getPartyMember(screen->member);
+    return panel;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80087A3C);
 
@@ -126,7 +173,15 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008927C);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AA00);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AB04);
+StatusPanel4A *func_8008AB04(StatusScreen4 *screen) {
+    StatusPanel4A *panel = createTask(func_8008AA00, sizeof(StatusPanel4A), 0x90);
+
+    panel->layer = 0x1000;
+    panel->depth = 6;
+    panel->screen = screen;
+    panel->member = screen->member;
+    return panel;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AB58);
 
@@ -152,7 +207,15 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008D380);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008DCF0);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008DEA4);
+Task *func_8008DEA4(FieldMenuScreen *menu, s32 extra) {
+    StatusScreen4 *screen = createTask(func_8008DCF0, sizeof(StatusScreen4), 0x110);
+
+    screen->func_8008BA38 = func_8008BA38;
+    screen->layer = 0x1000;
+    screen->depth = 6;
+    screen->menu = menu;
+    return (Task *)screen;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008DEF8);
 
@@ -166,9 +229,19 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008E668);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008E828);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008EA38);
+void func_8008EA38(StatusScreen0 *screen, s32 show) {
+    if (show != 0) {
+        STSTATUS_funcs.startFade(&screen->fade, 1);
+        return;
+    }
+    STSTATUS_funcs.startFade(&screen->fade, 0);
+    func_8008E668(screen, 0);
+    func_8008E828(screen, 0);
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008EAAC);
+s32 func_8008EAAC(StatusScreen0 *screen) {
+    return STSTATUS_funcs.updateFade(&screen->fade) != 0;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008EAD4);
 
@@ -178,7 +251,14 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008F7A0);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800911E4);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80091318);
+Task *func_80091318(FieldMenuScreen *menu, s32 extra) {
+    StatusScreen0 *screen = createTask(func_800911E4, sizeof(StatusScreen0), 0xD4);
+
+    screen->layer = 0x1000;
+    screen->depth = 6;
+    screen->menu = menu;
+    return (Task *)screen;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80091360);
 
@@ -194,7 +274,18 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092440);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092974);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092B0C);
+StatusPanel0 *func_80092B0C(StatusScreen0 *screen, s32 arg1, s32 arg2) {
+    StatusPanel0 *panel = createTask(func_80092974, sizeof(StatusPanel0), 0x6C);
+
+    panel->layer = 0x1000;
+    panel->depth = 3;
+    panel->screen = screen;
+    if (arg2 != 0) {
+        panel->unk60 = arg2;
+    }
+    panel->unk5C = arg1;
+    return panel;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092B80);
 
@@ -220,7 +311,14 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009440C);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009576C);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80095934);
+Task *func_80095934(FieldMenuScreen *menu, s32 extra) {
+    StatusScreen *screen = createTask(func_8009576C, 0x1F4, 0xB4);
+
+    screen->layer = 0x1000;
+    screen->depth = 6;
+    screen->menu = menu;
+    return (Task *)screen;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009597C);
 
@@ -232,7 +330,14 @@ INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80096830);
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80097460);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800975FC);
+Task *func_800975FC(FieldMenuScreen *menu, s32 extra) {
+    StatusScreen *screen = createTask(func_80097460, 0xF4, 0x8C);
+
+    screen->layer = 0x1000;
+    screen->depth = 2;
+    screen->menu = menu;
+    return (Task *)screen;
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80097644);
 

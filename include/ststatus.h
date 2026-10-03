@@ -38,6 +38,78 @@ typedef struct FieldMenuScreenChildren {
     /* 0x4 */ Task *screen;
 } FieldMenuScreenChildren;
 
+/* A screen of the field menu (D_80099C9C) */
+typedef struct StatusScreen {
+    TASK_HEADER(StatusScreen);
+    /* 0x50 */ FieldMenuScreen *menu;
+    /* 0x54 */ s32 layer;
+    /* 0x58 */ s32 depth;
+} StatusScreen;
+
+/* The field menu's first screen (func_80091318) */
+typedef struct StatusScreen0 {
+    TASK_HEADER(StatusScreen0);
+    /* 0x050 */ FieldMenuScreen *menu;
+    /* 0x054 */ s32 layer;
+    /* 0x058 */ s32 depth;
+    /* 0x05C */ u8 unk5C[0x43C - 0x5C];
+    /* 0x43C */ PanelAnim fade;
+    /* 0x44C */ u8 unk44C[0x45C - 0x44C];
+} StatusScreen0;
+
+/* The field menu's fifth screen (func_8008DEA4) */
+typedef struct StatusScreen4 {
+    TASK_HEADER(StatusScreen4);
+    /* 0x050 */ FieldMenuScreen *menu;
+    /* 0x054 */ s32 layer;
+    /* 0x058 */ s32 depth;
+    /* 0x05C */ u8 unk5C[0x7C - 0x5C];
+    /* 0x07C */ s32 member; /* in the party */
+    /* 0x080 */ u8 unk80[0x148 - 0x80];
+    /* 0x148 */ void (*func_8008BA38)(struct StatusScreen4 *screen);
+} StatusScreen4;
+
+/* A panel of the fifth screen (func_8008AB04) */
+typedef struct StatusPanel4A {
+    TASK_HEADER(StatusPanel4A);
+    /* 0x50 */ StatusScreen4 *screen;
+    /* 0x54 */ s32 layer;
+    /* 0x58 */ s32 depth;
+    /* 0x5C */ u8 unk5C[0x70 - 0x5C];
+    /* 0x70 */ s32 member;
+    /* 0x74 */ u8 unk74[0xFC - 0x74];
+} StatusPanel4A;
+
+/* A list of the fifth screen (func_800879C8) */
+typedef struct StatusPanel4B {
+    TASK_HEADER(StatusPanel4B);
+    /* 0x050 */ StatusScreen4 *screen;
+    /* 0x054 */ s32 layer;
+    /* 0x058 */ s32 depth;
+    /* 0x05C */ s32 partner;
+    /* 0x060 */ u8 unk60[0x70C - 0x60];
+} StatusPanel4B;
+
+/* A list of the first screen (func_80092B0C) */
+typedef struct StatusPanel0 {
+    TASK_HEADER(StatusPanel0);
+    /* 0x050 */ StatusScreen0 *screen;
+    /* 0x054 */ s32 layer;
+    /* 0x058 */ s32 depth;
+    /* 0x05C */ s32 unk5C;
+    /* 0x060 */ s32 unk60;
+    /* 0x064 */ u8 unk64[0x70C - 0x64];
+} StatusPanel0;
+
+/* A small task of func_800839B0 (func_8008467C) */
+typedef struct StatusWidget {
+    TASK_HEADER(StatusWidget);
+    /* 0x50 */ s32 layer;
+    /* 0x54 */ s32 depth;
+    /* 0x58 */ u8 unk58[0x64 - 0x58];
+    /* 0x64 */ void (*func_800843FC)(struct StatusWidget *widget);
+} StatusWidget;
+
 /* Moves a value towards a target in fixed point */
 typedef struct StatusLerp {
     /* 0x00 */ s32 duration;
