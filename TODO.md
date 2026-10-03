@@ -151,14 +151,14 @@ own.
 
 ## Overlays
 
-- [ ] 1,614 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,620 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`, `STCRDABM`. Mostly:
   `STCRDDEK` (54 / 55), `SHOCKTST` (16 / 17), `STAGSLCT` (7 / 8),
   `FIELDSTG` (211 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
   `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (88 / 94),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
   `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
-  `WFIGHTMN` (41 / 42), `FIGHTSTG` (257 / 310).
+  `WFIGHTMN` (41 / 42), `FIGHTSTG` (263 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_createScreenWindows` (3 diffs): the `unk5C` loop's counter
     gets `s2` where the original has `s3`, the register of the other loops'
@@ -202,12 +202,11 @@ own.
   `func_800A0830` (43) and `func_800A067C` (27: the original keeps
   `&D_800A31E8 + 8` in a register to read `unkD0`) got no closer with the
   permuter (best scores 490, 270 and 145). In `fightstg_5.c` and
-  `fightstg_6.c`: `func_800937FC`, `func_80095AC0`, `func_800967A4`,
-  `func_800973D4` (which also wants `DigimonData.unk2A` as a `u16`),
-  `func_80091788` and `func_80091950` (the battle camera's views) place a
-  block out of line before a case or a loop, which only an empty
-  `do {} while (0)` gives (`func_800937FC` still keeps 22 diffs with one);
-  `func_80094D04` (21 diffs) does the same with its triangle block.
+  `fightstg_6.c`: `func_800937FC` keeps 22 diffs in the stages' early-exit
+  form (`do { ... break; ... } while (0)`, which matched `func_80091788`,
+  `func_80091950`, `func_800967A4`, `func_800973D4` and `func_80095AC0`):
+  only `children` and `changed` swap `s2` and `s3`, and the permuter only
+  got closer (20) with a copy of `children` kept for nothing.
   `func_8008AF74` (the battle script's model command) keeps 6 diffs: the
   original loads case 3's time between reading `pc[0]` and storing it, and
   the permuter only got closer with a variable kept for nothing.
@@ -217,7 +216,9 @@ own.
   `D_800A2294`'s offsets, gets a giv split the original doesn't have. Still
   to try: `func_8008C0BC`, `func_8008C8F0`, `func_8008CFFC`,
   `func_8008E3C8`, `func_8008EAF8`, `func_80090290`, `func_80090908`
-  and `func_80091A58`.
+  and `func_80091A58`. `fightstg.c` defines `D_800A22DC` as an `s32` array
+  where `func_80095AC0` reads an `Unk8009A214` (through an `extern` of its
+  own in `fightstg_6.c` for now).
 - [ ] The battle menus' near misses. `WFIGHTTS`: `func_800A6954` (the
   Digimon list, 14 windows a side; its cursors and scrolls are
   `D_800A8268[2]` and `D_800A8270[2]`, two scalars each in the C for now)
