@@ -107,15 +107,45 @@ typedef struct CardPackOpen {
     /* 0x050 */ struct CardShop *shop;
     /* 0x054 */ s32 layer;
     /* 0x058 */ s32 depth;
-    /* 0x05C */ s32 unk5C[2];
+    /* 0x05C */ s32 cursor; /* the pack under the cursor, in packs[] */
+    /* 0x060 */ s32 page;
     /* 0x064 */ s32 pages;
-    /* 0x068 */ s32 unk68[12];
+    /* 0x068 */ s32 unk68[2];
+    /* 0x070 */ s32 cards[6]; /* drawn from the pack opened */
+    /* 0x088 */ s32 card; /* the one under the cursor, in cards[] */
+    /* 0x08C */ s32 unk8C[3];
     /* 0x098 */ s16 packs[0x194]; /* the bag's card packs */
     /* 0x3C0 */ s32 packCount;
     /* 0x3C4 */ s16 items[0x194]; /* the bag's items */
     /* 0x6EC */ s32 unk6EC;
     /* 0x6F0 */ PanelAnim fades[4];
 } CardPackOpen;
+
+/* The children of the screen to open a pack */
+typedef struct CardPackOpenWindows {
+    /* 0x00 */ TextWindow *packs[8]; /* the page's */
+    /* 0x20 */ Cursor *cursor;
+    /* 0x24 */ TextWindow *name; /* the pack's */
+    /* 0x28 */ TextWindow *countLabel;
+    /* 0x2C */ TextWindow *count; /* how many the bag holds */
+    /* 0x30 */ TextWindow *help[2];
+    /* 0x38 */ TextWindow *prev; /* by the arrows */
+    /* 0x3C */ TextWindow *next;
+    /* 0x40 */ TextWindow *page;
+    /* 0x44 */ TextWindow *slash;
+    /* 0x48 */ TextWindow *pages;
+    /* 0x4C */ TextWindow *cardName; /* the card under the cursor's */
+    /* 0x50 */ TextWindow *unk50; /* with the card's unk5 */
+    /* 0x54 */ TextWindow *unk54;
+    /* 0x58 */ TextWindow *cardCountLabel;
+    /* 0x5C */ TextWindow *cardCount; /* how many the player has */
+    /* 0x60 */ TextWindow *cardText;
+    /* 0x64 */ TextWindow *unk64; /* with the card's unk1 */
+    /* 0x68 */ TextWindow *unk68;
+    /* 0x6C */ TextWindow *unk6C; /* with the card's unk2 */
+    /* 0x70 */ TextWindow *unk70;
+    /* 0x74 */ CardPackGrid *grid;
+} CardPackOpenWindows;
 
 /* The screen to buy cards (STCRDSHP_createBuy): the shop's cards, six a page */
 typedef struct CardShopBuy {

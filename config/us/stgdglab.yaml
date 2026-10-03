@@ -50,6 +50,14 @@ segments:
     subalign: 4
     subsegments:
       - [0x0, .rodata, stgdglab]
+      - [0x3C, .rodata, stgdglab_2]
+      - [0x58, .rodata, stgdglab_3]
+      - [0x12C, .rodata, stgdglab_4]
+      - [0x280, .rodata, stgdglab_5]
       - [0x298, c, stgdglab]
+      - [0x2914, c, stgdglab_2]
+      - [0x45B4, c, stgdglab_3]
+      - [0x5BF0, c, stgdglab_4]
+      - [0xAC24, c, stgdglab_5]
       - [0xC84C, .data, stgdglab]
   - [0xD18C]

@@ -4,17 +4,164 @@ void initCardDrawer(CardDrawer *obj);
 void STCRDSHP_drawCards(CardPackGrid *grid, s32 previous);
 void STCRDSHP_drawTurningSlots(CardPackGrid *grid);
 void STCRDSHP_updateHiding(CardPackGrid *grid);
-void func_800827A4(CardPackOpen *open, void *win);
+void func_800827A4(CardPackOpen *open, CardPackOpenWindows *win);
 void func_800832DC(CardPackOpen *open);
 void func_80083BEC(CardPackOpen *open, void *win);
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800827A4);
+/* Creates the screen's windows and cursor */
+void func_800827A4(CardPackOpen *open, CardPackOpenWindows *win) {
+    s32 i;
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80082A60);
+    for (i = 0; i < 8; i++) {
+        win->packs[i] = createTextWindow(open->layer, 1, (i % 2) * 0x83 + 0x37, (i / 2) * 0xE + 0x39);
+    }
+    win->cursor = createCursor(open->layer, open->depth - 1, 0x1D, 0x39);
+    win->cursor->setVisible(win->cursor, 0);
+    win->page = createTextWindow(open->layer, 1, 0x92, 0x75);
+    win->slash = createTextWindow(open->layer, 1, 0x93, 0x75);
+    win->pages = createTextWindow(open->layer, 1, 0xA6, 0x75);
+    win->prev = createTextWindow(open->layer, 1, 0x2D, 0x71);
+    win->next = createTextWindow(open->layer, 1, 0x102, 0x71);
+    win->name = createTextWindow(open->layer, 1, 0x8F, 0x8A);
+    win->countLabel = createTextWindow(open->layer, 1, 0x10B, 0x8A);
+    win->count = createTextWindow(open->layer, 1, 0x121, 0x8A);
+    win->help[0] = createTextWindow(open->layer, 1, 0x14, 0xC2);
+    win->help[1] = createTextWindow(open->layer, 1, 0x14, 0xD0);
+    win->cardName = createTextWindow(open->layer, 1, 0x88, 0x80);
+    win->unk50 = createTextWindow(open->layer, 1, 0x115, 0x80);
+    win->unk54 = createTextWindow(open->layer, 1, 0x126, 0x80);
+    win->cardCountLabel = createTextWindow(open->layer, 1, 0x115, 0xA6);
+    win->cardCount = createTextWindow(open->layer, 1, 0x12C, 0xA6);
+    win->cardText = createTextWindow(open->layer, 1, 0x50, 0x97);
+    win->unk64 = createTextWindow(open->layer, 1, 0xCE, 0x97);
+    win->unk68 = createTextWindow(open->layer, 1, 0xF0, 0x97);
+    win->unk6C = createTextWindow(open->layer, 1, 0xCE, 0xA4);
+    win->unk70 = createTextWindow(open->layer, 1, 0xF0, 0xA4);
+}
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80082D38);
+/* Shows the page's packs, the page number and the arrows' labels, or hides
+   them */
+void func_80082A60(CardPackOpen *open, CardPackOpenWindows *win, s32 show) {
+    s32 i;
+    s32 index;
+    s32 pack;
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80082EE0);
+    if (show) {
+        for (i = 0; i < 8; i++) {
+            index = open->page * 8 + i;
+            pack = open->packs[index];
+            if (index < open->packCount && pack != 0) {
+                win->packs[i]->setString(win->packs[i], FILE_CACHE.load(TEXT_FILE(0x6B)), pack);
+            } else {
+                win->packs[i]->setVisible(win->packs[i], 0);
+            }
+        }
+        win->page->setNumber(win->page, 0, open->page + 1);
+        win->page->setRightAlign(win->page, 1);
+        win->slash->setString(win->slash, FILE_CACHE.load(TEXT_FILE(0x33)), 9);
+        win->pages->setNumber(win->pages, 0, open->pages);
+        win->pages->setRightAlign(win->pages, 1);
+        if (open->pages >= 2) {
+            if (open->page > 0) {
+                win->prev->setString(win->prev, FILE_CACHE.load(TEXT_FILE(0x33)), 0xA);
+            } else {
+                win->prev->setVisible(win->prev, 0);
+            }
+            if (open->page < open->pages - 1) {
+                win->next->setString(win->next, FILE_CACHE.load(TEXT_FILE(0x33)), 0xB);
+            } else {
+                win->next->setVisible(win->next, 0);
+            }
+        }
+    } else {
+        for (i = 0; i < 8; i++) {
+            win->packs[i]->setVisible(win->packs[i], 0);
+        }
+        win->page->setVisible(win->page, 0);
+        win->slash->setVisible(win->slash, 0);
+        win->pages->setVisible(win->pages, 0);
+        win->prev->setVisible(win->prev, 0);
+        win->next->setVisible(win->next, 0);
+    }
+}
+
+/* Shows the name of the pack under the cursor, how many the bag holds and
+   the help, or hides them */
+void func_80082D38(CardPackOpen *open, CardPackOpenWindows *win, s32 show) {
+    s32 pack;
+
+    if (show) {
+        pack = open->packs[open->cursor];
+        win->name->setString(win->name, FILE_CACHE.load(TEXT_FILE(0x6B)), pack);
+        win->countLabel->setString(win->countLabel, FILE_CACHE.load(TEXT_FILE(0x33)), 8);
+        win->count->setNumber(win->count, 0, GAME.items[pack]);
+        win->count->setRightAlign(win->count, 1);
+        win->help[0]->setString(win->help[0], FILE_CACHE.load(TEXT_FILE(0x33)), 0xF);
+        win->help[1]->setString(win->help[1], FILE_CACHE.load(TEXT_FILE(0x33)), 4);
+    } else {
+        win->name->setVisible(win->name, 0);
+        win->countLabel->setVisible(win->countLabel, 0);
+        win->count->setVisible(win->count, 0);
+        win->help[0]->setVisible(win->help[0], 0);
+        win->help[1]->setVisible(win->help[1], 0);
+    }
+}
+
+/* Shows the card under the cursor: its name, how many the player has and
+   its numbers or its text, or hides them (also while it hasn't been seen) */
+void func_80082EE0(CardPackOpen *open, CardPackOpenWindows *win, s32 show) {
+    CardDrawer drawer;
+    s32 card;
+
+    card = open->cards[open->card];
+    if (GAME.cardsSeen[card] != 0 && show) {
+        initCardDrawer(&drawer);
+        drawer.setCard(card);
+        win->cardName->setString(win->cardName, FILE_CACHE.load(TEXT_FILE(0x17)), card);
+        win->cardCountLabel->setString(win->cardCountLabel, FILE_CACHE.load(TEXT_FILE(0x33)), 8);
+        win->cardCount->setNumber(win->cardCount, 0, GAME.cards[card]);
+        win->cardCount->setRightAlign(win->cardCount, 1);
+        if (drawer.getKind() != 0) {
+            win->unk50->setVisible(win->unk50, 0);
+            win->unk54->setVisible(win->unk54, 0);
+            win->cardText->setString(win->cardText, FILE_CACHE.load(TEXT_FILE(0x1E)), card);
+            win->unk64->setVisible(win->unk64, 0);
+            win->unk68->setVisible(win->unk68, 0);
+            win->unk6C->setVisible(win->unk6C, 0);
+            win->unk70->setVisible(win->unk70, 0);
+        } else {
+            win->unk50->setString(win->unk50, FILE_CACHE.load(TEXT_FILE(0x33)), 8);
+            win->unk54->setNumber(win->unk54, 0, drawer.card[5]);
+            win->unk54->setRightAlign(win->unk54, 1);
+            if (card == 0x45 || card == 0x70 || card == 0x9B || card == 0xC6 || card == 0xF1) {
+                win->cardText->setString(win->cardText, FILE_CACHE.load(TEXT_FILE(0x1E)), card);
+                win->unk64->setVisible(win->unk64, 0);
+                win->unk68->setVisible(win->unk68, 0);
+                win->unk6C->setVisible(win->unk6C, 0);
+                win->unk70->setVisible(win->unk70, 0);
+            } else {
+                win->cardText->setVisible(win->cardText, 0);
+                win->unk64->setString(win->unk64, FILE_CACHE.load(TEXT_FILE(0x33)), 0x11);
+                win->unk68->setNumber(win->unk68, 0, drawer.card[1]);
+                win->unk68->setRightAlign(win->unk68, 1);
+                win->unk6C->setString(win->unk6C, FILE_CACHE.load(TEXT_FILE(0x33)), 0x12);
+                win->unk70->setNumber(win->unk70, 0, drawer.card[2]);
+                win->unk70->setRightAlign(win->unk70, 1);
+            }
+        }
+    } else {
+        win->cardName->setVisible(win->cardName, 0);
+        win->cardCountLabel->setVisible(win->cardCountLabel, 0);
+        win->cardCount->setVisible(win->cardCount, 0);
+        win->unk50->setVisible(win->unk50, 0);
+        win->unk54->setVisible(win->unk54, 0);
+        win->cardText->setVisible(win->cardText, 0);
+        win->unk64->setVisible(win->unk64, 0);
+        win->unk68->setVisible(win->unk68, 0);
+        win->unk6C->setVisible(win->unk6C, 0);
+        win->unk70->setVisible(win->unk70, 0);
+    }
+}
 
 INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800832DC);
 
