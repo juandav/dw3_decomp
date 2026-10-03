@@ -1,0 +1,3 @@
+// STSTATUS.PRO: the field menu's screens
+
+STSTATUS_funcs = 0x8009A8E4; // size:0x28

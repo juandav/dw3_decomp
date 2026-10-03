@@ -1,10 +1,12 @@
-// STSTATUS.PRO's own symbols, which only its splat config reads
+// STSTATUS.PRO: the field menu's screens; its own symbols, which only its splat config reads
 
 // config/eu/symbols.txt names three FIELDSTG functions at addresses that fall
 // inside this overlay's func_8008AB58 and func_8008B440
 func_8008AB58_part = 0x8008B770; // type:label segment:ststatus version-only
 func_8008B440_part = 0x8008BFA4; // type:label segment:ststatus version-only
 func_8008B440_part2 = 0x8008C000; // type:label segment:ststatus version-only
+
+STSTATUS_funcs = 0x8009B5D0; // size:0x28
 
 // names from the C of the modules this version builds (tools/version_symbols.py)
 func_80082CF0 = 0x80083558; // type:func
@@ -162,12 +164,6 @@ D_8009A27C = 0x8009AF68;
 D_8009A280 = 0x8009AF6C;
 D_8009A284 = 0x8009AF70;
 D_8009A28C = 0x8009AF78;
-D_8009A8E4 = 0x8009B5D0;
-D_8009A8E8 = 0x8009B5D4;
-D_8009A8EC = 0x8009B5D8;
-D_8009A8F0 = 0x8009B5DC;
-D_8009A8FC = 0x8009B5E8;
-D_8009A904 = 0x8009B5F0;
 D_8009A90C = 0x8009B5F8;
 D_8009A910 = 0x8009B5FC;
 D_8009AA00 = 0x8009B6EC;
