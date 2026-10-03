@@ -6,12 +6,7 @@ typedef struct CardName {
 
 /* "Access Denied. : event multiple open\n" */
 extern char D_80010C9C[];
-/* "Access Denied. : system busy\n" */
-extern char D_80010E40[];
 extern char D_80010D98[];
-extern char D_80010DC0[];
-extern char D_80010DE4[];
-extern char D_80010E10[];
 
 long func_8003BAEC(UserFuncArg *arg);
 long func_8003BE70(UserFuncArg *arg);
@@ -99,6 +94,8 @@ INCLUDE_ASM("main/nonmatchings/psyq/libmcrd_libmcrd", func_8003BE70);
 
 INCLUDE_ASM("main/nonmatchings/psyq/libmcrd_libmcrd", MemCardOpen);
 
+INCLUDE_RODATA("main/nonmatchings/psyq/libmcrd_libmcrd", D_80010D98);
+
 void MemCardClose(void) {
     if (D_80082068.fd >= 0) {
         func_80024CE8(D_80082068.fd);
@@ -108,7 +105,7 @@ void MemCardClose(void) {
 
 long MemCardReadData(u_long *adrs, long ofs, long bytes) {
     if (D_80082068.fd < 0) {
-        printf(D_80010DC0);
+        printf("Access Denied. : file not open.\n");
         return 0;
     }
     if (D_80082068.unk0 > 0) {
@@ -116,11 +113,11 @@ long MemCardReadData(u_long *adrs, long ofs, long bytes) {
         return 0;
     }
     if (bytes & 0x7F) {
-        printf(D_80010DE4);
+        printf("Access Denied. : invalid data size align\n");
         return 0;
     }
     if (ofs & 0x7F) {
-        printf(D_80010E10);
+        printf("Access Denied. : invalid offset value align\n");
         return 0;
     }
     D_80082068.unk0 = 5;
@@ -133,7 +130,7 @@ long MemCardReadData(u_long *adrs, long ofs, long bytes) {
     return 1;
 }
 
-extern long D_8005C2D0;
+extern long MCRD_READ_RETRIES;
 long func_8003D248(long a, long b, long c);
 long func_80024CC8(long fd, long a, long b);
 long _chk_card_event(void);
@@ -147,7 +144,7 @@ long func_8003C39C(UserFuncArg *arg) {
 
     switch (arg->data[0]) {
     case 0:
-        D_8005C2D0 = 0;
+        MCRD_READ_RETRIES = 0;
         arg->data[0] = 10;
         UserFuncOpen(func_8003BAEC);
         return 0;
@@ -168,7 +165,7 @@ long func_8003C39C(UserFuncArg *arg) {
         }
         ev = _get_card_event();
         if (ev != 0) {
-            if (++D_8005C2D0 < 4) {
+            if (++MCRD_READ_RETRIES < 4) {
                 arg->data[0] = 10;
                 break;
             }
@@ -194,7 +191,7 @@ long func_8003C39C(UserFuncArg *arg) {
 
 long MemCardWriteData(u_long *adrs, long ofs, long bytes) {
     if (D_80082068.fd < 0) {
-        printf(D_80010DC0);
+        printf("Access Denied. : file not open.\n");
         return 0;
     }
     if (D_80082068.unk0 > 0) {
@@ -202,11 +199,11 @@ long MemCardWriteData(u_long *adrs, long ofs, long bytes) {
         return 0;
     }
     if (bytes & 0x7F) {
-        printf(D_80010DE4);
+        printf("Access Denied. : invalid data size align\n");
         return 0;
     }
     if (ofs & 0x7F) {
-        printf(D_80010E10);
+        printf("Access Denied. : invalid offset value align\n");
         return 0;
     }
     D_80082068.unk0 = 6;
@@ -219,14 +216,14 @@ long MemCardWriteData(u_long *adrs, long ofs, long bytes) {
     return 1;
 }
 
-extern long D_8005C2D4;
+extern long MCRD_WRITE_RETRIES;
 
 long func_8003C604(UserFuncArg *arg) {
     long ev;
 
     switch (arg->data[0]) {
     case 0:
-        D_8005C2D4 = 0;
+        MCRD_WRITE_RETRIES = 0;
         UserFuncOpen(func_8003BAEC);
         arg->data[0] = 10;
         break;
@@ -247,7 +244,7 @@ long func_8003C604(UserFuncArg *arg) {
         }
         ev = _get_card_event();
         if (ev != 0) {
-            if (++D_8005C2D4 < 4) {
+            if (++MCRD_WRITE_RETRIES < 4) {
                 arg->data[0] = 10;
                 break;
             }
@@ -275,7 +272,7 @@ long MemCardReadFile(long chan, char *file, u_long *adrs, long ofs, long bytes) 
     volatile long *busy = &D_80082068.unk0;
 
     if (*busy > 0) {
-        printf(D_80010E40);
+        printf("Access Denied. : system busy\n");
         return 0;
     }
     if (D_80082068.fd >= 0) {
@@ -283,11 +280,11 @@ long MemCardReadFile(long chan, char *file, u_long *adrs, long ofs, long bytes) 
         return 0;
     }
     if (bytes & 0x7F) {
-        printf(D_80010DE4);
+        printf("Access Denied. : invalid data size align\n");
         return 0;
     }
     if (ofs & 0x7F) {
-        printf(D_80010E10);
+        printf("Access Denied. : invalid offset value align\n");
         return 0;
     }
     func_8003D1EC(chan, (char *)D_80082068.unk24);
@@ -303,13 +300,13 @@ long MemCardReadFile(long chan, char *file, u_long *adrs, long ofs, long bytes) 
     return 1;
 }
 
-extern long D_8005C2D8;
+extern long MCRD_READ_FILE_RETRIES;
 long func_80024CB8(char *name, long mode);
 
 long func_8003C8C8(UserFuncArg *arg) {
     switch (arg->data[0]) {
     case 0:
-        D_8005C2D8 = 0;
+        MCRD_READ_FILE_RETRIES = 0;
         UserFuncOpen(func_8003BAEC);
         arg->data[0] = 10;
         break;
@@ -338,7 +335,7 @@ long MemCardWriteFile(long chan, char *file, u_long *adrs, long ofs, long bytes)
     volatile long *busy = &D_80082068.unk0;
 
     if (*busy > 0) {
-        printf(D_80010E40);
+        printf("Access Denied. : system busy\n");
         return 0;
     }
     if (D_80082068.fd >= 0) {
@@ -346,11 +343,11 @@ long MemCardWriteFile(long chan, char *file, u_long *adrs, long ofs, long bytes)
         return 0;
     }
     if (bytes & 0x7F) {
-        printf(D_80010DE4);
+        printf("Access Denied. : invalid data size align\n");
         return 0;
     }
     if (ofs & 0x7F) {
-        printf(D_80010E10);
+        printf("Access Denied. : invalid offset value align\n");
         return 0;
     }
     func_8003D1EC(chan, (char *)D_80082068.unk24);
@@ -366,12 +363,12 @@ long MemCardWriteFile(long chan, char *file, u_long *adrs, long ofs, long bytes)
     return 1;
 }
 
-extern long D_8005C2DC;
+extern long MCRD_WRITE_FILE_RETRIES;
 
 long func_8003CAE8(UserFuncArg *arg) {
     switch (arg->data[0]) {
     case 0:
-        D_8005C2DC = 0;
+        MCRD_WRITE_FILE_RETRIES = 0;
         UserFuncOpen(func_8003BAEC);
         arg->data[0] = 10;
         break;
@@ -411,7 +408,7 @@ long MemCardGetDirentry(long chan, char *name, struct DIRENTRY *dir, long *files
     volatile long *busy = &D_80082068.unk0;
 
     if (*busy != 0) {
-        printf(D_80010E40);
+        printf("Access Denied. : system busy\n");
         return -1;
     }
     func_8003D1EC(chan, key);
@@ -530,7 +527,7 @@ long MemCardCreateFile(long chan, char *file, long blocks) {
     long ret;
 
     if (*busy != 0) {
-        printf(D_80010E40);
+        printf("Access Denied. : system busy\n");
         return -1;
     }
     func_8003D1EC(chan, name);
@@ -563,7 +560,7 @@ long MemCardFormat(long chan) {
     long ret;
 
     if (*busy != 0) {
-        printf(D_80010E40);
+        printf("Access Denied. : system busy\n");
         return -1;
     }
     ret = _card_format2(chan);
@@ -629,23 +626,11 @@ void func_8003D140(void) {
     }
 }
 
-INCLUDE_RODATA("main/nonmatchings/psyq/libmcrd_libmcrd", D_80010D98);
-
-INCLUDE_RODATA("main/nonmatchings/psyq/libmcrd_libmcrd", D_80010DC0);
-
-INCLUDE_RODATA("main/nonmatchings/psyq/libmcrd_libmcrd", D_80010DE4);
-
-INCLUDE_RODATA("main/nonmatchings/psyq/libmcrd_libmcrd", D_80010E10);
-
-INCLUDE_RODATA("main/nonmatchings/psyq/libmcrd_libmcrd", D_80010E40);
-
 void func_8003D1EC(long chan, char *name) {
     *(CardName *)name = *(CardName *)"bu00:";
     name[2] = '0' + chan / 16;
     name[3] = '0' + chan % 16;
 }
-
-INCLUDE_ASM("main/nonmatchings/psyq/libmcrd_libmcrd", func_8003D248);
 
 /* ASPSX padded the string table as well */
 __asm__(".section .rodata\n\t.align 4\n");

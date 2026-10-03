@@ -195,6 +195,7 @@ def split(version: str, binary: str, pairs: list) -> tuple:
     # module split before) and the modules that are C already
     current = {(kind, name): start for start, kind, name in ver.subsegments}
     c_modules = {name for start, kind, name in ver.subsegments if kind == "c"}
+    hasm_modules = {name for start, kind, name in ver.subsegments if kind == "hasm"}
 
     # --- code: each function goes with its pair's module, or with the one
     # before it
@@ -400,6 +401,9 @@ def split(version: str, binary: str, pairs: list) -> tuple:
     def kind_for(us_kind, name):
         is_c = name in c_modules
         if us_kind in CODE:
+            # (a module Sony wrote in assembly is source, as in us)
+            if name in hasm_modules:
+                return "hasm"
             return "c" if is_c else "asm"
         if us_kind in RODATA:
             return ".rodata" if is_c else "rodata"

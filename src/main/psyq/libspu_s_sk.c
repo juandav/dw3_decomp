@@ -1,7 +1,7 @@
 #include "psyq.h"
 
 extern long D_8005BA14;
-extern u_short D_80081FD0[4];
+extern u_short _spu_RQ[4];
 extern volatile long D_8005B9E0;
 extern volatile long D_8005B9DC;
 extern long D_8005B9B4;
@@ -15,7 +15,7 @@ void SpuSetKey(long on_off, u_long voice_bit) {
     switch (on_off) {
     case SPU_ON:
         if (D_8005BA14 & 1) {
-            q = D_80081FD0;
+            q = _spu_RQ;
             q[0] = voice_bit;
             q[1] = hi;
             D_8005B9E0 |= 1;
@@ -34,7 +34,7 @@ void SpuSetKey(long on_off, u_long voice_bit) {
         break;
     case SPU_OFF:
         if (D_8005BA14 & 1) {
-            q = D_80081FD0;
+            q = _spu_RQ;
             q[2] = voice_bit;
             q[3] = hi;
             D_8005B9E0 |= 1;

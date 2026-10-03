@@ -8,16 +8,13 @@ extern u_short D_8005BA40;
 
 extern u_long *D_8005BA38;
 
-INCLUDE_RODATA("main/nonmatchings/psyq/libspu_spu", D_80010BCC);
-
-extern char D_80010BCC[];
 extern long D_8005BA48;
 extern long D_8005BA4C;
 extern long D_8005BA54;
 extern long D_8005BA58;
 extern volatile long D_8005BA64;
 extern u_char D_8005BA68[];
-extern volatile short D_80081FD0[10];
+extern volatile short _spu_RQ[10];
 void _spu_Fw1ts(void);
 void func_800383F8(u_char *addr, u_long size);
 
@@ -39,7 +36,7 @@ long _spu_init(long mode) {
     t = 0;
     while (D_8005BA28[0xD7] & 0x7FF) {
         if (++t > 0xF00) {
-            printf(D_80010BCC, "wait (reset)");
+            printf("SPU:T/O [%s]\n", "wait (reset)");
             break;
         }
     }
@@ -54,7 +51,7 @@ long _spu_init(long mode) {
     D_8005BA28[0xC7] = 0xFFFF;
     D_8005BA28[0xCC] = 0;
     D_8005BA28[0xCD] = 0;
-    for (i = 0, p = D_80081FD0; i < 10; i++) {
+    for (i = 0, p = _spu_RQ; i < 10; i++) {
         *p++ = 0;
     }
     if (mode == 0) {
@@ -118,7 +115,7 @@ void func_800383F8(u_char *addr, u_long size) {
         t = 0;
         while (D_8005BA28[0xD7] & 0x400) {
             if (++t > 0xF00) {
-                printf(D_80010BCC, "wait (wrdy H -> L)");
+                printf("SPU:T/O [%s]\n", "wait (wrdy H -> L)");
                 break;
             }
         }
@@ -131,7 +128,7 @@ void func_800383F8(u_char *addr, u_long size) {
     t = 0;
     while ((D_8005BA28[0xD7] & 0x7FF) != stat) {
         if (++t > 0xF00) {
-            printf(D_80010BCC, "wait (dmaf clear/W)");
+            printf("SPU:T/O [%s]\n", "wait (dmaf clear/W)");
             break;
         }
     }

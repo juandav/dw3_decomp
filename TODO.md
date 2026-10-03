@@ -32,12 +32,13 @@ version's C. The stages are still one asm segment each.
 - [x] Seed `config/eu/symbols.txt` and `config/eu/symbols_<overlay>.txt` with
   the USA names of the paired functions and data: 1,064 of the USA
   version's 1,091 names are in the European files.
-- [x] Build the USA files that match unchanged: 258 of the 275 PsyQ files,
+- [x] Build the USA files that match unchanged: the 275 PsyQ files,
   `game3_2`, `SOUNDTST` and `STDWTITL`'s `libpress`
   (`tools/version_symbols.py` names what they use).
-- [ ] 17 PsyQ files (`libsnd_vm_init`, `libspu_s_sav`, `libmcrd_libmcrd`...)
-  use a `D_` name of the USA version that the European asm has at another
-  address; they can be shared once those data have real names.
+- [x] 17 PsyQ files (`libsnd_vm_init`, `libspu_s_sav`, `libmcrd_libmcrd`...)
+  used a `D_` name of the USA version that the European asm has at another
+  address: those data have real names now (`_spu_rev_startaddr`,
+  `_spu_RQ`, `PAD_SIO_REGS`, `MCRD_READ_RETRIES`...).
 - [ ] The other game files need `#if VERSION_EU` blocks or a copy of their
   own. Their code differs in length (the European executable picks the save
   file name by language: `setSaveFileName`), or loads other file numbers: the
@@ -74,12 +75,12 @@ version's C. The stages are still one asm segment each.
 
 ## PsyQ
 
-- [ ] 88 of the 563 PsyQ functions are still `INCLUDE_ASM`, in 67 objects
-  (`libcard_patch` 7, `libmcrd_libmcrd` 4 and the rest 3 or fewer); 166
-  are still named `func_`. Check which of them were written in assembly,
-  not compiled, and make those `.s` sources.
-- [ ] 14 `INCLUDE_RODATA`: `libmcrd_libmcrd` 6, `libgpu_sys` 4,
-  `libcd_bios_1` 3, `libspu_spu` 1.
+- [ ] 12 of the 563 PsyQ functions are still `INCLUDE_ASM`, in 8 objects
+  (`libmcrd_libmcrd` 3 and the rest 2 or fewer), all compiled code; 166
+  are still named `func_`. What Sony wrote in assembly (71 functions, 56
+  objects) is `.s` sources in `src/main/psyq/`.
+- [ ] 9 `INCLUDE_RODATA`: `libgpu_sys` 4, `libcd_bios_1` 3 and
+  `libmcrd_libmcrd` 2 (two strings that `MemCardOpen`, still asm, reads).
 
 ## Overlays
 

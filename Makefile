@@ -72,7 +72,7 @@ $(BUILDDIR)/src/main/psyq/%.c.o: CC1 := $(PSYQ_CC1)
 # and reaches its fields from there, never used `return` insns (tools/sn_cc1.py)
 # and filled the delay slot of `j $31` itself, which tools/unfill_epilogue.py
 # undoes so that ASPSX's rule applies as for the rest.
-PSYQ_GCC28 := libsnd_miditime libsnd_ssvol libspu_s_n2p libspu_spu libsnd_ssopenp libspu_s_snc libspu_s_sca libsnd_cc_99 libsnd_vm_aloc1 libcd_bios_1 libcd_c_009 libsnd_vm_no1 libsnd_vm_nowon libsnd_vs_vh_2 libpad_pdresres_2 libpad_pddirres libgs_gs_108 libpad_pdtapres libcd_c_011
+PSYQ_GCC28 := libsnd_miditime libsnd_ssvol libspu_spu libsnd_ssopenp libspu_s_snc libspu_s_sca libsnd_cc_99 libsnd_vm_aloc1 libcd_bios_1 libcd_c_009 libsnd_vm_no1 libsnd_vm_nowon libsnd_vs_vh_2 libpad_pdresres_2 libpad_pddirres libgs_gs_108 libpad_pdtapres libcd_c_011 libc2_printf libsnd_vm_aloc2
 SN_CC1 := $(TOOLS_BUILDDIR)/cc1-2.8.1-sn
 CC1_PRE := cat
 $(PSYQ_GCC28:%=$(BUILDDIR)/src/main/psyq/%.c.o): CC1 := $(SN_CC1)
@@ -127,8 +127,11 @@ TARGET_ASM := $(filter-out $(ASM_DIR)/main/data/%,$(ALL_C_SRC:src/%.c=$(ASM_DIR)
 ASM_SRC := $(filter-out $(TARGET_ASM),$(shell find $(ASM_DIR)/main -name '*.s' \
 	   -not -path '*/nonmatchings/*' -not -path '*/matchings/*' 2> /dev/null))
 
+# The PsyQ objects Sony wrote in assembly are source too (hasm segments)
+HASM_SRC := $(wildcard src/main/psyq/*.s)
+
 C_OBJ := $(MAIN_C_SRC:%.c=$(BUILDDIR)/%.c.o)
-ASM_OBJ := $(ASM_SRC:%.s=$(BUILDDIR)/%.s.o)
+ASM_OBJ := $(ASM_SRC:%.s=$(BUILDDIR)/%.s.o) $(HASM_SRC:%.s=$(BUILDDIR)/%.s.o)
 TARGET_OBJ := $(TARGET_ASM:%.s=$(BUILDDIR)/%.s.o)
 BIN_OBJ := $(BUILDDIR)/$(ASSETS_DIR)/tail.bin.o
 OBJ := $(C_OBJ) $(ASM_OBJ) $(BIN_OBJ)

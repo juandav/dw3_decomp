@@ -1,4 +1,7 @@
+/* libapi.h declares _96_remove without arguments, but it takes the callbacks */
+#define _96_remove _96_remove_sdk
 #include "psyq.h"
+#undef _96_remove
 
 /* libetc interrupt environment (intrEnv) */
 typedef struct IntrEnv {
@@ -61,7 +64,32 @@ u_short SetIntrMask(u_short mask) {
     return old;
 }
 
-INCLUDE_ASM("main/nonmatchings/psyq/libetc_intr", func_8002E7BC);
+int setjmp(long *buf);
+void func_8002E894(void);
+void func_8002ECC4(long *p, int n);
+void *startIntrVSync(void);
+void *startIntrDMA(void);
+void _96_remove();
+
+void *func_8002E7BC(void) {
+    if (D_8005A6F8.initialized != 0) {
+        return NULL;
+    }
+    *D_8005B784 = *D_8005B788 = 0;
+    *D_8005B78C = 0x33333333;
+    func_8002ECC4((long *)&D_8005A6F8, sizeof(D_8005A6F8) / sizeof(long));
+    if (setjmp(D_8005A6F8.buf)) {
+        func_8002E894();
+    }
+    D_8005A6F8.buf[1] = (long)&D_8005A6F8.stack[1004];
+    func_8002ED28(D_8005A6F8.buf);
+    D_8005A6F8.initialized = 1;
+    D_8005B780->vsyncCallbacks = startIntrVSync();
+    D_8005B780->dmaCallback = startIntrDMA();
+    _96_remove(D_8005B780);
+    ExitCriticalSection();
+    return &D_8005A6F8;
+}
 
 extern long D_8005B790;
 void func_8002ED08(void);
@@ -169,10 +197,6 @@ void func_8002ECC4(long *p, int n) {
         } while (i-- != 0);
     }
 }
-
-INCLUDE_ASM("main/nonmatchings/psyq/libetc_intr", func_8002ECE8);
-
-INCLUDE_ASM("main/nonmatchings/psyq/libetc_intr", _96_remove);
 
 /* ASPSX padded the string table of the object as well */
 __asm__(".section .rodata\n\t.align 2\n\t.space 4\n");
