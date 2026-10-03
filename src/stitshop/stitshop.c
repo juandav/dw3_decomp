@@ -30,7 +30,9 @@ void func_800829B4(Task *task, Task **children) {
     }
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082AB0);
+Task *func_80082AB0(void) {
+    return createTask(func_800829B4, sizeof(Task), 4);
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082ADC);
 
