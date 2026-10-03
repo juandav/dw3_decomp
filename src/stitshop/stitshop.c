@@ -337,7 +337,13 @@ s32 func_8008BA48(ShopLerp *lerp) {
     return 0;
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BAB4);
+u16 *func_8008BAB4(s32 shop) {
+    if (shop < 0 || STITSHOP_shops[shop].items == NULL) {
+        return NULL;
+    }
+    STITSHOP_funcs.count = STITSHOP_shops[shop].count;
+    return STITSHOP_shops[shop].items;
+}
 
 s32 func_8008BAF8(s32 partner, s32 item) {
     return (GET_ITEM[0](item)->data[4] >> partner) & 1;
