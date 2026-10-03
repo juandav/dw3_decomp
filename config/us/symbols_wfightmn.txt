@@ -1,0 +1,6 @@
+// WFIGHTMN.PRO's own symbols
+
+WFIGHTMN_createLoader = 0x800A529C; // type:func
+WFIGHTMN_checkEquip = 0x800A57A8; // type:func
+WFIGHTMN_checkParty = 0x800A5840; // type:func
+WFIGHTMN_start = 0x800A8E40; // type:func

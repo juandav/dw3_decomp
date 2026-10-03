@@ -1,8 +1,18 @@
-#include "common.h"
+#include "wfightmn.h"
+
+/* FIGHTSTG's */
+extern u8 D_80042790[0x12];
+extern u8 D_800A31F0[0xD4];
+void func_8009B7A4(s32 arg0, s32 member, s32 arg2);
+
+void func_800A4D90();
+void func_800A5ACC();
 
 INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A4D90);
 
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A529C);
+Task *WFIGHTMN_createLoader(void) {
+    return createTask(func_800A4D90, 0x54, 0);
+}
 
 INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A52C8);
 
@@ -10,9 +20,29 @@ INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A5538);
 
 INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A56D4);
 
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A57A8);
+void WFIGHTMN_checkEquip(s32 member) {
+    s32 partner = GAME.funcs.getPartyMember(member);
+    s16 *equip;
+    s32 i;
 
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A5840);
+    if (partner >= 0) {
+        equip = &((PartnerStats *)GAME.funcs.getPartnerStats(partner))->equip[4];
+        for (i = 0; i < 2; i++) {
+            if (equip[i] == WFIGHTMN_ITEM) {
+                func_8009B7A4(0, member, 0);
+                return;
+            }
+        }
+    }
+}
+
+void WFIGHTMN_checkParty(void) {
+    s32 i;
+
+    for (i = 0; i < 3; i++) {
+        WFIGHTMN_checkEquip(i);
+    }
+}
 
 INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A5878);
 
@@ -68,7 +98,13 @@ INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A8A64);
 
 INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A8B08);
 
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A8E40);
+Task *WFIGHTMN_start(void) {
+    Task *task = createTaskWithId(func_800A5ACC, 0x74, 0x20, 0xC);
+
+    HEAP.zero(D_800A31F0, sizeof(D_800A31F0));
+    HEAP.zero(D_80042790, sizeof(D_80042790));
+    return task;
+}
 
 INCLUDE_ASM("wfightmn/nonmatchings/wfightmn", func_800A8EBC);
 
