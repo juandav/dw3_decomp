@@ -24,7 +24,7 @@ typedef struct SoundFuncs {
     /* 0x0C */ s16 loaderState;
     /* 0x0E */ s16 loaderSlot;
     /* 0x10 */ void (*init)();
-    /* 0x14 */ void (*playSound)(s32 id);
+    /* 0x14 */ short (*playSound)(s32 id); /* SOUND_STATE.playSound */
     /* 0x18 */ short (*keyOn)(s32 slot, short prog, short note);
     /* 0x1C */ void (*keyOff)();
     /* 0x20 */ void (*loadBank)();
