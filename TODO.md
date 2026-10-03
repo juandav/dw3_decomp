@@ -169,7 +169,7 @@ own.
 
 ## Overlays
 
-- [ ] 1,377 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,403 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
   `SOUNDTST`, `STPLNMET`, `STDGNAME`. Mostly: `STCRDABM` (28 / 29),
   `STCRDDEK` (53 / 55), `SHOCKTST` (15 / 17), `STAGSLCT` (6 / 8),
   `FIELDSTG` (195 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
@@ -177,7 +177,7 @@ own.
   `STITSHOP` (50 / 69), `CARDGAME` (303 / 306), `STGMCARD` (44 / 45),
   `STSTATUS` (101 / 123), `STFGTREP` (35 / 36). Started: `STGDGLAB`
   (44 / 70), `STCRDSHP` (33 / 45), `WFIGHTTS` (9 / 14), `WFIGHTMN`
-  (33 / 42), `FIGHTSTG` (133 / 310).
+  (33 / 42), `FIGHTSTG` (159 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_buildCardList` (2 diffs) and `STCRDDEK_createScreenWindows`
     (3) differ in the order of two loads and a register.
@@ -195,16 +195,14 @@ own.
 - [ ] `FIGHTSTG`'s blocked functions: `func_8009C764`, `func_8009C8EC` and
   `func_8009C998` differ only in registers and the order of a few loads (the
   permuter finds nothing natural); `func_800877D4` and `func_800A0FDC` are
-  near misses too. `func_80088F78` needs `D_800A12F0` as an array of 12-byte
-  structs, whose data differs between the versions. The GTE functions
-  (`func_80082A50`, `func_80082D74`, `func_80082FD4`, `func_8008358C`,
-  `func_80083F74`, `func_800841D4`, `func_80084780`, `func_80084890`,
-  `func_800850D8`, `func_8009D674`) need more of `include/gte.h`: `rtps`,
-  `mvmva`, `SetRotMatrix`'s `ctc2`, the `lwc2`/`swc2` loads and stores and
-  the `cfc2` of the flags. Many others are tasks whose structs aren't known
-  yet (`func_80083140`, `func_80083BE4`, `func_80088DEC`, `func_80089FBC`,
-  `func_8008A898`, `func_8008A8E0`, `func_80090F60`, `func_80091950`,
-  `func_8009A5AC`, `func_8009A830`).
+  near misses too, and so is `func_80083C78` (1 diff: the operands of the
+  `addu` of `children` and the bone). `func_80088FC4` (the effect models'
+  creator) only stores `texPos` before `file`. Of the GTE functions,
+  `func_80084780` (the mesh's bounds check) keeps 26 diffs because gcc folds
+  its -64 and +128 into one constant (the permuter gets no closer), and
+  `func_80084890` and `func_800850D8`, the large mesh drawers, haven't been
+  tried: they need `nclip`, `avsz3` and `avsz4` in `include/gte.h`. Tasks
+  whose structs aren't known yet: `func_80088DEC`, `func_80091950`.
 - [ ] The battle menus' near misses. `WFIGHTTS`: `func_800A6ECC` (the
   battle test's list of 12 and 3 windows) puts the right and left handlers
   before the pad code, which only gotos into a `do {} while (0)` around

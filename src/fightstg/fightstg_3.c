@@ -193,9 +193,44 @@ INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_80088B5C);
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_80088DEC);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_80088E8C);
+void FIGHTSTG_updateEffectModel(EffectModel *task, Model **children) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->control.unk34[0].enabled = 1;
+        task->control.unk34[0].arg = 0x1004;
+        task->control.fighter = 0;
+        task->control.unk34[0].alt = 0;
+        task->control.pos.x = task->pos.vx;
+        task->control.pos.y = task->pos.vy;
+        task->control.pos.z = task->pos.vz;
+        task->control.rot.x = task->rot.vx;
+        task->control.rot.y = task->rot.vy;
+        task->control.rot.z = task->rot.vz;
+        children[0] = func_80083F44(task->file, task->motionFile, task->texPos, &task->control);
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+        if (task->control.motionDone) {
+            task->setState(task, TASK_KILL);
+        }
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_80088F78);
+s32 FIGHTSTG_getEffectModelFile(s32 id) {
+    EffectModelEntry *entry;
+
+    for (entry = D_800A12F0; entry->id != 0; entry++) {
+        if (entry->id == id) {
+            return entry->file >> 16;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_80088FC4);
 
@@ -220,16 +255,78 @@ void func_80089F74(s32 key1, s32 key2) {
     task->key2 = key2;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_80089FBC);
+void FIGHTSTG_startScreenFade(ScreenFade *task, s32 fadeIn, s32 duration) {
+    task->setState(task, TASK_RUN);
+    task->substate = 1;
+    task->fadeIn = fadeIn;
+    if (fadeIn == 0) {
+        task->level = 0;
+        task->levelStep = 0xFF00 / duration;
+    } else {
+        task->level = 0xFF00;
+        task->levelStep = -(0xFF00 / duration);
+    }
+}
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_8008A044);
+/* A full-screen rectangle that subtracts the level from the screen */
+void FIGHTSTG_drawScreenFade(ScreenFade *task) {
+    Layer *layer;
+    u_long *ot;
+    POLY_F4 *poly;
+    DR_TPAGE *mode;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_8008A188);
+    layer = GFX.funcs.getLayer(task->layerId);
+    ot = (u_long *)layer->getOtEntry(layer, task->depth);
+    poly = GFX.funcs.getPrim();
+    setlen(poly, 5);
+    poly->code = 0x2A;
+    poly->r0 = poly->g0 = poly->b0 = task->level >> 8;
+    poly->x0 = poly->x2 = 0;
+    poly->x1 = poly->x3 = 320;
+    poly->y0 = poly->y1 = 0;
+    poly->y2 = poly->y3 = 256;
+    addPrim(ot, poly);
+    mode = (DR_TPAGE *)(poly + 1);
+    setlen(mode, 1);
+    mode->code[0] = 0xE1000245;
+    addPrim(ot, mode);
+    GFX.funcs.setPrim(mode + 1);
+}
 
-void func_8008A22C(void) {
-    Unk80089FBC *task = createTask(func_8008A188, sizeof(Unk80089FBC), 0);
+void FIGHTSTG_updateScreenFade(ScreenFade *task) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->state = TASK_RUN;
+        break;
+    case TASK_RUN:
+        if (task->substate == 0) {
+            break;
+        }
+        task->level += task->levelStep;
+        if (task->fadeIn == 0) {
+            if (task->level > 0xFF00) {
+                task->level = 0xFF00;
+                task->state = TASK_DONE;
+            }
+        } else if (task->level < 0) {
+            task->level = 0;
+            task->state = TASK_DONE;
+        }
+        FIGHTSTG_drawScreenFade(task);
+        break;
+    case TASK_DONE:
+        FIGHTSTG_drawScreenFade(task);
+        break;
+    case TASK_KILL:
+        break;
+    }
+}
 
-    task->unk64 = func_80089FBC;
-    task->unk50 = 0x1006;
-    task->unk54 = 0;
+void FIGHTSTG_createScreenFade(void) {
+    ScreenFade *task = createTask(FIGHTSTG_updateScreenFade, sizeof(ScreenFade), 0);
+
+    task->start = FIGHTSTG_startScreenFade;
+    task->layerId = 0x1006;
+    task->depth = 0;
 }

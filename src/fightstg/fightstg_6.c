@@ -56,17 +56,76 @@ void func_80090F28(s32 arg0) {
     ((Unk80090908 *)createTask(func_80090908, sizeof(Unk80090908), sizeof(Task *)))->unk50 = arg0;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80090F60);
+void FIGHTSTG_applyCamera(FighterCamera *task) {
+    Layer *layer;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80090FF0);
+    RotMatrixYXZ_gte(&task->rot, &task->coord.coord);
+    task->coord.flg = 0;
+    task->view.super = &task->coord;
+    task->coord.coord.t[0] = task->trans.vx;
+    task->coord.coord.t[1] = task->trans.vy;
+    task->coord.coord.t[2] = task->trans.vz;
+    func_80029DB8(&task->view);
+    layer = GFX_FUNCS.getLayer(0x1009);
+    layer->setKeepView(layer, 1, task->proj);
+    task->frames--;
+}
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800910C8);
+void FIGHTSTG_loadCamera(FighterCamera *task) {
+    FighterInfo *info = D_800A32E0.funcs.getInfo(task->fighter);
+    s32 i = 6;
 
-void func_80091180(s32 arg0, s32 arg1) {
-    Unk800910C8 *task = createTask(func_800910C8, sizeof(Unk800910C8), 0);
+    if (task->control->idleMotion != 0) {
+        i = 7;
+    }
+    task->view.vpx = info->camPos[i].x;
+    task->view.vpy = -info->camPos[i].y;
+    task->view.vpz = -info->camPos[i].z;
+    task->view.vrx = info->camRef[i].x;
+    task->view.vry = -info->camRef[i].y;
+    task->view.vrz = -info->camRef[i].z;
+    task->proj = info->camProj[i];
+    task->rot.vx = 0;
+    task->rot.vy = 0;
+    task->rot.vz = 0;
+    task->trans.vx = 0;
+    task->trans.vy = 0;
+    task->trans.vz = 0;
+}
 
-    task->unk50 = arg0;
-    task->unk54 = arg1;
+void FIGHTSTG_updateCamera(FighterCamera *task) {
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->nextState(task);
+    case TASK_RUN:
+        switch (task->step) {
+        case 0:
+        default:
+            if (GFX_FUNCS.getLayer(0x1009) != NULL) {
+                FIGHTSTG_loadCamera(task);
+                task->frames = 2;
+                task->nextStep(task);
+            }
+            break;
+        case 1:
+            break;
+        }
+        if (task->frames != 0) {
+            FIGHTSTG_applyCamera(task);
+        }
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
+
+void FIGHTSTG_createCamera(s32 fighter, ModelControl *control) {
+    FighterCamera *task = createTask(FIGHTSTG_updateCamera, sizeof(FighterCamera), 0);
+
+    task->fighter = fighter;
+    task->control = control;
 }
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800911C8);
@@ -153,7 +212,14 @@ void func_80093324(s32 arg0, s32 *done) {
     task->unk50 = arg0;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80093374);
+void func_80093374(void) {
+    SpriteDrawer drawer;
+
+    initSpriteDrawer(&drawer);
+    drawer.setLayerId(0x1005, 0);
+    drawer.setTexture(0x200, 0);
+    drawer.draw(FILE_CACHE.getEntry(FILE_BATTLE_MENU << 16), 10, 246, 74);
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800933EC);
 
@@ -418,9 +484,91 @@ void func_8009A214(Unk8009A214 *arg0) {
     task->unk58 = *arg0;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009A288);
+void FIGHTSTG_updateJump(Jump *task) {
+    s32 y;
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009A5AC);
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        task->dist = 0;
+        switch (task->kind) {
+        case 4:
+            task->dist = task->distance + 0x2800;
+            break;
+        case 5:
+            task->dist = task->control->pos.z - task->control->homePos.z;
+            if (task->dist < 0) {
+                task->dist = -task->dist;
+            }
+            break;
+        }
+        if (task->control->id == 0x10) {
+            task->dist = -task->dist;
+        }
+        task->t = D_800A31E8.frames * task->speed;
+        task->nextState(task);
+        /* fallthrough */
+    case TASK_RUN:
+        switch (task->kind) {
+        default:
+            y = D_800A3420.ease(2, task->t, task->height);
+            task->control->pos.y = D_800A3420.ease(1, task->t, task->y) - y;
+            break;
+        case 4:
+        case 5:
+            task->control->pos.y = task->control->homePos.y - D_800A3420.ease(2, task->t, task->height);
+            break;
+        case 6:
+            task->control->pos.y = D_800A3420.ease(0, task->t, task->control->homePos.y);
+            break;
+        }
+        if (task->kind == 4) {
+            task->control->pos.z = task->control->homePos.z + D_800A3420.ease(0, task->t, task->dist);
+        }
+        if (task->kind == 5) {
+            task->control->pos.z = task->control->homePos.z + task->dist - D_800A3420.ease(0, task->t, task->dist);
+        }
+        task->t += D_800A31E8.frames * task->speed;
+        if (task->t < 0x1000) {
+            break;
+        }
+        task->nextState(task);
+        break;
+    case TASK_DONE:
+        switch (task->kind) {
+        default:
+            task->control->pos.y = 0;
+            break;
+        case 4:
+        case 5:
+        case 6:
+            task->control->pos.y = task->control->homePos.y;
+            break;
+        }
+        if (task->kind == 4) {
+            task->control->pos.z = task->control->homePos.z + task->dist;
+        }
+        if (task->kind == 5) {
+            task->control->pos.z = task->control->homePos.z;
+        }
+        task->nextState(task);
+        break;
+    case TASK_KILL:
+        break;
+    }
+}
+
+Jump *FIGHTSTG_startJump(ModelControl *control, s32 kind, s32 distance) {
+    Jump *task = createTask(FIGHTSTG_updateJump, sizeof(Jump), 0);
+
+    task->kind = kind;
+    task->control = control;
+    task->distance = distance;
+    task->y = control->pos.y;
+    task->height = D_800A23E4[kind - 1].height;
+    task->speed = D_800A23E4[kind - 1].speed;
+    return task;
+}
 
 void func_8009A638(MoveTask *task) {
     SVECTOR from;
@@ -470,9 +618,48 @@ void func_8009A79C(ModelControl *control, ShortVec3 *to, s32 time) {
     task->tStep = 0x1000 / time;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009A830);
+void FIGHTSTG_updateBattleSound(BattleSound *task) {
+    switch (task->state) {
+    case TASK_INIT:
+    case TASK_RUN:
+    default:
+        task->time -= D_800A31E8.frames;
+        if (task->time <= 0) {
+            SOUND_STATE.keyOff(task->sound, task->voice);
+            task->setState(task, TASK_KILL);
+        }
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009A8C0);
+BattleSound *FIGHTSTG_playBattleSound(s32 index, s32 time) {
+    s32 id;
+    BattleSound *task;
+
+    switch (index) {
+    default:
+        id = D_800A2414[index];
+        break;
+    case 0x5A:
+        id = D_80042728.unk14;
+        break;
+    case 0x5B:
+        SOUND_STATE.stopSound(0x20040006);
+        return NULL;
+    }
+    if (time == 0) {
+        SOUND.playSound(id);
+        return NULL;
+    }
+    task = createTask(FIGHTSTG_updateBattleSound, sizeof(BattleSound), 0);
+    task->sound = id;
+    task->voice = SOUND.playSound(id);
+    task->time = time;
+    return task;
+}
 
 s32 FIGHTSTG_findBattleTableIndex(s32 id) {
     BattleTableEntry *table = (BattleTableEntry *)FILE_CACHE.load(FILE_BATTLE_TABLE);
@@ -1134,7 +1321,23 @@ void func_8009D648(s32 mode) {
     func_8009D560();
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009D674);
+void FIGHTSTG_projectPoint(Layer *layer, SVECTOR *pos, ShortVec3 *out) {
+    s32 shift = 16 - layer->getOtShift(layer);
+    DVECTOR screen;
+    MATRIX matrix;
+    s32 z;
+
+    gte_CompMatrix(&D_80080AF0, &D_8004D3C8, &matrix);
+    gte_SetRotMatrix(&matrix);
+    gte_SetTransMatrix(&matrix);
+    gte_ldv0_unaligned(pos);
+    gte_rtps();
+    gte_stsxy(&screen);
+    gte_stszotz(&z);
+    out->x = screen.vx;
+    out->y = screen.vy;
+    out->z = z >> shift;
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009D8B4);
 
@@ -1171,10 +1374,10 @@ void FIGHTSTG_cacheFighter(s32 index) {
     cache->info = info;
 }
 
-s32 func_8009DCCC(s32 id) {
+FaceRect *FIGHTSTG_getFighterFace(s32 id) {
     s32 *file = (s32 *)FILE_CACHE.load(FILE_FIGHTERS);
 
-    return FIGHTSTG_getFighterInfo(id)->unkC - file[0] + (s32)file;
+    return (FaceRect *)(FIGHTSTG_getFighterInfo(id)->face - file[0] + (s32)file);
 }
 
 void FIGHTSTG_getFighterRange(u32 enemy, s32 *min, s32 *max) {

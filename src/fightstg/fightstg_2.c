@@ -13,7 +13,7 @@ void func_80085974(FightStage *task, Model **children) {
     color[1] = task->color.vy;
     color[2] = task->color.vz;
     model = children[0];
-    model->unk262C(model, 1, color);
+    model->setColor(model, 1, color);
     D_800A3420.lerp(&task->bgFrom, &task->bgTo, task->fade, &task->bg);
     layer = GFX_FUNCS.getLayer(0x1000);
     if (task->bg.vx != 0 || task->bg.vy != 0 || task->bg.vz != 0) {
@@ -68,7 +68,7 @@ void func_80085A84(FightStage *task, Model **children) {
                 color[1] = 0;
                 color[2] = 0;
                 model = children[0];
-                model->unk262C(model, 1, color);
+                model->setColor(model, 1, color);
                 layer = GFX_FUNCS.getLayer(0x1000);
                 layer->setBgColor(layer, 1, 1, 1);
                 task->nextSubstate(task);

@@ -6,20 +6,26 @@
 
 #include "game.h"
 #include <libgs.h>
+#include "dw3/menus.h"
+#include "dw3/files.h"
+
+extern MATRIX D_8004D3C8; /* the identity, the root bone's parent */
 
 /* Draws one bone of a Model (func_8008588C), from the parts of an archive */
 typedef struct Mesh {
     TASK_HEADER(Mesh);
-    /* 0x50 */ u8 unk50[0xC];
+    /* 0x50 */ s32 unk50; /* drawn without the bounds check */
+    /* 0x54 */ s32 colorMode; /* Model.setColor's */
+    /* 0x58 */ CVECTOR color;
     /* 0x5C */ s32 archive;
     /* 0x60 */ u8 *unk60;
     /* 0x64 */ u8 *unk64;
     /* 0x68 */ u8 *unk68;
     /* 0x6C */ u8 *unk6C;
     /* 0x70 */ Vec2 texPos;
-    /* 0x78 */ void *unk78;
-    /* 0x7C */ void *unk7C;
-    /* 0x80 */ void *unk80;
+    /* 0x78 */ s32 *screen; /* where its vertices land on screen */
+    /* 0x7C */ s32 *depth; /* and their depths in the ordering table */
+    /* 0x80 */ s32 *colors; /* its normals' colors under the lights */
     /* 0x84 */ MATRIX matrix;
     /* 0xA4 */ void (*draw)(struct Mesh *mesh, s32 layerId, MATRIX *matrix);
     /* 0xA8 */ void (*drawAlt)(struct Mesh *mesh, s32 layerId, MATRIX *matrix);
@@ -73,14 +79,14 @@ typedef struct ModelControl {
 /*
  * A 3D model (func_80083CE0), registered with id 0x11: a tree of bones,
  * each drawn by a Mesh child (children[i] for bone i, children[0] the
- * model's func_8008AC88 task), and the motion it plays, from the archive of
- * motions in motionFile.
+ * model's face, FIGHTSTG_createFace), and the motion it plays, from the
+ * archive of motions in motionFile.
  */
 typedef struct Model {
     TASK_HEADER(Model);
     /* 0x0050 */ s32 boneCount;
     /* 0x0054 */ ModelBone *bones;
-    /* 0x0058 */ u8 unk58[8];
+    /* 0x0058 */ SVECTOR move; /* moves the root bone, along its rotation */
     /* 0x0060 */ s32 unk60;
     /* 0x0064 */ ModelControl *control;
     /* 0x0068 */ Vec2 texPos; /* where its textures go in VRAM */
@@ -101,9 +107,30 @@ typedef struct Model {
     /* 0x19A4 */ s16 unk19A4[0x640];
     /* 0x2624 */ void (*setMotion)(struct Model *model, s32 motion, s32 restart);
     /* 0x2628 */ s32 (*isMotionDone)(struct Model *model);
-    /* 0x262C */ void (*unk262C)();
+    /* 0x262C */ void (*setColor)(); /* (model, mode, color): its meshes' */
     /* 0x2630 */ void (*unk2630)();
 } Model;
+
+/* A battle effect that is a model (func_80088FC4): D_800A12F0 lists them,
+   ending with id 0 */
+typedef struct EffectModelEntry {
+    /* 0x0 */ s32 id;
+    /* 0x4 */ s32 file; /* the model's file and index */
+    /* 0x8 */ s32 motionFile;
+} EffectModelEntry;
+
+/* Shows an effect's model at a place until its motion ends
+   (func_80088FC4) */
+typedef struct EffectModel {
+    TASK_HEADER(EffectModel);
+    /* 0x50 */ s32 effect; /* 0 if it has no entry */
+    /* 0x54 */ s32 file;
+    /* 0x58 */ s32 motionFile;
+    /* 0x5C */ SVECTOR pos;
+    /* 0x64 */ SVECTOR rot;
+    /* 0x6C */ Vec2 texPos;
+    /* 0x74 */ ModelControl control;
+} EffectModel;
 
 /* The fight stages, the battle's backgrounds: WFIGHTTS lists them as
    MFSTG001-027 */
@@ -180,6 +207,7 @@ typedef struct FightStage {
 typedef struct Methods800A3420 {
     /* 0x0 */ void (*unk0)();
     /* 0x4 */ void (*lerp)(SVECTOR *from, SVECTOR *to, s32 t, SVECTOR *out); /* t: 0-0x1000 */
+    /* 0x8 */ s32 (*ease)(s32 curve, s32 t, s32 value); /* value scaled by a curve of t */
 } Methods800A3420;
 
 /* The stage lights (func_8008A838), registered with id 0x13: set puts a
@@ -227,10 +255,13 @@ typedef struct FighterInfo {
     /* 0x00 */ s32 model;
     /* 0x04 */ s32 motions;
     /* 0x08 */ s32 unk8;
-    /* 0x0C */ s32 unkC; /* an offset in the fighters' file */
+    /* 0x0C */ s32 face; /* its FaceRects: an offset in the fighters' file */
     /* 0x10 */ s16 unk10; /* its distance from the middle, past 0x1400 */
     /* 0x12 */ u8 unk12[6];
     /* 0x18 */ s16 height;
+    /* 0x1A */ ShortVec3 camPos[12]; /* partners only, as the rest */
+    /* 0x62 */ ShortVec3 camRef[12];
+    /* 0xAA */ s16 camProj[12];
 } FighterInfo;
 
 /* The fighters' file (D_800A32E0.funcs) */
@@ -250,7 +281,7 @@ typedef struct FighterCache {
     /* 0x10 */ FighterInfo *unk10;
     /* 0x14 */ FighterInfo *info;
     /* 0x18 */ FighterInfoFuncs funcs;
-    /* 0x24 */ void (*unk24)();
+    /* 0x24 */ struct FaceRect *(*getFace)(s32 fighter); /* up to an x of 0xFF */
 } FighterCache;
 
 /* The Models task's children: a removed model stays until it is gone */
@@ -273,6 +304,76 @@ typedef struct Models {
     /* 0x198 */ void (*setIdleMotion)(struct Models *task, s32 id, s32 motion);
 } Models;
 
+/* A part of a fighter's face (its eyes, then up to 14 more) and where its
+   three frames are in its texture: copied into place by a DR_MOVE */
+typedef struct FaceRect {
+    /* 0x0 */ u8 x;
+    /* 0x1 */ u8 y;
+    /* 0x2 */ u8 w; /* 0: unused */
+    /* 0x3 */ u8 h;
+    /* 0x4 */ u8 frames[3][2];
+} FaceRect;
+
+typedef struct FacePart {
+    /* 0x00 */ s32 used;
+    /* 0x04 */ s32 frame; /* the one drawn */
+    /* 0x08 */ FaceRect rect;
+} FacePart;
+
+/* A model's face (FIGHTSTG_createFace, the model's first child): the eyes
+   blink (or close for some motions) and the other parts loop their frames */
+typedef struct Face {
+    TASK_HEADER(Face);
+    /* 0x050 */ Model *model;
+    /* 0x054 */ Vec2 texPos; /* the model's */
+    /* 0x05C */ s32 partCount;
+    /* 0x060 */ FacePart parts[16];
+    /* 0x1A0 */ s32 blinkTimer;
+    /* 0x1A4 */ s32 time;
+} Face;
+
+/* A fighter's camera (FIGHTSTG_createCamera) on layer 0x1009, from its
+   FighterInfo; frames counts the frames it still has to be set */
+typedef struct FighterCamera {
+    TASK_HEADER(FighterCamera);
+    /* 0x50 */ s32 fighter;
+    /* 0x54 */ ModelControl *control;
+    /* 0x58 */ GsRVIEW2 view;
+    /* 0x78 */ s32 proj; /* the projection distance */
+    /* 0x7C */ GsCOORDINATE2 coord; /* the view's */
+    /* 0xCC */ SVECTOR rot;
+    /* 0xD4 */ VECTOR trans;
+    /* 0xE4 */ s32 frames;
+} FighterCamera;
+
+/* The jump heights and speeds (t per frame) of the Jump kinds 1-6 */
+typedef struct JumpParams {
+    /* 0x0 */ s32 height;
+    /* 0x4 */ s32 speed;
+} JumpParams;
+
+/* A ModelControl's jump (FIGHTSTG_startJump): up and down from its y, or
+   for kinds 4 and 5 also forwards from or back to its home */
+typedef struct Jump {
+    TASK_HEADER(Jump);
+    /* 0x50 */ s32 kind;
+    /* 0x54 */ s32 distance; /* kind 4: past 0x2800 */
+    /* 0x58 */ s32 dist;
+    /* 0x5C */ ModelControl *control;
+    /* 0x60 */ s32 height;
+    /* 0x64 */ s32 y;
+    /* 0x68 */ s32 speed;
+    /* 0x6C */ s32 t; /* 0-0x1000 */
+} Jump;
+
+/* A battle sound (FIGHTSTG_playBattleSound) that is keyed off after time */
+typedef struct BattleSound {
+    TASK_HEADER(BattleSound);
+    /* 0x50 */ s32 sound;
+    /* 0x54 */ s32 voice;
+    /* 0x58 */ s32 time;
+} BattleSound;
+
 /* Tasks whose update is still asm, named after it, with the fields their
    creators set */
 typedef struct Unk80087870 {
@@ -282,14 +383,6 @@ typedef struct Unk80087870 {
     /* 0x5C */ s32 unk5C;
     /* 0x60 */ u8 unk60[0x10];
 } Unk80087870;
-
-typedef struct Unk80089FBC {
-    TASK_HEADER(Unk80089FBC);
-    /* 0x50 */ s32 unk50;
-    /* 0x54 */ s32 unk54;
-    /* 0x58 */ u8 unk58[0xC];
-    /* 0x64 */ void (*unk64)();
-} Unk80089FBC;
 
 typedef struct Unk8008C0BC {
     TASK_HEADER(Unk8008C0BC);
@@ -325,12 +418,6 @@ typedef struct Unk80090908 {
     /* 0x51 */ u8 unk51[0x23];
 } Unk80090908;
 
-typedef struct Unk800910C8 {
-    TASK_HEADER(Unk800910C8);
-    /* 0x50 */ s32 unk50;
-    /* 0x54 */ s32 unk54;
-    /* 0x58 */ u8 unk58[0x90];
-} Unk800910C8;
 
 typedef struct Unk80092350 {
     TASK_HEADER(Unk80092350);
@@ -551,7 +638,7 @@ typedef struct Battle {
     /* 0xDC */ BattleSpeed speed;
     /* 0xE4 */ s32 (*unkE4)();
     /* 0xE8 */ s32 (*unkE8)();
-    /* 0xEC */ s32 (*unkEC)();
+    /* 0xEC */ void (*project)(Layer *layer, SVECTOR *pos, ShortVec3 *out); /* FIGHTSTG_projectPoint */
     /* 0xF0 */ s32 (*unkF0)();
     /* 0xF4 */ s32 (*unkF4)();
 } Battle;
@@ -640,8 +727,9 @@ extern Battle800A3308 D_800A3308;
 extern s32 D_800A1238[];
 extern Methods800A3420 D_800A3420;
 void func_800831D4(Model *model, s32 motion, s32 restart);
-void func_8008358C(Model *model, Task **children);
-void func_80083BE4();
+void func_8008358C(Model *model, Mesh **children);
+Mesh *func_8008588C(s32 archive, Vec2 texPos);
+void FIGHTSTG_setModelColor(Model *model, s32 mode, CVECTOR *color);
 void func_80083C78();
 s32 func_80083CD4(Model *model);
 Model *func_80083F44(s32 file, s32 motionFile, Vec2 texPos, ModelControl *control);
@@ -693,12 +781,12 @@ void func_80091A58();
 void func_8009D8B4();
 void func_800973D4();
 void func_80087870();
-void func_8008A188();
-void func_80089FBC();
+void FIGHTSTG_updateScreenFade(ScreenFade *task);
+void FIGHTSTG_startScreenFade(ScreenFade *task, s32 fadeIn, s32 duration);
 void func_80089458();
 void func_8008EAF8();
 void func_80090290();
-void func_800910C8();
+void FIGHTSTG_updateCamera(FighterCamera *task);
 void func_80092350();
 void func_800937FC();
 void func_8008C0BC();
@@ -742,4 +830,11 @@ Unk80092350 *func_80092494(s32 frames);
 void func_8009A098();
 BattleStats *FIGHTSTG_computeStats();
 extern s32 D_800A33F4[];
+void func_800833B0(Model *model);
+extern EffectModelEntry D_800A12F0[];
+Face *FIGHTSTG_createFace(Model *model, s32 fighter);
+void FIGHTSTG_projectPoint(Layer *layer, SVECTOR *pos, ShortVec3 *out);
+void func_80029DB8(GsRVIEW2 *view); /* GsSetRefView2 */
+extern JumpParams D_800A23E4[];
+extern s32 D_800A2414[]; /* sound ids */
 #endif /* FIGHTSTG_H */
