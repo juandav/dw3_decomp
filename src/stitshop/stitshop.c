@@ -302,7 +302,16 @@ s32 func_8008B99C(PanelAnim *fade) {
     return 0;
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BA08);
+void func_8008BA08(ShopLerp *lerp, s32 from, s32 to, s32 frames) {
+    if (from != to) {
+        lerp->duration = frames;
+        lerp->fixed = from << 8;
+        lerp->value = from;
+        lerp->target = to;
+        lerp->active = 1;
+        lerp->step = ((to - from) << 8) / lerp->duration;
+    }
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008BA48);
 
