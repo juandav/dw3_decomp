@@ -15,6 +15,7 @@ void func_800894EC(ShopInfo *info, void *win, s32 arg);
 void func_80089774(ShopInfo *info, void *win, s32 arg);
 void func_8008988C(ShopInfo *info, void *win, s32 arg);
 void func_8008A5E8();
+void func_8008AF88(ItemShop *shop, ItemShopWindows *win);
 ItemShop *func_8008B77C(void);
 void func_8008B614();
 void func_8008B7E0(void);
@@ -440,7 +441,57 @@ void func_8008ABA4(ItemShop *shop, ItemShopWindows *win) {
     win->cursor->setVisible(win->cursor, 0);
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008AC8C);
+void func_8008AC8C(ItemShop *shop, ItemShopWindows *win) {
+    SpriteDrawer sprite;
+
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(shop->layer, 1);
+    sprite.setTexture(0x280, 0x100);
+    if (shop->panels[0].level != 0) {
+        if (shop->panels[0].level != 0x1000) {
+            sprite.setScale(shop->panels[0].level, 0x1000, 0x1000);
+            sprite.setPivot(0x57, 0x19);
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_SHOP_SPRITES << 16), 1, 0x16, 0x12);
+    }
+    if (shop->panels[1].level != 0) {
+        if (shop->panels[1].level != 0x1000) {
+            sprite.setScale(shop->panels[1].level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0x18);
+        } else {
+            sprite.setScale(0x1000, 0x1000, 0x1000);
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_SHOP_SPRITES << 16), 2, 0xD6, 0xF);
+    }
+    if (shop->panels[2].level != 0) {
+        if (shop->panels[2].level != 0x1000) {
+            sprite.setScale(shop->panels[2].level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0x3B);
+        } else {
+            sprite.setScale(0x1000, 0x1000, 0x1000);
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_SHOP_SPRITES << 16), 5, 0xA9, 0x26);
+    }
+    if (shop->panels[3].level != 0) {
+        if (shop->panels[3].level != 0x1000) {
+            sprite.setScale(shop->panels[3].level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0xD2);
+        } else {
+            sprite.setScale(0x1000, 0x1000, 0x1000);
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_SHOP_SPRITES << 16), 0, 0xC6, 0xC4);
+    }
+    sprite.setLayerId(shop->layer, 7);
+    if (shop->unk5C != 0) {
+        shop->unk58++;
+        shop->unk58 = shop->unk58 < 0x60 ? shop->unk58 : 0;
+        shop->unk5C = 0;
+    } else {
+        shop->unk5C = 1;
+    }
+    sprite.setScale(0x1000, 0x1000, 0x1000);
+    sprite.draw(FILE_CACHE.getEntry(FILE_SHOP_SPRITES << 16), 0x14, shop->unk58, shop->unk58);
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_8008AF88);
 
