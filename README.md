@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20118-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20123-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -91,8 +91,8 @@ above counts them: fake matches, then the other two kinds together.
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 7 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 111 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 84 | `INCLUDE_ASM` |
+| Form-dependent matches | 116 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 75 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -104,7 +104,7 @@ above counts them: fake matches, then the other two kinds together.
   `func_8008CC5C` and three in WFIGHTTS.
 - A form-dependent match is C that matches in one of several equivalent
   forms only: an extra block, an `if` without braces, a copy of a variable, a
-  type, or one version's own form of a loop. The hundred and eleven so far are a copy
+  type, or one version's own form of a loop. The hundred and sixteen so far are a copy
   of a variable in `drawTalkBoxArrow`, an unsigned compare in STGMCARD's
   `func_80082E28`, a variable that holds two values in STCRDDEK's
   `STCRDDEK_drawDeckCards`, a counter set before a call in
@@ -132,10 +132,12 @@ above counts them: fake matches, then the other two kinds together.
   in WFIGHTMN (a variable, a case or a statement of its own, a pointer sum,
   a statement written in both branches, a counter set before a call, a
   variable reused, a pointer, an offset from a pointer or a `while (1)`),
-  fourteen spots in FIGHTSTG (cases that do nothing, a variable reused or
-  of its own, a counter set in a loop's init, an index from a later member,
-  a pointer sum, a task taken as `void *`, or a value read first),
-  eleven spots in CARDGAME (a loop or state variable of its
+  nineteen spots in FIGHTSTG (cases that do nothing, a case next to
+  `default`, a variable reused, shared by cases or of its own, a counter set
+  in a loop's init, an index from a later member, a pointer sum, pointers and
+  blocks of their own, a task taken as `void *`, a value read first, a `goto`
+  into a branch, an `if`/`else`, an order of stores, or a `* 32` for a
+  shift), eleven spots in CARDGAME (a loop or state variable of its
   own, an empty case, or a statement written twice), a reset written in both
   branches in SHOCKTST's `SHOCKTST_playAllPatterns`, a variable that keeps
   the old top too in STAGSLCT's `STAGSLCT_updateStageSelect`, three in PsyQ's
@@ -172,7 +174,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `CARDGAME` | `0x80082448` | 305 / 306 | the card battle (mode `0x700`): the decks, the cards in play and the battle screen |
 | `CNTY_SEL` | `0x80082448` | 26 / 26 | the country select screen |
 | `FIELDSTG` | `0x80082448` | 211 / 222 | the field mode, where the player walks around the map; the stages load on top of it |
-| `FIGHTSTG` | `0x80082448` | 250 / 310 | the battle: the fight stage and its lights, the fighters' models, faces and cameras, the battle camera and windows, the queue of battle events and the stat, hit and status checks |
+| `FIGHTSTG` | `0x80082448` | 257 / 310 | the battle: the fight stage and its lights, the fighters' models, faces and cameras, the battle camera and windows, the queue of battle events and the stat, hit and status checks |
 | `SHOCKTST` | `0x80082448` | 16 / 17 | the debug vibration test |
 | `SOUNDTST` | `0x80082448` | 8 / 8 | the debug sound test |
 | `STAGSLCT` | `0x80082448` | 7 / 8 | the debug stage select, a menu of every scene of the game |

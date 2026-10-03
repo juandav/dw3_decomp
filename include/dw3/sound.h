@@ -70,6 +70,7 @@ typedef struct SoundState {
     /* 0x4274 */ s32 (*isLoading)(void);
     /* 0x4278 */ void (*stopAll)(void);
     /* 0x427C */ void (*stopSound)(s32 id);
+    /* 0x4280 */ void (*fadeOut)(s32 id);
 } SoundState;
 
 typedef struct OverlayState {

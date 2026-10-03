@@ -381,11 +381,7 @@ BattleScript *func_8008C090(void) {
 
 #if VERSION_EU
 /* the European version has the task of func_800A1048 here */
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_800A1048);
-
-void func_800A120C(void) {
-    createTask(func_800A1048, 0x54, sizeof(Task *));
-}
+#include "camera_turn.h"
 #endif
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008C0BC);

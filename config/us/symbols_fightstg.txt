@@ -59,3 +59,4 @@ WFIGHTMN_start = 0x800A8E40; // type:func
 func_800A9040 = 0x800A9040; // type:func
 func_800A9A40 = 0x800A9A40; // type:func
 func_800A57A8 = 0x800A57A8; // type:func
+func_800A9840 = 0x800A9840; // type:func
