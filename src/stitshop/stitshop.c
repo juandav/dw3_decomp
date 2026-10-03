@@ -68,7 +68,34 @@ void func_80082B64(ScreenFade *task) {
     GFX.funcs.setPrim(mode + 1);
 }
 
-INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082CA8);
+void func_80082CA8(ScreenFade *task) {
+    switch (task->state) {
+    case 0:
+    default:
+        task->nextState(task);
+        break;
+    case 1:
+        if (task->substate == 0) {
+            break;
+        }
+        task->level += task->levelStep;
+        if (task->fadeIn == 0) {
+            if (task->level > 0xFF00) {
+                task->level = 0xFF00;
+                task->state = 2;
+            }
+        } else if (task->level < 0) {
+            task->level = 0;
+            task->state = 2;
+        }
+        /* fallthrough */
+    case 2:
+        func_80082B64(task);
+        break;
+    case 3:
+        break;
+    }
+}
 
 INCLUDE_ASM("stitshop/nonmatchings/stitshop", func_80082D5C);
 
