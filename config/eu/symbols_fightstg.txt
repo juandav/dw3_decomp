@@ -94,8 +94,7 @@ D_800A33E8 = 0x800A4664; // size:0x8
 D_800A33F0 = 0x800A466C; // size:0x4
 D_800A33F4 = 0x800A4670; // size:0x24
 D_800A3418 = 0x800A4694; // size:0x8
-D_800A3420 = 0x800A469C; // size:0x4
-D_800A3424 = 0x800A46A0; // size:0x4
+D_800A3420 = 0x800A469C; // size:0x8
 D_800A3430 = 0x800A46D0; // size:0x8
 D_800A3438 = 0x800A46D8; // size:0x38
 D_800A3470 = 0x800A4710; // size:0x8
@@ -421,3 +420,6 @@ func_800A0DA4 = 0x800A1D3C; // type:func
 func_800A0EEC = 0x800A1E84; // type:func
 func_800A0EF4 = 0x800A1E8C; // type:func
 func_800A0FDC = 0x800A1F74; // type:func
+
+// names from the C of the modules this version builds (tools/version_symbols.py)
+D_8004D3C8 = 0x8004DC20;

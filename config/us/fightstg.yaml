@@ -50,6 +50,17 @@ segments:
     subalign: 4
     subsegments:
       - [0x0, .rodata, fightstg]
+      - [0x1C, .rodata, fightstg_2]
+      - [0x38, .rodata, fightstg_3]
+      - [0x16C, .rodata, fightstg_4]
+      - [0x188, .rodata, fightstg_5]
+      - [0x234, .rodata, fightstg_6]
       - [0x608, c, fightstg]
+      - [0x352C, c, fightstg_2]
+      - [0x3D38, c, fightstg_3]
+      - [0x7E28, c, fightstg_4]
+      - [0x8968, c, fightstg_5]
+      - [0xA4A8, c, fightstg_6]
+      - [0x1EC00, c, fightstg_7]
       - [0x1EDF0, .data, fightstg]
   - [0x210B8]

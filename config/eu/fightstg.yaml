@@ -51,6 +51,18 @@ segments:
     subsegments:
       # us's modules, each with its rodata, data and bss (tools/split_version.py)
       - [0x0, .rodata, fightstg]
+      - [0x1C, .rodata, fightstg_2]
+      - [0x38, .rodata, fightstg_3]
+      - [0x16C, .rodata, fightstg_4]
+      - [0x188, .rodata, fightstg_5]
+      - [0x234, .rodata, fightstg_6]
+      - [0x608, .rodata, fightstg_7]
       - [0x620, c, fightstg]
+      - [0x3544, c, fightstg_2]
+      - [0x3D50, c, fightstg_3]
+      - [0x7E40, c, fightstg_4]
+      - [0x8980, c, fightstg_5]
+      - [0xA704, c, fightstg_6]
+      - [0x1F330, c, fightstg_7]
       - [0x1F7E8, .data, fightstg]
   - [0x21AF0]
