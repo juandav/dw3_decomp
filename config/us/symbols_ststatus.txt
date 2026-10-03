@@ -1,6 +1,5 @@
 // STSTATUS.PRO: the field menu's screens
 
-STSTATUS_funcs = 0x8009A8E4; // size:0x28
 STSTATUS_startFader = 0x800843FC; // type:func
 STSTATUS_drawFader = 0x80084484; // type:func
 STSTATUS_updateFader = 0x800845C8; // type:func
@@ -23,3 +22,4 @@ STSTATUS_equip = 0x800996FC; // type:func
 STSTATUS_isLateGame = 0x80099984; // type:func
 STSTATUS_getArea = 0x800999AC; // type:func
 STSTATUS_screens = 0x80099C9C; // size:0x38
+STSTATUS_data = 0x8009A27C; // size:0x690

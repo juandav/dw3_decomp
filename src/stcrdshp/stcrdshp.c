@@ -4,7 +4,9 @@ void initCardDrawer(CardDrawer *obj);
 void STCRDSHP_drawCards(CardPackGrid *grid, s32 previous);
 void STCRDSHP_drawTurningSlots(CardPackGrid *grid);
 void STCRDSHP_updateHiding(CardPackGrid *grid);
-Task *func_80088334(void);
+void func_800827A4(CardPackOpen *open, void *win);
+void func_800832DC(CardPackOpen *open);
+void func_80083BEC(CardPackOpen *open, void *win);
 
 INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800827A4);
 
@@ -16,13 +18,57 @@ INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80082EE0);
 
 INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800832DC);
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80083AF4);
+/* Lists the bag's card packs, and how many pages they fill */
+void STCRDSHP_listPacks(CardPackOpen *open) {
+    s32 count;
+    s32 i;
+
+    count = ITEM_FUNCS->list(1, (u16 *)open->items);
+    open->packCount = 0;
+    for (i = 0; i < count; i++) {
+        if (ITEM_FUNCS->getCategory(open->items[i]) == 0x62) {
+            open->packs[open->packCount++] = open->items[i];
+        }
+    }
+    if (open->packCount != 0) {
+        open->pages = open->packCount / 8 + (open->packCount % 8 != 0);
+    }
+}
 
 INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80083BEC);
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800849F4);
+/* The update of the screen to open a pack */
+void STCRDSHP_updatePackOpen(CardPackOpen *open, void *win) {
+    switch (open->state) {
+    case TASK_INIT:
+    default:
+        open->nextState(open);
+        func_800827A4(open, win);
+        open->fades[3].duration = 10;
+        open->fades[2].duration = 10;
+        open->fades[0].duration = 10;
+        open->fades[1].duration = 10;
+        STCRDSHP_listPacks(open);
+        break;
+    case TASK_RUN:
+        func_80083BEC(open, win);
+        func_800832DC(open);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80084A94);
+/* Creates the screen to open a pack */
+CardPackOpen *STCRDSHP_createPackOpen(CardShop *shop) {
+    CardPackOpen *open = createTask(STCRDSHP_updatePackOpen, sizeof(CardPackOpen), 0x78);
+
+    open->layer = 0x1000;
+    open->depth = 6;
+    open->shop = shop;
+    return open;
+}
 
 void STCRDSHP_startFader(ScreenFade *task, s32 fadeIn, s32 duration) {
     task->setState(task, TASK_RUN);
@@ -233,163 +279,30 @@ void STCRDSHP_updateGrid(CardPackGrid *grid) {
 
 INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", STCRDSHP_createGrid);
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_8008579C);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800859A4);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80085E44);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800864BC);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800870F4);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_8008724C);
-
-void STCRDSHP_updateScene(Task *task, Task **children) {
-    RECT rect;
-    Layer *layer;
-
-    switch (task->state) {
-    case TASK_INIT:
-    default:
-        GFX.funcs.reset();
-        GFX.funcs.allocPrimBuffers(0xF000);
-        GFX.funcs.setDisplayMode(0x140, 0xF0, 0, 0);
-        rect.x = 0;
-        rect.y = 0;
-        rect.w = 0x140;
-        rect.h = 0xF0;
-        layer = GFX.funcs.createLayer(&rect, 3, 0x1000);
-        layer->setBgColor(layer, 0, 0, 0);
-        children[0] = (Task *)func_80088334();
-        task->nextState(task);
-        break;
-    case TASK_RUN:
-    case TASK_DONE:
-    case TASK_KILL:
-        break;
-    }
-}
-
-Task *STCRDSHP_start(void) {
-    return createTask(STCRDSHP_updateScene, sizeof(Task), 4);
-}
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800873C8);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80087554);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80087660);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80087760);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80087A28);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80088190);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800881E4);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80088334);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800884A4);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_80088554);
-
-void STCRDSHP_startFade(PanelAnim *fade, s32 fadeIn) {
-    fade->active = 1;
-    if (fadeIn != 0) {
-        SOUND.playSound(0x40019);
-        fade->level = 0;
-        fade->step = 0x1000 / fade->duration;
-    } else {
-        SOUND.playSound(0x4001A);
-        fade->level = 0x1000;
-        fade->step = -((0x1000 / fade->duration) * 2);
-    }
-}
-
-s32 STCRDSHP_updateFade(PanelAnim *fade) {
-    if (fade->active == 0) {
-        return 1;
-    }
-    fade->level += fade->step;
-    if (fade->step > 0) {
-        if (fade->level > 0x1000) {
-            fade->level = 0x1000;
-            fade->active = 0;
-            return 1;
-        }
-    } else if (fade->level < 0) {
-        fade->level = 0;
-        fade->active = 0;
-        return 1;
-    }
-    return 0;
-}
-
-void STCRDSHP_startLerp(MenuLerp *lerp, s32 from, s32 to, s32 frames) {
-    if (from != to) {
-        lerp->duration = frames;
-        lerp->fixed = from << 8;
-        lerp->value = from;
-        lerp->target = to;
-        lerp->active = 1;
-        lerp->step = ((to - from) << 8) / lerp->duration;
-    }
-}
-
-s32 STCRDSHP_updateLerp(MenuLerp *lerp) {
-    if (lerp->active == 0) {
-        return 1;
-    }
-    lerp->fixed += lerp->step;
-    lerp->value = lerp->fixed >> 8;
-    if (lerp->step > 0) {
-        if (lerp->target < lerp->value) {
-            lerp->value = lerp->target;
-            lerp->active = 0;
-            return 1;
-        }
-    } else if (lerp->value < lerp->target) {
-        lerp->value = lerp->target;
-        lerp->active = 0;
-        return 1;
-    }
-    return 0;
-}
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800887A0);
-
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_8008887C);
-
-void func_800884A4();
-void func_80088554();
-void func_800887A0();
-void func_8008887C();
-extern s32 D_8008C1EC[];
-extern s32 D_8008C1FC[];
-extern s32 D_8008C20C[];
-extern s32 D_8008C21C[];
-extern s32 D_8008C22C[];
-extern s32 D_8008C23C[];
-extern s32 D_8008C24C[];
-extern s32 D_8008C25C[];
-extern s32 D_8008C26C[];
-extern s32 D_8008C27C[];
-extern s32 D_8008C28C[];
-extern s32 D_8008C29C[];
-extern s32 D_8008C2AC[];
-extern s32 D_8008C2BC[];
-extern s32 D_8008C2CC[];
-extern s32 D_8008C2DC[];
-extern s32 D_8008C2EC[];
-extern s32 D_8008C2FC[];
-extern s32 D_8008C30C[];
-extern s32 D_8008C31C[];
-extern s32 D_8008C32C[];
-extern s32 D_8008C33C[];
-extern s32 D_8008C34C[];
-extern s32 D_8008C35C[];
+extern s16 D_8008C1EC[];
+extern s16 D_8008C1FC[];
+extern s16 D_8008C20C[];
+extern s16 D_8008C21C[];
+extern s16 D_8008C22C[];
+extern s16 D_8008C23C[];
+extern s16 D_8008C24C[];
+extern s16 D_8008C25C[];
+extern s16 D_8008C26C[];
+extern s16 D_8008C27C[];
+extern s16 D_8008C28C[];
+extern s16 D_8008C29C[];
+extern s16 D_8008C2AC[];
+extern s16 D_8008C2BC[];
+extern s16 D_8008C2CC[];
+extern s16 D_8008C2DC[];
+extern s16 D_8008C2EC[];
+extern s16 D_8008C2FC[];
+extern s16 D_8008C30C[];
+extern s16 D_8008C31C[];
+extern s16 D_8008C32C[];
+extern s16 D_8008C33C[];
+extern s16 D_8008C34C[];
+extern s16 D_8008C35C[];
 
 /* The cards each slot of a pack draws one of, 16 each (STCRDSHP_packs) */
 s32 STCRDSHP_slotCards[123][16] = {
@@ -908,126 +821,123 @@ s32 D_8008C15C[] = {
     0, 1, 2, 3,
     2, 1,
 };
-s32 D_8008C174[] = {
-    529, 31, 640, 32,
-    559, 33, 669, 34,
-    574, 35, 683, 36,
-    606, 37, 711, 38,
-    623, 39, 726, 40,
-    0, 31,
+CardShopTitle STCRDSHP_titles[] = {
+    { 529, 31 }, { 640, 32 }, { 559, 33 }, { 669, 34 }, { 574, 35 },
+    { 683, 36 }, { 606, 37 }, { 711, 38 }, { 623, 39 }, { 726, 40 },
+    { 0, 31 },
 };
-s32 D_8008C1CC = (s32)func_800884A4;
-s32 D_8008C1D0 = (s32)func_80088554;
-s32 D_8008C1D4 = (s32)STCRDSHP_startFade;
-s32 D_8008C1D8[] = {
-    (s32)STCRDSHP_updateFade, (s32)STCRDSHP_startLerp, (s32)STCRDSHP_updateLerp,
+CardShopFuncs STCRDSHP_funcs = {
+    STCRDSHP_loadFiles, STCRDSHP_filesLoading, STCRDSHP_startFade, STCRDSHP_updateFade,
+    STCRDSHP_startLerp, STCRDSHP_updateLerp, STCRDSHP_getStock, STCRDSHP_getPrice,
 };
-s32 D_8008C1E4 = (s32)func_800887A0;
-s32 D_8008C1E8 = (s32)func_8008887C;
-s32 D_8008C1EC[] = {
-    0xEB0041, 0xC20115, 0x3B00CC, 0,
+s16 D_8008C1EC[] = {
+    65, 235, 277, 194, 204, 59, 0, 0,
 };
-s32 D_8008C1FC[] = {
-    0xD2000A, 0xA80050, 0x3B001E, 0,
+s16 D_8008C1FC[] = {
+    10, 210, 80, 168, 30, 59, 0, 0,
 };
-s32 D_8008C20C[] = {
-    0xA700D1, 0x800052, 0x3B001E, 0,
+s16 D_8008C20C[] = {
+    209, 167, 82, 128, 30, 59, 0, 0,
 };
-s32 D_8008C21C[] = {
-    0xCA004B, 0x7900A4, 0x3B001B, 0,
+s16 D_8008C21C[] = {
+    75, 202, 164, 121, 27, 59, 0, 0,
 };
-s32 D_8008C22C[] = {
-    0x9D0073, 0xCC0049, 0x1B00F9, 0,
+s16 D_8008C22C[] = {
+    115, 157, 73, 204, 249, 27, 0, 0,
 };
-s32 D_8008C23C[] = {
-    0x7400C9, 0x11C0099, 0x1E001B, 0,
+s16 D_8008C23C[] = {
+    201, 116, 153, 284, 27, 30, 0, 0,
 };
-s32 D_8008C24C[] = {
-    0xE20060, 0xB9008C, 0x1030109, 0,
+s16 D_8008C24C[] = {
+    96, 226, 140, 185, 265, 259, 0, 0,
 };
-s32 D_8008C25C[] = {
-    0xA700D1, 0x5200FC, 0x1030080, 0,
+s16 D_8008C25C[] = {
+    209, 167, 252, 82, 128, 259, 0, 0,
 };
-s32 D_8008C26C[] = {
-    0x730048, 0x49009D, 0xF900CC, 0,
+s16 D_8008C26C[] = {
+    72, 115, 157, 73, 204, 249, 0, 0,
 };
-s32 D_8008C27C[] = {
-    0x730048, 0x49009D, 0x11D00CC, 0,
+s16 D_8008C27C[] = {
+    72, 115, 157, 73, 204, 285, 0, 0,
 };
-s32 D_8008C28C[] = {
-    0xA0060, 0x5000D2, 0x1E00A8, 0,
+s16 D_8008C28C[] = {
+    96, 10, 210, 80, 168, 30, 0, 0,
 };
-s32 D_8008C29C[] = {
-    0xA700D1, 0x5200FC, 0x1030080, 0,
+s16 D_8008C29C[] = {
+    209, 167, 252, 82, 128, 259, 0, 0,
 };
-s32 D_8008C2AC[] = {
-    0x4800D1, 0x7400C9, 0xF900CC, 0,
+s16 D_8008C2AC[] = {
+    209, 72, 201, 116, 204, 249, 0, 0,
 };
-s32 D_8008C2BC[] = {
-    0x730048, 0x49009D, 0x11D00CC, 0,
+s16 D_8008C2BC[] = {
+    72, 115, 157, 73, 204, 285, 0, 0,
 };
-s32 D_8008C2CC[] = {
-    0xA700D1, 0x5200FC, 0x1030080, 0,
+s16 D_8008C2CC[] = {
+    209, 167, 252, 82, 128, 259, 0, 0,
 };
-s32 D_8008C2DC[] = {
-    0x730048, 0x49009D, 0xF900CC, 0,
+s16 D_8008C2DC[] = {
+    72, 115, 157, 73, 204, 249, 0, 0,
 };
-s32 D_8008C2EC[] = {
-    0x4800D1, 0x7400C9, 0xF900CC, 0,
+s16 D_8008C2EC[] = {
+    209, 72, 201, 116, 204, 249, 0, 0,
 };
-s32 D_8008C2FC[] = {
-    0xC90048, 0x9D0074, 0x11C0099, 0,
+s16 D_8008C2FC[] = {
+    72, 201, 116, 157, 153, 284, 0, 0,
 };
-s32 D_8008C30C[] = {
-    0x6A0041, 0xC20096, 0xEB0115, 0,
+s16 D_8008C30C[] = {
+    65, 106, 150, 194, 277, 235, 0, 0,
 };
-s32 D_8008C31C[] = {
-    0x4B001E, 0xA400CA, 0x1B0079, 0,
+s16 D_8008C31C[] = {
+    30, 75, 202, 164, 121, 27, 0, 0,
 };
-s32 D_8008C32C[] = {
-    0x4B009C, 0x6D00CA, 0x11D0099, 0,
+s16 D_8008C32C[] = {
+    156, 75, 202, 109, 153, 285, 0, 0,
 };
-s32 D_8008C33C[] = {
-    0x9D0073, 0xCC0049, 0x1E00F9, 0,
+s16 D_8008C33C[] = {
+    115, 157, 73, 204, 249, 30, 0, 0,
 };
-s32 D_8008C34C[] = {
-    0x46009C, 0x6D00C8, 0x1B011D, 0,
+s16 D_8008C34C[] = {
+    156, 70, 200, 109, 285, 27, 0, 0,
 };
-s32 D_8008C35C[] = {
-    0x11D0074, 0x6A0042, 0xC20096, 0,
+s16 D_8008C35C[] = {
+    116, 285, 66, 106, 150, 194, 0, 0,
 };
-u16 D_8008C36C[] = {
-    0x000A, 0x0898, 0x001B, 0x2AF8, 0x001E, 0x0FA0, 0x003B, 0x03E8,
-    0x0041, 0x2710, 0x0042, 0x2710, 0x0046, 0x1B58, 0x0048, 0x1E14,
-    0x0049, 0x1E14, 0x004B, 0x19C8, 0x0050, 0x0898, 0x0052, 0x0BB8,
-    0x0060, 0x01F4, 0x006A, 0x2710, 0x006D, 0x1F40, 0x0073, 0x1E14,
-    0x0074, 0x1E14, 0x0079, 0x0FA0, 0x0080, 0x0BB8, 0x008C, 0x01F4,
-    0x0096, 0x2710, 0x0099, 0x1F40, 0x009C, 0x1B58, 0x009D, 0x1E14,
-    0x00A4, 0x0FA0, 0x00A7, 0x0CE4, 0x00A8, 0x0898, 0x00B9, 0x01F4,
-    0x00C2, 0x2710, 0x00C8, 0x1B58, 0x00C9, 0x1E14, 0x00CA, 0x19C8,
-    0x00CC, 0x157C, 0x00D1, 0x1130, 0x00D2, 0x0898, 0x00E2, 0x01F4,
-    0x00EB, 0x32C8, 0x00F9, 0x19C8, 0x00FC, 0x1130, 0x0103, 0x03E8,
-    0x0109, 0x01F4, 0x0115, 0x2710, 0x011C, 0x2328, 0x011D, 0x2328,
-    0x0000, 0x0001,
+/* The cards the shops sell and their prices */
+CardPrice STCRDSHP_prices[] = {
+    { 10, 2200 }, { 27, 11000 }, { 30, 4000 }, { 59, 1000 }, { 65, 10000 }, { 66, 10000 },
+    { 70, 7000 }, { 72, 7700 }, { 73, 7700 }, { 75, 6600 }, { 80, 2200 }, { 82, 3000 },
+    { 96, 500 }, { 106, 10000 }, { 109, 8000 }, { 115, 7700 }, { 116, 7700 }, { 121, 4000 },
+    { 128, 3000 }, { 140, 500 }, { 150, 10000 }, { 153, 8000 }, { 156, 7000 }, { 157, 7700 },
+    { 164, 4000 }, { 167, 3300 }, { 168, 2200 }, { 185, 500 }, { 194, 10000 }, { 200, 7000 },
+    { 201, 7700 }, { 202, 6600 }, { 204, 5500 }, { 209, 4400 }, { 210, 2200 }, { 226, 500 },
+    { 235, 13000 }, { 249, 6600 }, { 252, 4400 }, { 259, 1000 }, { 265, 500 }, { 277, 10000 },
+    { 284, 9000 }, { 285, 9000 }, { 0, 1 },
 };
-s32 D_8008C420[] = {
-    49, 0, (s32)D_8008C1EC, 50,
-    0, (s32)D_8008C1FC, 51, 0,
-    (s32)D_8008C20C, 52, 0, (s32)D_8008C21C,
-    53, 0, (s32)D_8008C22C, 54,
-    0, (s32)D_8008C23C, 55, 0,
-    (s32)D_8008C24C, 56, 0, (s32)D_8008C25C,
-    57, 0, (s32)D_8008C26C, 58,
-    0, (s32)D_8008C27C, 59, 0,
-    (s32)D_8008C28C, 60, 0, (s32)D_8008C29C,
-    61, 0, (s32)D_8008C2AC, 62,
-    0, (s32)D_8008C2BC, 63, 0,
-    (s32)D_8008C2CC, 64, 0, (s32)D_8008C2DC,
-    65, 0, (s32)D_8008C2EC, 66,
-    0, (s32)D_8008C2FC, 67, 0,
-    (s32)D_8008C30C, 70, 0, (s32)D_8008C31C,
-    71, 0, (s32)D_8008C32C, 72,
-    0, (s32)D_8008C33C, 73, 0,
-    (s32)D_8008C34C, 74, 0, (s32)D_8008C35C,
-    -1, 0, 0,
+/* Each shop's cards */
+CardShopStock STCRDSHP_stocks[] = {
+    { 49, 0, D_8008C1EC },
+    { 50, 0, D_8008C1FC },
+    { 51, 0, D_8008C20C },
+    { 52, 0, D_8008C21C },
+    { 53, 0, D_8008C22C },
+    { 54, 0, D_8008C23C },
+    { 55, 0, D_8008C24C },
+    { 56, 0, D_8008C25C },
+    { 57, 0, D_8008C26C },
+    { 58, 0, D_8008C27C },
+    { 59, 0, D_8008C28C },
+    { 60, 0, D_8008C29C },
+    { 61, 0, D_8008C2AC },
+    { 62, 0, D_8008C2BC },
+    { 63, 0, D_8008C2CC },
+    { 64, 0, D_8008C2DC },
+    { 65, 0, D_8008C2EC },
+    { 66, 0, D_8008C2FC },
+    { 67, 0, D_8008C30C },
+    { 70, 0, D_8008C31C },
+    { 71, 0, D_8008C32C },
+    { 72, 0, D_8008C33C },
+    { 73, 0, D_8008C34C },
+    { 74, 0, D_8008C35C },
+    { -1, 0, NULL },
 };

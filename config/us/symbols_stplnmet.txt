@@ -9,6 +9,9 @@ STPLNMET_createScroll = 0x80082B3C; // type:func
 STPLNMET_startTween = 0x800834F8; // type:func
 STPLNMET_updateTween = 0x8008358C; // type:func
 STPLNMET_createNameWindows = 0x800835F8; // type:func
+STPLNMET_drawKeyboard = 0x80083AEC; // type:func
+STPLNMET_updateKeyboard = 0x80084418; // type:func
+STPLNMET_updateNameEntry = 0x80085028; // type:func
 STPLNMET_setNameVram = 0x8008512C; // type:func
 STPLNMET_setName = 0x80085138; // type:func
 STPLNMET_getName = 0x800851CC; // type:func
@@ -22,6 +25,14 @@ STPLNMET_startLerp = 0x80087A00; // type:func
 STPLNMET_updateLerp = 0x80087A40; // type:func
 STPLNMET_nameStyle = 0x80088DE4;
 
+// the screen's helpers, and the partners the player chooses from
+STPLNMET_funcs = 0x80089058; // size:0x20
+STPLNMET_nameAnims = 0x80088DFC; // size:0xE0
+STPLNMET_bigKeys = 0x80088EDC; // size:0x3C
+STPLNMET_keyArrowCluts = 0x80088F18; // size:0x18
+STPLNMET_partnerAnims = 0x80088F54; // size:0xE0
+STPLNMET_partnerChoices = 0x80089034; // size:0x24
+
 // the executable's Shift-JIS maps of its fonts, which the name font uses
 D_8004D7B8 = 0x8004D7B8;
 D_8004DB64 = 0x8004DB64;
@@ -33,3 +44,4 @@ STPLNMET_keyPagesJp = 0x80088A68; // size:0x24
 STPLNMET_keyCharsJp = 0x80088A8C; // size:0x278
 STPLNMET_keyPages = 0x80088D04; // size:0xC
 STPLNMET_keyChars = 0x80088D10; // size:0xD4
+STPLNMET_keyboard = 0x80089078; // size:0xC

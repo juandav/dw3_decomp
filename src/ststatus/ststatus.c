@@ -1,53 +1,13 @@
+/* The first object of STSTATUS.PRO, the screen with the party's pages of
+   func_800843B4 and the fader, and the overlay's data. STSTATUS.PRO was ten
+   objects, about one per screen: each one's jump tables are aligned to 8
+   from the start of its own rodata, and three of them start 4 bytes past a
+   multiple of 8. Where each object's code starts is only known to be
+   between the function with the last jump table of the object before and
+   the one with its first (or the screen's create function); the data is all
+   here. */
+
 #include "ststatus.h"
-
-Task *createFieldMenu(s32 layerId, s32 cursor);
-Task *func_80091318(FieldMenuScreen *menu, s32 extra);
-FieldMenuScreen *func_80098DE4(void);
-void func_80098BF8(FieldMenuScreen *menu, FieldMenuScreenChildren *children);
-void STSTATUS_loadFiles(void);
-s32 STSTATUS_filesLoading(void);
-void STSTATUS_startFade(PanelAnim *fade, s32 fadeIn);
-s32 STSTATUS_updateFade(PanelAnim *fade);
-void STSTATUS_startLerp(StatusLerp *lerp, s32 from, s32 to, s32 frames);
-s32 STSTATUS_updateLerp(StatusLerp *lerp);
-s32 *func_80099270(s32 list, s32 index);
-void STSTATUS_listItems(s32 list, u16 *out);
-s32 STSTATUS_canEquip(s32 partner, s32 slot, s32 item);
-void STSTATUS_equip(s32 partner, s32 slot, s32 item);
-s32 STSTATUS_isLateGame(void);
-s32 STSTATUS_getArea(void);
-void func_800999CC(s32 *out);
-
-void func_80084204(StatusScreen *screen, void *children);
-void func_800859E0(StatusScreen *screen, void *children);
-void func_800911E4(StatusScreen0 *screen, void *children);
-void func_8009576C(StatusScreen *screen, void *children);
-void func_80097460(StatusScreen *screen, void *children);
-void func_8008DCF0(StatusScreen4 *screen, void *children);
-void func_8008AA00(StatusPanel4A *panel, void *children);
-void func_80087914(StatusPanel4B *panel, void *children);
-void func_80092974(StatusPanel0 *panel, void *children);
-void STSTATUS_startFader(ScreenFade *task, s32 fadeIn, s32 duration);
-void STSTATUS_updateFader(ScreenFade *task);
-void func_8008BA38(StatusScreen4 *screen);
-void func_8008E668(StatusScreen0 *screen, s32 arg);
-void func_8008E828(StatusScreen0 *screen, s32 arg);
-ScreenFade *STSTATUS_createFader(void);
-StatusPanel4B *func_800879C8(StatusScreen4 *screen);
-StatusPanel4A *func_8008AB04(StatusScreen4 *screen);
-StatusPanel0 *func_80092B0C(StatusScreen0 *screen, s32 list, s32 arg2);
-void STSTATUS_drawFader(ScreenFade *task);
-void func_80085BD8(StatusPanel4B *panel, void *children);
-void func_80086B28(StatusPanel4B *panel, void *children);
-void func_800864B0(StatusPanel4B *panel);
-s32 func_8009930C(u16 *out);
-s32 func_800994D0(s32 list, u16 *out);
-extern s32 FIELD_MENU_CHOICE[2];
-extern s32 D_80099BA4[];
-extern Task *(*STSTATUS_screens[2][7])(FieldMenuScreen *menu, s32 extra);
-extern s32 *D_8009A254[][5];
-extern u8 D_8009A910[];
-extern StatusAreaFuncs D_8009AA00;
 
 void func_80082CF0(Task *task, Task **children) {
     RECT rect;
@@ -79,20 +39,300 @@ Task *func_80082DEC(void) {
     return createTask(func_80082CF0, sizeof(Task), 4);
 }
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80082E18);
+/* Creates the windows of a screen with the party's pages */
+void func_80082E18(StatusScreen1 *screen, StatusWindows1 *windows) {
+    s32 i;
+    s32 j;
+    WindowPos *pos;
+    TextWindow **children;
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800830AC);
+    for (j = 0; j < 3; j++) {
+        pos = &STSTATUS_data.layout[0];
+        windows->pages[j].name = createTextWindow(screen->layer, 1, pos->x, pos->y + j * 46);
+        pos = &STSTATUS_data.layout[1];
+        for (i = 0; i < 5; i++, pos++) {
+            windows->pages[j].labels[i] = createTextWindow(screen->layer, 3, pos->x, pos->y + j * 46);
+        }
+        pos = &STSTATUS_data.layout[6];
+        for (i = 0; i < 5; i++, pos++) {
+            windows->pages[j].values[i] = createTextWindow(screen->layer, 3, pos->x, pos->y + j * 46);
+        }
+    }
+    pos = &STSTATUS_data.layout[12];
+    windows->help = createTextWindow(screen->layer, 1, pos->x, pos->y);
+    windows->help->setLines(windows->help, 2);
+    windows->unk88 = createTextWindow(screen->layer, 1, pos->x, pos->y + 14);
+    windows->unk8C = createTextWindow(screen->layer, 1, 0xB2, 0x2A);
+    for (i = 0; i < 2; i++) {
+        windows->options[i] = createTextWindow(screen->layer, 1, 0xC5, 0x3A + i * 14);
+    }
+    windows->cursor = createCursor(screen->layer, screen->depth - 1, 0xB8, 0x3A);
+    windows->cursor->setVisible(windows->cursor, 0);
+    children = screen->children;
+    for (i = 0; i < screen->childCount - 2; i++, children++) {
+        (*children)->setDepth(*children, screen->depth - 1);
+    }
+}
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800832E8);
+/* Shows or hides a party member's page: name and five stats (as showPartnerPage) */
+void func_800830AC(StatusScreen1 *screen, StatusWindows1 *windows, s32 member, s32 show) {
+    PartnerTotals stats;
+    WindowPos *layout;
+    s32 id;
+    s32 i;
+
+    if (show) {
+        id = GAME.funcs.getPartyMember(member);
+        GAME.funcs.computeStats(id, &stats);
+        windows->pages[member].name->setString(windows->pages[member].name, GAME.funcs.getPartnerStats(id), -1);
+        layout = &STSTATUS_data.layout[1];
+        for (i = 0; i < 5; i++, layout++) {
+            windows->pages[member].labels[i]->setString(windows->pages[member].labels[i],
+                                                        FILE_CACHE.load(TEXT_FILE(0xB1)), layout->string);
+        }
+        for (i = 0; i < 5; i++) {
+            windows->pages[member].values[i]->setNumber(windows->pages[member].values[i], 0, stats.stats[D_80099A98[i]]);
+            windows->pages[member].values[i]->setRightAlign(windows->pages[member].values[i], 1);
+        }
+    } else {
+        windows->pages[member].name->setVisible(windows->pages[member].name, 0);
+        for (i = 0; i < 5; i++) {
+            windows->pages[member].labels[i]->setVisible(windows->pages[member].labels[i], 0);
+        }
+        for (i = 0; i < 5; i++) {
+            windows->pages[member].values[i]->setVisible(windows->pages[member].values[i], 0);
+        }
+    }
+}
+
+/* Shows or hides the help and the two options with their cursor */
+void func_800832E8(StatusScreen1 *screen, StatusWindows1 *windows, s32 show) {
+    s32 i;
+
+    if (show) {
+        windows->unk8C->setString(windows->unk8C, FILE_CACHE.load(TEXT_FILE(0xB1)), 0xB);
+        for (i = 0; i < 2; i++) {
+            windows->options[i]->setString(windows->options[i], FILE_CACHE.load(TEXT_FILE(0xB1)), i + 0x4A);
+        }
+        windows->cursor->setVisible(windows->cursor, 1);
+    } else {
+        windows->unk8C->setVisible(windows->unk8C, 0);
+        for (i = 0; i < 2; i++) {
+            windows->options[i]->setVisible(windows->options[i], 0);
+        }
+        windows->cursor->setVisible(windows->cursor, 0);
+    }
+}
 
 INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008340C);
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800839B0);
+/* Runs the screen: the pages come in one after the other, the cursor picks
+   one of the two options, and the pages go out in reverse */
+void func_800839B0(StatusScreen1 *screen, StatusWindows1 *windows) {
+    s32 choice;
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80084204);
+    switch (screen->substate) {
+    case 0:
+    default:
+        STSTATUS_data.funcs.startFade(&screen->pageFades[0], 1);
+        if (screen->count == 1) {
+            STSTATUS_data.funcs.startFade(&screen->fades[1], 1);
+            STSTATUS_data.funcs.startFade(&screen->fade, 1);
+        }
+        screen->substate = screen->count;
+        break;
+    case 1:
+        STSTATUS_data.funcs.updateFade(&screen->pageFades[0]);
+        STSTATUS_data.funcs.updateFade(&screen->fade);
+        if (STSTATUS_data.funcs.updateFade(&screen->fades[1])) {
+            func_800830AC(screen, windows, 0, 1);
+            windows->help->setString(windows->help, FILE_CACHE.load(TEXT_FILE(0xB1)), 0x4C);
+            windows->unk88->setString(windows->unk88, FILE_CACHE.load(TEXT_FILE(0xB1)), 0x15);
+            func_800832E8(screen, windows, 1);
+            screen->substate = 10;
+        }
+        break;
+    case 2:
+        if (STSTATUS_data.funcs.updateFade(&screen->pageFades[0])) {
+            STSTATUS_data.funcs.startFade(&screen->pageFades[1], 1);
+            STSTATUS_data.funcs.startFade(&screen->fades[1], 1);
+            func_800830AC(screen, windows, 0, 1);
+            screen->substate = 4;
+        }
+        break;
+    case 4:
+        STSTATUS_data.funcs.updateFade(&screen->pageFades[1]);
+        STSTATUS_data.funcs.updateFade(&screen->fade);
+        if (STSTATUS_data.funcs.updateFade(&screen->fades[1])) {
+            func_800830AC(screen, windows, 1, 1);
+            windows->help->setString(windows->help, FILE_CACHE.load(TEXT_FILE(0xB1)), 0x4C);
+            windows->unk88->setString(windows->unk88, FILE_CACHE.load(TEXT_FILE(0xB1)), 0x15);
+            func_800832E8(screen, windows, 1);
+            screen->substate = 10;
+        }
+        break;
+    case 3:
+        if (STSTATUS_data.funcs.updateFade(&screen->pageFades[0])) {
+            STSTATUS_data.funcs.startFade(&screen->pageFades[1], 1);
+            func_800830AC(screen, windows, 0, 1);
+            screen->substate = 5;
+        }
+        break;
+    case 5:
+        if (STSTATUS_data.funcs.updateFade(&screen->pageFades[1])) {
+            STSTATUS_data.funcs.startFade(&screen->pageFades[2], 1);
+            STSTATUS_data.funcs.startFade(&screen->fades[1], 1);
+            func_800830AC(screen, windows, 1, 1);
+            screen->substate++;
+        }
+        break;
+    case 6:
+        STSTATUS_data.funcs.updateFade(&screen->pageFades[2]);
+        STSTATUS_data.funcs.updateFade(&screen->fade);
+        if (STSTATUS_data.funcs.updateFade(&screen->fades[1])) {
+            func_800830AC(screen, windows, 2, 1);
+            windows->help->setString(windows->help, FILE_CACHE.load(TEXT_FILE(0xB1)), 0x4C);
+            windows->unk88->setString(windows->unk88, FILE_CACHE.load(TEXT_FILE(0xB1)), 0x15);
+            func_800832E8(screen, windows, 1);
+            screen->substate = 10;
+        }
+        break;
+    case 10:
+        choice = screen->choice;
+        if (PAD_PRESSED(PAD_UP) || PAD_REPEATED(PAD_UP)) {
+            screen->choice = 0;
+        } else if (PAD_PRESSED(PAD_DOWN) || PAD_REPEATED(PAD_DOWN)) {
+            screen->choice = 1;
+        }
+        if (choice != screen->choice) {
+            SOUND.playSound(0x8004513E);
+            windows->cursor->setPos(windows->cursor, 0xB8, screen->choice * 14 + 0x3A);
+        }
+        if (PAD_PRESSED(PAD_CROSS)) {
+            SOUND.playSound(0x8004503C);
+            screen->setSubstate(screen, 100);
+            if (screen->choice == 0) {
+                screen->step = 1;
+            } else {
+                screen->step = 2;
+            }
+        } else if (PAD_PRESSED(PAD_TRIANGLE)) {
+            SOUND.playSound(0x800450BD);
+            screen->setSubstate(screen, 0x32);
+        }
+        break;
+    case 100:
+        if (windows->fader == NULL) {
+            windows->fader = STSTATUS_createFader();
+        }
+        screen->substate++;
+        break;
+    case 101:
+        windows->fader->start(windows->fader, 0, 10);
+        screen->substate++;
+        break;
+    case 102:
+        if (windows->fader->state == 2) {
+            screen->substate = 0x39;
+        }
+        break;
+    case 0x32:
+        STSTATUS_data.funcs.startFade(&screen->pageFades[screen->count - 1], 0);
+        func_800830AC(screen, windows, screen->count - 1, 0);
+        STSTATUS_data.funcs.startFade(&screen->fades[1], 0);
+        windows->help->setVisible(windows->help, 0);
+        windows->unk88->setVisible(windows->unk88, 0);
+        STSTATUS_data.funcs.startFade(&screen->fade, 0);
+        func_800832E8(screen, windows, 0);
+        screen->substate = screen->count + 0x32;
+        break;
+    case 0x33:
+        STSTATUS_data.funcs.updateFade(&screen->pageFades[0]);
+        STSTATUS_data.funcs.updateFade(&screen->fade);
+        if (STSTATUS_data.funcs.updateFade(&screen->fades[1])) {
+            screen->substate = 0x39;
+        }
+        break;
+    case 0x34:
+        STSTATUS_data.funcs.updateFade(&screen->pageFades[1]);
+        STSTATUS_data.funcs.updateFade(&screen->fade);
+        if (STSTATUS_data.funcs.updateFade(&screen->fades[1])) {
+            STSTATUS_data.funcs.startFade(&screen->pageFades[0], 0);
+            func_800830AC(screen, windows, 0, 0);
+            screen->substate = 0x36;
+        }
+        break;
+    case 0x35:
+        STSTATUS_data.funcs.updateFade(&screen->pageFades[2]);
+        STSTATUS_data.funcs.updateFade(&screen->fade);
+        if (STSTATUS_data.funcs.updateFade(&screen->fades[1])) {
+            STSTATUS_data.funcs.startFade(&screen->pageFades[1], 0);
+            func_800830AC(screen, windows, 1, 0);
+            screen->substate = 0x37;
+        }
+        break;
+    case 0x37:
+        if (STSTATUS_data.funcs.updateFade(&screen->pageFades[1])) {
+            STSTATUS_data.funcs.startFade(&screen->pageFades[0], 0);
+            func_800830AC(screen, windows, 0, 0);
+            screen->substate++;
+        }
+        break;
+    case 0x36:
+    case 0x38:
+        if (STSTATUS_data.funcs.updateFade(&screen->pageFades[0])) {
+            screen->substate = 0x39;
+        }
+        break;
+    case 0x39:
+        if (screen->step == 1) {
+            GAME_FUNCS.requestMode(0x1200, 0);
+        } else if (screen->step == 2) {
+            GAME_FUNCS.requestMode(0x400, 0);
+        } else {
+            screen->state = 3;
+        }
+        break;
+    }
+}
+
+/* The screen's update: counts the party and opens the pages */
+void func_80084204(StatusScreen1 *screen, StatusWindows1 *windows) {
+    s32 i;
+
+    switch (screen->state) {
+    case 0:
+    default:
+        screen->nextState(screen);
+        for (i = 0; i < 3; i++) {
+            if (GAME.funcs.getPartyMember(i) >= 0) {
+                screen->count++;
+            }
+        }
+        for (i = 0; i < screen->count; i++) {
+            screen->pageFades[i].duration = 10;
+            STSTATUS_data.funcs.startFade(&screen->pageFades[i], 1);
+        }
+        for (i = 0; i < 2; i++) {
+            screen->fades[i].duration = 10;
+            STSTATUS_data.funcs.startFade(&screen->fades[i], 1);
+        }
+        screen->fade.duration = 10;
+        STSTATUS_data.funcs.startFade(&screen->fade, 1);
+        func_80082E18(screen, windows);
+        break;
+    case 1:
+        func_800839B0(screen, windows);
+        func_8008340C(screen);
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 Task *func_800843B4(FieldMenuScreen *menu, s32 extra) {
-    StatusScreen *screen = createTask(func_80084204, 0xD4, 0xA0);
+    StatusScreen1 *screen = createTask(func_80084204, 0xD4, 0xA0);
 
     screen->layer = 0x1000;
     screen->depth = 6;
@@ -172,663 +412,6 @@ ScreenFade *STSTATUS_createFader(void) {
     return task;
 }
 
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800846C0);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80084908);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80084B44);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80084D14);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800852B8);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800859E0);
-
-Task *func_80085B90(FieldMenuScreen *menu, s32 extra) {
-    StatusScreen *screen = createTask(func_800859E0, 0xD4, 0x9C);
-
-    screen->layer = 0x1000;
-    screen->depth = 6;
-    screen->menu = menu;
-    return (Task *)screen;
-}
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80085BD8);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80085DC0);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80085EE4);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80086010);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80086368);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800864B0);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80086B28);
-
-void func_80087914(StatusPanel4B *panel, void *children) {
-    switch (panel->state) {
-    case TASK_INIT:
-    default:
-        panel->nextState(panel);
-        panel->unk6C = 0;
-        func_80085BD8(panel, children);
-        panel->panels[3].duration = 10;
-        panel->panels[1].duration = 10;
-        panel->panels[2].duration = 10;
-        panel->panels[0].duration = 10;
-        break;
-    case TASK_RUN:
-        func_80086B28(panel, children);
-        func_800864B0(panel);
-        break;
-    case TASK_KILL:
-        panel->screen->unk70 = 0;
-        /* fallthrough */
-    case TASK_DONE:
-        break;
-    }
-}
-
-StatusPanel4B *func_800879C8(StatusScreen4 *screen) {
-    StatusPanel4B *panel = createTask(func_80087914, sizeof(StatusPanel4B), 0xA4);
-
-    panel->layer = 0x1000;
-    panel->depth = 4;
-    panel->screen = screen;
-    panel->partner = GAME_FUNCS.getPartyMember(screen->member);
-    return panel;
-}
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80087A3C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80087D5C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80087F5C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80088114);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80088850);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800889E8);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80088C54);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008927C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AA00);
-
-StatusPanel4A *func_8008AB04(StatusScreen4 *screen) {
-    StatusPanel4A *panel = createTask(func_8008AA00, sizeof(StatusPanel4A), 0x90);
-
-    panel->layer = 0x1000;
-    panel->depth = 6;
-    panel->screen = screen;
-    panel->member = screen->member;
-    return panel;
-}
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AB58);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008AF7C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B1B8);
-
-void func_8008B38C(StatusPanel4A *panel, StatusPanel4AWindows *windows, s32 show) {
-    s32 i;
-
-    if (show != 0) {
-        for (i = 0; i < 2; i++) {
-            windows->labels[i]->setString(windows->labels[i], FILE_CACHE.load(TEXT_FILE(0xB1)), i + 0x2D);
-        }
-    } else {
-        for (i = 0; i < 2; i++) {
-            windows->labels[i]->setVisible(windows->labels[i], 0);
-        }
-    }
-}
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B440);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B628);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008B7A0);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008BA38);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008BF2C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008CC5C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008D380);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008DCF0);
-
-Task *func_8008DEA4(FieldMenuScreen *menu, s32 extra) {
-    StatusScreen4 *screen = createTask(func_8008DCF0, sizeof(StatusScreen4), 0x110);
-
-    screen->func_8008BA38 = func_8008BA38;
-    screen->layer = 0x1000;
-    screen->depth = 6;
-    screen->menu = menu;
-    return (Task *)screen;
-}
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008DEF8);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008E2B0);
-
-void func_8008E4EC(StatusScreen0 *screen, StatusScreen0Windows *windows, s32 show) {
-    if (show != 0) {
-        windows->moneyLabel->setString(windows->moneyLabel, FILE_CACHE.load(TEXT_FILE(0xB1)), 5);
-        windows->money->setNumber(windows->money, 0, GAME.money);
-        windows->money->setRightAlign(windows->money, 1);
-    } else {
-        windows->moneyLabel->setVisible(windows->moneyLabel, 0);
-        windows->money->setVisible(windows->money, 0);
-    }
-}
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008E59C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008E668);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008E828);
-
-void func_8008EA38(StatusScreen0 *screen, s32 show) {
-    if (show != 0) {
-        STSTATUS_funcs.startFade(&screen->fade, 1);
-        return;
-    }
-    STSTATUS_funcs.startFade(&screen->fade, 0);
-    func_8008E668(screen, 0);
-    func_8008E828(screen, 0);
-}
-
-s32 func_8008EAAC(StatusScreen0 *screen) {
-    return STSTATUS_funcs.updateFade(&screen->fade) != 0;
-}
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008EAD4);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008EE2C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8008F7A0);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800911E4);
-
-Task *func_80091318(FieldMenuScreen *menu, s32 extra) {
-    StatusScreen0 *screen = createTask(func_800911E4, sizeof(StatusScreen0), 0xD4);
-
-    screen->layer = 0x1000;
-    screen->depth = 6;
-    screen->menu = menu;
-    return (Task *)screen;
-}
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80091360);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80091560);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800917EC);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800919B8);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009205C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092440);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092974);
-
-StatusPanel0 *func_80092B0C(StatusScreen0 *screen, s32 list, s32 arg2) {
-    StatusPanel0 *panel = createTask(func_80092974, sizeof(StatusPanel0), 0x6C);
-
-    panel->layer = 0x1000;
-    panel->depth = 3;
-    panel->screen = screen;
-    if (arg2 != 0) {
-        panel->unk60 = arg2;
-    }
-    panel->list = list;
-    return panel;
-}
-
-void func_80092B80(StatusPanel0 *panel) {
-    s32 i;
-
-    if (panel->list == 0) {
-        panel->count = ITEM_FUNCS->list(D_80099BA4[0], panel->bag);
-        for (i = 0; i < panel->count; i++) {
-            panel->items[i] = panel->bag[i];
-        }
-    } else {
-        panel->count = ITEM_FUNCS->list(D_80099BA4[panel->list], panel->items);
-    }
-}
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092C38);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092DC4);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092E7C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80092EEC);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80093300);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800935C0);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800937FC);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800939BC);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80093B0C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009440C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009576C);
-
-Task *func_80095934(FieldMenuScreen *menu, s32 extra) {
-    StatusScreen *screen = createTask(func_8009576C, 0x1F4, 0xB4);
-
-    screen->layer = 0x1000;
-    screen->depth = 6;
-    screen->menu = menu;
-    return (Task *)screen;
-}
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009597C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80095B30);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80095D6C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80096830);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80097460);
-
-Task *func_800975FC(FieldMenuScreen *menu, s32 extra) {
-    StatusScreen *screen = createTask(func_80097460, 0xF4, 0x8C);
-
-    screen->layer = 0x1000;
-    screen->depth = 2;
-    screen->menu = menu;
-    return (Task *)screen;
-}
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80097644);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800977F8);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80097A68);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_80097F2C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800984A4);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009868C);
-
-void STSTATUS_setScrollBarX(ScrollBar *bar, s32 x, s32 width) {
-    bar->x = x;
-    bar->width = width;
-}
-
-void STSTATUS_setScrollBarRange(ScrollBar *bar, s32 top, s32 bottom) {
-    bar->top = top;
-    bar->bottom = bottom;
-    bar->hasRange = 1;
-}
-
-void STSTATUS_setScrollBarCount(ScrollBar *bar, s32 pageSize, s32 count) {
-    bar->pageSize = pageSize;
-    bar->count = count;
-    bar->hasCount = 1;
-}
-
-void STSTATUS_setScrollBarPos(ScrollBar *bar, s32 pos) {
-    bar->pos = pos;
-}
-
-void STSTATUS_updateScrollBar(ScrollBar *bar) {
-    Layer *layer;
-    u_long *ot;
-    POLY_F4 *poly;
-    s32 range;
-#if VERSION_US
-    s32 pages;
-#endif
-
-    switch (bar->state) {
-    case TASK_INIT:
-    default:
-        if (bar->hasRange != 0 && bar->hasCount != 0) {
-#if VERSION_US
-            bar->nextState(bar);
-            pages = bar->count / bar->pageSize + (bar->count % bar->pageSize != 0);
-            range = (bar->bottom - bar->top) << 8;
-            bar->size = range / pages;
-            bar->posStep = range / bar->count;
-#elif VERSION_EU
-            /* the European version sizes the thumb for the visible items */
-            range = (bar->bottom - bar->top) << 8;
-            bar->size = range / bar->count * bar->pageSize;
-            bar->posStep = range / bar->count;
-            bar->nextState(bar);
-#endif
-        }
-        break;
-    case TASK_RUN:
-        layer = GFX.funcs.getLayer(bar->layer);
-        ot = (u_long *)layer->getOtEntry(layer, bar->depth);
-        poly = GFX.funcs.getPrim();
-        if (bar->pos < bar->count - 1) {
-            bar->y = bar->top + ((bar->pos * bar->posStep) >> 8);
-            if (bar->bottom - (bar->size >> 8) < bar->y) {
-                bar->y = bar->bottom - (bar->size >> 8);
-            }
-        } else {
-            bar->y = bar->bottom - (bar->size >> 8);
-        }
-        setlen(poly, 5);
-        poly->code = 0x28;
-        poly->r0 = poly->g0 = poly->b0 = 0xFF;
-        poly->x0 = poly->x2 = bar->x;
-        poly->x1 = poly->x3 = bar->x + bar->width;
-        poly->y0 = poly->y1 = bar->y;
-        poly->y2 = poly->y3 = bar->y + (bar->size >> 8);
-        addPrim(ot, poly);
-        GFX.funcs.setPrim(poly + 1);
-        break;
-    case TASK_DONE:
-    case TASK_KILL:
-        break;
-    }
-}
-
-ScrollBar *STSTATUS_createScrollBar(void) {
-    ScrollBar *bar = createTask(STSTATUS_updateScrollBar, sizeof(ScrollBar), 0);
-
-    bar->setX = STSTATUS_setScrollBarX;
-    bar->setRange = STSTATUS_setScrollBarRange;
-    bar->setCount = STSTATUS_setScrollBarCount;
-    bar->setPos = STSTATUS_setScrollBarPos;
-    bar->layer = 0x1000;
-    bar->depth = 0;
-    return bar;
-}
-
-void func_80098A50(FieldMenuScreen *menu, FieldMenuScreenChildren *children) {
-    Task *(*open)(FieldMenuScreen *, s32);
-
-    switch (menu->substate) {
-    case 0:
-    default:
-        open = STSTATUS_screens[FIELD_MENU_CHOICE[1]][FIELD_MENU_CHOICE[0]];
-        if (open != NULL) {
-            children->screen = open(menu, FIELD_MENU_CHOICE[1]);
-        } else {
-            children->screen = func_80091318(menu, FIELD_MENU_CHOICE[1]);
-        }
-        menu->substate++;
-        break;
-    case 1:
-        if (children->screen == NULL) {
-            children->fieldMenu = createFieldMenu(menu->layer, FIELD_MENU_CHOICE[0]);
-            menu->setState(menu, 2);
-        }
-        break;
-    }
-}
-
-void func_80098B38(FieldMenuScreen *menu) {
-    SpriteDrawer sprite;
-
-    initSpriteDrawer(&sprite);
-    sprite.setLayerId(menu->layer, 7);
-    sprite.setTexture(0x280, 0x100);
-    if (menu->blinkSkip != 0) {
-        menu->blinkPos++;
-        menu->blinkPos = menu->blinkPos < 0x60 ? menu->blinkPos : 0;
-        menu->blinkSkip = 0;
-    } else {
-        menu->blinkSkip = 1;
-    }
-    sprite.draw(FILE_CACHE.getEntry(FILE_STATUS_SPRITES << 16), 0x1D, menu->blinkPos, menu->blinkPos);
-}
-
-void func_80098BF8(FieldMenuScreen *menu, FieldMenuScreenChildren *children) {
-    TimLoader loader;
-
-    switch (menu->state) {
-    case TASK_INIT:
-    default:
-        switch (menu->substate) {
-        case 0:
-        default:
-            STSTATUS_funcs.loadFiles();
-            menu->substate++;
-            break;
-        case 1:
-            if (STSTATUS_funcs.filesLoading() == 0 && FILE_CACHE.isLoading(menu->bgFile) == 0 &&
-                FILE_CACHE.isLoading(menu->bgFile2) == 0) {
-                initTimLoader(&loader);
-                loader.setImagePos(0x380, 0x100);
-                loader.loadArchive(FILE_CACHE.getEntry(menu->bgArchive1));
-                loader.setImagePos(0x300, 0x100);
-                loader.loadArchive(FILE_CACHE.getEntry(menu->bgArchive2));
-                loader.setImagePos(0x280, 0);
-                loader.setClutPos(0x140, 0x100);
-                loader.loadArchive(FILE_CACHE.getEntry(menu->bgArchive));
-                menu->nextState(menu);
-            }
-            break;
-        }
-        break;
-    case TASK_RUN:
-        func_80098A50(menu, children);
-        func_80098B38(menu);
-        break;
-    case TASK_DONE:
-        if (children->fieldMenu == NULL) {
-            menu->state = TASK_RUN;
-        }
-        func_80098B38(menu);
-        break;
-    case TASK_KILL:
-        break;
-    }
-}
-
-FieldMenuScreen *func_80098DE4(void) {
-    FieldMenuScreen *menu = createTask(func_80098BF8, sizeof(FieldMenuScreen), sizeof(FieldMenuScreenChildren));
-
-    menu->layer = 0x1000;
-    menu->lateGame = D_8009AA00.isLateGame();
-    if (menu->lateGame == 0) {
-        menu->bgArchive = (FILE_STATUS_BG + 1) << 16;
-        menu->bgFile = FILE_STATUS_BG + 1;
-        menu->bgArchive1 = ((FILE_STATUS_BG + 1) << 16) + 1;
-        menu->bgArchive2 = ((FILE_STATUS_BG + 1) << 16) + 2;
-        menu->bgFile2 = FILE_STATUS_BG;
-    } else {
-        menu->bgArchive = (FILE_STATUS_BG + 3) << 16;
-        menu->bgFile = FILE_STATUS_BG + 3;
-        menu->bgArchive1 = ((FILE_STATUS_BG + 3) << 16) + 1;
-        menu->bgArchive2 = ((FILE_STATUS_BG + 3) << 16) + 2;
-        menu->bgFile2 = FILE_STATUS_BG + 2;
-    }
-    FILE_CACHE.request(menu->bgFile);
-    FILE_CACHE.request(menu->bgFile2);
-    return menu;
-}
-
-void STSTATUS_loadFiles(void) {
-    TimLoader loader;
-
-    initTimLoader(&loader);
-    loader.setImagePos(0x280, 0x100);
-    loader.loadArchive(FILE_CACHE.getEntry((FILE_STATUS_SPRITES + 1) << 16));
-    FILE_CACHE.request(TEXT_FILE(0xB1));
-    FILE_CACHE.request(TEXT_FILE(0x6B));
-    FILE_CACHE.request(TEXT_FILE(0x64));
-    FILE_CACHE.request(TEXT_FILE(0x4F));
-    FILE_CACHE.request(TEXT_FILE(0x48));
-    FILE_CACHE.request(TEXT_FILE(0xA3));
-    FILE_CACHE.request(TEXT_FILE(0x9C));
-}
-
-s32 STSTATUS_filesLoading(void) {
-    if (FILE_CACHE.isLoading(TEXT_FILE(0xB1)) != 0) {
-        return 1;
-    }
-    if (FILE_CACHE.isLoading(TEXT_FILE(0x6B)) != 0) {
-        return 1;
-    }
-    if (FILE_CACHE.isLoading(TEXT_FILE(0x64)) != 0) {
-        return 1;
-    }
-    if (FILE_CACHE.isLoading(TEXT_FILE(0x4F)) != 0) {
-        return 1;
-    }
-    if (FILE_CACHE.isLoading(TEXT_FILE(0x48)) != 0) {
-        return 1;
-    }
-    if (FILE_CACHE.isLoading(TEXT_FILE(0xA3)) != 0) {
-        return 1;
-    }
-    return FILE_CACHE.isLoading(TEXT_FILE(0x9C)) != 0;
-}
-
-void STSTATUS_startFade(PanelAnim *fade, s32 fadeIn) {
-    fade->active = 1;
-    if (fadeIn != 0) {
-        SOUND.playSound(0x40019);
-        fade->level = 0;
-        fade->step = 0x1000 / fade->duration;
-    } else {
-        SOUND.playSound(0x4001A);
-        fade->level = 0x1000;
-        fade->step = -((0x1000 / fade->duration) * 2);
-    }
-}
-
-s32 STSTATUS_updateFade(PanelAnim *fade) {
-    if (fade->active == 0) {
-        return 1;
-    }
-    fade->level += fade->step;
-    if (fade->step > 0) {
-        if (fade->level > 0x1000) {
-            fade->level = 0x1000;
-            fade->active = 0;
-            return 1;
-        }
-    } else if (fade->level < 0) {
-        fade->level = 0;
-        fade->active = 0;
-        return 1;
-    }
-    return 0;
-}
-
-void STSTATUS_startLerp(StatusLerp *lerp, s32 from, s32 to, s32 frames) {
-    if (from != to) {
-        SOUND.playSound(0x40019);
-        lerp->duration = frames;
-        lerp->fixed = from << 8;
-        lerp->value = from;
-        lerp->target = to;
-        lerp->active = 1;
-        lerp->step = ((to - from) << 8) / lerp->duration;
-    }
-}
-
-s32 STSTATUS_updateLerp(StatusLerp *lerp) {
-    if (lerp->active == 0) {
-        return 1;
-    }
-    lerp->fixed += lerp->step;
-    lerp->value = lerp->fixed >> 8;
-    if (lerp->step > 0) {
-        if (lerp->target < lerp->value) {
-            lerp->value = lerp->target;
-            lerp->active = 0;
-            return 1;
-        }
-    } else if (lerp->value < lerp->target) {
-        lerp->value = lerp->target;
-        lerp->active = 0;
-        return 1;
-    }
-    return 0;
-}
-
-s32 *func_80099270(s32 list, s32 index) {
-    return D_8009A254[list][index];
-}
-
-void STSTATUS_listItems(s32 list, u16 *out) {
-    if (list < 5) {
-        ITEM_FUNCS->list(list, out);
-        return;
-    }
-    switch (list) {
-    case 5:
-    default:
-        func_8009930C(out);
-        break;
-    case 6:
-        func_800994D0(4, out);
-        break;
-    case 7:
-        func_800994D0(5, out);
-        break;
-    }
-}
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_8009930C);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", func_800994D0);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", STSTATUS_canEquip);
-
-INCLUDE_ASM("ststatus/nonmatchings/ststatus", STSTATUS_equip);
-
-s32 STSTATUS_isLateGame(void) {
-    if (GAME.fieldMode >= 0x2D7) {
-        return -1;
-    }
-    return GAME.fieldMode >= 0x270;
-}
-
-s32 STSTATUS_getArea(void) {
-    return D_8009A910[(u8)GAME.fieldMode] & 0x7F;
-}
-
-void func_800999CC(s32 *out) {
-    s32 first;
-    s32 last;
-    s32 i;
-    s32 area;
-    s32 found;
-
-    if (STSTATUS_isLateGame() == 0) {
-        first = 0x200;
-        last = 0x26F;
-    } else {
-        first = 0x270;
-        last = 0x2D6;
-    }
-    for (i = first; i <= last; i++) {
-        area = D_8009A910[i & 0xFF] & 0x7F;
-        found = FLAGS_00.checkCondition((i & 0xFF) | 0x2000, 1);
-        if (found == 1) {
-            out[area] = found;
-        }
-    }
-}
-
 Task *func_800975FC(FieldMenuScreen *menu, s32 extra);
 Task *func_8009868C(FieldMenuScreen *menu, s32 extra);
 Task *func_80095934(FieldMenuScreen *menu, s32 extra);
@@ -842,8 +425,8 @@ extern s32 D_8009A1F4[];
 extern s32 D_8009A250;
 extern s32 D_80099CD4[];
 extern s32 D_80099DB4[];
-extern s32 D_80099E74[];
-extern s32 D_8009A0A8[];
+extern StatusMapSpot D_80099E74[];
+extern StatusMapPoint D_8009A0A8[];
 
 s32 D_80099A98[] = {
     0, 2, 3, 4,
@@ -898,13 +481,23 @@ s32 D_80099BCC[] = {
     65, 66, 68, 80,
     68,
 };
-s32 D_80099BF0[] = {
-    0x30002, 0x3270F, 0x270F0005, 0x60004,
-    0x503E7, 0x3E70007, 0x80006, 0x703E7,
-    0x3E70009, 0xA0008, 0x903E7, 0x3E7000B,
-    0xC000A, 0xB03E7, 0x3E7000D, 0xE000C,
-    0xD03E7, 0x3E7000F, 0x10000E, 0xF03E7,
-    0x3E70011, 0x120010, -64537, 0,
+StatusStatItem D_80099BF0[] = {
+    { 2, 3, 9999 },
+    { 3, 5, 9999 },
+    { 4, 6, 999 },
+    { 5, 7, 999 },
+    { 6, 8, 999 },
+    { 7, 9, 999 },
+    { 8, 10, 999 },
+    { 9, 11, 999 },
+    { 10, 12, 999 },
+    { 11, 13, 999 },
+    { 12, 14, 999 },
+    { 13, 15, 999 },
+    { 14, 16, 999 },
+    { 15, 17, 999 },
+    { 16, 18, 999 },
+    { -1, 0, 0 },
 };
 s32 D_80099C50[] = {
     0, 2, 3, 4,
@@ -955,7 +548,7 @@ s32 D_80099DB4[] = {
     265, 212, 14, 300,
     212, 22, 189, 49,
 };
-s32 D_80099E74[] = {
+StatusMapSpot D_80099E74[] = {
     0, 0, 0, 1,
     60, 53, 2, 100,
     59, 3, 126, 74,
@@ -993,7 +586,7 @@ s32 D_80099E74[] = {
     296, 253, 37, 225,
     253,
 };
-s32 D_8009A0A8[] = {
+StatusMapPoint D_8009A0A8[] = {
     0, 0, 171, 65,
     154, 123, 230, 104,
     182, 174, 286, 129,
@@ -1036,118 +629,19 @@ s32 *D_8009A254[][5] = {
     { D_8009A160, D_8009A17C, D_8009A1AC, D_8009A1AC, D_8009A1F4 },
     { &D_8009A250, &D_8009A250, &D_8009A250, D_8009A1AC, D_8009A1F4 },
 };
-s32 D_8009A27C = (s32)D_80099CD4;
-s32 D_8009A280 = (s32)D_80099DB4;
-s32 D_8009A284[] = {
-    (s32)D_80099E74, (s32)D_8009A0A8,
-};
-s32 D_8009A28C[] = {
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0,
-};
-StatusFuncs STSTATUS_funcs = {
-    STSTATUS_loadFiles, STSTATUS_filesLoading, STSTATUS_startFade, STSTATUS_updateFade, STSTATUS_startLerp,
-    STSTATUS_updateLerp, func_80099270, STSTATUS_listItems, STSTATUS_canEquip, STSTATUS_equip,
+StatusData STSTATUS_data = {
+    (StatusAnim *)D_80099CD4,
+    (WindowPos *)D_80099DB4,
+    D_80099E74,
+    D_8009A0A8,
+    { 0 },
+    0,
+    { 0 },
+    0,
+    {
+        STSTATUS_loadFiles, STSTATUS_filesLoading, STSTATUS_startFade, STSTATUS_updateFade, STSTATUS_startLerp,
+        STSTATUS_updateLerp, func_80099270, STSTATUS_listItems, STSTATUS_canEquip, STSTATUS_equip,
+    },
 };
 u8 D_8009A90C[] = {
     0x01, 0x02, 0x03, 0x07,

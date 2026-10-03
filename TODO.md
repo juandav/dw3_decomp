@@ -169,13 +169,13 @@ own.
 
 ## Overlays
 
-- [ ] 1,205 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
-  `SOUNDTST`. Mostly: `STCRDABM` (27 / 29), `STDGNAME` (29 / 32), `SHOCKTST`
+- [ ] 1,310 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+  `SOUNDTST`, `STPLNMET`. Mostly: `STCRDABM` (27 / 29), `STDGNAME` (29 / 32), `SHOCKTST`
   (15 / 17), `STAGSLCT` (6 / 8), `FIELDSTG` (190 / 222), `STDWTITL`
   (91 / 93: `libpress`'s handwritten `DecDCTvlc2` and `DecDCTvlcSize2` stay
   asm), `STGTRAIN` (74 / 94), `STITSHOP` (50 / 69), `CARDGAME` (303 / 306), `STGMCARD`
-  (44 / 45). Started: `STGDGLAB` (44 / 70), `STSTATUS` (42 / 123),
-  `STPLNMET` (24 / 53), `STCRDSHP` (16 / 45), `STFGTREP` (35 / 36),
+  (44 / 45), `STSTATUS` (101 / 123). Started: `STGDGLAB` (44 / 70),
+  `STCRDSHP` (33 / 45), `STFGTREP` (35 / 36),
   `WFIGHTTS` (9 / 14), `STCRDDEK` (6 / 55), `WFIGHTMN` (33 / 42), `FIGHTSTG`
   (133 / 310).
 - [ ] `FIGHTSTG`'s blocked functions: `func_8009C764`, `func_8009C8EC` and
@@ -206,6 +206,18 @@ own.
   Digimon a partner learns, 14 diffs: the id and the counter of the needs
   loop swap `s1` and `s2`, whatever the declarations' order). `STGMCARD`:
   `func_800844DC` (2,366 instructions) hasn't been tried.
+- [ ] The field menu's near misses. `STSTATUS`: `func_8008340C` and
+  `func_80084D14` (41 diffs each, register allocation), `func_80097F2C`
+  (`s0`/`s1` swapped; the permuter only finds a forced form),
+  `func_80092EEC` (a value the original keeps in a saved register, ours
+  spills), `func_8008BA38` (registers; the permuter got no closer than 820)
+  and `func_80092C38` (about 76 diffs); `func_8008AB58` and `func_8008B440`
+  are still split asm, and the rest are large. `STCRDSHP`: `func_800870F4` (1 diff, the operands
+  of the `addu` of the pages count) and `STCRDSHP_createGrid` (3 diffs:
+  the original schedules `i++` before a load); `STCRDSHP_drawCards`,
+  `func_80083BEC` (a jump table) and eight others are still asm. `STCRDSHP` is three objects, like
+  `STSTATUS`'s ten: GCC aligns a jump table to 8 bytes, and the original's
+  tables only line up at its object boundaries.
 - [ ] `STGTRAIN`'s near misses: `func_80083ADC` (4 diffs, two registers
   swapped), `func_800858E0` and `func_80085CC4` (3 each: the original
   schedules the table's `lui` before the `sll`), `func_800874A0` (2: the
