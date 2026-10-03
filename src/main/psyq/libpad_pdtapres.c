@@ -6,7 +6,7 @@ extern PadPort D_8007E920[8];
 extern u_char D_8007F0A0[2][0x23];
 extern u_char D_8007F0E8[2][0x23];
 extern void (*D_80055518)();
-extern int (*D_80055520)(PadPort *p);
+extern u_char (*D_80055520)(PadPort *p, int mode);
 extern void (*D_80055524)();
 extern int (*D_80055530)(PadPort *p);
 extern int (*D_80055534)(PadPort *p);
@@ -22,7 +22,7 @@ extern volatile SioRegs *D_80055508;
 
 void func_80021DF0(PadPort *p);
 void func_80021E64();
-int func_80021FC0(); /* (PadPort *p, int mode) */
+u_char func_80021FC0(PadPort *p, int mode);
 void func_800220D0();
 PadPort *func_8002234C(int port);
 void func_80021F7C(PadPort *p);
@@ -123,7 +123,46 @@ void func_80021F7C(PadPort *p) {
     }
 }
 
-INCLUDE_ASM("main/nonmatchings/psyq/libpad_pdtapres", func_80021FC0);
+/* The byte to send at the pad's position: cmd (0x42 when it is 0) first,
+   then the actuator table or the data. The match depends on n and i as two
+   variables, cmd read before the test and the switch on i + 2 with its own
+   case 1: the registers and the shared tails come out as the original's
+   only so */
+u_char func_80021FC0(PadPort *p, int mode) {
+    int n = p->unk45 - 3;
+    int i;
+    int cmd;
+
+    if (mode) {
+        p = &p->unkC[n / 8];
+        i = n % 8 - 2;
+    } else {
+        i = n;
+    }
+    cmd = p->cmd;
+    if (i >= 0) {
+        switch (cmd) {
+        case 0:
+            if (i < 6 && p->unk57[i] == 0) {
+                return 0;
+            }
+            if (i < p->actLen) {
+                return p->actTable[i];
+            }
+            return 0;
+        case 0x4D:
+            return i < p->len ? p->data[i] : 0xFF;
+        }
+        return i < p->len ? p->data[i] : 0;
+    }
+    switch (i + 2) {
+    case 0:
+        return cmd ? cmd : 0x42;
+    case 1:
+        return 0;
+    }
+    return 0;
+}
 
 extern long D_80055560;
 

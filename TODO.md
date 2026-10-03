@@ -119,20 +119,35 @@ own.
 
 ## PsyQ
 
-- [ ] 12 of the 563 PsyQ functions are still `INCLUDE_ASM`, in 8 objects
-  (`libmcrd_libmcrd` 3 and the rest 2 or fewer), all compiled code; 166
-  are still named `func_`. What Sony wrote in assembly (71 functions, 56
-  objects) is `.s` sources in `src/main/psyq/`. Closest attempts:
-  `func_80021FC0` (`libpad_pdtapres`, the byte to send at the pad's
-  position: `cmd`, or `0x42` when it is 0, then the actuator table or the
-  data) has the right shape at 32 diffs, but our cross-jumping makes the
-  `0x4D` case jump into the default case's `return p->data[i]`, where the
-  original lets both jump to case 0's final `lbu`. `MemCardOpen` (a retry
-  loop around `MemCardAccept`, with the error path between the loop and
-  the success path) is at 64 diffs: ours keeps the constant 3 in a register
-  in the loop, the original `&D_80082068`, which it stores through.
-- [ ] 9 `INCLUDE_RODATA`: `libgpu_sys` 4, `libcd_bios_1` 3 and
-  `libmcrd_libmcrd` 2 (two strings that `MemCardOpen`, still asm, reads).
+- [ ] 7 of the 563 PsyQ functions are still `INCLUDE_ASM`, in 5 objects
+  (`libmcrd_low` and `libmcrd_libmcrd` 2 each, `libsnd_cc_6`,
+  `libsnd_vm_vol`, `libcd_c_011`), all compiled code; 166 are still named
+  `func_`. What Sony wrote in assembly (71 functions, 56 objects) is `.s`
+  sources in `src/main/psyq/`. Drafts of the ones left are in
+  `permuter/drafts_2026-10/` and `permuter/_SsContDataEntry/` (the main
+  checkout's, which git ignores). Closest attempts:
+  - `_SsContDataEntry` (`libsnd_cc_6`) matches with two more changes to
+    the 2.7.2 cc1 (`permuter/_SsContDataEntry/mkcc1.py` makes it): combine's
+    `set_nonzero_bits_and_sign_copies` without 2.7's `reg_n_sets > 1` and
+    `reg_basic_block < 0` tests (GCC 2.8's, for a `beqz` where ours has
+    `blez`), and patch 19's two-reference rule off (its frame is
+    `vars= 64`). That rule is there for `GsSetFlatLight`'s `x / 255`, so
+    it needs a sharper condition first: here the two pseudos are kept
+    alive only by a `(use ...)` insn that combine made. 23 diffs with the
+    cc1 as it is.
+  - `_SsVmSetVol` (`libsnd_vm_vol`; its prototype wants `short` vab and
+    prog and `u_short` pan) is 317 diffs: loop.c doesn't hoist the
+    constants of its `/ 127` and `/ 16129` out of the loop, which needs a
+    threshold of about 258 where 2.7.2's formula gives about 98. With
+    that forced, 46 diffs of register allocation are left.
+  - `func_8002C590` (`libcd_c_011`) is 87 diffs; `func_8003BAEC`,
+    `func_8003BE70`, `_card_format2` and `_card_create2` 90 to 256.
+- [ ] 7 `INCLUDE_RODATA`: `libgpu_sys` 4 and `libcd_bios_1` 3.
+- [x] `CD_sync` and `CD_ready` (`libcd_bios_1`) match once the SN cc1
+  (`tools/sn_cc1.py`) gives a parameter copied to a pseudo a `REG_EQUIV`
+  for its stack slot only when it arrives there (`entry_parm ==
+  stack_parm`), as GCC 2.7.2 does; `CD_datasync` no longer needs its copy
+  of `mode`. Every `PSYQ_GCC28` object builds the same with it.
 
 ## Overlays
 

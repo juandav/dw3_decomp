@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%2095-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%2098-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -43,17 +43,17 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 346 / 346 | 100.00 % | 100.00 % |
 | | USA | 346 / 346 | 100.00 % | 100.00 % |
-| The 21 overlays | Europe | 1,594 / 1,702 | 81.55 % | 85.52 % |
+| The 21 overlays | Europe | 1,594 / 1,702 | 81.55 % | 89.15 % |
 | | USA | 1,590 / 1,697 | 81.59 % | 93.93 % |
 | The stages (293 and 238) | Europe | 1,590 / 1,590 | 100.00 % | 100.00 % |
 | | USA | 1,369 / 1,369 | 100.00 % | 100.00 % |
-| **Total** | **Europe** | **3,530 / 3,638** | **87.38 %** | **98.27 %** |
+| **Total** | **Europe** | **3,530 / 3,638** | **87.38 %** | **98.70 %** |
 | | **USA** | **3,305 / 3,412** | **86.91 %** | **99.19 %** |
 
 - The executable's game code is all C, and its rodata. Its data is C too,
   in `src/main/data/`, until it moves next to the code that uses it.
 - The PsyQ 4.7 libraries linked into the executable are decompiled too, one
-  file per library object: 480 of their 563 functions are C, and the 71 Sony
+  file per library object: 485 of their 563 functions are C, and the 71 Sony
   wrote in assembly are `.s` sources. They are Sony's
   code, not the game's, so like other PSX decomps they are built and compared
   but left out of the progress.
@@ -91,8 +91,8 @@ above counts them: fake matches, then the other two kinds together.
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 6 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 89 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 106 | `INCLUDE_ASM` |
+| Form-dependent matches | 92 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 101 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -103,7 +103,7 @@ above counts them: fake matches, then the other two kinds together.
   `libgs_gs_131`), one in the game's `drawTalkBoxArrow`.
 - A form-dependent match is C that matches in one of several equivalent
   forms only: an extra block, an `if` without braces, a copy of a variable, a
-  type, or one version's own form of a loop. The eighty-nine so far are a copy
+  type, or one version's own form of a loop. The ninety-two so far are a copy
   of a variable in `drawTalkBoxArrow`, an unsigned compare in STGMCARD's
   `func_80082E28`, a variable that holds two values in STCRDDEK's
   `STCRDDEK_drawDeckCards`, a counter set before a call in
@@ -134,7 +134,10 @@ above counts them: fake matches, then the other two kinds together.
   eleven spots in CARDGAME (a loop or state variable of its
   own, an empty case, or a statement written twice), a reset written in both
   branches in SHOCKTST's `SHOCKTST_playAllPatterns`, a variable that keeps
-  the old top too in STAGSLCT's `STAGSLCT_updateStageSelect`, the do-while of
+  the old top too in STAGSLCT's `STAGSLCT_updateStageSelect`, three in PsyQ's
+  libpad (`func_80021FC0`'s variables and switch, and in `func_8002468C`
+  a copy of its argument, a `return` through a variable and an interrupt
+  register reached as a structure member), the do-while of
   `COUNTDOWN_BORROW`, the statement macro of the timed stages' countdown,
   and the start position that every stage's setup function sets as a
   `(Vec2){x, y}` constructor (both in `include/stage.h`).
@@ -296,8 +299,11 @@ One source tree builds every version, one at a time, picked with `VERSION`
   `tools/patch_cc1.py` binary-patches our GCC 2.7.2 into the cc1 the
   libraries were built with (its docstring lists every patch). The objects in
   `PSYQ_GCC28` (Makefile) came from a GCC 2.8.1 without split addresses:
-  `tools/sn_cc1.py` patches a cc1 for them and `tools/unfill_epilogue.py`
-  undoes its filled epilogue delay slot. `PSYQ_RERUN_CSE` lists the objects
+  `tools/sn_cc1.py` patches a cc1 for them (its docstring lists every
+  patch; the latest gives a parameter's stack slot a `REG_EQUIV` only when
+  the parameter arrives there, as GCC 2.7.2 does, for `CD_sync` and
+  `CD_ready`) and `tools/unfill_epilogue.py` undoes its filled epilogue
+  delay slot. `PSYQ_RERUN_CSE` lists the objects
   built with the second CSE pass.
   `STDWTITL` links PsyQ's `libpress` (the movie decoder), so
   `src/stdwtitl/libpress.c` gets the same rules (`PSYQ_OBJ`).

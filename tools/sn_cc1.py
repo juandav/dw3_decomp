@@ -48,6 +48,12 @@ structure copy (StCdInterrupt's `ori a0,0x843` stays after its two pointer
 loads). Their entries in function_units_used's jump table go to its
 no-unit default case.
 
+Its assign_parms gave a parameter copied to a pseudo a REG_EQUIV note for
+its stack slot only when the parameter arrived there (entry_parm ==
+stack_parm), as GCC 2.7.2 does; 2.8.1 also gives one to a parameter that
+arrives in a register, which changes how CD_sync, CD_ready and CD_datasync
+keep their `mode` (CD_datasync matched only through a copy of it before).
+
 usage: sn_cc1.py cc1 patched_cc1
 """
 import os, shutil, sys
@@ -128,6 +134,27 @@ with open(src, 'rb') as f:
     for o in movstr:
         assert raw[o:o + 4] == bytes.fromhex('4d0deeff')
 
+    # assign_parms+0x124b: `if (stack_parm != 0 && GET_CODE (stack_parm) == MEM
+    # && stack_offset.var == 0` before the REG_EQUIV note of a parameter
+    # copied to a pseudo; 2.7.2's condition starts with entry_parm ==
+    # stack_parm (-0x114(%ebp) == -0x110(%ebp)). The jumps to the skip go
+    # through the jne/je at +0x20 and +0x40, whose flags still say skip.
+    equiv = offset('assign_parms') + 0x124b
+    old = bytes.fromhex('8b8df0feffff85c90f84950100000fb7016683f8390f8588010000'
+                        '8b45a085c00f857d010000')
+    assert raw[equiv:equiv + len(old)] == old
+    equiv_code = bytes.fromhex('8b8df0feffff'   # mov stack_parm,%ecx
+                               '3b8decfeffff'   # cmp entry_parm,%ecx
+                               '7512'           # jne -> +0x20 (jne skip)
+                               '85c9'           # test %ecx,%ecx
+                               '742e'           # je -> +0x40 (je skip)
+                               '0fb701'         # movzwl (%ecx),%eax
+                               '6683f839'       # cmp $MEM,%ax
+                               '7505'           # jne -> +0x20 (jne skip)
+                               '8b45a0'         # mov stack_offset.var,%eax
+                               '85c0')          # test %eax,%eax (jne skip follows)
+    assert len(equiv_code) == 32
+
     patches = [(offset('mips_can_use_return_insn'), b'\x31\xc0\xc3'),
                (movstr[0], bytes.fromhex('ee1beeff')),
                (movstr[1], bytes.fromhex('ee1beeff')),
@@ -136,7 +163,8 @@ with open(src, 'rb') as f:
                (offset('reload_cse_regs'), b'\xc3'),
                (offset('mips_expand_epilogue') + 180, blk),
                (offset('iterator_loop_prologue'), live),
-               (offset('mark_target_live_regs') + 83, test)]
+               (offset('mark_target_live_regs') + 83, test),
+               (equiv, equiv_code)]
 data = bytearray(open(src, 'rb').read())
 for off, code in patches:
     data[off:off + len(code)] = code

@@ -169,9 +169,57 @@ static inline void callback(void) {
     *D_8005A58C = mask;
 }
 
-INCLUDE_ASM("main/nonmatchings/psyq/libcd_bios_1", CD_sync);
+int CD_sync(int mode, u_char *result) {
+    int ret;
 
-INCLUDE_ASM("main/nonmatchings/psyq/libcd_bios_1", CD_ready);
+    set_alarm("CD_sync");
+    while (1) {
+        if (get_alarm()) {
+            return -1;
+        }
+        if (CheckCallback()) {
+            callback();
+        }
+        ret = D_8005A5A4->sync;
+        if (ret == CdlComplete || ret == CdlDiskError) {
+            D_8005A5A4->sync = CdlComplete;
+            _memcpy(result, D_80080C50, 8);
+            return ret;
+        }
+        if (mode) {
+            return CdlNoIntr;
+        }
+    }
+}
+
+int CD_ready(int mode, u_char *result) {
+    int ret;
+
+    set_alarm("CD_ready");
+    while (1) {
+        if (get_alarm()) {
+            return -1;
+        }
+        if (CheckCallback()) {
+            callback();
+        }
+        ret = D_8005A5A4[0].c;
+        if (ret) {
+            D_8005A5A4->c = CdlNoIntr;
+            _memcpy(result, D_80080C60, 8);
+            return ret;
+        }
+        ret = D_8005A5A4[0].ready;
+        if (ret) {
+            D_8005A5A4->ready = CdlNoIntr;
+            _memcpy(result, D_80080C58, 8);
+            return ret;
+        }
+        if (mode) {
+            return CdlNoIntr;
+        }
+    }
+}
 
 extern int D_8005A40C[];
 extern int D_8005A50C[];
@@ -342,7 +390,6 @@ extern volatile u_long *D_8005A5C0;
 
 int CD_datasync(int mode) {
     int ret;
-    int m = mode;
 
     set_alarm("CD_datasync");
     while (1) {
@@ -354,7 +401,7 @@ int CD_datasync(int mode) {
             ret = 0;
             break;
         }
-        if (m != 0) {
+        if (mode != 0) {
             ret = 1;
             break;
         }
