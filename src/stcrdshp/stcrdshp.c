@@ -163,7 +163,127 @@ void func_80082EE0(CardPackOpen *open, CardPackOpenWindows *win, s32 show) {
     }
 }
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", func_800832DC);
+extern s32 D_8008C144[];
+
+/* Draws the screen: the page's packs and the arrows, the pack under the
+   cursor, the help's frame and the card under the cursor */
+void func_800832DC(CardPackOpen *open) {
+    SpriteDrawer sprite;
+    CardDrawer drawer;
+    s32 i;
+    s32 index;
+    s32 pack;
+    s32 card;
+    s32 kind;
+    s32 frame;
+
+    initSpriteDrawer(&sprite);
+    sprite.setTexture(0x280, 0);
+    sprite.setLayerId(open->layer, open->depth);
+    if (open->fades[0].level != 0) {
+        if (open->fades[0].level != 0x1000) {
+            sprite.setScale(0x1000, open->fades[0].level, 0x1000);
+            sprite.setPivot(0xA0, 0x5C);
+        } else {
+            for (i = 0; i < 8; i++) {
+                index = open->page * 8 + i;
+                pack = open->packs[index];
+                if (index >= open->packCount || pack <= 0) {
+                    break;
+                }
+                sprite.setTexture(0x140, 0);
+                sprite.draw(FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16), ITEM_FUNCS->getCategory(pack), (i % 2) * 0x83 + 0x28, (i / 2) * 0xE + 0x39);
+                sprite.setTexture(0x280, 0);
+                sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 0x31, (i % 2) * 0x83 + 0x28, (i / 2) * 0xE + 0x39);
+            }
+            sprite.setTexture(0x280, 0);
+            if (open->pages >= 2) {
+                if (GFX_FUNCS.getTime() - open->unk68[1] >= 11) {
+                    if (++open->unk68[0] >= 4) {
+                        open->unk68[0] = 0;
+                    }
+                }
+                sprite.setClutRow(open->unk68[0]);
+                if (open->page > 0) {
+                    sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 0x48, 0x1E, 0x74);
+                }
+                if (open->page < open->pages - 1) {
+                    sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 0x47, 0xFD, 0x74);
+                }
+                sprite.setClutRow(0);
+            }
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 0x2B, 0, 0x32);
+    }
+    if (open->fades[1].level != 0) {
+        if (open->fades[1].level != 0x1000) {
+            sprite.setScale(open->fades[1].level, 0x1000, 0x1000);
+            sprite.setPivot(0x140, 0x8F);
+        } else {
+            sprite.setTexture(0x140, 0);
+            pack = open->packs[open->cursor];
+            sprite.draw(FILE_CACHE.getEntry(FILE_MENU_SPRITES << 16), ITEM_FUNCS->getCategory(pack), 0x80, 0x8A);
+        }
+        sprite.setTexture(0x280, 0);
+        sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 0x2E, 0x79, 0x83);
+    }
+    if (open->fades[2].level != 0) {
+        sprite.setScale(0x1000, open->fades[2].level, 0x1000);
+        if (open->fades[2].level != 0x1000) {
+            sprite.setPivot(0xA0, 0xCF);
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 0x2A, 0, 0xBD);
+    }
+    if (open->fades[3].level != 0) {
+        card = open->cards[open->card];
+        initCardDrawer(&drawer);
+        drawer.setCard(card);
+        sprite.setScale(open->fades[3].level, 0x1000, 0x1000);
+        if (open->fades[3].level != 0x1000) {
+            sprite.setPivot(0x140, 0x87);
+        }
+        kind = drawer.getKind();
+        if (kind == 1) {
+            frame = 0x12;
+        } else if (kind == 2) {
+            frame = 0x13;
+        } else {
+            frame = drawer.card[0] + 0x13;
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), frame, 0x103, 0x7E);
+        sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 0xD, 0xFC, 0x7C);
+        if (open->fades[3].level != 0x1000) {
+            sprite.setPivot(0x140, 0x87);
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 0xA, 0x82, 0x7C);
+        if (open->fades[3].level != 0x1000) {
+            sprite.setPivot(0x140, 0xAF);
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 0x10, 0x103, 0xA4);
+        sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 0xD, 0xFC, 0xA2);
+        if (open->fades[3].level != 0x1000) {
+            sprite.setPivot(0x140, 0xA5);
+        }
+        if (kind != 0) {
+            sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 0xB, 0x4A, 0x92);
+        } else if (card == 0x45 || card == 0x70 || card == 0x9B || card == 0xC6 || card == 0xF1) {
+            sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 0xB, 0x4A, 0x92);
+        } else {
+            sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 0xC, 0xC7, 0x92);
+        }
+        if (open->unk8C[0] != 0) {
+            if (GFX.funcs.getTime() - open->unk8C[2] >= 5) {
+                open->unk8C[2] = GFX.funcs.getTime();
+                if (++open->unk8C[1] >= 6) {
+                    open->unk8C[1] = 0;
+                }
+            }
+            sprite.setLayerId(open->layer, open->depth - 2);
+            sprite.setClutRow(D_8008C144[open->unk8C[1]]);
+            sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 7, open->card * 0x2A + 0x24, 0x44);
+        }
+    }
+}
 
 /* Lists the bag's card packs, and how many pages they fill */
 void STCRDSHP_listPacks(CardPackOpen *open) {
@@ -327,7 +447,84 @@ void STCRDSHP_hideCards(CardPackGrid *grid) {
     grid->setSubstate(grid, 1);
 }
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", STCRDSHP_drawCards);
+/* Draws the cards drawn (or the ones being turned over): each card's image,
+   its numbers or its kind's mark, and its frame. The match depends on the
+   digits' x being written dx + 0x27 + x and on cards++ being in the for. */
+void STCRDSHP_drawCards(CardPackGrid *grid, s32 previous) {
+    SpriteDrawer sprite;
+    CardDrawer drawer;
+    s32 digits[5];
+    s32 *cards;
+    s32 i;
+    s32 j;
+    s32 dx;
+    s32 card;
+    s32 x;
+    s32 y;
+    s32 n;
+    s32 col;
+    s32 row;
+
+    initSpriteDrawer(&sprite);
+    sprite.setLayerId(grid->layer, grid->depth);
+    sprite.setTexture(0x280, 0);
+    initCardDrawer(&drawer);
+    drawer.setImagePos(0x140, 0x100);
+    drawer.setClutPos(0x300, 0x100);
+    drawer.setLayer(grid->layer, grid->depth);
+    if (previous) {
+        cards = grid->prevCards;
+    } else {
+        cards = grid->cards;
+    }
+    for (i = 0; i < grid->shown; i++, cards++) {
+        card = *cards;
+        if (card <= 0 || card >= CARD_PACK_IDS) {
+            break;
+        }
+        col = i % 6;
+        row = i / 6;
+        x = col * 0x2A;
+        y = row * 0x36;
+        drawer.setCard(card);
+        drawer.setCell(0, i);
+        drawer.draw(x + 0x27, y + 0x46);
+        if (drawer.getKind() != 0) {
+            sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), 0x1D, x + 0x27, y + 0x65);
+        } else {
+            n = drawer.card[1];
+            j = n / 10;
+            if (j != 0) {
+                digits[0] = j + 0x1E;
+            } else {
+                digits[0] = 0;
+            }
+            j = n % 10;
+            digits[1] = j + 0x1E;
+            digits[2] = 0x1C;
+            for (j = dx = 0; j < 3; j++, dx += 7) {
+                if (digits[j] != 0) {
+                    sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), digits[j], dx + 0x27 + x, y + 0x65);
+                }
+            }
+            n = drawer.card[2];
+            j = n / 10;
+            if (j != 0) {
+                digits[0] = j + 0x1E;
+            } else {
+                digits[0] = 0;
+            }
+            j = n % 10;
+            digits[1] = j + 0x1E;
+            for (j = dx = 0; j < 2; j++, dx += 7) {
+                if (digits[j] != 0) {
+                    sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), digits[j], dx + 0x3A + x, y + 0x65);
+                }
+            }
+        }
+        sprite.draw(FILE_CACHE.getEntry(FILE_CARDSHOP_SPRITES << 16), drawer.card[0] - 1, x + 0x23, y + 0x44);
+    }
+}
 
 void STCRDSHP_drawTurningSlots(CardPackGrid *grid) {
     SpriteDrawer sprite;
@@ -424,7 +621,22 @@ void STCRDSHP_updateGrid(CardPackGrid *grid) {
     }
 }
 
-INCLUDE_ASM("stcrdshp/nonmatchings/stcrdshp", STCRDSHP_createGrid);
+/* Creates the grid of six cards, copying the cards given. The match depends
+   on cards++ being in the for. */
+CardPackGrid *STCRDSHP_createGrid(Task *owner, s32 *cards) {
+    CardPackGrid *grid = createTask(STCRDSHP_updateGrid, sizeof(CardPackGrid), 0);
+    s32 i;
+
+    grid->setCards = STCRDSHP_setCards;
+    grid->hide = STCRDSHP_hideCards;
+    grid->layer = 0x1000;
+    grid->depth = 6;
+    grid->owner = owner;
+    for (i = 0; i < 6; i++, cards++) {
+        grid->cards[i] = *cards;
+    }
+    return grid;
+}
 
 extern s16 D_8008C1EC[];
 extern s16 D_8008C1FC[];

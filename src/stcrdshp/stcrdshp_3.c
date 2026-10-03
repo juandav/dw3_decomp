@@ -476,7 +476,7 @@ CardShopStock *STCRDSHP_getStock(s32 shop) {
 }
 
 /* The price of a card */
-s32 STCRDSHP_getPrice(s32 card) {
+s16 STCRDSHP_getPrice(s32 card) {
     s32 i;
 
     for (i = 0; STCRDSHP_prices[i].card != 0; i++) {
