@@ -340,8 +340,8 @@ void func_800941D0(CardBattle *battle, CardScreen *screen, s32 arg2) {
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_80094224);
 
 void func_80094380(CardBattle *battle, CardScreen *screen, s32 force) {
-    if (battle->unk584[battle->unk575 - 1].unk0 == 0 || force) {
-        battle->unk575--;
+    if (battle->sides[0].unk24[battle->sides[0].unk15 - 1].unk0 == 0 || force) {
+        battle->sides[0].unk15--;
         screen->unkEC4(screen);
         battle->unk498.unk1 = 2;
         battle->stepState = 1;
@@ -357,7 +357,7 @@ s32 func_800943FC(CardBattle *battle, CardScreen *screen) {
     case 1:
         if (screen->panels[0].state == 0 && battle->unk498.unk0 == 0) {
             battle->stepState = 2;
-            battle->unk575++;
+            battle->sides[0].unk15++;
         }
         break;
     case 2:
@@ -368,12 +368,12 @@ s32 func_800943FC(CardBattle *battle, CardScreen *screen) {
 }
 
 void func_80094468(CardBattle *battle, CardScreen *screen, s32 force) {
-    if (battle->unk584[battle->unk575 - 1].unk0 == 0 || force) {
+    if (battle->sides[0].unk24[battle->sides[0].unk15 - 1].unk0 == 0 || force) {
         screen->unkEC8(screen);
         battle->unk498.unk5 = 1;
         battle->unk498.unk1 = 1;
         battle->stepState = 1;
-        battle->unk575--;
+        battle->sides[0].unk15--;
     } else {
         battle->stepState = 2;
     }
@@ -386,7 +386,7 @@ s32 func_800944E8(CardBattle *battle, CardScreen *screen) {
     case 1:
         if (battle->unk498.unk0 == 0 && screen->panels[0].state == 2) {
             battle->stepState = 2;
-            battle->unk575++;
+            battle->sides[0].unk15++;
         }
         break;
     case 2:
@@ -1863,9 +1863,9 @@ INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009EA28);
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009ECE8);
 
 void func_8009F458(CardBattle *battle) {
-    battle->unk574 = 0;
+    battle->sides[0].unk14 = 0;
     func_8009DCDC();
-    battle->unk814(battle, battle->unk600, battle->unk5A6 << 16, 0);
+    battle->unk814(battle, battle->sides[0].unkA0, battle->sides[0].unk46 << 16, 0);
 }
 
 INCLUDE_ASM("cardgame/nonmatchings/cardgame", func_8009F4A0);

@@ -30,11 +30,29 @@ typedef struct CardPlayer {
     /* 0x02 */ CardSlot slots[8];
 } CardPlayer;
 
-/* An entry of CardBattle.unk584 */
-typedef struct CardBattle584 {
+/* An entry of CardSide.unk24 */
+typedef struct CardSideEntry {
     /* 0x0 */ u8 unk0;
     /* 0x1 */ u8 unk1[7];
-} CardBattle584;
+} CardSideEntry;
+
+/* Each player's side of a card battle (CardBattle.sides) */
+typedef struct CardSide {
+    /* 0x00 */ u8 unk0[0x14];
+    /* 0x14 */ u8 unk14;
+    /* 0x15 */ s8 unk15; /* the entries of unk24 in use */
+    /* 0x16 */ u8 unk16[0xE];
+    /* 0x24 */ CardSideEntry unk24[2];
+    /* 0x34 */ u8 unk34[8];
+    /* 0x3C */ s16 unk3C;
+    /* 0x3E */ s16 unk3E;
+    /* 0x40 */ s16 unk40;
+    /* 0x42 */ s16 unk42;
+    /* 0x44 */ s16 unk44;
+    /* 0x46 */ s16 unk46;
+    /* 0x48 */ u8 unk48[0x58];
+    /* 0xA0 */ u8 unkA0[0x28];
+} CardSide;
 
 /* CardBattle.unk498 */
 typedef struct CardBattle498 {
@@ -79,15 +97,9 @@ typedef struct CardBattle {
     /* 0x46F */ s8 unk46F[40];
     /* 0x497 */ u8 unk497;
     /* 0x498 */ CardBattle498 unk498;
-    /* 0x4AD */ u8 unk4AD[0xC7];
-    /* 0x574 */ u8 unk574;
-    /* 0x575 */ s8 unk575;
-    /* 0x576 */ u8 unk576[0xE];
-    /* 0x584 */ CardBattle584 unk584[2];
-    /* 0x594 */ u8 unk594[0x12];
-    /* 0x5A6 */ s16 unk5A6;
-    /* 0x5A8 */ u8 unk5A8[0x58];
-    /* 0x600 */ u8 unk600[0x12C];
+    /* 0x4AD */ u8 unk4AD[0xB3];
+    /* 0x560 */ CardSide sides[2];
+    /* 0x6F0 */ u8 unk6F0[0x3C];
     /* 0x72C */ CardPlayer players[2];
     /* 0x810 */ void (*unk810)();
     /* 0x814 */ void (*unk814)(struct CardBattle *battle, void *arg1, s32 arg2, s32 arg3);
