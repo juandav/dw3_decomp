@@ -54,7 +54,54 @@ s32 func_800859F4(TrainResult *result, s32 stat) {
     return lost;
 }
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain_2", func_80085AF8);
+/*
+ * Raises a resistance (stat 8-14) by the training's gain, up to 999: the
+ * table goes by the Digimon's growth of it and how high it already is.
+ */
+s32 func_80085AF8(TrainResult *result, s32 stat) {
+    PartnerStats *stats;
+    s16 *value;
+    DigimonData *digimon;
+    TrainGain *gains;
+    s32 column;
+    s32 gained;
+    s32 resist = stat - 8;
+
+    if ((u32)resist >= 7) {
+        return 0;
+    }
+    stats = (PartnerStats *)GAME.funcs.getPartnerStats(result->partner);
+    digimon = &DIGIMON_DATA[result->partner];
+    value = &stats->stats[stat + 4];
+    if (*value < 100) {
+        gains = D_8008B95C[(digimon->resistGrowth[resist] - 1) * 3];
+    } else if (*value < 300) {
+        gains = D_8008B95C[(digimon->resistGrowth[resist] - 1) * 3 + 1];
+    } else {
+        gains = D_8008B95C[(digimon->resistGrowth[resist] - 1) * 3 + 2];
+    }
+    /* the match depends on column being set in each branch: set before the
+       test, its delay slot copy keeps a0 live where the table's lui wants it */
+    if (result->unkD8 == 0) {
+        column = 0;
+    } else if (result->training < 0xD) {
+        column = 1;
+    } else {
+        column = 2;
+    }
+    column += result->screen->unk7C * 3;
+    if (gains[column].range != 0) {
+        gained = gains[column].base + RANDOM.next() % gains[column].range;
+    } else {
+        gained = gains[column].base;
+    }
+    *value += gained;
+    if (*value >= 1000) {
+        *value = 999;
+    }
+    return gained;
+}
+
 
 /*
  * Raises the maximum HP (stat 15) or MP (16) by the training's gain, up to

@@ -568,11 +568,22 @@ typedef struct ItemScript {
     /* 0x4 */ s16 sound;
 } ItemScript;
 
+/* A technique's boost (D_800A216C, D_800A21B4, ended by -1) */
+typedef struct TechBoost {
+    /* 0x0 */ s16 tech;
+    /* 0x2 */ s16 amount; /* times the technique's unkC, below 0 for the other side */
+    /* 0x4 */ s16 stat;
+    /* 0x6 */ s16 line; /* the message */
+} TechBoost;
+
 typedef struct Unk8008EAF8 {
     TASK_HEADER(Unk8008EAF8);
-    /* 0x50 */ u8 unk50;
-    /* 0x54 */ s32 unk54;
-    /* 0x58 */ u8 unk58[0x2C];
+    /* 0x50 */ u8 unk50; /* the side that uses it, 0 or 0x10 */
+    /* 0x54 */ s32 unk54; /* the technique or item */
+    /* 0x58 */ s32 damage;
+    /* 0x5C */ s32 unk5C; /* the HP an item heals */
+    /* 0x60 */ s32 unk60; /* whether the other side's fighter had flag 8 */
+    /* 0x64 */ s32 lines[8]; /* func_80097F8C's */
 } Unk8008EAF8;
 
 /* func_80090290's task (func_800908C0): an attack on the player's active
@@ -1118,6 +1129,7 @@ typedef struct EventQueueFuncs {
     /* 0x18 */ s32 (*find)(s32 type, u8 side, s32 fighter);
     /* 0x1C */ void (*remove)(EventKey *key); /* the events whose first two args are its */
     /* 0x20 */ s32 (*getDelay)(s32 side, s32 kind); /* func_8009AEA4: when an event of side's runs */
+    /* 0x24 */ void (*useItem)(u8 side, s32 fighter, s32 item); /* func_8009B430: an item's cure */
 } EventQueueFuncs;
 
 /* An event kind's delay range (D_800A310C, by kind): func_8009AEA4 adds a
@@ -1309,7 +1321,6 @@ void FIGHTSTG_cacheFighter(s32 index);
 void FIGHTSTG_getFighterRange(u32 enemy, s32 *min, s32 *max);
 extern Vec2 D_800A12D0[];
 extern EventQueue D_800A25F0;
-extern void (*D_800A3108)();
 extern u8 D_800A315C[]; /* func_8009B430's event types */
 extern u8 D_800A3164[]; /* and the status flags they clear */
 extern RECT D_800A3470; /* func_800933EC's layer */

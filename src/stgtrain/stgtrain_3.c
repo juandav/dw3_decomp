@@ -394,7 +394,208 @@ TrainSession *func_80088CA8(TrainScreen *screen) {
     return session;
 }
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain_3", func_80088CFC);
+/*
+ * A training's Digimon (TrainActor): once its file is loaded and its
+ * positions set, makes its sprite (and the effect of set 8); then grows or
+ * shrinks (mode 2), plays the training (mode 4: two animations, then the
+ * chance decides between the worked and failed ones) or its end (mode 8).
+ */
+void func_80088CFC(TrainActor *actor, TrainActorSprites *sprites) {
+    s32 *pos;
+    s32 filePos;
+    s32 x;
+    s32 y;
+    s32 done;
+    s32 worked;
+    TrainAnim *anim;
+
+    switch (actor->state) {
+    case TASK_INIT:
+    default:
+        if (FILE_CACHE.isLoading(D_8008C4D4.getFileId(actor->file)) == 0 && actor->posSet != 0 &&
+            actor->clutSet != 0) {
+            actor->nextState(actor);
+            filePos = D_8008C4D4.getFilePos(actor->file);
+            D_8008C4D4.readSet(actor->set);
+            /* the match depends on pos set here, after the two calls: set
+               before them it lives too long, and x takes its register */
+            pos = actor->pos;
+            D_8008C4D4.loadSet(actor->set, pos);
+            if (sprites->sprite == NULL) {
+                sprites->sprite = func_80083018();
+            }
+            x = filePos & 0xFFFF;
+            sprites->sprite->setBank(sprites->sprite, D_8008C4D4.getBank(actor->set),
+                                     D_8008C4D4.getBankOffset(actor->set));
+            y = (u32)filePos >> 16;
+            sprites->sprite->setAnim(sprites->sprite, D_8008C4D4.getAnim(actor->set, actor->anim));
+            sprites->sprite->setPos(sprites->sprite, x, y);
+            sprites->sprite->setImagePos(sprites->sprite, actor->pos[0], actor->pos[1]);
+            sprites->sprite->setClutPos(sprites->sprite, actor->pos[2], actor->pos[3]);
+            sprites->sprite->setLayer(sprites->sprite, actor->layerId, actor->depth);
+            if (D_8008C4D4.readSet(8) != 0) {
+                actor->savedX = actor->pos[0];
+                actor->pos[0] = actor->pos[0] + 0x80;
+                D_8008C4D4.loadSet(8, pos);
+                actor->pos[0] = actor->savedX;
+                if (sprites->effect == NULL) {
+                    sprites->effect = func_80083018();
+                }
+                sprites->effect->setBank(sprites->effect, D_8008C4D4.getBank(8), D_8008C4D4.getBankOffset(8));
+                sprites->effect->setAnim(sprites->effect, D_8008C4D4.getAnim(8, actor->anim));
+                sprites->effect->setPos(sprites->effect, x, y);
+                sprites->effect->setImagePos(sprites->effect, actor->pos[0], actor->pos[1]);
+                sprites->effect->setClutPos(sprites->effect, actor->pos[2], actor->pos[3]);
+                if (D_8008C4D4.getFileUnkC(actor->file) == 0) {
+                    sprites->effect->setLayer(sprites->effect, actor->layerId, actor->depth - 1);
+                } else {
+                    sprites->effect->setLayer(sprites->effect, actor->layerId, actor->depth);
+                }
+            } else if (sprites->effect != NULL) {
+                sprites->effect->setState(sprites->effect, TASK_KILL);
+            }
+            actor->result = -1;
+        }
+        break;
+    case TASK_RUN:
+        if (actor->scaleChanged != 0) {
+            if (sprites->sprite != NULL) {
+                sprites->sprite->setScale(sprites->sprite, actor->scale, actor->scale, 0x1000);
+            }
+            if (sprites->effect != NULL) {
+                sprites->effect->setScale(sprites->effect, actor->scale, actor->scale, 0x1000);
+            }
+            actor->scaleChanged = 0;
+        }
+        switch ((u32)actor->mode) {
+        case 1:
+            break;
+        case 2:
+            actor->scale += actor->scaleStep;
+            if (actor->scaleStep > 0) {
+                if (actor->scale > 0x1000) {
+                    actor->scale = 0x1000;
+                    actor->scaleStep = 0;
+                    actor->mode = 1;
+                }
+            } else if (actor->scale < 0) {
+                actor->scale = 0;
+                actor->scaleStep = 0;
+                actor->mode = 1;
+            }
+            if (sprites->sprite != NULL) {
+                sprites->sprite->setScale(sprites->sprite, actor->scale, actor->scale, 0x1000);
+                sprites->sprite->setPivot(sprites->sprite, 0xCF, 0x7F);
+            }
+            if (sprites->effect != NULL) {
+                sprites->effect->setScale(sprites->effect, actor->scale, actor->scale, 0x1000);
+                sprites->effect->setPivot(sprites->effect, 0xCF, 0x7F);
+            }
+            break;
+        case 4:
+            if (sprites->effect != NULL) {
+                done = sprites->sprite->getFlags(sprites->sprite) & sprites->effect->getFlags(sprites->effect);
+            } else {
+                done = sprites->sprite->getFlags(sprites->sprite);
+            }
+            if (done) {
+                if (actor->substate == 0) {
+                    actor->anim++;
+                    if (actor->anim >= 2) {
+                        worked = actor->chance >= RANDOM.next() % 100;
+                        if (worked == 1) {
+                            if (sprites->sprite != NULL) {
+                                sprites->sprite->setAnim(sprites->sprite, D_8008C4D4.getAnim(actor->set, 2));
+                            }
+                            if (sprites->effect != NULL) {
+                                sprites->effect->setAnim(sprites->effect, D_8008C4D4.getAnim(8, 2));
+                            }
+                            /* and on a 1 here: CSE puts worked's register
+                               in, while worked itself leaves it a copy */
+                            actor->result = 1;
+                        } else {
+                            if (sprites->sprite != NULL) {
+                                sprites->sprite->setAnim(sprites->sprite, D_8008C4D4.getAnim(actor->set, 3));
+                            }
+                            if (sprites->effect != NULL) {
+                                sprites->effect->setAnim(sprites->effect, D_8008C4D4.getAnim(8, 3));
+                            }
+                            actor->result = 0;
+                        }
+                        actor->nextSubstate(actor);
+                    } else {
+                        if (sprites->sprite != NULL) {
+                            sprites->sprite->setAnim(sprites->sprite, D_8008C4D4.getAnim(actor->set, actor->anim));
+                        }
+                        if (sprites->effect != NULL) {
+                            sprites->effect->setAnim(sprites->effect, D_8008C4D4.getAnim(8, actor->anim));
+                        }
+                        actor->result = -1;
+                    }
+                } else {
+                    if (sprites->sprite != NULL) {
+                        sprites->sprite->setPaused(sprites->sprite, 1);
+                    }
+                    if (sprites->effect != NULL) {
+                        sprites->effect->setPaused(sprites->effect, 1);
+                    }
+                    actor->anim = 0;
+                    actor->setSubstate(actor, 0);
+                    actor->mode = 1;
+                }
+            }
+            break;
+        case 8:
+            if (actor->substate == 0) {
+                if (actor->result != 0) {
+                    actor->anim = 4;
+                } else {
+                    actor->anim = 5;
+                }
+                if (sprites->sprite != NULL) {
+                    anim = D_8008C4D4.getAnim(actor->set, actor->anim);
+                    if (anim != NULL) {
+                        sprites->sprite->setAnim(sprites->sprite, anim);
+                    } else {
+                        actor->mode = 1;
+                    }
+                }
+                if (sprites->effect != NULL) {
+                    anim = D_8008C4D4.getAnim(8, actor->anim);
+                    if (anim != NULL) {
+                        sprites->effect->setAnim(sprites->effect, anim);
+                    } else {
+                        actor->mode = 1;
+                    }
+                }
+                actor->substate++;
+            } else {
+                if (sprites->effect != NULL) {
+                    done = sprites->sprite->getFlags(sprites->sprite) & sprites->effect->getFlags(sprites->effect);
+                } else {
+                    done = sprites->sprite->getFlags(sprites->sprite);
+                }
+                if (done) {
+                    if (sprites->sprite != NULL) {
+                        sprites->sprite->setPaused(sprites->sprite, 1);
+                    }
+                    if (sprites->effect != NULL) {
+                        sprites->effect->setPaused(sprites->effect, 1);
+                    }
+                    actor->anim = 0;
+                    actor->setSubstate(actor, 0);
+                    actor->mode = 1;
+                }
+            }
+            break;
+        }
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
+
 
 void func_80089638(TrainActor *actor) {
     TrainActorSprites *sprites = actor->children;
@@ -1074,7 +1275,70 @@ s32 func_8008B298(s32 set) {
     return 0;
 }
 
-INCLUDE_ASM("stgtrain/nonmatchings/stgtrain_3", func_8008B35C);
+/* Loads the images of a set into VRAM side by side, unpacking the
+   run-length encoded ones ("RLEN") first */
+s32 func_8008B35C(s32 set, s32 *pos) {
+    TimLoader loader;
+    s32 x;
+    s32 y;
+    s32 clutX;
+    s32 clutY;
+    u8 *buf;
+    u8 *src;
+    u8 *image;
+    s32 i;
+    s32 j;
+    s32 n;
+    u8 c;
+    s32 magic;
+
+    if (set != D_8008C4D4.sets[set].id) {
+        return 0;
+    }
+    x = pos[0];
+    y = pos[1];
+    clutX = pos[2];
+    clutY = pos[3];
+    initTimLoader(&loader);
+    D_8008C4D4.sets[set].imageY = y;
+    buf = HEAP.alloc(0xA800, 2);
+    for (i = 0; i < D_8008C4D4.sets[set].imageCount; i++) {
+        D_8008C4D4.sets[set].imageX[i] = x + i * 0x40;
+        loader.setImagePos(x + i * 0x40, y);
+        src = D_8008C4D4.sets[set].images[i];
+        /* the match depends on the magic read before image is set: with
+           the copy right after the load, cse puts the load in image */
+        magic = *(s32 *)src;
+        image = src;
+        if (magic == 0x4E454C52) {
+            /* and on image set before src moves on, or src + 8 is taken
+               from image */
+            image = buf;
+            src += 8;
+            while ((c = *src) != 0) {
+                if (c & 0x80) {
+                    n = c & 0x7F;
+                    src++;
+                    for (j = 0; j < n; j++) {
+                        *image++ = *src;
+                    }
+                    src++;
+                } else {
+                    n = *src++;
+                    for (j = 0; j < n; j++) {
+                        *image++ = *src++;
+                    }
+                }
+            }
+            image = buf;
+        }
+        loader.setClutPos(clutX + *(s16 *)(image + 0xC), clutY);
+        loader.load(image);
+    }
+    HEAP.free(buf);
+    return 1;
+}
+
 
 s32 func_8008B56C(s32 index) {
     return D_8008C344[index].file;

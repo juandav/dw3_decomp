@@ -707,7 +707,7 @@ Mesh *func_8008588C(s32 archive, Vec2 texPos) {
 }
 
 s32 func_8009AEA4();
-void func_8009B430();
+void func_8009B430(u8 side, s32 fighter, s32 item);
 void func_8009D204();
 s32 func_8009D560();
 s32 func_8009D648();
@@ -1616,10 +1616,9 @@ EventQueue D_800A25F0 = {
     {
         0, 0, FIGHTSTG_pushEvent, FIGHTSTG_pushEventFirst, FIGHTSTG_popEvent,
         FIGHTSTG_findFirstEvent, FIGHTSTG_findNextEvent, FIGHTSTG_findEvent, FIGHTSTG_removeEvents,
-        func_8009AEA4,
+        func_8009AEA4, func_8009B430,
     },
 };
-void (*D_800A3108)() = func_8009B430;
 EventDelay D_800A310C[] = {
     { 1000, 707, 1414 }, { 250, 176, 353 }, { 2001, 1001, 0 }, { 2000, 0, 0 },
     { 2500, 0, 0 }, { 3000, 0, 0 }, { 3500, 0, 0 }, { 4000, 0, 0 },
