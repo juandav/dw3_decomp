@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20156-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20157-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -43,12 +43,12 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 346 / 346 | 100.00 % | 100.00 % |
 | | USA | 346 / 346 | 100.00 % | 100.00 % |
-| The 21 overlays | Europe | 1,648 / 1,700 | 93.79 % | 97.28 % |
-| | USA | 1,643 / 1,695 | 93.72 % | 97.29 % |
+| The 21 overlays | Europe | 1,649 / 1,700 | 93.84 % | 97.28 % |
+| | USA | 1,644 / 1,695 | 93.76 % | 97.29 % |
 | The stages (293 and 238) | Europe | 1,590 / 1,590 | 100.00 % | 100.00 % |
 | | USA | 1,369 / 1,369 | 100.00 % | 100.00 % |
-| **Total** | **Europe** | **3,584 / 3,636** | **95.76 %** | **99.67 %** |
-| | **USA** | **3,358 / 3,410** | **95.53 %** | **99.64 %** |
+| **Total** | **Europe** | **3,585 / 3,636** | **95.79 %** | **99.67 %** |
+| | **USA** | **3,359 / 3,410** | **95.57 %** | **99.64 %** |
 
 - The executable's game code is all C, and its rodata. Its data is C too,
   in `src/main/data/`, until it moves next to the code that uses it.
@@ -57,8 +57,8 @@ current:
   wrote in assembly are `.s` sources. They are Sony's
   code, not the game's, so like other PSX decomps they are built and compared
   but left out of the progress.
-- `CNTY_SEL`, `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STFGTREP`, `STCRDABM` and
-  `STDWTITL` are all C, `CARDGAME` and `STSTATUS` all but one function, and `STCRDDEK`,
+- `CNTY_SEL`, `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STFGTREP`, `STCRDABM`,
+  `STDWTITL` and `CARDGAME` are all C, `STSTATUS` all but one function, and `STCRDDEK`,
   `SHOCKTST`, `STGTRAIN`, `FIELDSTG` and `FIGHTSTG` mostly. The
   other large overlays are still mostly assembly.
 - The stages are all C, the 238 USA ones and the 55 of the European version
@@ -91,8 +91,8 @@ above counts them: fake matches, then the other two kinds together.
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 8 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 148 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 42 | `INCLUDE_ASM` |
+| Form-dependent matches | 149 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 41 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -104,7 +104,7 @@ above counts them: fake matches, then the other two kinds together.
   `func_8008CC5C`, one in FIGHTSTG's `func_8008CFFC` and three in WFIGHTTS.
 - A form-dependent match is C that matches in one of several equivalent
   forms only: an extra block, an `if` without braces, a copy of a variable, a
-  type, or one version's own form of a loop. The hundred and forty-eight so far are a copy
+  type, or one version's own form of a loop. The hundred and forty-nine so far are a copy
   of a variable in `drawTalkBoxArrow`, an unsigned compare in STGMCARD's
   `func_80082E28`, a variable that holds two values in STCRDDEK's
   `STCRDDEK_drawDeckCards`, a counter set before a call in
@@ -146,9 +146,9 @@ above counts them: fake matches, then the other two kinds together.
   early exit written as a `do`-`while (0)` with `break`s as the stages' event
   code writes it, a choice written in both branches or a `?:`, a pointer to
   a bone's slot, sums kept in variables so gcc doesn't fold their constants,
-  or a `(Vec2){x, y}` constructor), eleven spots
+  or a `(Vec2){x, y}` constructor), twelve spots
   in CARDGAME (a loop or state variable of its
-  own, an empty case, or a statement written twice), a reset written in both
+  own, an empty case, a statement written twice, or a copy of an argument), a reset written in both
   branches in SHOCKTST's `SHOCKTST_playAllPatterns`, a variable that keeps
   the old top too in STAGSLCT's `STAGSLCT_updateStageSelect`, three in PsyQ's
   libpad (`func_80021FC0`'s variables and switch, and in `func_8002468C`
@@ -182,7 +182,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 
 | Overlay | Loads at (us) | Functions in C (us) | What it runs |
 |---|---|---|---|
-| `CARDGAME` | `0x80082448` | 305 / 306 | the card battle (mode `0x700`): the decks, the cards in play and the battle screen |
+| `CARDGAME` | `0x80082448` | 306 / 306 | the card battle (mode `0x700`): the decks, the cards in play and the battle screen |
 | `CNTY_SEL` | `0x80082448` | 26 / 26 | the country select screen |
 | `FIELDSTG` | `0x80082448` | 214 / 222 | the field mode, where the player walks around the map; the stages load on top of it |
 | `FIGHTSTG` | `0x80082448` | 279 / 310 | the battle: the fight stage and its lights, the fighters' models, faces and cameras, the battle camera and windows, the queue of battle events and the stat, hit and status checks |
