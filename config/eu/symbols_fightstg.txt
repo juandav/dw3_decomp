@@ -169,7 +169,10 @@ FIGHTSTG_getEyesFrame = 0x8008B118; // type:func
 FIGHTSTG_moveFacePart = 0x8008B160; // type:func
 FIGHTSTG_updateFace = 0x8008B200; // type:func
 FIGHTSTG_createFace = 0x8008B508; // type:func
-func_8008ADB0 = 0x8008B630; // type:func
+// splat ends a function at its first return when nothing branches past it,
+// so one whose switch returns from cases only its jump table reaches needs
+// its size (FIGHTSTG_findFighters too), or each case is a function of its own
+func_8008ADB0 = 0x8008B630; // type:func size:0x6C
 func_8008AE1C = 0x8008B69C; // type:func
 func_8008AF74 = 0x8008B7F4; // type:func
 func_8008B400 = 0x8008BC80; // type:func
@@ -266,7 +269,7 @@ func_80097C14 = 0x80098924; // type:func
 func_80097D74 = 0x80098A84; // type:func
 func_80097F8C = 0x80098C9C; // type:func
 func_80098004 = 0x80098D14; // type:func
-FIGHTSTG_findFighters = 0x80098DE0; // type:func
+FIGHTSTG_findFighters = 0x80098DE0; // type:func size:0x360
 func_80098428 = 0x80099140; // type:func
 func_80098808 = 0x80099588; // type:func
 func_800993BC = 0x8009A254; // type:func

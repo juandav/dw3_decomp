@@ -995,9 +995,7 @@ void func_8008F5D4(s32 tech, s32 fighter) {
 }
 #endif
 
-/* fightstg.c's u16 rows */
-extern TechBoost D_800A216C[];
-extern TechBoost D_800A21B4[];
+/* fightstg.c's data */
 extern u8 D_800A21D4[];
 extern s32 D_800A21D8[];
 extern s32 D_800A21E8[];
@@ -2581,7 +2579,48 @@ Unk80092350 *func_80092494(s32 frames) {
     return task;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800924DC);
+/* Every frame: the hp tween of a side whose active fighter changed jumps to
+ * that fighter's hp; every interval, a side's tween starts easing (30 frames)
+ * to its fighter's hp, clamped to 0 and the max hp, when that changed. The
+ * match depends on a counter for each loop and the side's row of fighters. */
+void func_800924DC(HpDisplay *task, TextWindow **windows) {
+    s32 hp;
+    s32 i;
+    s32 j;
+    BattleFighter *row;
+
+    task->timer += GFX_FUNCS.getFrameTime();
+    for (i = 0; i < 2; i++) {
+        row = D_800A31E8.fighters[i];
+        if (task->hp[i].fighter != D_800A31E8.active[i]) {
+            task->hp[i].from = row[D_800A31E8.active[i]].hp;
+            task->hp[i].to = row[D_800A31E8.active[i]].hp;
+            task->hp[i].value = row[D_800A31E8.active[i]].hp;
+            task->hp[i].active = 0;
+            task->hp[i].fighter = D_800A31E8.active[i];
+        }
+    }
+    if (task->timer > task->interval) {
+        task->timer -= task->interval;
+        for (j = 0; j < 2; j++) {
+            row = D_800A31E8.fighters[j];
+            hp = row[D_800A31E8.active[j]].hp;
+            if (hp <= 0) {
+                hp = 0;
+            }
+            if (hp > row[D_800A31E8.active[j]].maxHp) {
+                hp = row[D_800A31E8.active[j]].maxHp;
+            }
+            if (hp != task->hp[j].to) {
+                task->hp[j].from = task->hp[j].value;
+                task->hp[j].to = hp;
+                task->hp[j].active = 1;
+                task->hp[j].time = 0;
+                task->hp[j].duration = 30;
+            }
+        }
+    }
+}
 
 void func_80092660(HpTween *tween) {
     s32 t;
@@ -5765,7 +5804,36 @@ void func_8009C60C(void) {
     D_800A317C.unk38[9] = 1;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009C764);
+/* When unkBC allows it, the action's unk2C becomes its damage times a 128th of
+ * the technique's unkC (kind 8) or the player's unk30[6], doubled when the
+ * acting fighter's unk1B is set. The match depends on each branch doubling
+ * and scaling its own value. */
+void func_8009C764(void) {
+    BattleAction *action = &D_800A317C;
+    Battle800A3308 *funcs = &D_800A3308;
+    s32 side = action->unk20 != 0;
+    BattleFighter *fighter = &D_800A31E8.fighters[side][D_800A31E8.active[side]];
+    Unk800427D6 *entry;
+    s32 value;
+
+    if (funcs->unkBC(action->unk20, action->unk24)) {
+        entry = &D_800427D6[action->unk24];
+        if (entry->unkA == 8) {
+            value = entry->unkC;
+            if (fighter->unk1B) {
+                value *= 2;
+            }
+            action->unk2C = action->damage * value / 128;
+        } else {
+            value = funcs->stats[0].unk30[6];
+            if (fighter->unk1B) {
+                value *= 2;
+            }
+            action->unk2C = action->damage * value / 128;
+        }
+        D_800A317C.unk38[8] = 1;
+    }
+}
 
 void func_8009C874(void) {
     BattleAction *action = &D_800A317C;
@@ -6994,7 +7062,34 @@ s32 func_800A15A8(s32 arg0, s32 arg1) {
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800A067C);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800A0830);
+/* D_800A3308.unkD4: a random test for side, likelier the bigger value is next
+   to the enemy's second stat, less likely the higher side's fighter's unk1E
+   and the later its event of type 0xC is due. The match depends on the 64
+   being set apart from unk1E's half and on the sum being written in one
+   statement. */
+s32 func_800A0830(u8 side, s32 value) {
+    s32 team;
+    s32 index;
+    s32 chance;
+    s16 delay;
+    s32 luck;
+    BattleStats *def;
+
+    if (side == 0) {
+        FIGHTSTG_computeStats(0, 0, D_800A31E8.active[0]);
+    } else {
+        FIGHTSTG_computeStats(0x10, 0, D_800A31E8.active[1]);
+    }
+    team = side != 0;
+    def = &D_800A3308.stats[1];
+    index = D_800A25F0.funcs.find(0xC, side, D_800A31E8.active[team]);
+    chance = (value << 7) / def->stats[1];
+    delay = D_800A25F0.events[index].time / 100;
+    luck = 64;
+    luck -= D_800A31E8.fighters[team][D_800A31E8.active[team]].unk1E >> 1;
+    chance = chance + luck - delay;
+    return (RANDOM.next() & 0x7F) < chance;
+}
 
 s32 func_800A0978(u8 side, s32 id) {
     BattleStats *stats;

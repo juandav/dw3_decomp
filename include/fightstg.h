@@ -576,6 +576,9 @@ typedef struct TechBoost {
     /* 0x6 */ s16 line; /* the message */
 } TechBoost;
 
+extern TechBoost D_800A216C[];
+extern TechBoost D_800A21B4[];
+
 typedef struct Unk8008EAF8 {
     TASK_HEADER(Unk8008EAF8);
     /* 0x50 */ u8 unk50; /* the side that uses it, 0 or 0x10 */

@@ -167,7 +167,7 @@ own.
 
 ## Overlays
 
-- [ ] 1,652 of the overlays' 1,695 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,657 of the overlays' 1,682 functions are C. All C: `CNTY_SEL`,
   `WFIGHTMN`, `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`, `STCRDABM`,
   `CARDGAME`, `STAGSLCT`, `STGTRAIN`, `STDWTITL` (`libpress`'s handwritten `DecDCTvlcSize2` and `DecDCTvlc2`
   are a `hasm` source, `src/stdwtitl/libpress_vlc2.s`, out of the count).
@@ -175,7 +175,7 @@ own.
   `FIELDSTG` (214 / 222),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70),
   `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
-  `FIGHTSTG` (283 / 310).
+  `FIGHTSTG` (288 / 297).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_createScreenWindows` (3 diffs): the `unk5C` loop's counter
     gets `s2` where the original has `s3`, the register of the other loops'
@@ -187,7 +187,14 @@ own.
     `s3` needs `s2` to be busy or preferred by something live in that loop.
     Forcing other live lengths on the four pseudos under gdb never gives
     `c` `s3`, and 40 minutes of the permuter found nothing under the
-    3 diffs.
+    3 diffs. Priorities alone can't do it: `c` (7 refs over 15 insns) is
+    allocated after `b` (11 over 20) and before `a` (15 over 65), and takes
+    `s2` as the lowest register already used that it doesn't conflict
+    with. Neither ranking gives it `s3`; `b` would have to be live in the
+    `unk5C` loop. The 54 ways of spreading `a`, `b` and `c` over the four
+    loops give 3, 12 or 118 diffs: `c` as `a` lets loop.c eliminate the
+    first loop's counter (the counter is dead at the loop's exit, as the
+    `unk5C` loop sets it first), and `c` as `b` gives `b` `s1`.
   - `SHOCKTST_convertText` (82 diffs at best, with the values loop's
     `strcspn` length and the file handle in their own variables): the
     original has no counter left in its loop. It keeps a pointer to the
@@ -206,6 +213,14 @@ own.
     -> `powers` into one register (the original reads each offset through
     its own copy), the registers come out in another order, and sched1
     puts `a0 = s` before `n = v0` at two `atoi` calls on a priority tie.
+    The pointers as members of one record don't explain the copies: a
+    12-byte struct (or an array of pointers) is `BLKmode` and lives on the
+    stack, and an 8-byte `{ times, powers }` is `DImode`, which needs a
+    register pair (195 diffs, with stack traffic), where the original's
+    `s7` and `fp` aren't one. Since cse would have rewritten the three
+    offsets' bases to one register, the copies must appear after cse, for
+    example from loop.c's giv code, as the loop's own `s5` -> temporary ->
+    `s7` copy does.
   - `FIELDSTG` (five objects, `fieldstg.c` to `fieldstg_5.c`):
     `func_800896C0`, the field's battle transition (the screen breaks into
     30 tiles that slide off in a spiral), matches in both versions only with
@@ -261,11 +276,15 @@ own.
     testing `id` in the loop's condition all change the code. Undoubling
     every REG_EQUIV pseudo's length doesn't match either (`task` and
     `children` move).
-- [ ] `FIGHTSTG`'s blocked functions: `func_8009C764` (8 diffs: the
-  original reads the fighter's `unk1B` in each branch) and `func_8009C8EC`
-  (4 bytes short: the original keeps `&D_800A3308` in a register instead of
-  folding it into the offsets) differ only in registers and the order of a
-  few loads (the permuter finds nothing natural). Of
+- [ ] `FIGHTSTG`'s blocked functions: `func_8009C8EC` (4 bytes short: the
+  original keeps `&D_800A3308` in a register instead of folding it into the
+  offsets) differs only in registers and the order of a few loads (the
+  permuter finds nothing natural). Combine folds an address used once into
+  the offsets, so the original likely has a second use of it that lasts
+  until combine and that cross-jumping merges after reload, as in
+  `func_8009C764`, whose branches each double and scale their own value:
+  the copies add references that change the allocation and CSE before the
+  merge. A `funcs` pointer variable doesn't keep it. Of
   the GTE functions, the large mesh drawer `func_80084890` keeps 25 diffs,
   all registers. Taking the mesh as a `void *` that a `Mesh *` local gets
   fixes the prologue (`s1` is saved first), and reading the uvs through a
@@ -277,58 +296,79 @@ own.
   references or pseudos must differ there; nothing found gets either.
   The `fightstg` unit's only unmatched data is `jtbl_80082448`, the jump
   table of `func_80084890`. `func_80099D24`
-  only matches with an empty `do {} while (0)`, a fake match (41 diffs
-  without it: `task` gets `s1` where the original has `s4`). The battle
-  checks: `FIGHTSTG_computeStats` (26 diffs: the
-  equipment loops share a base register the original doesn't), and
-  `func_800A0830` (43) and `func_800A067C` (27: the original keeps
-  `&D_800A31E8 + 8` in a register to read `unkD0`) got no closer with the
-  permuter (best scores 490, 270 and 145). In `fightstg_5.c` and
+  only matches with an empty `do {} while (0)`, a fake match (23 diffs
+  without it, in `near-miss/f6/9d_else.c`: `task` gets `s1` where the
+  original has `s4`; forcing the global allocator with the gdb tool shows
+  it needs `task` at 31 references or its loop's induction variable
+  lower). The battle
+  checks: `FIGHTSTG_computeStats` has the original's code (a draft in
+  `permuter/drafts_2026-10/near-miss/f6/cs10a.c`: totals in a local struct,
+  loops 1, 4 and 5 through `acc = &partner->equip[4]`, loop 2 through
+  `equip` and loop 3 walking it) but takes one more saved register: the
+  original gives `equip` (`s0`) the register where ours keeps `found`.
+  Forcing `equip`'s live length to 40 in the global allocator (the gdb
+  tool) leaves 8 diffs, the place of `equip`'s set, which the first
+  scheduler hoists above the `ON_PARTNER` call in ours. The permuter got
+  no closer than 510 with natural forms. `func_800A067C` (80 diffs: the
+  original keeps `&D_800A31E8 + 8` in a register from before its `side`
+  test and reads `unkD4` through it, which a dead read of a fighter after
+  the stats pointers gives, down to 15, but only as a forced form) got no
+  closer with the permuter (best score 145). In `fightstg_5.c` and
   `fightstg_6.c`: `func_800937FC` keeps 22 diffs in the stages' early-exit
   form (`do { ... break; ... } while (0)`, which matched `func_80091788`,
   `func_80091950`, `func_800967A4`, `func_800973D4` and `func_80095AC0`):
   only `children` and `changed` swap `s2` and `s3`, and the permuter only
   got closer (20) with a copy of `children` kept for nothing.
-  `func_800928BC` (76 diffs in the USA, 88 in Europe) and `func_800921EC`
-  (18: the original keeps the mode, the OT and `0xFFFFFF` in `s2` to `s4`)
-  differ in their registers. `func_800924DC` keeps 6
-  diffs: its second loop gets the counter and `&D_800A31E8.active[i]` in
-  each other's register (`a3` and `t0`). Tried: `func_80090908`
+  Forcing the global allocator's priorities with the gdb tool shows it
+  needs `children` at 16 references (it has 15), and no natural form tried
+  adds one. `func_800928BC` (68 diffs in Europe) and `func_800921EC` (18:
+  the original keeps the mode, the OT and `0xFFFFFF` in `s2` to `s4`) differ
+  in registers that the local allocator gives, which forcing the global
+  one doesn't change: `func_800921EC` is one basic block, and
+  `func_800928BC`'s gauge block needs its pseudo 277 before 278 (the
+  permuter's best, 335, needs a `volatile`). Tried: `func_80090908`
   (357 diffs: its `i == 5` call has to end in its own clear and `break`,
   which loop.c moves out of the loop to where the original has it, and
   `task->side != 0` is read before `switch (i)`; what is left is loop.c
   keeping 0x10 in a saved register, which the original makes at each use,
   so `children` goes to the stack instead of `&fighters[0]` and
-  `&fighters[1]`).
+  `&fighters[1]`; the permuter's best from this form needs an inline
+  wrapper and an `if (1)` block, both fake).
   `fightstg.c` defines `D_800A210C` as `u16` rows where `func_8008C8F0`
-  reads `ItemScript`s, and `D_800A216C` and `D_800A21B4` as `u16` rows
-  where `func_8008EAF8` reads `TechBoost`s (through `extern`s of their own
-  in `fightstg_6.c` for now). `fightstg_3.c`'s `func_80087304`
+  reads `ItemScript`s. `fightstg_3.c`'s `func_80087304`
   returns its task, which `func_80091A58` stores, but is defined `void`
   (`fightstg_6.c` has a prototype of its own that returns the task).
 - [ ] The battle menus' near misses. `WFIGHTTS`: `func_800A6954` (the
   Digimon list, 14 windows a side; its cursors and scrolls are
   `D_800A8268[2]` and `D_800A8270[2]`, two scalars each in the C for now;
-  typing them as arrays changes nothing in the code) is at 13 diffs with a
+  typing them as arrays changes nothing in the code) is at 2 diffs, with a
   counter of its own for each of the two lists' loops (the case 0 loops
-  and the steps' loops keep theirs): that gives the counters `s1` and
-  `&D_800A32E0` `s2`, as in the original. Two things are left. The
-  original computes the second list's id as `j + D_800A8270[1]` then
-  `+ 0x37`; written so (or `D_800A8270[1] + j + 0x37`, the order of the
-  `0x2000` case), gcc stops hoisting the scroll's address (45 diffs), and
-  `D_800A8270[1] + 0x37 + j` keeps `j + 0x37` in a register instead. And
-  the steps and the side read in the second steps' loop swap `a3` and
-  `t0`: an `if`/`else if` chain instead of the `while (1)` with breaks
-  gives the steps `a3`, but loses the layout of the breaks' blocks, which
-  loop.c moves out of the `while (1)` loop. A helper inlined for each list
-  matches the first list's loop whole, but keeps the second's side `1` in a
-  register. The ternary steps, the max's compare order, one counter for
-  every loop and two 25-minute permuter runs give nothing more. Forcing live lengths in
-  cc1 under gdb (`gtest.sh` in the drafts) shows the `a3`/`t0` swap is a
-  near tie: the steps (12 refs over 67 insns) rank just under the hoisted
-  `D_800A8264` load (7 over 25); the steps over 63 insns, or the load over
-  27, fix it (4 diffs left, the `j + D_800A8270[1] + 0x37` order). That
-  is two insns either way, which no form tried gets.
+  and the steps' loops keep theirs), the pad reads and the steps inside
+  the `while (1)` with breaks, and the second list's id in a variable,
+  `id = j + D_800A8270[1] + 0x37`. The pad reads in the loop fix the
+  `a3`/`t0` swap: the loop's depth weighs the steps' sets, which then
+  outrank the hoisted `D_800A8264` load (the steps' reads alone, before
+  the loop, leave 6 diffs). The 2 diffs left are the order of the two
+  addresses hoisted out of the second list's loop: ours sets
+  `&D_800A8270` before `&D_800A32E0`, as the `id` line comes before the
+  call. Written inside the call, `&D_800A32E0` comes first, but loop.c
+  then moves `&D_800A8270` only if it lives 3 insns (lifetime times
+  threshold times savings must reach the loop's 58 insns, and the
+  threshold drops by 3 for each insn moved before it). `j + D_800A8270[1]
+  + 0x37` gives it 2 (35 diffs, the file cache's address moves instead),
+  `D_800A8270[1] + 0x37 + j` gives it 3 with `j + 0x37` computed in
+  between (4 diffs). So the original's RTL had an insn or a note between
+  the scroll's address and its load, or a second use of that address,
+  which no form tried gives. The scroll read into a local first is the
+  `id` case again (2 diffs, a statement before the call); assigned inside
+  the call, 35. A pointer to `D_800A8270` for both lists, set before the
+  pad's loop or before the first list, gives 245 and 111; one to
+  `D_800A8270[1]` before the second list, 67. A `static inline` helper
+  for both lists matches the first list whole, but the second's side,
+  even as a `const` parameter, stays in `s7` (the inlined compare with it
+  needs a register) and its window index becomes a giv of its own (78
+  diffs, whatever the order of the sum). Reusing `m`, `i`, `j` or `k` for
+  the second list gives 9 to 32.
 - [ ] `WFIGHTTS` keeps the old names of the battle camera (`Unk800911C8`,
   `Unk80091618`, which `include/fightstg.h` keeps for it). `WFIGHTMN`
   includes `fightstg.h` alone now and uses its names (`BattleFighter`,
