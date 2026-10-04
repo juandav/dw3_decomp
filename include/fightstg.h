@@ -870,6 +870,14 @@ typedef struct Unk80094278 {
     /* 0xD4 */ s32 techs[6]; /* a technique in the low 13 bits */
 } Unk80094278;
 
+/* A line of func_80093E4C's stat list (D_800A2294): where its number goes and
+   the stat it shows */
+typedef struct StatLine {
+    /* 0x0 */ u8 x;
+    /* 0x1 */ u8 y;
+    /* 0x2 */ u8 stat; /* of Unk80094278.stats */
+} StatLine;
+
 typedef struct Unk800967A4 {
     TASK_HEADER(Unk800967A4);
     /* 0x50 */ s32 *unk50; /* -1 until it is done */
@@ -1409,11 +1417,13 @@ extern CameraView D_800A3438;
 extern s32 D_800A2588[]; /* per event type, FIGHTSTG_popEvent takes (1), peeks at (-1) or skips (0) it */
 extern DigimonData *(*ON_PARTNER_ENTRY_ADDED)(s32 id);
 struct Unk8009A098 *func_8009A214(Unk8009A214 *arg0);
+extern Unk8009A214 D_800A2254; /* func_800931CC's cursor */
 extern Unk8009A214 D_800A22BC; /* func_80094D04's cursor */
 extern Unk8009A214 D_800A22DC; /* func_80095AC0's cursor */
 extern Unk8009A214 D_800A22FC; /* func_800967A4's cursor */
 extern Unk8009A214 D_800A231C[2]; /* func_800973D4's cursors */
 extern Unk8009A214 D_800A23BC; /* func_800999E4's */
+extern StatLine D_800A2294[13];
 extern s16 D_800A236C[][2]; /* func_800999E4's results: the message, its line */
 extern s16 D_800A23AC[]; /* func_800999E4's lines, shuffled */
 extern RECT D_800A23DC; /* where func_80099D24's bar is in VRAM */

@@ -2027,7 +2027,44 @@ void func_80093084(Unk800931CC *task) {
     }
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800931CC);
+/* Six choices: puts a cursor (D_800A2254) on the lines, starting on unk50;
+ * cross picks the line into *unk54 and locks the cursor, but not lines 0-2
+ * when the active fighter has flag 8, nor line 2 when it has 0x20. The match
+ * depends on the early exits being breaks out of a do/while. */
+void func_800931CC(Unk800931CC *task, Unk800931CCWindows *w) {
+    BattleFighter *fighter;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        w->cursor = func_8009A214(&D_800A2254);
+        w->cursor->sel = task->unk50;
+        func_80093084(task);
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+        do {
+            if (!(PAD.getPressed(0) & (1 << PAD_CROSS))) {
+                break;
+            }
+            SOUND.playSound(0x4001C);
+            fighter = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
+            if ((fighter->flags & 8) && w->cursor->sel < 3) {
+                break;
+            }
+            if ((fighter->flags & 0x20) && w->cursor->sel == 2) {
+                break;
+            }
+            *task->unk54 = w->cursor->sel;
+            task->setState(task, 3);
+            w->cursor->locked = 1;
+        } while (0);
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 Unk800931CC *func_80093324(s32 arg0, s32 *done) {
     Unk800931CC *task = createTask(func_800931CC, sizeof(Unk800931CC), 0x1C);
@@ -2195,7 +2232,32 @@ void func_80093D7C(Unk80094278 *task) {
     drawer.draw(sheet, 0x25, 0x10, 0x4A);
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_80093E4C);
+/* Creates the thirteen stat numbers of D_800A2294 (up to 999), right
+ * aligned, in palette 6 for windows 5, 6 and 9 when stats 19, 20 and 21 are
+ * set. The match depends on reading the stat through a pointer sum. */
+void func_80093E4C(Unk80094278 *task, TextWindow **windows) {
+    s32 i;
+    s32 value;
+
+    for (i = 0; i < 13; i++) {
+        windows[i + 5] = createTextWindow(0x1005, 1, D_800A2294[i].x, D_800A2294[i].y);
+        value = *(task->stats + D_800A2294[i].stat);
+        if (value >= 1000) {
+            value = 999;
+        }
+        windows[i + 5]->setNumber(windows[i + 5], 0, value);
+        windows[i + 5]->setRightAlign(windows[i + 5], 1);
+    }
+    if (task->stats[19]) {
+        windows[5]->setPalette(windows[5], 6);
+    }
+    if (task->stats[20]) {
+        windows[6]->setPalette(windows[6], 6);
+    }
+    if (task->stats[21]) {
+        windows[9]->setPalette(windows[9], 6);
+    }
+}
 
 void func_80093F94(Unk80094278 *task) {
     SpriteDrawer drawer;
@@ -5047,7 +5109,21 @@ void func_8009C8B0(void) {
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009C8EC);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009C998);
+/* Lowers stat 0 of the other side's active fighter by the technique's unkC
+ * percent and starts its event (not when side 0 acts with
+ * D_80042728.unk3E[8] set). The match depends on team being a u8. */
+void func_8009C998(void) {
+    u8 team = D_800A317C.unk20 != 0;
+    Unk800427D6 *entry;
+
+    if (team == 0 && D_80042728.unk3E[8] != 0) {
+        return;
+    }
+    entry = &D_800427D6[D_800A317C.unk24];
+    D_800A3308.unkE0((u8)(0x10 - D_800A317C.unk20), D_800A31E8.active[1 - team], 0, -entry->unkC);
+    func_8009BD20((u8)(0x10 - D_800A317C.unk20), D_800A31E8.active[1 - team], 0, D_800A317C.unk24);
+    D_800A317C.unk38[entry->unkA] = entry->unkC;
+}
 
 void func_8009CA84(void) {
     s32 other = 1 - (D_800A317C.unk20 != 0);
@@ -5555,7 +5631,35 @@ s32 func_8009E7E4(u8 side, s32 id, s32 value) {
     return result;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009EA74);
+/* A technique's power from the user's stats[0] against the target's stats[1]
+ * (an enemy's scaled by its unkA / 16), passed on to func_8009E7E4. The match
+ * depends on the division in each branch. */
+s32 func_8009EA74(u8 side, s32 id) {
+    Unk800427D6 *tech;
+    BattleStats *user;
+    BattleStats *target;
+    s32 value;
+    s32 enemy;
+
+    if (side == 0) {
+        FIGHTSTG_computeStats(0, 1, D_800A31E8.active[0]);
+        FIGHTSTG_computeStats(0x10, 0, D_800A31E8.active[1]);
+    } else {
+        FIGHTSTG_computeStats(0, 0, D_800A31E8.active[0]);
+        FIGHTSTG_computeStats(0x10, 1, D_800A31E8.active[1]);
+    }
+    user = &D_800A3308.stats[0];
+    tech = &D_800427D6[id];
+    target = &D_800A3308.stats[1];
+    if (side == 0) {
+        value = tech->unk2 * user->stats[0] / target->stats[1];
+    } else {
+        enemy = D_800A31E8.active[1]; /* the match depends on reading it first */
+        value = tech->unk2 * D_80042728.enemies[enemy].unkA / 16 * user->stats[0] /
+                target->stats[1];
+    }
+    return func_8009E7E4(side, id, value);
+}
 
 s32 func_8009EBAC(u8 side, s32 id) {
     Unk800427D6 *tech;
@@ -5625,7 +5729,40 @@ s32 func_8009EBAC(u8 side, s32 id) {
     return result;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8009EF04);
+/* getDamage: the damage of an event (args: the side, the fighter and the
+ * base damage) to the fighter if it is its side's active one, less a tenth of
+ * its resist[1] and resist[7], as a part of its max HP: at least 1, at most
+ * half the max HP. The match depends on the fighter pointer. */
+s32 func_8009EF04(s32 *args) {
+    u8 side;
+    u8 team; /* the match depends on a u8 */
+    s32 index;
+    s32 damage;
+    BattleStats *stats;
+    s16 maxHp;
+    BattleFighter *fighter;
+    s32 result;
+
+    side = args[0];
+    index = args[1];
+    damage = args[2];
+    team = side != 0;
+    if (index != D_800A31E8.active[team]) {
+        return 0;
+    }
+    FIGHTSTG_computeStats(side, 0, index);
+    stats = &D_800A3308.stats[1];
+    fighter = &D_800A31E8.fighters[team][index];
+    maxHp = fighter->maxHp;
+    result = (damage / 2 - (stats->resist[7] + stats->resist[1]) / 10) * maxHp / 100;
+    if (result <= 0) {
+        result = 1;
+    }
+    if (result > maxHp / 2) {
+        result = maxHp / 2;
+    }
+    return result;
+}
 
 s32 func_8009F028(u8 side, s32 id, s32 value) {
     BattleFighter *fighter;
@@ -6342,4 +6479,18 @@ void FIGHTSTG_lerpVector(SVECTOR *from, SVECTOR *to, s32 t, SVECTOR *out) {
     out->vz += step.vz;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_800A0FDC);
+/* Returns value scaled by the sine of t (4096 is 1.0) on the given curve: 0 a
+ * quarter of t, 1 the same as a cosine, 2 half of t. The match depends on a
+ * return in each case; one shared return after the switch schedules the
+ * epilogue differently. */
+s32 func_800A0FDC(s32 curve, s32 t, s32 value) {
+    switch (curve) {
+    case 0:
+    default:
+        return rsin(t >> 2) * value / 4096;
+    case 1:
+        return rsin((t >> 2) + 0x400) * value / 4096;
+    case 2:
+        return rsin(t >> 1) * value / 4096;
+    }
+}

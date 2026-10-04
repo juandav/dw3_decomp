@@ -175,7 +175,7 @@ own.
   `FIELDSTG` (214 / 222), `STGTRAIN` (91 / 94),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
   `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
-  `FIGHTSTG` (273 / 310).
+  `FIGHTSTG` (279 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_createScreenWindows` (3 diffs): the `unk5C` loop's counter
     gets `s2` where the original has `s3`, the register of the other loops'
@@ -228,19 +228,20 @@ own.
     right code but 80 diffs of registers (`task` gets `s3` where the
     original has `s4`); the permuter only got closer with
     an empty `do {} while (0)`, a fake match.
-- [ ] `FIGHTSTG`'s blocked functions: `func_8009C764`, `func_8009C8EC` and
-  `func_8009C998` differ only in registers and the order of a few loads (the
-  permuter finds nothing natural); `func_800A0FDC` is a near miss too. Of
+- [ ] `FIGHTSTG`'s blocked functions: `func_8009C764` (8 diffs: the
+  original reads the fighter's `unk1B` in each branch) and `func_8009C8EC`
+  (4 bytes short: the original keeps `&D_800A3308` in a register instead of
+  folding it into the offsets) differ only in registers and the order of a
+  few loads (the permuter finds nothing natural). Of
   the GTE functions, the large mesh drawers `func_80084890` (48 diffs, all
   registers and order: the prologue saves `s1` after its copy of `layer`,
   and the registers of the clut, the screen points, the `nclip` compares
   and the uvs come out swapped) and
   `func_800850D8` (26) differ in how they keep the state's fields in
   registers. `func_80099D24`
-  only matches with an empty `do {} while (0)`, a fake match. The battle
-  checks: `func_8009EF04` (`getDamage`) only matches with a copy of `side`
-  kept for nothing, a forced form; `func_8009EA74` keeps 2 diffs (`v1` and
-  `a2` swapped for the value); `FIGHTSTG_computeStats` (26 diffs: the
+  only matches with an empty `do {} while (0)`, a fake match (41 diffs
+  without it: `task` gets `s1` where the original has `s4`). The battle
+  checks: `FIGHTSTG_computeStats` (26 diffs: the
   equipment loops share a base register the original doesn't), and
   `func_800A0830` (43) and `func_800A067C` (27: the original keeps
   `&D_800A31E8 + 8` in a register to read `unkD0`) got no closer with the
@@ -253,10 +254,11 @@ own.
   `func_8008AF74` (the battle script's model command) keeps 6 diffs: the
   original loads case 3's time between reading `pc[0]` and storing it, and
   the permuter only got closer with a variable kept for nothing.
-  `func_800928BC` (76 diffs in the USA, 88 in Europe), `func_800931CC` (21),
-  `func_800921EC` (18), `func_800924DC` (69) and `func_8008B784` (24) differ
-  in their registers, and `func_80093E4C`, which reads the stats through
-  `D_800A2294`'s offsets, gets a giv split the original doesn't have. Tried:
+  `func_800928BC` (76 diffs in the USA, 88 in Europe), `func_800921EC` (18:
+  the original keeps the mode, the OT and `0xFFFFFF` in `s2` to `s4`) and
+  `func_8008B784` (24) differ in their registers. `func_800924DC` keeps 6
+  diffs: its second loop gets the counter and `&D_800A31E8.active[i]` in
+  each other's register (`a3` and `t0`). Tried:
   `func_8008EAF8` (about 1300 diffs: its cases share their `func_800A8F60`
   calls in other places, and it calls `D_800A3108` as `D_800A25F0`'s
   tenth function at offset `0xB18`, so `fightstg.c`'s `D_800A25F0` has to
