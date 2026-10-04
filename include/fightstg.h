@@ -540,18 +540,32 @@ typedef struct Unk80087870 {
     /* 0x68 */ Vec2 texPos;
 } Unk80087870;
 
+/* func_8008C0BC's task (func_8008C8B8): a side's first technique */
 typedef struct Unk8008C0BC {
     TASK_HEADER(Unk8008C0BC);
-    /* 0x50 */ u8 unk50;
-    /* 0x51 */ u8 unk51[0x2F];
+    /* 0x50 */ u8 unk50; /* the side that uses it, 0 or 0x10 */
+    /* 0x54 */ s32 tech;
+    /* 0x58 */ s32 damage;
+    /* 0x5C */ s32 unk5C; /* whether the other side's fighter had flag 8 */
+    /* 0x60 */ s32 lines[8]; /* func_80097F8C's */
 } Unk8008C0BC;
 
+/* func_8008CFFC's task: an item used in battle, func_8008C8F0 its script */
 typedef struct Unk8008CFFC {
     TASK_HEADER(Unk8008CFFC);
-    /* 0x50 */ u8 unk50[0x20];
-    /* 0x70 */ s32 unk70;
-    /* 0x74 */ u8 unk74[0xC];
+    /* 0x50 */ s32 lines[8]; /* func_80097F8C's, 0 ends them */
+    /* 0x70 */ s32 unk70; /* the item */
+    /* 0x74 */ s32 unk74; /* item 0x54's element, 2-8 */
+    /* 0x78 */ s32 unk78; /* the damage */
+    /* 0x7C */ s32 unk7C; /* item 0x58's: 1 it lowered the enemy's first stat, 2 its second */
 } Unk8008CFFC;
+
+/* An item's script settings (D_800A210C, ended by -1) */
+typedef struct ItemScript {
+    /* 0x0 */ s16 item;
+    /* 0x2 */ s16 unk6C; /* BattleScript's */
+    /* 0x4 */ s16 sound;
+} ItemScript;
 
 typedef struct Unk8008EAF8 {
     TASK_HEADER(Unk8008EAF8);
@@ -560,12 +574,17 @@ typedef struct Unk8008EAF8 {
     /* 0x58 */ u8 unk58[0x2C];
 } Unk8008EAF8;
 
+/* func_80090290's task (func_800908C0): an attack on the player's active
+   fighter, as state unk74 + 1 */
 typedef struct Unk80090290 {
     TASK_HEADER(Unk80090290);
-    /* 0x50 */ u8 unk50[0x24];
+    /* 0x50 */ s32 lines[4]; /* func_80097F8C's */
+    /* 0x60 */ s32 unk60; /* call func_800A9840 once the motion starts */
+    /* 0x64 */ u8 unk64[0xC];
+    /* 0x70 */ s32 unk70; /* the technique */
     /* 0x74 */ s32 unk74;
-    /* 0x78 */ s32 unk78;
-    /* 0x7C */ u8 unk7C[4];
+    /* 0x78 */ s32 unk78; /* don't knock the fighter out at 0 HP */
+    /* 0x7C */ s32 unk7C; /* the fighter had flag 8 */
 } Unk80090290;
 
 typedef struct Unk80090908 {
@@ -600,6 +619,19 @@ typedef struct HpDisplay {
     /* 0x80 */ s32 timer;
     /* 0x84 */ s32 interval; /* how often the hp is checked */
 } HpDisplay;
+
+/* The player's turn (func_80091A58, id 0xE): the battle menu, then the
+   menus of its commands */
+typedef struct Unk80091A58 {
+    TASK_HEADER(Unk80091A58);
+    /* 0x50 */ s32 command; /* the battle menu's choice */
+    /* 0x54 */ s32 unk54; /* func_80096C8C's */
+    /* 0x58 */ s32 result; /* the open menu's, -1 until it is done and -2 to go back */
+    /* 0x5C */ s32 action; /* what the turn does */
+    /* 0x60 */ s32 unk60;
+    /* 0x64 */ s32 unk64;
+    /* 0x68 */ s32 unk68; /* func_80097BEC's */
+} Unk80091A58;
 
 typedef struct Unk800937FC {
     TASK_HEADER(Unk800937FC);
@@ -1306,7 +1338,7 @@ void func_80092E0C(HpDisplay *task, TextWindow **windows);
 void func_800933EC(Unk800933EC *task, FighterCamera **cameras);
 void func_800A1048();
 void func_800A1FE0();
-void func_80091A58();
+void func_80091A58(Unk80091A58 *task, Task **children);
 void func_8009D8B4(s32 layerId, s32 depth, DVECTOR *xy, CVECTOR *colors, s32 semi);
 void func_800973D4();
 void func_80087870();
@@ -1321,6 +1353,7 @@ void func_80092350(Unk80092350 *task);
 void func_800937FC();
 void func_8008C0BC();
 void func_8008CFFC();
+s32 func_8008C8F0(Unk8008CFFC *task, BattleScript **children);
 void func_80090908();
 Unk800973D4 *func_80097B74(s32 *arg0);
 void func_80094D04();

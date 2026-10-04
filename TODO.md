@@ -175,7 +175,7 @@ own.
   `FIELDSTG` (214 / 222), `STGTRAIN` (91 / 94),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
   `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
-  `FIGHTSTG` (267 / 310).
+  `FIGHTSTG` (272 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_createScreenWindows` (3 diffs): the `unk5C` loop's counter
     gets `s2` where the original has `s3`, the register of the other loops'
@@ -256,10 +256,20 @@ own.
   `func_800928BC` (76 diffs in the USA, 88 in Europe), `func_800931CC` (21),
   `func_800921EC` (18), `func_800924DC` (69) and `func_8008B784` (24) differ
   in their registers, and `func_80093E4C`, which reads the stats through
-  `D_800A2294`'s offsets, gets a giv split the original doesn't have. Still
-  to try: `func_8008C0BC`, `func_8008C8F0`, `func_8008CFFC`,
-  `func_8008E3C8`, `func_8008EAF8`, `func_80090290`, `func_80090908`
-  and `func_80091A58`.
+  `D_800A2294`'s offsets, gets a giv split the original doesn't have. Tried:
+  `func_8008EAF8` (about 1300 diffs: its cases share their `func_800A8F60`
+  calls in other places, and it calls `D_800A3108` as `D_800A25F0`'s
+  tenth function at offset `0xB18`, so `fightstg.c`'s `D_800A25F0` has to
+  take `D_800A3108` in first; `func_8008C0BC`'s row offset, `other * 0x60`
+  added as an int in a block of its own, may help it and the next two),
+  `func_8008E3C8` (212: substate 0 starts in another order and the stage
+  takes other registers) and `func_80090908` (the block placement and a
+  constant hoisted); the permuter found nothing but junk for the last two.
+  `fightstg.c` defines `D_800A210C` as `u16` rows where `func_8008C8F0`
+  reads `ItemScript`s (through an `extern` of its own in `fightstg_6.c` for
+  now). `fightstg_3.c`'s `func_80087304`
+  returns its task, which `func_80091A58` stores, but is defined `void`
+  (`fightstg_6.c` has a prototype of its own that returns the task).
 - [ ] The battle menus' near misses. `WFIGHTTS`: `func_800A6954` (the
   Digimon list, 14 windows a side; its cursors and scrolls are
   `D_800A8268[2]` and `D_800A8270[2]`, two scalars each in the C for now;
