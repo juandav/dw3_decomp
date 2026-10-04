@@ -38,9 +38,9 @@ void MemCardStart(void) {
     D_80082068.callback = NULL;
     UserFuncInit();
     *busy = 0;
-    *(volatile long *)&D_80082068.unk4 = 0;
-    *(volatile long *)&D_80082068.unk8 = 0;
-    D_80082068.unk50 = *(volatile long *)&D_80082068.unk54 = 0;
+    D_80082068.unk4 = 0;
+    D_80082068.unk8 = 0;
+    D_80082068.unk50 = D_80082068.unk54 = 0;
     D_80082068.fd = -1;
     D_80082068.unk4C = 1;
     D_80082068.unk48 = 1;
@@ -85,7 +85,115 @@ inline long MemCardAccept(long chan) {
     return 1;
 }
 
-INCLUDE_ASM("main/nonmatchings/psyq/libmcrd_libmcrd", func_8003BE70);
+extern long D_80082040;
+extern long D_80082044; /* retries of the card load */
+extern long D_80082048;
+extern long D_8008204C; /* last card event */
+extern long D_80082050; /* set when a new card was cleared */
+long func_8003D638(long chan);
+long func_8003D648(long chan); /* _card_load */
+long _chk_card_event(void);
+long _get_card_event(void);
+long _chk_card_event_x(void);
+long _get_card_event_x(void);
+void _clr_card_event(void);
+
+/* match depends on: the state read through a plain long pointer. Read as
+   arg->data[0], a structure member, the code comes out different. */
+long func_8003BE70(UserFuncArg *arg_) {
+    long ret;
+    long *arg = (long *)arg_;
+
+    switch ((unsigned long)*arg) {
+    case 0:
+        D_80082044 = 0;
+        D_80082048 = 0;
+        D_80082040 = 0;
+        D_80082050 = 0;
+        D_8008204C = 0;
+        (*arg)++;
+        /* fall through */
+    case 1:
+        UserFuncOpen(func_8003BAEC);
+        *arg = 10;
+        break;
+    case 10:
+        switch (D_80082068.unk4) {
+        case 1:
+            return 1;
+        case 3:
+            D_80082050 = 1;
+            D_80082068.unkC |= 1 << D_80082068.unk10;
+            _clr_card_event();
+            _card_clear(D_80082068.unk10);
+            *arg = 21;
+            break;
+        case 0:
+            *arg = 30;
+            break;
+        default:
+            return 1;
+        }
+        break;
+    case 21:
+        if (_chk_card_event_x() == 0) {
+            break;
+        }
+        _get_card_event_x();
+        *arg = 30;
+        /* fall through */
+    case 30:
+        _clr_card_event();
+        func_8003D648(D_80082068.unk10);
+        (*arg)++;
+        break;
+    case 31:
+        if (_chk_card_event() == 0) {
+            return 0;
+        }
+        D_8008204C = _get_card_event();
+        switch (D_8008204C) {
+        case 0:
+            ret = 0;
+            if (D_80082050 != 0) {
+                ret = 3;
+            }
+            D_80082068.unk4 = ret;
+            return 1;
+        case 4:
+            _clr_card_event();
+            func_8003D638(D_80082068.unk10);
+            *arg = 50;
+            break;
+        case 2:
+            *arg = 1;
+            break;
+        case 1:
+            if (++D_80082044 < 17) {
+                *arg = 30;
+                break;
+            }
+            /* fall through */
+        default:
+            D_80082068.unk4 = func_8003D0EC(D_8008204C);
+            return 1;
+        }
+        break;
+    case 50:
+        if (_chk_card_event() == 0) {
+            return 0;
+        }
+        ret = _get_card_event();
+        D_8008204C = ret;
+        if (ret != 0) {
+            *arg = 1;
+            break;
+        }
+        D_80082068.unk4 = 4;
+        return 1;
+    }
+    return 0;
+}
 
 long func_80024CB8(char *name, long mode);
 extern long D_80082078;
@@ -173,11 +281,6 @@ long MemCardReadData(u_long *adrs, long ofs, long bytes) {
 extern long MCRD_READ_RETRIES;
 long func_8003D248(long a, long b, long c);
 long func_80024CC8(long fd, long a, long b);
-long _chk_card_event(void);
-long _get_card_event(void);
-long _chk_card_event_x(void);
-long _get_card_event_x(void);
-void _clr_card_event(void);
 
 long func_8003C39C(UserFuncArg *arg) {
     long ev;
@@ -216,7 +319,7 @@ long func_8003C39C(UserFuncArg *arg) {
                 break;
             }
         }
-        ((volatile McrdGlobal *)&D_80082068)->unk4 = func_8003D0EC(ev);
+        D_80082068.unk4 = func_8003D0EC(ev);
         return 1;
     case 32:
         if (_chk_card_event_x() == 0) {
@@ -295,7 +398,7 @@ long func_8003C604(UserFuncArg *arg) {
                 break;
             }
         }
-        ((volatile McrdGlobal *)&D_80082068)->unk4 = func_8003D0EC(ev);
+        D_80082068.unk4 = func_8003D0EC(ev);
         return 1;
     case 32:
         if (_chk_card_event_x() == 0) {
@@ -355,7 +458,7 @@ long func_8003C8C8(UserFuncArg *arg) {
         }
         D_80082068.fd = func_80024CB8((char *)D_80082068.unk24, 0x8001);
         if (D_80082068.fd < 0) {
-            ((volatile McrdGlobal *)&D_80082068)->unk4 = 5;
+            D_80082068.unk4 = 5;
             return 1;
         }
     case 11:
@@ -417,7 +520,7 @@ long func_8003CAE8(UserFuncArg *arg) {
         }
         D_80082068.fd = func_80024CB8((char *)D_80082068.unk24, 0x8001);
         if (D_80082068.fd < 0) {
-            ((volatile McrdGlobal *)&D_80082068)->unk4 = 5;
+            D_80082068.unk4 = 5;
             return 1;
         }
     case 11:
@@ -535,7 +638,7 @@ long MemCardSync(long mode, long *cmds, long *rslt) {
         if (cmds != NULL) {
             *cmds = D_80082058[0];
         }
-        ((volatile McrdGlobal *)&D_80082068)->unk8 = 0;
+        D_80082068.unk8 = 0;
         return 1;
     }
     if (g->unk8 == 0) {
