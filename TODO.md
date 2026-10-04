@@ -167,13 +167,13 @@ own.
 
 ## Overlays
 
-- [ ] 1,627 of the overlays' 1,695 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,644 of the overlays' 1,695 functions are C. All C: `CNTY_SEL`,
   `WFIGHTMN`, `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`, `STCRDABM`,
-  `STDWTITL` (`libpress`'s handwritten `DecDCTvlcSize2` and `DecDCTvlc2`
+  `CARDGAME`, `STDWTITL` (`libpress`'s handwritten `DecDCTvlcSize2` and `DecDCTvlc2`
   are a `hasm` source, `src/stdwtitl/libpress_vlc2.s`, out of the count).
   Mostly: `STCRDDEK` (54 / 55), `SHOCKTST` (16 / 17), `STAGSLCT` (7 / 8),
   `FIELDSTG` (214 / 222), `STGTRAIN` (91 / 94),
-  `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
+  `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70),
   `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
   `FIGHTSTG` (279 / 310).
 - [ ] The small overlays' last functions:
@@ -312,18 +312,12 @@ own.
   loop.c moves out of the `while (1)` loop. A helper inlined for each list
   matches the first list's loop whole, but keeps the second's side `1` in a
   register. The ternary steps, the max's compare order, one counter for
-  every loop and two 25-minute permuter runs give nothing more.
-  `CARDGAME`: `func_8009DE0C` (the sort of a list of cards by
-  `battle->cards[list[k]]`, swapping `unk30A` and `unk446` with it by flag)
-  stays at 22 diffs: `from` and `flags & 1` swap `a1` and `s0`, and the
-  loop counter and the `unk446` pointer `t3` and `t4`. Our `from` has 7
-  refs (weighted by loop depth: 1 + 1 + 2 + 3) over 59 insns, `flags & 1`
-  4 (1 + 3) over 53, so ours allocates `from` first; the original's
-  `flags & 1` must have more refs or `from` fewer. The declarations' order,
-  `u16`/`u32` copies, flag variables, the swaps' order, pointer sums, the
-  compares' order, `range & 0xFFFF` in place of `from`, an inline helper
-  for the swap (whole or the bytes), pointers to the swapped entries and a
-  25-minute permuter run change nothing or make it worse.
+  every loop and two 25-minute permuter runs give nothing more. Forcing live lengths in
+  cc1 under gdb (`gtest.sh` in the drafts) shows the `a3`/`t0` swap is a
+  near tie: the steps (12 refs over 67 insns) rank just under the hoisted
+  `D_800A8264` load (7 over 25); the steps over 63 insns, or the load over
+  27, fix it (4 diffs left, the `j + D_800A8270[1] + 0x37` order). That
+  is two insns either way, which no form tried gets.
 - [ ] `WFIGHTTS` keeps the old names of the battle camera (`Unk800911C8`,
   `Unk80091618`, which `include/fightstg.h` keeps for it). `WFIGHTMN`
   includes `fightstg.h` alone now and uses its names (`BattleFighter`,
@@ -346,7 +340,13 @@ own.
   an inline helper for the third loop's draws takes one more saved
   register. The refs global alloc weighs count 1 outside the loops, 2 in a
   loop and 3 in a nested one: the original's counter outranks the `0x25`
-  sum and its pointer ranks under the `0x13` sum.
+  sum and its pointer ranks under the `0x13` sum. Forcing live lengths
+  under gdb (`gtest.sh`) confirms it: with the counter over 140 insns
+  (ours 162), the `0x25` sum over 170 (ours 155) and the `0x13` sum over
+  152 (ours 158) it matches. The order needed is counter, `&FILE_CACHE`
+  (19 refs, its live length doubled as an equivalence), `0x25` sum, `0x13`
+  sum, pointer: the counter must live shorter and the two sums the other
+  way round, which no order of the loop's statements gives.
   `STCRDSHP`: `func_800870F4` (1 diff: the original
   copies the quotient of the count by 6 into another register for the
   `addu` of the pages count; computing the remainder first, as in
@@ -355,7 +355,13 @@ own.
   writing `buy->count / 6 + pages` ties the sum to the quotient's
   register instead; the count in a variable, the quotient or the
   remainder in variables of their own, either order of the terms, `+=`,
-  `?:` and `(count + 5) / 6` all keep one of the two). `func_80083BEC` (the states of
+  `?:` and `(count + 5) / 6` all keep one of the two). The original's
+  `addu v0,v0,v1` is the quotient plus the flag with the sum tied to the
+  flag's register, so its tie to the quotient failed; ours puts the
+  quotient first because expand_binop swaps a commutative sum's operands
+  when the target is the second. Making the flag's copy global under gdb
+  gets `v0` for the sum but moves the other registers (11 diffs). A
+  25-minute permuter run on this form finds nothing. `func_80083BEC` (the states of
   the screen that opens a pack) is down to 2 diffs: in case 52 the
   original loads `open->page` into `a1` where ours ties it to `v1`, the
   register of `page * 8`. What got it there: case 4 keeps the old page in
@@ -371,13 +377,25 @@ own.
   past the `sll`, for example as a second argument of
   `STCRDSHP_listPacks`, but a cast that passes it gets `a1` and schedules
   the block differently. Statement orders and a 10,000-iteration permuter
-  run change nothing either.
+  run change nothing either. The original's `move s2,v1` is
+  reload_cse_regs turning a second `sll s2,a1,3` into a move: the page is
+  shifted twice, so it doesn't die at the first `sll` and the tie fails.
+  `end = (open->page + 1) * 8 - 1` gives the two shifts (combine makes
+  the sum an `ior` of `page << 3` and 7), and setting `end`, `i`, `first`
+  then `substate = 0` gets every register right, but then sched1 puts the
+  `sw zero,16(s4)` in the call's delay slot (10 diffs) where the original
+  keeps it before the `lh`: the original schedules `first` just before the
+  call. 144 orders and forms of case 52 tried by a script give 2 diffs at
+  best, and a 30-minute permuter run on that order nothing.
   `STITSHOP`: `func_80089104`
   (3 diffs: the order in which the loop initializes its `x` induction
   variables: ours sets `x` before the strength-reduced `i * 0x63`s, the
   original after them; `x` set before the `if`, a `for` or `while` loop,
   `x = i` or no `x` at all, with `i * 0x63` in the sums, don't change
-  it). `STGDGLAB`: `func_8008C234` (4 diffs: our
+  it; nor `x` as a giv of `i` (148 diffs) or `x` stepped mid-loop (70).
+  loop.c puts the givs' inits before the `LOOP_BEG` note after what the
+  preheader already holds, so the original's `x` init must come after the
+  loop's start or be a giv itself). `STGDGLAB`: `func_8008C234` (4 diffs: our
   scheduler moves the `skillCount = 6` store after the argument moves of
   the call to `func_8008BB78`, where the original keeps it before them; no variable, label or order changes it, nor
   an inline function, a comma expression or the permuter). A clue: sched1

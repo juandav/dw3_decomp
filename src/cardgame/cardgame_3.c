@@ -3496,7 +3496,41 @@ void func_8009DCDC(CardBattle *battle, CardBattleItems *items) {
     }
 }
 
-INCLUDE_ASM("cardgame/nonmatchings/cardgame_3", func_8009DE0C);
+void func_8009DE0C(CardBattle *battle, s16 *list, s32 range, s32 flags) {
+    CardBattle30A tmp30A;
+    s16 tmp;
+    s8 tmp446;
+    s32 from;
+    s32 to;
+    s16 *ids;
+    s32 i;
+    s32 j;
+
+    from = range & 0xFFFF;
+    to = range >> 16;
+    /* the match depends on this copy of list after from and to: list stays
+       in $a1 until here, so from gets $s0 and leaves $a1 to flags & 1 */
+    ids = list;
+    for (i = from; i < to - 1; i++) {
+        for (j = i + 1; j < to; j++) {
+            if (battle->cards[ids[i]] > battle->cards[ids[j]]) {
+                tmp = ids[i];
+                ids[i] = ids[j];
+                ids[j] = tmp;
+                if (flags & 1) {
+                    tmp30A = battle->unk30A[i];
+                    battle->unk30A[i] = battle->unk30A[j];
+                    battle->unk30A[j] = tmp30A;
+                }
+                if (flags & 2) {
+                    tmp446 = battle->unk446[i - from];
+                    battle->unk446[i - from] = battle->unk446[j - from];
+                    battle->unk446[j - from] = tmp446;
+                }
+            }
+        }
+    }
+}
 
 void func_8009DF5C(CardBattle *battle, s32 base, s32 n) {
     CardPile *pile = &battle->sides[0].pile;
