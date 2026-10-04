@@ -167,14 +167,14 @@ own.
 
 ## Overlays
 
-- [ ] 1,624 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
-  `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`, `STCRDABM`. Mostly:
+- [ ] 1,625 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
+  `WFIGHTMN`, `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`, `STCRDABM`. Mostly:
   `STCRDDEK` (54 / 55), `SHOCKTST` (16 / 17), `STAGSLCT` (7 / 8),
   `FIELDSTG` (214 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
   `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (89 / 94),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
   `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
-  `WFIGHTMN` (41 / 42), `FIGHTSTG` (263 / 310).
+  `FIGHTSTG` (263 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_createScreenWindows` (3 diffs): the `unk5C` loop's counter
     gets `s2` where the original has `s3`, the register of the other loops'
@@ -248,33 +248,33 @@ own.
   own in `fightstg_6.c` for now).
 - [ ] The battle menus' near misses. `WFIGHTTS`: `func_800A6954` (the
   Digimon list, 14 windows a side; its cursors and scrolls are
-  `D_800A8268[2]` and `D_800A8270[2]`, two scalars each in the C for now)
-  stays at 31 diffs with `D_800A8270[1] + 0x37 + j`: gcc then keeps
-  `j + 0x37` in a register where the original adds the scroll first, and
-  `j + D_800A8270[1] + 0x37`, the original's order, stops gcc hoisting the
-  scroll's address (60 diffs); the steps (`a3`/`t0`) and `j` and
-  `&D_800A32E0` (`s1`/`s2`) are swapped too, and a 12-minute permuter run
-  found nothing natural; the variable reuse and statement order that matched
-  its neighbours change nothing. `WFIGHTMN`: `func_800A5538` (the units' stats
-  from the party and the battle's enemies) is at 29 diffs. A
-  `units = D_800A31E8.fighters[0]` pointer, set again to `fighters[1]` for
-  the enemies' loop, gives the party's loop its registers; the rest is the
-  enemies' loop: the original doesn't schedule its load of
-  `D_800A2584` above the `mp` stores, as if they could alias. GCC 2.8's
-  alias analysis separates them because the stores' base is
-  `D_800A31E8` and the load's another symbol; the original's stores must
-  have lost their base (a pointer stepped with `++` loses it, but then
-  gets the wrong registers). Declaring `D_800A2584` as a struct's only
-  member matches the size (8 diffs), but it is a scalar in `FIGHTSTG`;
-  the permuter's best (2 diffs) ends the stores' block with an empty
-  `do {} while (0)`. `CARDGAME`: `func_8009DE0C` (the sort of a list of cards by `battle->cards[list[k]]`, swapping
-  `unk30A` and `unk446` with it by flag) stays at 22 diffs: `from` and
-  `flags & 1` swap `a1` and `s0`, and the loop counter and the `unk446`
-  pointer `t3` and `t4`. Our `from` has 7 refs over 59 insns, `flags & 1` 4
-  over 53, so ours allocates `from` first; the declarations' order,
-  `u16`/`u32` copies, flag variables, the swaps' order, pointer sums and
-  the compares' order change nothing, and a 25-minute permuter run found
-  nothing natural.
+  `D_800A8268[2]` and `D_800A8270[2]`, two scalars each in the C for now;
+  typing them as arrays changes nothing in the code) is at 13 diffs with a
+  counter of its own for each of the two lists' loops (the case 0 loops
+  and the steps' loops keep theirs): that gives the counters `s1` and
+  `&D_800A32E0` `s2`, as in the original. Two things are left. The
+  original computes the second list's id as `j + D_800A8270[1]` then
+  `+ 0x37`; written so (or `D_800A8270[1] + j + 0x37`, the order of the
+  `0x2000` case), gcc stops hoisting the scroll's address (45 diffs), and
+  `D_800A8270[1] + 0x37 + j` keeps `j + 0x37` in a register instead. And
+  the steps and the side read in the second steps' loop swap `a3` and
+  `t0`: an `if`/`else if` chain instead of the `while (1)` with breaks
+  gives the steps `a3`, but loses the layout of the breaks' blocks, which
+  loop.c moves out of the `while (1)` loop. A helper inlined for each list
+  matches the first list's loop whole, but keeps the second's side `1` in a
+  register. The ternary steps, the max's compare order, one counter for
+  every loop and two 25-minute permuter runs give nothing more.
+  `CARDGAME`: `func_8009DE0C` (the sort of a list of cards by
+  `battle->cards[list[k]]`, swapping `unk30A` and `unk446` with it by flag)
+  stays at 22 diffs: `from` and `flags & 1` swap `a1` and `s0`, and the
+  loop counter and the `unk446` pointer `t3` and `t4`. Our `from` has 7
+  refs (weighted by loop depth: 1 + 1 + 2 + 3) over 59 insns, `flags & 1`
+  4 (1 + 3) over 53, so ours allocates `from` first; the original's
+  `flags & 1` must have more refs or `from` fewer. The declarations' order,
+  `u16`/`u32` copies, flag variables, the swaps' order, pointer sums, the
+  compares' order, `range & 0xFFFF` in place of `from`, an inline helper
+  for the swap (whole or the bytes), pointers to the swapped entries and a
+  25-minute permuter run change nothing or make it worse.
 - [ ] `WFIGHTTS` keeps the old names of the battle camera (`Unk800911C8`,
   `Unk80091618`, which `include/fightstg.h` keeps for it). `WFIGHTMN`
   includes `fightstg.h` alone now and uses its names (`BattleFighter`,
@@ -293,7 +293,11 @@ own.
   of a sum's terms (`i * 0xE + 0x88 + scroll` gives the original's
   `scroll + 0x88` first), and `substate++` written in both branches.
   Counters per loop in other combinations, the `0x17` draw after the
-  branches and a 25-minute permuter run (only forced forms) change nothing.
+  branches and a 25-minute permuter run (only forced forms) change nothing;
+  an inline helper for the third loop's draws takes one more saved
+  register. The refs global alloc weighs count 1 outside the loops, 2 in a
+  loop and 3 in a nested one: the original's counter outranks the `0x25`
+  sum and its pointer ranks under the `0x13` sum.
   `STCRDSHP`: `func_800870F4` (1 diff: the original
   copies the quotient of the count by 6 into another register for the
   `addu` of the pages count; computing the remainder first, as in
@@ -349,9 +353,12 @@ own.
   table's last string is what the assembler left there, in both versions,
   and so are the cursors, `"＞"`, of `SOUNDTST` and the European
   `STAGSLCT`, which the European overlays pad with 0x2D and 0x39 where GCC
-  would put 0. The European `CNTY_SEL` `.data`
-  stays at 98.95 % in the report: the file ends 3 bytes into its last
-  word, which splat's object leaves out.
+  would put 0. The European `CNTY_SEL` file ends 3 bytes into its last
+  word, which spimdisasm leaves out of splat's data: the report gives the
+  target those bytes from the file (`complete_tail`). splat named
+  `CARDGAME_showTargetSlots`'s jump table `D_80082C94` (the function reads
+  it through a saved pointer), so it is `type:jtbl` in both versions'
+  symbols.
 - [x] `SOUNDTST`'s texts are string literals in its lists, which GCC puts
   in `.rodata` in reverse order of each list. The European file pads the
   last one, `"＞"`, with 0x2D instead of 0, so that one is a `const char`

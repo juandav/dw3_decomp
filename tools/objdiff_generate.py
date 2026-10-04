@@ -32,6 +32,9 @@ original's counts, and nothing else does:
   (name_reloc_targets), so that objdiff resolves both to the same place.
 - splat counts the padding after a module's last datum as part of it, GCC
   leaves it to the linker (pad_sections).
+- spimdisasm reads a section by words, so a binary whose size isn't a
+  multiple of 4 (the European CNTY_SEL.PRO) loses its last bytes from
+  splat's data: the target gets them back from the binary (complete_tail).
 
 A source file X_2.c is the second half of an original object split in
 config/us/main.yaml (X.c and X_2.c come from one file before the split). Its
@@ -62,6 +65,8 @@ data (asm_units).
 import json
 import shutil
 import subprocess
+
+import yaml
 
 from elftools.elf.elffile import ELFFile
 
@@ -111,6 +116,25 @@ def combine(out: str, parts: list) -> None:
         shutil.copyfile(ROOT / parts[0], ROOT / out)
     else:
         link(out, parts)
+
+
+def link_halves(out: str, parts: list) -> None:
+    """ld -r the halves PARTS of a module built from C into OUT, their data
+    4-aligned as splat's SUBALIGN(4) links them in the build: GCC asks 16
+    for a section, which would put a gap between the halves' data."""
+    copies = []
+    for n, part in enumerate(parts):
+        copy = f"{out}.{n}"
+        (ROOT / copy).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / part, ROOT / copy)
+        args = []
+        for name in DATA_SECTIONS + (".bss",):
+            args += ["--set-section-alignment", f"{name}=4"]
+        objcopy(copy, args)
+        copies.append(copy)
+    link(out, copies)
+    for copy in copies:
+        (ROOT / copy).unlink()
 
 
 def data_segments(name: str) -> list:
@@ -213,6 +237,59 @@ def pad_sections(base: str, target: str) -> None:
     subprocess.run(["mipsel-linux-gnu-ld", "-r", "-T", str(script), "-o", padded, base], cwd=ROOT, check=True)
     (ROOT / padded).replace(ROOT / base)
     script.unlink()
+
+
+def complete_tail(name: str, target: str) -> None:
+    """Give TARGET's data the bytes past the last whole word of the binary
+    that the module NAME (binary/module) ends, which splat drops."""
+    binary, module = name.split("/", 1)
+    config = version.CONFIG_DIR / f"{binary}.yaml"
+    if not config.exists():
+        return
+    with open(config) as f:
+        options = yaml.safe_load(f)["options"]
+        f.seek(0)
+        segments = yaml.safe_load(f)["segments"]
+    rom = (config.parent / options["base_path"] / options["target_path"]).resolve()
+    size = rom.stat().st_size
+    if size % 4 == 0:
+        return
+    for segment in segments:
+        if not isinstance(segment, dict):
+            continue
+        for sub in segment.get("subsegments", []):
+            if not isinstance(sub, list) or len(sub) < 3 or sub[2] != module:
+                continue
+            section = {".data": ".data", "data": ".data", ".rodata": ".rodata",
+                       "rodata": ".rodata"}.get(sub[1])
+            if section is None:
+                continue
+            end = sub[0] + len(section_bytes(target, section))
+            if 0 < size - end < 4:
+                data = section_bytes(target, section) + rom.read_bytes()[end:size]
+                path = ROOT / (target + section + ".bin")
+                path.write_bytes(data)
+                objcopy(target, ["--update-section", f"{section}={path}"])
+                path.unlink()
+                grow_symbols(target, section, end - sub[0], size - end)
+
+
+def grow_symbols(path: str, section: str, end: int, extra: int) -> None:
+    """Make the symbols of PATH's SECTION that end at END EXTRA bytes longer."""
+    with open(ROOT / path, "rb") as f:
+        elf = ELFFile(f)
+        index = next(i for i, s in enumerate(elf.iter_sections()) if s.name == section)
+        symtab = elf.get_section_by_name(".symtab")
+        sizes = [symtab["sh_offset"] + n * symtab["sh_entsize"] + 8
+                 for n, sym in enumerate(symtab.iter_symbols())
+                 if sym["st_shndx"] == index and sym["st_size"] > 1
+                 and sym["st_value"] + sym["st_size"] == end]
+    with open(ROOT / path, "r+b") as f:
+        for offset in sizes:
+            f.seek(offset)
+            size = int.from_bytes(f.read(4), "little")
+            f.seek(offset)
+            f.write((size + extra).to_bytes(4, "little"))
 
 
 def asm_rodata(path: str) -> set:
@@ -438,7 +515,11 @@ def main() -> None:
         if all(n in built for n in parts):
             base = f"build/{V}/report/{name}.c.o"
             combine(target, [f"expected/{V}/asm/{n}.s.o" for n in parts])
-            combine(base, [f"build/{V}/src/{n}.c.o" for n in parts])
+            if len(parts) == 1:
+                combine(base, [f"build/{V}/src/{parts[0]}.c.o"])
+            else:
+                link_halves(base, [f"build/{V}/src/{n}.c.o" for n in parts])
+            complete_tail(name, target)
             prepare(base, target)
             unit["base_path"] = base
         else:

@@ -1,5 +1,9 @@
 D_800A494C = 0x800A494C; // size:0x8
 
+// CARDGAME_showTargetSlots's switch, which splat can't see: it reads the
+// table from a saved pointer
+jtbl_80082C94 = 0x80082C94; // type:jtbl
+
 // helpers
 CARDGAME_interpolate = 0x80092DC8; // type:func
 
