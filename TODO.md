@@ -175,7 +175,7 @@ own.
   `FIELDSTG` (214 / 222), `STGTRAIN` (91 / 94),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
   `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
-  `FIGHTSTG` (272 / 310).
+  `FIGHTSTG` (273 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_createScreenWindows` (3 diffs): the `unk5C` loop's counter
     gets `s2` where the original has `s3`, the register of the other loops'
@@ -261,10 +261,13 @@ own.
   calls in other places, and it calls `D_800A3108` as `D_800A25F0`'s
   tenth function at offset `0xB18`, so `fightstg.c`'s `D_800A25F0` has to
   take `D_800A3108` in first; `func_8008C0BC`'s row offset, `other * 0x60`
-  added as an int in a block of its own, may help it and the next two),
-  `func_8008E3C8` (212: substate 0 starts in another order and the stage
-  takes other registers) and `func_80090908` (the block placement and a
-  constant hoisted); the permuter found nothing but junk for the last two.
+  added as an int in a block of its own, may help it) and `func_80090908`
+  (357 diffs: its `i == 5` call has to end in its own clear and `break`,
+  which loop.c moves out of the loop to where the original has it, and
+  `task->side != 0` is read before `switch (i)`; what is left is loop.c
+  keeping 0x10 in a saved register, which the original makes at each use,
+  so `children` goes to the stack instead of `&fighters[0]` and
+  `&fighters[1]`).
   `fightstg.c` defines `D_800A210C` as `u16` rows where `func_8008C8F0`
   reads `ItemScript`s (through an `extern` of its own in `fightstg_6.c` for
   now). `fightstg_3.c`'s `func_80087304`
