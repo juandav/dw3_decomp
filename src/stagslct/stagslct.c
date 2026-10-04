@@ -747,8 +747,49 @@ void STAGSLCT_scrollPage(StageSelect *sel, s32 delta) {
     }
 }
 
-void STAGSLCT_showBiosVersion(StageSelect *sel, StageSelectWindows *win);
-INCLUDE_ASM("stagslct/nonmatchings/stagslct", STAGSLCT_showBiosVersion);
+void STAGSLCT_showBiosVersion(StageSelect *sel, StageSelectWindows *win) {
+    u8 *src;
+    s32 i;
+    s32 code;
+
+    if (sel->biosShown == 0) {
+        win->bios = createTextWindow(0x1000, 1, 0x10, 0x20);
+        /* the BIOS version string in the ROM, in full-width Shift-JIS */
+        src = (u8 *)0x1FC0012C;
+        for (i = 0; i < 10; i++, src++) {
+            /* the match depends on the breaks out of a do/while (0): loop.c
+               moves the letter's and the dash's blocks up after the digit's,
+               as in the original. And on the code going through an int, as a
+               two-byte character constant: negative, it stays an immediate,
+               where stored straight to the array it is narrowed to 0x821F
+               and loaded into a register before the loop */
+            do {
+                if (*src >= '0' && *src <= '9') {
+                    code = *src - '0' + '\x82\x4F'; /* '０' */
+                    STAGSLCT_biosVersion[i] = code;
+                    break;
+                }
+                if (*src >= 'A' && *src <= 'Z') {
+                    code = *src - 'A' + '\x82\x60'; /* 'Ａ' */
+                    STAGSLCT_biosVersion[i] = code;
+                    break;
+                }
+                if (*src == '-') {
+                    code = '\x81\x5C'; /* '―' */
+                    STAGSLCT_biosVersion[i] = code;
+                    break;
+                }
+                code = '\x81\x40'; /* '　' */
+                STAGSLCT_biosVersion[i] = code;
+            } while (0);
+            STAGSLCT_biosVersion[i] = (STAGSLCT_biosVersion[i] >> 8) + (STAGSLCT_biosVersion[i] << 8);
+        }
+        STAGSLCT_biosVersionEnd = 0;
+        sel->biosShown = 1;
+    }
+    win->bios->setPos(win->bios, 0xDC, 0x14);
+    win->bios->setText(win->bios, STAGSLCT_biosVersion);
+}
 
 void STAGSLCT_zoomTitle(StageSelect *sel, StageSelectWindows *win) {
     if (sel->fading != 0) {

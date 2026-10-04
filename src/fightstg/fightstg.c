@@ -656,7 +656,130 @@ s32 func_80084780(Mesh *mesh, Layer *layer) {
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_80084890);
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_800850D8);
+/* A primitive tag's word with its address replaced: the top byte of tag and
+   the low 24 bits of addr. The match depends on word being set twice: as one
+   expression, sched1 moves the tag's mask after the address's, which swaps
+   their registers. */
+static inline u_long linkTag(u_long tag, u_long addr) {
+    u_long word = tag & 0xFF000000;
+    word |= addr;
+    return word;
+}
+
+/* Draws a Mesh as wireframe: each polygon of its command runs as a green
+   LINE_F4 through its screen points, with a LINE_F2 to close a quad. Each
+   addPrim is written out with linkTag. */
+void func_800850D8(Mesh *mesh, Layer *layer) {
+    MATRIX m;
+    MeshDrawState state;
+    u32 op;
+    s32 hi;
+    s32 lo;
+    s32 i0, i1, i2, i3;
+    s32 n;
+    u_long tag;
+
+    gte_CompMatrix(&D_80080AF0, &mesh->matrix, &m);
+    gte_SetRotMatrix(&m);
+    gte_SetTransMatrix(&m);
+    if (func_80084780(mesh, layer) == 0) {
+        return;
+    }
+    func_800841D4(mesh, layer);
+    state.cmd = mesh->unk68;
+    state.texPos = mesh->texPos;
+    state.screen = mesh->screen;
+    state.depth = mesh->depth;
+    state.normalColors = mesh->colors;
+    state.otBase = layer->getOt(layer);
+    state.ot = state.otBase;
+    state.prim.ptr = GFX_FUNCS.getPrim();
+    while (*state.cmd != 0xFF) {
+        op = *state.cmd;
+        hi = op >> 4;
+        lo = op & 0xF;
+        if (hi != 0) {
+            switch (hi) {
+            case 8:
+                state.quad = lo;
+                break;
+            case 9:
+                state.textured = lo;
+                break;
+            case 12:
+                state.lit = lo;
+                break;
+            }
+            state.cmd++;
+        } else {
+            switch (lo) {
+            case 1:
+                state.cmd += 7;
+                break;
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+                state.cmd += 4;
+                break;
+            case 0:
+                do {
+                    state.cmd++;
+                    i0 = state.cmd[0];
+                    i1 = state.cmd[1];
+                    i2 = state.cmd[2];
+                    i3 = 0;
+                    if (state.quad) {
+                        i3 = state.cmd[3];
+                    }
+                    state.sxy[0] = state.screen[i0];
+                    state.sxy[1] = state.screen[i1];
+                    state.sxy[2] = state.screen[i2];
+                    if (state.quad) {
+                        state.sxy[3] = state.screen[i3];
+                    }
+                    setLineF4(state.prim.lineF4);
+                    setRGB0(state.prim.lineF4, 0, 0xFF, 0);
+                    *(s32 *)&state.prim.lineF4->x0 = state.sxy[0];
+                    *(s32 *)&state.prim.lineF4->x1 = state.sxy[1];
+                    if (!state.quad) {
+                        *(s32 *)&state.prim.lineF4->x2 = state.sxy[2];
+                        *(s32 *)&state.prim.lineF4->x3 = state.sxy[0];
+                    } else {
+                        *(s32 *)&state.prim.lineF4->x2 = state.sxy[3];
+                        *(s32 *)&state.prim.lineF4->x3 = state.sxy[2];
+                    }
+                    tag = *(u_long *)state.prim.ptr;
+                    *(u_long *)state.prim.ptr = linkTag(tag, getaddr(state.ot));
+                    tag = *state.ot;
+                    *state.ot = linkTag(tag, (u_long)state.prim.ptr & 0xFFFFFF);
+                    state.prim.lineF4++;
+                    if (state.quad) {
+                        setLineF2(state.prim.lineF2);
+                        setRGB0(state.prim.lineF2, 0, 0xFF, 0);
+                        *(s32 *)&state.prim.lineF2->x0 = state.sxy[2];
+                        *(s32 *)&state.prim.lineF2->x1 = state.sxy[0];
+                        tag = *(u_long *)state.prim.ptr;
+                        *(u_long *)state.prim.ptr = linkTag(tag, getaddr(state.ot));
+                        tag = *state.ot;
+                        *state.ot = linkTag(tag, (u_long)state.prim.ptr & 0xFFFFFF);
+                        state.prim.lineF2++;
+                    }
+                    n = state.quad + 3;
+                    state.cmd += n;
+                    if (state.lit) {
+                        state.cmd += n;
+                    }
+                    if (state.textured) {
+                        state.cmd += n * 2;
+                    }
+                } while (*state.cmd == 0);
+                break;
+            }
+        }
+    }
+    GFX_FUNCS.setPrim(state.prim.ptr);
+}
 
 void func_800856BC(Mesh *mesh, s32 layerId, MATRIX *matrix) {
     Layer *layer = GFX_FUNCS.getLayer(layerId);

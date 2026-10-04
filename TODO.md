@@ -167,15 +167,15 @@ own.
 
 ## Overlays
 
-- [ ] 1,650 of the overlays' 1,695 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,652 of the overlays' 1,695 functions are C. All C: `CNTY_SEL`,
   `WFIGHTMN`, `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`, `STCRDABM`,
-  `CARDGAME`, `STGTRAIN`, `STDWTITL` (`libpress`'s handwritten `DecDCTvlcSize2` and `DecDCTvlc2`
+  `CARDGAME`, `STAGSLCT`, `STGTRAIN`, `STDWTITL` (`libpress`'s handwritten `DecDCTvlcSize2` and `DecDCTvlc2`
   are a `hasm` source, `src/stdwtitl/libpress_vlc2.s`, out of the count).
-  Mostly: `STCRDDEK` (54 / 55), `SHOCKTST` (16 / 17), `STAGSLCT` (7 / 8),
+  Mostly: `STCRDDEK` (54 / 55), `SHOCKTST` (16 / 17),
   `FIELDSTG` (214 / 222),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70),
   `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
-  `FIGHTSTG` (282 / 310).
+  `FIGHTSTG` (283 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_createScreenWindows` (3 diffs): the `unk5C` loop's counter
     gets `s2` where the original has `s3`, the register of the other loops'
@@ -188,8 +188,6 @@ own.
     Forcing other live lengths on the four pseudos under gdb never gives
     `c` `s3`, and 40 minutes of the permuter found nothing under the
     3 diffs.
-  - `STAGSLCT_showBiosVersion` matches only with an empty `do {} while (0)`
-    that ends a CSE block, a fake match.
   - `SHOCKTST_convertText` (82 diffs at best, with the values loop's
     `strcspn` length and the file handle in their own variables): the
     original has no counter left in its loop. It keeps a pointer to the
@@ -256,22 +254,29 @@ own.
     - the `GAME` base of the menu case (48 → 24).
     A `do { } while (0)` around the loop's `switch` and another around the
     `GAME.field*` saves get the first and the third (9 diffs left), which
-    are fake. Nothing found gets the second.
+    are fake. Nothing found gets the second. `entry` needs a live length
+    of 23 or more (or 3 references in the loop instead of 4), and the
+    others need 43 and 41 or less. A `for` loop, indexing `list[i]`,
+    switching on `(*list)->id`, `while ((entry = *list) != NULL)` and
+    testing `id` in the loop's condition all change the code. Undoubling
+    every REG_EQUIV pseudo's length doesn't match either (`task` and
+    `children` move).
 - [ ] `FIGHTSTG`'s blocked functions: `func_8009C764` (8 diffs: the
   original reads the fighter's `unk1B` in each branch) and `func_8009C8EC`
   (4 bytes short: the original keeps `&D_800A3308` in a register instead of
   folding it into the offsets) differ only in registers and the order of a
   few loads (the permuter finds nothing natural). Of
-  the GTE functions, the large mesh drawers `func_80084890` (43 diffs, all
-  registers and order: the prologue saves `s1` after its copy of `layer`,
-  the screen base gets the last register where ours gets the first, and
-  the uvs load `quad`, `lit` and `cmd` in another order; splitting the clut
-  sum `cx += x` brought it from 48 to 43, and the permuter finds nothing
-  natural beyond that) and `func_800850D8` (26: only the registers of its
-  two `addPrim`s; writing each `addPrim` with one `tag` variable leaves only
-  the order of the two hoisted masks, and the full match needs a dead store
-  to `tag`, a fake match). The `fightstg` unit's only unmatched data is
-  `jtbl_80082448`, the jump table of `func_80084890`. `func_80099D24`
+  the GTE functions, the large mesh drawer `func_80084890` keeps 25 diffs,
+  all registers. Taking the mesh as a `void *` that a `Mesh *` local gets
+  fixes the prologue (`s1` is saved first), and reading the uvs through a
+  pointer of their own (`q = cmd + (lit ? k + (quad + 3) : k)`) fixes
+  their load order. Forcing two live lengths in the 2.8.1 cc1 then makes
+  it match: the depth base (15 → 13, to outrank `z1`) and the screen base
+  (16 → 24, so the three screen points outrank it). The order of the
+  insns before the allocator already matches, so the original's
+  references or pseudos must differ there; nothing found gets either.
+  The `fightstg` unit's only unmatched data is `jtbl_80082448`, the jump
+  table of `func_80084890`. `func_80099D24`
   only matches with an empty `do {} while (0)`, a fake match (41 diffs
   without it: `task` gets `s1` where the original has `s4`). The battle
   checks: `FIGHTSTG_computeStats` (26 diffs: the
