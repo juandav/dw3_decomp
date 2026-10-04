@@ -23,7 +23,7 @@ FIGHTSTG_updateBattleCamera = 0x800911C8; // type:func
 FIGHTSTG_setBattleCameraView = 0x80091618; // type:func
 FIGHTSTG_fadeBattleCamera = 0x80091688; // type:func
 FIGHTSTG_createBattleCamera = 0x800919EC; // type:func
-FIGHTSTG_findFighters = 0x800980C8; // type:func
+FIGHTSTG_findFighters = 0x800980C8; // type:func size:0x360
 FIGHTSTG_updateJump = 0x8009A288; // type:func
 FIGHTSTG_startJump = 0x8009A5AC; // type:func
 FIGHTSTG_updateBattleSound = 0x8009A830; // type:func
@@ -45,6 +45,11 @@ FIGHTSTG_getFighterFace = 0x8009DCCC; // type:func
 FIGHTSTG_getFighterRange = 0x8009DD18; // type:func
 FIGHTSTG_computeStats = 0x8009DDCC; // type:func
 FIGHTSTG_lerpVector = 0x800A0EF4; // type:func
+
+// splat ends a function at its first return when nothing branches past it,
+// so one whose switch returns from cases only its jump table reaches needs
+// its size (FIGHTSTG_findFighters too), or each case is a function of its own
+func_8008ADB0 = 0x8008ADB0; // type:func size:0x6C
 
 D_800A2414 = 0x800A2414; // size:0x170 can_reference:False
 D_800A25F0 = 0x800A25F0; // size:0xB1C type:s32

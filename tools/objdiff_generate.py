@@ -36,6 +36,9 @@ original's counts, and nothing else does:
   multiple of 4 (the European CNTY_SEL.PRO) loses its last bytes from
   splat's data: the target gets them back from the binary (complete_tail).
 
+A function whose size in the target differs from its C's stops the script
+(function_sizes): splat cut it short, and the report would count it wrong.
+
 A source file X_2.c is the second half of an original object split in
 config/us/main.yaml (X.c and X_2.c come from one file before the split). Its
 unit is reported together with X's under X's name, from the two objects
@@ -65,6 +68,7 @@ data (asm_units).
 import json
 import shutil
 import subprocess
+import sys
 
 import yaml
 
@@ -464,6 +468,22 @@ def prepare(base: str, target: str) -> None:
     relocate_by_section(base, target)
 
 
+def function_sizes(base: str, target: str) -> list:
+    """The functions TARGET gives another size than BASE does, as messages.
+
+    spimdisasm ends a function at a return that nothing branches past, so a
+    switch whose cases return, reached only through its jump table, ends
+    the target's function early and makes each case a function of its own
+    (FIGHTSTG's func_8008ADB0): the function never matches and the cases
+    count as functions still to do. Its size in the symbol file fixes it."""
+    def sizes(path):
+        return {s["name"]: s["size"] for s in Elf(path).symbols if s["type"] == "STT_FUNC"}
+
+    ours, theirs = sizes(base), sizes(target)
+    return [f"{name}: {theirs[name]:#x} bytes in the target, {size:#x} in C"
+            for name, size in ours.items() if name in theirs and theirs[name] != size]
+
+
 def asm_units(names: list) -> list:
     """One unit per binary that has no unit yet, with no base object: splat's
     code and data of the executable, an overlay or a stage linked together,
@@ -506,6 +526,7 @@ def main() -> None:
     halves = {n[:-2]: n for n in names
               if n.endswith("_2") and n[:-2] in names and f"{n[:-2]}_3" not in names}
     units = []
+    wrong_sizes = []
     for name in names:
         if name in halves.values():
             continue
@@ -521,6 +542,7 @@ def main() -> None:
                 link_halves(base, [f"build/{V}/src/{n}.c.o" for n in parts])
             complete_tail(name, target)
             prepare(base, target)
+            wrong_sizes += [f"{name}: {m}" for m in function_sizes(base, target)]
             unit["base_path"] = base
         else:
             # not C yet (all or part of it): the code with the data segments
@@ -573,6 +595,13 @@ def main() -> None:
     with open(ROOT / "objdiff.json", "w") as f:
         json.dump(config, f, indent=2)
         f.write("\n")
+
+    if wrong_sizes:
+        print("functions splat sizes differently from their C: give them their"
+              " size in the symbol file (size:0x...), then make regenerate", file=sys.stderr)
+        for line in wrong_sizes:
+            print("  " + line, file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
