@@ -167,11 +167,12 @@ own.
 
 ## Overlays
 
-- [ ] 1,625 of the overlays' 1,697 functions are C. All C: `CNTY_SEL`,
-  `WFIGHTMN`, `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`, `STCRDABM`. Mostly:
-  `STCRDDEK` (54 / 55), `SHOCKTST` (16 / 17), `STAGSLCT` (7 / 8),
-  `FIELDSTG` (214 / 222), `STDWTITL` (91 / 93: `libpress`'s handwritten
-  `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (89 / 94),
+- [ ] 1,625 of the overlays' 1,695 functions are C. All C: `CNTY_SEL`,
+  `WFIGHTMN`, `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`, `STCRDABM`,
+  `STDWTITL` (`libpress`'s handwritten `DecDCTvlcSize2` and `DecDCTvlc2`
+  are a `hasm` source, `src/stdwtitl/libpress_vlc2.s`, out of the count).
+  Mostly: `STCRDDEK` (54 / 55), `SHOCKTST` (16 / 17), `STAGSLCT` (7 / 8),
+  `FIELDSTG` (214 / 222), `STGTRAIN` (89 / 94),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
   `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
   `FIGHTSTG` (267 / 310).

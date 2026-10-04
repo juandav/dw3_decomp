@@ -43,12 +43,12 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 346 / 346 | 100.00 % | 100.00 % |
 | | USA | 346 / 346 | 100.00 % | 100.00 % |
-| The 21 overlays | Europe | 1,634 / 1,702 | 90.65 % | 96.70 % |
-| | USA | 1,629 / 1,697 | 90.61 % | 96.71 % |
+| The 21 overlays | Europe | 1,634 / 1,700 | 90.76 % | 96.70 % |
+| | USA | 1,629 / 1,695 | 90.72 % | 96.71 % |
 | The stages (293 and 238) | Europe | 1,590 / 1,590 | 100.00 % | 100.00 % |
 | | USA | 1,369 / 1,369 | 100.00 % | 100.00 % |
-| **Total** | **Europe** | **3,570 / 3,638** | **93.61 %** | **99.60 %** |
-| | **USA** | **3,344 / 3,412** | **93.32 %** | **99.56 %** |
+| **Total** | **Europe** | **3,570 / 3,636** | **93.69 %** | **99.60 %** |
+| | **USA** | **3,344 / 3,410** | **93.40 %** | **99.56 %** |
 
 - The executable's game code is all C, and its rodata. Its data is C too,
   in `src/main/data/`, until it moves next to the code that uses it.
@@ -57,8 +57,8 @@ current:
   wrote in assembly are `.s` sources. They are Sony's
   code, not the game's, so like other PSX decomps they are built and compared
   but left out of the progress.
-- `CNTY_SEL`, `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STFGTREP` and `STCRDABM`
-  are all C, `CARDGAME` and `STSTATUS` all but one function, and `STCRDDEK`, `STDWTITL`,
+- `CNTY_SEL`, `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STFGTREP`, `STCRDABM` and
+  `STDWTITL` are all C, `CARDGAME` and `STSTATUS` all but one function, and `STCRDDEK`,
   `SHOCKTST`, `STGTRAIN`, `FIELDSTG` and `FIGHTSTG` mostly. The
   other large overlays are still mostly assembly.
 - The stages are all C, the 238 USA ones and the 55 of the European version
@@ -92,7 +92,7 @@ above counts them: fake matches, then the other two kinds together.
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 7 | `/* unused, but it is in the original stack frame */` |
 | Form-dependent matches | 132 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 58 | `INCLUDE_ASM` |
+| Functions still in assembly | 56 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -188,7 +188,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `STCRDDEK` | `0x80082448` | 54 / 55 | the decks, which it names with the on-screen keyboard (`include/name_entry.h`) |
 | `STCRDSHP` | `0x80082448` | 43 / 45 | the card packs (mode 0x1300): opening a pack uses it up and draws six cards, one from each slot's list in `STCRDSHP_packs` |
 | `STDGNAME` | `0x80082448` | 32 / 32 | a name entry screen, a keyboard of character pages |
-| `STDWTITL` | `0x80082448` | 91 / 93 | the title screen, the opening movies and a notice screen |
+| `STDWTITL` | `0x80082448` | 91 / 91 | the title screen, the opening movies and a notice screen |
 | `STFGTREP` | `0x80082448` | 36 / 36 | the report after a battle (mode 0x1400), which `WFIGHTMN` requests: the partners that went up a level |
 | `STGDGLAB` | `0x80082448` | 69 / 70 | the partners' digivolutions, it seems: a menu of three screens that checks the requirements of `STGDGLAB_tables` against a partner's entries and sets its three slots |
 | `STGMCARD` | `0x80082448` | 45 / 45 | the memory card screen (mode 0xC00): the saves of a card, their details, and saving and loading |
@@ -318,7 +318,8 @@ One source tree builds every version, one at a time, picked with `VERSION`
   delay slot. `PSYQ_RERUN_CSE` lists the objects
   built with the second CSE pass.
   `STDWTITL` links PsyQ's `libpress` (the movie decoder), so
-  `src/stdwtitl/libpress.c` gets the same rules (`PSYQ_OBJ`).
+  `src/stdwtitl/libpress.c` and `libpress_build.c` get the same rules
+  (`PSYQ_OBJ`).
 - `src/main/psyq/` is cut at the object boundaries found from the signatures
   and from the padding between objects: ASPSX pads the `.text` of every
   object to a multiple of 16 bytes with `nop`s. Every C file ends with
@@ -328,7 +329,10 @@ One source tree builds every version, one at a time, picked with `VERSION`
   functions of `libgte`, the BIOS patches, `setjmp`) are `src/main/psyq/*.s`,
   splat `hasm` segments: each says at its top what shows it is hand-written.
   splat writes such a file only when it is missing, and the symbols it uses
-  are named in `config/<version>/symbols.txt` as for C.
+  are named in `config/<version>/symbols.txt` as for C. `libpress`'s
+  `DecDCTvlcSize2` and `DecDCTvlc2`, in `STDWTITL`, are one more such
+  object, `src/stdwtitl/libpress_vlc2.s`; like the PsyQ ones, they are left
+  out of the progress.
 - The PsyQ files include the PsyQ 4.7 headers from
   [psyq_headers](https://github.com/jype0/psyq_headers). `libgte.h` names
   some parameters `$2`, hence `-fdollars-in-identifiers`. Both code bases use
