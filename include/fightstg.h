@@ -240,7 +240,8 @@ typedef struct BattleTableEntry {
     /* 0x30 */ u8 unk30;
     /* 0x31 */ u8 unk31;
     /* 0x32 */ BattleTableAction actions[3]; /* the first whose condition holds (func_800883AC) */
-    /* 0x3E */ u8 unk3E[8];
+    /* 0x3E */ u8 unk3E[4];
+    /* 0x42 */ BattleTableAction counter; /* its counterattack (func_8008E3C8) */
 } BattleTableEntry;
 
 /* The fighters' file, which D_800A32E0.funcs reads */
@@ -748,11 +749,13 @@ typedef struct Unk800933EC {
 /* func_8008EAA0's task */
 typedef struct Unk8008E3C8 {
     TASK_HEADER(Unk8008E3C8);
-    /* 0x50 */ u8 unk50[0x20];
-    /* 0x70 */ s8 unk70;
+    /* 0x50 */ s32 lines[8]; /* func_80097F8C's */
+    /* 0x70 */ u8 unk70; /* the side that counters, 0 or 0x10 */
     /* 0x74 */ s32 unk74;
-    /* 0x78 */ u8 unk78[0xC];
-    /* 0x84 */ s32 unk84;
+    /* 0x78 */ s32 tech;
+    /* 0x7C */ s32 hit; /* whether the technique hits (D_800A3308.unk9C) */
+    /* 0x80 */ s32 damage;
+    /* 0x84 */ s32 unk84; /* when set, a knockout doesn't call func_8009C054 */
     /* 0x88 */ s32 unk88;
 } Unk8008E3C8;
 

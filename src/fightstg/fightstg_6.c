@@ -770,7 +770,187 @@ void func_8008E390(s32 arg0) {
     ((Unk8008CFFC *)createTask(func_8008CFFC, sizeof(Unk8008CFFC), sizeof(Task *)))->unk70 = arg0;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8008E3C8);
+/* fightstg_3.c's */
+s32 func_800883AC(u8 condition, s16 arg);
+s32 func_800888C8(u8 kind);
+
+/* A counterattack (func_8008EAA0): the player's from an event of type 8 or
+   the partner's first technique, the enemy's from its table entry; substate
+   0 plays the technique, 1 shows the damage and takes the HP, 2 hands
+   unk74 to func_800A8F60. The match depends on substate 0's technique and
+   side being declared in its `if`, on the event index and the stats being
+   variables of their own, on the stage being written element * 3 + 0x21 and
+   one more, on the enemy's fighter being found as a pointer sum and on one
+   row variable for both of substate 0's rows. */
+void func_8008E3C8(Unk8008E3C8 *task, BattleScript **children) {
+    BattleFighter *fighter;
+    BattleFighter *row;
+    BattleTableEntry *entry;
+    s32 other;
+    s32 element;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default:
+        if (task->unk74 == 0) {
+            task->state = TASK_DONE;
+            break;
+        }
+        other = task->unk70 != 0;
+        fighter = &D_800A31E8.fighters[other][D_800A31E8.active[other]];
+        if ((fighter->flags & 2) && D_800A3308.unkDC(task->unk70) != 0) {
+            task->state = TASK_DONE;
+            break;
+        }
+        if (task->unk70 == 0) {
+            s32 index = D_800A25F0.funcs.find(8, 0, D_800A31E8.active[0]);
+
+            if (index >= 0) {
+                task->tech = D_800A25F0.events[index].args[2];
+                task->substate = 0;
+                D_800A25F0.events[index].type = 0;
+#if VERSION_US
+            } else if (D_800A3308.computeStats(0, 1, D_800A31E8.active[0])->unk30[9] != 0) {
+#elif VERSION_EU
+            } else if (D_800A3308.computeStats(0, 1, D_800A31E8.active[0])->unk30[9] != 0
+                       && D_800A3308.unkEU(0, task->unk74) != 0) {
+#endif
+                task->tech = ON_PARTNER_ENTRY_ADDED(fighter->id)->skills[0];
+                task->substate = 1;
+            } else {
+                task->state = TASK_DONE;
+                break;
+            }
+        } else {
+            entry = D_800A2584(fighter->id);
+            if (entry->counter.condition == 0) {
+                task->state = TASK_DONE;
+                break;
+            }
+            if (func_800883AC(entry->counter.condition, entry->counter.conditionArg) == 0) {
+                task->state = TASK_DONE;
+                break;
+            }
+            task->tech = func_800888C8(entry->counter.target);
+            if (task->tech == 1) {
+                task->tech = D_800A2584((D_800A31E8.fighters[1] + D_800A31E8.active[1])->id)->unk8[0];
+                task->substate = 1;
+            }
+        }
+        ((Unk80097F8C **)children)[0] = func_80099400();
+        task->lines[0] = task->unk70;
+        task->lines[1] = task->tech;
+        ((Unk80097F8C **)children)[0]->unkAC(children[0], task->substate + 5, task->lines);
+        task->hit = D_800A3308.unk9C(task->unk70, task->tech);
+        if (task->hit != 0) {
+            task->damage = D_800A3308.unk90(task->unk70, task->tech, task->unk74);
+            if (D_800A31E8.unkD6 != 0) {
+                task->damage = func_800A9A40(task->unk70, task->damage, 0);
+            }
+        }
+        task->nextState(task);
+        break;
+    case TASK_RUN:
+        switch (task->substate) {
+        case 0:
+        default:
+            if (children[0] == NULL) {
+                Unk800427D6 *tech = &D_800427D6[task->tech];
+                s32 other = task->unk70 != 0;
+                children[0] = func_8008C090();
+                children[0]->unk50 = task->unk70;
+                if (task->unk70 == 0 && tech->unk10 == 5) {
+                    children[0]->index = 6;
+                } else {
+                    children[0]->index = tech->unk10;
+                }
+                if (tech->unkF != 0) {
+                    children[0]->sound = tech->unkF;
+                }
+                {
+                    BattleStats *stats = D_800A3308.computeStats(task->unk70, 1, D_800A31E8.active[other]);
+
+                    if (tech->unk7 >= 2 || stats->unk2B >= 2) {
+                        if (tech->unk7 >= 2) {
+                            element = tech->unk7 - 2;
+                        } else {
+                            element = stats->unk2B - 2;
+                        }
+                        element = element * 3 + 0x21;
+                        if (stats->unk2C >= 0x40) {
+                            children[0]->stage = element + 1;
+                        } else {
+                            children[0]->stage = element;
+                        }
+                    } else {
+                        children[0]->stage = -1;
+                    }
+                }
+                if (tech->unkE != 0) {
+                    children[0]->unk6C = tech->unkE;
+                } else if (tech->unk10 == 5) {
+                    children[0]->unk6C = 0x2E;
+                    children[0]->sound = 0x1E;
+                }
+                row = D_800A31E8.fighters[1 - other];
+                if (task->hit != 0) {
+                    if (row[D_800A31E8.active[1 - other]].hp - task->damage <= 0) {
+                        children[0]->hits[3] = 2;
+                    } else {
+                        children[0]->hits[3] = 1;
+                        func_800A9960(task->unk70, task->damage);
+                        func_800A9840(0x10 - task->unk70, task->damage);
+                    }
+                } else {
+                    children[0]->hits[3] = 3;
+                }
+                row = D_800A31E8.fighters[0];
+                if (task->unk70 != 0) {
+                    row = D_800A31E8.fighters[1];
+                }
+                row[D_800A31E8.active[task->unk70 != 0]].unkE = 0;
+                task->substate++;
+            }
+            break;
+        case 1:
+            if (children[0] == NULL) {
+                ((Unk80097F8C **)children)[0] = func_80099400();
+                if (task->hit != 0) {
+                    task->lines[0] = (task->unk70 == 0) << 4;
+                    task->lines[1] = task->damage;
+                    ((Unk80097F8C **)children)[0]->unkAC(children[0], 4, task->lines);
+                } else {
+                    task->lines[0] = 0x1D;
+                    task->lines[1] = (task->unk70 == 0) << 4;
+                    ((Unk80097F8C **)children)[0]->unkAC(children[0], 2, task->lines);
+                }
+                if (task->damage != 0) {
+                    s32 index = task->unk70 == 0;
+                    BattleFighter *fighter = &D_800A31E8.fighters[index][D_800A31E8.active[index]];
+                    fighter->hp -= task->damage;
+                    if (fighter->hp <= 0) {
+                        fighter->hp = 0;
+                        if (task->unk84 == 0) {
+                            func_8009C054(index << 4);
+                        }
+                    }
+                }
+                task->substate++;
+            }
+            break;
+        case 2:
+            if (children[0] == NULL) {
+                func_800A8F60(task->unk70, task->unk74);
+                task->state = TASK_KILL;
+            }
+            break;
+        }
+        break;
+    case TASK_DONE:
+    case TASK_KILL:
+        break;
+    }
+}
 
 Unk8008E3C8 *func_8008EAA0(s32 arg0, s32 arg1, s32 arg2) {
     Unk8008E3C8 *task = createTask(func_8008E3C8, sizeof(Unk8008E3C8), 4);
