@@ -129,6 +129,8 @@ C_SRC += src/stdwtitl/stdwtitl.c src/stdwtitl/stdwtitl_2.c src/fieldstg/fieldstg
 C_SRC += src/stcrddek/stcrddek.c src/stgtrain/stgtrain.c src/fightstg/fightstg.c
 # fieldstg's other objects
 C_SRC += $(addprefix src/fieldstg/, fieldstg_2.c fieldstg_3.c fieldstg_4.c fieldstg_5.c)
+# stgtrain's other objects
+C_SRC += src/stgtrain/stgtrain_2.c src/stgtrain/stgtrain_3.c
 
 # The stages the USA version has, built from its C
 C_SRC += $(addprefix src/stages/, \

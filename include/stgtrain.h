@@ -198,7 +198,10 @@ typedef struct TrainSession {
 
 /* The children of a training session */
 typedef struct TrainSessionWindows {
-    /* 0x00 */ TextWindow *text[9];
+    /* 0x00 */ TextWindow *text[3]; /* the message, the training and the intensity */
+    /* 0x0C */ TextWindow *intensities[3];
+    /* 0x18 */ TextWindow *notice; /* not enough points */
+    /* 0x1C */ TextWindow *answers[2]; /* yes, no */
     /* 0x24 */ Cursor *cursor;
 } TrainSessionWindows;
 
@@ -373,5 +376,43 @@ typedef struct TrainState {
 extern TrainState D_8008C4D4;
 
 Cursor *createCursor(s16 layerId, s32 depth, s16 x, s16 y);
+
+/* The overlay's data (stgtrain.c) and the functions its objects share */
+extern s32 D_8008B72C[8][7];
+extern TrainGain D_8008B80C[];
+extern TrainGain D_8008B86C[];
+extern TrainGain *D_8008B95C[];
+extern TrainGain D_8008B998[];
+extern s32 D_8008B9E0[]; /* the points each intensity of a training costs */
+extern s32 D_8008B9EC[14][16][2];
+extern TrainFile D_8008C344[];
+extern TrainCursor D_8008C800;
+extern TrainCursor D_8008C804;
+extern TrainCursor D_8008C808;
+extern TrainCursor D_8008C80C;
+void func_800828E8(TrainSprite *sprite);
+void func_80083ADC(TrainScreen *screen, TrainTotals *before);
+void func_80083F8C(TrainScreen *screen);
+void func_800848D0(TrainScreen *screen, TrainScreenWindows *win);
+TrainScreen *func_800854FC(void);
+ScreenFade *func_80085898(void);
+TrainResult *func_800875E8(TrainScreen *screen, s32 partner, s32 training);
+TrainSession *func_80088CA8(TrainScreen *screen);
+TrainMenu *func_8008AD40(TrainScreen *screen);
+s32 func_800859F4(TrainResult *result, s32 stat);
+s32 func_80085AF8(TrainResult *result, s32 stat);
+void func_80086258(TrainResult *result, TrainResultWindows *win);
+void func_800874A0(TrainResult *result, TrainResultWindows *win);
+void func_80086340(TrainResult *result);
+void func_800867A0(TrainResult *result, TrainResultWindows *win);
+void func_8008778C(TrainSession *session, TrainSessionWindows *win);
+void func_800878C0(TrainSession *session);
+void func_80087E34(TrainSession *session, TrainSessionWindows *win);
+void func_80088CFC(TrainActor *actor, TrainActorSprites *sprites);
+TrainActor *func_800897B8(s32 set, s32 file, s32 layerId, s32 depth);
+void func_80089924(TrainMenu *menu, TextWindow **win, s32 show);
+void func_8008AA28(TrainMenu *menu, TextWindow **win);
+void func_8008A004(TrainMenu *menu, TextWindow **win);
+void func_80089A54(TrainMenu *menu);
 
 #endif /* STGTRAIN_H */
