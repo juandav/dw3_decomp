@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20139-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20141-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -43,12 +43,12 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 346 / 346 | 100.00 % | 100.00 % |
 | | USA | 346 / 346 | 100.00 % | 100.00 % |
-| The 21 overlays | Europe | 1,634 / 1,700 | 90.76 % | 96.70 % |
-| | USA | 1,629 / 1,695 | 90.72 % | 96.71 % |
+| The 21 overlays | Europe | 1,636 / 1,700 | 91.73 % | 97.28 % |
+| | USA | 1,631 / 1,695 | 91.63 % | 97.29 % |
 | The stages (293 and 238) | Europe | 1,590 / 1,590 | 100.00 % | 100.00 % |
 | | USA | 1,369 / 1,369 | 100.00 % | 100.00 % |
-| **Total** | **Europe** | **3,570 / 3,636** | **93.69 %** | **99.60 %** |
-| | **USA** | **3,344 / 3,410** | **93.40 %** | **99.56 %** |
+| **Total** | **Europe** | **3,572 / 3,636** | **94.35 %** | **99.67 %** |
+| | **USA** | **3,346 / 3,410** | **94.05 %** | **99.64 %** |
 
 - The executable's game code is all C, and its rodata. Its data is C too,
   in `src/main/data/`, until it moves next to the code that uses it.
@@ -91,8 +91,8 @@ above counts them: fake matches, then the other two kinds together.
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 7 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 132 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 56 | `INCLUDE_ASM` |
+| Form-dependent matches | 134 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 54 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -104,7 +104,7 @@ above counts them: fake matches, then the other two kinds together.
   `func_8008CC5C` and three in WFIGHTTS.
 - A form-dependent match is C that matches in one of several equivalent
   forms only: an extra block, an `if` without braces, a copy of a variable, a
-  type, or one version's own form of a loop. The hundred and thirty-two so far are a copy
+  type, or one version's own form of a loop. The hundred and thirty-four so far are a copy
   of a variable in `drawTalkBoxArrow`, an unsigned compare in STGMCARD's
   `func_80082E28`, a variable that holds two values in STCRDDEK's
   `STCRDDEK_drawDeckCards`, a counter set before a call in
@@ -114,7 +114,7 @@ above counts them: fake matches, then the other two kinds together.
   variables local to a case or a block in its `func_80086E64` and
   `func_80091D3C`, an empty case in its `func_800870D4`, two variables for one
   character and an `s16` in its `func_80084654`, calls in an `if`/`else`
-  and a `case 0` next to `default` in its `func_80084D0C`, the button's shift and mask as two statements in its `func_8008D710`, a gauge cell read and shifted as two statements in its `func_8008C59C`, an `s16` shadow offset in its `func_8008E7E0`, a distance written twice in its `func_8008B450`, a loop with both of its tests at its top and steps added as a choice in its `func_8008F184`, the registry held in a variable in its `func_8008D4C4`, a counter for each loop in its `func_80085650`, the start position set with a `(Vec2){x, y}` constructor in its `func_80091124`, a -1 held in a variable in STGTRAIN's `func_800874A0`,
+  and a `case 0` next to `default` in its `func_80084D0C`, the button's shift and mask as two statements in its `func_8008D710`, a gauge cell read and shifted as two statements in its `func_8008C59C`, an `s16` shadow offset in its `func_8008E7E0`, a distance written twice in its `func_8008B450`, a loop with both of its tests at its top and steps added as a choice in its `func_8008F184`, the registry held in a variable in its `func_8008D4C4`, a counter for each loop in its `func_80085650`, the start position set with a `(Vec2){x, y}` constructor in its `func_80091124`, a -1 held in a variable in STGTRAIN's `func_800874A0`, stats read through two inline functions in its `func_800867A0`, a variable for each loop and each cursor's last value in its `func_80087E34`,
   stats read as `*(totals.stats + i)` in its `func_80083ADC`, `s16` copies
   of two stats in its `func_80085E30`, a counter that
   holds an icon too in its `func_800878C0`, a frame pointer that holds the
@@ -192,7 +192,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `STFGTREP` | `0x80082448` | 36 / 36 | the report after a battle (mode 0x1400), which `WFIGHTMN` requests: the partners that went up a level |
 | `STGDGLAB` | `0x80082448` | 69 / 70 | the partners' digivolutions, it seems: a menu of three screens that checks the requirements of `STGDGLAB_tables` against a partner's entries and sets its three slots |
 | `STGMCARD` | `0x80082448` | 45 / 45 | the memory card screen (mode 0xC00): the saves of a card, their details, and saving and loading |
-| `STGTRAIN` | `0x80082448` | 89 / 94 | the gyms: a partner trains a stat, gaining some and losing others, with its sprites and the result windows |
+| `STGTRAIN` | `0x80082448` | 91 / 94 | the gyms: a partner trains a stat, gaining some and losing others, with its sprites and the result windows |
 | `STITSHOP` | `0x80082448` | 68 / 69 | the item shop, where the player buys and sells items and equips what was bought on a partner |
 | `STPLNMET` | `0x80082448` | 53 / 53 | the player's name entry (mode 0x500), with a copy of `STDGNAME`'s keyboard |
 | `STSTATUS` | `0x80082448` | 122 / 123 | the screens the field menu opens (`STSTATUS_screens`), such as the item list and the equipment |

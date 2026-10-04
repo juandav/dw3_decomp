@@ -8,13 +8,7 @@ long func_80024CE8(long fd);
 int atoi(u8 *s);
 int strcspn(u8 *s, char *reject);
 
-extern char SHOCKTST_STR_PLAY_PATTERN[]; /* "パターンじっこう" */
-extern char SHOCKTST_STR_VIBRATION_TEST[]; /* "しんどうテスト" */
-extern char SHOCKTST_STR_CROSS_STOP[]; /* "×：じっこうていし" */
-extern char SHOCKTST_STR_START_BACK[]; /* "ＳＴＡＲＴ：もどる" */
-extern char SHOCKTST_STR_SLOW[];
-extern char SHOCKTST_STR_FAST[];
-extern char SHOCKTST_PATH_DLSKDATA_TXT[]; /* "sim:C:\DEVELOP\DLSKDATA.TXT" */
+extern const char SHOCKTST_STR_START_BACK[];
 
 ShockTestRow SHOCKTST_menuRows[4] = {
     {{1, 0}, {1, 0, 0, 0}},
@@ -29,9 +23,6 @@ char SHOCKTST_numberFormats[3][0x40] = {
     "\xC7\xDE\xE8\xD2\x01\x07\x02\x05\x01",
     "\x65\x89\x56\x01\x07\x02\x05\x01",
 };
-
-char *SHOCKTST_motorNames[2] = {SHOCKTST_STR_FAST, SHOCKTST_STR_SLOW};
-char *SHOCKTST_textPath = SHOCKTST_PATH_DLSKDATA_TXT;
 
 Task *SHOCKTST_createLoader(void);
 s32 SHOCKTST_playAllPatterns(ShockTest *task, ShockTestWindows *win);
@@ -317,11 +308,11 @@ s32 SHOCKTST_editRow(ShockTest *task, ShockTestWindows *win) {
     return 0;
 }
 
-INCLUDE_RODATA("shocktst/nonmatchings/shocktst", SHOCKTST_STR_SLOW);
-
-INCLUDE_RODATA("shocktst/nonmatchings/shocktst", SHOCKTST_STR_FAST);
-
-INCLUDE_RODATA("shocktst/nonmatchings/shocktst", SHOCKTST_STR_PLAY_PATTERN);
+/* The names of the motors: "こうそく" (fast) and "ていそく" (slow) */
+char *SHOCKTST_motorNames[2] = {
+    "\x82\xB1\x82\xA4\x82\xBB\x82\xAD",
+    "\x82\xC4\x82\xA2\x82\xBB\x82\xAD",
+};
 
 void SHOCKTST_updateEditor(ShockTest *task, ShockTestWindows *win) {
     s32 i;
@@ -352,7 +343,7 @@ void SHOCKTST_updateEditor(ShockTest *task, ShockTestWindows *win) {
             win->powers[i]->setNumber(win->powers[i], 1, task->steps[i][0].power);
         }
         win->play = createTextWindow(task->windowId, 1, 0x28, 0x8C);
-        win->play->setText(win->play, SHOCKTST_STR_PLAY_PATTERN);
+        win->play->setText(win->play, "\x83\x70\x83\x5E\x81\x5B\x83\x93\x82\xB6\x82\xC1\x82\xB1\x82\xA4"); /* "パターンじっこう" */
         break;
     case 1:
         switch (task->substate) {
@@ -434,7 +425,7 @@ ShockTest *SHOCKTST_createEditor(s32 count) {
     return task;
 }
 
-INCLUDE_RODATA("shocktst/nonmatchings/shocktst", SHOCKTST_PATH_DLSKDATA_TXT);
+char *SHOCKTST_textPath = "sim:C:\\DEVELOP\\DLSKDATA.TXT";
 
 INCLUDE_ASM("shocktst/nonmatchings/shocktst", SHOCKTST_convertText);
 
@@ -446,9 +437,9 @@ void SHOCKTST_updateLoader(ShockLoader *task, ShockLoaderWindows *win) {
     default:
         task->nextState(task);
         win->title = createTextWindow(0x1000, 0, 0x14, 0x1E);
-        win->title->setText(win->title, SHOCKTST_STR_VIBRATION_TEST);
+        win->title->setText(win->title, "\x82\xB5\x82\xF1\x82\xC7\x82\xA4\x83\x65\x83\x58\x83\x67"); /* "しんどうテスト" */
         win->help[0] = createTextWindow(0x1000, 1, 0xDC, 0xB4);
-        win->help[0]->setText(win->help[0], SHOCKTST_STR_CROSS_STOP);
+        win->help[0]->setText(win->help[0], "\x81\x7E\x81\x46\x82\xB6\x82\xC1\x82\xB1\x82\xA4\x82\xC4\x82\xA2\x82\xB5"); /* "×：じっこうていし" */
         win->help[1] = createTextWindow(0x1000, 1, 0xDC, 0xC8);
         win->help[1]->setText(win->help[1], SHOCKTST_STR_START_BACK);
         task->text = HEAP.allocZeroed(0x4000, 2);
@@ -495,8 +486,12 @@ Task *SHOCKTST_createLoader(void) {
     return createTask(SHOCKTST_updateLoader, sizeof(ShockLoader), sizeof(ShockLoaderWindows));
 }
 
-INCLUDE_RODATA("shocktst/nonmatchings/shocktst", SHOCKTST_STR_VIBRATION_TEST);
-
-INCLUDE_RODATA("shocktst/nonmatchings/shocktst", SHOCKTST_STR_CROSS_STOP);
-
-INCLUDE_RODATA("shocktst/nonmatchings/shocktst", SHOCKTST_STR_START_BACK);
+/* "ＳＴＡＲＴ：もどる" (START: back), padded to a word: the USA file's
+   padding isn't zeros but what the assembler left there; the size leaves
+   out the closing NUL */
+const char SHOCKTST_STR_START_BACK[20] =
+#if VERSION_US
+    "\x82\x72\x82\x73\x82\x60\x82\x71\x82\x73\x81\x46\x82\xE0\x82\xC7\x82\xE9\0\x03";
+#elif VERSION_EU
+    "\x82\x72\x82\x73\x82\x60\x82\x71\x82\x73\x81\x46\x82\xE0\x82\xC7\x82\xE9\0\0";
+#endif

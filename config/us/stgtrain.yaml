@@ -50,6 +50,10 @@ segments:
     subalign: 4
     subsegments:
       - [0x0, .rodata, stgtrain]
+      - [0xD4, .rodata, stgtrain_2]
+      - [0x1A0, .rodata, stgtrain_3]
       - [0x3A8, c, stgtrain]
+      - [0x3498, c, stgtrain_2]
+      - [0x5344, c, stgtrain_3]
       - [0x92E4, .data, stgtrain]
   - [0xA3C8]

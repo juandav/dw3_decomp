@@ -167,12 +167,12 @@ own.
 
 ## Overlays
 
-- [ ] 1,625 of the overlays' 1,695 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,627 of the overlays' 1,695 functions are C. All C: `CNTY_SEL`,
   `WFIGHTMN`, `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`, `STCRDABM`,
   `STDWTITL` (`libpress`'s handwritten `DecDCTvlcSize2` and `DecDCTvlc2`
   are a `hasm` source, `src/stdwtitl/libpress_vlc2.s`, out of the count).
   Mostly: `STCRDDEK` (54 / 55), `SHOCKTST` (16 / 17), `STAGSLCT` (7 / 8),
-  `FIELDSTG` (214 / 222), `STGTRAIN` (89 / 94),
+  `FIELDSTG` (214 / 222), `STGTRAIN` (91 / 94),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
   `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
   `FIGHTSTG` (267 / 310).
@@ -182,12 +182,23 @@ own.
     counter. Only one shape of the counters keeps the outer loop's: `a` for
     the first loop and the last, `b` inside, `c` for the `unk5C` loop (any
     other reuse lets the loop optimizer drop `a` and the frame shrinks), and
-    no order of the declarations moves `c` to `s3`.
+    no order of the declarations moves `c` to `s3`. The global allocator
+    takes `c` before `a` and gives it the lowest register already used, so
+    `s3` needs `s2` to be busy or preferred by something live in that loop.
   - `STAGSLCT_showBiosVersion` matches only with an empty `do {} while (0)`
     that ends a CSE block, a fake match.
-  - `SHOCKTST_convertText` (173 diffs): the
-    original keeps both `times + 2` and `powers + 2` as induction variables
-    and doesn't hoist the parser's constants.
+  - `SHOCKTST_convertText` (129 diffs at best): the original has no
+    counter left in its loop. It keeps a pointer to the current pattern's
+    times and one to its powers, each copied (through a temporary) from an
+    induction variable two bytes ahead, and it stores `times[1]` at -1 from
+    that variable. The four registers leave no room for the parser's
+    constants, which reload rebuilds in `a3` at each use. The closest form
+    so far sets a pointer `t = times + k * 2` after `k++` and stores the
+    second byte as `times[k * 2 - 1]`: it has the original's register
+    pressure, but takes one copy where the original has two, and swaps
+    `s0` and `s1`. Two `*times++`, `times[0]` and `times[1]` then
+    `times += 2`, `times[-1]` after the add, or `times[k * 2]` don't keep
+    the extra registers.
   - `FIELDSTG` (five objects, `fieldstg.c` to `fieldstg_5.c`):
     `func_800896C0`, the field's battle transition (the screen breaks into
     30 tiles that slide off in a spiral), matches in both versions only with
@@ -197,12 +208,17 @@ own.
     or a loop there, so it stays asm.
     `func_80091AA8` differs only in its prologue: the original stores `ra`
     right after the frame is made, where the second scheduler moves it in
-    ours. `func_8008DB60` and
+    ours (the load of `map->files[index]` may alias the stack stores, and the
+    function-unit hazard check then picks the store first). `func_8008DB60` and
     `func_8008DFE0` only match with the permuter's copy of a variable kept
     for nothing. `func_8008EC74` differs in its block layout: the original
     picks `unk9C` with a tree of compares placed after the bodies (`< 8`,
     `== 8`, `< 0x16`, `< 0x1A`, `< 0x25`) and one store, where a `switch`
-    gives a jump table and an `if` chain puts the bodies inline.
+    gives a jump table and an `if` chain puts the bodies inline. The tree is
+    a lopsided list (`== 8` at the root), which GCC builds only for two
+    nodes or with its cost table, and 0x16 to 0x1F are control characters,
+    so its cost table is off; with three nodes the `switch` counts 5 and
+    gets a table. A far case for the default gives a tree, but balanced.
     `func_80085EEC` has a frame 8 bytes larger than ours. `func_80090450`
     matches in Europe (with `actor->dir = actor->unkA0 = 1`) but swaps `s4`
     and `s5` in the USA: without the European PAL branch the constant 1
@@ -313,7 +329,14 @@ own.
   last row, and case 11 a variable for `RANDOM.next() % 16`; the page
   goes through `a1` in the original whatever variable holds it (a local
   for the page, `first = page * 8` with `end = first | 7`, or the page in
-  a variable shared with other cases all give `v1`, `a2` or `s2`).
+  a variable shared with other cases all give `v1`, `a2` or `s2`). Ours
+  gets `v1` because local-alloc ties the page to `page * 8` (the page dies
+  at the `sll`). The original's `a1` means that tie failed and the page
+  conflicted with `v0`, `v1` and `a0`. That happens when the page lives
+  past the `sll`, for example as a second argument of
+  `STCRDSHP_listPacks`, but a cast that passes it gets `a1` and schedules
+  the block differently. Statement orders and a 10,000-iteration permuter
+  run change nothing either.
   `STITSHOP`: `func_80089104`
   (3 diffs: the order in which the loop initializes its `x` induction
   variables: ours sets `x` before the strength-reduced `i * 0x63`s, the
@@ -322,9 +345,24 @@ own.
   it). `STGDGLAB`: `func_8008C234` (4 diffs: our
   scheduler moves the `skillCount = 6` store after the argument moves of
   the call to `func_8008BB78`, where the original keeps it before them; no variable, label or order changes it, nor
-  an inline function, a comma expression or the permuter). `STCRDSHP` is three objects, like
+  an inline function, a comma expression or the permuter). A clue: sched1
+  picks the store first from the end because a store has a greater
+  potential hazard than the moves, which puts it after them. Loop notes
+  between the store and the call stop that: the whole function matches in
+  both versions with the store alone in a `do { } while (0)` (a fake match,
+  so not taken). So the original probably had something there that splits
+  the block, such as a loop, a label or a macro. Unused labels, inline
+  helpers (with or without a `return`), an assignment used as the `if`
+  condition, a block with its own variable, a statement expression, a
+  `switch`, a `?:` and a counting loop don't do it. `STCRDSHP` is three objects, like
   `STSTATUS`'s ten: GCC aligns a jump table to 8 bytes, and the original's
   tables only line up at its object boundaries.
+- [x] `STGTRAIN` is three objects (`stgtrain.c` to `stgtrain_3.c`): the
+  jump tables at 0x8008251C and 0x800825E8 (USA) each start right where the
+  one before ends, 4 bytes past a multiple of 8, so each one starts an
+  object. Where each object's code starts is a guess between the function
+  with the last table of the object before and the one with its first; the
+  data is all in `stgtrain.c`.
 - [ ] `STGTRAIN`'s near misses: `func_80085AF8` (3 diffs: the scheduled
   code is the same, but the delayed-branch pass fills the second test's
   delay slot with the resistance's address where the original takes the
@@ -332,10 +370,9 @@ own.
   block, where the original copies the image pointer before the RLEN test,
   which keeps the `ori` of the magic number out of the load delay; a copy
   written before the test is merged into the load, and one in an `else`
-  gives the right registers but not that order), `func_800867A0` (4 diffs
-  in Europe: in the shown values, the original adds the stat's index to
-  `result`, ours adds `result` to the index), `func_80087E34` (11: `PAD`'s
-  address and `last` swap `s1` and `s3`) and `func_80088CFC` (13: three
+  gives the right registers but not that order: CSE makes the copy the
+  canonical register whenever `image` lives longer than `src`, so the
+  original's `src` must live as long) and `func_80088CFC` (13: three
   registers rotated).
 - [ ] Check `STFGTREP`'s guess (the report after a battle) against its
   texts, and `STGDGLAB`'s (the partners' digivolutions) against its
@@ -352,8 +389,8 @@ own.
 - [ ] Overlay data: 82 % of it is C in both versions; the `.data` of every
   overlay is C. objdiff counts a section only when all of it
   matches, so the `.rodata` of the overlays with functions still in asm
-  doesn't count yet. `INCLUDE_RODATA` is left in `SHOCKTST` (7) and
-  `FIGHTSTG` (4).
+  doesn't count yet. `INCLUDE_RODATA` is left in `FIGHTSTG` (4); `SHOCKTST`'s
+  strings are C, its last `.rodata` is `convertText`'s.
   `WFIGHTTS`'s strings are a `const char` array whose padding after each
   table's last string is what the assembler left there, in both versions,
   and so are the cursors, `"＞"`, of `SOUNDTST` and the European
