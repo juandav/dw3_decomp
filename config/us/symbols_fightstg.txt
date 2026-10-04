@@ -47,7 +47,7 @@ FIGHTSTG_computeStats = 0x8009DDCC; // type:func
 FIGHTSTG_lerpVector = 0x800A0EF4; // type:func
 
 D_800A2414 = 0x800A2414; // size:0x170 can_reference:False
-D_800A25F0 = 0x800A25F0; // size:0xB18 type:s32
+D_800A25F0 = 0x800A25F0; // size:0xB1C type:s32
 D_800A317C = 0x800A317C; // size:0x6C
 D_800A31E8 = 0x800A31E8; // size:0xF8
 D_800A32E0 = 0x800A32E0; // size:0x28

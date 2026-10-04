@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20157-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20163-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -43,12 +43,12 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 346 / 346 | 100.00 % | 100.00 % |
 | | USA | 346 / 346 | 100.00 % | 100.00 % |
-| The 21 overlays | Europe | 1,649 / 1,700 | 93.84 % | 97.28 % |
-| | USA | 1,644 / 1,695 | 93.76 % | 97.29 % |
+| The 21 overlays | Europe | 1,655 / 1,700 | 95.22 % | 97.39 % |
+| | USA | 1,650 / 1,695 | 95.17 % | 97.40 % |
 | The stages (293 and 238) | Europe | 1,590 / 1,590 | 100.00 % | 100.00 % |
 | | USA | 1,369 / 1,369 | 100.00 % | 100.00 % |
-| **Total** | **Europe** | **3,585 / 3,636** | **95.79 %** | **99.67 %** |
-| | **USA** | **3,359 / 3,410** | **95.57 %** | **99.64 %** |
+| **Total** | **Europe** | **3,591 / 3,636** | **96.73 %** | **99.69 %** |
+| | **USA** | **3,365 / 3,410** | **96.57 %** | **99.65 %** |
 
 - The executable's game code is all C, and its rodata. Its data is C too,
   in `src/main/data/`, until it moves next to the code that uses it.
@@ -58,8 +58,8 @@ current:
   code, not the game's, so like other PSX decomps they are built and compared
   but left out of the progress.
 - `CNTY_SEL`, `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STFGTREP`, `STCRDABM`,
-  `STDWTITL` and `CARDGAME` are all C, `STSTATUS` all but one function, and `STCRDDEK`,
-  `SHOCKTST`, `STGTRAIN`, `FIELDSTG` and `FIGHTSTG` mostly. The
+  `STGTRAIN`, `STDWTITL` and `CARDGAME` are all C, `STSTATUS` all but one function, and
+  `STCRDDEK`, `SHOCKTST`, `FIELDSTG` and `FIGHTSTG` mostly. The
   other large overlays are still mostly assembly.
 - The stages are all C, the 238 USA ones and the 55 of the European version
   alone. Many stages share functions built from the same source, so one
@@ -91,8 +91,8 @@ above counts them: fake matches, then the other two kinds together.
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 8 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 149 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 41 | `INCLUDE_ASM` |
+| Form-dependent matches | 155 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 35 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -104,7 +104,7 @@ above counts them: fake matches, then the other two kinds together.
   `func_8008CC5C`, one in FIGHTSTG's `func_8008CFFC` and three in WFIGHTTS.
 - A form-dependent match is C that matches in one of several equivalent
   forms only: an extra block, an `if` without braces, a copy of a variable, a
-  type, or one version's own form of a loop. The hundred and forty-nine so far are a copy
+  type, or one version's own form of a loop. The hundred and fifty-five so far are a copy
   of a variable in `drawTalkBoxArrow`, an unsigned compare in STGMCARD's
   `func_80082E28`, a variable that holds two values in STCRDDEK's
   `STCRDDEK_drawDeckCards`, a counter set before a call in
@@ -114,7 +114,7 @@ above counts them: fake matches, then the other two kinds together.
   variables local to a case or a block in its `func_80086E64` and
   `func_80091D3C`, an empty case in its `func_800870D4`, two variables for one
   character and an `s16` in its `func_80084654`, calls in an `if`/`else`
-  and a `case 0` next to `default` in its `func_80084D0C`, the button's shift and mask as two statements in its `func_8008D710`, a gauge cell read and shifted as two statements in its `func_8008C59C`, an `s16` shadow offset in its `func_8008E7E0`, a distance written twice in its `func_8008B450`, a loop with both of its tests at its top and steps added as a choice in its `func_8008F184`, the registry held in a variable in its `func_8008D4C4`, a counter for each loop in its `func_80085650`, the start position set with a `(Vec2){x, y}` constructor in its `func_80091124`, a -1 held in a variable in STGTRAIN's `func_800874A0`, stats read through two inline functions in its `func_800867A0`, a variable for each loop and each cursor's last value in its `func_80087E34`,
+  and a `case 0` next to `default` in its `func_80084D0C`, the button's shift and mask as two statements in its `func_8008D710`, a gauge cell read and shifted as two statements in its `func_8008C59C`, an `s16` shadow offset in its `func_8008E7E0`, a distance written twice in its `func_8008B450`, a loop with both of its tests at its top and steps added as a choice in its `func_8008F184`, the registry held in a variable in its `func_8008D4C4`, a counter for each loop in its `func_80085650`, the start position set with a `(Vec2){x, y}` constructor in its `func_80091124`, a -1 held in a variable in STGTRAIN's `func_800874A0`, stats read through two inline functions in its `func_800867A0`, a variable for each loop and each cursor's last value in its `func_80087E34`, the column set in each branch of an `if` in its `func_80085AF8`, the magic number read into a variable before the image pointer is copied, and the image set before the source moves on, in its `func_8008B35C`, the position pointer set after two calls and a 1 stored as the result in its `func_80088CFC`,
   stats read as `*(totals.stats + i)` in its `func_80083ADC`, `s16` copies
   of two stats in its `func_80085E30`, a counter that
   holds an icon too in its `func_800878C0`, a frame pointer that holds the
@@ -133,7 +133,7 @@ above counts them: fake matches, then the other two kinds together.
   a statement written in both branches, a counter set before a call, a
   variable reused, a pointer, an offset from a pointer, a `while (1)` or a
   helper that stores through pointers),
-  forty-four spots in FIGHTSTG (cases that do nothing, a case next to
+  forty-seven spots in FIGHTSTG (cases that do nothing, a case next to
   `default`, a menu's result switched with case -1 first, variables
   declared in an `if`, a test written the other way round, a value read
   after a change, a percentage
@@ -185,7 +185,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `CARDGAME` | `0x80082448` | 306 / 306 | the card battle (mode `0x700`): the decks, the cards in play and the battle screen |
 | `CNTY_SEL` | `0x80082448` | 26 / 26 | the country select screen |
 | `FIELDSTG` | `0x80082448` | 214 / 222 | the field mode, where the player walks around the map; the stages load on top of it |
-| `FIGHTSTG` | `0x80082448` | 279 / 310 | the battle: the fight stage and its lights, the fighters' models, faces and cameras, the battle camera and windows, the queue of battle events and the stat, hit and status checks |
+| `FIGHTSTG` | `0x80082448` | 282 / 310 | the battle: the fight stage and its lights, the fighters' models, faces and cameras, the battle camera and windows, the queue of battle events and the stat, hit and status checks |
 | `SHOCKTST` | `0x80082448` | 16 / 17 | the debug vibration test |
 | `SOUNDTST` | `0x80082448` | 8 / 8 | the debug sound test |
 | `STAGSLCT` | `0x80082448` | 7 / 8 | the debug stage select, a menu of every scene of the game |
@@ -197,7 +197,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `STFGTREP` | `0x80082448` | 36 / 36 | the report after a battle (mode 0x1400), which `WFIGHTMN` requests: the partners that went up a level |
 | `STGDGLAB` | `0x80082448` | 69 / 70 | the partners' digivolutions, it seems: a menu of three screens that checks the requirements of `STGDGLAB_tables` against a partner's entries and sets its three slots |
 | `STGMCARD` | `0x80082448` | 45 / 45 | the memory card screen (mode 0xC00): the saves of a card, their details, and saving and loading |
-| `STGTRAIN` | `0x80082448` | 91 / 94 | the gyms: a partner trains a stat, gaining some and losing others, with its sprites and the result windows |
+| `STGTRAIN` | `0x80082448` | 94 / 94 | the gyms: a partner trains a stat, gaining some and losing others, with its sprites and the result windows |
 | `STITSHOP` | `0x80082448` | 68 / 69 | the item shop, where the player buys and sells items and equips what was bought on a partner |
 | `STPLNMET` | `0x80082448` | 53 / 53 | the player's name entry (mode 0x500), with a copy of `STDGNAME`'s keyboard |
 | `STSTATUS` | `0x80082448` | 122 / 123 | the screens the field menu opens (`STSTATUS_screens`), such as the item list and the equipment |

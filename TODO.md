@@ -167,15 +167,15 @@ own.
 
 ## Overlays
 
-- [ ] 1,644 of the overlays' 1,695 functions are C. All C: `CNTY_SEL`,
+- [ ] 1,650 of the overlays' 1,695 functions are C. All C: `CNTY_SEL`,
   `WFIGHTMN`, `SOUNDTST`, `STPLNMET`, `STDGNAME`, `STGMCARD`, `STFGTREP`, `STCRDABM`,
-  `CARDGAME`, `STDWTITL` (`libpress`'s handwritten `DecDCTvlcSize2` and `DecDCTvlc2`
+  `CARDGAME`, `STGTRAIN`, `STDWTITL` (`libpress`'s handwritten `DecDCTvlcSize2` and `DecDCTvlc2`
   are a `hasm` source, `src/stdwtitl/libpress_vlc2.s`, out of the count).
   Mostly: `STCRDDEK` (54 / 55), `SHOCKTST` (16 / 17), `STAGSLCT` (7 / 8),
-  `FIELDSTG` (214 / 222), `STGTRAIN` (91 / 94),
+  `FIELDSTG` (214 / 222),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70),
   `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
-  `FIGHTSTG` (279 / 310).
+  `FIGHTSTG` (282 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_createScreenWindows` (3 diffs): the `unk5C` loop's counter
     gets `s2` where the original has `s3`, the register of the other loops'
@@ -185,20 +185,29 @@ own.
     no order of the declarations moves `c` to `s3`. The global allocator
     takes `c` before `a` and gives it the lowest register already used, so
     `s3` needs `s2` to be busy or preferred by something live in that loop.
+    Forcing other live lengths on the four pseudos under gdb never gives
+    `c` `s3`, and 40 minutes of the permuter found nothing under the
+    3 diffs.
   - `STAGSLCT_showBiosVersion` matches only with an empty `do {} while (0)`
     that ends a CSE block, a fake match.
-  - `SHOCKTST_convertText` (129 diffs at best): the original has no
-    counter left in its loop. It keeps a pointer to the current pattern's
-    times and one to its powers, each copied (through a temporary) from an
-    induction variable two bytes ahead, and it stores `times[1]` at -1 from
-    that variable. The four registers leave no room for the parser's
-    constants, which reload rebuilds in `a3` at each use. The closest form
-    so far sets a pointer `t = times + k * 2` after `k++` and stores the
-    second byte as `times[k * 2 - 1]`: it has the original's register
-    pressure, but takes one copy where the original has two, and swaps
-    `s0` and `s1`. Two `*times++`, `times[0]` and `times[1]` then
-    `times += 2`, `times[-1]` after the add, or `times[k * 2]` don't keep
-    the extra registers.
+  - `SHOCKTST_convertText` (82 diffs at best, with the values loop's
+    `strcspn` length and the file handle in their own variables): the
+    original has no counter left in its loop. It keeps a pointer to the
+    current pattern's times and one to its powers, each copied (through a
+    temporary) from an induction variable two bytes ahead, and it stores
+    `times[1]` at -1 from that variable. The loop dumps explain the shape:
+    the variable starts at `times + 2` and steps after the stores, so the
+    counter starts at 1 and steps at the end of the branch, and the
+    temporary is a value of `times + k * 2` taken before `k++` and copied to
+    `t` after it (gcc 2.8.1's giv code refuses `times + 2` as an addend, so
+    `t = times + k * 2 + 2` with a 0-based counter is never reduced). A
+    draft with `nt = times + k * 2; np = powers + k * 2; k++; t = nt;
+    p = np;` and `*types++` gives the branch instruction for instruction,
+    but `nt` and `np` are there only for the shape, and the rest still
+    differs: cse folds the setup's copies `types` -> temporary -> `times`
+    -> `powers` into one register (the original reads each offset through
+    its own copy), the registers come out in another order, and sched1
+    puts `a0 = s` before `n = v0` at two `atoi` calls on a priority tie.
   - `FIELDSTG` (five objects, `fieldstg.c` to `fieldstg_5.c`):
     `func_800896C0`, the field's battle transition (the screen breaks into
     30 tiles that slide off in a spiral), matches in both versions only with
@@ -253,12 +262,16 @@ own.
   (4 bytes short: the original keeps `&D_800A3308` in a register instead of
   folding it into the offsets) differ only in registers and the order of a
   few loads (the permuter finds nothing natural). Of
-  the GTE functions, the large mesh drawers `func_80084890` (48 diffs, all
+  the GTE functions, the large mesh drawers `func_80084890` (43 diffs, all
   registers and order: the prologue saves `s1` after its copy of `layer`,
-  and the registers of the clut, the screen points, the `nclip` compares
-  and the uvs come out swapped) and
-  `func_800850D8` (26) differ in how they keep the state's fields in
-  registers. `func_80099D24`
+  the screen base gets the last register where ours gets the first, and
+  the uvs load `quad`, `lit` and `cmd` in another order; splitting the clut
+  sum `cx += x` brought it from 48 to 43, and the permuter finds nothing
+  natural beyond that) and `func_800850D8` (26: only the registers of its
+  two `addPrim`s; writing each `addPrim` with one `tag` variable leaves only
+  the order of the two hoisted masks, and the full match needs a dead store
+  to `tag`, a fake match). The `fightstg` unit's only unmatched data is
+  `jtbl_80082448`, the jump table of `func_80084890`. `func_80099D24`
   only matches with an empty `do {} while (0)`, a fake match (41 diffs
   without it: `task` gets `s1` where the original has `s4`). The battle
   checks: `FIGHTSTG_computeStats` (26 diffs: the
@@ -271,19 +284,11 @@ own.
   `func_80091950`, `func_800967A4`, `func_800973D4` and `func_80095AC0`):
   only `children` and `changed` swap `s2` and `s3`, and the permuter only
   got closer (20) with a copy of `children` kept for nothing.
-  `func_8008AF74` (the battle script's model command) keeps 6 diffs: the
-  original loads case 3's time between reading `pc[0]` and storing it, and
-  the permuter only got closer with a variable kept for nothing.
-  `func_800928BC` (76 diffs in the USA, 88 in Europe), `func_800921EC` (18:
-  the original keeps the mode, the OT and `0xFFFFFF` in `s2` to `s4`) and
-  `func_8008B784` (24) differ in their registers. `func_800924DC` keeps 6
+  `func_800928BC` (76 diffs in the USA, 88 in Europe) and `func_800921EC`
+  (18: the original keeps the mode, the OT and `0xFFFFFF` in `s2` to `s4`)
+  differ in their registers. `func_800924DC` keeps 6
   diffs: its second loop gets the counter and `&D_800A31E8.active[i]` in
-  each other's register (`a3` and `t0`). Tried:
-  `func_8008EAF8` (about 1300 diffs: its cases share their `func_800A8F60`
-  calls in other places, and it calls `D_800A3108` as `D_800A25F0`'s
-  tenth function at offset `0xB18`, so `fightstg.c`'s `D_800A25F0` has to
-  take `D_800A3108` in first; `func_8008C0BC`'s row offset, `other * 0x60`
-  added as an int in a block of its own, may help it) and `func_80090908`
+  each other's register (`a3` and `t0`). Tried: `func_80090908`
   (357 diffs: its `i == 5` call has to end in its own clear and `break`,
   which loop.c moves out of the loop to where the original has it, and
   `task->side != 0` is read before `switch (i)`; what is left is loop.c
@@ -291,8 +296,9 @@ own.
   so `children` goes to the stack instead of `&fighters[0]` and
   `&fighters[1]`).
   `fightstg.c` defines `D_800A210C` as `u16` rows where `func_8008C8F0`
-  reads `ItemScript`s (through an `extern` of its own in `fightstg_6.c` for
-  now). `fightstg_3.c`'s `func_80087304`
+  reads `ItemScript`s, and `D_800A216C` and `D_800A21B4` as `u16` rows
+  where `func_8008EAF8` reads `TechBoost`s (through `extern`s of their own
+  in `fightstg_6.c` for now). `fightstg_3.c`'s `func_80087304`
   returns its task, which `func_80091A58` stores, but is defined `void`
   (`fightstg_6.c` has a prototype of its own that returns the task).
 - [ ] The battle menus' near misses. `WFIGHTTS`: `func_800A6954` (the
@@ -416,17 +422,6 @@ own.
   object. Where each object's code starts is a guess between the function
   with the last table of the object before and the one with its first; the
   data is all in `stgtrain.c`.
-- [ ] `STGTRAIN`'s near misses: `func_80085AF8` (3 diffs: the scheduled
-  code is the same, but the delayed-branch pass fills the second test's
-  delay slot with the resistance's address where the original takes the
-  table's `lui`), `func_8008B35C` (the RLEN loader: it is right but for one
-  block, where the original copies the image pointer before the RLEN test,
-  which keeps the `ori` of the magic number out of the load delay; a copy
-  written before the test is merged into the load, and one in an `else`
-  gives the right registers but not that order: CSE makes the copy the
-  canonical register whenever `image` lives longer than `src`, so the
-  original's `src` must live as long) and `func_80088CFC` (13: three
-  registers rotated).
 - [ ] Check `STFGTREP`'s guess (the report after a battle) against its
   texts, and `STGDGLAB`'s (the partners' digivolutions) against its
   strings.

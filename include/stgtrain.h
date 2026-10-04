@@ -391,6 +391,7 @@ extern TrainCursor D_8008C804;
 extern TrainCursor D_8008C808;
 extern TrainCursor D_8008C80C;
 void func_800828E8(TrainSprite *sprite);
+TrainSprite *func_80083018(void);
 void func_80083ADC(TrainScreen *screen, TrainTotals *before);
 void func_80083F8C(TrainScreen *screen);
 void func_800848D0(TrainScreen *screen, TrainScreenWindows *win);

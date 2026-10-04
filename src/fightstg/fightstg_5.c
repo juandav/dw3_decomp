@@ -69,7 +69,168 @@ void func_8008AE1C(BattleScript *script, BattleScriptChildren *children) {
     }
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008AF74);
+/* fightstg_6.c's */
+Jump *FIGHTSTG_startJump(ModelControl *control, s32 kind, s32 distance);
+MoveTask *func_8009A79C(ModelControl *control, ShortVec3 *to, s32 time);
+
+/* The battle script's model command, on the model given by func_8008ADB0:
+   0 plays a motion (0 waits for the one playing, 1 goes back to idle), 1
+   and 2 turn unk34[0] on and off, 3 moves it to a position in the script
+   (over a time, or at once when it is 0), 4 turns it, 5 makes it jump (0
+   waits for the jump), 6 adds a model (waiting while its file loads in
+   script 12), 7 moves it home, 8 0x2800 from home and 9 removes it.
+   Returning 0 runs the command again. The match depends on each case's
+   time being its own and on case 3's being read before the position. */
+s32 func_8008AF74(BattleScript *script, BattleScriptChildren *children) {
+    ShortVec3 pos;
+    s32 arg = 0;
+    ModelControl *control = NULL;
+    s32 cmd = *script->pc++;
+    s32 id = func_8008ADB0(script, *script->pc++);
+    Models *models;
+
+    switch (cmd) {
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 7:
+    case 8:
+    case 9:
+        break;
+    default:
+        arg = *script->pc++;
+        break;
+    }
+    if (cmd != 6 && cmd != 9) {
+        control = script->models->get(script->models, id);
+    }
+    switch (cmd) {
+    case 0:
+        switch (arg) {
+        case 0:
+            if (control->motionDone == 0) {
+                script->pc -= 4;
+                return 0;
+            }
+            return 1;
+        case 1:
+            control->motionDone = 0;
+            control->motion = control->idleMotion + 1;
+            break;
+        default:
+            control->motion = arg + 1;
+            control->restart = 1;
+            control->motionDone = 0;
+            break;
+        }
+        break;
+    case 5:
+        switch (arg) {
+        case 0:
+            if (children->unk4 == NULL) {
+                return 1;
+            }
+            if (children->unk4->state < 2) {
+                script->pc -= 4;
+                return 0;
+            }
+            return 1;
+        case 1:
+        case 2:
+        case 3:
+        case 5:
+        case 6:
+            if (children->unk4 != NULL) {
+                children->unk4->destroy(children->unk4);
+            }
+            children->unk4 = (Task *)FIGHTSTG_startJump(control, arg, 0);
+            break;
+        case 4: {
+            s32 distance = *script->pc++;
+
+            if (children->unk4 != NULL) {
+                children->unk4->destroy(children->unk4);
+            }
+            children->unk4 = (Task *)FIGHTSTG_startJump(control, arg, distance);
+            break;
+        }
+        }
+        break;
+    case 1:
+        control->unk34[0].enabled = 1;
+        return 1;
+    case 2:
+        control->unk34[0].enabled = 0;
+        break;
+    case 3: {
+        s32 time = script->pc[3];
+
+        pos.x = script->pc[0];
+        pos.y = -script->pc[1];
+        pos.z = -script->pc[2];
+        script->pc += 4;
+        if (time != 0) {
+            children->unk8 = (Task *)func_8009A79C(control, &pos, time);
+        } else {
+            control->pos.x = pos.x;
+            control->pos.y = pos.y;
+            control->pos.z = pos.z;
+        }
+        break;
+    }
+    case 4:
+        control->rot.x = *script->pc++;
+        control->rot.y = -*script->pc++;
+        control->rot.z = -*script->pc++;
+        script->pc++;
+        break;
+    case 6:
+        if (script->index == 12 && FILE_CACHE.isLoading(D_800A32E0.funcs.getInfo(arg)->model >> 16)) {
+            script->pc -= 4;
+            return 0;
+        }
+        models = TASK_REGISTRY.funcs.find(0x14, -1, -1);
+        models->add(models, id, arg, 0);
+        return 1;
+    case 7: {
+        s32 time = *script->pc++;
+
+        if (time != 0) {
+            children->unk8 = (Task *)func_8009A79C(control, &control->homePos, time);
+        } else {
+            control->pos.x = control->homePos.x;
+            control->pos.y = control->homePos.y;
+            control->pos.z = control->homePos.z;
+        }
+        break;
+    }
+    case 8: {
+        s32 time = *script->pc++;
+
+        pos.x = control->homePos.x;
+        pos.y = control->homePos.y;
+        if (id & 0xF0) {
+            pos.z = control->homePos.z - 0x2800;
+        } else {
+            pos.z = control->homePos.z + 0x2800;
+        }
+        if (time != 0) {
+            children->unk8 = (Task *)func_8009A79C(control, &pos, time);
+        } else {
+            control->pos.x = pos.x;
+            control->pos.y = pos.y;
+            control->pos.z = pos.z;
+        }
+        break;
+    }
+    case 9:
+        models = TASK_REGISTRY.funcs.find(0x14, -1, -1);
+        models->remove(models, id);
+        break;
+    }
+    return 1;
+}
 
 s32 func_8008B400(BattleScript *script, BattleScriptChildren *children) {
     SVECTOR pos;
@@ -164,7 +325,62 @@ s32 func_8008B628(BattleScript *script, BattleScriptChildren *children) {
     return 1;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_5", func_8008B784);
+/* The battle script's camera command: the time of the fade (0 to cut),
+   then the enemy's view, a fighter's or one given in the script */
+void func_8008B784(BattleScript *script, BattleScriptChildren *children) {
+    BattleCamera *camera = TASK_REGISTRY.funcs.find(0x12, -1, -1);
+    s32 time = *script->pc++;
+    /* the match depends on pc, which points at the mode, and on view */
+    s16 *pc = script->pc;
+    CameraView *view = &D_800A3438;
+    s32 id;
+
+    switch (*script->pc++) {
+    case 0:
+    default:
+        id = *script->pc++;
+        switch (id) {
+        case 0:
+        default:
+            camera->getEnemyView(camera);
+            break;
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+            camera->getFighterView(camera, 0, id + 7);
+            break;
+        case 5:
+        case 6:
+        case 7:
+            camera->getFighterView(camera, 0x10, id - 5);
+            break;
+        }
+        break;
+    case 1:
+        view->vpx = pc[1];
+        view->vpy = -pc[2];
+        view->vpz = -pc[3];
+        view->vrx = pc[4];
+        view->vry = -pc[5];
+        view->vrz = -pc[6];
+        view->tx = pc[7];
+        view->ty = -pc[8];
+        view->tz = -pc[9];
+        view->rot.vx = pc[10];
+        view->rot.vy = -pc[11];
+        view->rot.vz = -pc[12];
+        view->rz = pc[13];
+        view->proj = pc[14];
+        script->pc = pc + 15;
+        break;
+    }
+    if (time != 0) {
+        camera->fade(camera, NULL, view, time);
+    } else {
+        camera->set(camera, view);
+    }
+}
 
 s32 func_8008B9A0(BattleScript *script, BattleScriptChildren *children) {
     switch (script->waiting) {

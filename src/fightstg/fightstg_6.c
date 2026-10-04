@@ -215,7 +215,7 @@ s32 func_8008C8F0(Unk8008CFFC *task, BattleScript **children) {
 typedef struct StatusCure {
     /* 0x0 */ s16 message;
     /* 0x2 */ s16 flag; /* in BattleFighter.flags */
-    /* 0x4 */ s32 item; /* D_800A3108's */
+    /* 0x4 */ s32 item; /* D_800A25F0.funcs.useItem's */
 } StatusCure;
 extern StatusCure D_800A20EC[];
 extern StatusCure D_800A20F4[];
@@ -322,7 +322,7 @@ void func_8008CFFC(Unk8008CFFC *task, Unk80097F8C **children) {
                 children[0] = func_80099400();
                 if (fighter->flags & cure->flag) {
                     fighter->flags &= ~cure->flag;
-                    D_800A3108(0, D_800A31E8.active[0], cure->item);
+                    D_800A25F0.funcs.useItem(0, D_800A31E8.active[0], cure->item);
                     task->lines[0] = cure->message;
                     task->lines[1] = 0;
                     children[0]->unkAC(children[0], 2, task->lines);
@@ -995,7 +995,681 @@ void func_8008F5D4(s32 tech, s32 fighter) {
 }
 #endif
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_6", func_8008EAF8);
+/* fightstg.c's u16 rows */
+extern TechBoost D_800A216C[];
+extern TechBoost D_800A21B4[];
+extern u8 D_800A21D4[];
+extern s32 D_800A21D8[];
+extern s32 D_800A21E8[];
+Unk80090908 *func_80090F28(s32 arg0);
+void func_8009BF84(s32 arg0);
+void func_8009B6E8(u8 side);
+void func_8009B7A4(u8 side, s32 fighter, s32 arg2);
+void func_8009BE1C(s32 tech);
+void func_8009C148(void);
+
+/* A side's technique or item (func_80090050): state 0 shows its message,
+   substate 1 does what it does by its kind (2 and 3 deal damage, 4 is an
+   item's cure, revival or healing, 5 a boost, a drain or a heal of the
+   enemy, 6 an attack timed by the fighter's third stat), then the counter
+   when the other side's fighter has flag 8 (substate 4) and the motion of
+   the damage (func_8008EAA0). The match depends on the other side's
+   fighter being found as its row's offset added as an int to its slot (as
+   in func_8008C0BC), on each case's variables being its own, on substate
+   1's cases advancing substate themselves (case 5 once, after its switch)
+   and on the heal tests being written hp + unk5C > maxHp. */
+void func_8008EAF8(Unk8008EAF8 *task, Unk80097F8C **children) {
+    Unk800427D6 *tech;
+
+    switch (task->state) {
+    case TASK_INIT:
+    default: {
+        Unk800427D6 *tech = &D_800427D6[task->unk54];
+
+        if (tech->unk4 == 2 || tech->unk4 == 3) {
+            D_800A317C.unk68(task->unk50, task->unk54);
+        } else {
+            HEAP.zero(&D_800A317C, 0x68);
+        }
+        children[0] = func_80099400();
+        if (tech->unk10 == 0xC) {
+            task->lines[0] = 0x3A;
+            task->lines[1] = task->unk50;
+            children[0]->unkAC(children[0], 2, task->lines);
+        } else {
+            task->lines[0] = task->unk50;
+            task->lines[1] = task->unk54;
+            children[0]->unkAC(children[0], 3, task->lines);
+        }
+        {
+            s32 other = 1 - (task->unk50 >> 4);
+            s32 row = other * 0x60;
+            BattleFighter *slot = &D_800A31E8.fighters[0][D_800A31E8.active[other]];
+            BattleFighter *fighter = (BattleFighter *)(row + (s32)slot);
+
+            if (fighter->flags & 8) {
+                task->unk60 = 1;
+            }
+        }
+        task->nextState(task);
+        break;
+    }
+    case TASK_RUN:
+        switch (task->substate) {
+        case 0:
+        default:
+            if (children[0] == NULL) {
+                if (D_800A317C.unk38[10] == 0) {
+                    children[0] = (Unk80097F8C *)func_800A9040(task->unk50, task->unk54);
+                    {
+                        BattleFighter *fighters = D_800A31E8.fighters[0];
+
+                        if (task->unk50 != 0) {
+                            fighters = D_800A31E8.fighters[1];
+                        }
+                        fighters[D_800A31E8.active[task->unk50 != 0]].unkE = 0;
+                    }
+                } else {
+                    func_800A99F0(task->unk50);
+                }
+                task->substate++;
+            }
+            break;
+        case 1:
+            if (children[0] != NULL) {
+                break;
+            }
+            tech = &D_800427D6[task->unk54];
+            switch (tech->unk4) {
+            default:
+                return;
+            case 2:
+            case 3: {
+                s32 other;
+
+                children[0] = func_80099400();
+                other = task->unk50 == 0;
+                if (D_800A317C.unk38[10]) {
+                    func_8009BF84(task->unk54);
+                    task->state = 3;
+                    return;
+                }
+                if (D_800A317C.unk38[9]) {
+                    if (D_800427E8[task->unk54 - 1].unk5[5] == 0x1F) {
+                        task->damage = D_800A317C.unk60[0] + D_800A317C.unk60[1];
+                        task->lines[0] = other << 4;
+                        task->lines[1] = task->damage;
+                        children[0]->unkAC(children[0], 4, task->lines);
+                    } else {
+#if VERSION_US
+                        task->damage = D_800A317C.damage * D_800A317C.unk34;
+#endif
+                        task->lines[0] = other << 4;
+                        task->lines[1] = D_800A317C.damage;
+                        task->lines[2] = D_800A317C.unk34;
+                        children[0]->unkAC(children[0], 0x10, task->lines);
+#if VERSION_EU
+                        task->damage = D_800A317C.damage * D_800A317C.unk34;
+                        if (task->damage >= 10000) {
+                            task->damage = 9999;
+                        }
+#endif
+                    }
+                } else if (D_800A317C.unk38[6]) {
+                    s32 row = other * 0x60;
+                    BattleFighter *slot = &D_800A31E8.fighters[0][D_800A31E8.active[other]];
+
+                    ((BattleFighter *)(row + (s32)slot))->hp = 0;
+                    func_8009C054(other << 4);
+                    children[0]->state = 3;
+                } else if (D_800A317C.hits[0]) {
+                    task->lines[0] = other << 4;
+                    task->lines[1] = D_800A317C.damage;
+                    children[0]->unkAC(children[0], 4, task->lines);
+                    task->damage = D_800A317C.damage;
+                } else {
+                    task->lines[0] = 0x1D;
+                    task->lines[1] = other << 4;
+                    children[0]->unkAC(children[0], 2, task->lines);
+                }
+                if (task->damage != 0) {
+                    s32 row = other * 0x60;
+                    BattleFighter *slot = &D_800A31E8.fighters[0][D_800A31E8.active[other]];
+                    BattleFighter *fighter = (BattleFighter *)(row + (s32)slot);
+
+                    fighter->hp -= task->damage;
+                    if (fighter->hp <= 0) {
+                        fighter->hp = 0;
+                        func_8009C054(other << 4);
+                        task->step = 1;
+                    }
+                }
+                task->substate++;
+                return;
+            }
+            case 4:
+                task->lines[0] = task->unk50;
+                switch (task->unk54) {
+                case 0xBD:
+                    func_8009B6E8(task->unk50);
+                    func_8009B7A4(task->unk50, D_800A31E8.active[task->unk50 != 0], task->unk54);
+                    children[0] = func_80099400();
+                    task->lines[0] = 0x27;
+                    task->lines[1] = task->unk50;
+                    children[0]->unkAC(children[0], 2, task->lines);
+                    task->nextSubstate(task);
+                    break;
+                case 0xBE:
+                case 0xBF:
+                case 0xC0:
+                case 0xC1:
+                case 0xC2:
+                case 0xC3:
+                case 0xC4:
+                case 0xC5: {
+                    s32 other;
+                    s32 kind;
+                    BattleFighter *fighters;
+                    s32 i;
+
+                    other = task->unk50 != 0;
+                    switch (task->unk54) {
+                    case 0xBE:
+                    case 0xBF:
+                    default:
+                        kind = 0;
+                        break;
+                    case 0xC0:
+                    case 0xC1:
+                        kind = 1;
+                        break;
+                    case 0xC2:
+                    case 0xC3:
+                        kind = 2;
+                        break;
+                    case 0xC4:
+                    case 0xC5:
+                        kind = 3;
+                        break;
+                    }
+                    fighters = D_800A31E8.fighters[other];
+                    switch (task->step) {
+                    case 0:
+                    default:
+                        children[0] = func_80099400();
+                        if (task->unk54 & 1) {
+                            task->lines[0] = task->unk50;
+                            task->lines[1] = D_800A21D8[kind];
+                            children[0]->unkAC(children[0], 9, task->lines);
+                            task->step = 1;
+                            task->counter = 3;
+                            return;
+                        }
+                        if (fighters[D_800A31E8.active[other]].flags & D_800A21D4[kind]) {
+                            task->lines[0] = D_800A21E8[kind];
+                            task->lines[1] = task->unk50;
+                            task->lines[2] = D_800A31E8.active[0];
+                            children[0]->unkAC(children[0], 2, task->lines);
+                            task->step = 1;
+                            task->counter = 1;
+                            return;
+                        }
+                        task->lines[0] = 0x2F;
+                        children[0]->unkAC(children[0], 1, task->lines);
+                        break;
+                    case 1:
+                        for (i = 0; i < task->counter; i++) {
+                            D_800A25F0.funcs.useItem(task->unk50, i, task->unk54);
+                        }
+                        break;
+                    }
+                    task->nextSubstate(task);
+                    break;
+                }
+                case 0x64: {
+                    BattleFighter *fighter;
+                    s32 i;
+
+                    fighter = D_800A31E8.fighters[0];
+                    switch (task->step) {
+                    case 0:
+                    default:
+                        children[0] = func_80099400();
+                        task->lines[0] = 0;
+                        task->lines[1] = 5;
+                        children[0]->unkAC(children[0], 9, task->lines);
+                        task->step++;
+                        return;
+                    case 1:
+                        for (i = 0; i < 3; i++) {
+                            if (fighter[i].id != 0 && fighter[i].hp == 0) {
+                                fighter[i].hp = fighter[i].maxHp;
+                                func_800A57A8(i);
+                            }
+                        }
+                        break;
+                    }
+                    task->nextSubstate(task);
+                    break;
+                }
+                case 0x177: {
+#if VERSION_US
+                    BattleFighter *fighter;
+#endif
+                    s32 i;
+
+#if VERSION_US
+                    fighter = D_800A31E8.fighters[0];
+#endif
+                    switch (task->step) {
+                    case 0:
+                    default:
+                        children[0] = func_80099400();
+                        task->lines[0] = 0;
+                        task->lines[1] = 6;
+                        children[0]->unkAC(children[0], 9, task->lines);
+                        task->step++;
+                        return;
+                    case 1:
+#if VERSION_US
+                        for (i = 0; i < 3; i++) {
+                            if (fighter[i].id != 0) {
+                                if (fighter[i].hp == 0) {
+                                    func_800A57A8(i);
+                                }
+                                fighter[i].flags = 0;
+                                fighter[i].hp = fighter[i].maxHp;
+                                func_8009BD20(0, i, 1, task->unk54);
+                            }
+                        }
+#else
+                        for (i = 0; i < 3; i++) {
+                            func_8008F5D4(0x177, i);
+                        }
+#endif
+                        break;
+                    }
+                    task->nextSubstate(task);
+                    break;
+                }
+                default: {
+                    BattleFighter *fighters;
+                    s32 kind;
+
+                    fighters = D_800A31E8.fighters[0];
+                    if (task->unk50 != 0) {
+                        fighters = D_800A31E8.fighters[1];
+                    }
+                    switch (task->step) {
+                    case 0:
+                    default: {
+                        s32 i;
+                        s32 most;
+
+                        kind = -1;
+                        task->unk5C = D_800A3308.unk94(task->unk50, task->unk54);
+                        most = 0;
+                        if (task->unk54 >= 0xBB) {
+                            for (i = 0; i < 3; i++) {
+                                if (fighters[i].id != 0 && fighters[i].hp != 0) {
+                                    s32 lost = fighters[i].maxHp - fighters[i].hp;
+
+                                    if (most < lost) {
+                                        most = lost;
+                                    }
+                                }
+                            }
+                            if (most != 0) {
+                                kind = 9;
+                                if (task->unk5C < most) {
+                                    most = task->unk5C;
+                                }
+                                task->lines[1] = 0;
+                                task->lines[2] = most;
+                            }
+                        } else {
+                            s32 lost;
+
+                            i = D_800A31E8.active[task->unk50 != 0];
+                            lost = fighters[i].maxHp - fighters[i].hp;
+                            if (most < lost) {
+                                most = lost;
+                            }
+                            if (most != 0) {
+                                kind = 8;
+                                if (task->unk5C < most) {
+                                    most = task->unk5C;
+                                }
+                                task->unk5C = most;
+                                task->lines[1] = most;
+                            }
+                        }
+                        children[0] = func_80099400();
+                        task->lines[0] = task->unk50;
+                        if (kind != -1) {
+                            s32 i;
+
+                            children[0]->unkAC(children[0], kind, task->lines);
+                            if (task->unk54 >= 0xBB) {
+                                for (i = 0; i < 3; i++) {
+                                    if (fighters[i].id != 0 && fighters[i].hp != 0) {
+                                        if (fighters[i].hp + task->unk5C > fighters[i].maxHp) {
+                                            fighters[i].hp = fighters[i].maxHp;
+                                        } else {
+                                            fighters[i].hp += task->unk5C;
+                                        }
+                                    }
+                                }
+                            } else {
+                                i = D_800A31E8.active[task->unk50 != 0];
+                                if (fighters[i].hp + task->unk5C > fighters[i].maxHp) {
+                                    fighters[i].hp = fighters[i].maxHp;
+                                } else {
+                                    fighters[i].hp += task->unk5C;
+                                }
+                            }
+                            task->nextSubstate(task);
+                        } else {
+                            task->lines[0] = 0x2F;
+                            task->lines[1] = task->unk50;
+                            children[0]->unkAC(children[0], 2, task->lines);
+                            task->nextSubstate(task);
+                        }
+                        break;
+                    }
+                    case 1:
+                        return;
+                    }
+                    break;
+                }
+                }
+                break;
+            case 5:
+                children[0] = func_80099400();
+                switch (task->unk54) {
+                case 0xC6:
+                case 0xC8:
+                case 0xCA:
+                case 0xCC:
+                case 0xCD:
+                case 0xCE:
+                case 0xCF:
+                case 0xD0: {
+                    TechBoost *boost;
+                    s32 other;
+                    s32 ok;
+
+                    for (boost = D_800A216C; boost->tech != -1; boost++) {
+                        if (boost->tech == task->unk54) {
+                            break;
+                        }
+                    }
+                    ok = 1;
+                    other = task->unk50 >> 4;
+                    if (boost->amount <= 0) {
+                        other ^= 1;
+                        if (task->unk50 == 0 && D_80042728.unk3E[boost->stat + 8]) {
+                            task->lines[0] = 0x2F;
+                            children[0]->unkAC(children[0], ok, task->lines);
+                            ok = 0;
+                        }
+                    }
+                    if (ok == 0) {
+                        break;
+                    }
+                    D_800A3308.unkE0((u8)(other << 4), D_800A31E8.active[other], boost->stat, boost->amount * tech->unkC);
+                    func_8009BD20(other << 4, D_800A31E8.active[other], boost->stat, task->unk54);
+                    task->lines[0] = boost->line;
+                    task->lines[1] = other << 4;
+                    task->lines[2] = D_800A31E8.active[other];
+                    children[0]->unkAC(children[0], 2, task->lines);
+                    break;
+                }
+                case 0xC7:
+                case 0xC9:
+                case 0xCB: {
+                    TechBoost *boost;
+                    s32 i;
+
+                    for (boost = D_800A21B4; boost->tech != -1; boost++) {
+                        if (boost->tech == task->unk54) {
+                            break;
+                        }
+                    }
+                    for (i = 0; i < 3; i++) {
+                        if (D_800A31E8.fighters[task->unk50 >> 4][i].id != 0 && D_800A31E8.fighters[task->unk50 >> 4][i].hp > 0) {
+                            D_800A3308.unkE0(task->unk50, i, boost->stat, boost->amount * tech->unkC);
+                            func_8009BD20(task->unk50, i, boost->stat, task->unk54);
+                        }
+                    }
+                    task->lines[0] = task->unk50;
+                    switch (boost->stat) {
+                    case 0:
+                        task->lines[1] = 7;
+                        break;
+                    case 1:
+                        task->lines[1] = 8;
+                        break;
+                    case 2:
+                        task->lines[1] = 9;
+                        break;
+                    }
+                    children[0]->unkAC(children[0], 9, task->lines);
+                    break;
+                }
+                case 0xD1:
+                case 0xD2: {
+                    s32 other = task->unk50 >> 4;
+                    s32 row = other * 0x60;
+                    BattleFighter *slot = &D_800A31E8.fighters[0][D_800A31E8.active[other]];
+
+                    ((BattleFighter *)(row + (s32)slot))->unkE = tech->unkC;
+                    task->lines[0] = 0x36;
+                    task->lines[1] = task->unk50;
+                    children[0]->unkAC(children[0], 2, task->lines);
+                    break;
+                }
+                case 0xD3:
+                    if (D_800A3308.unkC8(0x10, 0xD3)) {
+                        func_8009BE1C(0xD3);
+                        task->lines[0] = 0x44;
+                        task->lines[1] = 0;
+                        children[0]->unkAC(children[0], 2, task->lines);
+                    } else {
+                        task->lines[0] = 0x2F;
+                        children[0]->unkAC(children[0], 1, task->lines);
+                    }
+                    break;
+                case 0xD4:
+                    if (D_800A3308.unkCC(0x10, 0xD4)) {
+                        func_8009BE1C(0xD4);
+                        task->lines[0] = 0x45;
+                        task->lines[1] = 0;
+                        children[0]->unkAC(children[0], 2, task->lines);
+                    } else {
+                        task->lines[0] = 0x2F;
+                        children[0]->unkAC(children[0], 1, task->lines);
+                    }
+                    break;
+                case 0x187:
+                    if (D_800A3308.unkC0(0x10, 0x187)) {
+                        func_8009C148();
+                        children[0]->state = 3;
+                    } else {
+                        task->lines[0] = 0x2F;
+                        children[0]->unkAC(children[0], 1, task->lines);
+                    }
+                    break;
+                case 0x188: {
+                    BattleFighter *to = &D_800A31E8.fighters[1][D_800A31E8.active[1]];
+                    BattleFighter *from = &D_800A31E8.fighters[0][D_800A31E8.active[0]];
+                    s32 amount;
+
+                    if (from->mp != 0) {
+                        amount = from->maxMp * tech->unkC / 128;
+                        if (from->mp < amount) {
+                            amount = from->mp;
+                        }
+                        to->mp += amount;
+                        from->mp -= amount;
+                        if (to->mp > to->maxMp) {
+                            to->mp = to->maxMp;
+                        }
+                        if (from->mp < 0) {
+                            from->mp = 0;
+                        }
+                        task->lines[0] = 0x10;
+                        task->lines[1] = amount;
+                        task->lines[2] = 1;
+                        children[0]->unkAC(children[0], 0x12, task->lines);
+                    } else {
+                        task->lines[0] = 0x2F;
+                        task->lines[1] = 0x10;
+                        children[0]->unkAC(children[0], 2, task->lines);
+                    }
+                    break;
+                }
+                case 0x190: {
+                    BattleFighter *fighter = &D_800A31E8.fighters[1][D_800A31E8.active[1]];
+
+                    task->unk5C = D_800A3308.unk94(task->unk50, 0x190);
+                    fighter->hp += task->unk5C;
+                    if (fighter->hp > fighter->maxHp) {
+                        fighter->hp = fighter->maxHp;
+                    }
+                    fighter->unkE = 0x20;
+                    task->lines[0] = 0x46;
+                    task->lines[1] = 0x10;
+                    children[0]->unkAC(children[0], 2, task->lines);
+                    break;
+                }
+                }
+                task->nextSubstate(task);
+                break;
+            case 6: {
+                BattleStats *stats;
+                s16 level;
+                s32 element;
+
+                children[0] = func_80099400();
+                stats = D_800A3308.computeStats(task->unk50, 1, D_800A31E8.active[task->unk50 == 0x10]);
+                D_800A31E8.unkD0 = tech->unk4;
+                level = stats->stats[2] / 10;
+                element = level + tech->unkC;
+                if (element >= 0x80) {
+                    element = 0x7F;
+                }
+                D_800A31E8.unkD2 = element;
+                func_8009B840(stats->stats[2] * 12 + 1000);
+                task->lines[0] = tech->unk7 + 0x61;
+                children[0]->unkAC(children[0], 1, task->lines);
+                task->nextSubstate(task);
+                return;
+            }
+            }
+            break;
+        case 2:
+            if (children[0] == NULL) {
+                Unk800427D6 *tech = &D_800427D6[task->unk54];
+
+                if ((tech->unk4 == 2 || tech->unk4 == 3) && task->step == 0) {
+                    if (task->damage == 0) {
+                        if (task->unk50 == 0 && D_800A31E8.unkD6 == 6) {
+                            task->setSubstate(task, 7);
+                            break;
+                        }
+                    } else {
+                        children[0] = (Unk80097F8C *)func_80090F28(task->unk50);
+                        task->nextSubstate(task);
+                        break;
+                    }
+                }
+                task->state = 3;
+            }
+            break;
+        case 3:
+            if (children[0] == NULL) {
+                task->substate++;
+            }
+            break;
+        case 4: {
+            s32 other = task->unk50 == 0;
+            s32 row = other * 0x60;
+            BattleFighter *slot = &D_800A31E8.fighters[0][D_800A31E8.active[other]];
+
+            BattleFighter *fighter = (BattleFighter *)(row + (s32)slot);
+            Unk800427D6 *tech;
+
+            tech = &D_800427D6[task->unk54];
+            if (fighter->flags & 8) {
+                if (task->unk60 != 0 && D_800A3308.unkD4(other << 4, task->damage) != 0) {
+                    task->lines[0] = 0x2B;
+                    task->lines[1] = 0x10 - task->unk50;
+                    task->lines[2] = D_800A31E8.active[other];
+                    children[0] = func_80099400();
+                    children[0]->unkAC(children[0], 7, task->lines);
+                    fighter->flags &= ~8;
+                    {
+                        s32 event = D_800A25F0.funcs.find(0xC, 0x10 - task->unk50, D_800A31E8.active[other]);
+
+                        if (event >= 0) {
+                            D_800A25F0.events[event].type = 0;
+                        }
+                    }
+                    task->substate = 9;
+                } else {
+                    task->state = 3;
+                }
+            } else if (tech->unk4 == 2) {
+                children[0] = (Unk80097F8C *)func_8008EAA0((task->unk50 == 0) << 4, task->damage, tech->unk10 == 0xC);
+                task->substate = 6;
+            } else {
+                task->substate = 5;
+            }
+            break;
+        }
+        case 6:
+            if (children[0] != NULL) {
+                if (children[0]->state != 2) {
+                    break;
+                }
+            case 5:
+                func_800A8F60(task->unk50, task->damage);
+            }
+            task->state = 3;
+            break;
+        case 7:
+            if (children[0] == NULL) {
+                Unk800427D6 *tech = &D_800427D6[task->unk54];
+
+                children[0] = func_800908C0(1, tech->unk10 == 0xC);
+                task->substate++;
+            }
+            break;
+        case 8:
+            if (children[0] == NULL) {
+                task->setState(task, 3);
+            }
+            break;
+        case 9:
+            if (children[0] == NULL) {
+                Unk800427D6 *tech = &D_800427D6[task->unk54];
+
+                if (tech->unk4 == 2) {
+                    children[0] = (Unk80097F8C *)func_8008EAA0((task->unk50 == 0) << 4, task->damage, tech->unk10 == 0xC);
+                    task->substate = 6;
+                } else {
+                    task->substate = 5;
+                }
+            }
+            break;
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
 
 void func_80090050(s32 arg0, s32 arg1) {
     Unk8008EAF8 *task = createTask(func_8008EAF8, sizeof(Unk8008EAF8), sizeof(Task *));
@@ -4598,7 +5272,7 @@ s32 func_8009AEA4(u8 side, s32 kind) {
     return delay;
 }
 
-/* An item's cure (D_800A3108): items 0xBE-0xC5 clear a status of the
+/* An item's cure (D_800A25F0.funcs.useItem): items 0xBE-0xC5 clear a status of the
    fighter and remove its events, 0xC4 and 0xC5 all of them */
 void func_8009B430(u8 side, s32 fighter, s32 item) {
     s32 kind;
