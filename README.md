@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20141-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20147-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -43,12 +43,12 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 346 / 346 | 100.00 % | 100.00 % |
 | | USA | 346 / 346 | 100.00 % | 100.00 % |
-| The 21 overlays | Europe | 1,636 / 1,700 | 91.73 % | 97.28 % |
-| | USA | 1,631 / 1,695 | 91.63 % | 97.29 % |
+| The 21 overlays | Europe | 1,641 / 1,700 | 93.34 % | 97.28 % |
+| | USA | 1,636 / 1,695 | 93.27 % | 97.29 % |
 | The stages (293 and 238) | Europe | 1,590 / 1,590 | 100.00 % | 100.00 % |
 | | USA | 1,369 / 1,369 | 100.00 % | 100.00 % |
-| **Total** | **Europe** | **3,572 / 3,636** | **94.35 %** | **99.67 %** |
-| | **USA** | **3,346 / 3,410** | **94.05 %** | **99.64 %** |
+| **Total** | **Europe** | **3,577 / 3,636** | **95.45 %** | **99.67 %** |
+| | **USA** | **3,351 / 3,410** | **95.21 %** | **99.64 %** |
 
 - The executable's game code is all C, and its rodata. Its data is C too,
   in `src/main/data/`, until it moves next to the code that uses it.
@@ -90,9 +90,9 @@ above counts them: fake matches, then the other two kinds together.
 | Kind | Count | Marker |
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
-| Unused frame locals | 7 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 134 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 54 | `INCLUDE_ASM` |
+| Unused frame locals | 8 | `/* unused, but it is in the original stack frame */` |
+| Form-dependent matches | 139 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 49 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -101,10 +101,10 @@ above counts them: fake matches, then the other two kinds together.
   the original's stack frame has room for it: without it, the frame is
   smaller than the original's. Two are in PsyQ objects (`libgs_gs_107`,
   `libgs_gs_131`), one in the game's `drawTalkBoxArrow`, one in STSTATUS's
-  `func_8008CC5C` and three in WFIGHTTS.
+  `func_8008CC5C`, one in FIGHTSTG's `func_8008CFFC` and three in WFIGHTTS.
 - A form-dependent match is C that matches in one of several equivalent
   forms only: an extra block, an `if` without braces, a copy of a variable, a
-  type, or one version's own form of a loop. The hundred and thirty-four so far are a copy
+  type, or one version's own form of a loop. The hundred and thirty-nine so far are a copy
   of a variable in `drawTalkBoxArrow`, an unsigned compare in STGMCARD's
   `func_80082E28`, a variable that holds two values in STCRDDEK's
   `STCRDDEK_drawDeckCards`, a counter set before a call in
@@ -133,10 +133,15 @@ above counts them: fake matches, then the other two kinds together.
   a statement written in both branches, a counter set before a call, a
   variable reused, a pointer, an offset from a pointer, a `while (1)` or a
   helper that stores through pointers),
-  thirty spots in FIGHTSTG (cases that do nothing, a case next to
-  `default`, a variable reused, shared by cases or of its own, a counter set
+  thirty-five spots in FIGHTSTG (cases that do nothing, a case next to
+  `default`, a menu's result switched with case -1 first, variables
+  declared in an `if`, a test written the other way round, a value read
+  after a change, a percentage
+  written as `* 20 / 100`, a table walked by index, an ending written out
+  in each case or branch, a step advanced in each case, a row pointer, a
+  variable reused, shared by cases or of its own, a counter set
   in a loop's init, an index from a later member, a pointer sum, pointers and
-  blocks of their own, a task taken as `void *`, a value read first, a `goto`
+  blocks of their own, a task taken as `void *`, a value read first, a row's offset added as an int, a `goto`
   into a branch, an `if`/`else`, an order of stores, a `* 32` for a shift, an
   early exit written as a `do`-`while (0)` with `break`s as the stages' event
   code writes it, a choice written in both branches or a `?:`, a pointer to
@@ -180,7 +185,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `CARDGAME` | `0x80082448` | 305 / 306 | the card battle (mode `0x700`): the decks, the cards in play and the battle screen |
 | `CNTY_SEL` | `0x80082448` | 26 / 26 | the country select screen |
 | `FIELDSTG` | `0x80082448` | 214 / 222 | the field mode, where the player walks around the map; the stages load on top of it |
-| `FIGHTSTG` | `0x80082448` | 267 / 310 | the battle: the fight stage and its lights, the fighters' models, faces and cameras, the battle camera and windows, the queue of battle events and the stat, hit and status checks |
+| `FIGHTSTG` | `0x80082448` | 272 / 310 | the battle: the fight stage and its lights, the fighters' models, faces and cameras, the battle camera and windows, the queue of battle events and the stat, hit and status checks |
 | `SHOCKTST` | `0x80082448` | 16 / 17 | the debug vibration test |
 | `SOUNDTST` | `0x80082448` | 8 / 8 | the debug sound test |
 | `STAGSLCT` | `0x80082448` | 7 / 8 | the debug stage select, a menu of every scene of the game |

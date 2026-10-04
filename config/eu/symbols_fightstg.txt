@@ -22,6 +22,9 @@ func_800A9040 = 0x800AA1F0; // type:func
 func_800A9A40 = 0x800AABF0; // type:func
 func_800A57A8 = 0x800A6920; // type:func
 func_800A9840 = 0x800AA9F0; // type:func
+func_800A8F60 = 0x800AA110; // type:func
+func_800A9960 = 0x800AAB10; // type:func
+func_800A99F0 = 0x800AABA0; // type:func
 
 // us's data, the same at other addresses
 D_800A1238 = 0x800A2498; // size:0x20
