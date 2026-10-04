@@ -47,7 +47,7 @@ typedef struct Mesh {
     /* 0x60 */ u8 *unk60;
     /* 0x64 */ u8 *unk64;
     /* 0x68 */ u8 *unk68;
-    /* 0x6C */ u8 *unk6C;
+    /* 0x6C */ u8 *unk6C; /* 9 ShortVec3 points of its bounds (func_80084780) */
     /* 0x70 */ Vec2 texPos;
     /* 0x78 */ s32 *screen; /* where its vertices land on screen */
     /* 0x7C */ s32 *depth; /* and their depths in the ordering table */
@@ -1374,6 +1374,7 @@ extern s32 D_800A2588[]; /* per event type, FIGHTSTG_popEvent takes (1), peeks a
 extern DigimonData *(*ON_PARTNER_ENTRY_ADDED)(s32 id);
 struct Unk8009A098 *func_8009A214(Unk8009A214 *arg0);
 extern Unk8009A214 D_800A22BC; /* func_80094D04's cursor */
+extern Unk8009A214 D_800A22DC; /* func_80095AC0's cursor */
 extern Unk8009A214 D_800A22FC; /* func_800967A4's cursor */
 extern Unk8009A214 D_800A231C[2]; /* func_800973D4's cursors */
 extern Unk8009A214 D_800A23BC; /* func_800999E4's */

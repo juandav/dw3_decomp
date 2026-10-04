@@ -1283,9 +1283,6 @@ void func_80095660(Unk80095AC0 *task, TextWindow **windows) {
     }
 }
 
-/* fightstg.c defines it as an s32 array */
-extern Unk8009A214 D_800A22DC;
-
 /* The battle's technique menu: the active fighter's techniques (a Digimon of
    a partner's slots has its entry's, its signature one and the ones the other
    entries can pass on), six a page */

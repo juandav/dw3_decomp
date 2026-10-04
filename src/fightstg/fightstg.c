@@ -399,7 +399,20 @@ void FIGHTSTG_setModelColor(Model *model, s32 mode, CVECTOR *color) {
     }
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_80083C78);
+/* Model.unk2630: whether bone's Mesh skips the bounds check (unk50), set
+   when either of the control's unk34 is enabled and bone isn't 0. The match
+   depends on the pointer to the bone's slot, which children[bone + 1]
+   computes with the addu's operands the other way round. */
+void func_80083C78(Model *model, s32 bone, s32 value) {
+    Mesh **meshes = (Mesh **)model->children + bone;
+    s32 i;
+
+    for (i = 0; i < 2; i++) {
+        if (model->control->unk34[i].enabled && bone != 0) {
+            meshes[1]->unk50 = value;
+        }
+    }
+}
 
 s32 func_80083CD4(Model *model) {
     return model->motionDone;
@@ -591,7 +604,55 @@ void func_8008458C(MeshDrawState *state) {
     }
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_80084780);
+/* Whether a Mesh may be on screen: the screen positions of the 9 points of
+   its bounds (unk6C) against the layer's clip, 64 pixels bigger each way;
+   unk50 skips the check. The match depends on the + 128s kept in w and h,
+   which gcc otherwise folds into the - 64s. */
+s32 func_80084780(Mesh *mesh, Layer *layer) {
+    ShortVec3 *corner;
+    s32 left;
+    s32 right;
+    s32 top;
+    s32 bottom;
+    s32 x;
+    s32 y;
+    s32 w;
+    s32 h;
+    s32 i;
+    DVECTOR screen;
+    s32 flag;
+
+    if (mesh->unk50 != 0) {
+        return 1;
+    }
+    corner = (ShortVec3 *)mesh->unk6C;
+    left = 0;
+    right = 0;
+    top = 0;
+    bottom = 0;
+    for (i = 0; i < 9; ) {
+        gte_ldv0_unaligned(corner);
+        gte_rtps();
+        if (i == 0) {
+            x = layer->env.clip.x - 64;
+            left = x - layer->offsetX;
+            w = layer->env.clip.w + 128;
+            right = x + w - layer->offsetX;
+            y = layer->env.clip.y - 64;
+            top = y - layer->offsetY;
+            h = layer->env.clip.h + 128;
+            bottom = y + h - layer->offsetY;
+        }
+        i++;
+        corner++;
+        gte_stsxy(&screen);
+        gte_stflg(&flag);
+        if (screen.vx >= left && screen.vx <= right && screen.vy >= top && screen.vy <= bottom) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("fightstg/nonmatchings/fightstg", func_80084890);
 
@@ -1479,9 +1540,8 @@ u8 D_800A2294[] = {
 Unk8009A214 D_800A22BC = {
     1, 14, 69, 14, -1, 0, 0, 0,
 };
-s32 D_800A22DC[] = {
-    1, 14, 69, 14,
-    -1, 0, 0, 0,
+Unk8009A214 D_800A22DC = {
+    1, 14, 69, 14, -1, 0, 0, 0,
 };
 Unk8009A214 D_800A22FC = {
     2, 17, 78, 32, 47, 16, 77, 32,
