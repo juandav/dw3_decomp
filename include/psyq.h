@@ -135,12 +135,15 @@ typedef struct PadPort {
     /* 0xEE */ u_short unkEE;
 } PadPort;
 
-/* libmcrd global state, returned by McrdGetGlobalStructure */
+/* libmcrd global state, returned by McrdGetGlobalStructure. The result,
+ * the done flag, the card bits and the VSync counter change under the
+ * VSync callback (func_8003D140, which runs the event state machines), so
+ * they are volatile. */
 typedef struct McrdGlobal {
     /* 0x00 */ long unk0;
-    /* 0x04 */ long unk4;
-    /* 0x08 */ long unk8;
-    /* 0x0C */ long unkC;
+    /* 0x04 */ volatile long unk4;
+    /* 0x08 */ volatile long unk8;
+    /* 0x0C */ volatile long unkC;
     /* 0x10 */ long unk10;
     /* 0x14 */ long fd;
     /* 0x18 */ long unk18;
@@ -151,7 +154,7 @@ typedef struct McrdGlobal {
     /* 0x48 */ long unk48;
     /* 0x4C */ long unk4C;
     /* 0x50 */ long unk50;
-    /* 0x54 */ long unk54;
+    /* 0x54 */ volatile long unk54;
 } McrdGlobal;
 
 /* serial port registers */

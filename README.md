@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20134-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20135-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -53,7 +53,7 @@ current:
 - The executable's game code is all C, and its rodata. Its data is C too,
   in `src/main/data/`, until it moves next to the code that uses it.
 - The PsyQ 4.7 libraries linked into the executable are decompiled too, one
-  file per library object: 485 of their 563 functions are C, and the 71 Sony
+  file per library object: 487 of their 563 functions are C, and the 71 Sony
   wrote in assembly are `.s` sources. They are Sony's
   code, not the game's, so like other PSX decomps they are built and compared
   but left out of the progress.
@@ -91,8 +91,8 @@ above counts them: fake matches, then the other two kinds together.
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 7 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 127 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 65 | `INCLUDE_ASM` |
+| Form-dependent matches | 128 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 63 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -104,7 +104,7 @@ above counts them: fake matches, then the other two kinds together.
   `func_8008CC5C` and three in WFIGHTTS.
 - A form-dependent match is C that matches in one of several equivalent
   forms only: an extra block, an `if` without braces, a copy of a variable, a
-  type, or one version's own form of a loop. The hundred and twenty-seven so far are a copy
+  type, or one version's own form of a loop. The hundred and twenty-eight so far are a copy
   of a variable in `drawTalkBoxArrow`, an unsigned compare in STGMCARD's
   `func_80082E28`, a variable that holds two values in STCRDDEK's
   `STCRDDEK_drawDeckCards`, a counter set before a call in
@@ -145,7 +145,8 @@ above counts them: fake matches, then the other two kinds together.
   the old top too in STAGSLCT's `STAGSLCT_updateStageSelect`, three in PsyQ's
   libpad (`func_80021FC0`'s variables and switch, and in `func_8002468C`
   a copy of its argument, a `return` through a variable and an interrupt
-  register reached as a structure member), the do-while of
+  register reached as a structure member), libmcrd's `func_8003BE70`, which
+  reads its state through a `long` pointer, the do-while of
   `COUNTDOWN_BORROW`, the statement macro of the timed stages' countdown,
   and the start position that every stage's setup function sets as a
   `(Vec2){x, y}` constructor (both in `include/stage.h`).

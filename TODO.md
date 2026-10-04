@@ -119,13 +119,14 @@ own.
 
 ## PsyQ
 
-- [ ] 7 of the 563 PsyQ functions are still `INCLUDE_ASM`, in 5 objects
-  (`libmcrd_low` and `libmcrd_libmcrd` 2 each, `libsnd_cc_6`,
+- [ ] 5 of the 563 PsyQ functions are still `INCLUDE_ASM`, one in each of
+  5 objects (`libmcrd_low`, `libmcrd_libmcrd`, `libsnd_cc_6`,
   `libsnd_vm_vol`, `libcd_c_011`), all compiled code; 166 are still named
   `func_`. What Sony wrote in assembly (71 functions, 56 objects) is `.s`
   sources in `src/main/psyq/`. Drafts of the ones left are in
   `permuter/drafts_2026-10/` and `permuter/_SsContDataEntry/` (the main
-  checkout's, which git ignores). Closest attempts:
+  checkout's, which git ignores; `drafts_2026-10/README.txt` says how to
+  build each). Closest attempts:
   - `_SsContDataEntry` (`libsnd_cc_6`) matches with two more changes to
     the 2.7.2 cc1 (`permuter/_SsContDataEntry/mkcc1.py` makes it): combine's
     `set_nonzero_bits_and_sign_copies` without 2.7's `reg_n_sets > 1` and
@@ -140,9 +141,24 @@ own.
     constants of its `/ 127` and `/ 16129` out of the loop, which needs a
     threshold of about 258 where 2.7.2's formula gives about 98. With
     that forced, 46 diffs of register allocation are left.
-  - `func_8002C590` (`libcd_c_011`) is 87 diffs; `func_8003BAEC`,
-    `func_8003BE70`, `_card_format2` and `_card_create2` 90 to 256.
+  - `_card_create2` (`libmcrd_low`, a GCC 2.8.1 object) is 2 diffs: the
+    0x53 of the last block's `attr` is hoisted out of the loop and loaded
+    into `t0`, where the original loads it into `v0` at the store. Every
+    form tried that is not a junk temporary keeps the hoist.
+  - `func_8002C590` (`libcd_c_011`, GCC 2.8.1) is 63 diffs once DICR's byte
+    is written through a plain `u_char *`: the 0x10000 constant is not
+    hoisted above the loop's entry test, and the two stores of that byte
+    are not merged into one.
+  - `func_8003BAEC` (`libmcrd_libmcrd`) is 73 diffs with `McrdGlobal`'s
+    `unk48` and `unk50` as `long[2]` arrays (`unk50` volatile) and a block
+    pointer to `D_80082068` in case 4; from there the address arithmetic
+    differs.
 - [ ] 7 `INCLUDE_RODATA`: `libgpu_sys` 4 and `libcd_bios_1` 3.
+- [x] `_card_format2` (`libmcrd_low`) matches with `libmcrd_low` built as
+  a `PSYQ_GCC28` object. `func_8003BE70` (`libmcrd_libmcrd`) matches with
+  `McrdGlobal`'s result, done flag, card bits and VSync counter declared
+  `volatile`, as the VSync callback changes them; that replaces the file's
+  volatile casts.
 - [x] `CD_sync` and `CD_ready` (`libcd_bios_1`) match once the SN cc1
   (`tools/sn_cc1.py`) gives a parameter copied to a pseudo a `REG_EQUIV`
   for its stack slot only when it arrives there (`entry_parm ==
