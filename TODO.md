@@ -209,7 +209,11 @@ own.
     `func_80091AA8` differs only in its prologue: the original stores `ra`
     right after the frame is made, where the second scheduler moves it in
     ours (the load of `map->files[index]` may alias the stack stores, and the
-    function-unit hazard check then picks the store first). `func_8008DB60` and
+    function-unit hazard check then picks the store first). It matches in
+    both versions when the first `if (...) return 0;` sits inside a
+    `do { } while (0)`: the loop notes stop the scheduler at the start of
+    the body. A guard macro would explain it, but nothing else hints at one,
+    so that is only a clue. `func_8008DB60` and
     `func_8008DFE0` only match with the permuter's copy of a variable kept
     for nothing. `func_8008EC74` differs in its block layout: the original
     picks `unk9C` with a tree of compares placed after the bodies (`< 8`,
@@ -219,15 +223,31 @@ own.
     nodes or with its cost table, and 0x16 to 0x1F are control characters,
     so its cost table is off; with three nodes the `switch` counts 5 and
     gets a table. A far case for the default gives a tree, but balanced.
-    `func_80085EEC` has a frame 8 bytes larger than ours. `func_80090450`
+    GCC 2.8.1 also always moves a switch's tests ahead of its bodies.
+    `func_80085EEC` has a frame 8 bytes larger than ours. The `permuter/st`
+    draft has the right frame but 68 diffs. The loop's constant 4 (for
+    `4 - row`) gets `t8` and also ends up as the shift count of `* 30` and
+    `* 120` (`sllv`), where the original keeps it in `s1` and shifts by an
+    immediate. `func_80090450`
     matches in Europe (with `actor->dir = actor->unkA0 = 1`) but swaps `s4`
-    and `s5` in the USA: without the European PAL branch the constant 1
-    lives shorter and outranks `kind` in the global allocator.
+    and `s5` in the USA. The two versions' code is the same apart from the
+    PAL branch and the `GAME` offsets. Without that branch, CSE keeps the
+    constant 1 in a saved register up to the final `unk74 = 1`, and that
+    constant then outranks `kind` in the global allocator. Both are
+    REG_EQUIV, so local-alloc doubles their live lengths. Forcing `kind`'s
+    length back to 113 (undoubled) matches the US.
     `func_8008A154` (the field's
     update, which creates the characters and runs the transition) has the
     right code but 80 diffs of registers (`task` gets `s3` where the
-    original has `s4`); the permuter only got closer with
-    an empty `do {} while (0)`, a fake match.
+    original has `s4`). Forcing three live lengths in the 2.8.1 cc1 makes
+    it match:
+    - the first loop's hoisted constant 1 (52 → 26, its undoubled length,
+      to outrank `task`);
+    - that loop's `entry` (18 → 30, so the list pointer outranks it);
+    - the `GAME` base of the menu case (48 → 24).
+    A `do { } while (0)` around the loop's `switch` and another around the
+    `GAME.field*` saves get the first and the third (9 diffs left), which
+    are fake. Nothing found gets the second.
 - [ ] `FIGHTSTG`'s blocked functions: `func_8009C764` (8 diffs: the
   original reads the fighter's `unk1B` in each branch) and `func_8009C8EC`
   (4 bytes short: the original keeps `&D_800A3308` in a register instead of
