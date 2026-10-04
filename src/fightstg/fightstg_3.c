@@ -499,7 +499,23 @@ void func_800877A4(Models *task, s32 id, s32 motion) {
     }
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_800877D4);
+/* Creates the fighters' models (Models), with no fighters yet */
+Models *func_800877D4(void) {
+    Models *task = createTaskWithId(func_80087330, sizeof(Models), sizeof(ModelsChildren), 0x14);
+    s32 i;
+
+    for (i = 3; i >= 0; i--) {
+        task->controls[i].active = 0;
+    }
+    task->add = func_80087480;
+    task->getFighter = func_80087664;
+    task->remove = func_800873F0;
+    task->get = func_800875A8;
+    task->setId = func_800875FC;
+    task->face = func_800876B8;
+    task->setIdleMotion = func_800877A4;
+    return task;
+}
 
 Task *func_8008C090(void);
 
@@ -1160,7 +1176,31 @@ s32 FIGHTSTG_getEffectModelFile(s32 id) {
     return 0;
 }
 
-INCLUDE_ASM("fightstg/nonmatchings/fightstg_3", func_80088FC4);
+/* Starts the effect model id at pos and rot, its model in D_800A12F0 and its
+   textures at (0x280, 0x100); killed at once when id has no entry. The match
+   depends on the entry pointer and on texPos set as one Vec2 (as two members,
+   gcc stores them sooner). */
+EffectModel *func_80088FC4(s32 id, SVECTOR *pos, SVECTOR *rot) {
+    EffectModel *task = createTask(FIGHTSTG_updateEffectModel, sizeof(EffectModel), sizeof(Task *));
+    EffectModelEntry *entry;
+
+    task->effect = 0;
+    for (entry = D_800A12F0; entry->id != 0; entry++) {
+        if (entry->id == id) {
+            task->effect = id;
+            task->motionFile = entry->motionFile;
+            task->file = entry->file;
+            task->texPos = (Vec2){ 0x280, 0x100 };
+            task->pos = *pos;
+            task->rot = *rot;
+            break;
+        }
+    }
+    if (task->effect == 0) {
+        task->setState(task, TASK_KILL);
+    }
+    return task;
+}
 
 s32 FIGHTSTG_findEffectSheet(s32 effect, s32 *unk0, s32 *sheet, Vec2 *texPos) {
     SpriteEffectEntry *entry;

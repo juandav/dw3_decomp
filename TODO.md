@@ -174,7 +174,7 @@ own.
   `DecDCTvlc2` and `DecDCTvlcSize2` stay asm), `STGTRAIN` (89 / 94),
   `STITSHOP` (68 / 69), `STGDGLAB` (69 / 70), `CARDGAME` (305 / 306),
   `STSTATUS` (122 / 123), `STCRDSHP` (43 / 45), `WFIGHTTS` (13 / 14),
-  `FIGHTSTG` (263 / 310).
+  `FIGHTSTG` (267 / 310).
 - [ ] The small overlays' last functions:
   - `STCRDDEK_createScreenWindows` (3 diffs): the `unk5C` loop's counter
     gets `s2` where the original has `s3`, the register of the other loops'
@@ -213,14 +213,13 @@ own.
     an empty `do {} while (0)`, a fake match.
 - [ ] `FIGHTSTG`'s blocked functions: `func_8009C764`, `func_8009C8EC` and
   `func_8009C998` differ only in registers and the order of a few loads (the
-  permuter finds nothing natural); `func_800877D4` and `func_800A0FDC` are
-  near misses too, and so is `func_80083C78` (1 diff: the operands of the
-  `addu` of `children` and the bone). `func_80088FC4` (the effect models'
-  creator) only stores `texPos` before `file`. Of the GTE functions,
-  `func_80084780` (the mesh's bounds check) keeps 26 diffs because gcc folds
-  its -64 and +128 into one constant (the permuter gets no closer); the
-  large mesh drawers `func_80084890` (48 diffs) and `func_800850D8` (26)
-  differ in how they keep the state's fields in registers. `func_80099D24`
+  permuter finds nothing natural); `func_800A0FDC` is a near miss too. Of
+  the GTE functions, the large mesh drawers `func_80084890` (48 diffs, all
+  registers and order: the prologue saves `s1` after its copy of `layer`,
+  and the registers of the clut, the screen points, the `nclip` compares
+  and the uvs come out swapped) and
+  `func_800850D8` (26) differ in how they keep the state's fields in
+  registers. `func_80099D24`
   only matches with an empty `do {} while (0)`, a fake match. The battle
   checks: `func_8009EF04` (`getDamage`) only matches with a copy of `side`
   kept for nothing, a forced form; `func_8009EA74` keeps 2 diffs (`v1` and
@@ -243,9 +242,7 @@ own.
   `D_800A2294`'s offsets, gets a giv split the original doesn't have. Still
   to try: `func_8008C0BC`, `func_8008C8F0`, `func_8008CFFC`,
   `func_8008E3C8`, `func_8008EAF8`, `func_80090290`, `func_80090908`
-  and `func_80091A58`. `fightstg.c` defines `D_800A22DC` as an `s32` array
-  where `func_80095AC0` reads an `Unk8009A214` (through an `extern` of its
-  own in `fightstg_6.c` for now).
+  and `func_80091A58`.
 - [ ] The battle menus' near misses. `WFIGHTTS`: `func_800A6954` (the
   Digimon list, 14 windows a side; its cursors and scrolls are
   `D_800A8268[2]` and `D_800A8270[2]`, two scalars each in the C for now;
@@ -304,20 +301,27 @@ own.
   `pages = buy->count % 6 != 0; buy->pages = pages + buy->count / 6;`,
   gets the copy, but then the `addu`'s operands come out swapped, and
   writing `buy->count / 6 + pages` ties the sum to the quotient's
-  register instead). `func_80083BEC` (the states of
+  register instead; the count in a variable, the quotient or the
+  remainder in variables of their own, either order of the terms, `+=`,
+  `?:` and `(count + 5) / 6` all keep one of the two). `func_80083BEC` (the states of
   the screen that opens a pack) is down to 2 diffs: in case 52 the
   original loads `open->page` into `a1` where ours ties it to `v1`, the
   register of `page * 8`. What got it there: case 4 keeps the old page in
   `first` and writes `last` as `(first + 1) * 8 - 1` (which CSE doesn't
   merge with `first * 8`), case 52 needs a variable of its own for the
   last row, and case 11 a variable for `RANDOM.next() % 16`; the page
-  goes through `a1` in the original whatever variable holds it.
+  goes through `a1` in the original whatever variable holds it (a local
+  for the page, `first = page * 8` with `end = first | 7`, or the page in
+  a variable shared with other cases all give `v1`, `a2` or `s2`).
   `STITSHOP`: `func_80089104`
   (3 diffs: the order in which the loop initializes its `x` induction
-  variables). `STGDGLAB`: `func_8008C234` (4 diffs: our
+  variables: ours sets `x` before the strength-reduced `i * 0x63`s, the
+  original after them; `x` set before the `if`, a `for` or `while` loop,
+  `x = i` or no `x` at all, with `i * 0x63` in the sums, don't change
+  it). `STGDGLAB`: `func_8008C234` (4 diffs: our
   scheduler moves the `skillCount = 6` store after the argument moves of
   the call to `func_8008BB78`, where the original keeps it before them; no variable, label or order changes it, nor
-  the permuter). `STCRDSHP` is three objects, like
+  an inline function, a comma expression or the permuter). `STCRDSHP` is three objects, like
   `STSTATUS`'s ten: GCC aligns a jump table to 8 bytes, and the original's
   tables only line up at its object boundaries.
 - [ ] `STGTRAIN`'s near misses: `func_80085AF8` (3 diffs: the scheduled
