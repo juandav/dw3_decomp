@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-PlayStation-003791)](#the-games-binaries)
 [![Versions](https://img.shields.io/badge/versions-USA%20%7C%20Europe-blue)](#how-the-versions-are-organised)
 [![Compiler](https://img.shields.io/badge/compiler-GCC%202.8.1%20%7C%202.7.2-orange)](#toolchain)
-[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20135-yellow)](#fake-matches-and-hacks)
+[![Fake matches | hacks](https://img.shields.io/badge/fake%20matches%20%7C%20hacks-0%20%7C%20136-yellow)](#fake-matches-and-hacks)
 [![License](https://img.shields.io/github/license/juandav/dw3_decomp)](LICENSE)
 
 A work in progress matching decompilation of **Digimon World 3** for the
@@ -43,12 +43,12 @@ current:
 |---|---|---|---|---|
 | Executable, game code | Europe | 346 / 346 | 100.00 % | 100.00 % |
 | | USA | 346 / 346 | 100.00 % | 100.00 % |
-| The 21 overlays | Europe | 1,629 / 1,702 | 90.49 % | 94.96 % |
-| | USA | 1,624 / 1,697 | 90.44 % | 95.08 % |
+| The 21 overlays | Europe | 1,630 / 1,702 | 90.55 % | 96.70 % |
+| | USA | 1,625 / 1,697 | 90.50 % | 96.71 % |
 | The stages (293 and 238) | Europe | 1,590 / 1,590 | 100.00 % | 100.00 % |
 | | USA | 1,369 / 1,369 | 100.00 % | 100.00 % |
-| **Total** | **Europe** | **3,565 / 3,638** | **93.50 %** | **99.40 %** |
-| | **USA** | **3,339 / 3,412** | **93.21 %** | **99.34 %** |
+| **Total** | **Europe** | **3,566 / 3,638** | **93.54 %** | **99.60 %** |
+| | **USA** | **3,340 / 3,412** | **93.24 %** | **99.56 %** |
 
 - The executable's game code is all C, and its rodata. Its data is C too,
   in `src/main/data/`, until it moves next to the code that uses it.
@@ -91,8 +91,8 @@ above counts them: fake matches, then the other two kinds together.
 |---|---|---|
 | Fake matches | 0 | a comment that starts with `/* fake match:` and says what is forced and why |
 | Unused frame locals | 7 | `/* unused, but it is in the original stack frame */` |
-| Form-dependent matches | 128 | a comment that says the `match depends on` the form |
-| Functions still in assembly | 63 | `INCLUDE_ASM` |
+| Form-dependent matches | 129 | a comment that says the `match depends on` the form |
+| Functions still in assembly | 62 | `INCLUDE_ASM` |
 
 - A fake match is the last resort: a form forced only for the code it makes,
   such as an empty `do {} while (0)` that ends a CSE block or a variable
@@ -128,10 +128,11 @@ above counts them: fake matches, then the other two kinds together.
   writes its digits' x as `dx + 0x27 + x`), five spots in STGDGLAB and three
   in STITSHOP (loops with counters of their own, a reused variable, an
   index from a later member, range tests written out, a function of its own
-  or a copy), six spots in STFGTREP and eleven
+  or a copy), six spots in STFGTREP and twelve
   in WFIGHTMN (a variable, a case or a statement of its own, a pointer sum,
   a statement written in both branches, a counter set before a call, a
-  variable reused, a pointer, an offset from a pointer or a `while (1)`),
+  variable reused, a pointer, an offset from a pointer, a `while (1)` or a
+  helper that stores through pointers),
   twenty-seven spots in FIGHTSTG (cases that do nothing, a case next to
   `default`, a variable reused, shared by cases or of its own, a counter set
   in a loop's init, an index from a later member, a pointer sum, pointers and
@@ -193,7 +194,7 @@ prefix (`CNTY_SEL_`, `STDWTITL_`...):
 | `STITSHOP` | `0x80082448` | 68 / 69 | the item shop, where the player buys and sells items and equips what was bought on a partner |
 | `STPLNMET` | `0x80082448` | 53 / 53 | the player's name entry (mode 0x500), with a copy of `STDGNAME`'s keyboard |
 | `STSTATUS` | `0x80082448` | 122 / 123 | the screens the field menu opens (`STSTATUS_screens`), such as the item list and the equipment |
-| `WFIGHTMN` | `0x800A4CA4` | 41 / 42 | the battle's sub-overlay, which `FIGHTSTG` loads (file 0x1FA) for a normal battle: it checks the party and its equipment and ends the battle |
+| `WFIGHTMN` | `0x800A4CA4` | 42 / 42 | the battle's sub-overlay, which `FIGHTSTG` loads (file 0x1FA) for a normal battle: it checks the party and its equipment and ends the battle |
 | `WFIGHTTS` | `0x800A4CA4` | 13 / 14 | the debug battle test, which `FIGHTSTG` loads (file 0x1FB) in place of `WFIGHTMN`: lists of fighters, motions, effects and stages |
 | `WSTAG###` (238) | `0x800A4CA4` | 1,369 / 1,369 | the stages: small programs that load on top of `FIELDSTG` and call into it |
 
@@ -334,7 +335,9 @@ One source tree builds every version, one at a time, picked with `VERSION`
   `free`, `alloc` and `zero`, for example) and must be called through a struct.
   GCC 2.8 assumes a struct field and a scalar global never alias, so with a
   scalar `extern` it moves stores to struct fields past the load of the
-  function pointer.
+  function pointer A store through a pointer to a field
+  isn't a struct access to it: WFIGHTMN's `setStat` keeps the load of
+  `D_800A2584` after the stores that way.
 
 ## Building
 

@@ -6,6 +6,9 @@ func_80091A94 = 0x80092638; // type:func
 func_8009A5CC = 0x8009B678; // type:func
 func_8009B168 = 0x8009C214; // type:func
 CARDGAME_createScreen = 0x8009D310; // type:func
+// CARDGAME_showTargetSlots's switch, which splat can't see: it reads the
+// table from a saved pointer
+jtbl_800834FC = 0x800834FC; // type:jtbl
 // rodata that several functions read
 
 // names from the C of the modules this version builds (tools/version_symbols.py)

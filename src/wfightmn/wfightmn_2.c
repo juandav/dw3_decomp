@@ -86,7 +86,52 @@ void func_800A52C8(void) {
     layer->allocCallbacks(layer, 10);
 }
 
-INCLUDE_ASM("wfightmn/nonmatchings/wfightmn_2", func_800A5538);
+/* Sets a stat and its maximum. The match depends on the pointers: stores
+   through them aren't struct accesses to GCC, so the load of D_800A2584
+   stays after them */
+static inline void setStat(s16 *cur, s16 *max, s16 value) {
+    *cur = *max = value;
+}
+
+/* Fills the battle's fighters: the party's partners (the first one with the
+   id DIGIMON) and the encounter's enemies, with their battle table items */
+void func_800A5538(s32 digimon) {
+    PartnerVitals *stats;
+    BattleTableEntry *entry;
+    BattleFighter *fighter;
+    BattleFighter *units;
+    s32 partner;
+    s32 i;
+    units = D_800A31E8.fighters[0];
+    for (i = 0; i < 3; i++) {
+        partner = GAME.funcs.getPartyMember(i);
+        if (partner >= 0) {
+            stats = GAME.funcs.getPartnerStats(partner);
+            if (i == 0) {
+                units[0].id = digimon;
+            } else {
+                units[i].id = DIGIMON_DATA[partner].id;
+            }
+            units[i].hp = stats->hp;
+            units[i].maxHp = stats->maxHp;
+            units[i].mp = stats->mp;
+            units[i].maxMp = stats->maxMp;
+        }
+    }
+    units = D_800A31E8.fighters[1];
+    for (i = 0; i < 3; i++) {
+        fighter = &units[i];
+        fighter->id = D_80042728.enemies[i].fighter;
+        if (D_80042728.enemies[i].fighter != 0) {
+            setStat(&fighter->hp, &fighter->maxHp, D_80042728.enemies[i].hp);
+            setStat(&fighter->mp, &fighter->maxMp, D_80042728.enemies[i].mp);
+            entry = D_800A2584(fighter->id);
+            if (entry->item != 0) {
+                fighter->item = entry->item;
+            }
+        }
+    }
+}
 
 /* Checks the chance in D_80042728.unk3C, scaled by how far the first
    partner's level and the first enemy's level are under 32 */
