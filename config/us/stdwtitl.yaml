@@ -41,6 +41,11 @@ options:
   migrate_rodata_to_functions: True
   create_data_pads: False
 
+  # libpress's DecDCTvlcSize2 and DecDCTvlc2, which Sony wrote in assembly
+  # (a hasm segment), are source: src/stdwtitl/libpress_vlc2.s, which splat
+  # only writes when it is missing
+  hasm_in_src_path: True
+
 segments:
   - name: stdwtitl
     type: code
@@ -55,6 +60,8 @@ segments:
       - [0xA0, c, stdwtitl]
       - [0x2E60, c, stdwtitl_2]
       - [0x4218, c, libpress]
+      - [0x48A8, hasm, libpress_vlc2]
+      - [0x4C28, c, libpress_build]
       - [0x4D0C, .data, stdwtitl]
       - [0x4E60, .data, stdwtitl_2]
       - [0x5328, .data, libpress]

@@ -33,7 +33,8 @@ GP_VALUE := 0x8005CB50
 # names what they use). The rest of the executable and the overlays are split
 # into the USA version's modules (tools/split_version.py), still in asm, at
 # the same paths under asm/eu/ as under asm/us/.
-C_SRC := src/main/game3_2.c src/soundtst/soundtst.c src/stdwtitl/libpress.c
+C_SRC := src/main/game3_2.c src/soundtst/soundtst.c src/stdwtitl/libpress.c \
+	src/stdwtitl/libpress_build.c
 C_SRC += $(addprefix src/main/psyq/, \
 	libpad_pdcmd1.c libpad_pdcmd2.c libpad_pdcmd3.c libpad_pdent2.c \
 	libpad_pdent3.c libpad_pdent4.c libpad_pdmaiini.c libpad_pdmain2.c \

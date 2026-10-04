@@ -62,7 +62,8 @@ FLOAT_ABI := -msoft-float
 # else
 EMBEDDED_DATA := -membedded-data
 # STDWTITL links libpress, the movie decoder, into the overlay
-PSYQ_OBJ := $(BUILDDIR)/src/main/psyq/%.c.o $(BUILDDIR)/src/stdwtitl/libpress.c.o
+PSYQ_OBJ := $(BUILDDIR)/src/main/psyq/%.c.o $(BUILDDIR)/src/stdwtitl/libpress.c.o \
+	    $(BUILDDIR)/src/stdwtitl/libpress_build.c.o
 $(PSYQ_OBJ): GCC_VERSION := 2.7.2
 $(PSYQ_OBJ): FLOAT_ABI := -mhard-float
 $(PSYQ_OBJ): EMBEDDED_DATA :=
@@ -196,6 +197,8 @@ $(1)_C_SRC := $$(filter $$(or $$(OVL_C_SRC_$(1)),src/$(1)/%),$$(ALL_C_SRC))
 $(1)_ASM_SRC := $$(filter-out $$(TARGET_ASM),$$(if $$(OVL_YAML_$(1)),$$(OVL_ASM_SRC_$(1)),\
 	$$(shell find $$(ASM_DIR)/$(1) -name '*.s' \
 	-not -path '*/nonmatchings/*' -not -path '*/matchings/*' 2> /dev/null)))
+# with the objects Sony wrote in assembly (hasm segments), src/<name>/*.s
+$(1)_ASM_SRC += $$(if $$(OVL_YAML_$(1)),,$$(wildcard src/$(1)/*.s))
 $(1)_OBJ := $$($(1)_C_SRC:%.c=$$(BUILDDIR)/%.c.o) $$($(1)_ASM_SRC:%.s=$$(BUILDDIR)/%.s.o)
 C_OVL_OBJ += $$(filter %.c.o,$$($(1)_OBJ))
 
@@ -250,7 +253,7 @@ $(SN_CC1): $(BIN_DIR)/gcc-2.8.1-psx/cc1 tools/sn_cc1.py
 	@mkdir -p $(dir $@)
 	$(PYTHON) tools/sn_cc1.py $< $@
 
-$(filter $(BUILDDIR)/src/main/psyq/% $(BUILDDIR)/src/stdwtitl/libpress.c.o,$(C_OBJ)): $(PSYQ_CC1)
+$(filter $(BUILDDIR)/src/main/psyq/% $(BUILDDIR)/src/stdwtitl/libpress%,$(C_OBJ) $(C_OVL_OBJ)): $(PSYQ_CC1)
 
 # The executable's .bss in C: maspsx turns its commons into definitions in
 # order in .bss when they aren't kept as .comm
